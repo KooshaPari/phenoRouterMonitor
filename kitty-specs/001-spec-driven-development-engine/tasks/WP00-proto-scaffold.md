@@ -1,29 +1,32 @@
 ---
-work_package_id: "WP00"
-subtasks:
-  - "T000a"
-  - "T000b"
-  - "T000c"
-  - "T000d"
-  - "T000e"
-  - "T000f"
-  - "T000f2"
-  - "T000g"
-title: "Proto Repository Scaffold"
-phase: "Phase 0 - Foundation"
-lane: "planned"
+work_package_id: WP00
+title: Proto Repository Scaffold
+lane: "doing"
 dependencies: []
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+base_branch: main
+base_commit: 1d7faa3715187a2f4f41de16be4810147979105e
+created_at: '2026-02-27T23:51:11.603937+00:00'
+subtasks:
+- T000a
+- T000b
+- T000c
+- T000d
+- T000e
+- T000f
+- T000f2
+- T000g
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "96135"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP00 -- Proto Repository Scaffold
