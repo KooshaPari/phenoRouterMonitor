@@ -1,16 +1,18 @@
 ---
 work_package_id: WP08
-title: Agent Dispatch Adapter
+title: Agent Dispatch Service
 lane: planned
 dependencies:
-- WP05
+- WP00
 subtasks:
 - T044
+- T044b
 - T045
 - T046
 - T047
 - T048
 - T049
+- T049b
 phase: Phase 2 - Adapters
 assignee: ''
 agent: ''
@@ -25,35 +27,40 @@ history:
   action: Prompt generated via /spec-kitty.tasks
 ---
 
-# WP08: Agent Dispatch Adapter
+# WP08: Agent Dispatch Service
 
 ## Implementation Command
 
 ```bash
-spec-kitty implement WP08 --base WP07
+spec-kitty implement WP08 --base WP00
 ```
 
 ## Objectives
 
-Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills the `AgentPort` trait from WP05. This adapter spawns Claude Code and Codex as subprocesses, passes WP prompts with full context, creates PRs via `gh` CLI, and orchestrates the review-fix loop (Coderabbit comments -> agent fix -> re-push -> re-poll).
+Implement the agent dispatch service in the separate `agileplus-agents` repo. This repo contains 3 crates: `agileplus-agent-dispatch`, `agileplus-agent-review`, and `agileplus-agent-service`. The `agileplus-agent-service` crate exposes a gRPC server implementing `agents.proto`'s `AgentDispatchService`. It communicates with `agileplus-core` via gRPC client. The dispatch crate fulfills the `AgentPort` trait, spawning Claude Code and Codex as subprocesses, passing WP prompts with full context, creating PRs via `gh` CLI, and orchestrating the review-fix loop (Coderabbit comments -> agent fix -> re-push -> re-poll).
 
 ### Success Criteria
 
-1. `AgentDispatchAdapter` implements every method of `AgentPort`.
-2. Claude Code harness spawns `claude` with `--print` mode, passes WP prompt, captures output.
-3. Codex harness spawns `codex` in batch mode, passes WP prompt, captures output.
-4. Dispatch logic selects agent from config, creates worktree (via VcsPort), injects prompt, spawns 1-3 subagents.
-5. PR creation via `gh pr create` with structured body containing WP goal, FR references, acceptance criteria (FR-011).
-6. Review-fix loop polls for Coderabbit comments, feeds actionable comments to agent, re-pushes, re-polls (FR-012).
-7. Mock dispatch test passes: agent spawned, PR created, review loop simulated.
+1. `agileplus-agents` repo initialised with Cargo workspace containing 3 crates, proto git submodule, and Makefile.
+2. `AgentDispatchAdapter` (in `agileplus-agent-dispatch`) implements every method of `AgentPort`.
+3. Claude Code harness spawns `claude` with `--print` mode, passes WP prompt, captures output.
+4. Codex harness spawns `codex` in batch mode, passes WP prompt, captures output.
+5. Dispatch logic selects agent from config, creates worktree (via VcsPort), injects prompt, spawns 1-3 subagents.
+6. PR creation via `gh pr create` with structured body containing WP goal, FR references, acceptance criteria (FR-011).
+7. Review-fix loop polls for Coderabbit comments, feeds actionable comments to agent, re-pushes, re-polls (FR-012).
+8. `agileplus-agent-service` gRPC server passes health check and handles `AgentDispatchService` RPCs.
+9. Mock dispatch test passes: agent spawned, PR created, review loop simulated.
 
 ## Context & Constraints
 
+- **Separate repo**: This work package lives in the `agileplus-agents` repo (not `agileplus-core`). It communicates with `agileplus-core` via a gRPC client using the shared `agents.proto` contract.
+- **Cargo workspace**: The `agileplus-agents` repo contains 3 crates: `agileplus-agent-dispatch` (adapter logic), `agileplus-agent-review` (review-loop logic), `agileplus-agent-service` (gRPC server entrypoint).
+- **gRPC service**: `agileplus-agent-service` implements `AgentDispatchService` from `agents.proto`, making dispatch, status query, and cancel operations available to `agileplus-core` over the network.
 - **Agent invocation**: Via `tokio::process::Command`. Capture stdout/stderr. See `research.md` R5.
 - **Agent CLI modes**: Claude Code supports `--print` for non-interactive use. Codex supports batch execution.
 - **PR creation**: Via `gh pr create` CLI (not GitHub API directly). PR body follows FR-011 structure.
 - **Review polling**: Poll GitHub API every 30s for review status and Coderabbit comments. Max 5 review cycles (configurable). See `plan.md` section 3.
-- **Worktree dependency**: This adapter calls `VcsPort.create_worktree()` from WP07 to set up the agent's working directory.
+- **Worktree dependency**: This adapter calls `VcsPort.create_worktree()` to set up the agent's working directory.
 - **Agent context**: Each agent receives the WP prompt file + spec.md + plan.md + data-model.md as context files.
 - **Concurrency**: Multiple agents can run in parallel (1-3 per WP, multiple WPs in parallel). Use `tokio::spawn` for async dispatch.
 
@@ -61,12 +68,49 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 ---
 
-### T044: Implement `AgentDispatchAdapter` struct implementing `AgentPort`
+### T044: Initialize `agileplus-agents` repo with Cargo workspace (3 crates), proto git submodule, Makefile
+
+**Purpose**: Bootstrap the `agileplus-agents` repository so all subsequent crates have a consistent project skeleton before any implementation begins.
+
+**Steps**:
+1. Create a new git repository `agileplus-agents` under the Phenotype org.
+2. Add a top-level `Cargo.toml` declaring a Cargo workspace:
+   ```toml
+   [workspace]
+   members = [
+       "crates/agileplus-agent-dispatch",
+       "crates/agileplus-agent-review",
+       "crates/agileplus-agent-service",
+   ]
+   resolver = "2"
+   ```
+3. Scaffold each crate with `cargo new --lib`:
+   - `crates/agileplus-agent-dispatch`
+   - `crates/agileplus-agent-review`
+   - `crates/agileplus-agent-service` (use `--bin` for the service entrypoint)
+4. Add the shared proto definitions as a git submodule at `proto/`:
+   ```bash
+   git submodule add <proto-repo-url> proto
+   ```
+5. Create a root `Makefile` with targets: `build`, `test`, `proto-gen`, `docker-build`.
+6. Add a `.github/workflows/ci.yml` for Rust build + test on push.
+7. Commit the initial skeleton with message `chore: init agileplus-agents workspace`.
+
+**Files**: `Cargo.toml`, `crates/agileplus-agent-dispatch/`, `crates/agileplus-agent-review/`, `crates/agileplus-agent-service/`, `proto/` (submodule), `Makefile`, `.github/workflows/ci.yml`
+
+**Validation**:
+- `cargo build --workspace` succeeds on the empty skeleton.
+- `git submodule status` shows the proto submodule pinned to a commit.
+- Makefile `build` target delegates to `cargo build --workspace`.
+
+---
+
+### T044b: Implement `AgentDispatchAdapter` struct implementing `AgentPort`
 
 **Purpose**: Create the adapter struct that manages agent processes and implements the AgentPort trait.
 
 **Steps**:
-1. Create `crates/agileplus-agents/src/lib.rs` with the adapter struct.
+1. Create `crates/agileplus-agent-dispatch/src/lib.rs` with the adapter struct.
 2. Define `AgentDispatchAdapter`:
    ```rust
    pub struct AgentDispatchAdapter {
@@ -96,7 +140,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 5. Use `DashMap` (from `dashmap` crate) for concurrent job tracking.
 
-**Files**: `crates/agileplus-agents/src/lib.rs`
+**Files**: `crates/agileplus-agent-dispatch/src/lib.rs`
 
 **Validation**:
 - `AgentDispatchAdapter` is `Send + Sync`.
@@ -110,7 +154,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 **Purpose**: Spawn Claude Code in `--print` mode with the WP prompt and context, capture output.
 
 **Steps**:
-1. Create `crates/agileplus-agents/src/claude_code.rs`.
+1. Create `crates/agileplus-agent-dispatch/src/claude_code.rs`.
 
 2. Define the spawn function:
    ```rust
@@ -151,7 +195,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 8. Handle timeout: Use `tokio::time::timeout(Duration::from_secs(config.timeout_secs), ...)`.
 
-**Files**: `crates/agileplus-agents/src/claude_code.rs`
+**Files**: `crates/agileplus-agent-dispatch/src/claude_code.rs`
 
 **Validation**:
 - Command is constructed with correct flags.
@@ -167,7 +211,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 **Purpose**: Spawn Codex in batch mode, analogous to Claude Code harness but with Codex-specific CLI flags.
 
 **Steps**:
-1. Create `crates/agileplus-agents/src/codex.rs`.
+1. Create `crates/agileplus-agent-dispatch/src/codex.rs`.
 
 2. Define the spawn function:
    ```rust
@@ -194,7 +238,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 7. Note: The Codex CLI interface may differ from Claude Code. Design the harness to be easily updated. Key abstraction: both harnesses return `AgentResult` with the same fields.
 
-**Files**: `crates/agileplus-agents/src/codex.rs`
+**Files**: `crates/agileplus-agent-dispatch/src/codex.rs`
 
 **Validation**:
 - Command is constructed with Codex-specific flags.
@@ -209,7 +253,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 **Purpose**: Orchestrate the full dispatch flow: select agent from config, create worktree, inject prompt and context files, spawn 1-3 subagents.
 
 **Steps**:
-1. Create `crates/agileplus-agents/src/dispatch.rs`.
+1. Create `crates/agileplus-agent-dispatch/src/dispatch.rs`.
 
 2. Implement the core dispatch orchestration:
    ```rust
@@ -248,7 +292,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 5. **Error handling**: If agent fails, capture stderr, return `AgentResult { success: false, ... }`. Do not panic.
 
-**Files**: `crates/agileplus-agents/src/dispatch.rs`
+**Files**: `crates/agileplus-agent-dispatch/src/dispatch.rs`
 
 **Validation**:
 - Dispatch creates worktree before spawning agent.
@@ -264,7 +308,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 **Purpose**: Create a GitHub PR after agent work completes, with a structured description containing the WP goal, FR references, and acceptance criteria.
 
 **Steps**:
-1. Create `crates/agileplus-agents/src/pr_loop.rs`.
+1. Create `crates/agileplus-agent-dispatch/src/pr_loop.rs`.
 
 2. **PR creation**:
    ```rust
@@ -321,7 +365,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 7. **PR status update**: Method to update WP's `pr_url` and `pr_state` after creation.
 
-**Files**: `crates/agileplus-agents/src/pr_loop.rs`
+**Files**: `crates/agileplus-agent-dispatch/src/pr_loop.rs`
 
 **Validation**:
 - PR title follows format: `WP0x: <title>`.
@@ -336,7 +380,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 **Purpose**: After PR creation, poll for Coderabbit review comments, feed actionable comments to the agent for fixing, re-push, and re-poll until approval or max cycles reached.
 
 **Steps**:
-1. Add to `crates/agileplus-agents/src/pr_loop.rs`.
+1. Add to `crates/agileplus-agent-dispatch/src/pr_loop.rs`.
 
 2. **Review-fix loop**:
    ```rust
@@ -398,7 +442,7 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 
 7. **Governance exception**: If max cycles exceeded, log a governance exception in the audit trail and return failure. The caller (CLI implement command) decides whether to block or allow manual override.
 
-**Files**: `crates/agileplus-agents/src/pr_loop.rs`
+**Files**: `crates/agileplus-agent-dispatch/src/pr_loop.rs`
 
 **Validation**:
 - Loop terminates after max_cycles.
@@ -410,6 +454,57 @@ Implement the agent dispatch adapter in `crates/agileplus-agents/` that fulfills
 - Test with mock ReviewPort: simulate max cycles exceeded, verify failure result.
 
 ---
+
+### T049b: Implement `agileplus-agent-service` gRPC server implementing `agents.proto` AgentDispatchService
+
+**Purpose**: Expose the agent dispatch functionality as a gRPC service so that `agileplus-core` and other consumers can invoke agent operations over the network without direct Rust crate coupling.
+
+**Steps**:
+1. Add `tonic`, `tonic-build`, and `prost` to `crates/agileplus-agent-service/Cargo.toml`.
+2. Add a `build.rs` to `agileplus-agent-service` that compiles `proto/agents.proto` via `tonic_build::compile_protos`.
+3. Implement the gRPC server in `crates/agileplus-agent-service/src/main.rs`:
+   ```rust
+   #[tokio::main]
+   async fn main() -> Result<(), Box<dyn std::error::Error>> {
+       let addr = "[::1]:50052".parse()?;
+       let dispatcher = AgentDispatchServiceImpl::new(/* inject AgentDispatchAdapter */);
+       Server::builder()
+           .add_service(AgentDispatchServiceServer::new(dispatcher))
+           .serve(addr)
+           .await?;
+       Ok(())
+   }
+   ```
+4. Implement `AgentDispatchServiceImpl` in `crates/agileplus-agent-service/src/service.rs`:
+   - `DispatchAgent` RPC: delegates to `AgentDispatchAdapter::dispatch_async`.
+   - `QueryStatus` RPC: delegates to `AgentDispatchAdapter::query_status`.
+   - `CancelAgent` RPC: delegates to `AgentDispatchAdapter::cancel`.
+5. Add a gRPC health check endpoint using `tonic-health`:
+   ```rust
+   let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+   health_reporter.set_serving::<AgentDispatchServiceServer<_>>().await;
+   ```
+6. Wire `agileplus-agent-dispatch` as a workspace dependency in `agileplus-agent-service/Cargo.toml`.
+7. Update the Makefile `proto-gen` target to regenerate Rust bindings from `proto/agents.proto`.
+
+**Files**: `crates/agileplus-agent-service/src/main.rs`, `crates/agileplus-agent-service/src/service.rs`, `crates/agileplus-agent-service/build.rs`, `crates/agileplus-agent-service/Cargo.toml`
+
+**Validation**:
+- `cargo build -p agileplus-agent-service` succeeds.
+- gRPC health check responds `SERVING` on startup.
+- Integration test: call `DispatchAgent` RPC with a mock task, verify job ID returned.
+- Integration test: call `QueryStatus` RPC with job ID, verify status field populated.
+- Server binds to configured address; address is overridable via environment variable `AGENT_SERVICE_ADDR`.
+
+---
+
+## Implementation Notes
+
+- This work package lives in the **`agileplus-agents` repo** — a separate Cargo workspace from `agileplus-core`.
+- The three crates have distinct roles: `agileplus-agent-dispatch` owns the `AgentPort` implementation and subprocess harnesses; `agileplus-agent-review` owns the review-fix loop logic; `agileplus-agent-service` is the deployable gRPC server binary.
+- **gRPC boundary**: `agileplus-core` calls `agileplus-agent-service` over gRPC (port `50052` by default) rather than linking against the dispatch crate directly. This keeps agent process management isolated from the core orchestrator.
+- The proto submodule (`proto/`) is shared with `agileplus-core` to ensure both sides agree on the service contract without duplication.
+- All agent subprocess invocations (`claude`, `codex`, `gh`) remain confined to `agileplus-agent-dispatch` crate internals; the gRPC layer only marshals requests and results.
 
 ## Risks & Mitigations
 

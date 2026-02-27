@@ -1,15 +1,17 @@
 ---
 work_package_id: WP17
-title: Triage & Backlog Adapter
+title: Triage & Backlog Service
 lane: planned
 dependencies:
-- WP05
+- WP00
 subtasks:
 - T098
+- T098b
 - T099
 - T100
 - T101
 - T102
+- T102b
 - T103
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
@@ -25,25 +27,27 @@ history:
   action: Prompt generated via /spec-kitty.tasks
 ---
 
-# WP17 — Triage & Backlog Adapter
+# WP17 — Triage & Backlog Service
 
 ## Implementation Command
 
 ```bash
-spec-kitty implement WP17 --base WP06
+spec-kitty implement WP17 --base WP00
 ```
 
 ---
 
 ## Objectives
 
-Implement a triage classifier and backlog management layer in the new crate `crates/agileplus-triage/`. This work package introduces:
+Implement a triage classifier and backlog management layer in the `agileplus-integrations` repository, housed in the `crates/agileplus-triage/` crate. This work package introduces:
 
-1. Rule-based intent classification that categorises raw user input into one of four intent types: `bug`, `feature`, `idea`, or `task`.
-2. A persistent `BacklogItem` CRUD layer backed by SQLite via the existing `StoragePort` abstraction.
-3. A prompt router generator that produces `CLAUDE.md` and `AGENTS.md` files encoding project context, available commands, and routing rules for downstream agent use.
+1. Repository initialization: the `agileplus-integrations` Cargo workspace with four crates (`agileplus-plane`, `agileplus-github`, `agileplus-triage`, `agileplus-integrations-service`), a proto git submodule, and a Makefile.
+2. Rule-based intent classification that categorises raw user input into one of four intent types: `bug`, `feature`, `idea`, or `task`.
+3. A persistent `BacklogItem` CRUD layer backed by SQLite via the existing `StoragePort` abstraction.
+4. A prompt router generator that produces `CLAUDE.md` and `AGENTS.md` files encoding project context, available commands, and routing rules for downstream agent use.
+5. A gRPC service (`agileplus-integrations-service`) implementing `IntegrationsService` from `integrations.proto`, exposing triage endpoints and communicating with the core service via gRPC for state reads.
 
-All code must compile on stable Rust, pass `cargo clippy -- -D warnings`, and achieve 100% coverage of the happy path for each public function. Classification accuracy must be validated against at least five examples per category in unit tests.
+All code must compile on stable Rust, pass `cargo clippy -- -D warnings`, and achieve 100% coverage of the happy path for each public function. Classification accuracy must be validated against at least five examples per category in unit tests. The gRPC service must pass a health check (`grpc.health.v1.Health/Check`) before WP17 is considered complete.
 
 ---
 
@@ -51,29 +55,43 @@ All code must compile on stable Rust, pass `cargo clippy -- -D warnings`, and ac
 
 ### Dependencies
 
-- **WP05**: Establishes the `StoragePort` trait and SQLite migration runner. WP17 adds the `backlog_items` table via a new migration file; it must not alter any table introduced by WP05.
-- **WP06**: Provides the `ProjectConfig` struct and the config-loading pipeline. The router generator reads project name, slug, and available-commands list from `ProjectConfig`.
+- **WP00**: Establishes the mono-repo skeleton, Cargo workspace, proto submodule, and shared protobuf contracts. WP17 creates the `agileplus-integrations` sibling repo following the same workspace conventions. The `integrations.proto` IntegrationsService definition consumed by the gRPC server is part of the proto submodule introduced in WP00.
 
-### Crate Layout
+> **Note**: WP17 no longer depends on WP05 or WP06. All storage bootstrapping is self-contained within `agileplus-integrations`. The `StoragePort` trait is re-implemented locally or vendored. gRPC calls to the core service replace direct config reads previously supplied by WP06.
+
+### Repository & Crate Layout
 
 ```
-crates/agileplus-triage/
-  Cargo.toml
-  src/
-    lib.rs          # public API re-exports; TriageAdapter struct
-    classifier.rs   # classification rules (T100)
-    backlog.rs      # BacklogItem CRUD (T099)
-    router.rs       # CLAUDE.md / AGENTS.md generation (T101, T102)
-  tests/
-    integration.rs  # integration-level tests (T103)
+agileplus-integrations/          # new sibling repo (T098)
+  Cargo.toml                     # workspace manifest listing all 4 crates
+  Makefile                       # proto codegen, build, test targets
+  proto/                         # git submodule — shared protobuf definitions
+  crates/
+    agileplus-plane/             # Plane.so sync adapter
+    agileplus-github/            # GitHub Issues sync adapter
+    agileplus-triage/            # triage classifier + backlog CRUD (WP17 focus)
+      Cargo.toml
+      src/
+        lib.rs          # public API re-exports; TriageAdapter struct
+        classifier.rs   # classification rules (T100)
+        backlog.rs      # BacklogItem CRUD (T099)
+        router.rs       # CLAUDE.md / AGENTS.md generation (T101, T102)
+      tests/
+        integration.rs  # integration-level tests (T103)
+    agileplus-integrations-service/  # gRPC server (T102b)
+      Cargo.toml
+      src/
+        main.rs          # server entrypoint, health check registration
+        triage_grpc.rs   # IntegrationsService impl — triage endpoints
 ```
 
 ### Architectural Rules
 
-- No direct calls to any HTTP client or external process. All I/O goes through the `StoragePort` trait (for persistence) or returns `String`/`PathBuf` values (for file generation).
+- No direct calls to any HTTP client or external process from within `agileplus-triage`. All I/O goes through the `StoragePort` trait (for persistence) or returns `String`/`PathBuf` values (for file generation).
 - Classification must be purely synchronous and infallible; it returns an enum, never `Result`.
 - Router generation writes files to disk via `std::fs`; the output paths are configurable and must be validated to be inside the project root.
 - Keep all keyword lists in `const` slices so they can be swapped at compile time or overridden via config without changing logic.
+- The `agileplus-integrations-service` gRPC server communicates with the core AgilePlus service via gRPC for all state reads (e.g., active feature, current phase). It must not import crates from the core mono-repo directly; use generated protobuf client stubs from the shared proto submodule.
 
 ### Stability Guarantee
 
@@ -83,7 +101,35 @@ This crate is consumed by the CLI (`crates/agileplus-cli`) in Phase 6. The publi
 
 ## Subtask Guidance
 
-### T098 — TriageAdapter struct with `classify()`
+### T098 — Initialize `agileplus-integrations` repo
+
+**Purpose**: Bootstrap the `agileplus-integrations` repository so that all subsequent WP17 subtasks have a compilable workspace to work in.
+
+**Steps**:
+
+1. Create the repository root with a `Cargo.toml` workspace manifest that declares four members:
+   - `crates/agileplus-plane`
+   - `crates/agileplus-github`
+   - `crates/agileplus-triage`
+   - `crates/agileplus-integrations-service`
+
+2. Add the shared protobuf definitions as a git submodule at `proto/` pointing to the same proto repository used by the core mono-repo (established in WP00).
+
+3. Add a `Makefile` with at minimum the following targets:
+   - `proto`: run `protoc` (or `tonic-build` via a build script) to regenerate Rust stubs from `proto/integrations.proto`
+   - `build`: `cargo build --workspace`
+   - `test`: `cargo test --workspace`
+   - `lint`: `cargo clippy --workspace -- -D warnings`
+
+4. Scaffold each crate with a minimal `Cargo.toml` and `src/lib.rs` (or `src/main.rs` for the service) so `cargo build --workspace` succeeds before any business logic is written.
+
+5. Commit the skeleton with message `chore(WP17): initialize agileplus-integrations workspace`.
+
+**Acceptance**: `cargo build --workspace` exits 0 on a clean checkout (after `git submodule update --init`).
+
+---
+
+### T098b — TriageAdapter struct with `classify()`
 
 **File**: `crates/agileplus-triage/src/lib.rs`
 
@@ -110,7 +156,7 @@ This crate is consumed by the CLI (`crates/agileplus-cli`) in Phase 6. The publi
 
 4. Re-export from `lib.rs`: `IntentKind`, `TriageAdapter`, `ClassifierConfig`, `BacklogAdapter`, `BacklogItem`, `RouterGenerator`.
 
-5. Add `[lib]` section to `Cargo.toml` with `name = "agileplus_triage"`. Add dependencies: `serde`, `serde_json`, `thiserror`, `agileplus-storage` (path dep).
+5. Add `[lib]` section to `Cargo.toml` with `name = "agileplus_triage"`. Add dependencies: `serde`, `serde_json`, `thiserror`. Note: `agileplus-storage` is not available as a cross-repo path dep; implement or vendor the `StoragePort` trait locally within `agileplus-integrations`.
 
 **Extensibility note**: The `Classifier` struct must be designed so that a future `LlmClassifier` can implement the same trait without touching `TriageAdapter`. Define a `Classify` trait:
 
@@ -130,7 +176,7 @@ pub trait Classify: Send + Sync {
 
 **Purpose**: Provide a data-access layer for `backlog_items` rows in the SQLite database. All operations go through `StoragePort` (trait object or generic parameter — prefer generic for zero-cost dispatch in tests).
 
-**Database migration** (add as `migrations/005_backlog_items.sql` in the storage crate, or as an embedded string applied by `BacklogAdapter::ensure_schema()`):
+**Database migration** (add as `crates/agileplus-triage/src/migrations/001_backlog_items.sql`, or as an embedded string applied by `BacklogAdapter::ensure_schema()`):
 
 ```sql
 CREATE TABLE IF NOT EXISTS backlog_items (
@@ -406,8 +452,10 @@ Write to `{output_dir}/CLAUDE.md`. Return the written path. If the file already 
 
 ## Review Checkpoints
 
-- After T098–T100 (classifier + backlog): run `cargo test -p agileplus-triage` and review classification accuracy report.
+- After T098 (repo init): run `cargo build --workspace` in `agileplus-integrations` to confirm skeleton compiles.
+- After T098b–T100 (classifier + backlog): run `cargo test -p agileplus-triage` and review classification accuracy report.
 - After T101–T102 (router generation): manually inspect generated `CLAUDE.md` and `AGENTS.md` for correctness before committing.
+- After T102b (gRPC service): start the binary and confirm `grpc.health.v1.Health/Check` returns `SERVING`.
 - After T103 (all tests pass): run full workspace test suite, then submit WP17 for review.
 
 ## Activity Log Format
@@ -424,6 +472,37 @@ Each significant agent action should be logged to the WP prompt file's `history`
 ```
 
 Write to `{output_dir}/AGENTS.md`. Return the written path. Overwrite if exists.
+
+---
+
+### T102b — `agileplus-integrations-service` gRPC server
+
+**Files**: `crates/agileplus-integrations-service/src/main.rs`, `crates/agileplus-integrations-service/src/triage_grpc.rs`
+
+**Purpose**: Implement the gRPC server binary that exposes the triage functionality over the network by implementing `IntegrationsService` from `integrations.proto`. This service is the network boundary between the rest of the AgilePlus system and the integrations layer.
+
+**Steps**:
+
+1. Add `tonic`, `tonic-health`, `tokio` (with `full` feature), and `prost` to `crates/agileplus-integrations-service/Cargo.toml`. Add `agileplus-triage` as a path dependency.
+
+2. Add a `build.rs` that invokes `tonic_build::compile_protos("../../proto/integrations.proto")` so protobuf stubs are generated at compile time.
+
+3. In `triage_grpc.rs`, define a `TriageServiceImpl` struct that holds an `Arc<TriageAdapter>` and implements the `IntegrationsService` tonic trait. At minimum implement:
+   - `ClassifyInput` RPC: calls `TriageAdapter::classify()` and returns the `IntentKind` as a protobuf enum.
+   - `CreateBacklogItem` RPC: calls `BacklogAdapter::create()` and returns the created item as a protobuf message.
+   - `ListBacklogItems` RPC: calls `BacklogAdapter::list_by_type()` or `list_by_feature()` based on the request filter field.
+
+4. In `main.rs`:
+   - Parse `--port` (default `50052`) from CLI args or environment variable `INTEGRATIONS_PORT`.
+   - Register `TriageServiceImpl` with tonic's `Server`.
+   - Register `tonic_health::server::HealthReporter` and set the service status to `Serving` after startup.
+   - Log the listening address to stdout.
+
+5. **gRPC communication with core for state reads**: When a triage RPC handler needs current project state (active feature slug, current phase), it must call the core AgilePlus gRPC service (address from `AGILEPLUS_CORE_ADDR` env var, default `http://localhost:50051`) using the generated client stub from the proto submodule. It must not import Rust crates from the core mono-repo.
+
+**Acceptance**:
+- `cargo build -p agileplus-integrations-service` exits 0.
+- Running the binary and issuing `grpc_health_probe -addr=:50052` (or equivalent `grpc.health.v1.Health/Check` call) returns `SERVING`.
 
 ---
 
@@ -515,13 +594,15 @@ Add `tempfile` as a dev-dependency.
 
 | Criterion | Pass Condition |
 |-----------|----------------|
+| Workspace init | `cargo build --workspace` in `agileplus-integrations` exits 0 after `git submodule update --init` (T098) |
 | Compilation | `cargo build -p agileplus-triage` exits 0 |
-| Lint | `cargo clippy -p agileplus-triage -- -D warnings` exits 0 |
+| Lint | `cargo clippy --workspace -- -D warnings` exits 0 |
 | Unit tests | `cargo test -p agileplus-triage` all pass; 20 classification tests, 6 CRUD tests, 2 router tests |
 | Classification accuracy | Each of the 4 categories has at least 5 tests, all passing |
 | Schema | `backlog_items` table created by `ensure_schema()` on fresh DB |
 | Router files | `write_claude_md` and `write_agents_md` produce non-empty files containing required keywords |
 | Public API stability | No breaking changes to the 7 public function signatures listed in Context |
+| gRPC service health | `grpc.health.v1.Health/Check` against `agileplus-integrations-service` returns `SERVING` (T102b) |
 
 ---
 
@@ -541,13 +622,15 @@ Add `tempfile` as a dev-dependency.
 
 The reviewer should:
 
-1. Run `cargo test -p agileplus-triage -v` and confirm all 28+ tests pass.
-2. Inspect `classifier.rs` keyword lists for obvious omissions or misclassifications.
-3. Verify the `backlog_items` migration does not alter any existing table.
-4. Manually inspect the generated `CLAUDE.md` and `AGENTS.md` against the templates in T101/T102 to ensure no placeholders are left unreplaced.
-5. Confirm the `Classify` trait is defined and `Classifier` implements it, enabling future LLM-based classifiers.
-6. Check that no public function signature deviates from the list in the Context section.
-7. Confirm `TriageError` uses `thiserror` and covers all three error variants.
+1. Run `cargo build --workspace` in `agileplus-integrations` (after `git submodule update --init`) and confirm exit 0.
+2. Run `cargo test -p agileplus-triage -v` and confirm all 28+ tests pass.
+3. Inspect `crates/agileplus-triage/src/classifier.rs` keyword lists for obvious omissions or misclassifications.
+4. Verify the `backlog_items` migration does not alter any existing table.
+5. Manually inspect the generated `CLAUDE.md` and `AGENTS.md` against the templates in T101/T102 to ensure no placeholders are left unreplaced.
+6. Confirm the `Classify` trait is defined and `Classifier` implements it, enabling future LLM-based classifiers.
+7. Check that no public function signature deviates from the list in the Context section.
+8. Confirm `TriageError` uses `thiserror` and covers all three error variants.
+9. Start `agileplus-integrations-service` and confirm `grpc.health.v1.Health/Check` returns `SERVING` (T102b acceptance criterion).
 
 ---
 

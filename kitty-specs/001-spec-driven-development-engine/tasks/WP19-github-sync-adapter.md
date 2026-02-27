@@ -1,9 +1,9 @@
 ---
 work_package_id: WP19
-title: GitHub Sync Adapter
+title: GitHub Sync Adapter (agileplus-integrations)
 lane: planned
 dependencies:
-- WP06
+- WP17
 subtasks:
 - T109
 - T110
@@ -24,19 +24,19 @@ history:
   action: Prompt generated via /spec-kitty.tasks
 ---
 
-# WP19 — GitHub Sync Adapter
+# WP19 — GitHub Sync Adapter (agileplus-integrations)
 
 ## Implementation Command
 
 ```bash
-spec-kitty implement WP19 --base WP15
+spec-kitty implement WP19 --base WP17
 ```
 
 ---
 
 ## Objectives
 
-Implement a one-way (AgilePlus → GitHub) bug synchronisation adapter in the new crate `crates/agileplus-github/`. This work package introduces:
+Implement a one-way (AgilePlus → GitHub) bug synchronisation adapter in the `agileplus-integrations` repo at `crates/agileplus-github/`. This work package introduces:
 
 1. A GitHub Issues API client using the `octocrab` crate, authenticated via a GitHub personal access token retrieved from the credential store.
 2. Bug-to-issue synchronisation: when the triage classifier (WP17) classifies an input as a `Bug`, create a corresponding GitHub Issue with structured markdown body, appropriate labels, and cross-references to the AgilePlus feature and work package.
@@ -69,11 +69,13 @@ All outbound GitHub API calls must go through the `GitHubClient` struct. The syn
 
 ### Dependencies
 
-- **WP06**: Provides `ProjectConfig` (includes `github_owner: String`, `github_repo: String`, `github_labels: Vec<String>` — default labels to apply to all AgilePlus-created issues).
-- **WP15**: Provides `CredentialStore::get("github_token")`. The adapter must not accept the token as a plain string in its public constructor; it must accept a `CredentialStore` reference and fetch the token internally.
-- **WP17**: Provides `BacklogItem` and `BacklogAdapter` for updating the backlog item state after a GitHub status poll.
+- **WP17**: Provides `BacklogItem` and `BacklogAdapter` for updating the backlog item state after a GitHub status poll. Also provides `ProjectConfig` (includes `github_owner: String`, `github_repo: String`, `github_labels: Vec<String>` — default labels to apply to all AgilePlus-created issues).
+
+Credential management is delegated to the `agileplus-integrations` service configuration. The adapter reads the GitHub token from the integrations service config rather than from a credential store (no dependency on WP15). All cross-service communication uses gRPC as described below.
 
 ### Crate Layout
+
+This crate lives in the `agileplus-integrations` repo:
 
 ```
 crates/agileplus-github/
@@ -95,6 +97,7 @@ crates/agileplus-github/
 - Labels are additive: the adapter always applies the configured default labels plus the feature slug label. It never removes labels applied by humans.
 - Issue body edits by humans are detected by comparing a stored hash of the last-written body with the current body. If the hash differs, log a warning and skip the update.
 - All errors are wrapped in `GitHubError` using `thiserror`.
+- **gRPC communication pattern**: The `agileplus-integrations` service exposes gRPC endpoints defined in `integrations.proto`. Bug sync is triggered via the `SyncBugToGitHub` RPC. Status change notifications back to the core service use the `integrations.proto` `NotifyStatusChange` RPC. Conflict detection is invoked via the `DetectGitHubConflicts` RPC. The crate handles the implementation logic; the gRPC server wiring lives in the integrations service binary.
 
 ---
 
@@ -103,6 +106,8 @@ crates/agileplus-github/
 ### T109 — GitHubSyncAdapter struct and octocrab client
 
 **Files**: `crates/agileplus-github/src/client.rs`, `crates/agileplus-github/src/lib.rs`
+
+> Note: all source paths are relative to the `agileplus-integrations` repo root.
 
 **`GitHubConfig`** (read from `ProjectConfig`):
 
@@ -193,7 +198,7 @@ pub enum GitHubError {
     RateLimited,
     #[error("storage error: {0}")]
     Storage(#[from] agileplus_storage::StorageError),
-    #[error("credential error: {0}")]
+    #[error("integrations config credential error: {0}")]
     Credential(String),
     #[error("entity not found: {0}")]
     NotFound(String),
@@ -235,7 +240,7 @@ impl<C: GitHubClientPort> GitHubSyncAdapter<C> {
 
 **File**: `crates/agileplus-github/src/issues.rs`
 
-**Purpose**: When a `BacklogItem` of kind `Bug` is provided, create a GitHub Issue with a structured markdown body and appropriate labels. Store the mapping in `github_sync_state`.
+**Purpose**: When the integrations service receives a `SyncBugToGitHub` gRPC call (defined in `integrations.proto`), create a GitHub Issue with a structured markdown body and appropriate labels. Store the mapping in `github_sync_state`. The gRPC handler deserialises the `BacklogItem` payload and delegates to `GitHubSyncAdapter::sync_bug`.
 
 **Local sync-state table** (applied by `ensure_schema()`):
 
@@ -317,7 +322,7 @@ labels.dedup();
 
 **File**: `crates/agileplus-github/src/issues.rs`
 
-**Purpose**: Poll GitHub for state changes on issues managed by this adapter. If an issue has been closed or reopened on GitHub, update the corresponding `BacklogItem` in SQLite.
+**Purpose**: Poll GitHub for state changes on issues managed by this adapter. If an issue has been closed or reopened on GitHub, notify the core service via the `integrations.proto` `NotifyStatusChange` gRPC RPC rather than writing directly to the core SQLite database. The integrations service calls `GitHubSyncAdapter::poll_status_changes`, then for each `StatusChange` result it issues a `NotifyStatusChange` gRPC call to the core service to update the corresponding `BacklogItem`.
 
 **`StatusChange`**:
 
@@ -353,7 +358,7 @@ pub struct StatusChange {
 
 **File**: `crates/agileplus-github/src/issues.rs`
 
-**Purpose**: Identify GitHub issues whose body has been externally edited since the last sync and log structured warnings without overwriting user changes.
+**Purpose**: Identify GitHub issues whose body has been externally edited since the last sync and log structured warnings without overwriting user changes. Conflict detection is invoked via the `integrations.proto` `DetectGitHubConflicts` gRPC RPC; the integrations service handler calls `GitHubSyncAdapter::detect_conflicts` and returns the `BodyConflictReport` list in the gRPC response.
 
 **`BodyConflictReport`**:
 
@@ -488,7 +493,7 @@ Add dev-dependencies: `wiremock`, `tokio` (features: `macros`, `rt-multi-thread`
 | SHA-256 hash collision producing false negative conflict detection | Negligible | Low | Accept theoretical risk; SHA-256 collision probability is negligible for issue body lengths |
 | `BacklogAdapter::reopen` not available from WP17 | Medium | Medium | Define temporarily in WP19 scope; file a follow-up backlog task to move it to WP17's crate |
 | wiremock tests fail if octocrab adds required headers not present in mock | Low | Medium | Use `wiremock::matchers::any()` for header matching in mock setup; only assert on path and method |
-| Credential store unavailable during CI testing | Low | High | Tests use a test token string injected directly into `GitHubClient::new`; credential store is not called in tests |
+| Integrations service config unavailable during CI testing | Low | High | Tests use a test token string injected directly into `GitHubClient::new`; integrations service config is not required in tests |
 
 ---
 
@@ -500,7 +505,7 @@ The reviewer should:
 2. Verify that `issues.rs` contains no direct `octocrab` calls — search for `octocrab::` in the file and confirm zero matches.
 3. Confirm `detect_conflicts` does not call any write endpoint: inspect the method body and verify no `create_issue`, `close_issue`, or `reopen_issue` calls. Verify no write mocks are registered in `test_conflict_detection_body_edited`.
 4. Verify idempotency: confirm `sync_bug` checks `github_sync_state` before calling `client.create_issue` and returns early if a row already exists.
-5. Confirm the GitHub token is fetched from `CredentialStore` in the production code path and never hard-coded or logged.
+5. Confirm the GitHub token is read from the integrations service configuration (not from a CredentialStore / WP15 dependency) in the production code path and never hard-coded or logged.
 6. Verify the `body_hash` is computed after body construction and stored in `github_sync_state`; confirm it is not updated during conflict detection.
 7. Check label deduplication logic in T110: confirm `dedup()` is called after extending with the feature slug.
 8. Confirm stack trace extraction in T110 handles both Python (`Traceback (most recent call last)`) and generic (`at <method>(<file>)`) formats. If only one format is handled, file a follow-up backlog task for the other.

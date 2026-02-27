@@ -1,9 +1,9 @@
 ---
 work_package_id: WP18
-title: Plane.so Sync Adapter
+title: Plane.so Sync Adapter (agileplus-integrations)
 lane: planned
 dependencies:
-- WP06
+- WP17
 subtasks:
 - T104
 - T105
@@ -24,23 +24,23 @@ history:
   action: Prompt generated via /spec-kitty.tasks
 ---
 
-# WP18 — Plane.so Sync Adapter
+# WP18 — Plane.so Sync Adapter (agileplus-integrations)
 
 ## Implementation Command
 
 ```bash
-spec-kitty implement WP18 --base WP15
+spec-kitty implement WP18 --base WP17
 ```
 
 ---
 
 ## Objectives
 
-Implement a one-way (AgilePlus → Plane.so) synchronisation adapter in the new crate `crates/agileplus-plane/`. This work package introduces:
+Implement a one-way (AgilePlus → Plane.so) synchronisation adapter in the `agileplus-integrations` repo at `crates/agileplus-plane/`. This work package introduces:
 
-1. A Plane.so REST API client authenticated via an API key retrieved from the credential store.
-2. Feature-to-issue and work-package-to-sub-issue synchronisation triggered on state changes.
-3. Conflict detection that identifies Plane.so-side edits made since the last sync and logs warnings without overwriting user changes.
+1. A Plane.so REST API client authenticated via an API key supplied through the integrations service configuration.
+2. Feature-to-issue and work-package-to-sub-issue synchronisation triggered via gRPC requests from core (integrations.proto `SyncFeatureToPlane`, `SyncWPToPlane`).
+3. Conflict detection invoked via integrations.proto `DetectPlaneConflicts`, identifying Plane.so-side edits made since the last sync and returning conflict reports without overwriting user changes.
 4. Integration tests driven by a `wiremock` mock server that replays realistic Plane.so API responses.
 
 All outbound HTTP calls must go through the client struct; no `reqwest` calls may appear outside `client.rs`. The sync logic in `sync.rs` must be unit-testable with a mock client trait.
@@ -65,10 +65,13 @@ All outbound HTTP calls must go through the client struct; no `reqwest` calls ma
 
 ### Dependencies
 
-- **WP06**: Provides `ProjectConfig` (includes `plane_workspace_slug`, `plane_project_slug`, `plane_state_map: HashMap<String, String>`).
-- **WP15**: Provides the credential store (`CredentialStore::get("plane_api_key")`). WP18 must not hard-code or log API keys.
+- **WP17**: Provides the `integrations.proto` service definition and the gRPC server scaffold in `agileplus-integrations`. WP18 implements the Plane.so handler methods (`SyncFeatureToPlane`, `SyncWPToPlane`, `DetectPlaneConflicts`) registered on that server.
+
+Credential management (API key retrieval) is delegated to the integrations service configuration; WP18 reads the key from the service config struct passed at construction time and must not hard-code or log API keys.
 
 ### Crate Layout
+
+This crate lives in the `agileplus-integrations` repository:
 
 ```
 crates/agileplus-plane/
@@ -88,6 +91,7 @@ crates/agileplus-plane/
 - Sync operations are idempotent: running them twice must not create duplicate issues. Use a local SQLite table `plane_sync_state` (added by `ensure_schema()`) to map `(entity_type, entity_id)` → `plane_issue_id`.
 - The adapter does not delete Plane.so issues. Archiving or deletion is a manual operation.
 - All HTTP errors must be wrapped in `PlaneError` (via `thiserror`). Never panic on HTTP failure.
+- **gRPC communication pattern**: Core (`agileplus-core`) initiates all sync operations by sending gRPC requests to the integrations service over the `integrations.proto` interface. The `agileplus-plane` crate implements the server-side handler methods. Core never calls Plane.so REST endpoints directly; it exclusively uses the gRPC contract. The integrations service owns credential loading and passes the resolved API key to `PlaneClient::new` at handler construction time.
 
 ### Rate Limiting
 
@@ -99,7 +103,7 @@ Implement a simple token-bucket rate limiter in `client.rs` capped at 50 request
 
 ### T104 — PlaneSyncAdapter struct and HTTP client
 
-**Files**: `crates/agileplus-plane/src/client.rs`, `crates/agileplus-plane/src/lib.rs`
+**Files**: `crates/agileplus-plane/src/client.rs`, `crates/agileplus-plane/src/lib.rs` (in `agileplus-integrations` repo)
 
 **`PlaneConfig`** (read from `ProjectConfig`):
 
@@ -248,9 +252,9 @@ Add `Cargo.toml` dependencies: `reqwest` (features: `json`, `rustls-tls`), `serd
 
 ### T105 — Feature sync
 
-**File**: `crates/agileplus-plane/src/sync.rs`
+**File**: `crates/agileplus-plane/src/sync.rs` (in `agileplus-integrations` repo)
 
-**Purpose**: When a feature's state changes, create or update the corresponding Plane.so issue.
+**Purpose**: Implement the `SyncFeatureToPlane` gRPC handler (integrations.proto). When invoked by core via gRPC, create or update the corresponding Plane.so issue for the supplied feature.
 
 **Local sync-state table** (applied by `ensure_schema()`):
 
@@ -288,9 +292,9 @@ CREATE TABLE IF NOT EXISTS plane_sync_state (
 
 ### T106 — Work package sync
 
-**File**: `crates/agileplus-plane/src/sync.rs`
+**File**: `crates/agileplus-plane/src/sync.rs` (in `agileplus-integrations` repo)
 
-**Purpose**: When a work package's state changes, create or update the corresponding Plane.so sub-issue (child of the parent feature's issue).
+**Purpose**: Implement the `SyncWPToPlane` gRPC handler (integrations.proto). When invoked by core via gRPC, create or update the corresponding Plane.so sub-issue (child of the parent feature's issue) for the supplied work package.
 
 **`sync_work_package` logic**:
 
@@ -318,9 +322,9 @@ CREATE TABLE IF NOT EXISTS plane_sync_state (
 
 ### T107 — Conflict detection
 
-**File**: `crates/agileplus-plane/src/sync.rs`
+**File**: `crates/agileplus-plane/src/sync.rs` (in `agileplus-integrations` repo)
 
-**Purpose**: Periodically poll Plane.so for issues modified after the last sync timestamp. If a remote edit is detected on an issue managed by AgilePlus, log a structured warning and do not overwrite.
+**Purpose**: Implement the `DetectPlaneConflicts` gRPC handler (integrations.proto). When invoked by core via gRPC, poll Plane.so for issues modified after the last sync timestamp. If a remote edit is detected on an issue managed by AgilePlus, log a structured warning, do not overwrite, and return the conflict reports in the gRPC response.
 
 **`ConflictReport`**:
 
@@ -418,7 +422,7 @@ The reviewer should:
 3. Confirm that `detect_conflicts` never calls `create_issue` or `update_issue` — inspect the method body and verify no write mocks are registered in `test_conflict_detection`.
 4. Check that no API key is logged: search for `api_key` in log macro calls; confirm it only appears in the `X-API-Key` header construction.
 5. Verify idempotency by reading `sync_feature` and confirming the branch that handles an existing `plane_sync_state` row calls PATCH, not POST.
-6. Confirm `plane_sync_state` schema adds no columns to any table introduced by WP05 or WP06.
+6. Confirm `plane_sync_state` schema adds no columns to any table introduced by prior storage WPs.
 7. Review the `TokenBucket` implementation for correctness: verify `refill()` uses elapsed time correctly and `max_tokens` is respected.
 8. Confirm `PlaneClientPort` trait is sealed from external implementation by being in a private module (or document that external implementation is intentional).
 

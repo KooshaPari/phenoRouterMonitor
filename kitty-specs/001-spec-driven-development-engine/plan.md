@@ -6,7 +6,7 @@
 
 AgilePlus is a local, git+SQLite-backed spec-driven development engine providing a 7-command workflow (specify, research, plan, implement, validate, ship, retrospective). It orchestrates Claude Code and Codex agents via MCP/Skills/slash commands, enforces thegent-inspired smart contract governance, and integrates with Plane.so for visual project management.
 
-Architecture: Rust core binary (CLI + API + gRPC server) + Python MCP service (FastMCP 3.0 + gRPC client). Hexagonal architecture with clean port/adapter separation. Services communicate via gRPC with Protobuf contracts.
+Architecture: 5 independent repositories — proto (shared contracts), Rust core (domain + CLI + API + gRPC), Python MCP (FastMCP 3.0), Rust agents (dispatch + review), Rust integrations (sync + triage). Hexagonal architecture with clean port/adapter separation. Cross-repo communication via gRPC with Protobuf contracts from shared proto repo.
 
 ## Technical Context
 
@@ -19,7 +19,7 @@ Architecture: Rust core binary (CLI + API + gRPC server) + Python MCP service (F
 - Rust: cargo test (unit), cucumber-rs (BDD), pact-rust (contract)
 - Python: pytest (unit), behave (BDD), pact-python (contract)
 - Integration: Docker Compose test harness
-**Target Platform**: macOS (primary), Linux (CI/server). Cross-platform via Rust.
+**Target Platform**: macOS (primary), Linux (CI/server), Windows 10+ (cross-platform). Cross-platform via Rust.
 **Project Type**: Polyglot microservice (Rust core + Python MCP)
 **Performance Goals**: CLI startup <50ms, SQLite queries <5ms, gRPC round-trip <10ms, API responses <100ms
 **Constraints**: <100MB memory idle, local-only (no cloud), SQLite single-writer (WAL mode for concurrent reads)
@@ -40,176 +40,223 @@ kitty-specs/001-spec-driven-development-engine/
 ├── research.md          # Phase 0: technology research
 ├── data-model.md        # Phase 1: entity/relationship model
 ├── contracts/           # Phase 1: gRPC + API contracts
-│   ├── agileplus.proto  # gRPC service definitions (Rust↔Python)
+│   ├── common.proto     # Shared message types
+│   ├── core.proto       # Core domain gRPC service
+│   ├── agents.proto     # Agent dispatch gRPC service
+│   ├── integrations.proto # Integrations gRPC service
 │   ├── api-openapi.yaml # REST API schema (axum endpoints)
 │   └── mcp-tools.json   # MCP tool definitions (FastMCP)
 └── tasks.md             # Phase 2 output (NOT created by /plan)
 ```
 
-### Source Code (repository root)
+### Source Code (5 independent repositories)
 
 ```
-# Rust core binary (hexagonal architecture)
-crates/
-├── agileplus-core/          # Domain layer — entities, value objects, domain services
-│   └── src/
-│       ├── lib.rs
-│       ├── domain/
-│       │   ├── feature.rs       # Feature aggregate
-│       │   ├── work_package.rs  # WP aggregate
-│       │   ├── governance.rs    # Contract, policy, evidence
-│       │   ├── audit.rs         # Hash-chained audit entries
-│       │   └── state_machine.rs # Feature lifecycle FSM
-│       └── ports/
-│           ├── storage.rs       # Storage port trait
-│           ├── vcs.rs           # VCS port trait
-│           ├── agent.rs         # Agent dispatch port trait
-│           ├── review.rs        # Code review port trait
-│           └── observability.rs # Telemetry port trait
-│
-├── agileplus-cli/           # CLI adapter (clap)
-│   └── src/
-│       ├── main.rs
-│       └── commands/
-│           ├── specify.rs
-│           ├── research.rs
-│           ├── plan.rs
-│           ├── implement.rs
-│           ├── validate.rs
-│           ├── ship.rs
-│           └── retrospective.rs
-│
-├── agileplus-api/           # HTTP API adapter (axum)
-│   └── src/
-│       ├── lib.rs
-│       ├── routes/
-│       │   ├── features.rs
-│       │   ├── work_packages.rs
-│       │   ├── governance.rs
-│       │   └── audit.rs
-│       └── middleware/
-│           ├── auth.rs          # Integration key validation
-│           └── telemetry.rs
-│
-├── agileplus-grpc/          # gRPC adapter (tonic)
-│   └── src/
-│       ├── lib.rs
-│       ├── server.rs        # gRPC server for Python MCP
-│       └── proto/           # Generated from contracts/agileplus.proto
-│
-├── agileplus-sqlite/        # SQLite adapter (rusqlite)
-│   └── src/
-│       ├── lib.rs
-│       ├── migrations/
-│       ├── repository.rs    # Implements storage port
-│       └── rebuild.rs       # Rebuild from git history
-│
-├── agileplus-git/           # Git adapter (git2)
-│   └── src/
-│       ├── lib.rs
-│       ├── worktree.rs      # Worktree create/cleanup
-│       ├── repository.rs    # Git operations
-│       └── artifact.rs      # Read/write spec/plan artifacts
-│
-├── agileplus-agents/        # Agent dispatch adapter
-│   └── src/
-│       ├── lib.rs
-│       ├── claude_code.rs   # Claude Code harness
-│       ├── codex.rs         # Codex harness
-│       ├── dispatch.rs      # Subagent spawning logic
-│       └── pr_loop.rs       # PR → review → fix cycle
-│
-├── agileplus-review/        # Code review adapter
-│   └── src/
-│       ├── lib.rs
-│       ├── coderabbit.rs    # Coderabbit integration
-│       └── fallback.rs      # Manual review fallback
-│
-├── agileplus-telemetry/     # Observability adapter (OpenTelemetry)
-│   └── src/
-│       ├── lib.rs
-│       ├── traces.rs
-│       ├── metrics.rs
-│       └── logs.rs
-│
-├── agileplus-plane/         # Plane.so sync adapter
-│   └── src/
-│       ├── lib.rs
-│       ├── sync.rs          # SQLite → Plane.so sync
-│       └── client.rs        # Plane.so REST API client
-│
-├── agileplus-github/        # GitHub sync adapter
-│   └── src/
-│       ├── lib.rs
-│       ├── issues.rs        # Bug → GitHub Issue sync
-│       └── client.rs        # GitHub API client (octocrab)
-│
-└── agileplus-triage/        # Triage & backlog adapter
-    └── src/
-        ├── lib.rs
-        ├── classifier.rs    # Intent classification
-        ├── backlog.rs       # Backlog item management
-        └── router.rs        # Prompt router generation
+# ─── Repo 1: agileplus-proto (shared contracts) ───
+agileplus-proto/
+├── proto/
+│   ├── agileplus/
+│   │   ├── core.proto          # Core domain service (features, WPs, audit)
+│   │   ├── agents.proto        # Agent dispatch service (spawn, status, cancel)
+│   │   ├── integrations.proto  # Sync service (plane, github, triage)
+│   │   └── common.proto        # Shared message types
+│   └── buf.yaml
+├── rust/                       # Generated Rust crate (git dep)
+│   ├── Cargo.toml
+│   └── src/lib.rs              # Re-exports generated code
+├── python/                     # Generated Python package
+│   ├── pyproject.toml
+│   └── src/agileplus_proto/
+├── schemas/
+│   ├── mcp-tools.json          # MCP tool definitions
+│   └── mcp-resources.json      # MCP resource definitions
+├── Makefile                    # buf generate, cargo publish, uv publish
+└── README.md
 
-# Python MCP service
-mcp/
+# ─── Repo 2: agileplus-core (domain + CLI + storage) ───
+agileplus-core/
+├── crates/
+│   ├── agileplus-domain/       # Domain layer — entities, FSM, governance, audit (ZERO I/O deps)
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── domain/
+│   │       │   ├── feature.rs       # Feature aggregate
+│   │       │   ├── work_package.rs  # WP aggregate
+│   │       │   ├── governance.rs    # Contract, policy, evidence
+│   │       │   ├── audit.rs         # Hash-chained audit entries
+│   │       │   └── state_machine.rs # Feature lifecycle FSM
+│   │       └── ports/
+│   │           ├── storage.rs       # Storage port trait
+│   │           ├── vcs.rs           # VCS port trait
+│   │           ├── agent.rs         # Agent dispatch port trait
+│   │           ├── review.rs        # Code review port trait
+│   │           └── observability.rs # Telemetry port trait
+│   │
+│   ├── agileplus-cli/          # CLI adapter (clap) — 7 user-facing + sub-command registry
+│   │   └── src/
+│   │       ├── main.rs
+│   │       └── commands/
+│   │           ├── specify.rs
+│   │           ├── research.rs
+│   │           ├── plan.rs
+│   │           ├── implement.rs
+│   │           ├── validate.rs
+│   │           ├── ship.rs
+│   │           └── retrospective.rs
+│   │
+│   ├── agileplus-api/          # HTTP API adapter (axum)
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── routes/
+│   │       │   ├── features.rs
+│   │       │   ├── work_packages.rs
+│   │       │   ├── governance.rs
+│   │       │   └── audit.rs
+│   │       └── middleware/
+│   │           ├── auth.rs
+│   │           └── telemetry.rs
+│   │
+│   ├── agileplus-grpc/         # gRPC adapter (tonic) — serves core.proto, proxies agents + integrations
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       └── server.rs
+│   │
+│   ├── agileplus-sqlite/       # SQLite adapter (rusqlite)
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── migrations/
+│   │       ├── repository.rs
+│   │       └── rebuild.rs
+│   │
+│   ├── agileplus-git/          # Git adapter (git2)
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── worktree.rs
+│   │       ├── repository.rs
+│   │       └── artifact.rs
+│   │
+│   └── agileplus-telemetry/    # OpenTelemetry adapter
+│       └── src/
+│           ├── lib.rs
+│           ├── traces.rs
+│           ├── metrics.rs
+│           └── logs.rs
+│
+├── proto/                      # Git submodule → agileplus-proto
+├── Cargo.toml                  # Workspace (7 crates)
+├── Makefile
+└── docker-compose.yml
+
+# ─── Repo 3: agileplus-mcp (Python MCP server) ───
+agileplus-mcp/
+├── src/agileplus_mcp/
+│   ├── __init__.py
+│   ├── server.py               # FastMCP 3.0 server entry
+│   ├── tools/                  # MCP tool implementations
+│   │   ├── features.py
+│   │   ├── governance.py
+│   │   └── status.py
+│   ├── resources/              # MCP resources (specs, audit trails)
+│   ├── prompts/                # MCP prompts (command templates)
+│   ├── sampling/               # Server-initiated analysis (triage, retrospective)
+│   ├── grpc_client.py          # gRPC client to core
+│   └── telemetry.py
+├── proto/                      # Git submodule → agileplus-proto
 ├── pyproject.toml
-├── src/
-│   └── agileplus_mcp/
-│       ├── __init__.py
-│       ├── server.py        # FastMCP 3.0 server entry
-│       ├── tools/           # MCP tool implementations
-│       │   ├── features.py
-│       │   ├── governance.py
-│       │   └── status.py
-│       ├── grpc_client.py   # gRPC client to Rust core
-│       └── telemetry.py     # OTel integration
 └── tests/
     ├── unit/
     ├── bdd/
     └── contract/
 
-# Shared
-proto/
-└── agileplus.proto          # Source of truth for gRPC contracts
+# ─── Repo 4: agileplus-agents (agent dispatch + review) ───
+agileplus-agents/
+├── crates/
+│   ├── agileplus-agent-dispatch/  # Agent spawning, harnesses
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── claude_code.rs
+│   │       ├── codex.rs
+│   │       ├── dispatch.rs
+│   │       └── pr_loop.rs
+│   ├── agileplus-agent-review/    # Coderabbit + fallback review
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── coderabbit.rs
+│   │       └── fallback.rs
+│   └── agileplus-agent-service/   # gRPC server implementing agents.proto
+│       └── src/
+│           ├── lib.rs
+│           └── server.rs
+├── proto/                         # Git submodule → agileplus-proto
+├── Cargo.toml                     # Workspace (3 crates)
+└── Makefile
 
-# Tests (cross-service)
+# ─── Repo 5: agileplus-integrations (sync + triage) ───
+agileplus-integrations/
+├── crates/
+│   ├── agileplus-plane/           # Plane.so sync
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── sync.rs
+│   │       └── client.rs
+│   ├── agileplus-github/          # GitHub Issues sync
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── issues.rs
+│   │       └── client.rs
+│   ├── agileplus-triage/          # Triage classifier + backlog + router gen
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── classifier.rs
+│   │       ├── backlog.rs
+│   │       └── router.rs
+│   └── agileplus-integrations-service/  # gRPC server implementing integrations.proto
+│       └── src/
+│           ├── lib.rs
+│           └── server.rs
+├── proto/                         # Git submodule → agileplus-proto
+├── Cargo.toml                     # Workspace (4 crates)
+└── Makefile
+
+# ─── Cross-repo testing ───
 tests/
 ├── bdd/
 │   └── features/            # Cucumber/Behave .feature files
-│       ├── specify.feature
-│       ├── implement.feature
-│       ├── governance.feature
-│       └── audit.feature
 ├── contract/
 │   └── pacts/               # Pact contract files
 ├── integration/
-│   └── docker-compose.test.yml
+│   └── docker-compose.test.yml  # Spins up all 4 services
 └── fixtures/
-
-# Config & build
-Cargo.toml                   # Workspace manifest
-Makefile                     # Polyglot orchestration
-docker-compose.yml           # Dev environment
-buf.yaml                     # Protobuf linting/generation
 ```
 
-**Structure Decision**: Polyglot hexagonal architecture. Rust workspace with 12 crates (1 domain, 11 adapters) following ports-and-adapters pattern. Python MCP service as separate process communicating via gRPC. Shared Protobuf contract in `proto/`. Monorepo with `Cargo.toml` workspace + `pyproject.toml`.
+**Structure Decision**: Multi-repo hexagonal architecture. 5 repositories: proto (shared contracts), core (Rust workspace with 7 crates), MCP (Python), agents (Rust workspace with 3 crates), integrations (Rust workspace with 4 crates). All cross-repo communication via gRPC. Proto repo consumed as git submodule by all service repos.
 
 ## Dependency Graph
 
+### Intra-repo (agileplus-core)
 ```
 agileplus-cli ──┐
-agileplus-api ──┼──► agileplus-core ◄── agileplus-grpc
+agileplus-api ──┼──► agileplus-domain ◄── agileplus-grpc
                 │         │
-                │    ┌────┼────────┬──────────┬─────────┬────────┬────────┬─────────┐
-                │    ▼    ▼        ▼          ▼         ▼        ▼        ▼         ▼
-                │  sqlite  git   agents    review   telemetry  plane   github    triage
-                │    │      │       │         │         │        │        │         │
-                │    ▼      ▼       ▼         ▼         ▼        ▼        ▼         ▼
-                │ rusqlite git2  (shell)  (GitHub)   OTel    Plane.so octocrab  (classify)
+                │    ┌────┼────────┬─────────┐
+                │    ▼    ▼        ▼         ▼
+                │  sqlite  git   telemetry  (gRPC proxies to agents + integrations)
+                │    │      │       │
+                │    ▼      ▼       ▼
+                │ rusqlite git2    OTel
                 │
-                └──► agileplus-telemetry (all crates depend on this)
+                └──► agileplus-telemetry (all core crates depend on this)
+```
+
+### Inter-repo (gRPC boundaries)
+```
+agileplus-cli ──► agileplus-core (in-process)
+                      │
+                      ├──► gRPC ──► agileplus-mcp (Python, implements MCP tools)
+                      ├──► gRPC ──► agileplus-agents (Rust, agent dispatch + review)
+                      └──► gRPC ──► agileplus-integrations (Rust, plane + github + triage)
+
+All repos depend on agileplus-proto (git submodule) for shared message types.
 ```
 
 ## Key Design Decisions
@@ -370,7 +417,11 @@ SQLite (source of truth)
          - Already existing flow
 ```
 
-Sync adapters live in new crates: `agileplus-plane` and `agileplus-github`.
+Sync adapters live in the `agileplus-integrations` repository: `agileplus-plane` and `agileplus-github` crates.
+
+### 10. PR Merge Policy (Constitution)
+
+Per project constitution: Coderabbit auto-review is the review gate. No human approval required — self-merge allowed after CI passes. Agents create PRs, Coderabbit reviews, agent fixes, CI goes green, merge proceeds automatically.
 
 ### 9. MCP Primitives Mapping (FR-049, FR-050)
 
@@ -396,6 +447,7 @@ No constitution violations to track (constitution absent).
 
 | Decision | Justification | Simpler Alternative Rejected |
 |----------|--------------|------------------------------|
-| 9 Rust crates | Clean port/adapter separation per hexagonal arch | Monolith crate — would couple CLI, API, storage; violates SOLID |
-| gRPC for IPC | Typed contracts, streaming, polyglot | JSON-RPC — no streaming, no codegen, weaker type safety at boundaries |
+| 5 repositories (14 total crates) | Clean boundaries at repo level; prevents scope creep; independent versioning/deployment | Monorepo — scope creep, coupled releases, single CI pipeline bottleneck |
+| gRPC for inter-repo IPC | Typed contracts, streaming, polyglot, enforces service boundaries | JSON-RPC — no streaming, no codegen, weaker type safety at boundaries |
+| Shared proto repo | Single source of truth for all contracts; buf linting + breaking change detection | Duplicated proto files — drift, inconsistency, manual sync |
 | Separate Python process | FastMCP is Python-only | FFI/PyO3 embedding — fragile, complicates deployment, debugging |

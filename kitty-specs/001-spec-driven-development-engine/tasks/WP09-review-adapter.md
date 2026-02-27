@@ -6,10 +6,10 @@ subtasks:
   - "T052"
   - "T053"
   - "T054"
-title: "Code Review Adapter"
-phase: "Phase 2 - Adapters"
+title: "Code Review Adapter (agileplus-agents)"
+phase: "Phase 2b - External Repo Adapters"
 lane: "planned"
-dependencies: ["WP05"]
+dependencies: ["WP08"]
 assignee: ""
 agent: ""
 shell_pid: ""
@@ -60,7 +60,7 @@ spec-kitty implement WP09 --base WP05
 
 ## Objectives & Success Criteria
 
-1. **ReviewAdapter struct** implementing the `ReviewPort` trait from `agileplus-core/src/ports/review.rs` is fully functional in `crates/agileplus-review/src/`.
+1. **ReviewAdapter struct** implementing the `ReviewPort` trait from `agileplus-domain/src/ports/review.rs` is fully functional in `crates/agileplus-agent-review/src/`.
 2. **Coderabbit integration** fetches review comments from GitHub pull requests via the GitHub API, parses Coderabbit bot comments into structured actionable feedback, and distinguishes informational comments from actionable ones.
 3. **Manual review fallback** provides a CLI-based approval flow where a human user can approve, reject, or request changes when Coderabbit is unavailable or times out.
 4. **CI status checking** polls the GitHub Checks API for a given PR and returns a structured pass/fail/pending result.
@@ -73,7 +73,7 @@ spec-kitty implement WP09 --base WP05
 ## Context & Constraints
 
 ### Prerequisite Work
-- **WP05 (Port Traits)** must be complete. The `ReviewPort` trait in `agileplus-core/src/ports/review.rs` defines the interface this adapter implements.
+- **WP05 (Port Traits)** must be complete. The `ReviewPort` trait in `agileplus-domain/src/ports/review.rs` defines the interface this adapter implements.
 - Review the port trait signatures carefully. All methods return `Result<T, DomainError>`.
 
 ### Key References
@@ -114,7 +114,7 @@ wiremock = "0.6"
 
 - **Purpose**: Create the top-level adapter struct that wires together Coderabbit, manual fallback, and CI status checking behind the `ReviewPort` trait from core.
 - **Steps**:
-  1. Create `crates/agileplus-review/src/lib.rs` with the module declarations (`mod coderabbit; mod fallback; mod ci_status;`) and the public `ReviewAdapter` struct.
+  1. Create `crates/agileplus-agent-review/src/lib.rs` with the module declarations (`mod coderabbit; mod fallback; mod ci_status;`) and the public `ReviewAdapter` struct.
   2. The `ReviewAdapter` struct holds:
      - `http_client: reqwest::Client` (shared, connection-pooled)
      - `github_token: String` (from config)
@@ -128,8 +128,8 @@ wiremock = "0.6"
      - `check_ci_status()` -> `ci_status::check()`
   5. Add `tracing::instrument` to all public methods for observability.
 - **Files**:
-  - `crates/agileplus-review/src/lib.rs` (create/replace)
-  - `crates/agileplus-review/Cargo.toml` (update dependencies)
+  - `crates/agileplus-agent-review/src/lib.rs` (create/replace)
+  - `crates/agileplus-agent-review/Cargo.toml` (update dependencies)
 - **Parallel?**: No -- this is the foundation for T051-T053.
 - **Notes**: The `ReviewPort` trait is async. Use `#[async_trait]` or native async traits depending on what WP05 established. Match the pattern exactly.
 
@@ -137,7 +137,7 @@ wiremock = "0.6"
 
 - **Purpose**: Fetch and parse Coderabbit bot review comments from GitHub pull requests into structured, actionable feedback items.
 - **Steps**:
-  1. Create `crates/agileplus-review/src/coderabbit.rs`.
+  1. Create `crates/agileplus-agent-review/src/coderabbit.rs`.
   2. Define a `CoderabbitComment` struct:
      ```rust
      pub struct CoderabbitComment {
@@ -166,7 +166,7 @@ wiremock = "0.6"
      - Return a `ReviewStatus` enum: `Approved`, `ChangesRequested(Vec<CoderabbitComment>)`, `Pending`, `NotFound`.
   6. Handle pagination: GitHub returns max 100 items per page. Follow `Link` header for additional pages.
   7. Implement conditional requests using ETags to reduce API consumption on repeated polls.
-- **Files**: `crates/agileplus-review/src/coderabbit.rs`
+- **Files**: `crates/agileplus-agent-review/src/coderabbit.rs`
 - **Parallel?**: Yes, independent of T052 and T053 after T050.
 - **Notes**:
   - Coderabbit sometimes posts a summary comment and separate inline comments. Capture both.
@@ -177,7 +177,7 @@ wiremock = "0.6"
 
 - **Purpose**: Provide a fallback review mechanism when Coderabbit is unavailable, allowing human users to approve or reject via CLI interaction.
 - **Steps**:
-  1. Create `crates/agileplus-review/src/fallback.rs`.
+  1. Create `crates/agileplus-agent-review/src/fallback.rs`.
   2. Define a `ManualReviewResult` enum: `Approved { reviewer: String }`, `Rejected { reviewer: String, reason: String }`, `ChangesRequested { reviewer: String, comments: Vec<String> }`.
   3. Implement `prompt_manual_review(pr_url: &str, wp_title: &str) -> Result<ManualReviewResult>`:
      - Print the PR URL and WP context to stdout.
@@ -188,7 +188,7 @@ wiremock = "0.6"
      - Returns true if Coderabbit has not responded within the timeout window.
      - Returns true if `last_coderabbit_check` is None (never checked).
   5. The fallback module should be usable both in interactive CLI mode and in a non-interactive mode where it returns `Err(NonInteractive)` if stdin is not a TTY. Check with `atty::is(atty::Stream::Stdin)` or `std::io::stdin().is_terminal()`.
-- **Files**: `crates/agileplus-review/src/fallback.rs`
+- **Files**: `crates/agileplus-agent-review/src/fallback.rs`
 - **Parallel?**: Yes, independent of T051 and T053 after T050.
 - **Notes**:
   - The fallback is intentionally simple. It does not parse code -- it just captures human judgment.
@@ -199,7 +199,7 @@ wiremock = "0.6"
 
 - **Purpose**: Poll the GitHub Checks API to determine whether a PR's CI pipeline has passed, failed, or is still pending.
 - **Steps**:
-  1. Create `crates/agileplus-review/src/ci_status.rs`.
+  1. Create `crates/agileplus-agent-review/src/ci_status.rs`.
   2. Define `CiStatus` enum:
      ```rust
      pub enum CiStatus {
@@ -231,7 +231,7 @@ wiremock = "0.6"
      - Return `Pending` if max_wait exceeded.
      - Use exponential backoff starting from `interval` up to 2x interval.
   5. Handle the case where a PR has no check runs (some repos have no CI). Return `Unknown` and log a warning.
-- **Files**: `crates/agileplus-review/src/ci_status.rs`
+- **Files**: `crates/agileplus-agent-review/src/ci_status.rs`
 - **Parallel?**: Yes, independent of T051 and T052 after T050.
 - **Notes**:
   - The GitHub Checks API and Status API are separate systems. Some CI providers use one, some the other. Check both.
@@ -242,8 +242,8 @@ wiremock = "0.6"
 
 - **Purpose**: Verify all adapter methods work correctly against realistic but mocked GitHub API responses, including error conditions.
 - **Steps**:
-  1. Create `crates/agileplus-review/tests/` directory.
-  2. Create `crates/agileplus-review/tests/mock_responses/` with JSON fixture files:
+  1. Create `crates/agileplus-agent-review/tests/` directory.
+  2. Create `crates/agileplus-agent-review/tests/mock_responses/` with JSON fixture files:
      - `pr_comments_coderabbit.json` -- realistic Coderabbit comment payload
      - `pr_comments_mixed.json` -- mix of Coderabbit and human comments
      - `pr_reviews.json` -- PR review objects with various states
@@ -252,27 +252,27 @@ wiremock = "0.6"
      - `check_runs_pending.json` -- checks still running
      - `commit_status.json` -- legacy status API response
      - `rate_limited.json` -- 403 response with rate limit headers
-  3. Create `crates/agileplus-review/tests/coderabbit_tests.rs`:
+  3. Create `crates/agileplus-agent-review/tests/coderabbit_tests.rs`:
      - Use `wiremock` to spin up a mock HTTP server.
      - Test `fetch_review_comments` returns correct count and classification of actionable vs informational.
      - Test pagination: mock returns `Link` header pointing to page 2.
      - Test rate limit: mock returns 403, verify `RateLimited` error with correct reset time.
      - Test empty response: no Coderabbit comments on PR.
-  4. Create `crates/agileplus-review/tests/ci_status_tests.rs`:
+  4. Create `crates/agileplus-agent-review/tests/ci_status_tests.rs`:
      - Test all CI passed scenario.
      - Test CI failed scenario with correct failed check names.
      - Test CI pending scenario.
      - Test combined Checks API + Status API (both present).
      - Test no checks at all -> `Unknown`.
-  5. Create `crates/agileplus-review/tests/fallback_tests.rs`:
+  5. Create `crates/agileplus-agent-review/tests/fallback_tests.rs`:
      - Test `should_fallback` with various timeout conditions.
      - Non-interactive detection test (may need to mock `is_terminal`).
-  6. Create `crates/agileplus-review/tests/integration.rs`:
+  6. Create `crates/agileplus-agent-review/tests/integration.rs`:
      - Test the full `ReviewAdapter` flow: poll -> Coderabbit comments -> classify -> return structured result.
      - Test fallback trigger: no Coderabbit response after timeout -> fallback error in non-interactive mode.
 - **Files**:
-  - `crates/agileplus-review/tests/` (multiple files)
-  - `crates/agileplus-review/tests/mock_responses/` (fixture JSON files)
+  - `crates/agileplus-agent-review/tests/` (multiple files)
+  - `crates/agileplus-agent-review/tests/mock_responses/` (fixture JSON files)
 - **Parallel?**: No -- depends on T050-T053 being implemented.
 - **Notes**:
   - Use `wiremock::MockServer` for all HTTP mocking. It provides a real HTTP server on a random port, which is more realistic than mocking the reqwest client.
@@ -284,7 +284,7 @@ wiremock = "0.6"
 ## Test Strategy
 
 ### Unit Tests
-- Location: `crates/agileplus-review/tests/`
+- Location: `crates/agileplus-agent-review/tests/`
 - Run: `cargo test -p agileplus-review`
 - All GitHub API interactions are mocked with `wiremock`.
 - Test coverage target: >85% for all modules.

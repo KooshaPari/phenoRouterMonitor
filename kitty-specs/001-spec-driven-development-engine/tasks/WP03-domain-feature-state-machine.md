@@ -7,6 +7,8 @@ subtasks:
   - "T015"
   - "T016"
   - "T017"
+  - "T017b"
+  - "T017c"
 title: "Domain Model — Feature & State Machine"
 phase: "Phase 1 - Domain"
 lane: "planned"
@@ -411,6 +413,31 @@ spec-kitty implement WP03 --base WP01
 - **Parallel?**: No -- depends on T012-T016 being complete.
 - **Validation**: `cargo test -p agileplus-core` passes 20+ tests with 0 failures.
 - **Notes**: Add `proptest` to dev-dependencies if using property-based tests. The FSM tests are the most important tests in the entire project -- they guard the governance model. Aim for 100% branch coverage on the transition function.
+
+### Subtask T017b: Property-Based Tests for FSM
+
+**Purpose**: Use proptest to exhaustively verify FSM transition invariants.
+
+**Steps**:
+1. Add `proptest` to dev-dependencies
+2. Write property tests: for any valid state, only valid transitions succeed
+3. Write property tests: skip transitions always produce Warning
+4. Write property tests: invalid transitions always return Error with correct message
+
+**Files**: `crates/agileplus-domain/src/domain/state_machine.rs` (tests module)
+**Validation**: `cargo test` with proptest generates 256+ test cases, all pass
+
+### Subtask T017c: Mutation Testing for FSM
+
+**Purpose**: Verify FSM test suite catches mutations (cargo-mutants ≥90%).
+
+**Steps**:
+1. Add `cargo-mutants` to dev tooling
+2. Run `cargo mutants -p agileplus-domain -- --test state_machine`
+3. Verify mutation score ≥90%. Fix gaps by adding targeted tests.
+
+**Files**: `crates/agileplus-domain/Cargo.toml`
+**Validation**: cargo-mutants report shows ≥90% killed mutations for state_machine.rs
 
 ---
 

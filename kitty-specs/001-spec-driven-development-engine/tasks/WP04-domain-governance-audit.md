@@ -8,6 +8,9 @@ subtasks:
   - "T022"
   - "T023"
   - "T024"
+  - "T024b"
+  - "T024c"
+  - "T024d"
 title: "Domain Model — Governance & Audit"
 phase: "Phase 1 - Domain"
 lane: "planned"
@@ -593,6 +596,42 @@ spec-kitty implement WP04 --base WP03
 - **Parallel?**: No -- depends on T018-T023 being complete.
 - **Validation**: `cargo test -p agileplus-core` passes 25+ tests with 0 failures.
 - **Notes**: The tamper detection tests are the most critical. Build a valid chain, then mutate a single byte in one entry, and verify that `verify_chain` catches it. Test all mutation targets: id, timestamp, actor, transition, evidence_refs, prev_hash, and hash itself. For evidence threshold tests, construct Evidence with metadata JSON containing coverage/finding counts and verify the comparison logic.
+
+### Subtask T024b: Property-Based Tests for Audit Chain
+
+**Purpose**: Use proptest to verify hash chain integrity invariants.
+
+**Steps**:
+1. Write property tests: any chain of N entries verifies correctly
+2. Write property tests: tampering with any single entry breaks chain verification
+3. Write property tests: governance evaluation is deterministic for same inputs
+
+**Files**: `crates/agileplus-domain/src/domain/audit.rs`, `governance.rs` (tests modules)
+**Validation**: proptest generates 256+ cases, all pass
+
+### Subtask T024c: Mutation Testing for Audit & Governance
+
+**Purpose**: Verify audit/governance test suite catches mutations (≥90%).
+
+**Steps**:
+1. Run `cargo mutants -p agileplus-domain -- --test audit --test governance`
+2. Verify mutation score ≥90% for audit.rs and governance.rs
+3. Fix gaps with targeted tests
+
+**Validation**: cargo-mutants ≥90% killed for both modules
+
+### Subtask T024d: Import Phenotype Governance Patterns
+
+**Purpose**: Import and extend existing Phenotype governance patterns (FR-028, FR-029).
+
+**Steps**:
+1. Analyze existing governance from parpour, civ, thegent repos
+2. Extract reusable patterns: worktree discipline, quality gates, agent workflow rules
+3. Encode as default governance contract templates in domain crate
+4. Ensure templates are extensible per-project
+
+**Files**: `crates/agileplus-domain/src/domain/governance.rs`
+**Validation**: Default governance contracts include Phenotype baseline rules
 
 ---
 

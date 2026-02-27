@@ -7,10 +7,13 @@ subtasks:
   - "T004"
   - "T005"
   - "T006"
-title: "Rust Workspace & Build Scaffold"
+  - "T006b"
+  - "T006c"
+  - "T006d"
+title: "Core Rust Workspace & Build Scaffold"
 phase: "Phase 0 - Foundation"
 lane: "planned"
-dependencies: []
+dependencies: ["WP00"]
 assignee: ""
 agent: ""
 shell_pid: ""
@@ -24,7 +27,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP01 -- Rust Workspace & Build Scaffold
+# Work Package Prompt: WP01 -- Core Rust Workspace & Build Scaffold
 
 ## IMPORTANT: Review Feedback Status
 
@@ -63,7 +66,10 @@ spec-kitty implement WP01
 
 1. **Cargo workspace compiles**: `cargo build --workspace` succeeds with zero errors.
 2. **Cargo tests pass (empty)**: `cargo test --workspace` runs with 0 tests, 0 errors.
-3. **All 9 crate stubs exist**: `agileplus-core`, `agileplus-cli`, `agileplus-api`, `agileplus-grpc`, `agileplus-sqlite`, `agileplus-git`, `agileplus-agents`, `agileplus-review`, `agileplus-telemetry`.
+3. **All 7 crate stubs exist**: `agileplus-domain`, `agileplus-cli`, `agileplus-api`, `agileplus-grpc`, `agileplus-sqlite`, `agileplus-git`, `agileplus-telemetry`.
+
+> **Note**: This is the `agileplus-core` repository. The domain crate within it is named `agileplus-domain`. Agent dispatch (`agileplus-agents`), review (`agileplus-review`), and integration crates (agileplus-plane, agileplus-github, agileplus-triage) live in separate repos and are NOT members of this workspace.
+
 4. **Makefile targets work**: `make build`, `make test`, `make lint`, `make format` all succeed.
 5. **Docker Compose starts**: `docker-compose up --build` creates Rust builder and Python MCP containers without errors.
 6. **Proto stubs generated**: `make proto-gen` produces Rust (tonic) and Python (grpcio) stubs from `proto/agileplus.proto`.
@@ -81,8 +87,8 @@ spec-kitty implement WP01
 - **Research**: `kitty-specs/001-spec-driven-development-engine/research.md` -- Technology choices and rationale
 
 ### Architectural Constraints
-- **Hexagonal architecture**: Core crate has ZERO external dependencies except `serde`, `sha2`, `chrono`. All I/O goes through port traits.
-- **Workspace path dependencies**: Adapter crates depend on `agileplus-core` via `path = "../agileplus-core"`, NOT crates.io.
+- **Hexagonal architecture**: Domain crate has ZERO external dependencies except `serde`, `sha2`, `chrono`. All I/O goes through port traits.
+- **Workspace path dependencies**: Adapter crates depend on `agileplus-domain` via `path = "../agileplus-domain"`, NOT crates.io.
 - **Rust 2024 edition**: All crates use `edition = "2024"` for native async trait support.
 - **Proto generation**: `tonic-build` for Rust, `grpcio-tools` for Python. `protoc` must be pinned in Makefile and Docker.
 
@@ -95,23 +101,21 @@ spec-kitty implement WP01
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T001 -- Create root `Cargo.toml` workspace manifest with all 9 crate members
+### Subtask T001 -- Create root `Cargo.toml` workspace manifest with all 7 crate members
 
 - **Purpose**: Establish the Cargo workspace so all crates share a common `target/` directory, dependency resolution, and can be built/tested together with a single command.
 - **Steps**:
   1. Create `Cargo.toml` at the repository root.
   2. Define `[workspace]` with `resolver = "3"` (Rust 2024 default).
-  3. List all 9 members under `workspace.members`:
+  3. List all 7 members under `workspace.members`:
      ```toml
      members = [
-         "crates/agileplus-core",
+         "crates/agileplus-domain",
          "crates/agileplus-cli",
          "crates/agileplus-api",
          "crates/agileplus-grpc",
          "crates/agileplus-sqlite",
          "crates/agileplus-git",
-         "crates/agileplus-agents",
-         "crates/agileplus-review",
          "crates/agileplus-telemetry",
      ]
      ```
@@ -128,18 +132,18 @@ spec-kitty implement WP01
   5. Add `[workspace.package]` with shared metadata: `edition = "2024"`, `license = "MIT"`, `repository`, `rust-version = "1.85"`.
 - **Files**: `Cargo.toml` (root)
 - **Parallel?**: No -- this must complete first; all other T002-T006 depend on it.
-- **Validation**: `cargo metadata --format-version 1 | jq '.workspace_members | length'` returns 9.
+- **Validation**: `cargo metadata --format-version 1 | jq '.workspace_members | length'` returns 7.
 - **Notes**: Do NOT add `[package]` to the root Cargo.toml -- it is workspace-only. The `resolver = "3"` is default for edition 2024 but being explicit is safer for CI tooling.
 
-### Subtask T002 -- Scaffold `crates/agileplus-core/` with `lib.rs`, domain module stubs, port trait stubs
+### Subtask T002 -- Scaffold `crates/agileplus-domain/` with `lib.rs`, domain module stubs, port trait stubs
 
-- **Purpose**: Create the domain layer crate that all adapters depend on. This crate defines the core types, domain logic, and port trait interfaces. It must compile independently with minimal deps.
+- **Purpose**: Create the domain layer crate (`agileplus-domain`) that all adapters depend on. This crate defines the core types, domain logic, and port trait interfaces. It must compile independently with minimal deps.
 - **Steps**:
-  1. Create directory: `crates/agileplus-core/src/`
-  2. Create `crates/agileplus-core/Cargo.toml`:
+  1. Create directory: `crates/agileplus-domain/src/`
+  2. Create `crates/agileplus-domain/Cargo.toml`:
      ```toml
      [package]
-     name = "agileplus-core"
+     name = "agileplus-domain"
      version = "0.1.0"
      edition.workspace = true
 
@@ -177,39 +181,35 @@ spec-kitty implement WP01
          NotImplemented,
      }
      ```
-- **Files**: `crates/agileplus-core/Cargo.toml`, `crates/agileplus-core/src/lib.rs`, `src/domain/*.rs`, `src/ports/*.rs`, `src/error.rs`
+- **Files**: `crates/agileplus-domain/Cargo.toml`, `crates/agileplus-domain/src/lib.rs`, `src/domain/*.rs`, `src/ports/*.rs`, `src/error.rs`
 - **Parallel?**: Yes -- independent after T001
-- **Validation**: `cargo build -p agileplus-core` succeeds; `cargo doc -p agileplus-core --no-deps` generates docs.
+- **Validation**: `cargo build -p agileplus-domain` succeeds; `cargo doc -p agileplus-domain --no-deps` generates docs.
 - **Notes**: Keep structs empty (`{}`). WP03 and WP04 fill in fields. Port traits are empty -- WP05 adds methods. The goal here is compilable structure, not logic.
 
-### Subtask T003 -- Scaffold remaining 8 adapter crates with `lib.rs` and dependency declarations
+### Subtask T003 -- Scaffold remaining 6 adapter crates with `lib.rs` and dependency declarations
 
-- **Purpose**: Create all adapter crate directories with correct Cargo.toml files declaring their dependencies on `agileplus-core` and their external crates. Each must compile as an empty library.
+- **Purpose**: Create all adapter crate directories with correct Cargo.toml files declaring their dependencies on `agileplus-domain` and their external crates. Each must compile as an empty library. Agent dispatch, review, and external integration crates are NOT included -- they belong in separate repos.
 - **Steps**:
-  1. For each of the 8 adapter crates, create `crates/<name>/Cargo.toml` and `crates/<name>/src/lib.rs`.
+  1. For each of the 6 adapter crates, create `crates/<name>/Cargo.toml` and `crates/<name>/src/lib.rs`.
   2. Crate-specific dependencies (workspace deps where possible):
-     - **agileplus-cli**: `agileplus-core`, `clap = { version = "4", features = ["derive"] }`, `tokio.workspace`
-     - **agileplus-api**: `agileplus-core`, `axum = "0.8"`, `tokio.workspace`, `serde.workspace`, `serde_json.workspace`
-     - **agileplus-grpc**: `agileplus-core`, `tonic = "0.12"`, `prost = "0.13"`, `tokio.workspace`
-     - **agileplus-sqlite**: `agileplus-core`, `rusqlite = { version = "0.32", features = ["bundled"] }`, `serde.workspace`
-     - **agileplus-git**: `agileplus-core`, `git2 = "0.19"`, `serde.workspace`
-     - **agileplus-agents**: `agileplus-core`, `tokio.workspace`
-     - **agileplus-review**: `agileplus-core`, `reqwest = { version = "0.12", features = ["json"] }`, `tokio.workspace`, `serde.workspace`
-     - **agileplus-telemetry**: `agileplus-core`, `opentelemetry = "0.28"`, `opentelemetry-otlp = "0.28"`, `tracing.workspace`, `tracing-subscriber.workspace`
+     - **agileplus-cli**: `agileplus-domain`, `clap = { version = "4", features = ["derive"] }`, `tokio.workspace`
+     - **agileplus-api**: `agileplus-domain`, `axum = "0.8"`, `tokio.workspace`, `serde.workspace`, `serde_json.workspace`
+     - **agileplus-grpc**: `agileplus-domain`, `tonic = "0.12"`, `prost = "0.13"`, `tokio.workspace`
+     - **agileplus-sqlite**: `agileplus-domain`, `rusqlite = { version = "0.32", features = ["bundled"] }`, `serde.workspace`
+     - **agileplus-git**: `agileplus-domain`, `git2 = "0.19"`, `serde.workspace`
+     - **agileplus-telemetry**: `agileplus-domain`, `opentelemetry = "0.28"`, `opentelemetry-otlp = "0.28"`, `tracing.workspace`, `tracing-subscriber.workspace`
   3. Each `lib.rs` should contain a doc comment describing the crate's role and an empty module structure matching plan.md:
      - `agileplus-cli/src/lib.rs`: `pub mod commands;` with `src/commands/mod.rs` stub
      - `agileplus-api/src/lib.rs`: `pub mod routes;` and `pub mod middleware;` stubs
      - `agileplus-grpc/src/lib.rs`: `pub mod server;` stub
      - `agileplus-sqlite/src/lib.rs`: `pub mod migrations;` and `pub mod repository;` stubs
      - `agileplus-git/src/lib.rs`: `pub mod worktree;`, `pub mod repository;`, `pub mod artifact;` stubs
-     - `agileplus-agents/src/lib.rs`: `pub mod claude_code;`, `pub mod codex;`, `pub mod dispatch;`, `pub mod pr_loop;` stubs
-     - `agileplus-review/src/lib.rs`: `pub mod coderabbit;`, `pub mod fallback;` stubs
      - `agileplus-telemetry/src/lib.rs`: `pub mod traces;`, `pub mod metrics;`, `pub mod logs;` stubs
   4. Create stub module files (empty `mod.rs` or named files) so the module declarations compile.
-- **Files**: 8 `Cargo.toml` files + 8 `lib.rs` files + ~25 stub module files
+- **Files**: 6 `Cargo.toml` files + 6 `lib.rs` files + ~20 stub module files
 - **Parallel?**: Yes -- independent after T001. Can also run parallel with T002.
 - **Validation**: `cargo build --workspace` succeeds; `cargo check --workspace` is clean.
-- **Notes**: Use `version.workspace = true` and `edition.workspace = true` in all crate Cargo.toml files. Pin exact major versions of external deps. The `rusqlite` bundled feature is critical to avoid requiring system SQLite headers.
+- **Notes**: Use `version.workspace = true` and `edition.workspace = true` in all crate Cargo.toml files. Pin exact major versions of external deps. The `rusqlite` bundled feature is critical to avoid requiring system SQLite headers. Do NOT add agileplus-agents, agileplus-review, agileplus-plane, agileplus-github, or agileplus-triage -- these belong in their own repositories.
 
 ### Subtask T004 -- Create `Makefile` with targets: build, test, lint, format, proto-gen, all
 
@@ -289,28 +289,17 @@ spec-kitty implement WP01
 - **Validation**: `docker-compose config` validates without error; `docker-compose build` completes (may take time on first run).
 - **Notes**: The Python MCP service depends on the Rust gRPC server, but at scaffold time both are stubs. Use `healthcheck` directives so `depends_on` works correctly. Pin all base image tags to specific versions for reproducibility.
 
-### Subtask T006 -- Create `buf.yaml` + `proto/agileplus.proto` and generate Rust/Python stubs
+### Subtask T006 -- Add `proto/` git submodule pointing to `agileplus-proto` and generate Rust/Python stubs
 
-- **Purpose**: Define the gRPC contract between Rust core and Python MCP service. Generate typed stubs in both languages so WP02 (Python) and WP14 (gRPC server) can immediately use them.
+- **Purpose**: Wire in the shared proto definitions from the `agileplus-proto` repository as a git submodule so the gRPC contract is managed centrally. Generate typed stubs in both languages so WP02 (Python) and WP14 (gRPC server) can immediately use them.
 - **Steps**:
-  1. Create `proto/` directory at repository root.
-  2. Create `proto/agileplus.proto` based on `contracts/agileplus.proto` from the spec directory. If that file exists, copy and adapt it. If not, create the proto with these services:
-     ```protobuf
-     syntax = "proto3";
-     package agileplus;
-
-     service AgilePlusCore {
-       rpc GetFeature (GetFeatureRequest) returns (FeatureResponse);
-       rpc ListFeatures (ListFeaturesRequest) returns (ListFeaturesResponse);
-       rpc TransitionFeature (TransitionRequest) returns (TransitionResponse);
-       rpc GetAuditTrail (GetAuditTrailRequest) returns (AuditTrailResponse);
-       rpc CheckGovernance (GovernanceCheckRequest) returns (GovernanceCheckResponse);
-       rpc DispatchCommand (CommandRequest) returns (CommandResponse);
-       rpc StreamAgentEvents (AgentEventRequest) returns (stream AgentEvent);
-     }
+  1. Add the `agileplus-proto` repository as a git submodule at `proto/`:
+     ```bash
+     git submodule add <agileplus-proto-repo-url> proto
+     git submodule update --init --recursive
      ```
-  3. Define all message types matching the data model entities (Feature, WorkPackage, AuditEntry, etc.).
-  4. Create `buf.yaml` for protobuf linting:
+  2. Verify `proto/agileplus.proto` is present in the submodule. It should define services including `AgilePlusCore` with methods covering Feature, WorkPackage, AuditEntry, etc.
+  3. Create `buf.yaml` for protobuf linting at the repository root:
      ```yaml
      version: v2
      lint:
@@ -320,20 +309,57 @@ spec-kitty implement WP01
        use:
          - FILE
      ```
-  5. Create `buf.gen.yaml` for code generation configuration.
-  6. Add `build.rs` to `agileplus-grpc` crate for tonic-build:
+  4. Create `buf.gen.yaml` for code generation configuration.
+  5. Add `build.rs` to `agileplus-grpc` crate for tonic-build:
      ```rust
      fn main() -> Result<(), Box<dyn std::error::Error>> {
          tonic_build::compile_protos("../../proto/agileplus.proto")?;
          Ok(())
      }
      ```
-  7. Add tonic-build as a build-dependency in `agileplus-grpc/Cargo.toml`.
-  8. Create a Python generation script at `mcp/scripts/generate_proto.py` using grpcio-tools.
-- **Files**: `proto/agileplus.proto`, `buf.yaml`, `buf.gen.yaml`, `crates/agileplus-grpc/build.rs`, `mcp/scripts/generate_proto.py`
+  6. Add tonic-build as a build-dependency in `agileplus-grpc/Cargo.toml`.
+  7. Create a Python generation script at `mcp/scripts/generate_proto.py` using grpcio-tools.
+  8. Commit the `.gitmodules` file and the `proto` submodule pointer.
+- **Files**: `.gitmodules`, `proto/` (submodule), `buf.yaml`, `buf.gen.yaml`, `crates/agileplus-grpc/build.rs`, `mcp/scripts/generate_proto.py`
 - **Parallel?**: No -- depends on T001 completing and T003 creating the grpc crate
-- **Validation**: `buf lint` passes; `cargo build -p agileplus-grpc` succeeds (generates Rust stubs); `cd mcp && python scripts/generate_proto.py` generates Python stubs.
-- **Notes**: The proto file is the source of truth for the Rust-Python boundary. Changes here must be coordinated. Use `buf breaking` in CI to detect accidental breaking changes. The `tonic-build` requires `protoc` on the PATH -- this is why T004 (Makefile) and T005 (Docker) pin the protoc version.
+- **Validation**: `git submodule status` shows the proto submodule at the correct commit; `buf lint proto/` passes; `cargo build -p agileplus-grpc` succeeds (generates Rust stubs); `cd mcp && python scripts/generate_proto.py` generates Python stubs.
+- **Notes**: Proto definitions live exclusively in the `agileplus-proto` repo -- never commit `.proto` files directly into this repo. Update the submodule ref when the proto repo cuts a new release. Use `buf breaking` in CI to detect accidental breaking changes. The `tonic-build` requires `protoc` on the PATH -- this is why T004 (Makefile) and T005 (Docker) pin the protoc version.
+
+### Subtask T006b: MSRV CI Check
+
+**Purpose**: Add minimum supported Rust version CI check using latest stable Rust.
+
+**Steps**:
+1. Add `rust-version = "stable"` field to workspace Cargo.toml
+2. Add CI job running `cargo check` with latest stable toolchain
+3. Add Windows target to CI matrix (macOS + Linux + Windows)
+
+**Files**: `Cargo.toml`, CI config, `Makefile`
+**Validation**: CI runs on all 3 platforms with both nightly and stable
+
+### Subtask T006c: Documentation Infrastructure
+
+**Purpose**: Set up rustdoc generation CI and FR/WP traceability convention.
+
+**Steps**:
+1. Add `cargo doc --no-deps --workspace` to CI pipeline
+2. Add module header convention: `//! Implements FR-XXX. See WPnn.`
+3. Add rustdoc examples requirement for public APIs in clippy config
+
+**Files**: CI config, `Makefile`
+**Validation**: `cargo doc` succeeds, module headers present in domain crate
+
+### Subtask T006d: Zero-Dependency Domain CI Lint
+
+**Purpose**: Enforce that agileplus-domain has only serde/sha2/chrono as external deps.
+
+**Steps**:
+1. Add CI step: parse `crates/agileplus-domain/Cargo.toml` and verify `[dependencies]` contains only allowed crates (serde, sha2, chrono, serde_json)
+2. Script fails CI if unauthorized dependencies are added
+3. Configure workspace clippy with `must-use-candidate = "warn"`
+
+**Files**: CI config, `clippy.toml`
+**Validation**: CI rejects a PR adding unauthorized dep to domain crate
 
 ---
 
@@ -364,13 +390,13 @@ spec-kitty implement WP01
 
 Reviewers should verify:
 
-1. **Workspace completeness**: All 9 crates listed in root `Cargo.toml`, all compile.
+1. **Workspace completeness**: All 7 crates listed in root `Cargo.toml`, all compile. Confirm no agent/review/integration crates are present (those are in separate repos).
 2. **Edition correctness**: Every `Cargo.toml` uses `edition = "2024"` (via workspace inheritance or explicit).
-3. **Dependency hygiene**: Core crate has ONLY serde, serde_json, chrono, sha2, thiserror. No I/O deps.
+3. **Dependency hygiene**: `agileplus-domain` crate has ONLY serde, serde_json, chrono, sha2, thiserror. No I/O deps.
 4. **Module structure**: Directory layout matches plan.md exactly (lines 50-176).
 5. **Makefile targets**: All targets defined, correct commands, `.PHONY` declared.
 6. **Docker**: Both Dockerfiles build, docker-compose.yml validates.
-7. **Proto**: Proto file defines all services from contracts, `buf lint` passes.
+7. **Proto submodule**: `proto/` git submodule points to `agileplus-proto` repo; no `.proto` files committed directly; `buf lint proto/` passes.
 8. **No logic**: This WP is scaffolding ONLY. No business logic, no tests beyond compilation.
 
 ---

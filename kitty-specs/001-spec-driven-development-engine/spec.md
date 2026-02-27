@@ -15,6 +15,20 @@ AgilePlus becomes the canonical governance source for the Phenotype organization
 
 **Interfaces**: MCP server (FastMCP 3.0), CLI, API. Extensible via agent Skills and plugins.
 
+### Multi-Repo Architecture
+
+AgilePlus is decomposed into 5 independent repositories to enforce CLEAN/SOLID/Hexagonal boundaries at the repository level, prevent scope creep, and enable independent scaling/deployment/versioning:
+
+| Repository | Purpose | Language |
+|------------|---------|----------|
+| `agileplus-proto` | Shared contracts (gRPC + MCP schemas) | Protobuf → Rust/Python |
+| `agileplus-core` | Domain + CLI + API + storage | Rust |
+| `agileplus-mcp` | MCP server (FastMCP 3.0) | Python |
+| `agileplus-agents` | Agent dispatch + review loop | Rust |
+| `agileplus-integrations` | Plane.so + GitHub + triage sync | Rust |
+
+All cross-repo communication uses gRPC with contracts defined in `agileplus-proto`. Each repo can be built, tested, versioned, and deployed independently. The proto repo is consumed as a git submodule or dependency by all other repos.
+
 ### Agent-First Architecture
 
 AgilePlus leverages Claude Code's SlashCommand tool (v1.0.123+) to enable agents to programmatically invoke slash commands. The user sees 7 commands; behind the scenes, agents orchestrate ~25 hidden sub-commands that provide bmad-level depth without user friction.
@@ -287,6 +301,13 @@ An agent receives a user request. Before executing, it reads the project's `CLAU
 - **FR-051**: Agents MUST follow CI/CD best practices by default: conventional commits, PR templates with WP context, branch naming conventions, automated linting before push.
 - **FR-052**: Agents MUST use the project's CLAUDE.md/AGENTS.md as their first-action classifier before executing any work.
 
+**Multi-Repo Architecture:**
+- **FR-053**: System MUST define all inter-service contracts in a shared `agileplus-proto` repository, consumed by all service repos as a git submodule or dependency.
+- **FR-054**: Each service repository (core, mcp, agents, integrations) MUST be independently buildable and testable with only the proto dependency.
+- **FR-055**: Cross-repo communication MUST use gRPC with Protobuf contracts — no direct in-process calls between repos.
+- **FR-056**: The proto repository MUST generate typed stubs for both Rust (tonic/prost) and Python (grpcio) from a single set of `.proto` files.
+- **FR-057**: Each service MUST implement its own gRPC service definition (core.proto, agents.proto, integrations.proto) with shared message types from common.proto.
+
 **Governance Source:**
 - **FR-028**: System MUST serve as the canonical governance source for the Phenotype organization, consolidating worktree discipline, quality gates, and agent workflow rules.
 - **FR-029**: System MUST integrate and extend existing Phenotype governance patterns (from parpour, civ, thegent).
@@ -325,3 +346,7 @@ An agent receives a user request. Before executing, it reads the project's `CLAU
 - SQLite is sufficient for single-developer and small-team workloads (no need for PostgreSQL in the initial version). Basic multi-user is supported via shared git repo; no cloud sync in v1.
 - FastMCP 3.0 is stable and available for MCP server implementation.
 - Existing Phenotype governance patterns (worktree discipline, quality gates, CLAUDE.md/AGENTS.md conventions) are the baseline to extend, not replace.
+- Multi-repo architecture with gRPC boundaries is viable for a local-first tool; the gRPC overhead (<10ms) is acceptable for inter-service communication.
+- Each repo can maintain independent CI/CD pipelines; the proto repo is the only shared build dependency.
+- TypeScript 7, Zig, and Go are available for future components where they outperform Rust/Python. v1 uses Rust + Python exclusively; TS7/Zig/Go adoption requires an ADR.
+- Plane.so Community Edition setup and configuration is handled by the user outside AgilePlus. AgilePlus syncs data to an existing Plane.so instance via API — it does not provision or configure the Plane.so deployment.
