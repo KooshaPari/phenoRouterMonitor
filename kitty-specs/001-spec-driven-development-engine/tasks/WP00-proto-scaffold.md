@@ -17,7 +17,7 @@ subtasks:
 - T000g
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "96135"
 review_status: ''
 reviewed_by: ''
@@ -430,3 +430,4 @@ Reviewers should verify:
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-27T23:51:11Z – claude-opus – shell_pid=96135 – lane=doing – Assigned agent via workflow command
