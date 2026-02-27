@@ -3,19 +3,6 @@ work_package_id: WP16
 title: BDD Acceptance Tests & Integration Suite
 lane: planned
 dependencies:
-- WP01
-- WP03
-- WP04
-- WP05
-- WP06
-- WP07
-- WP08
-- WP09
-- WP10
-- WP11
-- WP12
-- WP13
-- WP14
 - WP15
 subtasks:
 - T091

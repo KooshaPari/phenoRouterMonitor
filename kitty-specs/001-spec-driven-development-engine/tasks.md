@@ -5,7 +5,7 @@
 
 **Tests**: BDD acceptance tests and contract tests included per the test strategy (cucumber-rs, behave, Pact).
 
-**Organization**: 85 subtasks → 16 work packages. Average ~5 subtasks per WP, ~350 lines per prompt.
+**Organization**: 127 subtasks → 21 work packages. Average ~6 subtasks per WP, ~370 lines per prompt.
 
 ---
 
@@ -520,6 +520,106 @@
 
 ---
 
+## Work Package WP17: Triage & Backlog Adapter (Priority: P2)
+
+**Goal**: Implement the triage classifier, backlog management, and prompt router generation in `agileplus-triage`.
+**Independent Test**: Triage classifies input correctly (bug/feature/idea), creates backlog entries, generates a valid CLAUDE.md router.
+**Prompt**: `tasks/WP17-triage-backlog-adapter.md`
+**Estimated**: ~400 lines, 6 subtasks
+
+### Included Subtasks
+- [ ] T098 Implement `TriageAdapter` struct with `classify()` method: bug, feature, idea, task classification
+- [ ] T099 Implement `BacklogItem` CRUD: create, list_by_type, list_by_feature, promote_to_feature
+- [ ] T100 Implement `classifier.rs`: rule-based + keyword intent classification (extensible for LLM-based later)
+- [ ] T101 Implement `router.rs`: generate project-specific CLAUDE.md with prompt routing rules (FR-046)
+- [ ] T102 Implement `router.rs`: generate project-specific AGENTS.md with sub-command vocabulary (FR-047)
+- [ ] T103 Write unit tests for classification accuracy, backlog operations, router generation
+
+### Dependencies
+- Depends on WP05 (port traits), WP06 (SQLite for backlog storage)
+
+---
+
+## Work Package WP18: Plane.so Sync Adapter (Priority: P2)
+
+**Goal**: Implement bidirectional-aware sync from SQLite to Plane.so for features and work packages.
+**Independent Test**: Feature state change in SQLite creates/updates corresponding Plane.so work item.
+**Prompt**: `tasks/WP18-plane-sync-adapter.md`
+**Estimated**: ~350 lines, 5 subtasks
+
+### Included Subtasks
+- [ ] T104 Implement `PlaneSyncAdapter` struct with Plane.so REST API client (FR-043)
+- [ ] T105 Implement feature sync: SQLite feature → Plane.so work item (create/update on state change)
+- [ ] T106 Implement WP sync: SQLite WP → Plane.so sub-item (status, assignee, PR link)
+- [ ] T107 Implement conflict detection: poll Plane.so for mirror-side edits, warn on conflicts (FR-045)
+- [ ] T108 Write integration tests with mock Plane.so API
+
+### Dependencies
+- Depends on WP06 (SQLite), WP15 (credential management for Plane.so API key)
+
+---
+
+## Work Package WP19: GitHub Sync Adapter (Priority: P2)
+
+**Goal**: Implement bug-to-issue sync from SQLite to GitHub Issues with structured metadata.
+**Independent Test**: Bug triaged in SQLite creates a GitHub issue with labels, cross-references, and metadata.
+**Prompt**: `tasks/WP19-github-sync-adapter.md`
+**Estimated**: ~350 lines, 5 subtasks
+
+### Included Subtasks
+- [ ] T109 Implement `GitHubSyncAdapter` struct with octocrab GitHub API client (FR-044)
+- [ ] T110 Implement bug sync: SQLite backlog bug → GitHub issue (title, body, labels, feature/WP refs)
+- [ ] T111 Implement issue status sync: GitHub issue closed → SQLite backlog item resolved
+- [ ] T112 Implement conflict detection: warn on GitHub-side edits that conflict with SQLite state (FR-045)
+- [ ] T113 Write integration tests with mock GitHub API (wiremock)
+
+### Dependencies
+- Depends on WP06 (SQLite), WP15 (credential management for GitHub token)
+
+---
+
+## Work Package WP20: Hidden Sub-Commands & SlashCommand Integration (Priority: P2)
+
+**Goal**: Implement the ~25 hidden sub-commands and wire them for invocation via Claude Code's SlashCommand tool.
+**Independent Test**: Each sub-command executes correctly when invoked programmatically; audit log captures all invocations.
+**Prompt**: `tasks/WP20-hidden-subcommands.md`
+**Estimated**: ~500 lines, 7 subtasks
+
+### Included Subtasks
+- [ ] T114 Define sub-command registry: enum of all ~25 sub-commands with metadata (category, description, required args)
+- [ ] T115 Implement triage sub-commands: `triage:classify`, `triage:file-bug`, `triage:queue-idea` (FR-040, FR-041, FR-042)
+- [ ] T116 Implement governance sub-commands: `governance:check-gates`, `governance:evaluate-policy`, `governance:verify-chain`
+- [ ] T117 Implement sync sub-commands: `sync:push-plane`, `sync:push-github`, `sync:pull-status` (FR-043, FR-044)
+- [ ] T118 Implement git/devops sub-commands: `git:create-worktree`, `git:branch-from-wp`, `devops:lint-and-format`, `devops:conventional-commit` (FR-051)
+- [ ] T119 Implement context + escape sub-commands: `context:load-spec`, `context:scan-codebase`, `escape:quick-fix`, `escape:hotfix`, `meta:generate-router`
+- [ ] T120 Implement audit logging for all sub-command invocations (FR-048) and write integration tests
+
+### Dependencies
+- Depends on WP13 (CLI commands), WP17 (triage), WP18 (Plane sync), WP19 (GitHub sync)
+
+---
+
+## Work Package WP21: CLI Triage & Queue Commands + Agent Defaults (Priority: P2)
+
+**Goal**: Add `triage` and `queue` as user-facing CLI commands, implement agent DevOps defaults, and auto-triage during implement.
+**Independent Test**: `agileplus triage "login is broken"` classifies as bug and creates GitHub issue. Agent auto-triages during implement.
+**Prompt**: `tasks/WP21-cli-triage-queue.md`
+**Estimated**: ~400 lines, 6 subtasks
+
+### Included Subtasks
+- [ ] T121 Implement `commands/triage.rs`: accept input, classify, route to appropriate store (FR-040)
+- [ ] T122 Implement `commands/queue.rs`: add to backlog, surface during next specify/plan cycle (FR-042)
+- [ ] T123 Implement agent auto-triage hook: during implement, agents auto-file discovered bugs (FR-041)
+- [ ] T124 Implement agent DevOps defaults: conventional commits, branch naming, lint-before-push (FR-051)
+- [ ] T125 Implement CLAUDE.md/AGENTS.md first-action classifier integration (FR-052)
+- [ ] T126 Wire triage/queue to StoragePort, sync adapters, telemetry; write CLI integration tests
+- [ ] T127 Seed sub-command prompt files from hybridized reference commands (spec-kitty, bmad, gsd, openspec superset)
+
+### Dependencies
+- Depends on WP17 (triage adapter), WP20 (sub-commands)
+
+---
+
 ## Dependency & Execution Summary
 
 ```
@@ -548,11 +648,18 @@ Phase 4 (Integration — after CLI):
   WP14 (gRPC + MCP) ────── depends on WP13
   WP15 (API + Creds) ───── depends on WP14
   WP16 (BDD + Integration) ── depends on WP15
+
+Phase 5 (Triage, Sync & Sub-Commands — after Phase 2+4):
+  WP17 (Triage/Backlog) ──── depends on WP05, WP06
+  WP18 (Plane.so Sync) ───── depends on WP06, WP15
+  WP19 (GitHub Sync) ──────── depends on WP06, WP15
+  WP20 (Hidden Sub-Cmds) ─── depends on WP13, WP17, WP18, WP19
+  WP21 (CLI Triage/Queue) ── depends on WP17, WP20
 ```
 
-**Parallelization**: Up to 5 WPs can run simultaneously in Phase 2. Phases 0-1 allow 2-3 parallel WPs.
+**Parallelization**: Up to 5 WPs in Phase 2, WP17-WP19 can run in parallel in Phase 5.
 
-**MVP Scope**: WP01 → WP03 → WP05 → WP06 → WP07 → WP11 → WP12 → WP13 = 8 WPs for core CLI workflow (specify → ship). This is the minimal path to a working product.
+**MVP Scope**: WP01 → WP03 → WP05 → WP06 → WP07 → WP11 → WP12 → WP13 = 8 WPs for core CLI workflow (specify → ship). Phase 5 adds triage/sync/sub-commands as a secondary milestone.
 
 ---
 
@@ -657,3 +764,33 @@ Phase 4 (Integration — after CLI):
 | T095 | Docker Compose test env | WP16 | P2 | No |
 | T096 | Full workflow integration test | WP16 | P2 | No |
 | T097 | Test fixtures | WP16 | P2 | No |
+| T098 | TriageAdapter + classify | WP17 | P2 | No |
+| T099 | BacklogItem CRUD | WP17 | P2 | No |
+| T100 | Intent classifier | WP17 | P2 | No |
+| T101 | CLAUDE.md router gen | WP17 | P2 | No |
+| T102 | AGENTS.md gen | WP17 | P2 | No |
+| T103 | Triage unit tests | WP17 | P2 | No |
+| T104 | PlaneSyncAdapter | WP18 | P2 | No |
+| T105 | Feature → Plane.so sync | WP18 | P2 | Yes |
+| T106 | WP → Plane.so sync | WP18 | P2 | Yes |
+| T107 | Plane.so conflict detection | WP18 | P2 | No |
+| T108 | Plane.so mock tests | WP18 | P2 | No |
+| T109 | GitHubSyncAdapter | WP19 | P2 | No |
+| T110 | Bug → GitHub issue sync | WP19 | P2 | Yes |
+| T111 | Issue status sync | WP19 | P2 | Yes |
+| T112 | GitHub conflict detection | WP19 | P2 | No |
+| T113 | GitHub mock tests | WP19 | P2 | No |
+| T114 | Sub-command registry | WP20 | P2 | No |
+| T115 | Triage sub-commands | WP20 | P2 | Yes |
+| T116 | Governance sub-commands | WP20 | P2 | Yes |
+| T117 | Sync sub-commands | WP20 | P2 | Yes |
+| T118 | Git/devops sub-commands | WP20 | P2 | Yes |
+| T119 | Context/escape sub-commands | WP20 | P2 | Yes |
+| T120 | Sub-command audit logging | WP20 | P2 | No |
+| T121 | triage CLI command | WP21 | P2 | No |
+| T122 | queue CLI command | WP21 | P2 | No |
+| T123 | Agent auto-triage hook | WP21 | P2 | No |
+| T124 | Agent DevOps defaults | WP21 | P2 | No |
+| T125 | CLAUDE.md first-action classifier | WP21 | P2 | No |
+| T126 | Triage/queue DI wiring | WP21 | P2 | No |
+| T127 | Seed sub-command prompts | WP21 | P2 | No |
