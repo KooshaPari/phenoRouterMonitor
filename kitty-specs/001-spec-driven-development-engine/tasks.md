@@ -596,7 +596,7 @@
 - [ ] T098b Implement `TriageAdapter` struct with `classify()` method in `crates/agileplus-triage/src/`
 - [x] T099 Implement `BacklogItem` CRUD: create, list_by_type, list_by_feature, promote_to_feature
 - [x] T100 Implement `classifier.rs`: rule-based + keyword intent classification (extensible for LLM-based later)
-- [ ] T101 Implement `router.rs`: generate project-specific CLAUDE.md with prompt routing rules (FR-046)
+- [x] T101 Implement `router.rs`: generate project-specific CLAUDE.md with prompt routing rules (FR-046)
 - [ ] T102 Implement `router.rs`: generate project-specific AGENTS.md with sub-command vocabulary (FR-047)
 - [ ] T102b Implement `agileplus-integrations-service` gRPC server implementing `integrations.proto` IntegrationsService (triage endpoints)
 - [ ] T103 Write unit tests for classification accuracy, backlog operations, router generation
