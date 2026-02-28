@@ -1,7 +1,7 @@
 ---
 work_package_id: WP12
 title: CLI -- Plan & Implement Commands
-lane: "doing"
+lane: "done"
 dependencies:
 - WP08
 base_branch: 001-spec-driven-development-engine-WP11
@@ -19,8 +19,8 @@ phase: Phase 3 - CLI
 assignee: ''
 agent: "claude-wp12"
 shell_pid: "90068"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Koosha Paridehpour"
 history:
 - timestamp: '2026-02-27T00:00:00Z'
   lane: planned
@@ -549,3 +549,4 @@ To change a work package's lane, either:
 **Initial entry**:
 - 2026-02-27T00:00:00Z -- system -- lane=planned -- Prompt created.
 - 2026-02-28T10:00:27Z – claude-wp12 – shell_pid=90068 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T10:09:35Z – claude-wp12 – shell_pid=90068 – lane=done – Review passed: plan+implement commands, 48 tests
