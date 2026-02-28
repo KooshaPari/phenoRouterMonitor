@@ -645,7 +645,7 @@
 **Estimated**: ~350 lines, 5 subtasks
 
 ### Included Subtasks
-- [ ] T109 Implement `GitHubSyncAdapter` struct with octocrab GitHub API client in `crates/agileplus-github/src/` (FR-044)
+- [x] T109 Implement `GitHubSyncAdapter` struct with octocrab GitHub API client in `crates/agileplus-github/src/` (FR-044)
 - [ ] T110 Implement bug sync: gRPC request from core → GitHub issue (title, body, labels, feature/WP refs)
 - [ ] T111 Implement issue status sync: GitHub issue closed → notify core via gRPC
 - [ ] T112 Implement conflict detection: warn on GitHub-side edits that conflict with core state (FR-045)
