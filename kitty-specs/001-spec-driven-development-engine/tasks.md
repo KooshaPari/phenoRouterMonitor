@@ -457,7 +457,7 @@
 
 ### Included Subtasks
 - [x] T073 Implement `commands/validate.rs`: FR-to-evidence tracing, quality gate checks, validation report (FR-005)
-- [ ] T074 Implement governance gate evaluator: check all contract rules, collect violations, block if failing (FR-018, FR-019)
+- [x] T074 Implement governance gate evaluator: check all contract rules, collect violations, block if failing (FR-018, FR-019)
 - [ ] T075 Implement `commands/ship.rs`: merge to target branch, cleanup worktrees, archive feature, finalize audit (FR-006)
 - [ ] T076 Implement `commands/retrospective.rs`: analyze feature history, generate learnings, suggest constitution amendments (FR-007)
 - [ ] T077 Implement strict state machine enforcement in all commands: verify current state, transition, log (FR-033, FR-034)
