@@ -226,7 +226,7 @@
 **Estimated**: ~500 lines, 7 subtasks
 
 ### Included Subtasks
-- [ ] T031 Create SQLite migration system in `crates/agileplus-sqlite/src/migrations/` (all tables from data-model.md)
+- [x] T031 Create SQLite migration system in `crates/agileplus-sqlite/src/migrations/` (all tables from data-model.md)
 - [ ] T032 Implement `SqliteStorageAdapter` struct implementing `StoragePort`
 - [ ] T033 Implement feature CRUD: create, get_by_slug, update_state, list_by_state
 - [ ] T034 Implement work package CRUD: create, get, update_state, list_by_feature, dependency queries
