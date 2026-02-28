@@ -1,7 +1,7 @@
 ---
 work_package_id: WP20
 title: Hidden Sub-Commands & SlashCommand Integration
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP13
 base_branch: 001-spec-driven-development-engine-WP17
@@ -17,8 +17,8 @@ subtasks:
 - T120
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
-agent: ''
-shell_pid: "63412"
+agent: "claude-opus"
+shell_pid: "79344"
 review_status: ''
 reviewed_by: ''
 history:
@@ -529,3 +529,4 @@ The reviewer should verify the following before moving this WP to `done`:
 
 _Work Package WP20 — Phase 5: Triage, Sync & Sub-Commands_
 - 2026-02-28T13:34:16Z – unknown – shell_pid=63412 – lane=for_review – Sub-commands crate: 25 commands, JSONL audit. 12 tests.
+- 2026-02-28T23:22:37Z – claude-opus – shell_pid=79344 – lane=doing – Started review via workflow command
