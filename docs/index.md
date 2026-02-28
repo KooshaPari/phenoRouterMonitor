@@ -1,26 +1,23 @@
 ---
 layout: home
 hero:
-  name: phenotype-infrakit
-  tagline: Rust infrastructure toolkit for the Phenotype ecosystem.
+  name: AgilePlus
+  text: Spec-driven development engine
+  tagline: From specification to shipped feature — governed, auditable, agent-ready.
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /guide/getting-started
+    - theme: alt
+      text: CLI Reference
+      link: /reference/cli
+features:
+  - title: Spec → Ship Pipeline
+    details: 7-stage workflow from specify through retrospective with full audit trail.
+  - title: Multi-Agent Ready
+    details: Dispatch to Claude Code, Cursor, Codex, or Copilot with built-in review loops.
+  - title: Clean Architecture
+    details: Port-based domain core with pluggable storage, VCS, and agent adapters.
+  - title: Triage & Sync
+    details: Rule-based intent classification with Plane.so and GitHub issue sync.
 ---
-
-# phenotype-infrakit
-
-Rust infrastructure toolkit extracted from the Phenotype ecosystem. Generic, domain-agnostic crates for event sourcing, caching, policy evaluation, and state machine management.
-
-## Crates
-
-- **event-sourcing** — event store and projection primitives
-- **cache-adapter** — unified caching abstraction over multiple backends
-- **policy-engine** — policy evaluation and enforcement
-- **state-machine** — typed state machine implementation
-
-## Usage
-
-Add to your `Cargo.toml`:
-
-```toml
-[dependencies]
-phenotype-infrakit = { git = "https://github.com/KooshaPari/phenotype-infrakit" }
-```

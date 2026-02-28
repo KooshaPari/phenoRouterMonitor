@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP00",
+  "feature_slug": "001-spec-driven-development-engine",
+  "worktree_path": ".worktrees/001-spec-driven-development-engine-WP00",
+  "branch_name": "001-spec-driven-development-engine-WP00",
+  "base_branch": "main",
+  "base_commit": "1d7faa3715187a2f4f41de16be4810147979105e",
+  "dependencies": [],
+  "created_at": "2026-02-27T23:51:11.603937+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}
