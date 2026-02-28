@@ -1,35 +1,24 @@
-# Added by Spec Kitty CLI (auto-managed)
-references
-.opencode/
-.windsurf/
-.qwen/
-.augment/
-.roo/
-.amazonq/
-.github/copilot/
-.kittify/.dashboard
+# Rust
+target/
 
-# VitePress docs
-node_modules/
-docs/.vitepress/cache/
-docs/.vitepress/dist/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+dist/
 
+# Generated stubs (regenerated at build time)
+rust/src/gen/
+python/src/gen/
 
+# OS
+.DS_Store
+*.swp
+*~
 
-
-
-
-
-# AI tool artifacts
-.claude/
-.codex/
-.cursor/
-.gemini/
-.kittify/
-.kilocode/
-.github/prompts/
-.github/copilot-instructions.md
-.claudeignore
-.llmignore
-# Excluded via sparse-checkout
-kitty-specs/
+# IDE
+.idea/
+.vscode/
+*.iml

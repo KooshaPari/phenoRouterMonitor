@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package agileplus.v1;
+
+option java_package = "com.phenotype.agileplus.v1";
+option java_outer_classname = "AgentsProto";
+option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
+
+import "agileplus/v1/common.proto";
+
+// Agent dispatch service: spawn agents, manage PR lifecycle, review loop.
+// Implemented by agileplus-agents. Called by agileplus-core (via gRPC).
+service AgentDispatchService {
+  // Spawn an agent to work on a work package
+  rpc SpawnAgent(SpawnAgentRequest) returns (SpawnAgentResponse);
+
+  // Query agent status
+  rpc GetAgentStatus(GetAgentStatusRequest) returns (GetAgentStatusResponse);
+
+  // Cancel a running agent
+  rpc CancelAgent(CancelAgentRequest) returns (CancelAgentResponse);
+
+  // Bidirectional agent event streaming
+  rpc AgentEvents(stream AgentEventsRequest) returns (stream AgentEventsResponse);
+
+  // Trigger review-fix loop for a PR
+  rpc StartReviewLoop(StartReviewLoopRequest) returns (StartReviewLoopResponse);
+
+  // Get review loop status
+  rpc GetReviewStatus(GetReviewStatusRequest) returns (GetReviewStatusResponse);
+}
+
+// --- Requests ---
+
+message SpawnAgentRequest {
+  string feature_slug = 1;
+  int32 wp_sequence = 2;
+  string harness = 3;
+  string prompt_path = 4;
+  repeated string context_paths = 5;
+  string worktree_path = 6;
+  int32 max_agents = 7;
+}
+
+message SpawnAgentResponse {
+  bool success = 1;
+  string agent_id = 2;
+  string message = 3;
+}
+
+message GetAgentStatusRequest {
+  string agent_id = 1;
+}
+
+message GetAgentStatusResponse {
+  AgentStatus status = 1;
+}
+
+message AgentStatus {
+  string agent_id = 1;
+  string state = 2;
+  string feature_slug = 3;
+  int32 wp_sequence = 4;
+  string pr_url = 5;
+  int32 review_cycles = 6;
+  string last_activity = 7;
+}
+
+message CancelAgentRequest {
+  string agent_id = 1;
+  string reason = 2;
+}
+
+message CancelAgentResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message AgentEventsRequest {
+  AgentEvent event = 1;
+}
+
+message AgentEventsResponse {
+  AgentEventAck ack = 1;
+}
+
+message StartReviewLoopRequest {
+  string feature_slug = 1;
+  int32 wp_sequence = 2;
+  string pr_url = 3;
+  string agent_id = 4;
+  int32 max_cycles = 5;
+}
+
+message StartReviewLoopResponse {
+  bool success = 1;
+  string review_loop_id = 2;
+  string message = 3;
+}
+
+message GetReviewStatusRequest {
+  string review_loop_id = 1;
+}
+
+message GetReviewStatusResponse {
+  ReviewStatus status = 1;
+}
+
+message ReviewStatus {
+  string review_loop_id = 1;
+  string state = 2;
+  int32 cycle = 3;
+  int32 max_cycles = 4;
+  repeated string pending_comments = 5;
+  bool ci_passing = 6;
+}

@@ -1,50 +1,75 @@
-# AgilePlus
+# agileplus-proto
 
-Spec-driven development engine — from specification to shipped feature with full governance and audit trail.
+Protocol Buffer definitions for the AgilePlus gRPC API.
 
 ## Overview
 
-AgilePlus implements a 7-stage development pipeline:
+This repository is the **single source of truth** for all inter-service contracts in the AgilePlus ecosystem. It defines three gRPC services and a set of shared message types used across five repositories.
 
-```
-specify → research → plan → implement → validate → ship → retrospective
-```
+## Repository Layout
 
-Each stage transitions features through a governed state machine with SHA-256 audit chains.
+| Path | Description |
+|------|-------------|
+| `proto/agileplus/v1/` | Protocol Buffer definitions (4 files) |
+| `proto/agileplus/v1/common.proto` | Shared message types (Feature, AuditEntry, etc.) |
+| `proto/agileplus/v1/core.proto` | `AgilePlusCoreService` — feature lifecycle, governance, audit |
+| `proto/agileplus/v1/agents.proto` | `AgentDispatchService` — agent spawn, review loop |
+| `proto/agileplus/v1/integrations.proto` | `IntegrationsService` — Plane.so, GitHub, triage |
+| `rust/` | Rust crate (`agileplus-proto`) with tonic/prost codegen |
+| `python/` | Python package (`agileplus-proto`) with grpcio stubs |
+| `buf.yaml` | buf v2 lint and breaking change configuration |
+| `buf.gen.yaml` | buf codegen plugin configuration |
 
-## Architecture
+## Getting Started
 
-- **8 Rust crates** in a clean-architecture workspace
-- **Port-based adapters** (SQLite, Git, Plane.so, GitHub)
-- **Rule-based triage** with keyword-weighted intent classification
-- **25 hidden sub-commands** for advanced agent workflows
-- **Multi-agent support** (Claude Code, Cursor, Codex, Copilot)
+### Prerequisites
 
-## Quick Start
+- [buf](https://buf.build/docs/installation) v2+
+- Rust toolchain (for building the Rust crate)
+- Python 3.12+ with [uv](https://docs.astral.sh/uv/) (for the Python package)
+
+### Lint
 
 ```bash
-# Install
-cargo install --path crates/agileplus-cli
-
-# Initialize a project
-agileplus init
-
-# Create a feature
-agileplus specify --title "My Feature" --description "What it does"
-
-# Full pipeline
-agileplus research my-feature
-agileplus plan my-feature
-agileplus implement my-feature --wp WP01
-agileplus validate my-feature
-agileplus ship my-feature
-agileplus retrospective my-feature
+make lint
 ```
 
-## Documentation
+### Generate Stubs
 
-Run `npm run dev` to preview docs locally, or see the [docs/](docs/) directory.
+```bash
+make generate
+```
 
-## License
+### Build Rust Crate
 
-MIT
+```bash
+cd rust && cargo build
+```
+
+### Install Python Package
+
+```bash
+cd python && uv sync
+```
+
+### Check for Breaking Changes
+
+```bash
+make breaking
+```
+
+## Breaking Change Policy
+
+All proto changes are checked against `main` using `buf breaking`. Breaking changes require:
+
+1. A version bump in `buf.yaml` module path (e.g., `v1` → `v2`)
+2. Explicit documentation in the PR description
+3. Coordination with all downstream consumers (agileplus-core, agileplus-mcp, agileplus-agents, agileplus-integrations)
+
+## Contributing
+
+1. Edit proto files in `proto/agileplus/v1/`
+2. Run `make lint` to validate
+3. Run `make generate` to regenerate stubs
+4. Run `cargo build` in `rust/` and `uv sync` in `python/` to verify
+5. Submit a PR — CI will run lint, breaking change detection, and build checks

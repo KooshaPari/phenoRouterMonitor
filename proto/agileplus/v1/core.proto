@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package agileplus.v1;
+
+option java_package = "com.phenotype.agileplus.v1";
+option java_outer_classname = "CoreProto";
+option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
+
+import "agileplus/v1/common.proto";
+
+// Core domain service: features, work packages, governance, audit, command dispatch.
+// Implemented by agileplus-core. Called by agileplus-mcp, agileplus-agents, agileplus-integrations.
+service AgilePlusCoreService {
+  // Feature operations
+  rpc GetFeature(GetFeatureRequest) returns (GetFeatureResponse);
+  rpc ListFeatures(ListFeaturesRequest) returns (ListFeaturesResponse);
+  rpc GetFeatureState(GetFeatureStateRequest) returns (GetFeatureStateResponse);
+
+  // Work package operations
+  rpc ListWorkPackages(ListWorkPackagesRequest) returns (ListWorkPackagesResponse);
+  rpc GetWorkPackageStatus(GetWorkPackageStatusRequest) returns (GetWorkPackageStatusResponse);
+
+  // Governance operations
+  rpc CheckGovernanceGate(CheckGovernanceGateRequest) returns (CheckGovernanceGateResponse);
+  rpc GetAuditTrail(GetAuditTrailRequest) returns (stream GetAuditTrailResponse);
+  rpc VerifyAuditChain(VerifyAuditChainRequest) returns (VerifyAuditChainResponse);
+
+  // Command dispatch (MCP -> Core)
+  rpc DispatchCommand(DispatchCommandRequest) returns (DispatchCommandResponse);
+}
+
+// --- Requests ---
+
+message GetFeatureRequest {
+  string slug = 1;
+}
+
+message GetFeatureResponse {
+  Feature feature = 1;
+}
+
+message ListFeaturesRequest {
+  string state_filter = 1;
+}
+
+message ListFeaturesResponse {
+  repeated Feature features = 1;
+}
+
+message GetFeatureStateRequest {
+  string slug = 1;
+}
+
+message GetFeatureStateResponse {
+  FeatureState feature_state = 1;
+}
+
+message ListWorkPackagesRequest {
+  string feature_slug = 1;
+  string state_filter = 2;
+}
+
+message ListWorkPackagesResponse {
+  repeated WorkPackageStatus packages = 1;
+}
+
+message GetWorkPackageStatusRequest {
+  string feature_slug = 1;
+  int32 wp_sequence = 2;
+}
+
+message GetWorkPackageStatusResponse {
+  WorkPackageStatus work_package_status = 1;
+}
+
+message CheckGovernanceGateRequest {
+  string feature_slug = 1;
+  string transition = 2;
+}
+
+message CheckGovernanceGateResponse {
+  bool passed = 1;
+  repeated GateViolation violations = 2;
+}
+
+message GetAuditTrailRequest {
+  string feature_slug = 1;
+  int64 after_id = 2;
+}
+
+message GetAuditTrailResponse {
+  AuditEntry audit_entry = 1;
+}
+
+message VerifyAuditChainRequest {
+  string feature_slug = 1;
+}
+
+message VerifyAuditChainResponse {
+  bool valid = 1;
+  int64 entries_verified = 2;
+  string first_invalid_id = 3;
+  string error_message = 4;
+}
+
+message DispatchCommandRequest {
+  CommandRequest command = 1;
+}
+
+message DispatchCommandResponse {
+  CommandResponse result = 1;
+}

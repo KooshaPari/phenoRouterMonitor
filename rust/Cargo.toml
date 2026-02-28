@@ -1,0 +1,14 @@
+[package]
+name = "agileplus-proto"
+version = "0.1.0"
+edition = "2024"
+description = "Generated gRPC stubs for AgilePlus"
+license = "MIT"
+
+[dependencies]
+prost = "0.13"
+tonic = { version = "0.12", features = ["transport"] }
+
+[build-dependencies]
+tonic-build = "0.12"
+prost-build = "0.13"

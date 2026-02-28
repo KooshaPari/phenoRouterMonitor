@@ -1,14 +1,49 @@
 name: CI
 
-on:
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
-  test:
+  buf-lint:
+    name: Buf Lint & Breaking
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: bufbuild/buf-action@v1
+        with:
+          lint: true
+          format: true
+          breaking: true
+
+  rust-build:
+    name: Rust Build
+    needs: buf-lint
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --all
-      - run: cargo clippy -- -D warnings
+        with:
+          workspaces: rust
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Build Rust crate
+        run: cd rust && cargo build
+
+  python-install:
+    name: Python Install
+    needs: buf-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        run: pip install uv
+      - name: Install Python package
+        run: cd python && uv sync
