@@ -231,7 +231,7 @@
 - [x] T033 Implement feature CRUD: create, get_by_slug, update_state, list_by_state
 - [x] T034 Implement work package CRUD: create, get, update_state, list_by_feature, dependency queries
 - [x] T035 Implement audit CRUD: append_entry, get_trail, verify_chain (delegates to domain)
-- [ ] T036 Implement evidence + policy + metric CRUD
+- [x] T036 Implement evidence + policy + metric CRUD
 - [ ] T037 Implement `rebuild_from_git()` (FR-017): parse git artifacts → populate SQLite
 
 ### Implementation Notes
