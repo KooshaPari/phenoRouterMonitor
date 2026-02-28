@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: SQLite Adapter
+lane: "doing"
+dependencies: [WP05]
+base_branch: 001-spec-driven-development-engine-WP05
+base_commit: 5caddd188f117c68c177b4198250fa4251c931de
+created_at: '2026-02-28T09:38:25.835950+00:00'
 subtasks:
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-title: "SQLite Adapter"
-phase: "Phase 2 - Adapters"
-lane: "planned"
-dependencies: ["WP05"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T031
+- T032
+- T033
+- T034
+- T035
+- T036
+- T037
+phase: Phase 2 - Adapters
+assignee: ''
+agent: ''
+shell_pid: "57473"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # WP06: SQLite Adapter
