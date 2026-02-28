@@ -132,7 +132,7 @@
 - [x] T016 Implement `WpDependency` and dependency-aware scheduling logic (FR-039)
 - [x] T017 Write unit tests for FSM: all valid transitions, invalid transitions blocked, skip transitions logged
 - [x] T017b Write proptest property-based tests for FSM transitions (all valid/invalid state pairs)
-- [ ] T017c Run cargo-mutants on state_machine.rs, verify ≥90% mutation score
+- [x] T017c Run cargo-mutants on state_machine.rs, verify ≥90% mutation score
 
 ### Implementation Notes
 - State machine uses Rust enums with exhaustive match — compiler enforces all transitions handled
