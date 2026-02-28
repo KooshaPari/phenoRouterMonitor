@@ -9,6 +9,7 @@ members = [
     "crates/agileplus-git",
     "crates/agileplus-telemetry",
     "crates/agileplus-triage",
+    "crates/agileplus-plane",
     "rust",
 ]
 
