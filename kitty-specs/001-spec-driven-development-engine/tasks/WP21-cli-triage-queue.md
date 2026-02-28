@@ -1,7 +1,7 @@
 ---
 work_package_id: WP21
 title: CLI Triage & Queue Commands + Agent Defaults
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 - WP03
@@ -21,6 +21,9 @@ dependencies:
 - WP18
 - WP19
 - WP20
+base_branch: 001-spec-driven-development-engine-WP20
+base_commit: 53afb3364d1c7775fe6a110bbe55c7ad3bc8af0f
+created_at: '2026-02-28T13:34:30.451070+00:00'
 subtasks:
 - T121
 - T122
@@ -32,7 +35,7 @@ subtasks:
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "66424"
 review_status: ''
 reviewed_by: ''
 history:
