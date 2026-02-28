@@ -5,7 +5,26 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
+[[bin]]
+name = "agileplus"
+path = "src/main.rs"
+
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
+agileplus-sqlite = { path = "../agileplus-sqlite" }
+agileplus-git = { path = "../agileplus-git" }
 clap = { version = "4", features = ["derive"] }
 tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+chrono.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+similar = "2"
+
+[dev-dependencies]
+tempfile = "3"
+assert_cmd = "2"
+predicates = "3"

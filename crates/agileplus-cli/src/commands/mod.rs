@@ -1,1 +1,3 @@
-// CLI command definitions — to be implemented.
+pub mod governance;
+pub mod research;
+pub mod specify;
