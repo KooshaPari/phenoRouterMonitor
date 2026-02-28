@@ -672,7 +672,7 @@
 - [x] T114 Define sub-command registry: enum of all ~25 sub-commands with metadata (category, description, required args)
 - [x] T115 Implement triage sub-commands: `triage:classify`, `triage:file-bug`, `triage:queue-idea` (FR-040, FR-041, FR-042)
 - [x] T116 Implement governance sub-commands: `governance:check-gates`, `governance:evaluate-policy`, `governance:verify-chain`
-- [ ] T117 Implement sync sub-commands: `sync:push-plane`, `sync:push-github`, `sync:pull-status` (FR-043, FR-044)
+- [x] T117 Implement sync sub-commands: `sync:push-plane`, `sync:push-github`, `sync:pull-status` (FR-043, FR-044)
 - [ ] T118 Implement git/devops sub-commands: `git:create-worktree`, `git:branch-from-wp`, `devops:lint-and-format`, `devops:conventional-commit` (FR-051)
 - [ ] T119 Implement context + escape sub-commands: `context:load-spec`, `context:scan-codebase`, `escape:quick-fix`, `escape:hotfix`, `meta:generate-router`
 - [ ] T120 Implement audit logging for all sub-command invocations (FR-048) and write integration tests
