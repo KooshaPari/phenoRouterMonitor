@@ -1,0 +1,11 @@
+[package]
+name = "agileplus-sqlite"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agileplus-domain = { path = "../agileplus-domain" }
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde.workspace = true

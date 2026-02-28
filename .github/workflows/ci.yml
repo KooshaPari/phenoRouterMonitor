@@ -125,6 +125,100 @@ jobs:
       - name: Typo check
         uses: crate-ci/typos@v1
 
+  # ─── Core Workspace ───────────────────────────────────────────────
+  core-check:
+    name: Core Workspace Quality
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy (warnings = errors)
+        run: cargo clippy --workspace -- -D warnings
+      - name: Build
+        run: cargo build --workspace
+      - name: Test
+        run: cargo test --workspace
+
+  core-build:
+    name: Core Build (${{ matrix.os }})
+    needs: buf
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Build
+        run: cargo build --workspace
+
+  core-msrv:
+    name: Core MSRV (1.85)
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@1.85.0
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Check MSRV compatibility
+        run: cargo check --workspace
+
+  core-docs:
+    name: Core Documentation
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Build docs
+        run: cargo doc --no-deps --workspace
+
+  domain-deps-lint:
+    name: Domain Zero-Dep Lint
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate domain crate dependencies
+        run: |
+          ALLOWED="serde serde_json chrono sha2 thiserror"
+          DEPS=$(grep -A 100 '^\[dependencies\]' crates/agileplus-domain/Cargo.toml | grep -E '^\w' | grep -v '^\[' | cut -d'.' -f1 | cut -d' ' -f1)
+          for dep in $DEPS; do
+            if ! echo "$ALLOWED" | grep -qw "$dep"; then
+              echo "ERROR: disallowed dependency '$dep' in agileplus-domain"
+              exit 1
+            fi
+          done
+          echo "Domain dependency check passed"
+
   # ─── Python Quality ────────────────────────────────────────────────
   python-check:
     name: Python Quality
@@ -172,7 +266,7 @@ jobs:
       - name: Install taplo
         run: cargo install taplo-cli
       - name: TOML format check
-        run: taplo format --check rust/Cargo.toml python/pyproject.toml
+        run: taplo format --check Cargo.toml rust/Cargo.toml python/pyproject.toml
       - name: actionlint
         uses: reviewdog/action-actionlint@v1
 

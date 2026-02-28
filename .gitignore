@@ -22,3 +22,5 @@ python/src/gen/
 .idea/
 .vscode/
 *.iml
+# Excluded via sparse-checkout
+kitty-specs/
