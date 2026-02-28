@@ -1,7 +1,7 @@
 ---
 work_package_id: WP13
 title: CLI — Validate, Ship, Retrospective Commands
-lane: "doing"
+lane: "done"
 dependencies: [WP12]
 base_branch: 001-spec-driven-development-engine-WP12
 base_commit: 2f93f2ace72787c10f041c2a5b3067621b7c927f
@@ -17,8 +17,8 @@ phase: Phase 3 - CLI
 assignee: ''
 agent: "claude-wp13"
 shell_pid: "97285"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Koosha Paridehpour"
 history:
 - timestamp: '2026-02-27T00:00:00Z'
   lane: planned
@@ -575,3 +575,4 @@ test with in-memory mocks.
 |-----------|-------|
 | 2026-02-27T00:00:00Z | WP13 prompt generated via /spec-kitty.tasks |
 - 2026-02-28T10:09:41Z – claude-wp13 – shell_pid=97285 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T10:18:29Z – claude-wp13 – shell_pid=97285 – lane=done – Review passed: validate+ship+retro, 133 tests
