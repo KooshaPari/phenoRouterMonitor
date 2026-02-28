@@ -1,7 +1,7 @@
 ---
 work_package_id: WP17
 title: Triage & Backlog Service
-lane: "doing"
+lane: "done"
 dependencies:
 - WP00
 base_branch: 001-spec-driven-development-engine-WP13
@@ -20,8 +20,8 @@ phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: "claude-opus"
 shell_pid: "78007"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Koosha Paridehpour"
 history:
 - timestamp: '2026-02-27T00:00:00Z'
   lane: planned
@@ -595,6 +595,7 @@ Add `tempfile` as a dev-dependency.
 - 2026-02-28T13:20:44Z – claude-opus – shell_pid=3392 – lane=doing – Assigned agent via workflow command
 - 2026-02-28T13:25:04Z – claude-opus – shell_pid=3392 – lane=for_review – Triage crate complete: classifier, backlog, router. 17 tests pass.
 - 2026-02-28T23:21:19Z – claude-opus – shell_pid=78007 – lane=doing – Started review via workflow command
+- 2026-02-28T23:21:54Z – claude-opus – shell_pid=78007 – lane=done – Review passed: 17 tests pass
 
 ## Validation Criteria
 
