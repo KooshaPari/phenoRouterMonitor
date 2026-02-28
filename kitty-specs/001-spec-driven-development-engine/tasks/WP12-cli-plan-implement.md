@@ -1,9 +1,12 @@
 ---
 work_package_id: WP12
 title: CLI -- Plan & Implement Commands
-lane: planned
+lane: "doing"
 dependencies:
 - WP08
+base_branch: 001-spec-driven-development-engine-WP11
+base_commit: 5ae41169174a038a3e6d9724f13b783b1d53858f
+created_at: '2026-02-28T10:00:27.363199+00:00'
 subtasks:
 - T066
 - T067
@@ -15,7 +18,7 @@ subtasks:
 phase: Phase 3 - CLI
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "90068"
 review_status: ''
 reviewed_by: ''
 history:
