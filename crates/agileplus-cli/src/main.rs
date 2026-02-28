@@ -1,7 +1,7 @@
 //! AgilePlus CLI entry point.
 //!
 //! Parses CLI arguments, initialises adapters, and routes to command handlers.
-//! Traceability: WP11-T060, T065
+//! Traceability: WP11-T060, T065 / WP12-T072
 
 use std::path::PathBuf;
 use std::process;
@@ -9,9 +9,14 @@ use std::process;
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
-use agileplus_cli::commands::{research::ResearchArgs, specify::SpecifyArgs};
+use agileplus_cli::commands::{
+    implement::ImplementArgs, plan::PlanArgs, research::ResearchArgs, specify::SpecifyArgs,
+};
 use agileplus_git::GitVcsAdapter;
 use agileplus_sqlite::SqliteStorageAdapter;
+
+mod agent_stub;
+use agent_stub::StubAgentAdapter;
 
 /// Spec-driven development engine.
 #[derive(Parser)]
@@ -39,6 +44,10 @@ enum Commands {
     Specify(SpecifyArgs),
     /// Research a feature (pre-specify codebase scan or post-specify feasibility).
     Research(ResearchArgs),
+    /// Generate a plan (work packages) for a researched feature.
+    Plan(PlanArgs),
+    /// Implement work packages for a planned feature.
+    Implement(ImplementArgs),
 }
 
 #[tokio::main]
@@ -83,12 +92,21 @@ async fn run(cli: Cli) -> Result<()> {
             .context("Not inside a git repository. Run agileplus from your project root.")?,
     };
 
+    // Stub agent adapter (replaced by agileplus-agents when WP08 is available)
+    let agent = StubAgentAdapter;
+
     match cli.command {
         Commands::Specify(args) => {
             agileplus_cli::commands::specify::run_specify(args, &storage, &vcs).await?;
         }
         Commands::Research(args) => {
             agileplus_cli::commands::research::run_research(args, &storage, &vcs).await?;
+        }
+        Commands::Plan(args) => {
+            agileplus_cli::commands::plan::run_plan(args, &storage, &vcs).await?;
+        }
+        Commands::Implement(args) => {
+            agileplus_cli::commands::implement::run_implement(args, &storage, &vcs, &agent).await?;
         }
     }
 

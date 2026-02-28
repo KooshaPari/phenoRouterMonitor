@@ -1,3 +1,9 @@
 pub mod governance;
+pub mod implement;
+pub mod plan;
+pub mod pr_builder;
 pub mod research;
+pub mod review_loop;
+pub mod scheduler;
+pub mod scope;
 pub mod specify;
