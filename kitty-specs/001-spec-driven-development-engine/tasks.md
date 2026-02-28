@@ -461,7 +461,7 @@
 - [x] T075 Implement `commands/ship.rs`: merge to target branch, cleanup worktrees, archive feature, finalize audit (FR-006)
 - [x] T076 Implement `commands/retrospective.rs`: analyze feature history, generate learnings, suggest constitution amendments (FR-007)
 - [x] T077 Implement strict state machine enforcement in all commands: verify current state, transition, log (FR-033, FR-034)
-- [ ] T078 Wire validate/ship/retro to all ports
+- [x] T078 Wire validate/ship/retro to all ports
 
 ### Implementation Notes
 - Validate: iterate all FRs, for each find evidence records, check policy rules
