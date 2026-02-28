@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP03"
-subtasks:
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T017b"
-  - "T017c"
-title: "Domain Model — Feature & State Machine"
-phase: "Phase 1 - Domain"
-lane: "planned"
+work_package_id: WP03
+title: Domain Model — Feature & State Machine
+lane: "doing"
 dependencies:
-  - "WP01"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP01
+base_branch: 001-spec-driven-development-engine-WP01
+base_commit: 2b52a5788fccbf64376696c76a8460fb630a4032
+created_at: '2026-02-28T09:22:09.787896+00:00'
+subtasks:
+- T012
+- T013
+- T014
+- T015
+- T016
+- T017
+- T017b
+- T017c
+phase: Phase 1 - Domain
+assignee: ''
+agent: ''
+shell_pid: "29682"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 -- Domain Model: Feature & State Machine
