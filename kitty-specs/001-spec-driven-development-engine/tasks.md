@@ -599,7 +599,7 @@
 - [x] T101 Implement `router.rs`: generate project-specific CLAUDE.md with prompt routing rules (FR-046)
 - [x] T102 Implement `router.rs`: generate project-specific AGENTS.md with sub-command vocabulary (FR-047)
 - [ ] T102b Implement `agileplus-integrations-service` gRPC server implementing `integrations.proto` IntegrationsService (triage endpoints)
-- [ ] T103 Write unit tests for classification accuracy, backlog operations, router generation
+- [x] T103 Write unit tests for classification accuracy, backlog operations, router generation
 
 ### Implementation Notes
 - This is a separate repo (`agileplus-integrations`) with its own Cargo workspace (4 crates)
