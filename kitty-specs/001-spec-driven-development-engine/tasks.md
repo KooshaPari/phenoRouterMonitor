@@ -694,7 +694,7 @@
 - [x] T122 Implement `commands/queue.rs`: add to backlog, surface during next specify/plan cycle (FR-042)
 - [x] T123 Implement agent auto-triage hook: during implement, agents auto-file discovered bugs (FR-041)
 - [x] T124 Implement agent DevOps defaults: conventional commits, branch naming, lint-before-push (FR-051)
-- [ ] T125 Implement CLAUDE.md/AGENTS.md first-action classifier integration (FR-052)
+- [x] T125 Implement CLAUDE.md/AGENTS.md first-action classifier integration (FR-052)
 - [ ] T126 Wire triage/queue to StoragePort, sync adapters, telemetry; write CLI integration tests
 - [ ] T127 Seed sub-command prompt files from hybridized reference commands (spec-kitty, bmad, gsd, openspec superset)
 
