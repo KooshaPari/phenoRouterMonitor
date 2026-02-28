@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Git Adapter
+lane: "doing"
+dependencies: [WP05]
+base_branch: 001-spec-driven-development-engine-WP05
+base_commit: 5caddd188f117c68c177b4198250fa4251c931de
+created_at: '2026-02-28T09:38:28.070833+00:00'
 subtasks:
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-title: "Git Adapter"
-phase: "Phase 2 - Adapters"
-lane: "planned"
-dependencies: ["WP05"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T038
+- T039
+- T040
+- T041
+- T042
+- T043
+phase: Phase 2 - Adapters
+assignee: ''
+agent: ''
+shell_pid: "57564"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # WP07: Git Adapter
