@@ -1,32 +1,35 @@
 ---
-work_package_id: "WP04"
-subtasks:
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T024b"
-  - "T024c"
-  - "T024d"
-title: "Domain Model — Governance & Audit"
-phase: "Phase 1 - Domain"
-lane: "planned"
+work_package_id: WP04
+title: Domain Model — Governance & Audit
+lane: "doing"
 dependencies:
-  - "WP03"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP03
+base_branch: 001-spec-driven-development-engine-WP01
+base_commit: 2b52a5788fccbf64376696c76a8460fb630a4032
+created_at: '2026-02-28T09:22:19.192831+00:00'
+subtasks:
+- T018
+- T019
+- T020
+- T021
+- T022
+- T023
+- T024
+- T024b
+- T024c
+- T024d
+phase: Phase 1 - Domain
+assignee: ''
+agent: ''
+shell_pid: "29799"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 -- Domain Model: Governance & Audit
