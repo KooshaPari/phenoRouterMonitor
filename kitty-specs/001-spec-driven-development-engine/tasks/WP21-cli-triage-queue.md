@@ -34,7 +34,7 @@ subtasks:
 - T127
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "66424"
 review_status: ''
 reviewed_by: ''
@@ -682,3 +682,4 @@ The reviewer should verify the following before moving this WP to `done`:
 ---
 
 _Work Package WP21 — Phase 5: Triage, Sync & Sub-Commands_
+- 2026-02-28T13:34:30Z – claude-opus – shell_pid=66424 – lane=doing – Assigned agent via workflow command
