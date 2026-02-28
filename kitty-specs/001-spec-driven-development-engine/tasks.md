@@ -165,9 +165,9 @@
 - [x] T022 Implement `Evidence` struct with FR-to-evidence linking (FR-021) in `governance.rs`
 - [x] T023 Implement `PolicyRule` struct with domain-based evaluation (quality/security/reliability) (FR-020)
 - [x] T024 Write unit tests: chain integrity, tamper detection, evidence completeness check, policy pass/fail
-- [ ] T024d Import and extend existing Phenotype governance patterns (from parpour, civ, thegent) into governance contract templates (FR-028, FR-029)
+- [x] T024d Import and extend existing Phenotype governance patterns (from parpour, civ, thegent) into governance contract templates (FR-028, FR-029)
 - [x] T024b Write proptest property-based tests for hash chain integrity and governance evaluation
-- [ ] T024c Run cargo-mutants on audit.rs and governance.rs, verify ≥90% mutation score
+- [x] T024c Run cargo-mutants on audit.rs and governance.rs, verify ≥90% mutation score
 
 ### Implementation Notes
 - Use sha2 crate for SHA-256
