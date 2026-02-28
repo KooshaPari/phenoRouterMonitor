@@ -111,7 +111,7 @@ pub enum DependencyType {
     Data,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WpDependency {
     pub wp_id: i64,
     pub depends_on: i64,

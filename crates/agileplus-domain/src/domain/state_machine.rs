@@ -135,7 +135,7 @@ impl FromStr for FeatureState {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateTransition {
     pub from: FeatureState,
     pub to: FeatureState,
@@ -153,7 +153,7 @@ impl fmt::Display for StateTransition {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TransitionResult {
     Ok(StateTransition),
     Warning {
