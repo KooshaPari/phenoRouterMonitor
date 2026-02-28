@@ -9,3 +9,13 @@ rust-version.workspace = true
 agileplus-domain = { path = "../agileplus-domain" }
 rusqlite = { version = "0.32", features = ["bundled"] }
 serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+tokio = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+
+[features]
+default = []
+async = ["tokio"]
