@@ -1,7 +1,7 @@
 ---
 work_package_id: WP11
 title: CLI -- Specify & Research Commands
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP06
 base_branch: 001-spec-driven-development-engine-WP06
@@ -539,3 +539,4 @@ To change a work package's lane, either:
 **Initial entry**:
 - 2026-02-27T00:00:00Z -- system -- lane=planned -- Prompt created.
 - 2026-02-28T09:52:05Z – claude-wp11 – shell_pid=81185 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T09:59:59Z – claude-wp11 – shell_pid=81185 – lane=for_review – Ready: specify+research commands, 21 tests
