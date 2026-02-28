@@ -18,7 +18,7 @@ subtasks:
 - T017c
 phase: Phase 1 - Domain
 assignee: ''
-agent: ''
+agent: "claude-wp03"
 shell_pid: "29682"
 review_status: ''
 reviewed_by: ''
@@ -497,3 +497,4 @@ Reviewers should verify:
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-28T09:22:10Z – claude-wp03 – shell_pid=29682 – lane=doing – Assigned agent via workflow command
