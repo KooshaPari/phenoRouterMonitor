@@ -1,7 +1,7 @@
 ---
 work_package_id: WP18
 title: Plane.so Sync Adapter (agileplus-integrations)
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP17
 base_branch: 001-spec-driven-development-engine-WP17
@@ -442,3 +442,4 @@ history:
   action: Prompt generated via /spec-kitty.tasks
 ```
 - 2026-02-28T13:25:19Z – claude-opus – shell_pid=40452 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T13:31:05Z – claude-opus – shell_pid=40452 – lane=for_review – Plane sync crate: client, sync, conflict detection. 6 tests.
