@@ -691,7 +691,7 @@
 
 ### Included Subtasks
 - [x] T121 Implement `commands/triage.rs`: accept input, classify, route to appropriate store (FR-040)
-- [ ] T122 Implement `commands/queue.rs`: add to backlog, surface during next specify/plan cycle (FR-042)
+- [x] T122 Implement `commands/queue.rs`: add to backlog, surface during next specify/plan cycle (FR-042)
 - [ ] T123 Implement agent auto-triage hook: during implement, agents auto-file discovered bugs (FR-041)
 - [ ] T124 Implement agent DevOps defaults: conventional commits, branch naming, lint-before-push (FR-051)
 - [ ] T125 Implement CLAUDE.md/AGENTS.md first-action classifier integration (FR-052)
