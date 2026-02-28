@@ -1,9 +1,12 @@
 ---
 work_package_id: WP18
 title: Plane.so Sync Adapter (agileplus-integrations)
-lane: planned
+lane: "doing"
 dependencies:
 - WP17
+base_branch: 001-spec-driven-development-engine-WP17
+base_commit: 2df69d4d7fa7363fc68caade1ca49438eb272f15
+created_at: '2026-02-28T13:25:19.519790+00:00'
 subtasks:
 - T104
 - T105
@@ -13,7 +16,7 @@ subtasks:
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "40452"
 review_status: ''
 reviewed_by: ''
 history:
