@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: SQLite Adapter
-lane: "doing"
+lane: "for_review"
 dependencies: [WP05]
 base_branch: 001-spec-driven-development-engine-WP05
 base_commit: 5caddd188f117c68c177b4198250fa4251c931de
@@ -355,3 +355,4 @@ Implement the SQLite storage adapter in `crates/agileplus-sqlite/` that fulfills
 |-----------|--------|-------|---------|
 | 2026-02-27T00:00:00Z | Prompt generated | system | WP06 prompt created via /spec-kitty.tasks |
 - 2026-02-28T09:38:26Z – claude-wp06 – shell_pid=57473 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T09:51:42Z – claude-wp06 – shell_pid=57473 – lane=for_review – Ready for review: SqliteStorageAdapter with 23 passing tests
