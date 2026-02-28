@@ -1,7 +1,7 @@
 ---
 work_package_id: WP19
 title: GitHub Sync Adapter (agileplus-integrations)
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP17
 base_branch: 001-spec-driven-development-engine-WP17
@@ -528,3 +528,4 @@ history:
   action: Prompt generated via /spec-kitty.tasks
 ```
 - 2026-02-28T13:25:29Z – claude-opus – shell_pid=41285 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T13:31:16Z – claude-opus – shell_pid=41285 – lane=for_review – GitHub sync crate: client, sync, conflict detection. 7 tests.
