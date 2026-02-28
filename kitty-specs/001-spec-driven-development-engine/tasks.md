@@ -456,7 +456,7 @@
 **Estimated**: ~450 lines, 6 subtasks
 
 ### Included Subtasks
-- [ ] T073 Implement `commands/validate.rs`: FR-to-evidence tracing, quality gate checks, validation report (FR-005)
+- [x] T073 Implement `commands/validate.rs`: FR-to-evidence tracing, quality gate checks, validation report (FR-005)
 - [ ] T074 Implement governance gate evaluator: check all contract rules, collect violations, block if failing (FR-018, FR-019)
 - [ ] T075 Implement `commands/ship.rs`: merge to target branch, cleanup worktrees, archive feature, finalize audit (FR-006)
 - [ ] T076 Implement `commands/retrospective.rs`: analyze feature history, generate learnings, suggest constitution amendments (FR-007)
