@@ -622,7 +622,7 @@
 ### Included Subtasks
 - [x] T104 Implement `PlaneSyncAdapter` struct with Plane.so REST API client in `crates/agileplus-plane/src/` (FR-043)
 - [x] T105 Implement feature sync: gRPC request from core → Plane.so work item (create/update on state change)
-- [ ] T106 Implement WP sync: gRPC request from core → Plane.so sub-item (status, assignee, PR link)
+- [x] T106 Implement WP sync: gRPC request from core → Plane.so sub-item (status, assignee, PR link)
 - [ ] T107 Implement conflict detection: poll Plane.so for mirror-side edits, warn on conflicts (FR-045)
 - [ ] T108 Write integration tests with mock Plane.so API
 
