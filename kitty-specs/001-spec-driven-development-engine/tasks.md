@@ -669,7 +669,7 @@
 **Estimated**: ~500 lines, 7 subtasks
 
 ### Included Subtasks
-- [ ] T114 Define sub-command registry: enum of all ~25 sub-commands with metadata (category, description, required args)
+- [x] T114 Define sub-command registry: enum of all ~25 sub-commands with metadata (category, description, required args)
 - [ ] T115 Implement triage sub-commands: `triage:classify`, `triage:file-bug`, `triage:queue-idea` (FR-040, FR-041, FR-042)
 - [ ] T116 Implement governance sub-commands: `governance:check-gates`, `governance:evaluate-policy`, `governance:verify-chain`
 - [ ] T117 Implement sync sub-commands: `sync:push-plane`, `sync:push-github`, `sync:pull-status` (FR-043, FR-044)
