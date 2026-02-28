@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Core Rust Workspace & Build Scaffold
+lane: "doing"
+dependencies: [WP00]
+base_branch: 001-spec-driven-development-engine-WP00
+base_commit: c06503001f082fb29e451eefa974f9dc400212d4
+created_at: '2026-02-28T09:03:49.789781+00:00'
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T006b"
-  - "T006c"
-  - "T006d"
-title: "Core Rust Workspace & Build Scaffold"
-phase: "Phase 0 - Foundation"
-lane: "planned"
-dependencies: ["WP00"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T006b
+- T006c
+- T006d
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "50171"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 -- Core Rust Workspace & Build Scaffold
