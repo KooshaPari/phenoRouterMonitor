@@ -15,7 +15,7 @@ subtasks:
 - T078
 phase: Phase 3 - CLI
 assignee: ''
-agent: ''
+agent: "claude-wp13"
 shell_pid: "97285"
 review_status: ''
 reviewed_by: ''
@@ -574,3 +574,4 @@ test with in-memory mocks.
 | Timestamp | Event |
 |-----------|-------|
 | 2026-02-27T00:00:00Z | WP13 prompt generated via /spec-kitty.tasks |
+- 2026-02-28T10:09:41Z – claude-wp13 – shell_pid=97285 – lane=doing – Assigned agent via workflow command
