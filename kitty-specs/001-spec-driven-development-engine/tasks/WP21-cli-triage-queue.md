@@ -1,7 +1,7 @@
 ---
 work_package_id: WP21
 title: CLI Triage & Queue Commands + Agent Defaults
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 - WP03
@@ -35,7 +35,7 @@ subtasks:
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: "claude-opus"
-shell_pid: "66424"
+shell_pid: "79650"
 review_status: ''
 reviewed_by: ''
 history:
@@ -684,3 +684,4 @@ The reviewer should verify the following before moving this WP to `done`:
 _Work Package WP21 — Phase 5: Triage, Sync & Sub-Commands_
 - 2026-02-28T13:34:30Z – claude-opus – shell_pid=66424 – lane=doing – Assigned agent via workflow command
 - 2026-02-28T13:38:23Z – claude-opus – shell_pid=66424 – lane=for_review – Triage/queue CLI commands, 25 prompt seeds. 4 tests.
+- 2026-02-28T23:22:54Z – claude-opus – shell_pid=79650 – lane=doing – Started review via workflow command
