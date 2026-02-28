@@ -427,7 +427,7 @@
 - [x] T067 Implement WP file_scope detection: parse plan for file paths, build overlap graph
 - [x] T068 Implement dependency-aware scheduler: parallel WPs for non-overlapping, serial for overlapping (FR-038, FR-039)
 - [x] T069 Implement `commands/implement.rs`: worktree creation, agent dispatch, PR creation (FR-004, FR-010-013)
-- [ ] T070 Implement PR description builder: inject WP goal, FR references, acceptance criteria (FR-011)
+- [x] T070 Implement PR description builder: inject WP goal, FR references, acceptance criteria (FR-011)
 - [ ] T071 Implement review-fix loop orchestrator: await Coderabbit, loop agent, detect green (FR-012)
 - [ ] T072 Wire plan/implement to all ports (storage, VCS, agent, review, telemetry)
 
