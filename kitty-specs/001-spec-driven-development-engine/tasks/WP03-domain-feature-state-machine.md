@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Domain Model — Feature & State Machine
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 001-spec-driven-development-engine-WP01
@@ -498,3 +498,5 @@ Reviewers should verify:
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-02-28T09:22:10Z – claude-wp03 – shell_pid=29682 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T09:28:24Z – claude-wp03 – shell_pid=29682 – lane=doing – T017c (mutation testing) deferred to CI setup
+- 2026-02-28T09:28:35Z – claude-wp03 – shell_pid=29682 – lane=for_review – Ready for review: Feature FSM, WorkPackage states, DependencyGraph, 52 tests passing including proptest
