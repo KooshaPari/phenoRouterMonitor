@@ -18,7 +18,7 @@ subtasks:
 - T103
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "3392"
 review_status: ''
 reviewed_by: ''
@@ -592,6 +592,7 @@ Use `tempfile::TempDir` to write to a temp directory. Assert:
 Add `tempfile` as a dev-dependency.
 
 ---
+- 2026-02-28T13:20:44Z – claude-opus – shell_pid=3392 – lane=doing – Assigned agent via workflow command
 
 ## Validation Criteria
 
