@@ -649,7 +649,7 @@
 - [x] T110 Implement bug sync: gRPC request from core → GitHub issue (title, body, labels, feature/WP refs)
 - [x] T111 Implement issue status sync: GitHub issue closed → notify core via gRPC
 - [x] T112 Implement conflict detection: warn on GitHub-side edits that conflict with core state (FR-045)
-- [ ] T113 Write integration tests with mock GitHub API (wiremock)
+- [x] T113 Write integration tests with mock GitHub API (wiremock)
 
 ### Implementation Notes
 - Lives in `agileplus-integrations` repo, `crates/agileplus-github/` crate
