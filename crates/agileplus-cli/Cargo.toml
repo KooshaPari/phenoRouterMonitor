@@ -13,6 +13,8 @@ path = "src/main.rs"
 agileplus-domain = { path = "../agileplus-domain" }
 agileplus-sqlite = { path = "../agileplus-sqlite" }
 agileplus-git = { path = "../agileplus-git" }
+agileplus-triage = { path = "../agileplus-triage" }
+agileplus-subcmds = { path = "../agileplus-subcmds" }
 clap = { version = "4", features = ["derive"] }
 tokio.workspace = true
 serde.workspace = true

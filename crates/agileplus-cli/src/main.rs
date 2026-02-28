@@ -10,8 +10,9 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use agileplus_cli::commands::{
-    implement::ImplementArgs, plan::PlanArgs, research::ResearchArgs,
-    retrospective::RetrospectiveArgs, ship::ShipArgs, specify::SpecifyArgs,
+    implement::ImplementArgs, plan::PlanArgs, queue::QueueArgs,
+    research::ResearchArgs, retrospective::RetrospectiveArgs,
+    ship::ShipArgs, specify::SpecifyArgs, triage::TriageArgs,
     validate::ValidateArgs,
 };
 use agileplus_git::GitVcsAdapter;
@@ -56,6 +57,10 @@ enum Commands {
     Ship(ShipArgs),
     /// Generate a retrospective report for a shipped feature.
     Retrospective(RetrospectiveArgs),
+    /// Classify and route incoming items (bug, feature, idea, task).
+    Triage(TriageArgs),
+    /// Manage the triage backlog queue.
+    Queue(QueueArgs),
 }
 
 #[tokio::main]
@@ -81,6 +86,13 @@ async fn main() {
 }
 
 async fn run(cli: Cli) -> Result<()> {
+    // Triage and Queue commands don't need full storage/VCS setup
+    match cli.command {
+        Commands::Triage(args) => return agileplus_cli::commands::triage::run_triage(args).await,
+        Commands::Queue(args) => return agileplus_cli::commands::queue::run_queue(args).await,
+        _ => {}
+    }
+
     // Initialise storage adapter (create DB directory if needed)
     if let Some(parent) = cli.db.parent() {
         if !parent.as_os_str().is_empty() && !parent.exists() {
@@ -125,6 +137,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Retrospective(args) => {
             agileplus_cli::commands::retrospective::run_retrospective(args, &storage, &vcs).await?;
         }
+        Commands::Triage(_) | Commands::Queue(_) => unreachable!("handled above"),
     }
 
     Ok(())
