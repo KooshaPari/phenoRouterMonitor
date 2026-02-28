@@ -1,0 +1,27 @@
+target-version = "py314"
+line-length = 100
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "S",    # flake8-bandit (security)
+    "T20",  # flake8-print
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "S101",  # assert used (ok in tests)
+]
+
+[lint.per-file-ignores]
+"tests/**" = ["S101", "T20"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

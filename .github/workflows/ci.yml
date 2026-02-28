@@ -1,22 +1,61 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
 
 jobs:
-  buf-lint:
+  # ─── Proto Lint & Breaking ─────────────────────────────────────────
+  buf:
     name: Buf Lint & Breaking
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: bufbuild/buf-action@v1
         with:
           lint: true
           format: true
           breaking: true
 
+  # ─── Rust Quality ──────────────────────────────────────────────────
+  rust-check:
+    name: Rust Quality
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Format check
+        run: cd rust && cargo fmt --check
+      - name: Clippy (warnings = errors)
+        run: cd rust && cargo clippy --all-targets -- -D warnings
+      - name: Build
+        run: cd rust && cargo build
+      - name: Test
+        run: cd rust && cargo test
+
   rust-build:
-    name: Rust Build
-    needs: buf-lint
+    name: Rust Build (${{ matrix.os }})
+    needs: buf
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -27,16 +66,89 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust
-      - name: Install protoc
-        uses: arduino/setup-protoc@v3
+      - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
-      - name: Build Rust crate
+      - name: Build
         run: cd rust && cargo build
 
+  rust-msrv:
+    name: Rust MSRV (stable)
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Check MSRV compatibility
+        run: cd rust && cargo check
+
+  # ─── Rust Security & Dep Audit ─────────────────────────────────────
+  rust-audit:
+    name: Rust Security Audit
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v2.0.0
+        with:
+          working-directory: rust
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+      - name: Check licenses, advisories, duplicates
+        run: cd rust && cargo deny check
+
+  rust-extras:
+    name: Rust Extras (machete, semver, typos)
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+      - name: Install extras
+        run: cargo install cargo-machete cargo-semver-checks
+      - name: Detect unused deps
+        run: cd rust && cargo machete
+      - name: Semver compatibility check
+        run: cd rust && cargo semver-checks check-release || true
+      - name: Typo check
+        uses: crate-ci/typos@v1
+
+  # ─── Python Quality ────────────────────────────────────────────────
+  python-check:
+    name: Python Quality
+    needs: buf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        run: pip install uv
+      - name: Install package
+        run: cd python && uv sync
+      - name: Ruff format check
+        run: cd python && uvx ruff format --check .
+      - name: Ruff lint
+        run: cd python && uvx ruff check .
+      - name: pip-audit
+        run: cd python && uvx pip-audit
+
   python-install:
-    name: Python Install
-    needs: buf-lint
+    name: Python Install (${{ matrix.os }})
+    needs: buf
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -48,5 +160,31 @@ jobs:
           python-version: "3.14"
       - name: Install uv
         run: pip install uv
-      - name: Install Python package
+      - name: Install package
         run: cd python && uv sync
+
+  # ─── Config Lint ───────────────────────────────────────────────────
+  config-lint:
+    name: Config Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install taplo
+        run: cargo install taplo-cli
+      - name: TOML format check
+        run: taplo format --check rust/Cargo.toml python/pyproject.toml
+      - name: actionlint
+        uses: reviewdog/action-actionlint@v1
+
+  # ─── Commit Lint ───────────────────────────────────────────────────
+  commit-lint:
+    name: Conventional Commits
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.yml

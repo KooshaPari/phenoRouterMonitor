@@ -1,0 +1,61 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert]
+
+  - repo: local
+    hooks:
+      - id: buf-lint
+        name: buf lint
+        entry: buf lint
+        language: system
+        files: '\.proto$'
+        pass_filenames: false
+
+      - id: rustfmt
+        name: rustfmt
+        entry: bash -c 'cd rust && cargo fmt -- --check'
+        language: system
+        files: '\.rs$'
+        pass_filenames: false
+
+      - id: clippy
+        name: clippy
+        entry: bash -c 'cd rust && cargo clippy --all-targets -- -D warnings'
+        language: system
+        files: '\.rs$'
+        pass_filenames: false
+
+      - id: ruff-format
+        name: ruff format
+        entry: bash -c 'cd python && uvx ruff format --check .'
+        language: system
+        files: '\.py$'
+        pass_filenames: false
+
+      - id: ruff-check
+        name: ruff check
+        entry: bash -c 'cd python && uvx ruff check .'
+        language: system
+        files: '\.py$'
+        pass_filenames: false
+
+      - id: typos
+        name: typos
+        entry: typos
+        language: system
+        pass_filenames: false

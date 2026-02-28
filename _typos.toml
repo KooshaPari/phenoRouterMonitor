@@ -1,8 +1,6 @@
 [default.extend-words]
 # Add project-specific words that typos should not flag
 agileplus = "agileplus"
-RTO = "RTO"
-unparseable = "unparseable"
 
 [files]
 extend-exclude = [
@@ -12,6 +10,4 @@ extend-exclude = [
     "__pycache__/",
     "python/src/gen/",
     "rust/src/gen/",
-    "pheno-cli/go.mod",
-    "templates/static/*.min.js",
 ]
