@@ -18,14 +18,14 @@
 **Estimated**: ~350 lines, 8 subtasks
 
 ### Included Subtasks
-- [ ] T000a Initialize `agileplus-proto` repo with README, LICENSE, .gitignore
-- [ ] T000b Create `proto/agileplus/common.proto` with shared message types (Feature, WP, Audit, Governance, Agent events)
-- [ ] T000c [P] Create `proto/agileplus/core.proto` with AgilePlusCoreService definition
-- [ ] T000d [P] Create `proto/agileplus/agents.proto` with AgentDispatchService definition
-- [ ] T000e [P] Create `proto/agileplus/integrations.proto` with IntegrationsService definition
-- [ ] T000f Create `buf.yaml`, `buf.gen.yaml` for linting and codegen configuration
-- [ ] T000f2 Generate buf breaking change baseline and add buf breaking CI check
-- [ ] T000g Create Rust crate in `rust/` (Cargo.toml, build.rs with tonic-build, src/lib.rs re-exporting generated code) and Python package in `python/` (pyproject.toml, codegen script)
+- [x] T000a Initialize `agileplus-proto` repo with README, LICENSE, .gitignore
+- [x] T000b Create `proto/agileplus/common.proto` with shared message types (Feature, WP, Audit, Governance, Agent events)
+- [x] T000c [P] Create `proto/agileplus/core.proto` with AgilePlusCoreService definition
+- [x] T000d [P] Create `proto/agileplus/agents.proto` with AgentDispatchService definition
+- [x] T000e [P] Create `proto/agileplus/integrations.proto` with IntegrationsService definition
+- [x] T000f Create `buf.yaml`, `buf.gen.yaml` for linting and codegen configuration
+- [x] T000f2 Generate buf breaking change baseline and add buf breaking CI check
+- [x] T000g Create Rust crate in `rust/` (Cargo.toml, build.rs with tonic-build, src/lib.rs re-exporting generated code) and Python package in `python/` (pyproject.toml, codegen script)
 
 ### Implementation Notes
 - Proto files are the single source of truth for all inter-service contracts
