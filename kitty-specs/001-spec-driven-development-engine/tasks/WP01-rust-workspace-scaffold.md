@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Core Rust Workspace & Build Scaffold
-lane: "for_review"
+lane: "doing"
 dependencies: [WP00]
 base_branch: 001-spec-driven-development-engine-WP00
 base_commit: c06503001f082fb29e451eefa974f9dc400212d4
@@ -18,8 +18,8 @@ subtasks:
 - T006d
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "50171"
+agent: "claude-opus-reviewer"
+shell_pid: "27524"
 review_status: ''
 reviewed_by: ''
 history:
@@ -422,3 +422,4 @@ Reviewers should verify:
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-02-28T09:03:50Z – claude-opus – shell_pid=50171 – lane=doing – Assigned agent via workflow command
 - 2026-02-28T09:14:23Z – claude-opus – shell_pid=50171 – lane=for_review – Ready for review: 7 crates scaffolded, workspace builds, CI config, Docker Compose, all validation passes
+- 2026-02-28T09:18:32Z – claude-opus-reviewer – shell_pid=27524 – lane=doing – Started review via workflow command
