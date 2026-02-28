@@ -264,7 +264,7 @@
 - [x] T040 Implement branch operations: create_branch, checkout, merge_to_target, detect_conflicts
 - [x] T041 Implement artifact operations: read_spec, read_plan, write_audit_chain, write_evidence
 - [x] T042 Implement git history scanning for `rebuild_from_git()` support
-- [ ] T043 Write integration tests using temp git repos (git2::Repository::init)
+- [x] T043 Write integration tests using temp git repos (git2::Repository::init)
 
 ### Implementation Notes
 - Worktree paths: `.worktrees/<feature-slug>-<WP-id>/`
