@@ -1,9 +1,12 @@
 ---
 work_package_id: WP17
 title: Triage & Backlog Service
-lane: planned
+lane: "doing"
 dependencies:
 - WP00
+base_branch: 001-spec-driven-development-engine-WP13
+base_commit: 3fc4a17c8bbced1dcddd3780def30ba7e544b1ef
+created_at: '2026-02-28T13:20:43.722928+00:00'
 subtasks:
 - T098
 - T098b
@@ -16,7 +19,7 @@ subtasks:
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "3392"
 review_status: ''
 reviewed_by: ''
 history:
