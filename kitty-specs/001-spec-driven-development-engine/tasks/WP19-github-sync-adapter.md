@@ -1,7 +1,7 @@
 ---
 work_package_id: WP19
 title: GitHub Sync Adapter (agileplus-integrations)
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP17
 base_branch: 001-spec-driven-development-engine-WP17
@@ -16,7 +16,7 @@ subtasks:
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: "claude-opus"
-shell_pid: "41285"
+shell_pid: "78956"
 review_status: ''
 reviewed_by: ''
 history:
@@ -529,3 +529,4 @@ history:
 ```
 - 2026-02-28T13:25:29Z – claude-opus – shell_pid=41285 – lane=doing – Assigned agent via workflow command
 - 2026-02-28T13:31:16Z – claude-opus – shell_pid=41285 – lane=for_review – GitHub sync crate: client, sync, conflict detection. 7 tests.
+- 2026-02-28T23:22:19Z – claude-opus – shell_pid=78956 – lane=doing – Started review via workflow command
