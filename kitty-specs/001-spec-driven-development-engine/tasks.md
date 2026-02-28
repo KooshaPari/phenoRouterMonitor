@@ -424,7 +424,7 @@
 
 ### Included Subtasks
 - [x] T066 Implement `commands/plan.rs`: WP generation with dependency ordering, governance contract creation (FR-003)
-- [ ] T067 Implement WP file_scope detection: parse plan for file paths, build overlap graph
+- [x] T067 Implement WP file_scope detection: parse plan for file paths, build overlap graph
 - [ ] T068 Implement dependency-aware scheduler: parallel WPs for non-overlapping, serial for overlapping (FR-038, FR-039)
 - [ ] T069 Implement `commands/implement.rs`: worktree creation, agent dispatch, PR creation (FR-004, FR-010-013)
 - [ ] T070 Implement PR description builder: inject WP goal, FR references, acceptance criteria (FR-011)
