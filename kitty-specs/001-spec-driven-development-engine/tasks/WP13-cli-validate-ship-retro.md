@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP13"
+work_package_id: WP13
+title: CLI — Validate, Ship, Retrospective Commands
+lane: "doing"
+dependencies: [WP12]
+base_branch: 001-spec-driven-development-engine-WP12
+base_commit: 2f93f2ace72787c10f041c2a5b3067621b7c927f
+created_at: '2026-02-28T10:09:41.414943+00:00'
 subtasks:
-  - "T073"
-  - "T074"
-  - "T075"
-  - "T076"
-  - "T077"
-  - "T078"
-title: "CLI — Validate, Ship, Retrospective Commands"
-phase: "Phase 3 - CLI"
-lane: "planned"
-dependencies: ["WP12"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T073
+- T074
+- T075
+- T076
+- T077
+- T078
+phase: Phase 3 - CLI
+assignee: ''
+agent: ''
+shell_pid: "97285"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # WP13: CLI — Validate, Ship, Retrospective Commands
