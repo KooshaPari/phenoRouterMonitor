@@ -1,9 +1,12 @@
 ---
 work_package_id: WP11
 title: CLI -- Specify & Research Commands
-lane: planned
+lane: "doing"
 dependencies:
 - WP06
+base_branch: 001-spec-driven-development-engine-WP06
+base_commit: e627e77adc288140b9001f8ed3ca17495d1bdaf5
+created_at: '2026-02-28T09:52:05.224823+00:00'
 subtasks:
 - T060
 - T061
@@ -14,7 +17,7 @@ subtasks:
 phase: Phase 3 - CLI
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "81185"
 review_status: ''
 reviewed_by: ''
 history:
