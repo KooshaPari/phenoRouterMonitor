@@ -16,7 +16,7 @@ subtasks:
 - T065
 phase: Phase 3 - CLI
 assignee: ''
-agent: ''
+agent: "claude-wp11"
 shell_pid: "81185"
 review_status: ''
 reviewed_by: ''
@@ -538,3 +538,4 @@ To change a work package's lane, either:
 
 **Initial entry**:
 - 2026-02-27T00:00:00Z -- system -- lane=planned -- Prompt created.
+- 2026-02-28T09:52:05Z – claude-wp11 – shell_pid=81185 – lane=doing – Assigned agent via workflow command
