@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Port Traits
+lane: "doing"
+dependencies: [WP03, WP04]
+base_branch: 001-spec-driven-development-engine-WP03
+base_commit: bd2389263a9c8f3633e8a0c02b8925276373627e
+created_at: '2026-02-28T09:30:58.410469+00:00'
 subtasks:
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-title: "Port Traits"
-phase: "Phase 1 - Domain"
-lane: "planned"
-dependencies: ["WP03", "WP04"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T025
+- T026
+- T027
+- T028
+- T029
+- T030
+phase: Phase 1 - Domain
+assignee: ''
+agent: ''
+shell_pid: "42392"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # WP05: Port Traits
