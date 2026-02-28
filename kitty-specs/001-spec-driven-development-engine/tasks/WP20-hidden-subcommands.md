@@ -1,7 +1,7 @@
 ---
 work_package_id: WP20
 title: Hidden Sub-Commands & SlashCommand Integration
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP13
 base_branch: 001-spec-driven-development-engine-WP17
@@ -528,3 +528,4 @@ The reviewer should verify the following before moving this WP to `done`:
 ---
 
 _Work Package WP20 — Phase 5: Triage, Sync & Sub-Commands_
+- 2026-02-28T13:34:16Z – unknown – shell_pid=63412 – lane=for_review – Sub-commands crate: 25 commands, JSONL audit. 12 tests.
