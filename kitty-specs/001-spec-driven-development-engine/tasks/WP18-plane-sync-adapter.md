@@ -15,7 +15,7 @@ subtasks:
 - T108
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "40452"
 review_status: ''
 reviewed_by: ''
@@ -441,3 +441,4 @@ history:
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
 ```
+- 2026-02-28T13:25:19Z – claude-opus – shell_pid=40452 – lane=doing – Assigned agent via workflow command
