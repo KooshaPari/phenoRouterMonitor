@@ -1,7 +1,7 @@
 ---
 work_package_id: WP18
 title: Plane.so Sync Adapter (agileplus-integrations)
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP17
 base_branch: 001-spec-driven-development-engine-WP17
@@ -16,7 +16,7 @@ subtasks:
 phase: Phase 5 - Triage, Sync & Sub-Commands
 assignee: ''
 agent: "claude-opus"
-shell_pid: "40452"
+shell_pid: "78530"
 review_status: ''
 reviewed_by: ''
 history:
@@ -443,3 +443,4 @@ history:
 ```
 - 2026-02-28T13:25:19Z – claude-opus – shell_pid=40452 – lane=doing – Assigned agent via workflow command
 - 2026-02-28T13:31:05Z – claude-opus – shell_pid=40452 – lane=for_review – Plane sync crate: client, sync, conflict detection. 6 tests.
+- 2026-02-28T23:22:00Z – claude-opus – shell_pid=78530 – lane=doing – Started review via workflow command
