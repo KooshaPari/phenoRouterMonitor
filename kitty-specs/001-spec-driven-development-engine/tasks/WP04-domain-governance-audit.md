@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Domain Model — Governance & Audit
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP03
 base_branch: 001-spec-driven-development-engine-WP01
@@ -697,3 +697,4 @@ Reviewers should verify:
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-02-28T09:22:19Z – claude-wp04 – shell_pid=29799 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T09:29:39Z – claude-wp04 – shell_pid=29799 – lane=for_review – Ready for review: GovernanceContract, AuditEntry hash chain, Evidence, PolicyRule evaluation, 43 tests passing including proptest
