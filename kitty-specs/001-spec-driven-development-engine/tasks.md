@@ -429,7 +429,7 @@
 - [x] T069 Implement `commands/implement.rs`: worktree creation, agent dispatch, PR creation (FR-004, FR-010-013)
 - [x] T070 Implement PR description builder: inject WP goal, FR references, acceptance criteria (FR-011)
 - [x] T071 Implement review-fix loop orchestrator: await Coderabbit, loop agent, detect green (FR-012)
-- [ ] T072 Wire plan/implement to all ports (storage, VCS, agent, review, telemetry)
+- [x] T072 Wire plan/implement to all ports (storage, VCS, agent, review, telemetry)
 
 ### Implementation Notes
 - Plan command reads spec.md + research.md, generates WPs with acceptance criteria traced to FRs
