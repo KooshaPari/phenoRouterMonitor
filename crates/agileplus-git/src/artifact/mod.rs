@@ -11,12 +11,33 @@ use agileplus_domain::{error::DomainError, ports::FeatureArtifacts};
 
 use crate::GitVcsAdapter;
 
-/// Compute full artifact path from repo root.
-fn artifact_full_path(repo_root: &Path, feature_slug: &str, relative_path: &str) -> PathBuf {
-    repo_root
-        .join("kitty-specs")
-        .join(feature_slug)
-        .join(relative_path)
+/// Compute full artifact path from repo root, rejecting path traversal.
+fn artifact_full_path(
+    repo_root: &Path,
+    feature_slug: &str,
+    relative_path: &str,
+) -> Result<PathBuf, DomainError> {
+    let base = repo_root.join("kitty-specs").join(feature_slug);
+    let full = base.join(relative_path);
+
+    // Normalize away any `..` components by iterating path components.
+    // We can't use canonicalize() because the file may not exist yet (write case).
+    let mut normalized = PathBuf::new();
+    for component in full.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                normalized.pop();
+            }
+            other => normalized.push(other),
+        }
+    }
+
+    if !normalized.starts_with(&base) {
+        return Err(DomainError::Vcs(format!(
+            "artifact path traversal detected: {relative_path}"
+        )));
+    }
+    Ok(normalized)
 }
 
 /// Read a text artifact from the working tree.
@@ -25,7 +46,7 @@ pub(crate) fn read_artifact(
     feature_slug: &str,
     relative_path: &str,
 ) -> Result<String, DomainError> {
-    let path = artifact_full_path(adapter.repo_path(), feature_slug, relative_path);
+    let path = artifact_full_path(adapter.repo_path(), feature_slug, relative_path)?;
     if !path.exists() {
         return Err(DomainError::NotFound(format!(
             "artifact not found: kitty-specs/{feature_slug}/{relative_path}"
@@ -42,7 +63,7 @@ pub(crate) fn write_artifact(
     relative_path: &str,
     content: &str,
 ) -> Result<(), DomainError> {
-    let path = artifact_full_path(adapter.repo_path(), feature_slug, relative_path);
+    let path = artifact_full_path(adapter.repo_path(), feature_slug, relative_path)?;
 
     // Create parent directories.
     if let Some(parent) = path.parent() {
@@ -74,7 +95,7 @@ pub(crate) fn artifact_exists(
     feature_slug: &str,
     relative_path: &str,
 ) -> Result<bool, DomainError> {
-    let path = artifact_full_path(adapter.repo_path(), feature_slug, relative_path);
+    let path = artifact_full_path(adapter.repo_path(), feature_slug, relative_path)?;
     Ok(path.exists())
 }
 

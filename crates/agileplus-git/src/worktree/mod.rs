@@ -87,8 +87,17 @@ pub(crate) fn list_worktrees(adapter: &GitVcsAdapter) -> Result<Vec<WorktreeInfo
         let path = PathBuf::from(wt.path());
 
         // Parse feature_slug and wp_id from worktree name (split on last '-').
+        // Validate wp_id matches WP\d+ pattern.
         let (feature_slug, wp_id) = if let Some(pos) = name.rfind('-') {
-            (name[..pos].to_string(), name[pos + 1..].to_string())
+            let potential_wp = &name[pos + 1..];
+            if potential_wp.starts_with("WP")
+                && potential_wp.len() > 2
+                && potential_wp[2..].chars().all(|c| c.is_ascii_digit())
+            {
+                (name[..pos].to_string(), potential_wp.to_string())
+            } else {
+                (name.to_string(), String::new())
+            }
         } else {
             (name.to_string(), String::new())
         };
