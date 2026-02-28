@@ -5,7 +5,7 @@
 
 **Tests**: BDD acceptance tests and contract tests included per the test strategy (cucumber-rs, behave, Pact).
 
-**Organization**: 152 subtasks → 22 work packages. Average ~7 subtasks per WP, ~370 lines per prompt.
+**Organization**: 159 subtasks → 23 work packages. Average ~7 subtasks per WP, ~370 lines per prompt.
 
 ---
 
@@ -54,15 +54,15 @@
 **Estimated**: ~300 lines, 9 subtasks
 
 ### Included Subtasks
-- [ ] T001 Create root `Cargo.toml` workspace manifest with all 7 crate members
-- [ ] T002 [P] Scaffold `crates/agileplus-domain/` with `lib.rs`, domain module stubs, port trait stubs
-- [ ] T003 [P] Scaffold remaining 6 adapter crates (`cli`, `api`, `grpc`, `sqlite`, `git`, `telemetry`) with `lib.rs` and dependency declarations
-- [ ] T004 [P] Create `Makefile` with targets: build, test, lint, format, proto-gen, all; CI matrix must include macOS, Linux, and Windows targets
-- [ ] T005 [P] Create `docker-compose.yml` for dev environment (Rust builder, Python MCP, SQLite volume)
-- [ ] T006 Add `proto/` git submodule pointing to `agileplus-proto` and wire tonic-build in `agileplus-grpc`
-- [ ] T006b Add MSRV CI check (latest stable Rust) to Makefile and CI config
-- [ ] T006c Add rustdoc CI generation and FR/WP traceability module header convention
-- [ ] T006d Add CI lint step validating agileplus-domain has only serde/sha2/chrono dependencies
+- [x] T001 Create root `Cargo.toml` workspace manifest with all 7 crate members
+- [x] T002 [P] Scaffold `crates/agileplus-domain/` with `lib.rs`, domain module stubs, port trait stubs
+- [x] T003 [P] Scaffold remaining 6 adapter crates (`cli`, `api`, `grpc`, `sqlite`, `git`, `telemetry`) with `lib.rs` and dependency declarations
+- [x] T004 [P] Create `Makefile` with targets: build, test, lint, format, proto-gen, all; CI matrix must include macOS, Linux, and Windows targets
+- [x] T005 [P] Create `docker-compose.yml` for dev environment (Rust builder, Python MCP, SQLite volume)
+- [x] T006 Add `proto/` git submodule pointing to `agileplus-proto` and wire tonic-build in `agileplus-grpc`
+- [x] T006b Add MSRV CI check (latest stable Rust) to Makefile and CI config
+- [x] T006c Add rustdoc CI generation and FR/WP traceability module header convention
+- [x] T006d Add CI lint step validating agileplus-domain has only serde/sha2/chrono dependencies
 
 ### Implementation Notes
 - Use Rust 2024 edition in all crates
@@ -703,6 +703,40 @@
 
 ---
 
+## Work Package WP22: Modern Task Runner & DX Tooling Migration (Priority: P1)
+
+**Goal**: Replace Make with a modern task runner (evaluate just/task/mise as of 2026) across all 5 repos. Migrate all Makefile targets, ensure cross-platform compatibility (Windows), and update CI/pre-commit to use the new runner.
+**Repos**: All (agileplus-proto, agileplus-core, agileplus-mcp, agileplus-agents, agileplus-integrations)
+**Independent Test**: `<runner> check` runs full local quality suite on all platforms. CI uses same runner. Windows works without WSL.
+**Prompt**: `tasks/WP22-task-runner-dx-migration.md`
+**Estimated**: ~400 lines, 7 subtasks
+
+### Included Subtasks
+- [ ] T128 Research and evaluate modern task runners (just, task, mise, moon, nx) — select best for Rust+Python polyglot, cross-platform, CI integration
+- [ ] T129 [P] Migrate agileplus-proto Makefile to chosen runner with all targets (lint, generate, breaking, rust-*, python-*, check, pre-commit)
+- [ ] T130 [P] Create agileplus-core task config with all quality gates (build, test, fmt, clippy, audit, deny, coverage, mutants, docs)
+- [ ] T131 [P] Create agileplus-mcp task config (install, test, fmt, lint, audit, docs, coverage)
+- [ ] T132 [P] Create agileplus-agents task config (mirroring core pattern)
+- [ ] T133 [P] Create agileplus-integrations task config (mirroring core pattern)
+- [ ] T134 Update CI workflows and pre-commit hooks across all repos to use new runner
+
+### Implementation Notes
+- Must work natively on macOS, Linux, and Windows (no WSL dependency)
+- Must support task dependencies, parallelism, and environment variables
+- Should integrate with pre-commit hooks and CI runners
+- Consider mise for unified toolchain management (Rust, Python, Node, buf versions)
+
+### Parallel Opportunities
+- T129-T133 all independent after T128 decision
+
+### Dependencies
+- Depends on WP00 (proto repo exists), WP01 (core repo exists)
+
+### Risks & Mitigations
+- Runner not available on all CI images: use install step or container with runner pre-installed
+
+---
+
 ## Dependency & Execution Summary
 
 ```
@@ -741,6 +775,9 @@ Phase 4 (Cross-repo Integration — after CLI):
 Phase 5 (Sub-Commands & CLI Triage):
   WP20 (Hidden Sub-Cmds) ─── depends on WP13, WP17, WP18, WP19
   WP21 (CLI Triage/Queue) ── depends on WP17, WP20
+
+Phase 0b (DX Tooling — after repo scaffolds):
+  WP22 (Task Runner Migration) ── depends on WP00, WP01
 ```
 
 **Parallelization**: WP00 is the only sequential bottleneck. After WP00, up to 4 repos can be scaffolded in parallel (WP01, WP02, WP08, WP17). Phase 2 has 3 core adapter WPs in parallel + 3 external adapter WPs in parallel across repos.
@@ -905,3 +942,10 @@ Phase 5 (Sub-Commands & CLI Triage):
 | T125 | CLAUDE.md first-action classifier | WP21 | P2 | No |
 | T126 | Triage/queue DI wiring | WP21 | P2 | No |
 | T127 | Seed sub-command prompts | WP21 | P2 | No |
+| T128 | Research/evaluate task runners (just, task, mise, moon, nx) | WP22 | P1 | No |
+| T129 | Migrate agileplus-proto Makefile | WP22 | P1 | Yes |
+| T130 | Create agileplus-core task config | WP22 | P1 | Yes |
+| T131 | Create agileplus-mcp task config | WP22 | P1 | Yes |
+| T132 | Create agileplus-agents task config | WP22 | P1 | Yes |
+| T133 | Create agileplus-integrations task config | WP22 | P1 | Yes |
+| T134 | Update CI workflows + pre-commit for new runner | WP22 | P1 | No |
