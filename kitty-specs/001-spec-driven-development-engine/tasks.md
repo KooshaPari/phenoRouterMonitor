@@ -158,15 +158,15 @@
 **Estimated**: ~450 lines, 10 subtasks
 
 ### Included Subtasks
-- [ ] T018 Implement `GovernanceContract` struct with versioned rules (FR-018) in `governance.rs`
-- [ ] T019 Implement `AuditEntry` struct with SHA-256 hash chain (FR-016) in `audit.rs`
-- [ ] T020 Implement `hash_entry()` function: SHA-256(id ‖ timestamp ‖ actor ‖ transition ‖ evidence_refs ‖ prev_hash)
-- [ ] T021 Implement `verify_chain()` function: sequential scan validating prev_hash linkage
-- [ ] T022 Implement `Evidence` struct with FR-to-evidence linking (FR-021) in `governance.rs`
-- [ ] T023 Implement `PolicyRule` struct with domain-based evaluation (quality/security/reliability) (FR-020)
-- [ ] T024 Write unit tests: chain integrity, tamper detection, evidence completeness check, policy pass/fail
+- [x] T018 Implement `GovernanceContract` struct with versioned rules (FR-018) in `governance.rs`
+- [x] T019 Implement `AuditEntry` struct with SHA-256 hash chain (FR-016) in `audit.rs`
+- [x] T020 Implement `hash_entry()` function: SHA-256(id ‖ timestamp ‖ actor ‖ transition ‖ evidence_refs ‖ prev_hash)
+- [x] T021 Implement `verify_chain()` function: sequential scan validating prev_hash linkage
+- [x] T022 Implement `Evidence` struct with FR-to-evidence linking (FR-021) in `governance.rs`
+- [x] T023 Implement `PolicyRule` struct with domain-based evaluation (quality/security/reliability) (FR-020)
+- [x] T024 Write unit tests: chain integrity, tamper detection, evidence completeness check, policy pass/fail
 - [ ] T024d Import and extend existing Phenotype governance patterns (from parpour, civ, thegent) into governance contract templates (FR-028, FR-029)
-- [ ] T024b Write proptest property-based tests for hash chain integrity and governance evaluation
+- [x] T024b Write proptest property-based tests for hash chain integrity and governance evaluation
 - [ ] T024c Run cargo-mutants on audit.rs and governance.rs, verify ≥90% mutation score
 
 ### Implementation Notes
