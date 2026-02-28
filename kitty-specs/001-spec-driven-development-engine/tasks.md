@@ -592,7 +592,7 @@
 **Estimated**: ~500 lines, 8 subtasks
 
 ### Included Subtasks
-- [ ] T098 Initialize `agileplus-integrations` repo with Cargo workspace (4 crates), proto git submodule, Makefile
+- [x] T098 Initialize `agileplus-integrations` repo with Cargo workspace (4 crates), proto git submodule, Makefile
 - [ ] T098b Implement `TriageAdapter` struct with `classify()` method in `crates/agileplus-triage/src/`
 - [ ] T099 Implement `BacklogItem` CRUD: create, list_by_type, list_by_feature, promote_to_feature
 - [ ] T100 Implement `classifier.rs`: rule-based + keyword intent classification (extensible for LLM-based later)
