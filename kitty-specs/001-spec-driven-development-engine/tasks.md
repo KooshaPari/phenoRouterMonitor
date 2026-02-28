@@ -125,13 +125,13 @@
 **Estimated**: ~400 lines, 8 subtasks
 
 ### Included Subtasks
-- [ ] T012 Implement `Feature` struct with all fields from data-model.md in `crates/agileplus-domain/src/domain/feature.rs`
-- [ ] T013 Implement `FeatureState` enum and `StateTransition` type with strict ordering (FR-033)
-- [ ] T014 Implement state machine logic: `transition()` method enforcing valid transitions, skip-with-warning (FR-034)
-- [ ] T015 Implement `WorkPackage` struct with states (planned/doing/review/done/blocked) in `work_package.rs`
-- [ ] T016 Implement `WpDependency` and dependency-aware scheduling logic (FR-039)
-- [ ] T017 Write unit tests for FSM: all valid transitions, invalid transitions blocked, skip transitions logged
-- [ ] T017b Write proptest property-based tests for FSM transitions (all valid/invalid state pairs)
+- [x] T012 Implement `Feature` struct with all fields from data-model.md in `crates/agileplus-domain/src/domain/feature.rs`
+- [x] T013 Implement `FeatureState` enum and `StateTransition` type with strict ordering (FR-033)
+- [x] T014 Implement state machine logic: `transition()` method enforcing valid transitions, skip-with-warning (FR-034)
+- [x] T015 Implement `WorkPackage` struct with states (planned/doing/review/done/blocked) in `work_package.rs`
+- [x] T016 Implement `WpDependency` and dependency-aware scheduling logic (FR-039)
+- [x] T017 Write unit tests for FSM: all valid transitions, invalid transitions blocked, skip transitions logged
+- [x] T017b Write proptest property-based tests for FSM transitions (all valid/invalid state pairs)
 - [ ] T017c Run cargo-mutants on state_machine.rs, verify ≥90% mutation score
 
 ### Implementation Notes
