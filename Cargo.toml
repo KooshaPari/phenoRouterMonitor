@@ -8,6 +8,7 @@ members = [
     "crates/agileplus-sqlite",
     "crates/agileplus-git",
     "crates/agileplus-telemetry",
+    "crates/agileplus-triage",
     "rust",
 ]
 
