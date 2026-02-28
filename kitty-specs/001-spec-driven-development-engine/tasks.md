@@ -260,7 +260,7 @@
 
 ### Included Subtasks
 - [x] T038 Implement `GitVcsAdapter` struct implementing `VcsPort` in `crates/agileplus-git/src/`
-- [ ] T039 Implement worktree operations: create_worktree(feature, wp), list_worktrees, cleanup_worktree
+- [x] T039 Implement worktree operations: create_worktree(feature, wp), list_worktrees, cleanup_worktree
 - [ ] T040 Implement branch operations: create_branch, checkout, merge_to_target, detect_conflicts
 - [ ] T041 Implement artifact operations: read_spec, read_plan, write_audit_chain, write_evidence
 - [ ] T042 Implement git history scanning for `rebuild_from_git()` support
