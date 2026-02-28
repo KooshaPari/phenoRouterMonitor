@@ -194,12 +194,12 @@
 **Estimated**: ~350 lines, 6 subtasks
 
 ### Included Subtasks
-- [ ] T025 Define `StoragePort` trait in `ports/storage.rs`: CRUD for features, WPs, audit, evidence, policies
-- [ ] T026 [P] Define `VcsPort` trait in `ports/vcs.rs`: worktree create/cleanup, branch ops, artifact read/write
-- [ ] T027 [P] Define `AgentPort` trait in `ports/agent.rs`: dispatch subagent, query status, send instruction
-- [ ] T028 [P] Define `ReviewPort` trait in `ports/review.rs`: await review, read comments, check CI status
-- [ ] T029 [P] Define `ObservabilityPort` trait in `ports/observability.rs`: emit trace, record metric, write log
-- [ ] T030 Define `mod.rs` re-exporting all ports, application service traits using ports
+- [x] T025 Define `StoragePort` trait in `ports/storage.rs`: CRUD for features, WPs, audit, evidence, policies
+- [x] T026 [P] Define `VcsPort` trait in `ports/vcs.rs`: worktree create/cleanup, branch ops, artifact read/write
+- [x] T027 [P] Define `AgentPort` trait in `ports/agent.rs`: dispatch subagent, query status, send instruction
+- [x] T028 [P] Define `ReviewPort` trait in `ports/review.rs`: await review, read comments, check CI status
+- [x] T029 [P] Define `ObservabilityPort` trait in `ports/observability.rs`: emit trace, record metric, write log
+- [x] T030 Define `mod.rs` re-exporting all ports, application service traits using ports
 
 ### Implementation Notes
 - All ports are async traits (use `async_trait` or Rust 2024 native async traits)
