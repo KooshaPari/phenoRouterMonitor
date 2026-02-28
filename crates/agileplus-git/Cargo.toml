@@ -9,3 +9,8 @@ rust-version.workspace = true
 agileplus-domain = { path = "../agileplus-domain" }
 git2 = { version = "0.20", features = ["vendored-libgit2"] }
 serde.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["full"] }
