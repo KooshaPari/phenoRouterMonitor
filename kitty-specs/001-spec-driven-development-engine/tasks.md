@@ -395,7 +395,7 @@
 - [x] T061 Implement `commands/specify.rs`: guided discovery interview, spec generation, SQLite+git persistence (FR-001)
 - [x] T062 Implement `commands/research.rs`: pre-specify (codebase scan) and post-specify (feasibility) modes (FR-002)
 - [x] T063 Implement implicit refinement: re-run detection, diffing, revision audit logging (FR-008)
-- [ ] T064 Implement governance checks within planning commands (FR-009): constitution loading, consistency validation
+- [x] T064 Implement governance checks within planning commands (FR-009): constitution loading, consistency validation
 - [ ] T065 Wire specify/research to StoragePort, VcsPort, ObservabilityPort via dependency injection
 
 ### Implementation Notes
