@@ -1,7 +1,7 @@
 ---
 work_package_id: WP00
 title: Proto Repository Scaffold
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 1d7faa3715187a2f4f41de16be4810147979105e
@@ -431,3 +431,4 @@ Reviewers should verify:
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-02-27T23:51:11Z – claude-opus – shell_pid=96135 – lane=doing – Assigned agent via workflow command
+- 2026-02-28T00:15:25Z – claude-opus – shell_pid=96135 – lane=for_review – Ready for review: 4 proto files, buf v2 config, Rust crate (cargo build passes), Python package (uv sync passes), CI skeleton, buf lint clean
