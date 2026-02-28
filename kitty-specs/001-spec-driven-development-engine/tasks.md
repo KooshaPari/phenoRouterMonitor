@@ -696,7 +696,7 @@
 - [x] T124 Implement agent DevOps defaults: conventional commits, branch naming, lint-before-push (FR-051)
 - [x] T125 Implement CLAUDE.md/AGENTS.md first-action classifier integration (FR-052)
 - [x] T126 Wire triage/queue to StoragePort, sync adapters, telemetry; write CLI integration tests
-- [ ] T127 Seed sub-command prompt files from hybridized reference commands (spec-kitty, bmad, gsd, openspec superset)
+- [x] T127 Seed sub-command prompt files from hybridized reference commands (spec-kitty, bmad, gsd, openspec superset)
 
 ### Dependencies
 - Depends on WP17 (triage adapter), WP20 (sub-commands)
