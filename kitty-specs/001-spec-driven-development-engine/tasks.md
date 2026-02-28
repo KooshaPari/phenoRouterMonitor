@@ -624,7 +624,7 @@
 - [x] T105 Implement feature sync: gRPC request from core → Plane.so work item (create/update on state change)
 - [x] T106 Implement WP sync: gRPC request from core → Plane.so sub-item (status, assignee, PR link)
 - [x] T107 Implement conflict detection: poll Plane.so for mirror-side edits, warn on conflicts (FR-045)
-- [ ] T108 Write integration tests with mock Plane.so API
+- [x] T108 Write integration tests with mock Plane.so API
 
 ### Implementation Notes
 - Lives in `agileplus-integrations` repo, `crates/agileplus-plane/` crate
