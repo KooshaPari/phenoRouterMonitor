@@ -10,7 +10,9 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use agileplus_cli::commands::{
-    implement::ImplementArgs, plan::PlanArgs, research::ResearchArgs, specify::SpecifyArgs,
+    implement::ImplementArgs, plan::PlanArgs, research::ResearchArgs,
+    retrospective::RetrospectiveArgs, ship::ShipArgs, specify::SpecifyArgs,
+    validate::ValidateArgs,
 };
 use agileplus_git::GitVcsAdapter;
 use agileplus_sqlite::SqliteStorageAdapter;
@@ -48,6 +50,12 @@ enum Commands {
     Plan(PlanArgs),
     /// Implement work packages for a planned feature.
     Implement(ImplementArgs),
+    /// Validate governance compliance for an implementing feature.
+    Validate(ValidateArgs),
+    /// Ship a validated feature by merging all WP branches.
+    Ship(ShipArgs),
+    /// Generate a retrospective report for a shipped feature.
+    Retrospective(RetrospectiveArgs),
 }
 
 #[tokio::main]
@@ -107,6 +115,15 @@ async fn run(cli: Cli) -> Result<()> {
         }
         Commands::Implement(args) => {
             agileplus_cli::commands::implement::run_implement(args, &storage, &vcs, &agent).await?;
+        }
+        Commands::Validate(args) => {
+            agileplus_cli::commands::validate::run_validate(args, &storage, &vcs).await?;
+        }
+        Commands::Ship(args) => {
+            agileplus_cli::commands::ship::run_ship(args, &storage, &vcs).await?;
+        }
+        Commands::Retrospective(args) => {
+            agileplus_cli::commands::retrospective::run_retrospective(args, &storage, &vcs).await?;
         }
     }
 
