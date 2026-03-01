@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP10"
-title: "Centralized CI Workflows"
-phase: "Phase 0 - Foundation (parallel with WP01)"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP10
+title: Centralized CI Workflows
+lane: "doing"
 dependencies: []
-subtasks: ["T057", "T058", "T059", "T060", "T061", "T062", "T063"]
+base_branch: main
+base_commit: 6367add88d78a303bda0a6ebe96569ad9886fb41
+created_at: '2026-03-01T18:23:09.124377+00:00'
+subtasks: [T057, T058, T059, T060, T061, T062, T063]
+phase: Phase 0 - Foundation (parallel with WP01)
+assignee: ''
+agent: "wp10-ci"
+shell_pid: "18544"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP10 – Centralized CI Workflows
@@ -640,3 +643,4 @@ When reviewing WP10 completion:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-03-01T18:23:09Z – wp10-ci – shell_pid=18544 – lane=doing – Assigned agent via workflow command

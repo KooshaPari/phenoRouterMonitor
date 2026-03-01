@@ -10,7 +10,7 @@ created_at: '2026-03-01T18:23:09.121447+00:00'
 subtasks: [T049, T050, T051, T052, T053, T054, T055, T056]
 phase: Phase 3 - DX Tooling
 assignee: ''
-agent: ''
+agent: "wp09-bootstrap"
 shell_pid: "18560"
 review_status: ''
 reviewed_by: ''
@@ -589,3 +589,4 @@ When reviewing WP09 completion:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-03-01T18:23:09Z – wp09-bootstrap – shell_pid=18560 – lane=doing – Assigned agent via workflow command
