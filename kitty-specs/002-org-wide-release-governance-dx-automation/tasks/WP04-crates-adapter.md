@@ -9,7 +9,7 @@ created_at: '2026-03-01T14:13:02.112405+00:00'
 subtasks: [T019, T020, T021, T022, T023, T024]
 phase: Phase 1 - Adapters
 assignee: ''
-agent: ''
+agent: "claude-impl"
 shell_pid: "73688"
 review_status: ''
 reviewed_by: ''
@@ -782,3 +782,7 @@ WP04 implements the crates.io RegistryAdapter for Rust packages. This adapter ha
 - Cycle detection works correctly
 - Version tests cover all 5 channels
 - Coverage > 85%
+
+## Activity Log
+
+- 2026-03-01T14:13:02Z – claude-impl – shell_pid=73688 – lane=doing – Assigned agent via workflow command
