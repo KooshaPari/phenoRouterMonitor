@@ -52,14 +52,6 @@ func initConfig() {
 var publishCmd *cobra.Command
 var promoteCmd *cobra.Command
 
-var bootstrapCmd = &cobra.Command{
-	Use:   "bootstrap",
-	Short: "Bootstrap governance artifacts for a repository",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("bootstrap: not yet implemented")
-		return nil
-	},
-}
 
 var configCmd = &cobra.Command{
 	Use:   "config",
