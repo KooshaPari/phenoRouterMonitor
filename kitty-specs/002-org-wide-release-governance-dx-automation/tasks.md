@@ -416,7 +416,7 @@
 - [x] T079 [P] Bootstrap thegent (Python) — validate Python-specific artifacts, PyPI publish test
 - [x] T080 [P] Bootstrap agentapi-plusplus (Go) — validate Go-specific artifacts, Go proxy publish test
 - [x] T081 Run `pheno audit` across all 4 repos — validate org-wide view
-- [ ] T082 Document findings and adjust templates based on pilot feedback
+- [x] T082 Document findings and adjust templates based on pilot feedback
 
 ### Implementation Notes
 - AgilePlus: private (no publish), only hooks + lint/test infrastructure
