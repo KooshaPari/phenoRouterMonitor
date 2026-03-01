@@ -9,7 +9,7 @@ created_at: '2026-03-01T21:44:49.584393+00:00'
 subtasks: [T071, T072, T073, T074, T075, T076]
 phase: Phase 3 - DX Tooling
 assignee: ''
-agent: ''
+agent: "wp12-impl"
 shell_pid: "51600"
 review_status: ''
 reviewed_by: ''
@@ -380,3 +380,4 @@ history:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created.
+- 2026-03-01T21:44:49Z – wp12-impl – shell_pid=51600 – lane=doing – Assigned agent via workflow command
