@@ -82,7 +82,7 @@
 
 ### Included Subtasks
 - [x] T013 Implement `internal/adapters/pypi.go` — Detect (parse pyproject.toml, check classifiers)
-- [ ] T014 Implement PyPI Version (PEP 440: alpha→aN, canary→devN, beta→bN, rc→rcN)
+- [x] T014 Implement PyPI Version (PEP 440: alpha→aN, canary→devN, beta→bN, rc→rcN)
 - [ ] T015 Implement PyPI Build (`python -m build`)
 - [ ] T016 Implement PyPI Publish (`twine upload`) with retry/backoff
 - [ ] T017 Implement PyPI Verify (check PyPI JSON API for version)
