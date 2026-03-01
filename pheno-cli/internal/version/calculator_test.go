@@ -13,6 +13,9 @@ func TestCalculate(t *testing.T) {
 		wantErr   bool
 	}{
 		{"npm alpha", "0.2.0", "alpha", 1, "npm", "0.2.0-alpha.1", false},
+		{"npm beta", "0.2.0", "beta", 2, "npm", "0.2.0-beta.2", false},
+		{"npm rc", "1.0.0", "rc", 1, "npm", "1.0.0-rc.1", false},
+		{"npm canary", "0.2.0", "canary", 3, "npm", "0.2.0-canary.3", false},
 		{"npm prod", "1.0.0", "prod", 0, "npm", "1.0.0", false},
 		{"pypi alpha", "0.2.0", "alpha", 1, "pypi", "0.2.0a1", false},
 		{"pypi beta", "0.2.0", "beta", 1, "pypi", "0.2.0b1", false},
@@ -20,11 +23,15 @@ func TestCalculate(t *testing.T) {
 		{"pypi canary", "0.2.0", "canary", 3, "pypi", "0.2.0.dev3", false},
 		{"pypi prod", "1.0.0", "prod", 0, "pypi", "1.0.0", false},
 		{"crates alpha", "0.2.0", "alpha", 1, "crates.io", "0.2.0-alpha.1", false},
+		{"crates prod", "1.0.0", "prod", 0, "crates.io", "1.0.0", false},
 		{"go alpha", "0.2.0", "alpha", 1, "go_proxy", "v0.2.0-alpha.1", false},
 		{"go prod", "1.0.0", "prod", 0, "go_proxy", "v1.0.0", false},
+		{"hex beta", "0.2.0", "beta", 1, "hex.pm", "0.2.0-beta.1", false},
+		{"hex prod", "1.0.0", "prod", 0, "hex.pm", "1.0.0", false},
+		{"zig alpha", "0.2.0", "alpha", 1, "zig", "v0.2.0-alpha.1", false},
 		{"zig prod", "1.0.0", "prod", 0, "zig", "v1.0.0", false},
 		{"mojo alpha", "0.2.0", "alpha", 1, "mojo", "", true},
-		{"unknown", "1.0.0", "alpha", 1, "nope", "", true},
+		{"unknown registry", "1.0.0", "alpha", 1, "nope", "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -40,10 +47,21 @@ func TestCalculate(t *testing.T) {
 }
 
 func TestDistTag(t *testing.T) {
-	if DistTag("prod") != "latest" {
-		t.Error("prod should map to latest")
+	tests := []struct {
+		channel string
+		want    string
+	}{
+		{"prod", "latest"},
+		{"alpha", "alpha"},
+		{"beta", "beta"},
+		{"canary", "canary"},
+		{"rc", "rc"},
 	}
-	if DistTag("alpha") != "alpha" {
-		t.Error("alpha should map to alpha")
+	for _, tt := range tests {
+		t.Run(tt.channel, func(t *testing.T) {
+			if got := DistTag(tt.channel); got != tt.want {
+				t.Errorf("DistTag(%q) = %q, want %q", tt.channel, got, tt.want)
+			}
+		})
 	}
 }

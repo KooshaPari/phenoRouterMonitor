@@ -42,10 +42,19 @@ func prodVersion(base string, registry string) string {
 	}
 }
 
+// semverPreRelease produces SemVer pre-release: "X.Y.Z-channel.N"
 func semverPreRelease(base string, channel string, inc int) string {
 	return fmt.Sprintf("%s-%s.%d", base, channel, inc)
 }
 
+// pypiPreRelease produces PEP 440 pre-release versions.
+//
+// Mapping:
+//
+//	alpha  → XaN     (e.g., 0.2.0a1)
+//	canary → X.devN  (e.g., 0.2.0.dev1) — sorts before alpha in PEP 440
+//	beta   → XbN     (e.g., 0.2.0b1)
+//	rc     → XrcN    (e.g., 0.2.0rc1)
 func pypiPreRelease(base string, channel string, inc int) (string, error) {
 	switch channel {
 	case "alpha":
@@ -61,6 +70,7 @@ func pypiPreRelease(base string, channel string, inc int) (string, error) {
 	}
 }
 
+// DistTag returns the npm dist-tag for a channel.
 func DistTag(channel string) string {
 	if channel == "prod" {
 		return "latest"
