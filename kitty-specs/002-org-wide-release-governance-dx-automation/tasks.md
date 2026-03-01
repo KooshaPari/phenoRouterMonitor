@@ -478,7 +478,7 @@
 - [x] T089 Write governance model overview (evolving the 5-tier model, risk profiles, gate criteria)
 - [x] T090 Write contributor quickstart (bootstrap → develop → promote → publish)
 - [x] T091 Create ADR: task runner selection rationale
-- [ ] T092 Create ADR: registry adapter architecture rationale
+- [x] T092 Create ADR: registry adapter architecture rationale
 - [ ] T093 Final cleanup: ensure all error messages are clear, help text is complete
 
 ### Implementation Notes
