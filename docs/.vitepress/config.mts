@@ -11,52 +11,73 @@ export default defineConfig({
   base: docsBase,
   lastUpdated: true,
   cleanUrls: true,
+  appearance: 'dark',
 
   head: [
     ['link', { rel: 'icon', href: `${docsBase}favicon.ico` }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
   ],
 
   themeConfig: {
     siteTitle: 'AgilePlus',
 
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Architecture', link: '/architecture/overview' },
-      { text: 'CLI Reference', link: '/reference/cli' },
-      { text: 'Crates', link: '/reference/crates' }
+      { text: 'Docs', link: '/guide/getting-started' },
+      { text: 'Concepts', link: '/concepts/spec-driven-dev' },
+      { text: 'Reference', link: '/reference/cli' },
+      { text: 'Examples', link: '/examples/full-pipeline' },
     ],
 
     sidebar: {
-      '/guide/': [
+      '/': [
+        {
+          text: 'Introduction',
+          items: [
+            { text: 'Getting Started', link: '/guide/getting-started' },
+          ]
+        },
+        {
+          text: 'Concepts',
+          items: [
+            { text: 'Spec-Driven Development', link: '/concepts/spec-driven-dev' },
+            { text: 'Governance & Audit', link: '/concepts/governance' },
+            { text: 'Agent Dispatch', link: '/concepts/agent-dispatch' },
+          ]
+        },
         {
           text: 'Guide',
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
-            { text: 'Workflow', link: '/guide/workflow' },
-            { text: 'Configuration', link: '/guide/configuration' }
+            { text: 'Project Setup', link: '/guide/init' },
+            { text: 'Core Workflow', link: '/guide/workflow' },
+            { text: 'Triage & Queue', link: '/guide/triage' },
+            { text: 'Configuration', link: '/guide/configuration' },
           ]
-        }
-      ],
-      '/architecture/': [
+        },
         {
           text: 'Architecture',
           items: [
             { text: 'Overview', link: '/architecture/overview' },
             { text: 'Domain Model', link: '/architecture/domain-model' },
-            { text: 'Port Traits', link: '/architecture/ports' }
+            { text: 'Port Traits', link: '/architecture/ports' },
           ]
-        }
-      ],
-      '/reference/': [
+        },
         {
           text: 'Reference',
           items: [
             { text: 'CLI Commands', link: '/reference/cli' },
             { text: 'Crate Map', link: '/reference/crates' },
-            { text: 'Sub-commands', link: '/reference/subcommands' }
+            { text: 'Sub-commands', link: '/reference/subcommands' },
           ]
-        }
-      ]
+        },
+        {
+          text: 'Examples',
+          items: [
+            { text: 'Full Pipeline', link: '/examples/full-pipeline' },
+            { text: 'Triage Workflow', link: '/examples/triage-workflow' },
+          ]
+        },
+      ],
     },
 
     socialLinks: [
@@ -64,8 +85,8 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2025 Phenotype'
+      message: 'MIT License',
+      copyright: '© 2025 Phenotype',
     },
 
     search: {
@@ -74,21 +95,21 @@ export default defineConfig({
 
     editLink: {
       pattern: `https://github.com/KooshaPari/${repoName}/edit/main/docs/:path`,
-      text: 'Edit this page on GitHub'
+      text: 'Edit this page',
     },
 
     outline: {
       level: [2, 3],
-      label: 'On this page'
-    }
+      label: 'On this page',
+    },
   },
 
   markdown: {
     lineNumbers: true,
     theme: {
       light: 'github-light',
-      dark: 'github-dark'
-    }
+      dark: 'vitesse-dark',
+    },
   },
-  ignoreDeadLinks: true
+  ignoreDeadLinks: true,
 })

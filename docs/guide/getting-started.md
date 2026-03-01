@@ -1,73 +1,54 @@
 # Getting Started
 
+Install AgilePlus and run your first spec-driven pipeline.
+
 ## Prerequisites
 
 - Rust 2024 edition (1.85+)
 - Git 2.x
-- SQLite 3.x (bundled via rusqlite)
 
-## Installation
+## Install
 
 ```bash
 cargo install --path crates/agileplus-cli
 ```
 
-## Initialize a Project
+## Initialize
 
 ```bash
 agileplus init
 ```
 
-This detects your project type (brownfield/greenfield), scans for languages and frameworks, and generates:
+This detects your project type, scans for languages and frameworks, and generates governance files. See [Project Setup](/guide/init) for details.
 
-- `.agileplus/config.toml` — project configuration
-- `CLAUDE.md` — Claude Code governance
-- `AGENTS.md` — cross-agent governance
-- `.claudeignore` — context optimization
-- Agent-specific configs (Cursor, Codex, Copilot)
-- Git pre-commit hooks
-
-## Core Workflow
-
-```
-specify → research → plan → implement → validate → ship → retrospective
-```
-
-Each stage transitions the feature through a governed state machine with full audit trail.
-
-### Quick Example
+## Your First Feature
 
 ```bash
-# Create a feature specification
-agileplus specify --title "User Authentication" --description "Add OAuth2 login flow"
+# 1. Create a specification
+agileplus specify --title "User Auth" --description "Add login flow"
 
-# Research feasibility
-agileplus research auth-feature
+# 2. Research feasibility
+agileplus research user-auth
 
-# Generate work packages
-agileplus plan auth-feature
+# 3. Generate work packages
+agileplus plan user-auth
 
-# Implement a work package
-agileplus implement auth-feature --wp WP01
+# 4. Implement
+agileplus implement user-auth --wp WP01
 
-# Validate governance
-agileplus validate auth-feature
+# 5. Validate governance
+agileplus validate user-auth
 
-# Ship it
-agileplus ship auth-feature
+# 6. Ship
+agileplus ship user-auth
 
-# Retrospective
-agileplus retrospective auth-feature
+# 7. Retrospective
+agileplus retrospective user-auth
 ```
 
-## Triage & Queue
+## What's Next
 
-```bash
-# Classify incoming items
-agileplus triage "login page crashes on mobile Safari"
-
-# Manage the backlog
-agileplus queue add --title "Fix Safari crash" --type bug
-agileplus queue list
-agileplus queue pop
-```
+- [Spec-Driven Development](/concepts/spec-driven-dev) — understand the philosophy
+- [Core Workflow](/guide/workflow) — deep dive into each stage
+- [Full Pipeline Example](/examples/full-pipeline) — end-to-end walkthrough
+- [CLI Reference](/reference/cli) — all commands and flags
