@@ -29,8 +29,8 @@ func init() {
 	rootCmd.AddCommand(publishCmd)
 	rootCmd.AddCommand(promoteCmd)
 	rootCmd.AddCommand(auditCmd)
-	rootCmd.AddCommand(bootstrapCmd)
 	rootCmd.AddCommand(matrixCmd)
+	rootCmd.AddCommand(bootstrapCmd)
 	rootCmd.AddCommand(configCmd)
 }
 
