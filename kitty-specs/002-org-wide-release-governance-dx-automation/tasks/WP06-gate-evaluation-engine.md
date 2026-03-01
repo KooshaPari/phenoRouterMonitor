@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP06"
-title: "Gate Evaluation Engine"
-phase: "Phase 2 - CLI Commands"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
-subtasks: ["T032", "T033", "T034", "T035", "T036", "T037"]
+work_package_id: WP06
+title: Gate Evaluation Engine
+lane: "doing"
+dependencies: [WP01]
+base_branch: 002-org-wide-release-governance-dx-automation-WP01
+base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
+created_at: '2026-03-01T15:30:09.801450+00:00'
+subtasks: [T032, T033, T034, T035, T036, T037]
+phase: Phase 2 - CLI Commands
+assignee: ''
+agent: ''
+shell_pid: "11318"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – Gate Evaluation Engine
