@@ -179,7 +179,7 @@
 ### Included Subtasks
 - [x] T032 Define gate criteria data model in `internal/gate/criteria.go` (per-channel requirements)
 - [x] T033 Implement gate evaluator in `internal/gate/evaluator.go` (run criteria, collect results)
-- [ ] T034 Implement risk-based channel skip logic (low-risk can skip intermediates, high-risk must traverse all)
+- [x] T034 Implement risk-based channel skip logic (low-risk can skip intermediates, high-risk must traverse all)
 - [ ] T035 Implement structured report generation (pass/fail per criterion, stdout/stderr capture, duration)
 - [ ] T036 Implement gate criteria: lint, unit_tests, integration_tests, security_audit, docs_build, rollback_plan
 - [ ] T037 Unit tests for evaluator (mock task runner commands, test risk-based skipping)
