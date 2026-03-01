@@ -1,14 +1,17 @@
 ---
 work_package_id: WP13
 title: Pilot Rollout — AgilePlus + 3 Repos
-lane: planned
+lane: "doing"
 dependencies:
 - WP09
+base_branch: 002-org-wide-release-governance-dx-automation-WP09
+base_commit: d170e668ad5628848113077d5c00b2759fe44eed
+created_at: '2026-03-01T21:41:17.524321+00:00'
 subtasks: [T077, T078, T079, T080, T081, T082]
 phase: Phase 4 - Bootstrap + Rollout
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "47504"
 review_status: ''
 reviewed_by: ''
 history:
