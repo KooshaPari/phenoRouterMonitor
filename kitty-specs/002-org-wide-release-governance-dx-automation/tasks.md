@@ -55,7 +55,7 @@
 - [x] T009 Implement npm Build (`npm pack`)
 - [x] T010 Implement npm Publish (`npm publish --tag <channel>`) with retry/backoff
 - [x] T011 Implement npm Verify (check registry API for published version)
-- [ ] T012 Unit + integration tests for npm adapter
+- [x] T012 Unit + integration tests for npm adapter
 
 ### Implementation Notes
 - Dist-tag mapping: alpha→alpha, canary→canary, beta→beta, rc→rc, prod→latest
