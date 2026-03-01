@@ -1,7 +1,7 @@
 ---
 work_package_id: WP14
 title: Org-Wide Rollout Automation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP13]
 base_branch: 002-org-wide-release-governance-dx-automation-WP13
 base_commit: a6a8034b581668fac33bbfb53d4d1d41c68c7f8a
@@ -451,3 +451,4 @@ history:
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created.
 - 2026-03-01T21:44:23Z – wp14-impl – shell_pid=50769 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T21:47:54Z – wp14-impl – shell_pid=50769 – lane=for_review – Ready: org-wide rollout with manifest and bulk bootstrap
