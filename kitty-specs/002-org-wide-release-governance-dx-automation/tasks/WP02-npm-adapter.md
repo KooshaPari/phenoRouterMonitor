@@ -9,7 +9,7 @@ created_at: '2026-03-01T14:06:21.970286+00:00'
 subtasks: [T007, T008, T009, T010, T011, T012]
 phase: Phase 1 - Adapters
 assignee: ''
-agent: ''
+agent: "claude-impl"
 shell_pid: "44458"
 review_status: ''
 reviewed_by: ''
@@ -617,3 +617,7 @@ WP02 implements the npm RegistryAdapter, enabling detection, versioning, buildin
 - Retry parsing tests validate Retry-After extraction
 - All tests pass with `go test -v ./internal/adapters/...`
 - Coverage > 85%
+
+## Activity Log
+
+- 2026-03-01T14:06:22Z – claude-impl – shell_pid=44458 – lane=doing – Assigned agent via workflow command
