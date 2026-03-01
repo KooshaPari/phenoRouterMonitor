@@ -350,7 +350,7 @@
 - [x] T066 [P] Create reference mise.toml for Python projects (ruff check, pytest, build, ruff format)
 - [x] T067 [P] Create reference mise.toml for TypeScript projects (eslint, vitest/jest, tsc, prettier)
 - [x] T068 [P] Create reference mise.toml for Go projects (golangci-lint, go test, go build, gofmt)
-- [ ] T069 Create reference mise.toml with release:promote and release:status tasks (calls pheno CLI)
+- [x] T069 Create reference mise.toml with release:promote and release:status tasks (calls pheno CLI)
 - [ ] T070 Validate all reference configs on sample repos from the org
 
 ### Implementation Notes
