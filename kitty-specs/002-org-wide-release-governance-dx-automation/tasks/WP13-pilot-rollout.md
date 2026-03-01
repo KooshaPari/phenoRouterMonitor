@@ -1,7 +1,7 @@
 ---
 work_package_id: WP13
 title: Pilot Rollout — AgilePlus + 3 Repos
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP09
 base_branch: 002-org-wide-release-governance-dx-automation-WP09
@@ -463,3 +463,4 @@ history:
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created.
 - 2026-03-01T21:41:17Z – wp13-impl – shell_pid=47504 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T21:43:36Z – wp13-impl – shell_pid=47504 – lane=for_review – Ready: pilot rollout docs and validator
