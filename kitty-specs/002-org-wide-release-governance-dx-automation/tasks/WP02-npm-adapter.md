@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: npm Adapter
-lane: "done"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 002-org-wide-release-governance-dx-automation-WP01
 base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
@@ -9,10 +9,10 @@ created_at: '2026-03-01T14:06:21.970286+00:00'
 subtasks: [T007, T008, T009, T010, T011, T012]
 phase: Phase 1 - Adapters
 assignee: ''
-agent: "claude-impl"
+agent: ''
 shell_pid: "44458"
-review_status: "approved"
-reviewed_by: "Koosha Paridehpour"
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-03-01T13:00:00Z'
   lane: planned
