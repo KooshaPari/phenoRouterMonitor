@@ -247,7 +247,7 @@
 - [x] T044 Implement `cmd/audit.go` — scan configured repos, detect packages, query registries for current versions
 - [x] T045 Implement Lipgloss-styled audit table output (package, channel, version, registry URL, blocked-by)
 - [x] T046 Implement `cmd/matrix.go` — generate release matrix matching RELEASE_MATRIX_TEMPLATE.md format
-- [ ] T047 Add repo discovery (scan directory for repos, or read from config file)
+- [x] T047 Add repo discovery (scan directory for repos, or read from config file)
 - [ ] T048 Unit + integration tests for audit and matrix commands
 
 ### Implementation Notes
