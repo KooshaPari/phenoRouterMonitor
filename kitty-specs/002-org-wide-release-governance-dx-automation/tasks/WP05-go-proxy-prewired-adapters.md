@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP05"
-title: "Go Proxy + Pre-Wired Adapters"
-phase: "Phase 1 - Adapters"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
-subtasks: ["T025", "T026", "T027", "T028", "T029", "T030", "T031"]
+work_package_id: WP05
+title: Go Proxy + Pre-Wired Adapters
+lane: "doing"
+dependencies: [WP01]
+base_branch: 002-org-wide-release-governance-dx-automation-WP01
+base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
+created_at: '2026-03-01T14:15:04.616850+00:00'
+subtasks: [T025, T026, T027, T028, T029, T030, T031]
+phase: Phase 1 - Adapters
+assignee: ''
+agent: ''
+shell_pid: "83535"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 ## Overview
