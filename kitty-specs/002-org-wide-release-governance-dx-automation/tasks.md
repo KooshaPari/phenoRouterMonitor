@@ -443,7 +443,7 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T083 Create bulk bootstrap script (`pheno bootstrap --all` or directory-scanning mode)
+- [x] T083 Create bulk bootstrap script (`pheno bootstrap --all` or directory-scanning mode)
 - [ ] T084 Generate repo manifest (CSV/TOML listing all repos, languages, risk profiles, publish targets)
 - [ ] T085 Run bulk bootstrap on remaining repos (with dry-run first)
 - [ ] T086 Create PRs for each bootstrapped repo (automated via `gh pr create`)
