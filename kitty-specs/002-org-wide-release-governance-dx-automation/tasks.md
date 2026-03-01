@@ -275,7 +275,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T049 Implement `cmd/bootstrap.go` — orchestrate artifact generation based on detected languages
+- [x] T049 Implement `cmd/bootstrap.go` — orchestrate artifact generation based on detected languages
 - [ ] T050 Create Go template files in `internal/templates/` for all generated artifacts
 - [ ] T051 Implement mise.toml template generation (standardized tasks: lint, test, build, format, release:promote, release:status)
 - [ ] T052 Implement pre-commit hook template generation (conventional commits, fast lint)
