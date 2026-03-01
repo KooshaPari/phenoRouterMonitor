@@ -215,7 +215,7 @@
 - [x] T038 Implement `cmd/publish.go` — detect packages, select adapter, build, publish
 - [x] T039 Implement `cmd/promote.go` — validate channel transition, run gate evaluation, publish on pass
 - [x] T040 Implement workspace publishing orchestration (topological order, verify between publishes)
-- [ ] T041 Add Lipgloss-styled progress output (publish progress, gate results table)
+- [x] T041 Add Lipgloss-styled progress output (publish progress, gate results table)
 - [ ] T042 Add Viper config loading (registry credentials, default risk profile, org settings)
 - [ ] T043 Integration tests (mock registries, test full publish and promote flows)
 
