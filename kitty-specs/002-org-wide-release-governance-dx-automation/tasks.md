@@ -86,7 +86,7 @@
 - [x] T015 Implement PyPI Build (`python -m build`)
 - [x] T016 Implement PyPI Publish (`twine upload`) with retry/backoff
 - [x] T017 Implement PyPI Verify (check PyPI JSON API for version)
-- [ ] T018 Unit + integration tests for PyPI adapter
+- [x] T018 Unit + integration tests for PyPI adapter
 
 ### Implementation Notes
 - PEP 440 normalization: `0.2.0a1` not `0.2.0-alpha.1`
