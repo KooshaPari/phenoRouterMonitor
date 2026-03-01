@@ -10,7 +10,7 @@ created_at: '2026-03-01T21:41:17.524321+00:00'
 subtasks: [T077, T078, T079, T080, T081, T082]
 phase: Phase 4 - Bootstrap + Rollout
 assignee: ''
-agent: ''
+agent: "wp13-impl"
 shell_pid: "47504"
 review_status: ''
 reviewed_by: ''
@@ -462,3 +462,4 @@ history:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created.
+- 2026-03-01T21:41:17Z – wp13-impl – shell_pid=47504 – lane=doing – Assigned agent via workflow command
