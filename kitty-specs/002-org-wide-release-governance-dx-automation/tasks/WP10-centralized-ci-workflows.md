@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Centralized CI Workflows
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 6367add88d78a303bda0a6ebe96569ad9886fb41
@@ -648,3 +648,4 @@ When reviewing WP10 completion:
 - 2026-03-01T20:40:16Z – reviewer – shell_pid=34436 – lane=doing – Started review via workflow command
 - 2026-03-01T20:57:45Z – reviewer – shell_pid=34436 – lane=planned – Moved to planned
 - 2026-03-01T21:40:05Z – reviewer – shell_pid=34436 – lane=for_review – Ready for review
+- 2026-03-01T21:40:24Z – reviewer – shell_pid=34436 – lane=done – Implementation complete
