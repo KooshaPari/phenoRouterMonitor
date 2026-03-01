@@ -73,8 +73,8 @@ func TestRenderTemplate_InvalidName(t *testing.T) {
 func TestListTemplates(t *testing.T) {
 	templates := ListTemplates()
 
-	if len(templates) != 6 {
-		t.Fatalf("expected 6 templates, got %d", len(templates))
+	if len(templates) != 5 {
+		t.Fatalf("expected 5 templates, got %d", len(templates))
 	}
 
 	expected := []string{
@@ -83,7 +83,6 @@ func TestListTemplates(t *testing.T) {
 		"pre-push.sh",
 		"ci.yml",
 		"release.yml",
-		"cliff.toml",
 	}
 
 	for i, name := range expected {

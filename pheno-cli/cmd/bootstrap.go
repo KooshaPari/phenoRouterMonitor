@@ -93,6 +93,9 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 		renderedFiles[filePath] = content
 	}
 
+	// Add static cliff.toml
+	renderedFiles["cliff.toml"] = templates.GetStaticCliffToml()
+
 	// If dry-run, just print the list of files
 	if bootstrapDryRun {
 		fmt.Println("✓ Dry-run mode: would create the following files:")
