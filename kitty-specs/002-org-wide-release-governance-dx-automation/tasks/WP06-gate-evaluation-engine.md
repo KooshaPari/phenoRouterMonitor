@@ -387,3 +387,4 @@ When reviewing WP06 completion:
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-03-01T15:30:10Z – wp06-agent – shell_pid=11318 – lane=doing – Assigned agent via workflow command
 - 2026-03-01T19:25:57Z – wp06-agent – shell_pid=11318 – lane=for_review – Ready: gate evaluation engine
+- 2026-03-01T19:26:19Z – wp06-agent – shell_pid=11318 – lane=for_review – Ready for review
