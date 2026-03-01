@@ -85,7 +85,7 @@
 - [x] T014 Implement PyPI Version (PEP 440: alpha→aN, canary→devN, beta→bN, rc→rcN)
 - [x] T015 Implement PyPI Build (`python -m build`)
 - [x] T016 Implement PyPI Publish (`twine upload`) with retry/backoff
-- [ ] T017 Implement PyPI Verify (check PyPI JSON API for version)
+- [x] T017 Implement PyPI Verify (check PyPI JSON API for version)
 - [ ] T018 Unit + integration tests for PyPI adapter
 
 ### Implementation Notes
