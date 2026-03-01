@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP11"
-title: "Task Runner Evaluation & Standardization"
-phase: "Phase 3 - DX Tooling"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP07"]
-subtasks: ["T064", "T065", "T066", "T067", "T068", "T069", "T070"]
+work_package_id: WP11
+title: Task Runner Evaluation & Standardization
+lane: "doing"
+dependencies: [WP07]
+base_branch: 002-org-wide-release-governance-dx-automation-WP07
+base_commit: 2a2ac0a71d85db9a3a99626b777b233f03b7e1d5
+created_at: '2026-03-01T21:41:06.727427+00:00'
+subtasks: [T064, T065, T066, T067, T068, T069, T070]
+phase: Phase 3 - DX Tooling
+assignee: ''
+agent: ''
+shell_pid: "47185"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP11 – Task Runner Evaluation & Standardization
