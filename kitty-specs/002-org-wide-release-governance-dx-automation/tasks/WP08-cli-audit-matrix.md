@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: CLI Audit & Matrix Commands
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 002-org-wide-release-governance-dx-automation-WP01
@@ -334,3 +334,4 @@ When reviewing WP08 completion:
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-03-01T18:23:09Z – wp08-audit – shell_pid=18552 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T19:26:23Z – wp08-audit – shell_pid=18552 – lane=for_review – Ready for review
