@@ -150,7 +150,7 @@
 - [x] T027 Implement Go Verify (check proxy.golang.org for module version)
 - [x] T028 [P] Implement `internal/adapters/hex.go` — Pre-wired stub (Detect from mix.exs, Version from SemVer, Publish/Verify return "not yet supported")
 - [x] T029 [P] Implement `internal/adapters/zig.go` — Pre-wired stub (Detect from build.zig.zon, git-tag-based versioning)
-- [ ] T030 [P] Implement `internal/adapters/mojo.go` — Pre-wired stub (Detect from mojoproject.toml, returns "no registry available")
+- [x] T030 [P] Implement `internal/adapters/mojo.go` — Pre-wired stub (Detect from mojoproject.toml, returns "no registry available")
 - [ ] T031 Unit tests for Go adapter + stub adapter behavior
 
 ### Implementation Notes
