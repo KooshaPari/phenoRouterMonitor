@@ -381,7 +381,7 @@
 - [x] T071 Create pre-commit hook script (conventional commit message validation)
 - [x] T072 Add fast lint check to pre-commit (format check, encoding validation — <5s target)
 - [x] T073 Create pre-push hook script with channel-aware logic (feature/* → fast, beta/* → full suite)
-- [ ] T074 Create `.pre-commit-config.yaml` template (for repos using pre-commit framework)
+- [x] T074 Create `.pre-commit-config.yaml` template (for repos using pre-commit framework)
 - [ ] T075 Create standalone hook installer script (for repos not using pre-commit framework)
 - [ ] T076 Test hooks: conventional commit rejection, timing validation, channel branching logic
 
