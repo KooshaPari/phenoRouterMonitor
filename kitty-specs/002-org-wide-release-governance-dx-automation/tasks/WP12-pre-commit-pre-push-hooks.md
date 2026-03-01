@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP12"
-title: "Pre-Commit & Pre-Push Hooks"
-phase: "Phase 3 - DX Tooling"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP11"]
-subtasks: ["T071", "T072", "T073", "T074", "T075", "T076"]
+work_package_id: WP12
+title: Pre-Commit & Pre-Push Hooks
+lane: "doing"
+dependencies: [WP11]
+base_branch: 002-org-wide-release-governance-dx-automation-WP11
+base_commit: c1282825ba6e2260a890a658f45b2d84e1674ec9
+created_at: '2026-03-01T21:44:49.584393+00:00'
+subtasks: [T071, T072, T073, T074, T075, T076]
+phase: Phase 3 - DX Tooling
+assignee: ''
+agent: ''
+shell_pid: "51600"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP12 – Pre-Commit & Pre-Push Hooks
