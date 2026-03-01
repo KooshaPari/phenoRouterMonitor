@@ -139,6 +139,15 @@ export default withMermaid(
             ]
           },
           {
+            text: 'Doc System',
+            collapsed: true,
+            items: [
+              { text: 'Documentation Layers', link: '/doc-system/layers' },
+              { text: 'Frontmatter Schema', link: '/doc-system/frontmatter' },
+              { text: 'Federation & PhenoDocs', link: '/doc-system/federation' },
+            ]
+          },
+          {
             text: 'Examples',
             items: [
               { text: 'Full Pipeline', link: '/examples/full-pipeline' },
@@ -181,5 +190,12 @@ export default withMermaid(
       },
     },
     ignoreDeadLinks: true,
+
+    transformPageData(pageData) {
+      // Expose audience frontmatter for client-side filtering
+      if (pageData.frontmatter?.audience) {
+        ;(pageData as any).audience = pageData.frontmatter.audience
+      }
+    },
   })
 )
