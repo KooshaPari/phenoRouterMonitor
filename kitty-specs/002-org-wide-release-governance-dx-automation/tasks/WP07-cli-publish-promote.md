@@ -1,14 +1,17 @@
 ---
 work_package_id: WP07
 title: CLI Publish & Promote Commands
-lane: planned
+lane: "for_review"
 dependencies:
 - WP01
+base_branch: 002-org-wide-release-governance-dx-automation-WP01
+base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
+created_at: '2026-03-01T18:23:09.128188+00:00'
 subtasks: [T038, T039, T040, T041, T042, T043]
 phase: Phase 2 - CLI Commands
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "wp07-publish"
+shell_pid: "18556"
 review_status: ''
 reviewed_by: ''
 history:
@@ -393,3 +396,5 @@ When reviewing WP07 completion:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-03-01T18:23:09Z – wp07-publish – shell_pid=18556 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T19:19:07Z – wp07-publish – shell_pid=18556 – lane=for_review – Ready for review
