@@ -177,7 +177,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T032 Define gate criteria data model in `internal/gate/criteria.go` (per-channel requirements)
+- [x] T032 Define gate criteria data model in `internal/gate/criteria.go` (per-channel requirements)
 - [ ] T033 Implement gate evaluator in `internal/gate/evaluator.go` (run criteria, collect results)
 - [ ] T034 Implement risk-based channel skip logic (low-risk can skip intermediates, high-risk must traverse all)
 - [ ] T035 Implement structured report generation (pass/fail per criterion, stdout/stderr capture, duration)
