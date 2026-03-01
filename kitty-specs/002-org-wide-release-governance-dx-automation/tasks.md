@@ -346,7 +346,7 @@
 
 ### Included Subtasks
 - [x] T064 Final evaluation: validate mise monorepo tasks feature stability (or select alternative)
-- [ ] T065 Create reference mise.toml for Rust projects (cargo clippy, cargo test, cargo build, rustfmt)
+- [x] T065 Create reference mise.toml for Rust projects (cargo clippy, cargo test, cargo build, rustfmt)
 - [ ] T066 [P] Create reference mise.toml for Python projects (ruff check, pytest, build, ruff format)
 - [ ] T067 [P] Create reference mise.toml for TypeScript projects (eslint, vitest/jest, tsc, prettier)
 - [ ] T068 [P] Create reference mise.toml for Go projects (golangci-lint, go test, go build, gofmt)
