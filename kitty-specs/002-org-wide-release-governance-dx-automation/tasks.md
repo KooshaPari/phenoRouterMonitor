@@ -413,7 +413,7 @@
 ### Included Subtasks
 - [x] T077 Bootstrap AgilePlus (TypeScript/VitePress) — validate mise.toml, hooks, CI workflows
 - [x] T078 [P] Bootstrap tokenledger (Rust) — validate Rust-specific artifacts, crates.io publish test
-- [ ] T079 [P] Bootstrap thegent (Python) — validate Python-specific artifacts, PyPI publish test
+- [x] T079 [P] Bootstrap thegent (Python) — validate Python-specific artifacts, PyPI publish test
 - [ ] T080 [P] Bootstrap agentapi-plusplus (Go) — validate Go-specific artifacts, Go proxy publish test
 - [ ] T081 Run `pheno audit` across all 4 repos — validate org-wide view
 - [ ] T082 Document findings and adjust templates based on pilot feedback
