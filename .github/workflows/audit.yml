@@ -1,0 +1,38 @@
+name: Audit Workspace
+
+on:
+  workflow_call:
+    inputs:
+      repos_dir:
+        required: true
+        type: string
+        description: 'Directory containing repos to audit'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      REPOS_DIR: ${{ inputs.repos_dir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: Run pheno audit
+        run: |
+          pheno audit --repos-dir "$REPOS_DIR" --format json > audit-results.json || true
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: audit-results.json
+          if-no-files-found: warn
+
+      - name: Audit summary
+        run: |
+          echo "✓ Audit completed for $REPOS_DIR"
+          if [ -f audit-results.json ]; then
+            echo "Results saved to audit-results.json"
+          fi

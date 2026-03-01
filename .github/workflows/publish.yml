@@ -1,0 +1,65 @@
+name: Publish Package
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: true
+        type: string
+        description: 'Programming language (npm, pypi, crates.io)'
+      registry:
+        required: true
+        type: string
+        description: 'Package registry'
+      version:
+        required: true
+        type: string
+        description: 'Package version to publish'
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+        description: 'Run without publishing'
+    secrets:
+      NPM_TOKEN:
+        required: false
+      PYPI_TOKEN:
+        required: false
+      CARGO_TOKEN:
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: Build
+        run: mise run build
+
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          VERSION: ${{ inputs.version }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_TOKEN }}
+        run: |
+          case "$REGISTRY" in
+            npm) npm publish --tag "$VERSION" ;;
+            pypi) twine upload dist/* ;;
+            crates.io) cargo publish ;;
+          esac
+
+      - name: Dry run summary
+        if: ${{ inputs.dry_run }}
+        env:
+          LANGUAGE: ${{ inputs.language }}
+          REGISTRY: ${{ inputs.registry }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          echo "Dry run: Would publish $LANGUAGE package version $VERSION to $REGISTRY"

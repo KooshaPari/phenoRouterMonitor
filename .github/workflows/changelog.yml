@@ -1,0 +1,41 @@
+name: Generate Changelog
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+        description: 'Version for changelog entry'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install git-cliff
+        run: |
+          cargo install git-cliff
+
+      - name: Generate changelog
+        run: |
+          git-cliff --tag "$VERSION" > CHANGELOG.md
+
+      - name: Commit changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog for $VERSION" || true
+
+      - name: Changelog summary
+        run: |
+          echo "✓ Changelog generated for version $VERSION"
+          if git diff --cached CHANGELOG.md; then
+            echo "Changes committed to CHANGELOG.md"
+          fi

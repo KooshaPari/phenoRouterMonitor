@@ -1,0 +1,49 @@
+name: Gate Check
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: true
+        type: string
+        description: 'Programming language'
+      channel:
+        required: true
+        type: string
+        description: 'Release channel (alpha, beta, stable)'
+      risk_profile:
+        required: true
+        type: string
+        description: 'Risk profile (low, medium, high)'
+
+jobs:
+  gate-check:
+    runs-on: ubuntu-latest
+    env:
+      LANGUAGE: ${{ inputs.language }}
+      CHANNEL: ${{ inputs.channel }}
+      RISK_PROFILE: ${{ inputs.risk_profile }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: Run lint
+        run: mise run lint
+        continue-on-error: false
+
+      - name: Run test
+        run: mise run test
+        continue-on-error: false
+
+      - name: Run audit
+        if: ${{ inputs.channel == 'stable' || inputs.risk_profile == 'high' }}
+        run: mise run audit
+        continue-on-error: false
+
+      - name: Gate check result
+        run: |
+          echo "✓ Gate check passed for $LANGUAGE"
+          echo "  Channel: $CHANNEL"
+          echo "  Risk profile: $RISK_PROFILE"
