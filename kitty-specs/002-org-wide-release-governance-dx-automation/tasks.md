@@ -212,7 +212,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T038 Implement `cmd/publish.go` — detect packages, select adapter, build, publish
+- [x] T038 Implement `cmd/publish.go` — detect packages, select adapter, build, publish
 - [ ] T039 Implement `cmd/promote.go` — validate channel transition, run gate evaluation, publish on pass
 - [ ] T040 Implement workspace publishing orchestration (topological order, verify between publishes)
 - [ ] T041 Add Lipgloss-styled progress output (publish progress, gate results table)
