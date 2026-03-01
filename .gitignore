@@ -1,13 +1,8 @@
 # Added by Spec Kitty CLI (auto-managed)
 references
-.claude/
-.codex/
 .opencode/
 .windsurf/
-.gemini/
-.cursor/
 .qwen/
-.kilocode/
 .augment/
 .roo/
 .amazonq/
@@ -18,3 +13,21 @@ references
 node_modules/
 docs/.vitepress/cache/
 docs/.vitepress/dist/
+
+
+
+
+
+
+
+# AI tool artifacts
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kittify/
+.kilocode/
+.github/prompts/
+.github/copilot-instructions.md
+.claudeignore
+.llmignore
