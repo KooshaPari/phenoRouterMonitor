@@ -182,7 +182,7 @@
 - [x] T034 Implement risk-based channel skip logic (low-risk can skip intermediates, high-risk must traverse all)
 - [x] T035 Implement structured report generation (pass/fail per criterion, stdout/stderr capture, duration)
 - [x] T036 Implement gate criteria: lint, unit_tests, integration_tests, security_audit, docs_build, rollback_plan
-- [ ] T037 Unit tests for evaluator (mock task runner commands, test risk-based skipping)
+- [x] T037 Unit tests for evaluator (mock task runner commands, test risk-based skipping)
 
 ### Implementation Notes
 - Gate criteria execute task runner commands (e.g., `mise run lint`, `mise run test`)
@@ -244,7 +244,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T044 Implement `cmd/audit.go` — scan configured repos, detect packages, query registries for current versions
+- [x] T044 Implement `cmd/audit.go` — scan configured repos, detect packages, query registries for current versions
 - [ ] T045 Implement Lipgloss-styled audit table output (package, channel, version, registry URL, blocked-by)
 - [ ] T046 Implement `cmd/matrix.go` — generate release matrix matching RELEASE_MATRIX_TEMPLATE.md format
 - [ ] T047 Add repo discovery (scan directory for repos, or read from config file)
