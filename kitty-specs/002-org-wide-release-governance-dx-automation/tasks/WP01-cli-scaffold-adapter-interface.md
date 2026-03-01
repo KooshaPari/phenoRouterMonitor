@@ -9,7 +9,7 @@ created_at: '2026-03-01T13:57:08.720265+00:00'
 subtasks: [T001, T002, T003, T004, T005, T006]
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "21643"
 review_status: ''
 reviewed_by: ''
@@ -507,3 +507,7 @@ WP01 establishes the foundational CLI structure and adapter interface that all d
 - All registry/channel combinations are tested
 - Edge cases (version 0.0.1, v-prefix, increment 5) are included
 - Benchmark runs without error
+
+## Activity Log
+
+- 2026-03-01T13:57:09Z – claude-opus – shell_pid=21643 – lane=doing – Assigned agent via workflow command
