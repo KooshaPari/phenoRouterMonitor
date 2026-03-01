@@ -46,11 +46,11 @@ import { modules, activeModule, showAll } from '../composables/useModuleFilter'
 }
 
 .module-select:hover {
-  border-color: #7ebab5;
+  border-color: var(--kc-accent);
 }
 
 .module-select:focus {
-  border-color: #7ebab5;
+  border-color: var(--kc-accent);
   box-shadow: 0 0 0 2px rgba(126, 186, 181, 0.15);
 }
 
@@ -70,7 +70,7 @@ import { modules, activeModule, showAll } from '../composables/useModuleFilter'
 }
 
 .show-all-toggle input {
-  accent-color: #7ebab5;
+  accent-color: var(--kc-accent);
   cursor: pointer;
 }
 
