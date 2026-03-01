@@ -310,7 +310,7 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T057 Create `publish.yml` reusable workflow (registry-specific publish with retry/backoff)
+- [x] T057 Create `publish.yml` reusable workflow (registry-specific publish with retry/backoff)
 - [ ] T058 Create `gate-check.yml` reusable workflow (run channel-specific gate criteria)
 - [ ] T059 Create `promote.yml` reusable workflow (orchestrate gate-check → publish)
 - [ ] T060 Create `changelog.yml` reusable workflow (git-cliff changelog generation on release)
