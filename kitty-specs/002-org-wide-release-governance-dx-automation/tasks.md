@@ -479,7 +479,7 @@
 - [x] T090 Write contributor quickstart (bootstrap → develop → promote → publish)
 - [x] T091 Create ADR: task runner selection rationale
 - [x] T092 Create ADR: registry adapter architecture rationale
-- [ ] T093 Final cleanup: ensure all error messages are clear, help text is complete
+- [x] T093 Final cleanup: ensure all error messages are clear, help text is complete
 
 ### Implementation Notes
 - README goes in pheno-cli repo root
