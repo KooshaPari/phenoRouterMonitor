@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: crates.io Adapter
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 002-org-wide-release-governance-dx-automation-WP01
 base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
@@ -786,3 +786,4 @@ WP04 implements the crates.io RegistryAdapter for Rust packages. This adapter ha
 ## Activity Log
 
 - 2026-03-01T14:13:02Z – claude-impl – shell_pid=73688 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T14:14:54Z – claude-impl – shell_pid=73688 – lane=for_review – Ready: crates.io adapter with workspace, topo sort, publish
