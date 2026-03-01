@@ -1,3 +1,7 @@
+---
+audience: [agents, developers]
+---
+
 # Sub-commands
 
 AgilePlus includes 25 hidden sub-commands across 8 categories for advanced agent workflows.

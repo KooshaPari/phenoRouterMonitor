@@ -1,8 +1,32 @@
+---
+audience: [developers, sdk]
+---
+
 # Architecture Overview
 
 AgilePlus uses a clean architecture with port-based adapters.
 
 ## Crate Dependency Graph
+
+```mermaid
+graph TD
+    CLI[agileplus-cli] --> Engine[agileplus-engine]
+    CLI --> Domain[agileplus-domain]
+    Engine --> Domain
+    Engine --> Sync[agileplus-sync]
+    Engine --> Agents[agileplus-agents]
+    CLI --> SQLite[agileplus-sqlite]
+    CLI --> Git[agileplus-git]
+    SQLite --> Domain
+    Git --> Domain
+    Sync --> Domain
+    Agents --> Domain
+
+    style Domain fill:#7ebab5,color:#131517
+    style CLI fill:#353a40,color:#f6f5f5
+```
+
+Text representation:
 
 ```
 agileplus-cli

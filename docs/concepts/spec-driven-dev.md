@@ -1,3 +1,7 @@
+---
+audience: [developers, agents, pms]
+---
+
 # Spec-Driven Development
 
 Spec-driven development inverts the typical development workflow. Instead of jumping from idea to code, every feature begins as a **specification** — a structured document that defines what gets built, why, and what success looks like.

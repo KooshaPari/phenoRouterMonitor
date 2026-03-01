@@ -1,8 +1,42 @@
+---
+audience: [developers, sdk]
+---
+
 # Domain Model
 
 ## Feature
 
 The central entity. Features move through a governed state machine:
+
+```mermaid
+erDiagram
+    Feature ||--o{ WorkPackage : contains
+    Feature ||--o{ AuditEntry : tracks
+    Feature {
+        string id
+        string title
+        FeatureState state
+        datetime created_at
+    }
+    WorkPackage ||--o{ Task : contains
+    WorkPackage {
+        string id
+        string title
+        Lane lane
+        string[] dependencies
+    }
+    Task {
+        string id
+        string description
+        bool done
+    }
+    AuditEntry {
+        string action
+        string actor
+        datetime timestamp
+        string details
+    }
+```
 
 ```
 Draft → Specified → Researched → Planned → Implementing → Validating → Shipped

@@ -1,3 +1,7 @@
+---
+audience: [developers, agents, pms]
+---
+
 # Governance & Audit
 
 AgilePlus treats governance as infrastructure, not paperwork. Every action produces an immutable record. Every transition is enforced by the system.
@@ -5,6 +9,21 @@ AgilePlus treats governance as infrastructure, not paperwork. Every action produ
 ## State Machine
 
 Features move through a deterministic state machine:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Specified : specify
+    Specified --> Researched : research
+    Researched --> Planned : plan
+    Planned --> Implementing : implement
+    Implementing --> Validating : review
+    Validating --> Implementing : changes requested
+    Validating --> Shipped : accept
+    Shipped --> [*]
+```
+
+The original text representation:
 
 ```
 Draft → Specified → Researched → Planned → Implementing → Validating → Shipped

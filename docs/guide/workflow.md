@@ -1,6 +1,21 @@
+---
+audience: [developers, agents, pms]
+---
+
 # Workflow
 
 AgilePlus implements a 7-stage spec-driven development pipeline.
+
+```mermaid
+graph LR
+    S[Specify] --> R[Research]
+    R --> P[Plan]
+    P --> I[Implement]
+    I --> V[Validate]
+    V -->|changes| I
+    V --> A[Accept]
+    A --> M[Merge]
+```
 
 ## Stages
 

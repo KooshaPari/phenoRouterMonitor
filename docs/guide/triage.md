@@ -1,3 +1,7 @@
+---
+audience: [developers, pms]
+---
+
 # Triage & Queue
 
 AgilePlus includes a rule-based triage system that classifies incoming items and routes them to a priority backlog.

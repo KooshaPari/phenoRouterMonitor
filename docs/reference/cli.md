@@ -1,3 +1,7 @@
+---
+audience: [developers, agents]
+---
+
 # CLI Commands
 
 ## Core Pipeline

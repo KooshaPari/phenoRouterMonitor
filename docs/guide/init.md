@@ -1,3 +1,7 @@
+---
+audience: [developers]
+---
+
 # Project Setup
 
 `agileplus init` bootstraps a project with governance files, agent configs, and git hooks.

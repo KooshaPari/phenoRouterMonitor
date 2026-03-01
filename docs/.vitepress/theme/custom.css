@@ -2,7 +2,7 @@
  *
  * Accent:       #7ebab5 (teal)
  * Primary text: #f6f5f5 (warm white)
- * Background:   #131517 (slightly brightened from #0f1012)
+ * Background:   #0e1013 (near-black with midnight blue tinge)
  * Secondary BG: #353a40 (slate)
  */
 
@@ -18,35 +18,35 @@
 }
 
 .dark {
-  --vp-c-bg: #131517;
-  --vp-c-bg-alt: #191c1f;
-  --vp-c-bg-soft: #1e2225;
-  --vp-c-bg-elv: #242830;
+  --vp-c-bg: #0e1013;
+  --vp-c-bg-alt: #141719;
+  --vp-c-bg-soft: #1a1d21;
+  --vp-c-bg-elv: #20242a;
 
   --vp-c-text-1: #f6f5f5;
   --vp-c-text-2: #a8adb5;
   --vp-c-text-3: #6b7280;
 
-  --vp-c-divider: #2a2e34;
-  --vp-c-gutter: #1a1d20;
+  --vp-c-divider: #252930;
+  --vp-c-gutter: #121416;
 
   --vp-c-brand-1: #7ebab5;
   --vp-c-brand-2: #6aa8a3;
   --vp-c-brand-3: #569691;
 
   --vp-c-tip-1: #7ebab5;
-  --vp-c-tip-bg: #1e2225;
-  --vp-c-tip-soft: #242830;
+  --vp-c-tip-bg: #1a1d21;
+  --vp-c-tip-soft: #20242a;
 
-  --vp-code-block-bg: #0f1012;
-  --vp-code-bg: #1e2225;
+  --vp-code-block-bg: #0a0c0e;
+  --vp-code-bg: #1a1d21;
 
   --vp-button-brand-bg: #7ebab5;
-  --vp-button-brand-text: #131517;
+  --vp-button-brand-text: #0e1013;
   --vp-button-brand-hover-bg: #95ccc8;
-  --vp-button-brand-hover-text: #0f1012;
+  --vp-button-brand-hover-text: #0a0c0e;
   --vp-button-brand-active-bg: #6aa8a3;
-  --vp-button-brand-active-text: #131517;
+  --vp-button-brand-active-text: #0e1013;
 
   --vp-button-alt-bg: #353a40;
   --vp-button-alt-text: #a8adb5;
@@ -57,9 +57,9 @@
   --vp-home-hero-name-background: linear-gradient(135deg, #f6f5f5 0%, #7ebab5 100%);
 
   --vp-c-default-1: #353a40;
-  --vp-c-default-2: #2a2e34;
-  --vp-c-default-3: #1e2225;
-  --vp-c-default-soft: #1e2225;
+  --vp-c-default-2: #252930;
+  --vp-c-default-3: #1a1d21;
+  --vp-c-default-soft: #1a1d21;
 }
 
 /* ── Typography ── */
@@ -112,7 +112,7 @@
 }
 
 .dark .VPNav {
-  background: rgba(19, 21, 23, 0.85) !important;
+  background: rgba(14, 16, 19, 0.85) !important;
   backdrop-filter: blur(12px);
 }
 
@@ -145,7 +145,7 @@
 }
 
 .dark div[class*='language-'] {
-  border: 1px solid #2a2e34;
+  border: 1px solid #252930;
   border-radius: 8px;
 }
 
@@ -211,7 +211,7 @@
 }
 
 .dark .vp-doc tr {
-  border-top: 1px solid #2a2e34;
+  border-top: 1px solid #252930;
 }
 
 .dark .vp-doc th {

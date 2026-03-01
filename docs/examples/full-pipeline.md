@@ -1,3 +1,7 @@
+---
+audience: [developers, agents, pms]
+---
+
 # Full Pipeline Example
 
 Walk through the complete AgilePlus pipeline — from specification to shipped feature.

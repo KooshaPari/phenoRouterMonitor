@@ -1,3 +1,7 @@
+---
+audience: [developers, sdk]
+---
+
 # Port Traits
 
 Port traits define the boundary between domain logic and infrastructure.

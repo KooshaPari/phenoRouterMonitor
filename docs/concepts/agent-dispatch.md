@@ -1,6 +1,29 @@
+---
+audience: [agents, developers]
+---
+
 # Agent Dispatch
 
 AgilePlus orchestrates AI coding agents as first-class participants in the development pipeline. Agents receive structured prompts, operate in isolated branches, and are held to the same governance as human developers.
+
+```mermaid
+sequenceDiagram
+    participant U as User / CI
+    participant AP as AgilePlus Engine
+    participant D as Dispatcher
+    participant A as Agent (Claude Code)
+    participant W as Worktree
+
+    U->>AP: agileplus implement WP02
+    AP->>W: Create worktree + branch
+    AP->>D: Dispatch with prompt
+    D->>A: Launch session
+    A->>W: Write code, run tests
+    A->>D: Session complete
+    D->>AP: Collect output
+    AP->>AP: Validate governance
+    AP-->>U: WP02 ready for review
+```
 
 ## Supported Agents
 

@@ -1,3 +1,7 @@
+---
+audience: [developers, agents, pms]
+---
+
 # Getting Started
 
 Install AgilePlus and run your first spec-driven pipeline.

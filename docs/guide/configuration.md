@@ -1,3 +1,7 @@
+---
+audience: [developers]
+---
+
 # Configuration
 
 ## Project Config
