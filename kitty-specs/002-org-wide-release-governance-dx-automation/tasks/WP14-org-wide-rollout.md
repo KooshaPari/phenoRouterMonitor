@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP14"
-title: "Org-Wide Rollout Automation"
-phase: "Phase 4 - Bootstrap + Rollout"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP13"]
-subtasks: ["T083", "T084", "T085", "T086", "T087"]
+work_package_id: WP14
+title: Org-Wide Rollout Automation
+lane: "doing"
+dependencies: [WP13]
+base_branch: 002-org-wide-release-governance-dx-automation-WP13
+base_commit: a6a8034b581668fac33bbfb53d4d1d41c68c7f8a
+created_at: '2026-03-01T21:44:23.062256+00:00'
+subtasks: [T083, T084, T085, T086, T087]
+phase: Phase 4 - Bootstrap + Rollout
+assignee: ''
+agent: ''
+shell_pid: "50769"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP14 – Org-Wide Rollout Automation
