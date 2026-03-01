@@ -351,7 +351,7 @@
 - [x] T067 [P] Create reference mise.toml for TypeScript projects (eslint, vitest/jest, tsc, prettier)
 - [x] T068 [P] Create reference mise.toml for Go projects (golangci-lint, go test, go build, gofmt)
 - [x] T069 Create reference mise.toml with release:promote and release:status tasks (calls pheno CLI)
-- [ ] T070 Validate all reference configs on sample repos from the org
+- [x] T070 Validate all reference configs on sample repos from the org
 
 ### Implementation Notes
 - If mise monorepo tasks not stable by implementation time, fall back to moon or per-repo mise.toml
