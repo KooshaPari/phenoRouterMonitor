@@ -1,14 +1,17 @@
 ---
 work_package_id: WP09
 title: CLI Bootstrap Command
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
+base_branch: 002-org-wide-release-governance-dx-automation-WP01
+base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
+created_at: '2026-03-01T18:23:09.121447+00:00'
 subtasks: [T049, T050, T051, T052, T053, T054, T055, T056]
 phase: Phase 3 - DX Tooling
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "18560"
 review_status: ''
 reviewed_by: ''
 history:

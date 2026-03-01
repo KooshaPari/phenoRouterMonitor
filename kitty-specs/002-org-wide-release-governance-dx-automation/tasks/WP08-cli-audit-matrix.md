@@ -1,14 +1,17 @@
 ---
 work_package_id: WP08
 title: CLI Audit & Matrix Commands
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
+base_branch: 002-org-wide-release-governance-dx-automation-WP01
+base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
+created_at: '2026-03-01T18:23:09.101661+00:00'
 subtasks: [T044, T045, T046, T047, T048]
 phase: Phase 2 - CLI Commands
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "18552"
 review_status: ''
 reviewed_by: ''
 history:
