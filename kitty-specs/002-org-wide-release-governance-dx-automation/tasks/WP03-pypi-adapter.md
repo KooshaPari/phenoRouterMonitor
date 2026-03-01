@@ -9,7 +9,7 @@ created_at: '2026-03-01T14:10:31.067620+00:00'
 subtasks: [T013, T014, T015, T016, T017, T018]
 phase: Phase 1 - Adapters
 assignee: ''
-agent: ''
+agent: "claude-impl"
 shell_pid: "64665"
 review_status: ''
 reviewed_by: ''
@@ -671,3 +671,7 @@ WP03 implements the PyPI RegistryAdapter, enabling detection, versioning, buildi
 - Package name normalization is correct
 - Coverage > 85%
 - PEP 440 version formats are comprehensive
+
+## Activity Log
+
+- 2026-03-01T14:10:31Z – claude-impl – shell_pid=64665 – lane=doing – Assigned agent via workflow command
