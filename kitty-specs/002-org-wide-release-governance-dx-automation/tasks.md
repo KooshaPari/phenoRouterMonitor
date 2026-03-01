@@ -21,7 +21,7 @@
 ### Included Subtasks
 - [x] T001 Initialize Go module (`pheno-cli`) with Cobra + Viper + Lipgloss deps
 - [x] T002 Create Cobra root command with subcommand stubs (publish, promote, audit, bootstrap, matrix, config)
-- [ ] T003 Define `RegistryAdapter` interface in `internal/adapters/adapter.go`
+- [x] T003 Define `RegistryAdapter` interface in `internal/adapters/adapter.go`
 - [ ] T004 Implement `internal/version/calculator.go` — version suffix logic per registry per channel
 - [ ] T005 [P] Implement `internal/detect/detector.go` — language/manifest auto-detection
 - [ ] T006 Unit tests for version calculator (all 7 registries × 5 channels)
