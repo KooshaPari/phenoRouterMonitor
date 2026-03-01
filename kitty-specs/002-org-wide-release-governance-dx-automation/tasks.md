@@ -280,7 +280,7 @@
 - [x] T051 Implement mise.toml template generation (standardized tasks: lint, test, build, format, release:promote, release:status)
 - [x] T052 Implement pre-commit hook template generation (conventional commits, fast lint)
 - [x] T053 Implement pre-push hook template generation (channel-aware validation)
-- [ ] T054 Implement CI workflow wrapper templates (ci.yml, release.yml calling phenotypeActions)
+- [x] T054 Implement CI workflow wrapper templates (ci.yml, release.yml calling phenotypeActions)
 - [ ] T055 Implement cliff.toml template generation (git-cliff changelog config)
 - [ ] T056 Integration test: bootstrap a mock repo and validate all artifacts
 
