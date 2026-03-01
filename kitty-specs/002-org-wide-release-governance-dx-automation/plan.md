@@ -1,108 +1,114 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Org-Wide Release Governance & DX Automation
 
+**Branch**: `002-org-wide-release-governance-dx-automation` | **Date**: 2026-03-01 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `kitty-specs/002-org-wide-release-governance-dx-automation/spec.md`
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `src/specify_cli/missions/software-dev/command-templates/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+---
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Build automated release governance infrastructure across all ~47 Phenotype repos: automated publishing to 4+ registries (npm, PyPI, crates.io, Go proxy) with 5-tier channel versioning (alpha → canary → beta → rc → prod), standardized DX task runner (mise recommended), a Go-based cross-repo orchestration CLI (`pheno`), pre-commit/pre-push hooks, and hybrid CI workflows (centralized in `phenotypeActions` + per-repo wrappers). Plugin/adapter architecture from day 1 for extensibility to Zig, Mojo, Elixir/Hex.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Go 1.23+ (CLI), multi-language targets (Rust nightly, Python 3.14+, TypeScript 7.0+, Go 1.23+)
+**Primary Dependencies**: Cobra + Viper + Lipgloss (CLI), mise (task runner), git-cliff (changelog), GitHub Actions (CI)
+**Storage**: Git tags + repo-local config files (TOML). No database.
+**Testing**: Go tests (CLI), integration tests against mock registries, E2E tests for bootstrap workflow
+**Target Platform**: macOS (primary dev), Linux (CI), Windows 10+ (user base)
+**Project Type**: Multi-repo tooling (CLI + shared workflows + per-repo configs)
+**Performance Goals**: CLI startup <50ms, bootstrap <1 min, audit <30s for 47 repos
+**Constraints**: No cloud dependencies for core workflow. Registry credentials via GitHub org secrets.
+**Scale/Scope**: 47 repos, 4 active languages, 7 registry adapters (4 active + 3 pre-wired)
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Gate | Status | Notes |
+|------|--------|-------|
+| Languages match constitution | PASS | Go for CLI (allowed under "Open to: Go for specific components"). Targets all constitution languages. |
+| Testing requirements | PASS | Go tests for CLI. Contract tests for registry adapters. Integration tests for CI workflows. |
+| Performance targets | PASS | CLI startup <50ms matches constitution. No gRPC/SQLite involved. |
+| Cross-platform CI | PASS | macOS + Linux + Windows matrix for CLI binary. |
+| Agent-first design | PASS | CLI is programmatically invocable. `pheno` commands can be called by agents. |
+| Conventional commits | PASS | Pre-commit hooks enforce this — self-reinforcing. |
+| Dependency minimalism | PASS | Cobra/Viper/Lipgloss are standard Go CLI deps. No exotic dependencies. |
+| No unsafe without audit | N/A | Go CLI, not Rust. Rust repos get hooks/CI but no new Rust code. |
+
+**Post-Phase 1 re-check**: No new violations. Design adds no cloud dependencies, no new languages beyond Go, no database.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/002-org-wide-release-governance-dx-automation/
+├── plan.md              # This file
+├── research.md          # Task runner eval, registry conventions, CLI stack
+├── data-model.md        # Entity definitions and relationships
+├── contracts/           # Adapter interface definitions
+│   └── registry-adapter.md
+└── tasks.md             # Generated by /spec-kitty.tasks (NOT by this command)
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+### Source Code (across repos)
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# New repo: pheno-cli (Go)
+pheno-cli/
+├── cmd/
+│   ├── root.go          # Cobra root command
+│   ├── publish.go       # pheno publish
+│   ├── promote.go       # pheno promote
+│   ├── audit.go         # pheno audit
+│   ├── bootstrap.go     # pheno bootstrap
+│   ├── matrix.go        # pheno matrix
+│   └── config.go        # pheno config
+├── internal/
+│   ├── adapters/        # Registry adapter implementations
+│   │   ├── adapter.go   # Interface definition
+│   │   ├── npm.go
+│   │   ├── pypi.go
+│   │   ├── crates.go
+│   │   ├── goproxy.go
+│   │   ├── hex.go       # Pre-wired stub
+│   │   ├── zig.go       # Pre-wired stub
+│   │   └── mojo.go      # Pre-wired stub
+│   ├── detect/          # Language/manifest detection
+│   ├── gate/            # Channel gate criteria evaluation
+│   ├── version/         # Version calculation per registry
+│   └── templates/       # Bootstrap templates
+│       ├── mise.toml.tmpl
+│       ├── pre-commit.tmpl
+│       ├── pre-push.tmpl
+│       ├── ci-publish.yml.tmpl
+│       └── ci-gate.yml.tmpl
+├── go.mod
+├── go.sum
+└── mise.toml            # Dogfooding: uses mise for its own DX
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+# Existing repo: phenotypeActions
+phenotypeActions/
+└── .github/workflows/
+    ├── publish.yml      # Reusable: registry publish with retry
+    ├── gate-check.yml   # Reusable: channel gate validation
+    ├── promote.yml      # Reusable: orchestrate gate→publish
+    ├── changelog.yml    # Reusable: git-cliff changelog
+    └── audit.yml        # Scheduled: org-wide status
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+# Per-repo (generated by `pheno bootstrap`)
+<any-repo>/
+├── mise.toml            # Standardized tasks (lint, test, build, format, release:promote)
+├── .pre-commit-config.yaml  # Or equivalent hook config
+├── cliff.toml           # git-cliff changelog config
+└── .github/workflows/
+    ├── ci.yml           # Wrapper calling phenotypeActions/gate-check
+    └── release.yml      # Wrapper calling phenotypeActions/promote+publish
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Multi-repo — new `pheno-cli` repo for the CLI tool, updates to `phenotypeActions` for shared workflows, per-repo config generated by bootstrap. Follows constitution's multi-repo decomposition principle.
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+*No constitution violations requiring justification.*
