@@ -147,7 +147,7 @@
 ### Included Subtasks
 - [x] T025 Implement `internal/adapters/goproxy.go` — Detect (parse go.mod), Version (v-prefix SemVer)
 - [x] T026 Implement Go Publish (git tag + push — Go proxy pulls from VCS, no upload needed)
-- [ ] T027 Implement Go Verify (check proxy.golang.org for module version)
+- [x] T027 Implement Go Verify (check proxy.golang.org for module version)
 - [ ] T028 [P] Implement `internal/adapters/hex.go` — Pre-wired stub (Detect from mix.exs, Version from SemVer, Publish/Verify return "not yet supported")
 - [ ] T029 [P] Implement `internal/adapters/zig.go` — Pre-wired stub (Detect from build.zig.zon, git-tag-based versioning)
 - [ ] T030 [P] Implement `internal/adapters/mojo.go` — Pre-wired stub (Detect from mojoproject.toml, returns "no registry available")
