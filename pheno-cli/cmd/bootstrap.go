@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,14 +9,19 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/KooshaPari/pheno-cli/internal/detect"
+	"github.com/KooshaPari/pheno-cli/internal/rollout"
 	"github.com/KooshaPari/pheno-cli/internal/templates"
 )
 
 var (
-	bootstrapLanguage   string
+	bootstrapLanguage    string
 	bootstrapRiskProfile string
-	bootstrapDryRun     bool
-	bootstrapForce      bool
+	bootstrapDryRun      bool
+	bootstrapForce       bool
+	bootstrapAll         bool
+	bootstrapReposDir    string
+	bootstrapSkip        []string
+	bootstrapManifest    string
 )
 
 var bootstrapCmd = &cobra.Command{
@@ -27,7 +33,9 @@ var bootstrapCmd = &cobra.Command{
 - .git/hooks/pre-push: Pre-push checks
 - .github/workflows/ci.yml: CI workflow
 - .github/workflows/release.yml: Release workflow
-- cliff.toml: Changelog generation config`,
+- cliff.toml: Changelog generation config
+
+Use --all to bootstrap all repositories in a directory.`,
 	RunE: runBootstrap,
 }
 
@@ -36,9 +44,46 @@ func init() {
 	bootstrapCmd.Flags().StringVar(&bootstrapRiskProfile, "risk-profile", "low", "Risk profile (low, medium, high)")
 	bootstrapCmd.Flags().BoolVar(&bootstrapDryRun, "dry-run", false, "Show files that would be created without writing them")
 	bootstrapCmd.Flags().BoolVar(&bootstrapForce, "force", false, "Overwrite existing files")
+	bootstrapCmd.Flags().BoolVar(&bootstrapAll, "all", false, "Bootstrap all repositories in --repos-dir")
+	bootstrapCmd.Flags().StringVar(&bootstrapReposDir, "repos-dir", "", "Directory containing repositories (used with --all)")
+	bootstrapCmd.Flags().StringSliceVar(&bootstrapSkip, "skip", nil, "Comma-separated list of repo names to skip (used with --all)")
+	bootstrapCmd.Flags().StringVar(&bootstrapManifest, "manifest", "", "Path to repos.toml manifest (used with --all; auto-detects if omitted)")
 }
 
 func runBootstrap(cmd *cobra.Command, args []string) error {
+	if bootstrapAll {
+		return runBulkBootstrap(cmd)
+	}
+	return runSingleBootstrap(cmd, args)
+}
+
+func runBulkBootstrap(cmd *cobra.Command) error {
+	reposDir := bootstrapReposDir
+	if reposDir == "" {
+		var err error
+		reposDir, err = os.Getwd()
+		if err != nil {
+			return fmt.Errorf("failed to get current directory: %w", err)
+		}
+	}
+
+	opts := rollout.RolloutOptions{
+		ReposDir:     reposDir,
+		ManifestPath: bootstrapManifest,
+		DryRun:       bootstrapDryRun,
+		Skip:         bootstrapSkip,
+	}
+
+	results, err := rollout.RunBulkBootstrap(context.Background(), opts)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print(rollout.FormatResults(results))
+	return nil
+}
+
+func runSingleBootstrap(cmd *cobra.Command, args []string) error {
 	// Get the current working directory (repository root)
 	repoPath, err := os.Getwd()
 	if err != nil {
