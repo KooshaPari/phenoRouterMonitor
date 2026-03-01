@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Centralized CI Workflows
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 6367add88d78a303bda0a6ebe96569ad9886fb41
@@ -644,3 +644,4 @@ When reviewing WP10 completion:
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-03-01T18:23:09Z – wp10-ci – shell_pid=18544 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T20:39:54Z – wp10-ci – shell_pid=18544 – lane=for_review – Ready: centralized CI workflows
