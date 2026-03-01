@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: PyPI Adapter
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 002-org-wide-release-governance-dx-automation-WP01
 base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
@@ -675,3 +675,4 @@ WP03 implements the PyPI RegistryAdapter, enabling detection, versioning, buildi
 ## Activity Log
 
 - 2026-03-01T14:10:31Z – claude-impl – shell_pid=64665 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T14:12:49Z – claude-impl – shell_pid=64665 – lane=for_review – Ready: PyPI adapter with detection, PEP 440 versioning, build, publish, verify
