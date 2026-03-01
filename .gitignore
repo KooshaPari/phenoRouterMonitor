@@ -31,3 +31,5 @@ docs/.vitepress/dist/
 .github/copilot-instructions.md
 .claudeignore
 .llmignore
+# Excluded via sparse-checkout
+kitty-specs/
