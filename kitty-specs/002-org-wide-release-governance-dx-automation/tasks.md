@@ -19,7 +19,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T001 Initialize Go module (`pheno-cli`) with Cobra + Viper + Lipgloss deps
+- [x] T001 Initialize Go module (`pheno-cli`) with Cobra + Viper + Lipgloss deps
 - [ ] T002 Create Cobra root command with subcommand stubs (publish, promote, audit, bootstrap, matrix, config)
 - [ ] T003 Define `RegistryAdapter` interface in `internal/adapters/adapter.go`
 - [ ] T004 Implement `internal/version/calculator.go` — version suffix logic per registry per channel
