@@ -1,14 +1,17 @@
 ---
 work_package_id: WP15
 title: Documentation & Polish
-lane: planned
+lane: "doing"
 dependencies:
 - WP07
+base_branch: 002-org-wide-release-governance-dx-automation-WP07
+base_commit: 2a2ac0a71d85db9a3a99626b777b233f03b7e1d5
+created_at: '2026-03-01T21:41:32.950798+00:00'
 subtasks: [T088, T089, T090, T091, T092, T093]
 phase: Phase 5 - Polish
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "47925"
 review_status: ''
 reviewed_by: ''
 history:
