@@ -52,29 +52,11 @@ func initConfig() {
 var publishCmd *cobra.Command
 var promoteCmd *cobra.Command
 
-var auditCmd = &cobra.Command{
-	Use:   "audit",
-	Short: "Audit release status across repositories",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("audit: not yet implemented")
-		return nil
-	},
-}
-
 var bootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
 	Short: "Bootstrap governance artifacts for a repository",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("bootstrap: not yet implemented")
-		return nil
-	},
-}
-
-var matrixCmd = &cobra.Command{
-	Use:   "matrix",
-	Short: "Generate release matrix",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("matrix: not yet implemented")
 		return nil
 	},
 }
