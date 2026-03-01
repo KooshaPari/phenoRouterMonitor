@@ -316,7 +316,7 @@
 - [x] T060 Create `changelog.yml` reusable workflow (git-cliff changelog generation on release)
 - [x] T061 Create `audit.yml` scheduled workflow (org-wide release status report)
 - [x] T062 Add workflow inputs/outputs schema (language, registry, channel, risk_profile, credentials)
-- [ ] T063 Test workflows with `act` or dry-run mode
+- [x] T063 Test workflows with `act` or dry-run mode
 
 ### Implementation Notes
 - All workflows use `workflow_call` trigger for reusability
