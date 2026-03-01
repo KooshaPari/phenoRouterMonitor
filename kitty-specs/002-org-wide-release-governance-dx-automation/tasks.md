@@ -145,7 +145,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T025 Implement `internal/adapters/goproxy.go` — Detect (parse go.mod), Version (v-prefix SemVer)
+- [x] T025 Implement `internal/adapters/goproxy.go` — Detect (parse go.mod), Version (v-prefix SemVer)
 - [ ] T026 Implement Go Publish (git tag + push — Go proxy pulls from VCS, no upload needed)
 - [ ] T027 Implement Go Verify (check proxy.golang.org for module version)
 - [ ] T028 [P] Implement `internal/adapters/hex.go` — Pre-wired stub (Detect from mix.exs, Version from SemVer, Publish/Verify return "not yet supported")
