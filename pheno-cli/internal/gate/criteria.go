@@ -15,30 +15,30 @@ type GateCriterion struct {
 // GateSet is a collection of gates.
 type GateSet []GateCriterion
 
-// DefaultGates contains the 7 default promotion gates.
+// DefaultGates contains the 6 default promotion gates.
 var DefaultGates = GateSet{
 	{
 		ID:           "lint",
 		Name:         "Linting",
-		Command:      "make lint",
+		Command:      "go vet ./...",
 		RequiredFrom: adapters.ChannelAlpha,
 	},
 	{
 		ID:           "unit_tests",
 		Name:         "Unit Tests",
-		Command:      "make test",
+		Command:      "go test -v ./...",
 		RequiredFrom: adapters.ChannelAlpha,
 	},
 	{
 		ID:           "integration_tests",
 		Name:         "Integration Tests",
-		Command:      "make integration-test",
+		Command:      "go test -v -tags=integration ./...",
 		RequiredFrom: adapters.ChannelBeta,
 	},
 	{
 		ID:           "security_audit",
 		Name:         "Security Audit",
-		Command:      "make security-audit",
+		Command:      "go list -json -m all | nancy sleuth",
 		RequiredFrom: adapters.ChannelBeta,
 	},
 	{
