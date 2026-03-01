@@ -312,7 +312,7 @@
 ### Included Subtasks
 - [x] T057 Create `publish.yml` reusable workflow (registry-specific publish with retry/backoff)
 - [x] T058 Create `gate-check.yml` reusable workflow (run channel-specific gate criteria)
-- [ ] T059 Create `promote.yml` reusable workflow (orchestrate gate-check → publish)
+- [x] T059 Create `promote.yml` reusable workflow (orchestrate gate-check → publish)
 - [ ] T060 Create `changelog.yml` reusable workflow (git-cliff changelog generation on release)
 - [ ] T061 Create `audit.yml` scheduled workflow (org-wide release status report)
 - [ ] T062 Add workflow inputs/outputs schema (language, registry, channel, risk_profile, credentials)
