@@ -10,7 +10,7 @@ created_at: '2026-03-01T21:41:32.950798+00:00'
 subtasks: [T088, T089, T090, T091, T092, T093]
 phase: Phase 5 - Polish
 assignee: ''
-agent: ''
+agent: "wp15-impl"
 shell_pid: "47925"
 review_status: ''
 reviewed_by: ''
@@ -608,3 +608,4 @@ history:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created.
+- 2026-03-01T21:41:33Z – wp15-impl – shell_pid=47925 – lane=doing – Assigned agent via workflow command
