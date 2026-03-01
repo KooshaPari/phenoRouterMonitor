@@ -278,7 +278,7 @@
 - [x] T049 Implement `cmd/bootstrap.go` — orchestrate artifact generation based on detected languages
 - [x] T050 Create Go template files in `internal/templates/` for all generated artifacts
 - [x] T051 Implement mise.toml template generation (standardized tasks: lint, test, build, format, release:promote, release:status)
-- [ ] T052 Implement pre-commit hook template generation (conventional commits, fast lint)
+- [x] T052 Implement pre-commit hook template generation (conventional commits, fast lint)
 - [ ] T053 Implement pre-push hook template generation (channel-aware validation)
 - [ ] T054 Implement CI workflow wrapper templates (ci.yml, release.yml calling phenotypeActions)
 - [ ] T055 Implement cliff.toml template generation (git-cliff changelog config)
