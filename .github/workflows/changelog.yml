@@ -26,16 +26,14 @@ jobs:
         run: |
           git-cliff --tag "$VERSION" > CHANGELOG.md
 
-      - name: Commit changelog
+      - name: Commit and push changelog
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
-          git commit -m "chore: update changelog for $VERSION" || true
+          git diff --cached --quiet || git commit -m "chore: update changelog for $VERSION"
+          git push
 
       - name: Changelog summary
         run: |
-          echo "✓ Changelog generated for version $VERSION"
-          if git diff --cached CHANGELOG.md; then
-            echo "Changes committed to CHANGELOG.md"
-          fi
+          echo "Changelog generated for version $VERSION"

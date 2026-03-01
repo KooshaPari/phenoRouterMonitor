@@ -19,6 +19,9 @@ jobs:
       - name: Setup mise
         uses: jdx/mise-action@v2
 
+      - name: Install pheno-cli
+        run: mise run install || go install ./pheno-cli/... 2>/dev/null || true
+
       - name: Run pheno audit
         run: |
           pheno audit --repos-dir "$REPOS_DIR" --format json > audit-results.json || true

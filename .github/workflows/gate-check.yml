@@ -37,8 +37,8 @@ jobs:
         run: mise run test
         continue-on-error: false
 
-      - name: Run audit
-        if: ${{ inputs.channel == 'stable' || inputs.risk_profile == 'high' }}
+      - name: Run security audit
+        if: ${{ inputs.channel == 'beta' || inputs.channel == 'stable' || inputs.risk_profile == 'high' }}
         run: mise run audit
         continue-on-error: false
 

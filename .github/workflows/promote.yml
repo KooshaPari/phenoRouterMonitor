@@ -36,43 +36,22 @@ on:
         required: false
 
 jobs:
-  promote:
-    runs-on: ubuntu-latest
-    env:
-      LANGUAGE: ${{ inputs.language }}
-      REGISTRY: ${{ inputs.registry }}
-      FROM_CHANNEL: ${{ inputs.from_channel }}
-      TO_CHANNEL: ${{ inputs.to_channel }}
-      RISK_PROFILE: ${{ inputs.risk_profile }}
-      VERSION: ${{ inputs.version }}
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
+  gate-check:
+    uses: ./.github/workflows/gate-check.yml
+    with:
+      language: ${{ inputs.language }}
+      channel: ${{ inputs.to_channel }}
+      risk_profile: ${{ inputs.risk_profile }}
 
-      - name: Setup mise
-        uses: jdx/mise-action@v2
-
-      - name: Run gate check
-        run: |
-          mise run lint
-          mise run test
-          if [ "$TO_CHANNEL" = "stable" ] || [ "$RISK_PROFILE" = "high" ]; then
-            mise run audit
-          fi
-
-      - name: Publish if gates pass
-        run: |
-          case "$REGISTRY" in
-            npm) npm publish --tag "$TO_CHANNEL" ;;
-            pypi) twine upload dist/* ;;
-            crates.io) cargo publish ;;
-          esac
-
-      - name: Promotion result
-        run: |
-          echo "✓ Package promoted from $FROM_CHANNEL to $TO_CHANNEL"
-          echo "  Version: $VERSION"
-          echo "  Language: $LANGUAGE"
-          echo "  Registry: $REGISTRY"
+  publish:
+    uses: ./.github/workflows/publish.yml
+    needs: gate-check
+    with:
+      language: ${{ inputs.language }}
+      registry: ${{ inputs.registry }}
+      version: ${{ inputs.version }}
+      dry_run: false
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
