@@ -9,7 +9,7 @@ created_at: '2026-03-01T14:15:04.616850+00:00'
 subtasks: [T025, T026, T027, T028, T029, T030, T031]
 phase: Phase 1 - Adapters
 assignee: ''
-agent: ''
+agent: "claude-impl"
 shell_pid: "83535"
 review_status: ''
 reviewed_by: ''
@@ -776,3 +776,7 @@ WP05 implements a fully functional Go proxy adapter and pre-wired stubs for Hex 
 - Error messages are clear and mention "not yet supported"
 - Coverage > 80%
 - All adapters can be instantiated without panic
+
+## Activity Log
+
+- 2026-03-01T14:15:04Z – claude-impl – shell_pid=83535 – lane=doing – Assigned agent via workflow command
