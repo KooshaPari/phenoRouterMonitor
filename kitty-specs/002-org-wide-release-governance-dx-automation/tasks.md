@@ -315,7 +315,7 @@
 - [x] T059 Create `promote.yml` reusable workflow (orchestrate gate-check → publish)
 - [x] T060 Create `changelog.yml` reusable workflow (git-cliff changelog generation on release)
 - [x] T061 Create `audit.yml` scheduled workflow (org-wide release status report)
-- [ ] T062 Add workflow inputs/outputs schema (language, registry, channel, risk_profile, credentials)
+- [x] T062 Add workflow inputs/outputs schema (language, registry, channel, risk_profile, credentials)
 - [ ] T063 Test workflows with `act` or dry-run mode
 
 ### Implementation Notes
