@@ -348,7 +348,7 @@
 - [x] T064 Final evaluation: validate mise monorepo tasks feature stability (or select alternative)
 - [x] T065 Create reference mise.toml for Rust projects (cargo clippy, cargo test, cargo build, rustfmt)
 - [x] T066 [P] Create reference mise.toml for Python projects (ruff check, pytest, build, ruff format)
-- [ ] T067 [P] Create reference mise.toml for TypeScript projects (eslint, vitest/jest, tsc, prettier)
+- [x] T067 [P] Create reference mise.toml for TypeScript projects (eslint, vitest/jest, tsc, prettier)
 - [ ] T068 [P] Create reference mise.toml for Go projects (golangci-lint, go test, go build, gofmt)
 - [ ] T069 Create reference mise.toml with release:promote and release:status tasks (calls pheno CLI)
 - [ ] T070 Validate all reference configs on sample repos from the org
