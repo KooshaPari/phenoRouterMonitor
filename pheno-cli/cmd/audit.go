@@ -2,13 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/spf13/cobra"
-	"pheno-cli/internal/audit"
-	"pheno-cli/internal/detect"
-	"pheno-cli/internal/discover"
+	"github.com/KooshaPari/pheno-cli/internal/audit"
+	"github.com/KooshaPari/pheno-cli/internal/detect"
+	"github.com/KooshaPari/pheno-cli/internal/discover"
 )
 
 var auditCmd = &cobra.Command{

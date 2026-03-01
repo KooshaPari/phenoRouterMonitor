@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/KooshaPari/pheno-cli/internal/adapters"
 	"github.com/KooshaPari/pheno-cli/internal/detect"
 	"github.com/KooshaPari/pheno-cli/internal/discover"
 	"github.com/KooshaPari/pheno-cli/internal/matrix"
@@ -18,44 +16,73 @@ var matrixCmd = &cobra.Command{
 	RunE:  runMatrix,
 }
 
+var (
+	matrixOutput string
+)
+
 func init() {
-	matrixCmd.Flags().String("repos-dir", ".", "root directory to discover repositories")
-	matrixCmd.Flags().String("output", "", "output file path (default: stdout)")
+	matrixCmd.Flags().StringVar(&matrixOutput, "output", "", "Output file path (prints to stdout if not specified)")
 }
 
 func runMatrix(cmd *cobra.Command, args []string) error {
-	reposDir, _ := cmd.Flags().GetString("repos-dir")
-	outputPath, _ := cmd.Flags().GetString("output")
-
-	repos, err := discover.FindRepositories(reposDir)
+	// Discover repositories
+	repos, err := discover.FindRepositories(".")
 	if err != nil {
-		return fmt.Errorf("discovering repositories: %w", err)
+		return fmt.Errorf("failed to discover repositories: %w", err)
 	}
 
-	var packages []adapters.Package
-	for _, repo := range repos {
-		detected := detect.DetectLanguages(repo.Path)
-		for _, d := range detected {
-			packages = append(packages, adapters.Package{
-				Name:         repo.Name,
-				Language:     d.Language,
-				Registry:     d.Registry,
-				ManifestPath: d.ManifestPath,
-			})
-		}
-	}
-
-	rows := matrix.GenerateMatrix(packages)
-	md := matrix.FormatMarkdown(rows)
-
-	if outputPath != "" {
-		if err := os.WriteFile(outputPath, []byte(md), 0644); err != nil {
-			return fmt.Errorf("writing output file: %w", err)
-		}
-		fmt.Printf("matrix written to %s\n", outputPath)
+	if len(repos) == 0 {
+		fmt.Println("No repositories found")
 		return nil
 	}
 
-	fmt.Print(md)
+	// Collect all packages from all repositories
+	// For now, we'll just create matrix rows based on detected languages
+	var matrixRows []matrix.MatrixRow
+
+	for _, repo := range repos {
+		languages := detect.DetectLanguages(repo.Path)
+		for _, lang := range languages {
+			row := matrix.MatrixRow{
+				Initiative: repo.Name,
+				Channel:    "prod",
+				Layer:      getLayer(lang.Language),
+				Owner:      "platform",
+				Risk:       "medium",
+				Status:     "pending",
+			}
+			matrixRows = append(matrixRows, row)
+		}
+	}
+
+	// Format as markdown
+	output := matrix.FormatMarkdown(matrixRows)
+
+	// Write output
+	if matrixOutput != "" {
+		if err := os.WriteFile(matrixOutput, []byte(output), 0644); err != nil {
+			return fmt.Errorf("failed to write output file: %w", err)
+		}
+		fmt.Printf("Matrix written to %s\n", matrixOutput)
+	} else {
+		fmt.Println(output)
+	}
+
 	return nil
+}
+
+func getLayer(lang interface{}) string {
+	langStr := fmt.Sprintf("%v", lang)
+	switch langStr {
+	case "go":
+		return "backend"
+	case "typescript":
+		return "frontend"
+	case "python":
+		return "data"
+	case "rust":
+		return "systems"
+	default:
+		return "misc"
+	}
 }
