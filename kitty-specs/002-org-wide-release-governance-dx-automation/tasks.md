@@ -282,7 +282,7 @@
 - [x] T053 Implement pre-push hook template generation (channel-aware validation)
 - [x] T054 Implement CI workflow wrapper templates (ci.yml, release.yml calling phenotypeActions)
 - [x] T055 Implement cliff.toml template generation (git-cliff changelog config)
-- [ ] T056 Integration test: bootstrap a mock repo and validate all artifacts
+- [x] T056 Integration test: bootstrap a mock repo and validate all artifacts
 
 ### Implementation Notes
 - Language detection from WP01's detector → determines which templates to generate
