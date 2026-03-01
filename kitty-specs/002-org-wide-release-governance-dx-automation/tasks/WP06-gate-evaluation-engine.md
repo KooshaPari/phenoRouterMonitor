@@ -9,7 +9,7 @@ created_at: '2026-03-01T15:30:09.801450+00:00'
 subtasks: [T032, T033, T034, T035, T036, T037]
 phase: Phase 2 - CLI Commands
 assignee: ''
-agent: ''
+agent: "wp06-agent"
 shell_pid: "11318"
 review_status: ''
 reviewed_by: ''
@@ -385,3 +385,4 @@ When reviewing WP06 completion:
 ## Activity Log
 
 - 2026-03-01T13:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-03-01T15:30:10Z – wp06-agent – shell_pid=11318 – lane=doing – Assigned agent via workflow command
