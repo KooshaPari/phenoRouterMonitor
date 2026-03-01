@@ -383,7 +383,7 @@
 - [x] T073 Create pre-push hook script with channel-aware logic (feature/* → fast, beta/* → full suite)
 - [x] T074 Create `.pre-commit-config.yaml` template (for repos using pre-commit framework)
 - [x] T075 Create standalone hook installer script (for repos not using pre-commit framework)
-- [ ] T076 Test hooks: conventional commit rejection, timing validation, channel branching logic
+- [x] T076 Test hooks: conventional commit rejection, timing validation, channel branching logic
 
 ### Implementation Notes
 - Pre-commit: validate `^(feat|fix|chore|docs|refactor|test|perf|ci|build|style|revert)(\(.+\))?!?: .+`
