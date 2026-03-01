@@ -51,7 +51,7 @@
 
 ### Included Subtasks
 - [x] T007 Implement `internal/adapters/npm.go` — Detect (parse package.json, check private field)
-- [ ] T008 Implement npm Version (SemVer pre-release + dist-tag mapping)
+- [x] T008 Implement npm Version (SemVer pre-release + dist-tag mapping)
 - [ ] T009 Implement npm Build (`npm pack`)
 - [ ] T010 Implement npm Publish (`npm publish --tag <channel>`) with retry/backoff
 - [ ] T011 Implement npm Verify (check registry API for published version)
