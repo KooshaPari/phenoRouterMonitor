@@ -115,7 +115,7 @@
 ### Included Subtasks
 - [x] T019 Implement `internal/adapters/crates.go` — Detect (parse Cargo.toml, workspace members, publish field)
 - [x] T020 Implement crates.io Version (SemVer pre-release: `-alpha.N`, `-beta.N`, etc.)
-- [ ] T021 Implement topological dependency sorting for workspace crates
+- [x] T021 Implement topological dependency sorting for workspace crates
 - [ ] T022 Implement crates.io Build (`cargo package`) and Publish (`cargo publish`) with rate-limit retry
 - [ ] T023 Implement crates.io Verify (check crates.io API for version availability)
 - [ ] T024 Unit + integration tests (including workspace ordering tests)
