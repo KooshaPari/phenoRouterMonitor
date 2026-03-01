@@ -217,7 +217,7 @@
 - [x] T040 Implement workspace publishing orchestration (topological order, verify between publishes)
 - [x] T041 Add Lipgloss-styled progress output (publish progress, gate results table)
 - [x] T042 Add Viper config loading (registry credentials, default risk profile, org settings)
-- [ ] T043 Integration tests (mock registries, test full publish and promote flows)
+- [x] T043 Integration tests (mock registries, test full publish and promote flows)
 
 ### Implementation Notes
 - `pheno publish` is a direct publish (skip gates) — useful for manual intervention
