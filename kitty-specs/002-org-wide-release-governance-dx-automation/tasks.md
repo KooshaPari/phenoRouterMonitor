@@ -476,7 +476,7 @@
 ### Included Subtasks
 - [x] T088 Write pheno CLI README.md (installation, commands, configuration)
 - [x] T089 Write governance model overview (evolving the 5-tier model, risk profiles, gate criteria)
-- [ ] T090 Write contributor quickstart (bootstrap → develop → promote → publish)
+- [x] T090 Write contributor quickstart (bootstrap → develop → promote → publish)
 - [ ] T091 Create ADR: task runner selection rationale
 - [ ] T092 Create ADR: registry adapter architecture rationale
 - [ ] T093 Final cleanup: ensure all error messages are clear, help text is complete
