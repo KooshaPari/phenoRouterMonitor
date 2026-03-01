@@ -1,21 +1,24 @@
 ---
-work_package_id: "WP04"
-title: "crates.io Adapter"
-phase: "Phase 1 - Adapters"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
-subtasks: ["T019", "T020", "T021", "T022", "T023", "T024"]
+work_package_id: WP04
+title: crates.io Adapter
+lane: "doing"
+dependencies: [WP01]
+base_branch: 002-org-wide-release-governance-dx-automation-WP01
+base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
+created_at: '2026-03-01T14:13:02.112405+00:00'
+subtasks: [T019, T020, T021, T022, T023, T024]
+phase: Phase 1 - Adapters
+assignee: ''
+agent: ''
+shell_pid: "73688"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T13:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T13:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 ## Overview
