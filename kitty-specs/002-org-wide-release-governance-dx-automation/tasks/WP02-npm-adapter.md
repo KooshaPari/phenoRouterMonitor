@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: npm Adapter
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 002-org-wide-release-governance-dx-automation-WP01
 base_commit: 50c5fe5c522c6cec9f56b7d88f9628b7ff80b5cc
@@ -621,3 +621,4 @@ WP02 implements the npm RegistryAdapter, enabling detection, versioning, buildin
 ## Activity Log
 
 - 2026-03-01T14:06:22Z – claude-impl – shell_pid=44458 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T14:09:51Z – claude-impl – shell_pid=44458 – lane=for_review – Ready for review: npm adapter with full lifecycle and tests
