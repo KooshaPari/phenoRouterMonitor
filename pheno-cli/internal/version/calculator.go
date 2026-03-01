@@ -1,10 +1,6 @@
 package version
 
-import (
-	"fmt"
-
-	"github.com/KooshaPari/pheno-cli/internal/adapters"
-)
+import "fmt"
 
 // Calculate returns the registry-specific versioned string for a given
 // base version, target channel, pre-release increment, and registry.
@@ -16,68 +12,58 @@ import (
 //	Calculate("0.2.0", "canary", 3, "pypi")     → "0.2.0.dev3"
 //	Calculate("1.0.0", "prod",  0, "crates.io") → "1.0.0"
 //	Calculate("0.2.0", "alpha", 1, "go_proxy")  → "v0.2.0-alpha.1"
-func Calculate(baseVersion string, channel adapters.Channel, increment int, registry adapters.Registry) (string, error) {
-	if channel == adapters.ChannelProd {
+func Calculate(baseVersion string, channel string, increment int, registry string) (string, error) {
+	if channel == "prod" {
 		return prodVersion(baseVersion, registry), nil
 	}
 
 	switch registry {
-	case adapters.RegistryNPM, adapters.RegistryCrates, adapters.RegistryHex:
+	case "npm", "crates.io", "hex.pm":
 		return semverPreRelease(baseVersion, channel, increment), nil
-	case adapters.RegistryPyPI:
+	case "pypi":
 		return pypiPreRelease(baseVersion, channel, increment)
-	case adapters.RegistryGo:
+	case "go_proxy":
 		return "v" + semverPreRelease(baseVersion, channel, increment), nil
-	case adapters.RegistryZig:
+	case "zig":
 		return "v" + semverPreRelease(baseVersion, channel, increment), nil
-	case adapters.RegistryMojo:
-		return "", fmt.Errorf("mojo: %w", adapters.ErrNotSupported)
+	case "mojo":
+		return "", fmt.Errorf("mojo: operation not supported for this registry")
 	default:
 		return "", fmt.Errorf("unknown registry: %s", registry)
 	}
 }
 
-func prodVersion(base string, registry adapters.Registry) string {
+func prodVersion(base string, registry string) string {
 	switch registry {
-	case adapters.RegistryGo, adapters.RegistryZig:
+	case "go_proxy", "zig":
 		return "v" + base
 	default:
 		return base
 	}
 }
 
-// semverPreRelease produces SemVer pre-release: "X.Y.Z-channel.N"
-func semverPreRelease(base string, channel adapters.Channel, inc int) string {
+func semverPreRelease(base string, channel string, inc int) string {
 	return fmt.Sprintf("%s-%s.%d", base, channel, inc)
 }
 
-// pypiPreRelease produces PEP 440 pre-release versions.
-//
-// Mapping:
-//
-//	alpha  → XaN     (e.g., 0.2.0a1)
-//	canary → X.devN  (e.g., 0.2.0.dev1) — sorts before alpha in PEP 440
-//	beta   → XbN     (e.g., 0.2.0b1)
-//	rc     → XrcN    (e.g., 0.2.0rc1)
-func pypiPreRelease(base string, channel adapters.Channel, inc int) (string, error) {
+func pypiPreRelease(base string, channel string, inc int) (string, error) {
 	switch channel {
-	case adapters.ChannelAlpha:
+	case "alpha":
 		return fmt.Sprintf("%sa%d", base, inc), nil
-	case adapters.ChannelCanary:
+	case "canary":
 		return fmt.Sprintf("%s.dev%d", base, inc), nil
-	case adapters.ChannelBeta:
+	case "beta":
 		return fmt.Sprintf("%sb%d", base, inc), nil
-	case adapters.ChannelRC:
+	case "rc":
 		return fmt.Sprintf("%src%d", base, inc), nil
 	default:
 		return "", fmt.Errorf("unknown channel: %s", channel)
 	}
 }
 
-// DistTag returns the npm dist-tag for a channel.
-func DistTag(channel adapters.Channel) string {
-	if channel == adapters.ChannelProd {
+func DistTag(channel string) string {
+	if channel == "prod" {
 		return "latest"
 	}
-	return string(channel)
+	return channel
 }
