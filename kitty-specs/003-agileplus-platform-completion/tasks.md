@@ -103,7 +103,7 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~350
 **Goal**: Create `agileplus-cache` crate with Dragonfly/Redis connection pool and typed cache operations.
 
-- [ ] T022: Scaffold `agileplus-cache` crate
+- [x] T022: Scaffold `agileplus-cache` crate
 - [ ] T023: Implement connection pool with bb8-redis (config: host, port, pool size)
 - [ ] T024: Implement typed get/set/delete with TTL support
 - [ ] T025: Implement projection cache (feature state, WP state) with invalidation
