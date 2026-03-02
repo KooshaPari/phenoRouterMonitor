@@ -202,13 +202,13 @@ WP01 → WP02 → WP03
 **Priority**: P2 | **Est. lines**: ~450
 **Goal**: Extend `agileplus-api` with REST endpoints, SSE streams, and API key authentication.
 
-- [ ] T064: Implement API key generation (SHA-256 hash, store in SQLite, write plaintext to config)
-- [ ] T065: Implement API key auth middleware (extract from header/query, validate against DB)
-- [ ] T066: Add REST endpoints for features (CRUD, state transition, list with filters)
-- [ ] T067: Add REST endpoints for work packages (CRUD, state transition, list by feature)
-- [ ] T068: Add REST endpoints for events (query by entity, time, type, actor)
-- [ ] T069: Implement SSE endpoint for real-time dashboard updates (feature/WP state changes)
-- [ ] T070: Add health/status endpoint aggregating all service health checks
+- [x] T064: Implement API key generation (SHA-256 hash, store in SQLite, write plaintext to config)
+- [x] T065: Implement API key auth middleware (extract from header/query, validate against DB)
+- [x] T066: Add REST endpoints for features (CRUD, state transition, list with filters)
+- [x] T067: Add REST endpoints for work packages (CRUD, state transition, list by feature)
+- [x] T068: Add REST endpoints for events (query by entity, time, type, actor)
+- [x] T069: Implement SSE endpoint for real-time dashboard updates (feature/WP state changes)
+- [x] T070: Add health/status endpoint aggregating all service health checks
 
 ### WP12 — Dashboard Templates
 **File**: `tasks/WP12-dashboard-templates.md`
