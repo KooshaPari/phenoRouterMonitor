@@ -8,6 +8,7 @@ base_commit: 1b07d982092e6204860e14ddcc1576c531ea20f2
 created_at: '2026-03-02T12:16:16.588482+00:00'
 subtasks: [T071, T072, T073, T074, T075, T076, T077]
 shell_pid: "34847"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -279,3 +280,7 @@ pub async fn kanban_board(
 - All partials render correctly within full page layout
 - Style.css applies keycap palette (dark, monospace, high contrast)
 - htmx and Alpine.js libraries load successfully
+
+## Activity Log
+
+- 2026-03-02T12:16:16Z – claude-opus – shell_pid=34847 – lane=doing – Assigned agent via workflow command
