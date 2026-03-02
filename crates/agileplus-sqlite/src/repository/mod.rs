@@ -1,6 +1,7 @@
 //! Repository implementations for the SQLite adapter.
 
 pub mod audit;
+pub mod events;
 pub mod evidence;
 pub mod features;
 pub mod governance;

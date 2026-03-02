@@ -7,10 +7,12 @@ rust-version.workspace = true
 
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
+agileplus-events = { path = "../agileplus-events" }
 rusqlite = { version = "0.32", features = ["bundled"] }
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true
+async-trait = "0.1"
 tokio = { workspace = true, optional = true }
 
 [dev-dependencies]
