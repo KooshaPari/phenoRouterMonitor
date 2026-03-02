@@ -24,4 +24,3 @@ python/src/gen/
 *.iml
 # Excluded via sparse-checkout
 kitty-specs/
-.claude/ralph-loop.local.md
