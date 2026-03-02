@@ -1,7 +1,7 @@
 ---
 work_package_id: WP13
 title: Dashboard Interactivity
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 6c61f452547eb4071c874c4c352e6f0d1991c52a
@@ -329,3 +329,4 @@ Implement settings interface for configuration:
 ## Activity Log
 
 - 2026-03-02T17:31:27Z – claude-opus – shell_pid=6757 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T20:46:51Z – claude-opus – shell_pid=6757 – lane=for_review – Ready for review: SSE, drag-drop kanban, transition buttons, agent activity, timeline drill-down, toast notifications
