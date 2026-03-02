@@ -1,0 +1,27 @@
+[package]
+name = "agileplus-agent-service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "gRPC server exposing AgentDispatchService from agents.proto"
+
+[[bin]]
+name = "agileplus-agent-service"
+path = "src/main.rs"
+
+[dependencies]
+agileplus-agent-dispatch = { path = "../agileplus-agent-dispatch" }
+agileplus-agent-review = { path = "../agileplus-agent-review" }
+
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tonic-health = { workspace = true }
+prost = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+
+[build-dependencies]
+tonic-build = "0.12"
