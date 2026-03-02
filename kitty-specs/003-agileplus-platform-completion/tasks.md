@@ -107,7 +107,7 @@ WP01 → WP02 → WP03
 - [x] T023: Implement connection pool with bb8-redis (config: host, port, pool size)
 - [x] T024: Implement typed get/set/delete with TTL support
 - [x] T025: Implement projection cache (feature state, WP state) with invalidation
-- [ ] T026: Implement rate limiter (sliding window via INCR+EXPIRE)
+- [x] T026: Implement rate limiter (sliding window via INCR+EXPIRE)
 - [ ] T027: Add health check (PING command)
 
 ### WP05 — Graph Layer (Neo4j)
