@@ -8,6 +8,13 @@
 
 pub mod audit;
 pub mod registry;
+pub mod sync;
 
 pub use audit::AuditLog;
 pub use registry::{SubCommand, SubCommandCategory, SubCommandRegistry};
+pub use sync::{
+    run_sync, SyncArgs, SyncSubcommand,
+    SyncPushArgs, SyncPullArgs, SyncAutoArgs, SyncStatusArgs, SyncResolveArgs,
+    SyncConfig, SyncReport, SyncReportEntry, SyncStatusRow, SyncConflict,
+    SyncDirection, SyncItemOutcome, ConflictResolution, AutoSyncAction,
+};
