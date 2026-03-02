@@ -71,7 +71,7 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~500
 **Goal**: Create `agileplus-events` crate implementing append-only event store with hash chains, replay, and snapshots.
 
-- [ ] T008: Scaffold `agileplus-events` crate with Cargo.toml and module structure
+- [x] T008: Scaffold `agileplus-events` crate with Cargo.toml and module structure
 - [ ] T009: Implement EventStore trait (append, get_events, get_by_entity, get_by_range)
 - [ ] T010: Implement SHA-256 hash chain computation and verification
 - [ ] T011: Implement event replay to rebuild entity state
