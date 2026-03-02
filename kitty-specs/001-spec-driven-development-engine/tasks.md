@@ -331,7 +331,7 @@
 ### Included Subtasks
 - [x] T050 Implement `ReviewAdapter` struct in `crates/agileplus-agent-review/src/`
 - [x] T051 Implement `coderabbit.rs`: fetch review via GitHub API, parse comments into structured feedback
-- [ ] T052 Implement `fallback.rs`: manual review approval flow (user confirms via CLI prompt)
+- [x] T052 Implement `fallback.rs`: manual review approval flow (user confirms via CLI prompt)
 - [ ] T053 Implement CI status checking: poll GitHub checks API for PR, return pass/fail/pending
 - [ ] T054 Write unit tests with mock GitHub API responses
 
