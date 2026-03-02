@@ -121,6 +121,8 @@ fn audit_entry_hash_encoding_contract() {
         }],
         prev_hash: [0u8; 32],
         hash: [0xab; 32],
+        event_id: None,
+        archived_to: None,
     };
 
     let proto = audit_entry_to_proto(entry);
