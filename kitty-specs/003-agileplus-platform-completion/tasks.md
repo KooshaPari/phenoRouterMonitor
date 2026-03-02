@@ -288,10 +288,10 @@ WP01 → WP02 → WP03
 **Priority**: P3 | **Est. lines**: ~350
 **Goal**: Serialize SQLite state to deterministic, mergeable files for git-backed sync.
 
-- [ ] T100: Define export format (JSONL events, JSON snapshots, deterministic ordering)
-- [ ] T101: Implement state export (SQLite → git-trackable files in `.agileplus/` directory)
-- [ ] T102: Implement state import (git-trackable files → SQLite, merge with existing)
-- [ ] T103: Implement conflict detection for git merge scenarios
+- [x] T100: Define export format (JSONL events, JSON snapshots, deterministic ordering)
+- [x] T101: Implement state export (SQLite → git-trackable files in `.agileplus/` directory)
+- [x] T102: Implement state import (git-trackable files → SQLite, merge with existing)
+- [x] T103: Implement conflict detection for git merge scenarios
 
 ### WP18 — CLI Device Commands
 **File**: `tasks/WP18-cli-device-commands.md`
