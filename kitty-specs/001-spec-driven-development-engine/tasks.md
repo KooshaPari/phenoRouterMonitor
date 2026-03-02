@@ -560,7 +560,7 @@
 ### Included Subtasks
 - [x] T091 Create `.feature` files for core user stories: specify.feature, implement.feature, governance.feature, audit.feature
 - [x] T092 Implement cucumber-rs step definitions for Rust BDD tests in `tests/bdd/`
-- [ ] T093 [P] Implement behave step definitions for Python BDD tests in `mcp/tests/bdd/`
+- [x] T093 [P] Implement behave step definitions for Python BDD tests in `mcp/tests/bdd/`
 - [ ] T094 [P] Create Pact contract test fixtures for gRPC boundary in `tests/contract/`
 - [ ] T095 Create `docker-compose.test.yml` for full-stack integration tests (spins up all 4 services: core, mcp, agents, integrations)
 - [ ] T096 Implement integration test scenarios: full workflow (specify → ship) on test repo
