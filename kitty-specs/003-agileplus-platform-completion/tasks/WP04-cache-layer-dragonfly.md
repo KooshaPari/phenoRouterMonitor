@@ -1,9 +1,13 @@
 ---
 work_package_id: WP04
 title: Cache Layer (Dragonfly)
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 54550549c478ffb46ae18db57710e2ac84cf027c
+created_at: '2026-03-02T11:46:55.991736+00:00'
 subtasks: [T022, T023, T024, T025, T026, T027]
+shell_pid: "45986"
 history:
 - date: '2026-03-02'
   action: created
