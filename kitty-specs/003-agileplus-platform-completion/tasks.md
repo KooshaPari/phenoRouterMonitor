@@ -299,9 +299,9 @@ WP01 → WP02 → WP03
 **Priority**: P3 | **Est. lines**: ~250
 **Goal**: Add `agileplus device [discover|sync|status]` CLI commands.
 
-- [ ] T104: Add `device discover` subcommand (list Tailscale peers running AgilePlus)
-- [ ] T105: Add `device sync` subcommand (trigger P2P sync with specific peer or all)
-- [ ] T106: Add `device status` subcommand (show sync vector, last sync times)
+- [x] T104: Add `device discover` subcommand (list Tailscale peers running AgilePlus)
+- [x] T105: Add `device sync` subcommand (trigger P2P sync with specific peer or all)
+- [x] T106: Add `device status` subcommand (show sync vector, last sync times)
 
 ---
 
