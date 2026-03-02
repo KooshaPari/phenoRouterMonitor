@@ -7,7 +7,18 @@ rust-version.workspace = true
 
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
-axum = "0.8"
+axum = { version = "0.8", features = ["json", "macros"] }
+tower = { version = "0.5", features = ["limit", "timeout"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
 tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+thiserror.workspace = true
+async-trait = "0.1"
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+axum-test = "19"
+tempfile = "3"
+chrono = { version = "0.4", features = ["serde"] }

@@ -1,1 +1,3 @@
-// HTTP middleware — to be implemented.
+//! HTTP middleware for the AgilePlus API.
+
+pub mod auth;

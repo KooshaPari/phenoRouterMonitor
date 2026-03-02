@@ -3,6 +3,8 @@
 //!
 //! Traceability: FR-DOMAIN-* / WP01-T002
 
+pub mod config;
+pub mod credentials;
 pub mod domain;
 pub mod error;
 pub mod ports;

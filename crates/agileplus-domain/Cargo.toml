@@ -11,6 +11,19 @@ serde_json.workspace = true
 chrono.workspace = true
 sha2.workspace = true
 thiserror.workspace = true
+async-trait = "0.1"
+toml = "0.8"
+dirs-next = "2"
+zeroize = { version = "1", features = ["derive"] }
+
+[features]
+keychain = ["dep:keyring"]
+
+[dependencies.keyring]
+version = "3"
+optional = true
 
 [dev-dependencies]
 proptest = "1"
+tokio = { version = "1", features = ["full"] }
+tempfile = "3"
