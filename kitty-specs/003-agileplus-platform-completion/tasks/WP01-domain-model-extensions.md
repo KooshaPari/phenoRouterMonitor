@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Domain Model Extensions
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: bd7feb90feed5245c3a53d8938d87c1b738c7600
@@ -306,3 +306,4 @@ spec-kitty implement WP01
 ## Activity Log
 
 - 2026-03-02T11:27:01Z – claude-opus – shell_pid=11491 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T11:35:51Z – claude-opus – shell_pid=11491 – lane=for_review – Ready for review: 6 new domain entities, 3 extended entities, all 53 tests pass
