@@ -8,6 +8,7 @@ base_commit: e34fef4c66a8f5abee0afeafb9110eb8e0f440c0
 created_at: '2026-03-02T12:06:07.348910+00:00'
 subtasks: [T059, T060, T061, T062, T063]
 shell_pid: "35783"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -137,3 +138,7 @@ SyncMapping updated, event logged
 - Push/pull with dry-run correctly reflects what would happen
 - Conflict resolution prompts work interactively
 - Auto-sync toggles and persists correctly
+
+## Activity Log
+
+- 2026-03-02T12:06:07Z – claude-opus – shell_pid=35783 – lane=doing – Assigned agent via workflow command
