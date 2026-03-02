@@ -88,7 +88,7 @@ WP01 → WP02 → WP03
 - [x] T015: Add events table DDL with indexes (entity, timestamp, type)
 - [x] T016: Add snapshots table DDL with unique constraint
 - [x] T017: Add sync_mappings table DDL
-- [ ] T018: Add api_keys table DDL
+- [x] T018: Add api_keys table DDL
 - [ ] T019: Add device_nodes table DDL
 - [ ] T020: Implement SqliteEventStore (EventStore trait) with sqlx async queries
 - [ ] T021: Enable WAL mode and configure pragmas (synchronous=NORMAL, wal_autocheckpoint)
