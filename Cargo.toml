@@ -14,6 +14,7 @@ members = [
     "crates/agileplus-cache",
     "crates/agileplus-subcmds",
     "crates/agileplus-graph",
+    "crates/agileplus-integration-tests",
     "rust",
 ]
 
@@ -33,3 +34,4 @@ thiserror = "2"
 anyhow = "1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+futures-util = "0.3"
