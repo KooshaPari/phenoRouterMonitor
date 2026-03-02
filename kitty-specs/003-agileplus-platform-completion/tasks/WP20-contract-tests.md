@@ -1,9 +1,13 @@
 ---
 work_package_id: WP20
 title: Contract Tests
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 6411e50c2d616f13f67cdacdc2a393023f00bc0d
+created_at: '2026-03-02T20:47:38.753223+00:00'
 subtasks: [T112, T113, T114, T115]
+shell_pid: "33155"
 history:
 - date: '2026-03-02'
   action: created
