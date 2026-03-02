@@ -1,9 +1,13 @@
 ---
 work_package_id: WP21
 title: Performance Benchmarks
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: ed03fc47e3662d17514d0d9e56dbaeba7f22a9e7
+created_at: '2026-03-02T20:47:57.984923+00:00'
 subtasks: [T116, T117, T118, T119, T120]
+shell_pid: "35449"
 history:
 - date: '2026-03-02'
   action: created
