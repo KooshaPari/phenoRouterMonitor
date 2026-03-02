@@ -85,7 +85,7 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~450
 **Goal**: Extend `agileplus-sqlite` with event store tables, WAL mode, and new entity persistence.
 
-- [ ] T015: Add events table DDL with indexes (entity, timestamp, type)
+- [x] T015: Add events table DDL with indexes (entity, timestamp, type)
 - [ ] T016: Add snapshots table DDL with unique constraint
 - [ ] T017: Add sync_mappings table DDL
 - [ ] T018: Add api_keys table DDL
