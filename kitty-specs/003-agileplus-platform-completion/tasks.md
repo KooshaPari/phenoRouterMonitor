@@ -186,11 +186,11 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~350
 **Goal**: Add `agileplus sync [push|pull|auto]` CLI commands to `agileplus-subcmds`.
 
-- [ ] T059: Add `sync push` subcommand (push all local changes to Plane.so)
-- [ ] T060: Add `sync pull` subcommand (pull all Plane.so changes locally)
-- [ ] T061: Add `sync auto` subcommand (enable auto-sync on feature/WP mutations)
-- [ ] T062: Add sync status display (table of entity mappings, last sync time, conflicts)
-- [ ] T063: Add `sync resolve` subcommand (interactive conflict resolution)
+- [x] T059: Add `sync push` subcommand (push all local changes to Plane.so)
+- [x] T060: Add `sync pull` subcommand (pull all Plane.so changes locally)
+- [x] T061: Add `sync auto` subcommand (enable auto-sync on feature/WP mutations)
+- [x] T062: Add sync status display (table of entity mappings, last sync time, conflicts)
+- [x] T063: Add `sync resolve` subcommand (interactive conflict resolution)
 
 ---
 
