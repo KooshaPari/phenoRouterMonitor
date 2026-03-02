@@ -1,9 +1,13 @@
 ---
 work_package_id: WP08
 title: Plane.so Bidirectional Sync
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 6480046aaf890b6cd67e6f88cd4ec44d737067d4
+created_at: '2026-03-02T11:55:34.889965+00:00'
 subtasks: [T046, T047, T048, T049, T050, T051, T052]
+shell_pid: "61759"
 history:
 - date: '2026-03-02'
   action: created
