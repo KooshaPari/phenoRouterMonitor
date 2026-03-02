@@ -558,7 +558,7 @@
 **Estimated**: ~450 lines, 7 subtasks
 
 ### Included Subtasks
-- [ ] T091 Create `.feature` files for core user stories: specify.feature, implement.feature, governance.feature, audit.feature
+- [x] T091 Create `.feature` files for core user stories: specify.feature, implement.feature, governance.feature, audit.feature
 - [ ] T092 Implement cucumber-rs step definitions for Rust BDD tests in `tests/bdd/`
 - [ ] T093 [P] Implement behave step definitions for Python BDD tests in `mcp/tests/bdd/`
 - [ ] T094 [P] Create Pact contract test fixtures for gRPC boundary in `tests/contract/`
