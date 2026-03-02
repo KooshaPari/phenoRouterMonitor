@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP09"
+work_package_id: WP09
+title: Code Review Adapter (agileplus-agents)
+lane: "doing"
+dependencies: [WP08]
+base_branch: 001-spec-driven-development-engine-WP08
+base_commit: e9135a754657976c2bab62ddc60497cf2d50bf96
+created_at: '2026-03-02T01:23:26.257094+00:00'
 subtasks:
-  - "T050"
-  - "T051"
-  - "T052"
-  - "T053"
-  - "T054"
-title: "Code Review Adapter (agileplus-agents)"
-phase: "Phase 2b - External Repo Adapters"
-lane: "planned"
-dependencies: ["WP08"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T050
+- T051
+- T052
+- T053
+- T054
+phase: Phase 2b - External Repo Adapters
+assignee: ''
+agent: ''
+shell_pid: "59200"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 -- Code Review Adapter
