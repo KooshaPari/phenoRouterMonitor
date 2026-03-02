@@ -1,7 +1,7 @@
 ---
 work_package_id: WP20
 title: Contract Tests
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 6411e50c2d616f13f67cdacdc2a393023f00bc0d
@@ -9,6 +9,8 @@ created_at: '2026-03-02T20:47:38.753223+00:00'
 subtasks: [T112, T113, T114, T115]
 shell_pid: "33155"
 agent: "claude-opus"
+reviewed_by: "Koosha Paridehpour"
+review_status: "approved"
 history:
 - date: '2026-03-02'
   action: created
@@ -546,3 +548,4 @@ async fn api_events_pact() -> Result<()> {
 
 - 2026-03-02T20:47:39Z – claude-opus – shell_pid=33155 – lane=doing – Assigned agent via workflow command
 - 2026-03-02T21:05:16Z – claude-opus – shell_pid=33155 – lane=for_review – Ready for review: 51 contract tests across 4 crate boundaries
+- 2026-03-02T23:19:50Z – claude-opus – shell_pid=33155 – lane=done – Merged to main, 516 tests passing
