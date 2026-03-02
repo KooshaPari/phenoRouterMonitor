@@ -8,6 +8,7 @@ base_commit: e7da019ae30cf53de57c72c295a0989f7ebe115c
 created_at: '2026-03-02T12:06:10.086221+00:00'
 subtasks: [T064, T065, T066, T067, T068, T069, T070]
 shell_pid: "36298"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -176,3 +177,7 @@ Status codes:
 - SSE streams real-time events to clients
 - Health check aggregates all services
 - Error responses include descriptive messages
+
+## Activity Log
+
+- 2026-03-02T12:06:10Z – claude-opus – shell_pid=36298 – lane=doing – Assigned agent via workflow command
