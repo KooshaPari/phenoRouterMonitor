@@ -1,7 +1,7 @@
 ---
 work_package_id: WP20
 title: Contract Tests
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 6411e50c2d616f13f67cdacdc2a393023f00bc0d
@@ -545,3 +545,4 @@ async fn api_events_pact() -> Result<()> {
 ## Activity Log
 
 - 2026-03-02T20:47:39Z – claude-opus – shell_pid=33155 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T21:05:16Z – claude-opus – shell_pid=33155 – lane=for_review – Ready for review: 51 contract tests across 4 crate boundaries
