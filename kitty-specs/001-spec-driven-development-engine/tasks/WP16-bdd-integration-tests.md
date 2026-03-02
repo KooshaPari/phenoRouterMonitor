@@ -1,7 +1,7 @@
 ---
 work_package_id: WP16
 title: BDD Acceptance Tests & Integration Suite
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP15
 base_branch: 001-spec-driven-development-engine-WP15
@@ -950,3 +950,4 @@ use as input.
 |-----------|-------|
 | 2026-02-27T00:00:00Z | WP16 prompt generated via /spec-kitty.tasks |
 - 2026-03-02T02:17:36Z – s1-wp16 – shell_pid=65013 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T02:40:46Z – s1-wp16 – shell_pid=65013 – lane=for_review – Ready: BDD tests and integration suite
