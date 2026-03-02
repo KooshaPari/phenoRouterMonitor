@@ -529,7 +529,7 @@
 - [x] T085 Implement axum router in `crates/agileplus-api/src/` with routes for features, WPs, governance, audit
 - [x] T086 Implement API route handlers: delegate to domain services via ports
 - [x] T087 [P] Implement integration key auth middleware: validate API keys from credential store (FR-030)
-- [ ] T088 [P] Implement credential management: OS keychain storage (macOS Keychain, Linux secret-service) (FR-030, FR-031)
+- [x] T088 [P] Implement credential management: OS keychain storage (macOS Keychain, Linux secret-service) (FR-030, FR-031)
 - [ ] T089 [P] Create `~/.agileplus/config.toml` schema and loader (core config, credential references)
 - [ ] T090 Write API integration tests with mock HTTP client
 
