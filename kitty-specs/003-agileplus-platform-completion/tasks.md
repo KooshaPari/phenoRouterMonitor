@@ -121,7 +121,7 @@ WP01 → WP02 → WP03
 - [x] T030: Create node types with constraints (Feature, WorkPackage, Agent, Label, Project)
 - [x] T031: Implement relationship CRUD (owns, assigned_to, depends_on, blocks, tagged, in_project)
 - [x] T032: Implement graph queries (dependency chains, blocking paths, cross-project links)
-- [ ] T033: Add health check and index management
+- [x] T033: Add health check and index management
 
 ### WP06 — Artifact Storage (MinIO)
 **File**: `tasks/WP06-artifact-storage-minio.md`
