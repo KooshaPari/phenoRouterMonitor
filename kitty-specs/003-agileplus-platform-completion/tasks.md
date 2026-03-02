@@ -57,7 +57,7 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~400
 **Goal**: Add Event, Snapshot, SyncMapping, ServiceHealth, DeviceNode, ApiKey entities to `agileplus-domain` crate.
 
-- [ ] T001: Define Event entity struct with hash chain fields
+- [x] T001: Define Event entity struct with hash chain fields
 - [ ] T002: Define Snapshot entity struct
 - [ ] T003: Define SyncMapping entity struct
 - [ ] T004: Define ServiceHealth and HealthStatus enum
