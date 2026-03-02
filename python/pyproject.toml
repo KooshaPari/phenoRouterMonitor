@@ -22,6 +22,8 @@ packages = ["src/agileplus_proto", "src/agileplus_mcp"]
 dev-dependencies = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
+    "behave>=1.2.6",
+    "httpx>=0.27",
 ]
 
 [project.scripts]

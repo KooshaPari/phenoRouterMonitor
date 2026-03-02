@@ -16,6 +16,7 @@ members = [
     "crates/agileplus-graph",
     "crates/agileplus-benchmarks",
     "rust",
+    "tests/bdd",
 ]
 
 [workspace.package]
