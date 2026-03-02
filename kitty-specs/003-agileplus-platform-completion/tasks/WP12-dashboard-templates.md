@@ -1,9 +1,13 @@
 ---
 work_package_id: WP12
 title: Dashboard Templates
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 1b07d982092e6204860e14ddcc1576c531ea20f2
+created_at: '2026-03-02T12:16:16.588482+00:00'
 subtasks: [T071, T072, T073, T074, T075, T076, T077]
+shell_pid: "34847"
 history:
 - date: '2026-03-02'
   action: created
