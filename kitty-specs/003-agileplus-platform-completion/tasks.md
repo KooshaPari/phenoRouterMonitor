@@ -129,12 +129,12 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~350
 **Goal**: Create `agileplus-artifacts` crate with MinIO/S3 operations.
 
-- [ ] T034: Scaffold `agileplus-artifacts` crate with aws-sdk-s3
-- [ ] T035: Implement bucket management (create, list, exists check for 4 buckets)
-- [ ] T036: Implement object upload/download (multipart for large files)
-- [ ] T037: Implement event archival (move old events to MinIO, configurable retention)
-- [ ] T038: Implement audit entry archival
-- [ ] T039: Add health check (list buckets)
+- [x] T034: Scaffold `agileplus-artifacts` crate with aws-sdk-s3
+- [x] T035: Implement bucket management (create, list, exists check for 4 buckets)
+- [x] T036: Implement object upload/download (multipart for large files)
+- [x] T037: Implement event archival (move old events to MinIO, configurable retention)
+- [x] T038: Implement audit entry archival
+- [x] T039: Add health check (list buckets)
 
 ### WP07 — Process Compose Configuration
 **File**: `tasks/WP07-process-compose-config.md`
