@@ -98,7 +98,7 @@
 - [x] T009 [P] Create `src/agileplus_mcp/grpc_client.py` (stub gRPC connection to Rust core)
 - [x] T010 [P] Create `src/agileplus_mcp/tools/`, `resources/`, `prompts/`, `sampling/` directory stubs
 - [x] T011 Add `proto/` git submodule pointing to `agileplus-proto` and create `tests/` directory structure
-- [ ] T011b Add sphinx/autodoc CI generation for Python API reference
+- [x] T011b Add sphinx/autodoc CI generation for Python API reference
 
 ### Implementation Notes
 - Use `uv` for Python package management
