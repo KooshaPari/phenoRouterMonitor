@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Event Sourcing Engine
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 5367994fcf11fa4c20b608bb6ee398512c805b0f
@@ -847,3 +847,4 @@ spec-kitty implement WP02 --base WP01
 ## Activity Log
 
 - 2026-03-02T11:35:58Z – claude-opus – shell_pid=21596 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T11:42:02Z – claude-opus – shell_pid=21596 – lane=for_review – Ready for review: agileplus-events crate with 14 passing tests
