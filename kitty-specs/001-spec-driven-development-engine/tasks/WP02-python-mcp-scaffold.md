@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T011b"
-title: "Python MCP Service Repository Scaffold"
-phase: "Phase 0 - Foundation"
-lane: "planned"
+work_package_id: WP02
+title: Python MCP Service Repository Scaffold
+lane: "doing"
 dependencies:
-  - "WP00"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP00
+base_branch: 001-spec-driven-development-engine-WP00
+base_commit: c06503001f082fb29e451eefa974f9dc400212d4
+created_at: '2026-03-02T01:08:58.878507+00:00'
+subtasks:
+- T007
+- T008
+- T009
+- T010
+- T011
+- T011b
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "97221"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 -- Python MCP Service Repository Scaffold
