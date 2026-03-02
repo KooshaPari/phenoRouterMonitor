@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: CLI Sync Commands
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: e34fef4c66a8f5abee0afeafb9110eb8e0f440c0
@@ -142,3 +142,4 @@ SyncMapping updated, event logged
 ## Activity Log
 
 - 2026-03-02T12:06:07Z – claude-opus – shell_pid=35783 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:12:53Z – claude-opus – shell_pid=35783 – lane=for_review – Ready for review: sync push/pull/auto/status/resolve commands implemented in agileplus-subcmds, 27 tests pass
