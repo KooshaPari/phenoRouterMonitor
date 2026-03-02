@@ -1,9 +1,13 @@
 ---
 work_package_id: WP18
 title: CLI Device Commands
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: bd5ea46e023042041a01000dba720d62833421a9
+created_at: '2026-03-02T17:31:34.639953+00:00'
 subtasks: [T104, T105, T106]
+shell_pid: "6998"
 history:
 - date: '2026-03-02'
   action: created
