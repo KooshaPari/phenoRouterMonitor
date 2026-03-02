@@ -216,13 +216,13 @@ WP01 → WP02 → WP03
 **Priority**: P2 | **Est. lines**: ~500
 **Goal**: Create `agileplus-dashboard` crate and Askama HTML templates with htmx integration.
 
-- [ ] T071: Scaffold `agileplus-dashboard` crate with Askama template registration
-- [ ] T072: Create base layout template (navigation, sidebar, keycap palette CSS)
-- [ ] T073: Create kanban board template (columns per FeatureState, feature cards)
-- [ ] T074: Create feature detail page (state, WPs, events, audit timeline)
-- [ ] T075: Create WP list component (progress bars, assignee, state badges)
-- [ ] T076: Create health panel component (service status cards)
-- [ ] T077: Wire htmx partial swap endpoints (hx-get for each component)
+- [x] T071: Scaffold `agileplus-dashboard` crate with Askama template registration
+- [x] T072: Create base layout template (navigation, sidebar, keycap palette CSS)
+- [x] T073: Create kanban board template (columns per FeatureState, feature cards)
+- [x] T074: Create feature detail page (state, WPs, events, audit timeline)
+- [x] T075: Create WP list component (progress bars, assignee, state badges)
+- [x] T076: Create health panel component (service status cards)
+- [x] T077: Wire htmx partial swap endpoints (hx-get for each component)
 
 ### WP13 — Dashboard Interactivity
 **File**: `tasks/WP13-dashboard-interactivity.md`
