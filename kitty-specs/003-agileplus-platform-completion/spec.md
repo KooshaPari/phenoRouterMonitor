@@ -120,6 +120,16 @@ A developer works on AgilePlus on their laptop, commits and pushes. On their des
 - What happens when a webhook arrives for a Plane.so issue not tracked by AgilePlus? → Log and ignore; optionally auto-import if configured
 - What happens when Process Compose is not installed? → CLI detects absence, provides installation instructions, offers degraded single-process mode
 
+## Clarifications
+
+### Session 2026-03-02
+
+- Q: Security/AuthN model for web dashboard and API? → A: API key generated on first run, stored in config. Localhost-only by default; API key required for all API calls from dashboard and CLI. Establishes secure pattern for future remote deployments.
+- Q: Dashboard frontend framework? → A: htmx + Alpine.js (server-rendered HTML from Rust axum, minimal JS). Tooling-focused dashboard does not need SPA complexity; keeps bundle small and avoids separate frontend build pipeline.
+- Q: Data volume assumptions for event store? → A: Medium scale — up to 100K events and 500 features per project. Queryable in-process without distributed store overhead; sufficient for multi-month, multi-feature lifecycles.
+- Q: Observability stack for platform services? → A: OpenTelemetry (extending existing agileplus-telemetry crate) for traces and metrics, plus structured JSON logs. No separate Prometheus/Grafana/Loki infrastructure required.
+- Q: NATS deployment mode? → A: Standalone NATS server with JetStream for persistent messaging, managed by Process Compose. Decouples messaging from Rust binary; JetStream adds durable queuing for event replay and audit.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -137,7 +147,7 @@ A developer works on AgilePlus on their laptop, commits and pushes. On their des
 **Platform Services**
 
 - **FR-010**: System MUST orchestrate all services via Process Compose with dependency ordering and health checks
-- **FR-011**: System MUST use NATS as the event bus for inter-service communication and real-time event streaming
+- **FR-011**: System MUST use NATS with JetStream (standalone server managed by Process Compose) as the event bus for inter-service communication, real-time streaming, and durable message replay
 - **FR-012**: System MUST use Dragonfly (or Valkey as fallback) for caching frequently-accessed state and rate limiting
 - **FR-013**: System MUST use Neo4j for modeling relationships (feature→WP, WP→agent, feature→feature dependencies, cross-project links)
 - **FR-014**: System MUST use MinIO for storing artifacts (specs, plans, evidence, build outputs, archived events)
@@ -153,13 +163,19 @@ A developer works on AgilePlus on their laptop, commits and pushes. On their des
 - **FR-024**: System MUST support event retention policies (configurable TTL, archive to MinIO, retain snapshots)
 - **FR-025**: System MUST expose event queries: by entity, by time range, by event type, by actor
 
+**Security & Authentication**
+
+- **FR-028**: System MUST generate an API key on first platform startup and store it in the local config directory
+- **FR-029**: All API endpoints (REST and WebSocket) MUST require a valid API key via header or query parameter
+
 **Web Dashboard**
 
-- **FR-030**: System MUST serve a web dashboard on a configurable localhost port via the Rust API server
+- **FR-030**: System MUST serve a web dashboard on a configurable localhost port via the Rust API server using htmx + Alpine.js (server-rendered HTML)
 - **FR-031**: Dashboard MUST display a feature kanban board with real-time updates via WebSocket/SSE
 - **FR-032**: Dashboard MUST display work package progress, agent activity, and governance status
 - **FR-033**: Dashboard MUST allow users to trigger state transitions, dispatch agents, and approve governance gates
 - **FR-034**: Dashboard MUST display the audit timeline for any feature with drill-down to individual events
+- **FR-035**: Dashboard MUST NOT require a separate frontend build pipeline; HTML templates are served directly by the Rust API
 
 **CLI Commands**
 
@@ -211,8 +227,9 @@ A developer works on AgilePlus on their laptop, commits and pushes. On their des
 - Neo4j Community Edition is sufficient (no enterprise features required)
 - MinIO runs locally in standalone mode (single-node) for development; S3-compatible cloud for production
 - Dragonfly is preferred over Valkey/Redis for its single-binary, multi-threaded performance; Valkey as fallback if Dragonfly has issues
-- NATS is used in embedded or standalone mode (not NATS cluster) for local-first operation
-- The web dashboard uses a lightweight frontend framework served by the Rust axum API (no separate frontend build pipeline required for MVP)
+- NATS runs as a standalone server with JetStream enabled, managed by Process Compose (not embedded, not clustered)
+- The web dashboard uses htmx + Alpine.js for interactivity, served as server-rendered HTML by the Rust axum API (no separate frontend build pipeline)
+- API authentication uses a locally-generated API key; no external auth provider needed
 - Electrobun desktop wrapper is a future spec, not in scope here
 - The existing agileplus-plane crate, agileplus-sqlite crate, and gRPC infrastructure are extended rather than rewritten
 
@@ -224,7 +241,7 @@ A developer works on AgilePlus on their laptop, commits and pushes. On their des
 - Rust crates: nats (async-nats), neo4rs, minio-rs or rust-s3, axum (existing), tower, tokio-tungstenite (WebSocket)
 - Go: pheno-cli gains `platform` and `sync` command groups
 - Python: agileplus-mcp gains event store and sync tools
-- Frontend: lightweight JS/TS framework for dashboard (htmx, Alpine.js, or Leptos/Yew if Rust WASM)
+- Frontend: htmx + Alpine.js (served by Rust axum, no build pipeline)
 
 ## Risks
 
