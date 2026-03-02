@@ -336,8 +336,8 @@ WP01 → WP02 → WP03
 **Priority**: P3 | **Est. lines**: ~300
 **Goal**: Verify constitution performance gates with benchmarks.
 
-- [ ] T116: Benchmark event append throughput (target: 10K events/sec)
-- [ ] T117: Benchmark event replay/snapshot rebuild (target: <10ms for 1K events)
-- [ ] T118: Benchmark API response times (target: <100ms p95)
-- [ ] T119: Benchmark sync round-trip (target: <5s for single feature)
-- [ ] T120: Benchmark memory usage at idle (target: <100MB excluding Neo4j JVM)
+- [x] T116: Benchmark event append throughput (target: 10K events/sec)
+- [x] T117: Benchmark event replay/snapshot rebuild (target: <10ms for 1K events)
+- [x] T118: Benchmark API response times (target: <100ms p95)
+- [x] T119: Benchmark sync round-trip (target: <5s for single feature)
+- [x] T120: Benchmark memory usage at idle (target: <100MB excluding Neo4j JVM)
