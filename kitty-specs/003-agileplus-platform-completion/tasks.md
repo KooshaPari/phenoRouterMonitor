@@ -142,12 +142,12 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~300
 **Goal**: Create `process-compose.yml` orchestrating all platform services.
 
-- [ ] T040: Define NATS server process with JetStream, health check on :8222
-- [ ] T041: Define Dragonfly process with health check (redis-cli ping)
-- [ ] T042: Define Neo4j process with health check (bolt port)
-- [ ] T043: Define MinIO process with health check (api port)
-- [ ] T044: Define agileplus-api process (depends on all services, readiness probe)
-- [ ] T045: Add environment variable configuration (.env support)
+- [x] T040: Define NATS server process with JetStream, health check on :8222
+- [x] T041: Define Dragonfly process with health check (redis-cli ping)
+- [x] T042: Define Neo4j process with health check (bolt port)
+- [x] T043: Define MinIO process with health check (api port)
+- [x] T044: Define agileplus-api process (depends on all services, readiness probe)
+- [x] T045: Add environment variable configuration (.env support)
 
 ---
 
