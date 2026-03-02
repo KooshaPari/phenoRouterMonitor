@@ -143,3 +143,4 @@ SyncMapping updated, event logged
 
 - 2026-03-02T12:06:07Z – claude-opus – shell_pid=35783 – lane=doing – Assigned agent via workflow command
 - 2026-03-02T12:12:53Z – claude-opus – shell_pid=35783 – lane=for_review – Ready for review: sync push/pull/auto/status/resolve commands implemented in agileplus-subcmds, 27 tests pass
+- 2026-03-02T12:16:06Z – claude-opus – shell_pid=35783 – lane=for_review – Ready for review: sync CLI commands. 27 tests.
