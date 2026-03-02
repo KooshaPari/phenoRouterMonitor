@@ -4,72 +4,231 @@ audience: [developers, agents, pms]
 
 # Governance & Audit
 
-AgilePlus treats governance as infrastructure, not paperwork. Every action produces an immutable record. Every transition is enforced by the system.
+AgilePlus treats governance as **infrastructure, not paperwork**. Every action produces an immutable record. Every transition is enforced by the system, not by human honor.
 
-## State Machine
+## Feature State Machine
 
-Features move through a deterministic state machine:
+Features move through an 8-state deterministic state machine defined in `crates/agileplus-domain/src/domain/state_machine.rs`:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft
-    Draft --> Specified : specify
-    Specified --> Researched : research
-    Researched --> Planned : plan
-    Planned --> Implementing : implement
-    Implementing --> Validating : review
-    Validating --> Implementing : changes requested
-    Validating --> Shipped : accept
-    Shipped --> [*]
+    [*] --> Created
+    Created --> Specified : review_spec
+    Specified --> Researched : start_research
+    Researched --> Planned : generate_plan
+    Planned --> Implementing : assign_wp
+    Implementing --> Validated : complete_wps
+    Validated --> Shipped : approve_all_checks
+    Shipped --> Retrospected : close_feature
+    Retrospected --> [*]
 ```
 
-The original text representation:
+### States
 
+| State | Meaning | Entry Condition |
+|-------|---------|-----------------|
+| **Created** | Idea exists but not yet formalized | Feature record created |
+| **Specified** | Specification document is complete and reviewed | Spec artifact present; minimum fields validated |
+| **Researched** | Codebase scanned for patterns and feasibility assessed | Research artifact linked; decision recorded |
+| **Planned** | Work packages generated; dependency graph is acyclic | WPs created with file scopes; all dependencies explicit |
+| **Implementing** | WPs assigned to agents/developers; code is being written | At least one WP in `Doing` state; branch created |
+| **Validated** | All tests pass; reviews approved; governance checks succeed | All WPs in `Done` state; CI pipeline green |
+| **Shipped** | Code merged to target branch; deployed (or ready for deploy) | All checks passed; branches merged; git commit recorded |
+| **Retrospected** | Post-incident analysis complete; lessons documented | Retrospective artifact exists |
+
+### Transitions and Preconditions
+
+Each forward transition is **one-way** (no backtracking) and guarded by preconditions:
+
+| From | To | Enforced Precondition | Evidence Type |
+|---|---|---|---|
+| Created | Specified | Spec artifact exists with functional requirements, scope, acceptance criteria | `ArtifactPresent` (spec hash) |
+| Specified | Researched | Research output attached (codebase scan, feasibility doc, or design notes) | `ManualAttestation` or `CiOutput` |
+| Researched | Planned | WPs generated; dependency graph computed (Kahn's algorithm); no cycles detected | `CiOutput` (plan validation) |
+| Planned | Implementing | At least one WP assigned; git branch created; agent/dev notified | `ManualAttestation` (assignment) |
+| Implementing | Validated | All WPs complete (`Done` state); CI pipeline runs successfully | `TestResult`, `LintResult`, `CiOutput` |
+| Validated | Shipped | All governance checks pass; all evidence requirements satisfied; merge approved | `ReviewApproval`, `SecurityScan` |
+| Shipped | Retrospected | Retrospective artifact exists; action items (if any) documented | `ManualAttestation` |
+
+Attempting to transition without meeting all preconditions raises a `DomainError::InvalidTransition`.
+
+### Work Package State Machine
+
+While features move forward linearly, work packages have a more flexible state machine (defined in `crates/agileplus-domain/src/domain/work_package.rs`):
+
+```mermaid
+graph TD
+    A["Planned"] -->|transition| B["Doing"]
+    A -->|transition| C["Blocked"]
+    B -->|transition| D["Review"]
+    B -->|transition| C
+    D -->|transition| E["Done"]
+    D -->|transition| B
+    C -->|transition| A
+    C -->|transition| B
+
+    style A fill:#fff3e0
+    style B fill:#fce4ec
+    style D fill:#e0f2f1
+    style E fill:#f1f8e9
+    style C fill:#ffebee
 ```
-Draft → Specified → Researched → Planned → Implementing → Validating → Shipped
-```
 
-Each transition has **preconditions**:
-
-| Transition | Requires |
-|------------|----------|
-| Draft → Specified | Spec artifact exists with functional requirements |
-| Specified → Researched | Research output attached (feasibility or codebase scan) |
-| Researched → Planned | Work packages generated with dependency graph |
-| Planned → Implementing | At least one WP assigned and branch created |
-| Implementing → Validating | All WPs complete, governance checks queued |
-| Validating → Shipped | All checks pass, branches merged |
+WPs can move backward (from `Blocked` to `Planned`) and cycle (from `Review` back to `Doing` for changes), but features cannot. This allows flexibility at the work-package level while maintaining forward progress at the feature level.
 
 ## Audit Chain
 
-Every state transition produces an **audit entry**:
+Every state transition (both feature and WP) produces an **immutable audit entry** stored in the domain (`crates/agileplus-domain/src/domain/audit.rs`):
 
 ```rust
-AuditEntry {
-    id: Uuid,
-    feature_id: String,
-    from_state: State,
-    to_state: State,
-    actor: String,        // "human:alice" or "agent:claude-code"
-    timestamp: DateTime,
-    artifact_hash: String, // SHA-256 of associated artifact
-    prev_hash: String,     // SHA-256 of previous entry (chain)
-    metadata: JsonValue,
+pub struct AuditEntry {
+    pub id: i64,
+    pub feature_id: i64,
+    pub wp_id: Option<i64>,              // WP ID if transition was for a WP
+    pub timestamp: DateTime<Utc>,
+    pub actor: String,                   // "human:alice" or "agent:claude-code"
+    pub transition: String,               // "created->specified"
+    pub evidence_refs: Vec<EvidenceRef>,  // links to supporting evidence
+    pub prev_hash: [u8; 32],             // SHA-256 of previous entry
+    pub hash: [u8; 32],                  // SHA-256 of this entry
 }
 ```
 
-The `prev_hash` field creates an **append-only hash chain** — similar to a blockchain but local. If any entry is tampered with, the chain breaks and validation fails.
+### Hash Chain Integrity
+
+Each entry computes its hash from:
+- Feature ID
+- Work package ID (if applicable)
+- Timestamp
+- Actor identifier
+- Transition string
+- **Previous entry's hash** (creating a chain)
+
+If any field is modified, the hash changes. If the hash chain is broken, verification fails. This is cryptographically similar to a blockchain but local (no distributed consensus needed).
+
+```
+Entry 1: hash(feature=123, actor=alice, transition=created->specified, prev_hash=0x0000...)
+         → hash1 = 0x1234...
+
+Entry 2: hash(feature=123, actor=alice, transition=specified->researched, prev_hash=0x1234...)
+         → hash2 = 0x5678...
+
+Entry 3: hash(feature=123, actor=claude-code, transition=researched->planned, prev_hash=0x5678...)
+         → hash3 = 0xabcd...
+```
+
+The chain can be **verified** by calling `AuditChain::verify_chain()`:
+1. Recompute each entry's hash
+2. Verify each entry's `prev_hash` matches the previous entry's computed hash
+3. Return `Ok(())` if all entries match, or `AuditChainError::HashMismatch` if any entry was tampered
+
+## Governance Contracts
+
+Each feature is bound to a **governance contract** at the time it transitions to `Planned` state:
+
+```rust
+pub struct GovernanceContract {
+    pub id: i64,
+    pub feature_id: i64,
+    pub version: i32,
+    pub rules: Vec<GovernanceRule>,
+    pub bound_at: DateTime<Utc>,
+}
+
+pub struct GovernanceRule {
+    pub transition: String,              // e.g., "validated->shipped"
+    pub required_evidence: Vec<EvidenceRequirement>,
+    pub policy_refs: Vec<String>,        // references to active policies
+}
+```
+
+The contract is **immutable** once bound. If governance policies change, a new contract version is created for new features, but existing features keep their original contract. This prevents surprise requirement changes mid-feature.
+
+## Evidence and Policy
+
+**Evidence** is the output of checks that satisfy governance requirements:
+
+```rust
+pub struct Evidence {
+    pub id: i64,
+    pub wp_id: i64,
+    pub fr_id: String,                   // functional requirement, e.g., "FR-004"
+    pub evidence_type: EvidenceType,     // TestResult, CiOutput, ReviewApproval, etc.
+    pub artifact_path: String,           // link to artifact (test report, scan results)
+    pub metadata: Option<serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+}
+```
+
+**Policies** define what evidence is required:
+
+```rust
+pub struct PolicyRule {
+    pub id: i64,
+    pub domain: PolicyDomain,            // Security, Quality, Compliance, Performance
+    pub rule: PolicyDefinition,
+    pub active: bool,
+    pub created_at: DateTime<Utc>,
+}
+
+pub enum PolicyCheck {
+    EvidencePresent { evidence_type: EvidenceType },
+    ThresholdMet { metric: String, min: f64 },
+    ManualApproval,
+    Custom { script: String },
+}
+```
+
+Example: A `Security` domain policy might require:
+- **Evidence Type**: `SecurityScan`
+- **Policy Check**: `ThresholdMet { metric: "cve_count", min: 0 }` (zero CVEs allowed)
+- Policy applies to all features transitioning `Implementing → Validated`
 
 ## Why This Matters
 
-### For humans
+### For Humans
 
-You get a complete record of every decision: who changed what, when, and why. Useful for compliance, post-mortems, and onboarding.
+You get a **complete, cryptographically verifiable record** of:
+- Every decision made about the feature
+- Who made each decision (agent or developer ID)
+- When it happened
+- What evidence satisfied the requirement
+- A signed chain that proves nobody tampered with the log
 
-### For agents
+Useful for:
+- **Compliance** — auditors can verify the log
+- **Post-mortems** — understand what went wrong and when
+- **Onboarding** — new team members see the full context
+- **Legal disputes** — immutable evidence of approved changes
 
-Agents can't skip steps. They receive structured prompts derived from the spec and plan. Their output is validated before it affects the codebase. If an agent produces bad code, the validation stage catches it before ship.
+### For Agents
 
-### For teams
+Agents **cannot skip steps**. The system enforces preconditions:
+- They receive a structured prompt derived from the approved spec and plan
+- Their output (branches, commits) are validated automatically
+- If they produce bad code, the validation stage catches it before ship
+- Their actions are all recorded — no ambiguity about what they did
 
-Multiple agents can work on different WPs in parallel. The governance system ensures they don't conflict — each WP has its own branch, and the dependency graph prevents premature merges.
+### For Teams
+
+Multiple agents can work on different WPs in **parallel**:
+- Each WP has its own git branch (no conflicts by design)
+- Dependencies are explicit (via the dependency graph)
+- The system prevents premature merges (WP2 can't merge until WP1 is done, if they depend)
+- The audit trail shows exactly who did what, helping teams coordinate better
+
+## Reference Implementation
+
+- **State machine**: `crates/agileplus-domain/src/domain/state_machine.rs`
+- **Feature entity**: `crates/agileplus-domain/src/domain/feature.rs`
+- **Work package states**: `crates/agileplus-domain/src/domain/work_package.rs`
+- **Governance rules**: `crates/agileplus-domain/src/domain/governance.rs`
+- **Audit chain**: `crates/agileplus-domain/src/domain/audit.rs`
+- **Storage port**: `crates/agileplus-domain/src/ports/storage.rs` (persistence layer)
+
+## Related Pages
+
+- [Spec-Driven Development](spec-driven-dev.md) — Philosophy and principles
+- [Agent Dispatch](agent-dispatch.md) — How agents are held accountable
+- [Architecture Overview](../architecture/overview.md) — Port trait design
+- [Domain Model](../architecture/domain-model.md) — Entity relationships
