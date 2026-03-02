@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Plane.so Bidirectional Sync
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 6480046aaf890b6cd67e6f88cd4ec44d737067d4
@@ -95,3 +95,4 @@ Bounded in-memory queue (capacity: 1000). On Plane.so API failure → add to ret
 ## Activity Log
 
 - 2026-03-02T11:55:35Z – claude-opus – shell_pid=61759 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:05:37Z – claude-opus – shell_pid=61759 – lane=for_review – Ready for review: Plane.so bidirectional sync with state mapping, webhooks, outbound/inbound sync, label sync, content-hash conflict detection, and SQLite-backed retry queue. 41 tests passing.
