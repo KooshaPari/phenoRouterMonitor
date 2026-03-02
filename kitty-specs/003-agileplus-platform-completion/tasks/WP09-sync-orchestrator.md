@@ -8,6 +8,7 @@ base_commit: ad87f9a376a4c8c41bc88f4e3c748dff3f8a7edc
 created_at: '2026-03-02T12:06:04.237572+00:00'
 subtasks: [T053, T054, T055, T056, T057, T058]
 shell_pid: "35625"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -121,3 +122,7 @@ Wire NATS pub/sub:
 - Resolution strategies apply correctly and update both entity and mapping
 - NATS pub/sub channels connected and flowing
 - SyncReport formats correctly for CLI consumption
+
+## Activity Log
+
+- 2026-03-02T12:06:04Z – claude-opus – shell_pid=35625 – lane=doing – Assigned agent via workflow command
