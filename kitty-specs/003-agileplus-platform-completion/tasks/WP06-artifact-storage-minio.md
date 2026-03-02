@@ -1,9 +1,13 @@
 ---
 work_package_id: WP06
 title: Artifact Storage (MinIO)
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 9c06b087a5d1f3955c281428c7eed15ac7763c00
+created_at: '2026-03-02T11:55:22.678824+00:00'
 subtasks: [T034, T035, T036, T037, T038, T039]
+shell_pid: "61443"
 history:
 - date: '2026-03-02'
   action: created
