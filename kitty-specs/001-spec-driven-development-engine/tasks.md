@@ -564,7 +564,7 @@
 - [x] T094 [P] Create Pact contract test fixtures for gRPC boundary in `tests/contract/`
 - [x] T095 Create `docker-compose.test.yml` for full-stack integration tests (spins up all 4 services: core, mcp, agents, integrations)
 - [x] T096 Implement integration test scenarios: full workflow (specify → ship) on test repo
-- [ ] T097 Create test fixtures: sample specs, plans, WPs, evidence artifacts in `tests/fixtures/`
+- [x] T097 Create test fixtures: sample specs, plans, WPs, evidence artifacts in `tests/fixtures/`
 
 ### Implementation Notes
 - BDD .feature files reference FR IDs in scenario names (e.g., "Scenario: FR-001 - Specify creates spec in git+SQLite")
