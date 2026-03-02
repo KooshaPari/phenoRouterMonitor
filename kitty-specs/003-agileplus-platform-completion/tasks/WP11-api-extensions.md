@@ -1,9 +1,13 @@
 ---
 work_package_id: WP11
 title: API Extensions
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: e7da019ae30cf53de57c72c295a0989f7ebe115c
+created_at: '2026-03-02T12:06:10.086221+00:00'
 subtasks: [T064, T065, T066, T067, T068, T069, T070]
+shell_pid: "36298"
 history:
 - date: '2026-03-02'
   action: created
