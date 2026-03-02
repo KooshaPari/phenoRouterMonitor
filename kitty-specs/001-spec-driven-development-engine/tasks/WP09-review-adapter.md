@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Code Review Adapter (agileplus-agents)
-lane: "doing"
+lane: "for_review"
 dependencies: [WP08]
 base_branch: 001-spec-driven-development-engine-WP08
 base_commit: e9135a754657976c2bab62ddc60497cf2d50bf96
@@ -361,3 +361,4 @@ To change a work package's lane, either:
 **Initial entry**:
 - 2026-02-27T00:00:00Z -- system -- lane=planned -- Prompt created.
 - 2026-03-02T01:23:26Z – s1-wp09 – shell_pid=59200 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T02:27:13Z – s1-wp09 – shell_pid=59200 – lane=for_review – Ready: code review adapter
