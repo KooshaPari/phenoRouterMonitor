@@ -1,9 +1,13 @@
 ---
 work_package_id: WP13
 title: Dashboard Interactivity
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 6c61f452547eb4071c874c4c352e6f0d1991c52a
+created_at: '2026-03-02T17:31:27.245597+00:00'
 subtasks: [T078, T079, T080, T081, T082, T083]
+shell_pid: "6757"
 history:
 - date: '2026-03-02'
   action: created
