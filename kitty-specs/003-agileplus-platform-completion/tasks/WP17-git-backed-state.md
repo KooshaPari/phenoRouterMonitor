@@ -1,9 +1,13 @@
 ---
 work_package_id: WP17
 title: Git-Backed State Sync
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 4bf2e82137fe0ad91bd6bda6d0d07e79e5139784
+created_at: '2026-03-02T12:25:32.828328+00:00'
 subtasks: [T100, T101, T102, T103]
+shell_pid: "2538"
 history:
 - date: '2026-03-02'
   action: created
