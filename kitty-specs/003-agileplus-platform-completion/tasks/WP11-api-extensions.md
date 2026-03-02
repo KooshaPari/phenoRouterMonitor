@@ -1,7 +1,7 @@
 ---
 work_package_id: WP11
 title: API Extensions
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: e7da019ae30cf53de57c72c295a0989f7ebe115c
@@ -181,3 +181,4 @@ Status codes:
 ## Activity Log
 
 - 2026-03-02T12:06:10Z – claude-opus – shell_pid=36298 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:15:12Z – claude-opus – shell_pid=36298 – lane=for_review – Ready for review: REST CRUD for features/WPs, API key auth with header+query param, SSE streaming, detailed health endpoint. All 14 integration tests pass.
