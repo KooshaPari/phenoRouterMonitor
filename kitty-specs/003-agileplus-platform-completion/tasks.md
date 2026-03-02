@@ -116,7 +116,7 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~400
 **Goal**: Create `agileplus-graph` crate with Neo4j node/relationship CRUD and queries.
 
-- [ ] T028: Scaffold `agileplus-graph` crate with neo4rs
+- [x] T028: Scaffold `agileplus-graph` crate with neo4rs
 - [ ] T029: Implement connection management (Bolt protocol, connection pool)
 - [ ] T030: Create node types with constraints (Feature, WorkPackage, Agent, Label, Project)
 - [ ] T031: Implement relationship CRUD (owns, assigned_to, depends_on, blocks, tagged, in_project)
