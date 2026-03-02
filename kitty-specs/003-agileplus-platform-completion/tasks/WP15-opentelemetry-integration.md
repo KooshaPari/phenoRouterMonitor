@@ -1,7 +1,7 @@
 ---
 work_package_id: WP15
 title: OpenTelemetry Integration
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: e4f4052878f43cc3537b8da83b9e70a83a641a14
@@ -133,3 +133,4 @@ Ensure that:
 ## Activity Log
 
 - 2026-03-02T12:16:22Z – claude-opus – shell_pid=36756 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:39:14Z – claude-opus – shell_pid=36756 – lane=for_review – Ready for review: OpenTelemetry OTLP traces, custom metrics, axum middleware, JSON structured logs (24 tests)

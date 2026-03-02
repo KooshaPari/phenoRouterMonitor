@@ -1,7 +1,7 @@
 ---
 work_package_id: WP12
 title: Dashboard Templates
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 1b07d982092e6204860e14ddcc1576c531ea20f2
@@ -284,3 +284,4 @@ pub async fn kanban_board(
 ## Activity Log
 
 - 2026-03-02T12:16:16Z – claude-opus – shell_pid=34847 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:38:58Z – claude-opus – shell_pid=34847 – lane=for_review – Ready for review: dashboard crate with Askama templates, htmx routes, keycap dark theme (4 tests)
