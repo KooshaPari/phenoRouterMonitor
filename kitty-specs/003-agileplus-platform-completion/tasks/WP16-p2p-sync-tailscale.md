@@ -8,6 +8,7 @@ base_commit: 8a8390c6e3d118f4898dfd1fba2fb0b67224c555
 created_at: '2026-03-02T12:17:18.845837+00:00'
 subtasks: [T095, T096, T097, T098, T099]
 shell_pid: "54708"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -197,3 +198,7 @@ pub struct SyncResult {
 - [ ] Integration test: two local instances discover each other and replicate events
 - [ ] Connection failures are handled with retries and logging
 - [ ] Documentation: Tailscale setup, NATS configuration, sync vector semantics
+
+## Activity Log
+
+- 2026-03-02T12:17:19Z – claude-opus – shell_pid=54708 – lane=doing – Assigned agent via workflow command
