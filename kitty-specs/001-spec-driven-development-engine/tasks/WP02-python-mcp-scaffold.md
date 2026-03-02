@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Python MCP Service Repository Scaffold
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP00
 base_branch: 001-spec-driven-development-engine-WP00
@@ -563,3 +563,4 @@ Reviewers should verify:
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-03-02T01:08:59Z – s1-wp02 – shell_pid=97221 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T01:13:24Z – s1-wp02 – shell_pid=97221 – lane=for_review – Ready: Python MCP scaffold
