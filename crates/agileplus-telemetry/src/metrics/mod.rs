@@ -12,7 +12,7 @@ use std::{
 use chrono::{DateTime, Utc};
 use opentelemetry::{
     KeyValue,
-    metrics::{Counter, Histogram, Meter},
+    metrics::{Counter, Gauge, Histogram, Meter},
 };
 
 // ---------------------------------------------------------------------------
@@ -30,6 +30,12 @@ pub struct MetricsRecorder {
     /// Last snapshot baseline (for delta calculation).
     agent_runs_snapshot: AtomicU64,
     review_cycles_snapshot: AtomicU64,
+    // T093: domain-level instruments
+    events_processed: Counter<u64>,
+    sync_duration_ms: Histogram<f64>,
+    cache_hit_rate: Gauge<f64>,
+    api_request_duration_ms: Histogram<f64>,
+    active_features: Gauge<u64>,
 }
 
 impl MetricsRecorder {
@@ -53,6 +59,34 @@ impl MetricsRecorder {
             ])
             .build();
 
+        // T093: domain-level instruments
+        let events_processed = meter
+            .u64_counter("events_processed")
+            .with_description("Total events appended to the event store")
+            .build();
+
+        let sync_duration_ms = meter
+            .f64_histogram("sync_duration_ms")
+            .with_description("Duration in milliseconds for sync operations")
+            .with_boundaries(vec![1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1_000.0, 5_000.0])
+            .build();
+
+        let cache_hit_rate = meter
+            .f64_gauge("cache_hit_rate")
+            .with_description("Cache hit/miss ratio (0.0 to 1.0)")
+            .build();
+
+        let api_request_duration_ms = meter
+            .f64_histogram("api_request_duration_ms")
+            .with_description("API request latency in milliseconds")
+            .with_boundaries(vec![1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0, 1_000.0])
+            .build();
+
+        let active_features = meter
+            .u64_gauge("active_features")
+            .with_description("Count of non-terminal features")
+            .build();
+
         Self {
             agent_runs,
             review_cycles,
@@ -61,6 +95,11 @@ impl MetricsRecorder {
             review_cycles_total: AtomicU64::new(0),
             agent_runs_snapshot: AtomicU64::new(0),
             review_cycles_snapshot: AtomicU64::new(0),
+            events_processed,
+            sync_duration_ms,
+            cache_hit_rate,
+            api_request_duration_ms,
+            active_features,
         }
     }
 
@@ -88,6 +127,35 @@ impl MetricsRecorder {
         ];
         self.review_cycles.add(1, &labels);
         self.review_cycles_total.fetch_add(1, Ordering::Relaxed);
+    }
+
+    // -----------------------------------------------------------------------
+    // T093: Domain-level instruments
+    // -----------------------------------------------------------------------
+
+    /// Increment `events_processed` counter.
+    pub fn record_event_processed(&self, labels: &[KeyValue]) {
+        self.events_processed.add(1, labels);
+    }
+
+    /// Record a sync operation duration in milliseconds.
+    pub fn record_sync_duration(&self, duration_ms: f64, labels: &[KeyValue]) {
+        self.sync_duration_ms.record(duration_ms, labels);
+    }
+
+    /// Set the cache hit rate (0.0 to 1.0).
+    pub fn set_cache_hit_rate(&self, ratio: f64, labels: &[KeyValue]) {
+        self.cache_hit_rate.record(ratio, labels);
+    }
+
+    /// Record an API request duration in milliseconds.
+    pub fn record_api_request_duration(&self, duration_ms: f64, labels: &[KeyValue]) {
+        self.api_request_duration_ms.record(duration_ms, labels);
+    }
+
+    /// Set the count of active (non-terminal) features.
+    pub fn set_active_features(&self, count: u64, labels: &[KeyValue]) {
+        self.active_features.record(count, labels);
     }
 
     /// Record an observation in the `agileplus.command.duration_ms` histogram.
@@ -137,6 +205,24 @@ impl MetricsRecorder {
         self.agent_runs_snapshot.store(0, Ordering::Relaxed);
         self.review_cycles_snapshot.store(0, Ordering::Relaxed);
     }
+}
+
+// ---------------------------------------------------------------------------
+// T093: Standalone init helper
+// ---------------------------------------------------------------------------
+
+/// Initialise all domain metrics instruments on the given meter.
+///
+/// This registers the instruments so that the OTel SDK knows about them even
+/// before any observations are recorded.  Callers that use [`MetricsRecorder`]
+/// directly do not need to call this function — it is provided as a
+/// convenience for integrations that hold only a `&Meter` reference.
+pub fn init_metrics(meter: &Meter) {
+    let _ = meter.u64_counter("events_processed").build();
+    let _ = meter.f64_histogram("sync_duration_ms").build();
+    let _ = meter.f64_gauge("cache_hit_rate").build();
+    let _ = meter.f64_histogram("api_request_duration_ms").build();
+    let _ = meter.u64_gauge("active_features").build();
 }
 
 // ---------------------------------------------------------------------------
@@ -205,5 +291,46 @@ mod tests {
         let rec = test_recorder();
         rec.record_command_duration("implement", Some("001-sde"), Duration::from_millis(42));
         // No assertion — just verify no panic.
+    }
+
+    // T093: domain instrument tests
+    #[test]
+    fn events_processed_counter_does_not_panic() {
+        let rec = test_recorder();
+        rec.record_event_processed(&[KeyValue::new("source", "git")]);
+        rec.record_event_processed(&[]);
+    }
+
+    #[test]
+    fn sync_duration_histogram_does_not_panic() {
+        let rec = test_recorder();
+        rec.record_sync_duration(42.5, &[KeyValue::new("sync_type", "full")]);
+    }
+
+    #[test]
+    fn cache_hit_rate_gauge_does_not_panic() {
+        let rec = test_recorder();
+        rec.set_cache_hit_rate(0.75, &[]);
+        rec.set_cache_hit_rate(0.0, &[]);
+        rec.set_cache_hit_rate(1.0, &[]);
+    }
+
+    #[test]
+    fn api_request_duration_histogram_does_not_panic() {
+        let rec = test_recorder();
+        rec.record_api_request_duration(12.3, &[KeyValue::new("endpoint", "/health")]);
+    }
+
+    #[test]
+    fn active_features_gauge_does_not_panic() {
+        let rec = test_recorder();
+        rec.set_active_features(7, &[]);
+    }
+
+    #[test]
+    fn init_metrics_does_not_panic() {
+        let provider = SdkMeterProvider::builder().build();
+        let meter = provider.meter("agileplus-init-test");
+        super::init_metrics(&meter);
     }
 }

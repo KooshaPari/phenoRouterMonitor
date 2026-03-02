@@ -42,6 +42,7 @@ use agileplus_domain::ports::{observability::ObservabilityPort, storage::Storage
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
+use crate::middleware::otel::opentelemetry_tracing_layer;
 use crate::responses::{DetailedHealthResponse, HealthResponse};
 use crate::routes::{audit, events, features, governance, stream, work_packages};
 use crate::state::AppState;
@@ -85,6 +86,7 @@ where
     Router::new()
         .merge(public)
         .merge(protected)
+        .layer(opentelemetry_tracing_layer())
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::permissive())
 }

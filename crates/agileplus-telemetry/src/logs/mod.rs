@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{EnvFilter, prelude::*};
+use tracing_subscriber::{EnvFilter, fmt::format::FmtSpan, prelude::*};
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -97,7 +97,9 @@ pub fn init_logging(config: &LogConfig) -> Result<WorkerGuard, LogError> {
                 .json()
                 .with_writer(writer)
                 .with_target(config.include_target)
-                .with_span_list(config.include_spans);
+                .with_span_list(config.include_spans)
+                .with_span_events(FmtSpan::CLOSE)
+                .with_current_span(true);
 
             tracing_subscriber::registry()
                 .with(filter)
@@ -118,7 +120,9 @@ pub fn init_logging(config: &LogConfig) -> Result<WorkerGuard, LogError> {
                 .json()
                 .with_writer(writer)
                 .with_target(config.include_target)
-                .with_span_list(config.include_spans);
+                .with_span_list(config.include_spans)
+                .with_span_events(FmtSpan::CLOSE)
+                .with_current_span(true);
 
             tracing_subscriber::registry()
                 .with(filter)
@@ -134,7 +138,9 @@ pub fn init_logging(config: &LogConfig) -> Result<WorkerGuard, LogError> {
                 .json()
                 .with_writer(stdout_writer)
                 .with_target(config.include_target)
-                .with_span_list(config.include_spans);
+                .with_span_list(config.include_spans)
+                .with_span_events(FmtSpan::CLOSE)
+                .with_current_span(true);
 
             let dir = path.parent().unwrap_or(std::path::Path::new("."));
             let file_name = path
@@ -147,7 +153,9 @@ pub fn init_logging(config: &LogConfig) -> Result<WorkerGuard, LogError> {
                 .json()
                 .with_writer(file_writer)
                 .with_target(config.include_target)
-                .with_span_list(config.include_spans);
+                .with_span_list(config.include_spans)
+                .with_span_events(FmtSpan::CLOSE)
+                .with_current_span(true);
 
             tracing_subscriber::registry()
                 .with(filter)

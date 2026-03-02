@@ -18,6 +18,10 @@ serde_json.workspace = true
 thiserror.workspace = true
 async-trait = "0.1"
 tracing.workspace = true
+opentelemetry = { version = "0.28", features = ["trace"] }
+opentelemetry_sdk = { version = "0.28", features = ["trace"] }
+tracing-opentelemetry = "0.29"
+agileplus-telemetry = { path = "../agileplus-telemetry" }
 rand = "0.8"
 base64 = "0.22"
 sha2 = "0.10"

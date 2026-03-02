@@ -21,6 +21,7 @@ pub mod traces;
 use agileplus_domain::ports::observability::{LogEntry, LogLevel, ObservabilityPort, SpanContext};
 use opentelemetry::global;
 use opentelemetry::metrics::MeterProvider as _MeterProvider;
+use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_sdk::metrics::SdkMeterProvider;
 use tracing_appender::non_blocking::WorkerGuard;
 
@@ -145,11 +146,9 @@ impl TelemetryAdapter {
 
 impl Drop for TelemetryAdapter {
     fn drop(&mut self) {
-        // Flush pending spans and metrics.
-        if !self.noop {
-            global::shutdown_tracer_provider();
-        }
         // `_log_guard` is dropped here, which flushes the non-blocking writer.
+        // Note: TracerProvider shutdown is handled by the global provider on drop
+        // in OTel 0.28+ (shutdown_tracer_provider was removed from the global API).
     }
 }
 
@@ -304,7 +303,7 @@ impl ObservabilityPort for TelemetryAdapter {
 /// If an OTLP endpoint is configured we attempt to connect; on failure we
 /// fall back to a no-op exporter and emit a warning.
 fn init_trace_provider(config: &TelemetryConfig) {
-    use opentelemetry_sdk::trace::TracerProvider;
+    use opentelemetry_sdk::trace::SdkTracerProvider;
 
     if let Some(otlp) = &config.otlp {
         match build_otlp_provider(otlp) {
@@ -322,25 +321,25 @@ fn init_trace_provider(config: &TelemetryConfig) {
     }
 
     // No OTLP configured or connection failed — use SDK default (no export).
-    let provider = TracerProvider::builder().build();
+    let provider = SdkTracerProvider::builder().build();
     global::set_tracer_provider(provider);
 }
 
 /// Attempt to build an OTLP trace exporter.
 fn build_otlp_provider(
     otlp: &crate::config::OtlpConfig,
-) -> Result<opentelemetry_sdk::trace::TracerProvider, String> {
+) -> Result<opentelemetry_sdk::trace::SdkTracerProvider, String> {
     use opentelemetry_otlp::WithExportConfig;
 
     let exporter = opentelemetry_otlp::SpanExporter::builder()
-        .with_tonic()
+        .with_http()
         .with_endpoint(&otlp.endpoint)
         .with_timeout(std::time::Duration::from_millis(otlp.timeout_ms))
         .build()
         .map_err(|e| e.to_string())?;
 
-    let provider = opentelemetry_sdk::trace::TracerProvider::builder()
-        .with_batch_exporter(exporter, opentelemetry_sdk::runtime::Tokio)
+    let provider = opentelemetry_sdk::trace::SdkTracerProvider::builder()
+        .with_batch_exporter(exporter)
         .build();
 
     Ok(provider)

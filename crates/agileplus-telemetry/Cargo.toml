@@ -11,10 +11,11 @@ tokio = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 tracing-appender = "0.2"
-tracing-opentelemetry = "0.27"
-opentelemetry = { version = "0.27", features = ["trace", "metrics"] }
-opentelemetry-otlp = { version = "0.27", features = ["trace", "metrics", "grpc-tonic"] }
-opentelemetry_sdk = { version = "0.27", features = ["trace", "metrics", "rt-tokio"] }
+tracing-opentelemetry = "0.29"
+opentelemetry = { version = "0.28", features = ["trace", "metrics"] }
+opentelemetry-otlp = { version = "0.28", features = ["trace", "metrics", "http-proto", "reqwest-client"] }
+opentelemetry_sdk = { version = "0.28", features = ["trace", "metrics", "rt-tokio"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
 serde = { workspace = true, features = ["derive"] }
 serde_yaml = "0.9"
 chrono = { workspace = true }
