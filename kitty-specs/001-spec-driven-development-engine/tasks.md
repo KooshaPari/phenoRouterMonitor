@@ -496,7 +496,7 @@
 - [x] T082 Implement MCP tool handlers in `agileplus-mcp/src/agileplus_mcp/tools/` — each tool calls gRPC client
 - [x] T083 Implement agent event streaming: bidirectional gRPC stream for real-time agent status
 - [x] T084 Write Pact contract tests for Rust↔Python gRPC boundary
-- [ ] T084b Implement MCP Sampling primitive: server-initiated triage analysis and governance pre-checks (FR-049)
+- [x] T084b Implement MCP Sampling primitive: server-initiated triage analysis and governance pre-checks (FR-049)
 - [ ] T084c Implement MCP Roots primitive: workspace boundary declarations per feature/WP (FR-049)
 - [ ] T084d Implement MCP Elicitation primitive: discovery interview flows for specify/clarify commands (FR-049)
 
