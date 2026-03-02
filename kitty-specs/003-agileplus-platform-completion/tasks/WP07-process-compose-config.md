@@ -8,6 +8,7 @@ base_commit: 4916502c7b4d996c63a9b7ce1f8846f490aef26c
 created_at: '2026-03-02T11:55:28.907923+00:00'
 subtasks: [T040, T041, T042, T043, T044, T045]
 shell_pid: "61602"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -507,3 +508,7 @@ After implementing all work packages:
    - Graph health
    - Artifact storage health
    - Overall platform health
+
+## Activity Log
+
+- 2026-03-02T11:55:29Z – claude-opus – shell_pid=61602 – lane=doing – Assigned agent via workflow command
