@@ -1,7 +1,7 @@
 ---
 work_package_id: WP19
 title: End-to-End Integration Tests
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: f49e1f98ffaa17a3544f6bdc08854dfe0b6b933f
@@ -633,3 +633,4 @@ async fn service_failure_recovery_integration() -> Result<()> {
 ## Activity Log
 
 - 2026-03-02T17:40:33Z – claude-opus – shell_pid=10458 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T21:05:08Z – claude-opus – shell_pid=10458 – lane=for_review – Ready for review: E2E integration test harness with 8 unit tests + 4 integration test suites
