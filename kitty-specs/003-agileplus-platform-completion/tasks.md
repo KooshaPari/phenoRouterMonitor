@@ -313,11 +313,11 @@ WP01 → WP02 → WP03
 **Priority**: P3 | **Est. lines**: ~400
 **Goal**: Full pipeline integration tests with all platform services.
 
-- [ ] T107: Create test harness (Process Compose up, wait for health, seed test data)
-- [ ] T108: Test feature lifecycle (create → sync → transition → audit → verify events)
-- [ ] T109: Test dashboard real-time updates (SSE connection, state change, DOM verification)
-- [ ] T110: Test sync conflict resolution (create conflict, verify detection and resolution)
-- [ ] T111: Test service failure recovery (kill service, verify restart, verify no data loss)
+- [x] T107: Create test harness (Process Compose up, wait for health, seed test data)
+- [x] T108: Test feature lifecycle (create → sync → transition → audit → verify events)
+- [x] T109: Test dashboard real-time updates (SSE connection, state change, DOM verification)
+- [x] T110: Test sync conflict resolution (create conflict, verify detection and resolution)
+- [x] T111: Test service failure recovery (kill service, verify restart, verify no data loss)
 
 ### WP20 — Contract Tests
 **File**: `tasks/WP20-contract-tests.md`
