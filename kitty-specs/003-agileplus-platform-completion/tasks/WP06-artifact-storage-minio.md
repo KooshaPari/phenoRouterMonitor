@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Artifact Storage (MinIO)
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 9c06b087a5d1f3955c281428c7eed15ac7763c00
@@ -790,3 +790,4 @@ spec-kitty implement WP06 --base WP03
 ## Activity Log
 
 - 2026-03-02T11:55:22Z – claude-opus – shell_pid=61443 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:00:16Z – claude-opus – shell_pid=61443 – lane=for_review – Ready for review: agileplus-nats crate with EventBus trait, InMemoryBus, 12 tests
