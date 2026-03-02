@@ -78,6 +78,17 @@ impl SqliteStorageAdapter {
             .lock()
             .map_err(|e| DomainError::Storage(format!("mutex poisoned: {e}")))
     }
+
+    /// Expose a locked connection guard for benchmarks and test helpers.
+    ///
+    /// This method is intentionally public so that benchmark crates can access
+    /// the underlying rusqlite `Connection` to call repository functions directly
+    /// without going through the async `StoragePort` trait.
+    pub fn conn_for_bench(
+        &self,
+    ) -> Result<std::sync::MutexGuard<'_, Connection>, DomainError> {
+        self.lock()
+    }
 }
 
 impl StoragePort for SqliteStorageAdapter {

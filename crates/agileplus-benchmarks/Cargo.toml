@@ -1,0 +1,43 @@
+[package]
+name = "agileplus-benchmarks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Criterion performance benchmarks for all AgilePlus subsystems"
+
+[dependencies]
+agileplus-domain = { path = "../agileplus-domain" }
+agileplus-events = { path = "../agileplus-events" }
+agileplus-sqlite = { path = "../agileplus-sqlite" }
+agileplus-graph = { path = "../agileplus-graph" }
+serde_json.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+async-trait = "0.1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
+tokio = { workspace = true, features = ["full"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+[[bench]]
+name = "event_append_throughput"
+harness = false
+
+[[bench]]
+name = "event_replay"
+harness = false
+
+[[bench]]
+name = "api_response_times"
+harness = false
+
+[[bench]]
+name = "sync_roundtrip"
+harness = false
+
+[[bench]]
+name = "graph_query_perf"
+harness = false
