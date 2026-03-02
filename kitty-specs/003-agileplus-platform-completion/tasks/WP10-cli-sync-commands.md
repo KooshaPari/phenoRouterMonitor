@@ -1,9 +1,13 @@
 ---
 work_package_id: WP10
 title: CLI Sync Commands
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: e34fef4c66a8f5abee0afeafb9110eb8e0f440c0
+created_at: '2026-03-02T12:06:07.348910+00:00'
 subtasks: [T059, T060, T061, T062, T063]
+shell_pid: "35783"
 history:
 - date: '2026-03-02'
   action: created
