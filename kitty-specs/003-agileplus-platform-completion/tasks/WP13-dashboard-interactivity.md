@@ -8,6 +8,7 @@ base_commit: 6c61f452547eb4071c874c4c352e6f0d1991c52a
 created_at: '2026-03-02T17:31:27.245597+00:00'
 subtasks: [T078, T079, T080, T081, T082, T083]
 shell_pid: "6757"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -324,3 +325,7 @@ Implement settings interface for configuration:
 - Settings page saves and displays configuration
 - SSE reconnects automatically on connection loss
 - All interactive elements show loading/error states appropriately
+
+## Activity Log
+
+- 2026-03-02T17:31:27Z – claude-opus – shell_pid=6757 – lane=doing – Assigned agent via workflow command
