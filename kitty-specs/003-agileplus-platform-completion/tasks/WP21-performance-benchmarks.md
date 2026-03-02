@@ -1,7 +1,7 @@
 ---
 work_package_id: WP21
 title: Performance Benchmarks
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: ed03fc47e3662d17514d0d9e56dbaeba7f22a9e7
@@ -479,3 +479,4 @@ Performance gates enforced by CI:
 ## Activity Log
 
 - 2026-03-02T20:47:58Z – claude-opus – shell_pid=35449 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T21:05:25Z – claude-opus – shell_pid=35449 – lane=for_review – Ready for review: Criterion benchmarks for event append, replay, API, sync, and graph queries
