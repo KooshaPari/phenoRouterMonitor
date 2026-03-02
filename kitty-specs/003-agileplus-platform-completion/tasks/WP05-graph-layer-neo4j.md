@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Graph Layer (Neo4j)
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: e441120abb2a1454a9ee3b6b49a38ea9eef9962f
@@ -1021,3 +1021,4 @@ spec-kitty implement WP05 --base WP03
 ## Activity Log
 
 - 2026-03-02T11:50:57Z – claude-opus – shell_pid=52715 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T11:55:15Z – claude-opus – shell_pid=52715 – lane=for_review – Ready for review: agileplus-graph crate with 23 tests
