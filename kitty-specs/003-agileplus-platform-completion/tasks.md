@@ -173,12 +173,12 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~400
 **Goal**: Create `agileplus-sync` crate coordinating Plane.so and device sync with conflict resolution.
 
-- [ ] T053: Scaffold `agileplus-sync` crate
-- [ ] T054: Implement conflict detection (content hash comparison, timestamp ordering)
-- [ ] T055: Implement conflict resolution strategies (last-write-wins, manual merge, field-level merge)
-- [ ] T056: Implement SyncMapping persistence (create, update, query by entity)
-- [ ] T057: Implement sync status reporting (created/updated/skipped/conflicted counts)
-- [ ] T058: Wire sync engine to NATS (publish sync events, subscribe to inbound)
+- [x] T053: Scaffold `agileplus-sync` crate
+- [x] T054: Implement conflict detection (content hash comparison, timestamp ordering)
+- [x] T055: Implement conflict resolution strategies (last-write-wins, manual merge, field-level merge)
+- [x] T056: Implement SyncMapping persistence (create, update, query by entity)
+- [x] T057: Implement sync status reporting (created/updated/skipped/conflicted counts)
+- [x] T058: Wire sync engine to NATS (publish sync events, subscribe to inbound)
 
 ### WP10 — CLI Sync Commands
 **File**: `tasks/WP10-cli-sync-commands.md`
