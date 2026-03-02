@@ -260,11 +260,11 @@ WP01 → WP02 → WP03
 **Priority**: P2 | **Est. lines**: ~350
 **Goal**: Extend `agileplus-telemetry` with OTLP traces, metrics, and axum middleware.
 
-- [ ] T090: Add OTLP exporter setup (HTTP binary protocol, configurable endpoint)
-- [ ] T091: Add tracing-opentelemetry layer integration with existing tracing subscriber
-- [ ] T092: Add axum-tracing-opentelemetry middleware for automatic trace propagation
-- [ ] T093: Define custom metrics (events.processed, sync.duration, cache.hit_rate, api.request_duration)
-- [ ] T094: Add structured JSON log formatting with trace context injection
+- [x] T090: Add OTLP exporter setup (HTTP binary protocol, configurable endpoint)
+- [x] T091: Add tracing-opentelemetry layer integration with existing tracing subscriber
+- [x] T092: Add axum-tracing-opentelemetry middleware for automatic trace propagation
+- [x] T093: Define custom metrics (events.processed, sync.duration, cache.hit_rate, api.request_duration)
+- [x] T094: Add structured JSON log formatting with trace context injection
 
 ---
 
