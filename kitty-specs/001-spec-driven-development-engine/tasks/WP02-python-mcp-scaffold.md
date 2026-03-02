@@ -16,7 +16,7 @@ subtasks:
 - T011b
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "s1-wp02"
 shell_pid: "97221"
 review_status: ''
 reviewed_by: ''
@@ -562,3 +562,4 @@ Reviewers should verify:
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 
 - 2026-02-27T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-03-02T01:08:59Z – s1-wp02 – shell_pid=97221 – lane=doing – Assigned agent via workflow command
