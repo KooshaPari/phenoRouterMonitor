@@ -59,7 +59,7 @@ WP01 → WP02 → WP03
 
 - [x] T001: Define Event entity struct with hash chain fields
 - [x] T002: Define Snapshot entity struct
-- [ ] T003: Define SyncMapping entity struct
+- [x] T003: Define SyncMapping entity struct
 - [ ] T004: Define ServiceHealth and HealthStatus enum
 - [ ] T005: Define DeviceNode entity struct
 - [ ] T006: Define ApiKey entity struct with key_hash
