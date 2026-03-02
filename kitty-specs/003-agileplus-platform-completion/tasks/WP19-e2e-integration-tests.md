@@ -1,9 +1,13 @@
 ---
 work_package_id: WP19
 title: End-to-End Integration Tests
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: f49e1f98ffaa17a3544f6bdc08854dfe0b6b933f
+created_at: '2026-03-02T17:40:32.794554+00:00'
 subtasks: [T107, T108, T109, T110, T111]
+shell_pid: "10458"
 history:
 - date: '2026-03-02'
   action: created
