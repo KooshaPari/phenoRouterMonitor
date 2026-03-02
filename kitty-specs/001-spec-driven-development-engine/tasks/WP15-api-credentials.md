@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP15"
+work_package_id: WP15
+title: API Layer & Credential Management
+lane: "doing"
+dependencies: [WP14]
+base_branch: 001-spec-driven-development-engine-WP14
+base_commit: 1489109d814c5f86d8e918a67accf6ae2e665966
+created_at: '2026-03-02T01:38:16.832116+00:00'
 subtasks:
-  - "T085"
-  - "T086"
-  - "T087"
-  - "T088"
-  - "T089"
-  - "T090"
-title: "API Layer & Credential Management"
-phase: "Phase 4 - Integration"
-lane: "planned"
-dependencies: ["WP14"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T085
+- T086
+- T087
+- T088
+- T089
+- T090
+phase: Phase 4 - Integration
+assignee: ''
+agent: ''
+shell_pid: "26726"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # WP15: API Layer & Credential Management
