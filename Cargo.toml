@@ -14,6 +14,7 @@ members = [
     "crates/agileplus-cache",
     "crates/agileplus-subcmds",
     "crates/agileplus-graph",
+    "crates/agileplus-contract-tests",
     "rust",
 ]
 

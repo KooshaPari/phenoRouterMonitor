@@ -1,0 +1,41 @@
+[package]
+name = "agileplus-contract-tests"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+# This crate has no library; it only exists as an integration test crate.
+[lib]
+name = "agileplus_contract_tests"
+path = "src/lib.rs"
+
+[dependencies]
+agileplus-domain = { path = "../agileplus-domain" }
+agileplus-events = { path = "../agileplus-events" }
+agileplus-sqlite = { path = "../agileplus-sqlite" }
+agileplus-plane = { path = "../agileplus-plane" }
+agileplus-api = { path = "../agileplus-api" }
+axum = { version = "0.8", features = ["json"] }
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+[[test]]
+name = "events_sqlite_contract"
+path = "../../tests/contracts/events_sqlite_contract.rs"
+
+[[test]]
+name = "sync_plane_contract"
+path = "../../tests/contracts/sync_plane_contract.rs"
+
+[[test]]
+name = "dashboard_api_contract"
+path = "../../tests/contracts/dashboard_api_contract.rs"
+
+[[test]]
+name = "api_events_contract"
+path = "../../tests/contracts/api_events_contract.rs"
