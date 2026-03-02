@@ -360,7 +360,7 @@
 **Estimated**: ~300 lines, 5 subtasks
 
 ### Included Subtasks
-- [ ] T055 Implement `TelemetryAdapter` struct implementing `ObservabilityPort` in `crates/agileplus-telemetry/src/`
+- [x] T055 Implement `TelemetryAdapter` struct implementing `ObservabilityPort` in `crates/agileplus-telemetry/src/`
 - [ ] T056 Implement `traces.rs`: OpenTelemetry trace spans per command execution, agent dispatch
 - [ ] T057 [P] Implement `metrics.rs`: counters (agent_runs, review_cycles), histograms (command_duration_ms)
 - [ ] T058 [P] Implement `logs.rs`: structured JSON logging with tracing crate, configurable output (stdout/file)
