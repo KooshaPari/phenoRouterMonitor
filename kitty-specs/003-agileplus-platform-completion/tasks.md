@@ -76,7 +76,7 @@ WP01 → WP02 → WP03
 - [x] T010: Implement SHA-256 hash chain computation and verification
 - [x] T011: Implement event replay to rebuild entity state
 - [x] T012: Implement snapshot creation (every N events or time interval)
-- [ ] T013: Implement snapshot-based fast state loading with event replay from snapshot
+- [x] T013: Implement snapshot-based fast state loading with event replay from snapshot
 - [ ] T014: Implement event queries (by entity, time range, event type, actor)
 
 ### WP03 — SQLite Schema Extensions
