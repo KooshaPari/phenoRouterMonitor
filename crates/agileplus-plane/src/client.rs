@@ -131,6 +131,55 @@ impl PlaneClient {
         )
     }
 
+    pub fn labels_url(&self) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/labels/",
+            self.base_url, self.workspace_slug, self.project_id
+        )
+    }
+
+    /// Make a raw GET request and return response body as String.
+    pub async fn get_raw(&self, url: &str) -> Result<String> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .get(url)
+            .header("X-API-Key", &self.api_key)
+            .send()
+            .await
+            .context("Plane.so GET request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so API error {status}: {body}");
+        }
+
+        resp.text().await.context("reading Plane.so response body")
+    }
+
+    /// Make a raw POST request with JSON body and return response body as String.
+    pub async fn post_raw(&self, url: &str, json_body: &str) -> Result<String> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .post(url)
+            .header("X-API-Key", &self.api_key)
+            .header("Content-Type", "application/json")
+            .body(json_body.to_string())
+            .send()
+            .await
+            .context("Plane.so POST request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so API error {status}: {body}");
+        }
+
+        resp.text().await.context("reading Plane.so response body")
+    }
+
     /// Create an issue in Plane.so.
     pub async fn create_issue(&self, issue: &PlaneIssue) -> Result<PlaneIssueResponse> {
         self.acquire_token().await?;
