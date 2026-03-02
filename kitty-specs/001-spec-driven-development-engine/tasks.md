@@ -498,7 +498,7 @@
 - [x] T084 Write Pact contract tests for Rust↔Python gRPC boundary
 - [x] T084b Implement MCP Sampling primitive: server-initiated triage analysis and governance pre-checks (FR-049)
 - [x] T084c Implement MCP Roots primitive: workspace boundary declarations per feature/WP (FR-049)
-- [ ] T084d Implement MCP Elicitation primitive: discovery interview flows for specify/clarify commands (FR-049)
+- [x] T084d Implement MCP Elicitation primitive: discovery interview flows for specify/clarify commands (FR-049)
 
 ### Implementation Notes
 - gRPC server in core serves `core.proto` endpoints directly
