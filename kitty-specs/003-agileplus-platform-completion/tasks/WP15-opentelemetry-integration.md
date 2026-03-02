@@ -1,9 +1,13 @@
 ---
 work_package_id: WP15
 title: OpenTelemetry Integration
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: e4f4052878f43cc3537b8da83b9e70a83a641a14
+created_at: '2026-03-02T12:16:22.394755+00:00'
 subtasks: [T090, T091, T092, T093, T094]
+shell_pid: "36756"
 history:
 - date: '2026-03-02'
   action: created
