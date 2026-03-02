@@ -325,10 +325,10 @@ WP01 → WP02 → WP03
 **Priority**: P3 | **Est. lines**: ~300
 **Goal**: Pact contract tests for new crate boundaries.
 
-- [ ] T112: Add pact tests for agileplus-events ↔ agileplus-sqlite boundary
-- [ ] T113: Add pact tests for agileplus-sync ↔ agileplus-plane boundary
-- [ ] T114: Add pact tests for agileplus-api ↔ agileplus-dashboard boundary
-- [ ] T115: Add pact tests for agileplus-api ↔ agileplus-events boundary
+- [x] T112: Add pact tests for agileplus-events ↔ agileplus-sqlite boundary
+- [x] T113: Add pact tests for agileplus-sync ↔ agileplus-plane boundary
+- [x] T114: Add pact tests for agileplus-api ↔ agileplus-dashboard boundary
+- [x] T115: Add pact tests for agileplus-api ↔ agileplus-events boundary
 
 ### WP21 — Performance Benchmarks
 **File**: `tasks/WP21-performance-benchmarks.md`
