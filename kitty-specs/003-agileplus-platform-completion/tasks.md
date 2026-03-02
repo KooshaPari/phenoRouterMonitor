@@ -108,7 +108,7 @@ WP01 → WP02 → WP03
 - [x] T024: Implement typed get/set/delete with TTL support
 - [x] T025: Implement projection cache (feature state, WP state) with invalidation
 - [x] T026: Implement rate limiter (sliding window via INCR+EXPIRE)
-- [ ] T027: Add health check (PING command)
+- [x] T027: Add health check (PING command)
 
 ### WP05 — Graph Layer (Neo4j)
 **File**: `tasks/WP05-graph-layer-neo4j.md`
