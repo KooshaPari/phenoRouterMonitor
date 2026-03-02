@@ -110,6 +110,7 @@ fn row_to_wp(row: &Row<'_>) -> rusqlite::Result<WorkPackage> {
         pr_url,
         pr_state,
         worktree_path,
+        plane_sub_issue_id: None,
         created_at,
         updated_at,
     })

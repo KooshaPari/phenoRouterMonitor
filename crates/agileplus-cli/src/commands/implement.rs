@@ -96,6 +96,8 @@ where
             evidence_refs: vec![],
             prev_hash,
             hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
         };
         audit.hash = hash_entry(&audit);
         storage.append_audit_entry(&audit).await.context("appending audit entry")?;
@@ -297,6 +299,8 @@ where
                     evidence_refs: vec![],
                     prev_hash,
                     hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
                 };
                 audit.hash = hash_entry(&audit);
                 storage.append_audit_entry(&audit).await.context("appending audit entry")?;
@@ -327,6 +331,8 @@ where
                     evidence_refs: vec![],
                     prev_hash,
                     hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
                 };
                 audit.hash = hash_entry(&audit);
                 storage.append_audit_entry(&audit).await.ok();

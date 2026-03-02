@@ -163,6 +163,9 @@ impl SqliteStorageAdapter {
             state,
             spec_hash,
             target_branch: meta.target_branch,
+            plane_issue_id: None,
+            plane_state_id: None,
+            labels: Vec::new(),
             created_at,
             updated_at,
         };
@@ -213,6 +216,8 @@ impl SqliteStorageAdapter {
                     evidence_refs: al.evidence_refs,
                     prev_hash: entry_prev_hash,
                     hash: entry_hash,
+                    event_id: None,
+                    archived_to: None,
                 };
 
                 // Verify self-hash
@@ -386,6 +391,8 @@ mod tests {
             evidence_refs: vec![],
             prev_hash: [0u8; 32],
             hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
         };
         e1.hash = hash_entry(&e1);
 
@@ -400,6 +407,8 @@ mod tests {
             evidence_refs: vec![],
             prev_hash: e1.hash,
             hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
         };
         e2.hash = hash_entry(&e2);
 

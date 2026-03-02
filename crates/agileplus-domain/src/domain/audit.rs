@@ -29,6 +29,12 @@ pub struct AuditEntry {
     pub prev_hash: [u8; 32],
     #[serde(with = "hex_bytes")]
     pub hash: [u8; 32],
+    /// FK → Event (correlates audit entry to domain event).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub event_id: Option<i64>,
+    /// MinIO object key if this entry has been archived.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub archived_to: Option<String>,
 }
 
 /// Errors arising from audit chain verification.

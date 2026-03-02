@@ -310,6 +310,8 @@ async fn run_refinement<S: StoragePort, V: VcsPort>(
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage
@@ -373,6 +375,8 @@ fn build_audit_entry(feature_id: i64, actor: &str, transition: &str, prev_hash: 
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
     };
     entry.hash = hash_entry(&entry);
     entry

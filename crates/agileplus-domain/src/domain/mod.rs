@@ -1,6 +1,12 @@
+pub mod api_key;
 pub mod audit;
+pub mod device_node;
+pub mod event;
 pub mod feature;
 pub mod governance;
 pub mod metric;
+pub mod service_health;
+pub mod snapshot;
 pub mod state_machine;
+pub mod sync_mapping;
 pub mod work_package;

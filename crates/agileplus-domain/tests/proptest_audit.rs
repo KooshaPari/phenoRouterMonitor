@@ -13,6 +13,8 @@ fn make_entry(feature_id: i64, wp_id: Option<i64>, actor: &str, transition: &str
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
+        event_id: None,
+        archived_to: None,
     };
     entry.hash = hash_entry(&entry);
     entry

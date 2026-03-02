@@ -49,6 +49,8 @@ fn row_to_audit_entry(row: &Row<'_>) -> rusqlite::Result<AuditEntry> {
         evidence_refs,
         prev_hash,
         hash,
+        event_id: None,
+        archived_to: None,
     })
 }
 

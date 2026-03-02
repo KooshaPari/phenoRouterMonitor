@@ -58,6 +58,9 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
         state,
         spec_hash,
         target_branch,
+        plane_issue_id: None,
+        plane_state_id: None,
+        labels: Vec::new(),
         created_at,
         updated_at,
     })

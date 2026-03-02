@@ -54,6 +54,9 @@ pub struct WorkPackage {
     pub pr_url: Option<String>,
     pub pr_state: Option<PrState>,
     pub worktree_path: Option<String>,
+    /// Plane.so sub-issue ID mapping.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plane_sub_issue_id: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -73,6 +76,7 @@ impl WorkPackage {
             pr_url: None,
             pr_state: None,
             worktree_path: None,
+            plane_sub_issue_id: None,
             created_at: now,
             updated_at: now,
         }

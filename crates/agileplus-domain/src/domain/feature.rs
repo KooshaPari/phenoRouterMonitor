@@ -13,6 +13,15 @@ pub struct Feature {
     #[serde(with = "hex_bytes")]
     pub spec_hash: [u8; 32],
     pub target_branch: String,
+    /// Plane.so issue ID mapping.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plane_issue_id: Option<String>,
+    /// Plane.so state UUID.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plane_state_id: Option<String>,
+    /// Labels synced with Plane.so.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub labels: Vec<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -32,6 +41,9 @@ impl Feature {
             state: FeatureState::Created,
             spec_hash,
             target_branch: target_branch.unwrap_or("main").to_string(),
+            plane_issue_id: None,
+            plane_state_id: None,
+            labels: Vec::new(),
             created_at: now,
             updated_at: now,
         }
