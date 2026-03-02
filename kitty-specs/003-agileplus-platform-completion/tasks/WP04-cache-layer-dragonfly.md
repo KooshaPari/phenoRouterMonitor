@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Cache Layer (Dragonfly)
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 54550549c478ffb46ae18db57710e2ac84cf027c
@@ -768,3 +768,4 @@ spec-kitty implement WP04 --base WP03
 ## Activity Log
 
 - 2026-03-02T11:46:56Z – claude-opus – shell_pid=45986 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T11:50:49Z – claude-opus – shell_pid=45986 – lane=for_review – Ready for review: agileplus-cache crate with pool, store, projection, limiter, health
