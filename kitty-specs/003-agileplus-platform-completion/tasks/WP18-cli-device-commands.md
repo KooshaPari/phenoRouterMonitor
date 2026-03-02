@@ -1,7 +1,7 @@
 ---
 work_package_id: WP18
 title: CLI Device Commands
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: bd5ea46e023042041a01000dba720d62833421a9
@@ -194,3 +194,4 @@ Health Check:
 ## Activity Log
 
 - 2026-03-02T17:31:35Z – claude-opus – shell_pid=6998 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T20:47:23Z – claude-opus – shell_pid=6998 – lane=for_review – Ready for review: CLI device discover/sync/status with 22 tests
