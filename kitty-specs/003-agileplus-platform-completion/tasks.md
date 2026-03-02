@@ -63,7 +63,7 @@ WP01 → WP02 → WP03
 - [x] T004: Define ServiceHealth and HealthStatus enum
 - [x] T005: Define DeviceNode entity struct
 - [x] T006: Define ApiKey entity struct with key_hash
-- [ ] T007: Add Serialize/Deserialize, validation, and builder patterns for all new entities
+- [x] T007: Add Serialize/Deserialize, validation, and builder patterns for all new entities
 
 ### WP02 — Event Sourcing Engine
 **File**: `tasks/WP02-event-sourcing-engine.md`
