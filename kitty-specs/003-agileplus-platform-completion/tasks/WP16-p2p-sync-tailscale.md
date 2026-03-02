@@ -1,9 +1,13 @@
 ---
 work_package_id: WP16
 title: P2P Sync via Tailscale
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 8a8390c6e3d118f4898dfd1fba2fb0b67224c555
+created_at: '2026-03-02T12:17:18.845837+00:00'
 subtasks: [T095, T096, T097, T098, T099]
+shell_pid: "54708"
 history:
 - date: '2026-03-02'
   action: created
