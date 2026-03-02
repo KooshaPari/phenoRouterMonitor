@@ -1,7 +1,7 @@
 ---
 work_package_id: WP14
 title: gRPC Server & MCP Integration (Multi-Repo)
-lane: "doing"
+lane: "for_review"
 dependencies: [WP00, WP13]
 base_branch: 001-spec-driven-development-engine-WP13
 base_commit: 3fc4a17c8bbced1dcddd3780def30ba7e544b1ef
@@ -724,3 +724,4 @@ intentional breaking changes (modify a proto field, verify pact fails).
 |-----------|-------|
 | 2026-02-27T00:00:00Z | WP14 prompt generated via /spec-kitty.tasks |
 - 2026-03-02T01:23:35Z – s1-wp14 – shell_pid=60270 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T01:37:36Z – s1-wp14 – shell_pid=60270 – lane=for_review – Ready: gRPC server and MCP integration
