@@ -206,3 +206,100 @@ th, td  { vertical-align: top; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-bg); }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+
+/* ── T079: Kanban drag-drop ───────────────────────────────────── */
+.kanban-column-drag-over {
+  border-color: var(--color-accent) !important;
+  background-color: #1e293b;
+}
+.kanban-card-dragging {
+  opacity: 0.4;
+  transform: rotate(1deg);
+}
+.feature-card[draggable="true"] { cursor: grab; }
+.feature-card[draggable="true"]:active { cursor: grabbing; }
+
+/* ── T080: State transition buttons ──────────────────────────── */
+.transition-btn { cursor: pointer; }
+
+/* ── T081: Agent activity sidebar ────────────────────────────── */
+.agent-row { transition: background-color 0.15s ease; }
+.agent-row:hover { background-color: #27272a; }
+.agent-status-dot { display: inline-block; }
+.agent-status-running { background-color: #22c55e; }
+.agent-status-idle    { background-color: #71717a; }
+.agent-status-waiting { background-color: #facc15; }
+.agent-status-error   { background-color: #ef4444; }
+.agent-badge { font-family: var(--font-mono); letter-spacing: 0.05em; }
+.agent-badge-running { background-color: #14532d; color: #86efac; }
+.agent-badge-idle    { background-color: #27272a; color: #71717a; }
+.agent-badge-waiting { background-color: #422006; color: #fde68a; }
+.agent-badge-error   { background-color: #450a0a; color: #fca5a5; }
+.mt-1\.5 { margin-top: 0.375rem; }
+
+/* ── T082: Event timeline colors ─────────────────────────────── */
+.timeline-dot { display: inline-block; }
+.timeline-dot-state_change { background-color: #60a5fa; }
+.timeline-dot-agent_action { background-color: #86efac; }
+.timeline-dot-system       { background-color: #facc15; }
+.timeline-dot-error        { background-color: #fca5a5; }
+
+.event-kind-badge { font-family: var(--font-mono); }
+.event-kind-state_change { background-color: #1e3a5f; color: #93c5fd; }
+.event-kind-agent_action { background-color: #14532d; color: #86efac; }
+.event-kind-system       { background-color: #422006; color: #fde68a; }
+.event-kind-error        { background-color: #450a0a; color: #fca5a5; }
+
+/* T082: Timeline filter buttons */
+.filter-btn-base {
+  cursor: pointer;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.25rem;
+  border: 1px solid #3f3f46;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  transition: background-color 0.15s ease;
+}
+.filter-btn { background-color: #27272a; color: #a1a1aa; }
+.filter-btn:hover { background-color: #3f3f46; color: #d4d4d8; }
+.filter-btn-active { background-color: #1e3a5f; color: #93c5fd; border-color: #3b82f6; }
+
+/* ── T083: Toast notifications ───────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  padding: 0.6rem 1rem;
+  border-radius: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  max-width: 20rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.toast-success { background-color: #14532d; color: #86efac; border-color: #22c55e; }
+.toast-error   { background-color: #450a0a; color: #fca5a5; border-color: #ef4444; }
+.toast-warning { background-color: #422006; color: #fde68a; border-color: #f59e0b; }
+
+/* Toast Alpine transitions */
+.toast-enter  { transition: opacity 0.2s ease, transform 0.2s ease; }
+.toast-enter-start { opacity: 0; transform: translateX(1rem); }
+.toast-enter-end   { opacity: 1; transform: translateX(0); }
+.toast-leave  { transition: opacity 0.2s ease, transform 0.2s ease; }
+.toast-leave-start { opacity: 1; transform: translateX(0); }
+.toast-leave-end   { opacity: 0; transform: translateX(1rem); }
+
+/* Misc additions */
+.space-y-0\.5 > * + * { margin-top: 0.125rem; }
+.py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.w-2  { width: 0.5rem; }
+.h-2  { height: 0.5rem; }
+.min-w-0 { min-width: 0; }

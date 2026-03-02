@@ -1,9 +1,14 @@
 <div id="kanban-board"
      hx-get="/api/dashboard/kanban"
      hx-trigger="load, sse:feature_updated"
+     x-data="kanbanBoard()"
      class="flex gap-4 p-4 overflow-x-auto">
   {% for (state, col_cards) in cards %}
-    <div class="kanban-column min-w-[20rem] bg-zinc-800 rounded border border-zinc-700 flex-shrink-0">
+    <div class="kanban-column min-w-[20rem] bg-zinc-800 rounded border border-zinc-700 flex-shrink-0"
+         :class="dragOverCol === '{{ state }}' ? 'kanban-column-drag-over' : ''"
+         @dragover="onDragOver($event, '{{ state }}')"
+         @dragleave="onDragLeave()"
+         @drop="onDrop($event, '{{ state }}')">
       <h3 class="px-4 py-2 font-mono font-bold border-b border-zinc-700 capitalize text-sm">
         {{ state }} ({{ col_cards.len() }})
       </h3>

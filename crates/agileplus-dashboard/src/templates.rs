@@ -116,6 +116,21 @@ pub struct EventView {
     pub timestamp: String,
 }
 
+/// Agent activity view model used in the sidebar panel.
+#[derive(Debug, Clone)]
+pub struct AgentView {
+    pub name: String,
+    pub status: String,
+    pub current_task: String,
+    pub last_action: String,
+}
+
+#[derive(Template)]
+#[template(path = "partials/agent-activity.html")]
+pub struct AgentActivityPartial {
+    pub agents: Vec<AgentView>,
+}
+
 /// Helper: build ordered kanban states list.
 pub fn all_feature_states() -> Vec<String> {
     vec![

@@ -16,8 +16,9 @@ use axum::{
 
 use crate::app_state::SharedState;
 use crate::templates::{
-    all_feature_states, DashboardPage, EventTimelinePartial, FeatureDetailPage,
-    FeatureView, HealthPanelPartial, KanbanPartial, SettingsPage, WpListPartial, WpView,
+    all_feature_states, AgentActivityPartial, AgentView, DashboardPage, EventTimelinePartial,
+    FeatureDetailPage, FeatureView, HealthPanelPartial, KanbanPartial, SettingsPage,
+    WpListPartial, WpView,
 };
 
 /// Returns `true` if the `HX-Request` header is present and truthy.
@@ -134,6 +135,28 @@ pub async fn event_timeline(State(state): State<SharedState>) -> Response {
     })
 }
 
+// ── /api/dashboard/agents ────────────────────────────────────────────────
+
+pub async fn agent_activity(_state: State<SharedState>) -> Response {
+    // In production this would query the agent registry / NATS subjects.
+    // Return a placeholder list for now.
+    let agents: Vec<AgentView> = vec![
+        AgentView {
+            name: "spec-agent".into(),
+            status: "idle".into(),
+            current_task: String::new(),
+            last_action: "2m ago".into(),
+        },
+        AgentView {
+            name: "impl-agent".into(),
+            status: "running".into(),
+            current_task: "WP13 implementation".into(),
+            last_action: "just now".into(),
+        },
+    ];
+    render(AgentActivityPartial { agents })
+}
+
 // ── /settings ────────────────────────────────────────────────────────────
 
 pub async fn settings_page() -> Response {
@@ -151,6 +174,7 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
         .route("/api/dashboard/health", get(health_panel))
         .route("/api/dashboard/events", get(event_timeline))
+        .route("/api/dashboard/agents", get(agent_activity))
         .with_state(state)
 }
 
@@ -160,7 +184,7 @@ mod tests {
     use std::sync::Arc;
     use tokio::sync::RwLock;
     use crate::app_state::{DashboardStore, default_health};
-    use crate::templates::EventTimelinePartial;
+    use crate::templates::{AgentActivityPartial, AgentView, EventTimelinePartial};
 
     fn make_state() -> SharedState {
         let mut store = DashboardStore::default();
@@ -198,5 +222,29 @@ mod tests {
         let tpl = EventTimelinePartial { feature_id: 0, events: vec![] };
         let html = tpl.render().expect("template renders");
         assert!(html.contains("event-timeline"));
+    }
+
+    #[tokio::test]
+    async fn agent_activity_renders_empty() {
+        let tpl = AgentActivityPartial { agents: vec![] };
+        let html = tpl.render().expect("template renders");
+        assert!(html.contains("agent-activity"));
+    }
+
+    #[tokio::test]
+    async fn agent_activity_renders_agents() {
+        let tpl = AgentActivityPartial {
+            agents: vec![
+                AgentView {
+                    name: "test-agent".into(),
+                    status: "running".into(),
+                    current_task: "doing work".into(),
+                    last_action: "1m ago".into(),
+                },
+            ],
+        };
+        let html = tpl.render().expect("template renders");
+        assert!(html.contains("test-agent"));
+        assert!(html.contains("running"));
     }
 }

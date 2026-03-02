@@ -6,9 +6,13 @@
   <title>AgilePlus — {% block title %}Dashboard{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/htmx.min.js"></script>
+  <script src="/static/htmx-sse.js" defer></script>
   <script src="/static/alpine.min.js" defer></script>
 </head>
-<body class="bg-zinc-900 text-zinc-100 font-mono min-h-screen flex flex-col">
+<body class="bg-zinc-900 text-zinc-100 font-mono min-h-screen flex flex-col"
+      x-data="toastManager()"
+      @htmx:after-swap.window="onHtmxSwap($event)"
+      @htmx:response-error.window="onHtmxError($event)">
 
   <!-- Navigation -->
   <nav class="border-b border-zinc-700 px-6 py-3 flex items-center gap-6 bg-zinc-950">
@@ -23,7 +27,23 @@
     </div>
   </nav>
 
-  <div class="flex flex-1 overflow-hidden">
+  <!-- Toast container -->
+  <div class="toast-container" aria-live="polite">
+    <template x-for="toast in toasts" :key="toast.id">
+      <div class="toast"
+           :class="'toast-' + toast.type"
+           x-text="toast.message"
+           x-transition:enter="toast-enter"
+           x-transition:enter-start="toast-enter-start"
+           x-transition:enter-end="toast-enter-end"
+           x-transition:leave="toast-leave"
+           x-transition:leave-start="toast-leave-start"
+           x-transition:leave-end="toast-leave-end">
+      </div>
+    </template>
+  </div>
+
+  <div class="flex flex-1 overflow-hidden" hx-ext="sse" sse-connect="/api/stream">
 
     <!-- Sidebar -->
     <aside class="w-64 border-r border-zinc-700 bg-zinc-900 p-4 flex flex-col gap-3 overflow-y-auto">
@@ -45,6 +65,16 @@
            hx-swap="innerHTML">
         <span class="text-zinc-500 text-xs">Loading…</span>
       </div>
+
+      <h2 class="text-xs uppercase tracking-widest text-zinc-500 pb-1 border-b border-zinc-700 mt-4">
+        Agent Activity
+      </h2>
+      <div id="agent-activity-panel"
+           hx-get="/api/dashboard/agents"
+           hx-trigger="load, every 5s"
+           hx-swap="innerHTML">
+        <span class="text-zinc-500 text-xs">Loading…</span>
+      </div>
     </aside>
 
     <!-- Main content -->
@@ -52,13 +82,81 @@
       {% block content %}{% endblock %}
     </main>
 
-  </div>
+  </div><!-- end hx-ext=sse wrapper -->
 
   <!-- Footer -->
   <footer class="border-t border-zinc-700 bg-zinc-950 px-6 py-2 text-xs text-zinc-500 flex justify-between">
     <span>AgilePlus Platform</span>
     <span id="footer-ts" hx-get="/api/time" hx-trigger="load" hx-swap="innerHTML"></span>
   </footer>
+
+
+<script>
+/* ── T083: Toast Manager Alpine component ─────────────────────── */
+function toastManager() {
+  return {
+    toasts: [],
+    _nextId: 1,
+    show(message, type = 'success') {
+      const id = this._nextId++;
+      this.toasts.push({ id, message, type });
+      setTimeout(() => this.dismiss(id), 4000);
+    },
+    dismiss(id) {
+      this.toasts = this.toasts.filter(t => t.id !== id);
+    },
+    onHtmxSwap(evt) {
+      const target = evt.detail && evt.detail.target;
+      if (target) {
+        this.show('Updated', 'success');
+      }
+    },
+    onHtmxError(evt) {
+      const status = evt.detail && evt.detail.xhr && evt.detail.xhr.status;
+      this.show('Request failed' + (status ? ' (' + status + ')' : ''), 'error');
+    },
+  };
+}
+
+/* ── T079: Kanban drag-drop Alpine component ──────────────────── */
+function kanbanBoard() {
+  return {
+    draggingId: null,
+    dragOverCol: null,
+    onDragStart(evt, featureId) {
+      this.draggingId = featureId;
+      evt.dataTransfer.effectAllowed = 'move';
+      evt.dataTransfer.setData('text/plain', String(featureId));
+    },
+    onDragOver(evt, state) {
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = 'move';
+      this.dragOverCol = state;
+    },
+    onDragLeave() {
+      this.dragOverCol = null;
+    },
+    onDrop(evt, targetState) {
+      evt.preventDefault();
+      const featureId = this.draggingId || evt.dataTransfer.getData('text/plain');
+      this.dragOverCol = null;
+      this.draggingId = null;
+      if (!featureId) return;
+      fetch('/api/features/' + featureId + '/transition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'HX-Request': 'true' },
+        body: JSON.stringify({ target_state: targetState }),
+      }).then(res => {
+        if (res.ok) {
+          htmx.trigger('#kanban-board', 'sse:feature_updated');
+        } else {
+          console.error('Transition failed', res.status);
+        }
+      }).catch(err => console.error('Transition error', err));
+    },
+  };
+}
+</script>
 
 </body>
 </html>
