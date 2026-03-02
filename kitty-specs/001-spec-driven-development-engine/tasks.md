@@ -298,7 +298,7 @@
 - [x] T047 Implement `dispatch.rs`: select agent (from config), create worktree, inject prompt, spawn 1-3 subagents
 - [x] T048 Implement `pr_loop.rs`: create PR (gh CLI), set description with WP goal/prompt (FR-011), poll for review
 - [x] T049 Implement review-fix loop: read Coderabbit comments → feed to agent → re-push → re-poll (FR-012)
-- [ ] T049b Implement `agileplus-agent-service` gRPC server implementing `agents.proto` AgentDispatchService
+- [x] T049b Implement `agileplus-agent-service` gRPC server implementing `agents.proto` AgentDispatchService
 
 ### Implementation Notes
 - This is a separate repo (`agileplus-agents`) with its own Cargo workspace (3 crates)
