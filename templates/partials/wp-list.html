@@ -1,0 +1,41 @@
+<div id="wp-list-{{ feature_id }}"
+     hx-get="/api/dashboard/features/{{ feature_id }}/work-packages"
+     hx-trigger="load, sse:wp_updated">
+<table class="w-full border-collapse text-sm">
+  <thead>
+    <tr class="border-b border-zinc-700 text-zinc-400 text-xs uppercase tracking-wide">
+      <th class="text-left p-2">Title</th>
+      <th class="text-left p-2">State</th>
+      <th class="text-left p-2">Agent</th>
+      <th class="text-left p-2">Progress</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for wp in workpackages %}
+      <tr class="border-b border-zinc-700 hover:bg-zinc-700 transition">
+        <td class="p-2">
+          <a href="/api/dashboard/wp/{{ wp.id }}"
+             class="text-zinc-200 hover:text-white hover:underline">{{ wp.title }}</a>
+        </td>
+        <td class="p-2">
+          <span class="badge badge-{{ wp.state }} text-xs px-1.5 py-0.5 rounded border border-zinc-600 capitalize">
+            {{ wp.state }}
+          </span>
+        </td>
+        <td class="p-2 text-zinc-400 text-xs">{{ wp.agent }}</td>
+        <td class="p-2">
+          <div class="w-32 h-2 bg-zinc-700 rounded overflow-hidden">
+            <div class="h-2 bg-green-600 rounded" style="width: {{ wp.progress }}%"></div>
+          </div>
+          <span class="text-xs text-zinc-500">{{ wp.progress }}%</span>
+        </td>
+      </tr>
+    {% endfor %}
+    {% if workpackages.is_empty() %}
+      <tr>
+        <td colspan="4" class="p-4 text-center text-zinc-500 text-sm">No work packages.</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>
+</div>

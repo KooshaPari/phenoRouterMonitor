@@ -1,0 +1,28 @@
+[package]
+name = "agileplus-dashboard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[package.metadata.askama]
+dirs = ["../../templates"]
+
+[dependencies]
+agileplus-domain = { path = "../agileplus-domain" }
+agileplus-events = { path = "../agileplus-events" }
+askama = "0.12"
+axum = { version = "0.8", features = ["json", "macros"] }
+axum-extra = { version = "0.10", features = ["typed-header"] }
+tower = { version = "0.5" }
+tower-http = { version = "0.6", features = ["cors", "trace", "fs"] }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ feature.title }}{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-5xl mx-auto space-y-8">
+
+  <!-- Header -->
+  <div class="border-b border-zinc-700 pb-6">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">{{ feature.title }}</h1>
+        <p class="text-zinc-500 text-sm mt-1">slug: {{ feature.slug }}</p>
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <span class="badge badge-{{ feature.state }} text-xs px-2 py-1 rounded border border-zinc-600 capitalize">
+          {{ feature.state }}
+        </span>
+      </div>
+    </div>
+    <div class="flex gap-2 mt-3 flex-wrap">
+      {% for label in feature.labels %}
+        <span class="text-xs px-2 py-0.5 rounded border border-zinc-600 text-zinc-300 bg-zinc-800">{{ label }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Work Packages -->
+  <section>
+    <h2 class="text-xl font-bold mb-3">Work Packages</h2>
+    {% include "partials/wp-list.html" %}
+  </section>
+
+  <!-- Event Timeline -->
+  <section>
+    <h2 class="text-xl font-bold mb-3">Event Timeline</h2>
+    {% include "partials/event-timeline.html" %}
+  </section>
+
+  <!-- Actions -->
+  <section class="border-t border-zinc-700 pt-6">
+    <h2 class="text-xl font-bold mb-3">Actions</h2>
+    <div class="flex flex-wrap gap-3">
+      <button
+        hx-post="/api/features/{{ feature.id }}/transition"
+        hx-vals='{"target_state":"implementing"}'
+        hx-confirm="Transition to Implementing?"
+        class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm rounded border border-blue-600 transition">
+        → Implementing
+      </button>
+      <button
+        hx-post="/api/features/{{ feature.id }}/sync"
+        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
+        Sync with Plane
+      </button>
+      <button
+        hx-post="/api/features/{{ feature.id }}/dispatch"
+        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
+        Dispatch Agent
+      </button>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

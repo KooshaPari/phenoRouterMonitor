@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-2xl mx-auto space-y-6">
+  <h1 class="text-2xl font-bold border-b border-zinc-700 pb-4">Platform Settings</h1>
+
+  <section class="bg-zinc-800 border border-zinc-700 rounded p-4 space-y-3">
+    <h2 class="font-bold text-zinc-200">Plane.so Integration</h2>
+    <div class="text-sm text-zinc-400 space-y-2">
+      <p>Configure Plane.so API credentials and workspace sync settings.</p>
+      <a href="/settings/plane" class="text-blue-400 hover:underline text-sm">Configure →</a>
+    </div>
+  </section>
+
+  <section class="bg-zinc-800 border border-zinc-700 rounded p-4 space-y-3">
+    <h2 class="font-bold text-zinc-200">Agent Configuration</h2>
+    <div class="text-sm text-zinc-400 space-y-2">
+      <p>Set agent dispatch rules, retry policies, and timeouts.</p>
+      <a href="/settings/agents" class="text-blue-400 hover:underline text-sm">Configure →</a>
+    </div>
+  </section>
+
+  <section class="bg-zinc-800 border border-zinc-700 rounded p-4 space-y-3">
+    <h2 class="font-bold text-zinc-200">Service Endpoints</h2>
+    <div class="text-sm text-zinc-400 space-y-2">
+      <p>NATS, Dragonfly, Neo4j, and MinIO connection settings.</p>
+      <a href="/settings/services" class="text-blue-400 hover:underline text-sm">Configure →</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

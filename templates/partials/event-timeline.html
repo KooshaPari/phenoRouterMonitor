@@ -1,0 +1,15 @@
+<div id="event-timeline-{{ feature_id }}"
+     class="space-y-2">
+  {% for event in events %}
+    <div class="flex gap-3 items-start">
+      <span class="text-xs text-zinc-500 w-36 flex-shrink-0 pt-0.5">{{ event.timestamp }}</span>
+      <div class="flex-1 border-l border-zinc-700 pl-3">
+        <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">{{ event.kind }}</span>
+        <p class="text-sm text-zinc-200">{{ event.description }}</p>
+      </div>
+    </div>
+  {% endfor %}
+  {% if events.is_empty() %}
+    <p class="text-zinc-500 text-sm text-center py-4">No events recorded yet.</p>
+  {% endif %}
+</div>

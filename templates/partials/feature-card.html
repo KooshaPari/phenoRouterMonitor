@@ -1,0 +1,15 @@
+<div class="feature-card bg-zinc-900 border border-zinc-700 rounded p-3 cursor-pointer hover:border-zinc-500 transition"
+     data-feature-id="{{ feature.id }}">
+  <a href="/api/dashboard/features/{{ feature.id }}"
+     class="block font-medium text-sm text-zinc-100 hover:text-white truncate">
+    {{ feature.title }}
+  </a>
+  <div class="flex flex-wrap gap-1 mt-2">
+    <span class="badge badge-{{ feature.state }} text-xs px-1 py-0.5 rounded border border-zinc-600 capitalize">
+      {{ feature.state }}
+    </span>
+    {% for label in feature.labels %}
+      <span class="text-xs px-1 py-0.5 rounded border border-zinc-700 text-zinc-400">{{ label }}</span>
+    {% endfor %}
+  </div>
+</div>
