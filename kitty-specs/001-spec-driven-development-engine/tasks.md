@@ -296,7 +296,7 @@
 - [x] T045 Implement `claude_code.rs`: spawn Claude Code with `--print` mode, pass WP prompt, collect output
 - [x] T046 Implement `codex.rs`: spawn Codex in batch mode, pass WP prompt, collect output
 - [x] T047 Implement `dispatch.rs`: select agent (from config), create worktree, inject prompt, spawn 1-3 subagents
-- [ ] T048 Implement `pr_loop.rs`: create PR (gh CLI), set description with WP goal/prompt (FR-011), poll for review
+- [x] T048 Implement `pr_loop.rs`: create PR (gh CLI), set description with WP goal/prompt (FR-011), poll for review
 - [ ] T049 Implement review-fix loop: read Coderabbit comments → feed to agent → re-push → re-poll (FR-012)
 - [ ] T049b Implement `agileplus-agent-service` gRPC server implementing `agents.proto` AgentDispatchService
 
