@@ -329,7 +329,7 @@
 **Estimated**: ~300 lines, 5 subtasks
 
 ### Included Subtasks
-- [ ] T050 Implement `ReviewAdapter` struct in `crates/agileplus-agent-review/src/`
+- [x] T050 Implement `ReviewAdapter` struct in `crates/agileplus-agent-review/src/`
 - [ ] T051 Implement `coderabbit.rs`: fetch review via GitHub API, parse comments into structured feedback
 - [ ] T052 Implement `fallback.rs`: manual review approval flow (user confirms via CLI prompt)
 - [ ] T053 Implement CI status checking: poll GitHub checks API for PR, return pass/fail/pending
