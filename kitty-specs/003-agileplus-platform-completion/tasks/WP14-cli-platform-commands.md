@@ -8,6 +8,7 @@ base_commit: 01aaf89e12d5a77cf4c76d0503a7d25b479c1df4
 created_at: '2026-03-02T12:16:19.765874+00:00'
 subtasks: [T084, T085, T086, T087, T088, T089]
 shell_pid: "35810"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -250,3 +251,7 @@ Manual URL: http://localhost:9000/dashboard
 - `agileplus dashboard` opens/configures dashboard
 - All commands handle errors gracefully with helpful messages
 - Color-coded output improves readability (green/yellow/red for status)
+
+## Activity Log
+
+- 2026-03-02T12:16:19Z – claude-opus – shell_pid=35810 – lane=doing – Assigned agent via workflow command
