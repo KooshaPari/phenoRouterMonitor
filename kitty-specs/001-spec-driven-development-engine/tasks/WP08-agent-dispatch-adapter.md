@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Agent Dispatch Service
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP00
 base_branch: 001-spec-driven-development-engine-WP00
@@ -538,3 +538,4 @@ Implement the agent dispatch service in the separate `agileplus-agents` repo. Th
 |-----------|--------|-------|---------|
 | 2026-02-27T00:00:00Z | Prompt generated | system | WP08 prompt created via /spec-kitty.tasks |
 - 2026-03-02T01:09:05Z – s1-wp08 – shell_pid=98160 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T01:22:32Z – s1-wp08 – shell_pid=98160 – lane=for_review – Ready: agent dispatch service
