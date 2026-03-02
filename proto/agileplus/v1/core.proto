@@ -27,6 +27,9 @@ service AgilePlusCoreService {
 
   // Command dispatch (MCP -> Core)
   rpc DispatchCommand(DispatchCommandRequest) returns (DispatchCommandResponse);
+
+  // Server-streaming real-time agent status events (MCP -> Core subscription)
+  rpc StreamAgentEvents(StreamAgentEventsRequest) returns (stream AgentEvent);
 }
 
 // --- Requests ---
@@ -109,4 +112,8 @@ message DispatchCommandRequest {
 
 message DispatchCommandResponse {
   CommandResponse result = 1;
+}
+
+message StreamAgentEventsRequest {
+  string feature_slug = 1;
 }

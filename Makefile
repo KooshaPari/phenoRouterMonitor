@@ -55,7 +55,10 @@ core-doc:
 
 # ─── Python ───────────────────────────────────────────────────────────
 python-install:
-	cd python && uv sync
+	cd python && uv sync --all-extras
+
+python-test:
+	cd python && uv run pytest tests/ -v
 
 python-fmt:
 	cd python && uvx ruff format --check .
@@ -77,6 +80,12 @@ docker-up:
 
 docker-down:
 	docker-compose down
+
+# ─── gRPC server targets ──────────────────────────────────────────────
+grpc-test:
+	cargo test -p agileplus-grpc
+
+test-contracts: grpc-test python-test
 
 # ─── Aggregate ────────────────────────────────────────────────────────
 typos:
