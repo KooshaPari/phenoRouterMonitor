@@ -1,7 +1,7 @@
 ---
 work_package_id: WP14
 title: CLI Platform Commands
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 01aaf89e12d5a77cf4c76d0503a7d25b479c1df4
@@ -9,6 +9,8 @@ created_at: '2026-03-02T12:16:19.765874+00:00'
 subtasks: [T084, T085, T086, T087, T088, T089]
 shell_pid: "35810"
 agent: "claude-opus"
+reviewed_by: "Koosha Paridehpour"
+review_status: "approved"
 history:
 - date: '2026-03-02'
   action: created
@@ -256,3 +258,4 @@ Manual URL: http://localhost:9000/dashboard
 
 - 2026-03-02T12:16:19Z – claude-opus – shell_pid=35810 – lane=doing – Assigned agent via workflow command
 - 2026-03-02T12:25:03Z – claude-opus – shell_pid=35810 – lane=for_review – Ready for review: platform up/down/status/logs, events query, dashboard CLI commands (57 tests)
+- 2026-03-02T23:19:37Z – claude-opus – shell_pid=35810 – lane=done – Merged to main, 516 tests passing
