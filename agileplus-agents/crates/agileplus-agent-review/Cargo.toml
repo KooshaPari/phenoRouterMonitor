@@ -9,12 +9,17 @@ description = "Review-loop logic: polls GitHub/Coderabbit, feeds comments back t
 agileplus-agent-dispatch = { path = "../agileplus-agent-dispatch" }
 tokio = { workspace = true }
 thiserror = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 regex = { workspace = true }
 tracing = { workspace = true }
 async-trait = { workspace = true }
+reqwest = { version = "0.12", features = ["json"] }
+chrono = { version = "0.4", features = ["serde"] }
+tokio-util = { version = "0.7" }
 
 [dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }
 tokio-test = { workspace = true }
 tempfile = { workspace = true }
+wiremock = "0.6"
