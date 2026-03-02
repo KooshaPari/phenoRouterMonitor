@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: SQLite Schema Extensions
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 6e12c538763ad95ab83cd9eebea10b7471ecec5b
@@ -509,3 +509,4 @@ spec-kitty implement WP03 --base WP02
 ## Activity Log
 
 - 2026-03-02T11:42:12Z – claude-opus – shell_pid=36420 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T11:46:49Z – claude-opus – shell_pid=36420 – lane=for_review – Ready for review: 5 migration files, event repo, EventStore impl, 23 tests pass
