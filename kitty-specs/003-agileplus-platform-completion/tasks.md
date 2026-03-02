@@ -77,7 +77,7 @@ WP01 → WP02 → WP03
 - [x] T011: Implement event replay to rebuild entity state
 - [x] T012: Implement snapshot creation (every N events or time interval)
 - [x] T013: Implement snapshot-based fast state loading with event replay from snapshot
-- [ ] T014: Implement event queries (by entity, time range, event type, actor)
+- [x] T014: Implement event queries (by entity, time range, event type, actor)
 
 ### WP03 — SQLite Schema Extensions
 **File**: `tasks/WP03-sqlite-schema-extensions.md`
