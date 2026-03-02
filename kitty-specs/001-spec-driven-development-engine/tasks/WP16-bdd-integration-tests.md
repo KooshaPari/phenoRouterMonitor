@@ -1,9 +1,12 @@
 ---
 work_package_id: WP16
 title: BDD Acceptance Tests & Integration Suite
-lane: planned
+lane: "doing"
 dependencies:
 - WP15
+base_branch: 001-spec-driven-development-engine-WP15
+base_commit: 924613f1dc906265c96c21aa1bf7300271ce983c
+created_at: '2026-03-02T02:17:36.682184+00:00'
 subtasks:
 - T091
 - T092
@@ -15,7 +18,7 @@ subtasks:
 phase: Phase 4 - Integration
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "65013"
 review_status: ''
 reviewed_by: ''
 history:
