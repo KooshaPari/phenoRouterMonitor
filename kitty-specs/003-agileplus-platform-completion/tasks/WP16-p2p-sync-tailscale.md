@@ -1,7 +1,7 @@
 ---
 work_package_id: WP16
 title: P2P Sync via Tailscale
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 8a8390c6e3d118f4898dfd1fba2fb0b67224c555
@@ -9,6 +9,8 @@ created_at: '2026-03-02T12:17:18.845837+00:00'
 subtasks: [T095, T096, T097, T098, T099]
 shell_pid: "54708"
 agent: "claude-opus"
+reviewed_by: "Koosha Paridehpour"
+review_status: "approved"
 history:
 - date: '2026-03-02'
   action: created
@@ -203,3 +205,4 @@ pub struct SyncResult {
 
 - 2026-03-02T12:17:19Z – claude-opus – shell_pid=54708 – lane=doing – Assigned agent via workflow command
 - 2026-03-02T12:25:18Z – claude-opus – shell_pid=54708 – lane=for_review – Ready for review: P2P sync via Tailscale with peer discovery, device registration, NATS replication, vector clocks (17 tests)
+- 2026-03-02T23:19:40Z – claude-opus – shell_pid=54708 – lane=done – Merged to main, 516 tests passing
