@@ -230,12 +230,12 @@ WP01 → WP02 → WP03
 **Priority**: P2 | **Est. lines**: ~400
 **Goal**: Add Alpine.js interactivity, SSE live updates, and action triggers to dashboard.
 
-- [ ] T078: Implement SSE connection with htmx sse-connect for live board updates
-- [ ] T079: Implement Alpine.js kanban drag-drop (move features between state columns)
-- [ ] T080: Implement state transition actions (button click → htmx POST → state change)
-- [ ] T081: Implement agent activity panel (real-time agent status via SSE)
-- [ ] T082: Implement audit timeline drill-down (expandable event details)
-- [ ] T083: Implement settings page (API key display, sync config, service URLs)
+- [x] T078: Implement SSE connection with htmx sse-connect for live board updates
+- [x] T079: Implement Alpine.js kanban drag-drop (move features between state columns)
+- [x] T080: Implement state transition actions (button click → htmx POST → state change)
+- [x] T081: Implement agent activity panel (real-time agent status via SSE)
+- [x] T082: Implement audit timeline drill-down (expandable event details)
+- [x] T083: Implement settings page (API key display, sync config, service URLs)
 
 ### WP14 — CLI Platform Commands
 **File**: `tasks/WP14-cli-platform-commands.md`
