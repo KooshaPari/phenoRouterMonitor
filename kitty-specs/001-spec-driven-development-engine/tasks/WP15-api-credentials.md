@@ -1,7 +1,7 @@
 ---
 work_package_id: WP15
 title: API Layer & Credential Management
-lane: "doing"
+lane: "for_review"
 dependencies: [WP14]
 base_branch: 001-spec-driven-development-engine-WP14
 base_commit: 1489109d814c5f86d8e918a67accf6ae2e665966
@@ -740,3 +740,4 @@ loading with invalid values (errors), and environment variable overrides.
 |-----------|-------|
 | 2026-02-27T00:00:00Z | WP15 prompt generated via /spec-kitty.tasks |
 - 2026-03-02T01:38:17Z – s1-wp15 – shell_pid=26726 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T02:16:48Z – s1-wp15 – shell_pid=26726 – lane=for_review – Ready: API layer and credentials
