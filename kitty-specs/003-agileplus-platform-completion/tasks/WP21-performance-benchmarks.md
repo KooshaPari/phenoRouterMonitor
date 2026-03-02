@@ -8,6 +8,7 @@ base_commit: ed03fc47e3662d17514d0d9e56dbaeba7f22a9e7
 created_at: '2026-03-02T20:47:57.984923+00:00'
 subtasks: [T116, T117, T118, T119, T120]
 shell_pid: "35449"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -474,3 +475,7 @@ Performance gates enforced by CI:
 - [ ] Constitution gates enforced (hard fail for critical metrics)
 - [ ] Trend report generated weekly
 - [ ] Documentation: how to run benchmarks, interpret results, resolve regressions
+
+## Activity Log
+
+- 2026-03-02T20:47:58Z – claude-opus – shell_pid=35449 – lane=doing – Assigned agent via workflow command
