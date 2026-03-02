@@ -364,7 +364,7 @@
 - [x] T056 Implement `traces.rs`: OpenTelemetry trace spans per command execution, agent dispatch
 - [x] T057 [P] Implement `metrics.rs`: counters (agent_runs, review_cycles), histograms (command_duration_ms)
 - [x] T058 [P] Implement `logs.rs`: structured JSON logging with tracing crate, configurable output (stdout/file)
-- [ ] T059 Create `~/.agileplus/otel-config.yaml` schema and loader
+- [x] T059 Create `~/.agileplus/otel-config.yaml` schema and loader
 
 ### Implementation Notes
 - Use `opentelemetry` + `opentelemetry-otlp` crates
