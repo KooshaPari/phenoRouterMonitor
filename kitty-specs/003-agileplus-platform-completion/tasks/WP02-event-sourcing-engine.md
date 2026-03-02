@@ -8,6 +8,7 @@ base_commit: 5367994fcf11fa4c20b608bb6ee398512c805b0f
 created_at: '2026-03-02T11:35:58.624231+00:00'
 subtasks: [T008, T009, T010, T011, T012, T013, T014]
 shell_pid: "21596"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -842,3 +843,7 @@ mod tests {
 ```bash
 spec-kitty implement WP02 --base WP01
 ```
+
+## Activity Log
+
+- 2026-03-02T11:35:58Z – claude-opus – shell_pid=21596 – lane=doing – Assigned agent via workflow command
