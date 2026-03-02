@@ -8,6 +8,7 @@ base_commit: 6e12c538763ad95ab83cd9eebea10b7471ecec5b
 created_at: '2026-03-02T11:42:12.605159+00:00'
 subtasks: [T015, T016, T017, T018, T019, T020, T021]
 shell_pid: "36420"
+agent: "claude-opus"
 history:
 - date: '2026-03-02'
   action: created
@@ -504,3 +505,7 @@ async fn migrate_internal(pool: &SqlitePool) -> Result<(), Error> {
 ```bash
 spec-kitty implement WP03 --base WP02
 ```
+
+## Activity Log
+
+- 2026-03-02T11:42:12Z – claude-opus – shell_pid=36420 – lane=doing – Assigned agent via workflow command
