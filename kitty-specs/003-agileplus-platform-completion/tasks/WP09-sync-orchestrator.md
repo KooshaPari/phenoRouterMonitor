@@ -127,3 +127,4 @@ Wire NATS pub/sub:
 
 - 2026-03-02T12:06:04Z – claude-opus – shell_pid=35625 – lane=doing – Assigned agent via workflow command
 - 2026-03-02T12:13:51Z – claude-opus – shell_pid=35625 – lane=for_review – Ready for review
+- 2026-03-02T12:15:57Z – claude-opus – shell_pid=35625 – lane=for_review – Ready for review: agileplus-sync crate with conflict detection, resolution strategies, SyncMappingStore trait, SyncReport, and NATS integration. 21 tests pass.
