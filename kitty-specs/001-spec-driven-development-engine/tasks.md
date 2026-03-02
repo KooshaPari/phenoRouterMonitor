@@ -493,7 +493,7 @@
 - [x] T080 Wire gRPC handlers to domain services (feature queries, governance checks, audit trail, command dispatch)
 - [x] T080b Implement gRPC proxy/routing: core server forwards agent/integration requests to agileplus-agents and agileplus-integrations services (or stubs them when those services are unavailable)
 - [x] T081 Implement Python gRPC client in `agileplus-mcp/src/agileplus_mcp/grpc_client.py` using generated stubs from `agileplus-proto`
-- [ ] T082 Implement MCP tool handlers in `agileplus-mcp/src/agileplus_mcp/tools/` — each tool calls gRPC client
+- [x] T082 Implement MCP tool handlers in `agileplus-mcp/src/agileplus_mcp/tools/` — each tool calls gRPC client
 - [ ] T083 Implement agent event streaming: bidirectional gRPC stream for real-time agent status
 - [ ] T084 Write Pact contract tests for Rust↔Python gRPC boundary
 - [ ] T084b Implement MCP Sampling primitive: server-initiated triage analysis and governance pre-checks (FR-049)
