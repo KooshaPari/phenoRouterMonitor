@@ -276,11 +276,11 @@ WP01 → WP02 → WP03
 **Priority**: P3 | **Est. lines**: ~400
 **Goal**: Create `agileplus-p2p` crate for Tailscale peer discovery and event replication.
 
-- [ ] T095: Scaffold `agileplus-p2p` crate with tailscale-localapi
-- [ ] T096: Implement peer discovery (query Tailscale local API for peers, filter AgilePlus nodes)
-- [ ] T097: Implement device registration (DeviceNode entity, sync vector initialization)
-- [ ] T098: Implement event replication protocol (NATS over Tailscale, subject-based routing)
-- [ ] T099: Implement vector clock sync (track per-entity sequence numbers across devices)
+- [x] T095: Scaffold `agileplus-p2p` crate with tailscale-localapi
+- [x] T096: Implement peer discovery (query Tailscale local API for peers, filter AgilePlus nodes)
+- [x] T097: Implement device registration (DeviceNode entity, sync vector initialization)
+- [x] T098: Implement event replication protocol (NATS over Tailscale, subject-based routing)
+- [x] T099: Implement vector clock sync (track per-entity sequence numbers across devices)
 
 ### WP17 — Git-Backed State Sync
 **File**: `tasks/WP17-git-backed-state.md`
