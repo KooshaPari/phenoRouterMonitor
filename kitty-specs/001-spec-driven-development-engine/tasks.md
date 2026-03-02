@@ -531,7 +531,7 @@
 - [x] T087 [P] Implement integration key auth middleware: validate API keys from credential store (FR-030)
 - [x] T088 [P] Implement credential management: OS keychain storage (macOS Keychain, Linux secret-service) (FR-030, FR-031)
 - [x] T089 [P] Create `~/.agileplus/config.toml` schema and loader (core config, credential references)
-- [ ] T090 Write API integration tests with mock HTTP client
+- [x] T090 Write API integration tests with mock HTTP client
 
 ### Implementation Notes
 - axum runs alongside gRPC in the same tokio runtime (shared binary)
