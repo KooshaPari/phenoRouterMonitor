@@ -1,7 +1,7 @@
 ---
 work_package_id: WP16
 title: P2P Sync via Tailscale
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 8a8390c6e3d118f4898dfd1fba2fb0b67224c555
@@ -202,3 +202,4 @@ pub struct SyncResult {
 ## Activity Log
 
 - 2026-03-02T12:17:19Z – claude-opus – shell_pid=54708 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:25:18Z – claude-opus – shell_pid=54708 – lane=for_review – Ready for review: P2P sync via Tailscale with peer discovery, device registration, NATS replication, vector clocks (17 tests)
