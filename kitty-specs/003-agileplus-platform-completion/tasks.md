@@ -159,13 +159,13 @@ WP01 → WP02 → WP03
 **Priority**: P1 | **Est. lines**: ~500
 **Goal**: Extend `agileplus-plane` crate with bidirectional sync, webhook ingestion, state mapping, labels.
 
-- [ ] T046: Add Plane.so state group mapping (5 groups → 8 AgilePlus states, configurable)
-- [ ] T047: Implement webhook HTTP endpoint (HMAC-SHA256 verification, event parsing)
-- [ ] T048: Implement outbound sync (push feature/WP changes to Plane.so issues/sub-issues)
-- [ ] T049: Implement inbound sync (process webhook events, update local state)
-- [ ] T050: Implement label bidirectional sync (CRUD via Plane API)
-- [ ] T051: Implement content hash tracking for change detection
-- [ ] T052: Implement sync queue with retry (exponential backoff, bounded buffer)
+- [x] T046: Add Plane.so state group mapping (5 groups → 8 AgilePlus states, configurable)
+- [x] T047: Implement webhook HTTP endpoint (HMAC-SHA256 verification, event parsing)
+- [x] T048: Implement outbound sync (push feature/WP changes to Plane.so issues/sub-issues)
+- [x] T049: Implement inbound sync (process webhook events, update local state)
+- [x] T050: Implement label bidirectional sync (CRUD via Plane API)
+- [x] T051: Implement content hash tracking for change detection
+- [x] T052: Implement sync queue with retry (exponential backoff, bounded buffer)
 
 ### WP09 — Sync Orchestrator
 **File**: `tasks/WP09-sync-orchestrator.md`
