@@ -18,7 +18,7 @@ subtasks:
 - T049b
 phase: Phase 2 - Adapters
 assignee: ''
-agent: ''
+agent: "s1-wp08"
 shell_pid: "98160"
 review_status: ''
 reviewed_by: ''
@@ -537,3 +537,4 @@ Implement the agent dispatch service in the separate `agileplus-agents` repo. Th
 | Timestamp | Action | Agent | Details |
 |-----------|--------|-------|---------|
 | 2026-02-27T00:00:00Z | Prompt generated | system | WP08 prompt created via /spec-kitty.tasks |
+- 2026-03-02T01:09:05Z – s1-wp08 – shell_pid=98160 – lane=doing – Assigned agent via workflow command
