@@ -8,13 +8,15 @@ rust-version.workspace = true
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
 agileplus-triage = { path = "../agileplus-triage" }
+agileplus-p2p = { path = "../agileplus-p2p" }
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true
 tracing.workspace = true
 anyhow.workspace = true
 clap = { version = "4", features = ["derive"] }
-tokio.workspace = true
+tokio = { workspace = true }
+hostname = "0.4"
 
 [dev-dependencies]
 tempfile = "3"
