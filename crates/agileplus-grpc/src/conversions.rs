@@ -74,7 +74,7 @@ mod tests {
         let proto = feature_to_proto(f);
         assert_eq!(proto.slug, "my-feature");
         assert_eq!(proto.friendly_name, "My Feature");
-        assert_eq!(proto.state, "Created");
+        assert_eq!(proto.state, "created");
         assert_eq!(proto.target_branch, "main");
     }
 

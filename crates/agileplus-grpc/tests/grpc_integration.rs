@@ -24,7 +24,7 @@ fn feature_to_proto_roundtrip() {
     let p = feature_to_proto(f);
     assert_eq!(p.slug, "conv-test");
     assert_eq!(p.friendly_name, "Conversion Test");
-    assert_eq!(p.state, "Created");
+    assert_eq!(p.state, "created");
     assert_eq!(p.target_branch, "develop");
     assert!(!p.created_at.is_empty());
 }

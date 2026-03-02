@@ -78,14 +78,14 @@ fn feature_state_encoding_contract() {
     use agileplus_domain::domain::state_machine::FeatureState;
 
     let state_cases = vec![
-        (FeatureState::Created, "Created"),
-        (FeatureState::Specified, "Specified"),
-        (FeatureState::Researched, "Researched"),
-        (FeatureState::Planned, "Planned"),
-        (FeatureState::Implementing, "Implementing"),
-        (FeatureState::Validated, "Validated"),
-        (FeatureState::Shipped, "Shipped"),
-        (FeatureState::Retrospected, "Retrospected"),
+        (FeatureState::Created, "created"),
+        (FeatureState::Specified, "specified"),
+        (FeatureState::Researched, "researched"),
+        (FeatureState::Planned, "planned"),
+        (FeatureState::Implementing, "implementing"),
+        (FeatureState::Validated, "validated"),
+        (FeatureState::Shipped, "shipped"),
+        (FeatureState::Retrospected, "retrospected"),
     ];
 
     for (state, expected_display) in state_cases {
