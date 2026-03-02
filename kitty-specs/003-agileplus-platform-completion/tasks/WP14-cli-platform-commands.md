@@ -1,9 +1,13 @@
 ---
 work_package_id: WP14
 title: CLI Platform Commands
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 01aaf89e12d5a77cf4c76d0503a7d25b479c1df4
+created_at: '2026-03-02T12:16:19.765874+00:00'
 subtasks: [T084, T085, T086, T087, T088, T089]
+shell_pid: "35810"
 history:
 - date: '2026-03-02'
   action: created
