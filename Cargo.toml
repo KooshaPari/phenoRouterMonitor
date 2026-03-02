@@ -10,6 +10,7 @@ members = [
     "crates/agileplus-telemetry",
     "crates/agileplus-triage",
     "crates/agileplus-events",
+    "crates/agileplus-cache",
     "crates/agileplus-subcmds",
     "rust",
 ]
