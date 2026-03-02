@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Sync Orchestrator
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: ad87f9a376a4c8c41bc88f4e3c748dff3f8a7edc
@@ -126,3 +126,4 @@ Wire NATS pub/sub:
 ## Activity Log
 
 - 2026-03-02T12:06:04Z – claude-opus – shell_pid=35625 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:13:51Z – claude-opus – shell_pid=35625 – lane=for_review – Ready for review
