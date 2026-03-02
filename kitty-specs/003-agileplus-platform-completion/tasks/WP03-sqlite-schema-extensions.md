@@ -1,9 +1,13 @@
 ---
 work_package_id: WP03
 title: SQLite Schema Extensions
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 6e12c538763ad95ab83cd9eebea10b7471ecec5b
+created_at: '2026-03-02T11:42:12.605159+00:00'
 subtasks: [T015, T016, T017, T018, T019, T020, T021]
+shell_pid: "36420"
 history:
 - date: '2026-03-02'
   action: created
