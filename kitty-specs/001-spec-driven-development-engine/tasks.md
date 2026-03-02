@@ -292,7 +292,7 @@
 
 ### Included Subtasks
 - [x] T044 Initialize `agileplus-agents` repo with Cargo workspace (3 crates), proto git submodule, Makefile
-- [ ] T044b Implement `AgentDispatchAdapter` in `crates/agileplus-agent-dispatch/src/`
+- [x] T044b Implement `AgentDispatchAdapter` in `crates/agileplus-agent-dispatch/src/`
 - [ ] T045 Implement `claude_code.rs`: spawn Claude Code with `--print` mode, pass WP prompt, collect output
 - [ ] T046 Implement `codex.rs`: spawn Codex in batch mode, pass WP prompt, collect output
 - [ ] T047 Implement `dispatch.rs`: select agent (from config), create worktree, inject prompt, spawn 1-3 subagents
