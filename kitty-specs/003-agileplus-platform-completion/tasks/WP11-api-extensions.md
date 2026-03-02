@@ -1,7 +1,7 @@
 ---
 work_package_id: WP11
 title: API Extensions
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: e7da019ae30cf53de57c72c295a0989f7ebe115c
@@ -9,6 +9,8 @@ created_at: '2026-03-02T12:06:10.086221+00:00'
 subtasks: [T064, T065, T066, T067, T068, T069, T070]
 shell_pid: "36298"
 agent: "claude-opus"
+reviewed_by: "Koosha Paridehpour"
+review_status: "approved"
 history:
 - date: '2026-03-02'
   action: created
@@ -183,3 +185,4 @@ Status codes:
 - 2026-03-02T12:06:10Z – claude-opus – shell_pid=36298 – lane=doing – Assigned agent via workflow command
 - 2026-03-02T12:15:12Z – claude-opus – shell_pid=36298 – lane=for_review – Ready for review: REST CRUD for features/WPs, API key auth with header+query param, SSE streaming, detailed health endpoint. All 14 integration tests pass.
 - 2026-03-02T12:16:08Z – claude-opus – shell_pid=36298 – lane=for_review – Ready for review: REST API, API keys, SSE, health. 14 tests.
+- 2026-03-02T23:19:32Z – claude-opus – shell_pid=36298 – lane=done – Merged to main, 516 tests passing
