@@ -243,12 +243,12 @@ WP01 → WP02 → WP03
 **Priority**: P2 | **Est. lines**: ~400
 **Goal**: Add `agileplus platform`, `events`, and `dashboard` CLI commands.
 
-- [ ] T084: Add `platform up` subcommand (invoke process-compose up, wait for health)
-- [ ] T085: Add `platform down` subcommand (invoke process-compose down)
-- [ ] T086: Add `platform status` subcommand (query health endpoints, display table)
-- [ ] T087: Add `platform logs` subcommand (tail process-compose logs with filters)
-- [ ] T088: Add `events` subcommand (query event store with --feature, --since, --type filters)
-- [ ] T089: Add `dashboard` subcommand (open browser to localhost:PORT, configure port)
+- [x] T084: Add `platform up` subcommand (invoke process-compose up, wait for health)
+- [x] T085: Add `platform down` subcommand (invoke process-compose down)
+- [x] T086: Add `platform status` subcommand (query health endpoints, display table)
+- [x] T087: Add `platform logs` subcommand (tail process-compose logs with filters)
+- [x] T088: Add `events` subcommand (query event store with --feature, --since, --type filters)
+- [x] T089: Add `dashboard` subcommand (open browser to localhost:PORT, configure port)
 
 ---
 
