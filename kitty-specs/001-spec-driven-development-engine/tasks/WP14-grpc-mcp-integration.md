@@ -1,31 +1,34 @@
 ---
-work_package_id: "WP14"
+work_package_id: WP14
+title: gRPC Server & MCP Integration (Multi-Repo)
+lane: "doing"
+dependencies: [WP00, WP13]
+base_branch: 001-spec-driven-development-engine-WP13
+base_commit: 3fc4a17c8bbced1dcddd3780def30ba7e544b1ef
+created_at: '2026-03-02T01:23:35.484701+00:00'
 subtasks:
-  - "T079"
-  - "T080"
-  - "T080b"
-  - "T081"
-  - "T082"
-  - "T083"
-  - "T084"
-  - "T084b"
-  - "T084c"
-  - "T084d"
-title: "gRPC Server & MCP Integration (Multi-Repo)"
-phase: "Phase 4 - Integration"
-lane: "planned"
-dependencies: ["WP00", "WP13"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T079
+- T080
+- T080b
+- T081
+- T082
+- T083
+- T084
+- T084b
+- T084c
+- T084d
+phase: Phase 4 - Integration
+assignee: ''
+agent: ''
+shell_pid: "60270"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # WP14: gRPC Server & MCP Integration (Multi-Repo)
