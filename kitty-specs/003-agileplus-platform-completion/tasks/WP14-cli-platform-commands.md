@@ -1,7 +1,7 @@
 ---
 work_package_id: WP14
 title: CLI Platform Commands
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 01aaf89e12d5a77cf4c76d0503a7d25b479c1df4
@@ -255,3 +255,4 @@ Manual URL: http://localhost:9000/dashboard
 ## Activity Log
 
 - 2026-03-02T12:16:19Z – claude-opus – shell_pid=35810 – lane=doing – Assigned agent via workflow command
+- 2026-03-02T12:25:03Z – claude-opus – shell_pid=35810 – lane=for_review – Ready for review: platform up/down/status/logs, events query, dashboard CLI commands (57 tests)
