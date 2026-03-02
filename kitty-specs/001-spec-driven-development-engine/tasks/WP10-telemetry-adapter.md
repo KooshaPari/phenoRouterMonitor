@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP10"
+work_package_id: WP10
+title: Telemetry Adapter
+lane: "doing"
+dependencies: [WP05]
+base_branch: 001-spec-driven-development-engine-WP05
+base_commit: 5caddd188f117c68c177b4198250fa4251c931de
+created_at: '2026-03-02T01:09:10.228118+00:00'
 subtasks:
-  - "T055"
-  - "T056"
-  - "T057"
-  - "T058"
-  - "T059"
-title: "Telemetry Adapter"
-phase: "Phase 2 - Adapters"
-lane: "planned"
-dependencies: ["WP05"]
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T055
+- T056
+- T057
+- T058
+- T059
+phase: Phase 2 - Adapters
+assignee: ''
+agent: ''
+shell_pid: "98662"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-27T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-27T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP10 -- Telemetry Adapter
