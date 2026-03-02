@@ -1,9 +1,12 @@
 ---
 work_package_id: WP08
 title: Agent Dispatch Service
-lane: planned
+lane: "doing"
 dependencies:
 - WP00
+base_branch: 001-spec-driven-development-engine-WP00
+base_commit: c06503001f082fb29e451eefa974f9dc400212d4
+created_at: '2026-03-02T01:09:05.456608+00:00'
 subtasks:
 - T044
 - T044b
@@ -16,7 +19,7 @@ subtasks:
 phase: Phase 2 - Adapters
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "98160"
 review_status: ''
 reviewed_by: ''
 history:
