@@ -95,7 +95,7 @@
 ### Included Subtasks
 - [x] T007 Initialize `agileplus-mcp` repo, create `pyproject.toml` with FastMCP 3.0, grpcio, opentelemetry-sdk deps
 - [x] T008 Create `src/agileplus_mcp/__init__.py` and `server.py` (FastMCP entry)
-- [ ] T009 [P] Create `src/agileplus_mcp/grpc_client.py` (stub gRPC connection to Rust core)
+- [x] T009 [P] Create `src/agileplus_mcp/grpc_client.py` (stub gRPC connection to Rust core)
 - [ ] T010 [P] Create `src/agileplus_mcp/tools/`, `resources/`, `prompts/`, `sampling/` directory stubs
 - [ ] T011 Add `proto/` git submodule pointing to `agileplus-proto` and create `tests/` directory structure
 - [ ] T011b Add sphinx/autodoc CI generation for Python API reference
