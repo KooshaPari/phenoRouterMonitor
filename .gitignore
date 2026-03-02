@@ -25,3 +25,10 @@ python/src/gen/
 *.iml
 # Excluded via sparse-checkout
 kitty-specs/
+
+# Local environment files
+.env
+.env.local
+
+# Local development data
+.agileplus/
