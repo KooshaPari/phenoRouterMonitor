@@ -490,7 +490,7 @@
 
 ### Included Subtasks
 - [x] T079 Implement tonic gRPC server in `agileplus-core/crates/agileplus-grpc/src/server.rs` implementing `AgilePlusCoreService` from `core.proto`
-- [ ] T080 Wire gRPC handlers to domain services (feature queries, governance checks, audit trail, command dispatch)
+- [x] T080 Wire gRPC handlers to domain services (feature queries, governance checks, audit trail, command dispatch)
 - [ ] T080b Implement gRPC proxy/routing: core server forwards agent/integration requests to agileplus-agents and agileplus-integrations services (or stubs them when those services are unavailable)
 - [ ] T081 Implement Python gRPC client in `agileplus-mcp/src/agileplus_mcp/grpc_client.py` using generated stubs from `agileplus-proto`
 - [ ] T082 Implement MCP tool handlers in `agileplus-mcp/src/agileplus_mcp/tools/` — each tool calls gRPC client
