@@ -90,7 +90,7 @@ WP01 → WP02 → WP03
 - [x] T017: Add sync_mappings table DDL
 - [x] T018: Add api_keys table DDL
 - [x] T019: Add device_nodes table DDL
-- [ ] T020: Implement SqliteEventStore (EventStore trait) with sqlx async queries
+- [x] T020: Implement SqliteEventStore (EventStore trait) with sqlx async queries
 - [ ] T021: Enable WAL mode and configure pragmas (synchronous=NORMAL, wal_autocheckpoint)
 
 ---
