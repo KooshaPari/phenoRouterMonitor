@@ -57,6 +57,9 @@ impl MockStorage {
             state: FeatureState::Implementing,
             spec_hash: [0u8; 32],
             target_branch: "main".to_string(),
+            plane_issue_id: None,
+            plane_state_id: None,
+            labels: vec![],
             created_at: now,
             updated_at: now,
         });
@@ -72,6 +75,7 @@ impl MockStorage {
             pr_url: Some("https://github.com/org/repo/pull/1".to_string()),
             pr_state: None,
             worktree_path: None,
+            plane_sub_issue_id: None,
             created_at: now,
             updated_at: now,
         });
@@ -87,6 +91,8 @@ impl MockStorage {
             evidence_refs: vec![],
             prev_hash: [0u8; 32],
             hash: [0u8; 32], // will be fixed below
+            event_id: None,
+            archived_to: None,
         };
         let genesis_hash = hash_entry(&genesis);
         let genesis = AuditEntry { hash: genesis_hash, ..genesis };
@@ -100,6 +106,8 @@ impl MockStorage {
             evidence_refs: vec![],
             prev_hash: genesis_hash,
             hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
         };
         let second_hash = hash_entry(&second);
         let second = AuditEntry { hash: second_hash, ..second };
@@ -328,7 +336,15 @@ async fn health_no_auth_required() {
     let resp = server.get("/health").await;
     resp.assert_status_ok();
     let body: serde_json::Value = resp.json();
-    assert_eq!(body["status"], "ok");
+    // Health endpoint returns "healthy" or "degraded" (not "ok") as of WP11-T070.
+    let status = body["status"].as_str().expect("status field present");
+    assert!(
+        status == "healthy" || status == "degraded",
+        "unexpected health status: {status}"
+    );
+    // Timestamp and services must be present.
+    assert!(body["timestamp"].is_string());
+    assert!(body["services"].is_object());
 }
 
 #[tokio::test]

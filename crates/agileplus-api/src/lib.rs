@@ -1,7 +1,8 @@
 //! AgilePlus HTTP API — axum router, middleware, and route handlers.
 //!
-//! Traceability: WP15-T085, T086, T087, T090
+//! Traceability: WP11-T064..T070
 
+pub mod api_key;
 pub mod error;
 pub mod middleware;
 pub mod responses;
