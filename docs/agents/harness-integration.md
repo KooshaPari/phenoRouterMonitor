@@ -512,3 +512,203 @@ Before releasing a harness:
 5. **Error handling:** All error paths tested
 6. **Security:** No secrets logged or stored
 7. **Versioning:** Semver in Cargo.toml
+
+## Registering a New CLI Subcommand for Agents
+
+Agents interact with AgilePlus through subcommands. When adding a new agent capability, you may need to register a new subcommand in `crates/agileplus-subcmds/`:
+
+### 1. Define the subcommand
+
+```rust
+// crates/agileplus-subcmds/src/commands/my_command.rs
+
+use crate::audit::SubcmdAudit;
+use agileplus_domain::domain::audit::AuditEntry;
+
+pub struct MyCommandInput {
+    pub feature_slug: String,
+    pub wp_id: String,
+    pub custom_param: String,
+}
+
+pub struct MyCommandOutput {
+    pub result: String,
+    pub artifact_path: Option<String>,
+}
+
+pub async fn execute(
+    input: MyCommandInput,
+    audit: &SubcmdAudit,
+) -> Result<MyCommandOutput, crate::Error> {
+    // Log the command start
+    audit.log_command("my_command", &input.wp_id, &[
+        ("custom_param", &input.custom_param)
+    ]).await?;
+
+    // Execute the command logic
+    let result = perform_my_operation(&input).await?;
+
+    // Log completion
+    audit.log_success("my_command", &input.wp_id).await?;
+
+    Ok(MyCommandOutput {
+        result,
+        artifact_path: None,
+    })
+}
+```
+
+### 2. Register in the subcommand registry
+
+```rust
+// crates/agileplus-subcmds/src/registry.rs
+
+use crate::commands::my_command;
+
+pub fn register_all(registry: &mut SubcmdRegistry) {
+    // Existing registrations
+    registry.register("branch:create", commands::branch::create);
+    registry.register("commit:create", commands::commit::create);
+
+    // Your new command
+    registry.register("my_command", my_command::execute);
+}
+```
+
+### 3. Add to audit logging
+
+The subcommand audit logger (`SubcmdAudit`) automatically appends JSONL entries for every command. The format is:
+
+```jsonl
+{"ts":"2026-03-01T10:15:34Z","actor":"agent:claude-code","job":"3a6b8c9d","command":"my_command","wp_id":"WP01","args":{"custom_param":"value"},"pre_state":{"git_status":"clean"},"exit_code":0,"duration_ms":45}
+```
+
+### 4. Expose via CLI
+
+```rust
+// crates/agileplus-cli/src/commands/agent.rs
+
+#[derive(Subcommand)]
+enum AgentCommands {
+    // ... existing subcommands ...
+    MyCommand {
+        #[arg(long)]
+        feature: String,
+        #[arg(long)]
+        wp: String,
+        #[arg(long)]
+        custom_param: String,
+    },
+}
+
+async fn handle_agent_command(cmd: AgentCommands, ctx: &Context) -> Result<()> {
+    match cmd {
+        AgentCommands::MyCommand { feature, wp, custom_param } => {
+            let output = subcmds::commands::my_command::execute(
+                MyCommandInput { feature_slug: feature, wp_id: wp, custom_param },
+                &ctx.audit,
+            ).await?;
+            println!("{}", serde_json::to_string_pretty(&output)?);
+        }
+        // ... other arms ...
+    }
+    Ok(())
+}
+```
+
+## Harness Configuration Schema
+
+The full configuration schema for a harness in `.kittify/config.toml`:
+
+```toml
+[agents.<harness-name>]
+# Required
+harness = "<harness-name>"       # Must match registered name
+binary_path = "/path/to/binary"  # or "binary-name" for PATH lookup
+
+# Timeouts
+timeout_secs = 1800              # 30 minutes default
+max_review_cycles = 5            # Max fix-review loops
+
+# Parallelism
+num_agents = 1                   # Concurrent agent instances per WP
+
+# Retry
+retry_on_transient = true        # Retry on network/process errors
+max_retries = 3
+
+# Environment injection
+[agents.<harness-name>.env]
+CUSTOM_VAR = "value"
+SECRET_VAR = "${ENV_VAR}"        # Template from environment
+```
+
+## Testing Strategy for Harnesses
+
+### Layer 1: Unit tests (no subprocess)
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn harness_config_validates() {
+        let config = CursorHarnessConfig {
+            binary_path: "/usr/bin/cursor".into(),
+            timeout_secs: 1800,
+        };
+        assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn pr_url_extracts_from_stdout() {
+        let stdout = "... created PR: https://github.com/org/repo/pull/42 ...";
+        let url = extract_pr_url_from_stdout(stdout);
+        assert_eq!(url, Some("https://github.com/org/repo/pull/42".into()));
+    }
+}
+```
+
+### Layer 2: Mock subprocess tests
+
+```rust
+#[tokio::test]
+async fn harness_handles_process_timeout() {
+    let harness = TestHarness::with_mock_binary(
+        "sleep 9999",  // hangs forever
+        Duration::from_secs(1),  // 1 second timeout for test
+    );
+
+    let result = harness.dispatch(mock_task(), AgentConfig::default()).await;
+    assert!(matches!(result, Err(DomainError::Timeout(_))));
+}
+```
+
+### Layer 3: Integration test with a real script
+
+```bash
+# Create a test script that simulates an agent
+cat > /tmp/test-agent.sh <<'EOF'
+#!/bin/bash
+echo "Agent started. Job: $AGILEPLUS_JOB_ID"
+echo '{"job_id":"test","wp_id":"WP01","success":true,"status":"completed","summary":"Test agent","commits":[]}'
+exit 0
+EOF
+chmod +x /tmp/test-agent.sh
+
+# Test via CLI
+agileplus agent test custom \
+  --binary /tmp/test-agent.sh \
+  --feature user-auth \
+  --wp WP01
+```
+
+## Next Steps
+
+- [Prompt Format](prompt-format.md) — What agents receive
+- [Governance Constraints](governance-constraints.md) — What agents can do
+- [Agent Dispatch](../concepts/agent-dispatch.md) — Architecture overview
+- [Extending](../developers/extending.md) — Adding new adapters
+- [Testing](../developers/testing.md) — Test patterns for harnesses
+- [Environment Variables](../reference/env-vars.md) — Agent configuration

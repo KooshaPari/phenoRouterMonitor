@@ -379,9 +379,232 @@ serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 ```
 
+## Full Infrastructure Stack
+
+When running in full platform mode (`agileplus platform up`), additional infrastructure crates and external services join the architecture:
+
+```mermaid
+graph TB
+    subgraph CLI ["CLI Layer"]
+        CLICrate["agileplus-cli<br/>(clap subcommands)"]
+    end
+
+    subgraph API ["API Layer"]
+        APICrate["agileplus-api<br/>(htmx dashboard, SSE)"]
+        GRPCCrate["agileplus-grpc<br/>(protobuf, tonic)"]
+    end
+
+    subgraph ENGINE ["Engine Layer"]
+        EngineCrate["agileplus-engine<br/>(orchestration)"]
+        SyncCrate["agileplus-plane<br/>(Plane.so sync)"]
+        TelemetryCrate["agileplus-telemetry<br/>(OTEL traces/metrics)"]
+    end
+
+    subgraph DOMAIN ["Domain Layer (no external deps)"]
+        DomainCrate["agileplus-domain<br/>(Feature, WP, Audit, FSM, ports)"]
+    end
+
+    subgraph ADAPTERS ["Storage + VCS Adapters"]
+        SQLiteCrate["agileplus-sqlite<br/>(sqlx, migrations)"]
+        GitCrate["agileplus-git<br/>(git2-rs, worktrees)"]
+        SubCmdsCrate["agileplus-subcmds<br/>(agent subcommand registry)"]
+    end
+
+    subgraph INFRA ["External Infrastructure"]
+        NATS["NATS JetStream<br/>(event bus)"]
+        Dragon["Dragonfly<br/>(Redis-compatible cache)"]
+        Neo4j["Neo4j<br/>(dependency graph)"]
+        MinIO["MinIO<br/>(artifact storage, S3)"]
+        Tailscale["Tailscale<br/>(P2P mesh VPN)"]
+    end
+
+    CLICrate --> DomainCrate
+    CLICrate --> EngineCrate
+    APICrate --> DomainCrate
+    APICrate --> EngineCrate
+    GRPCCrate --> DomainCrate
+
+    EngineCrate --> DomainCrate
+    EngineCrate --> SQLiteCrate
+    EngineCrate --> GitCrate
+    EngineCrate --> SubCmdsCrate
+    EngineCrate --> SyncCrate
+    EngineCrate --> TelemetryCrate
+
+    SQLiteCrate -->|implements StoragePort| DomainCrate
+    GitCrate -->|implements VcsPort| DomainCrate
+    SubCmdsCrate --> DomainCrate
+
+    EngineCrate -->|publishes events| NATS
+    EngineCrate -->|reads/writes job state| Dragon
+    EngineCrate -->|dep graph queries| Neo4j
+    EngineCrate -->|artifact upload/download| MinIO
+    EngineCrate -->|peer discovery| Tailscale
+
+    style DomainCrate fill:#4a9b7f,color:#fff
+    style CLICrate fill:#2c3e50,color:#fff
+    style APICrate fill:#2c3e50,color:#fff
+    style GRPCCrate fill:#2c3e50,color:#fff
+    style EngineCrate fill:#34495e,color:#fff
+    style INFRA fill:#fef9e7
+```
+
+## Process-Compose Orchestration
+
+The full platform stack is orchestrated by `process-compose`. The `process-compose.yaml` file defines startup order and dependencies:
+
+```yaml
+# process-compose.yaml (simplified)
+processes:
+  nats:
+    command: nats-server --jetstream
+    readiness_probe:
+      http_get:
+        path: /healthz
+        port: 8222
+
+  dragonfly:
+    command: dragonfly --port 6379
+    depends_on:
+      nats:
+        condition: process_healthy
+
+  neo4j:
+    command: neo4j console
+    depends_on:
+      dragonfly:
+        condition: process_healthy
+
+  minio:
+    command: minio server /data --console-address :9001
+
+  agileplus-api:
+    command: agileplus serve --port 8080
+    depends_on:
+      nats:
+        condition: process_healthy
+      dragonfly:
+        condition: process_healthy
+      neo4j:
+        condition: process_healthy
+```
+
+Start the full stack:
+
+```bash
+agileplus platform up
+# Starts: NATS, Dragonfly, Neo4j, MinIO, API server
+# Output:
+#  ✓ NATS JetStream running on :4222
+#  ✓ Dragonfly (Redis) running on :6379
+#  ✓ Neo4j running on :7687
+#  ✓ MinIO running on :9000 (console :9001)
+#  ✓ AgilePlus API running on :8080
+#  Dashboard: http://localhost:8080
+
+agileplus platform status
+# Shows health of all services
+
+agileplus platform logs --service nats
+# Stream logs from a specific service
+
+agileplus platform down
+# Graceful shutdown of all services
+```
+
+## Neo4j Dependency Graph
+
+The dependency graph between WPs is stored in Neo4j for fast traversal and cycle detection:
+
+```cypher
+// Node: WorkPackage
+CREATE (wp:WorkPackage {
+  id: 42,
+  feature_slug: "user-authentication",
+  wp_id: "WP02",
+  state: "planned"
+})
+
+// Edge: DEPENDS_ON
+MATCH (wp2:WorkPackage {wp_id: "WP02"})
+MATCH (wp1:WorkPackage {wp_id: "WP01"})
+CREATE (wp2)-[:DEPENDS_ON {dep_type: "explicit"}]->(wp1)
+
+// Query: find all WPs that WP04 transitively depends on
+MATCH path = (wp4:WorkPackage {wp_id: "WP04"})-[:DEPENDS_ON*]->(dep)
+RETURN dep.wp_id, length(path) as depth
+ORDER BY depth
+
+// Query: detect cycles
+MATCH path = (wp)-[:DEPENDS_ON*]->(wp)
+RETURN wp.wp_id
+```
+
+This enables efficient queries for:
+- "What WPs are ready to start?" (no unfinished dependencies)
+- "What is the critical path?" (longest dependency chain)
+- "Would adding this dependency create a cycle?"
+
+## MinIO Artifact Storage
+
+Artifacts (specs, plans, test reports, agent outputs) are stored in MinIO (S3-compatible):
+
+```
+Bucket: agileplus-artifacts
+  ├── features/
+  │   └── user-authentication/
+  │       ├── spec.md
+  │       ├── research.md
+  │       ├── plan.md
+  │       └── WP01/
+  │           ├── prompt.md
+  │           ├── test-report.json
+  │           └── coverage.html
+  └── audit/
+      └── user-authentication/
+          └── chain.jsonl
+```
+
+Artifacts are also accessible via `VcsPort::read_artifact()` which abstracts over local git storage (development) or MinIO (production):
+
+```bash
+# Upload an artifact
+agileplus artifact write --feature user-authentication \
+  --path WP01/test-report.json \
+  --file ./target/test-report.json
+
+# Download an artifact
+agileplus artifact read --feature user-authentication \
+  --path spec.md
+```
+
+## htmx Dashboard
+
+The `agileplus-api` crate serves a real-time dashboard using htmx (server-driven UI), Askama templates, and Alpine.js for drag-and-drop:
+
+```
+Dashboard routes:
+  GET  /                    → Feature list (Kanban board)
+  GET  /features/{slug}     → Feature detail page
+  GET  /features/{slug}/wps → WP board with drag-and-drop
+  GET  /events              → SSE stream (real-time updates)
+  POST /features/{slug}/transition → Trigger state transition
+  POST /wps/{id}/transition → Trigger WP state change
+```
+
+The SSE stream pushes updates to all connected clients whenever a feature or WP changes state, a new audit entry is recorded, or an agent completes work:
+
+```
+data: {"type": "wp.state.changed", "wp_id": "WP02", "from": "doing", "to": "review"}
+data: {"type": "audit.entry.added", "feature_slug": "user-authentication", "actor": "agent:claude-code"}
+data: {"type": "agent.completed", "job_id": "3a6b8c9d", "success": true}
+```
+
 ## Related Pages
 
 - [Domain Model](domain-model.md) — Entity relationships and ER diagrams
 - [Port Traits](ports.md) — Detailed port interface documentation
-- [Dependency Resolution](../guides/dependencies.md) — WP dependency management
-- [Crate Development](../guides/crate-development.md) — Adding new crates
+- [Quick Start](../guide/quick-start.md) — Get the platform running
+- [Environment Variables](../reference/env-vars.md) — Full configuration reference
+- [Contributing](../developers/contributing.md) — Development setup
+- [Extending](../developers/extending.md) — Adding adapters and crates

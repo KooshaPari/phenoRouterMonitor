@@ -427,9 +427,257 @@ pub enum MetricType {
 }
 ```
 
+## Complete Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    Feature {
+        i64 id PK
+        string slug UK
+        string friendly_name
+        FeatureState state
+        bytes spec_hash
+        string target_branch
+        datetime created_at
+        datetime updated_at
+    }
+
+    WorkPackage {
+        i64 id PK
+        i64 feature_id FK
+        string title
+        WpState state
+        i32 sequence
+        jsonb file_scope
+        string acceptance_criteria
+        string agent_id
+        string pr_url
+        PrState pr_state
+        string worktree_path
+        datetime created_at
+        datetime updated_at
+    }
+
+    WpDependency {
+        i64 wp_id FK
+        i64 depends_on FK
+        DependencyType dep_type
+    }
+
+    AuditEntry {
+        i64 id PK
+        i64 feature_id FK
+        i64 wp_id FK
+        datetime timestamp
+        string actor
+        string transition
+        bytes prev_hash
+        bytes hash
+    }
+
+    EvidenceRef {
+        i64 id PK
+        i64 audit_entry_id FK
+        i64 evidence_id FK
+        string fr_id
+    }
+
+    Evidence {
+        i64 id PK
+        i64 wp_id FK
+        string fr_id
+        EvidenceType evidence_type
+        string artifact_path
+        jsonb metadata
+        datetime created_at
+    }
+
+    GovernanceContract {
+        i64 id PK
+        i64 feature_id FK
+        i32 version
+        jsonb rules
+        datetime bound_at
+    }
+
+    GovernanceRule {
+        string transition
+        jsonb required_evidence
+        jsonb policy_refs
+    }
+
+    PolicyRule {
+        i64 id PK
+        PolicyDomain domain
+        jsonb rule
+        bool active
+        datetime created_at
+        datetime updated_at
+    }
+
+    SyncMapping {
+        i64 id PK
+        i64 feature_id FK
+        string platform
+        string external_id
+        string external_url
+        datetime last_synced_at
+    }
+
+    DeviceNode {
+        i64 id PK
+        string device_id
+        string hostname
+        string tailscale_ip
+        datetime last_seen_at
+        bool is_active
+    }
+
+    Metric {
+        i64 id PK
+        i64 feature_id FK
+        MetricType metric_type
+        f64 value
+        string label
+        datetime recorded_at
+    }
+
+    Feature ||--o{ WorkPackage : "has"
+    Feature ||--o{ AuditEntry : "produces"
+    Feature ||--o{ GovernanceContract : "bound to"
+    Feature ||--o{ SyncMapping : "synced via"
+    Feature ||--o{ Metric : "measures"
+
+    WorkPackage ||--o{ WpDependency : "has dependencies"
+    WorkPackage ||--o{ AuditEntry : "transitions generate"
+    WorkPackage ||--o{ Evidence : "collects"
+
+    AuditEntry ||--o{ EvidenceRef : "references"
+    EvidenceRef }o--|| Evidence : "points to"
+
+    GovernanceContract ||--o{ GovernanceRule : "contains"
+```
+
+## SyncMapping
+
+The `SyncMapping` entity tracks the relationship between an AgilePlus feature/WP and its corresponding issue in an external tracker (Plane.so, GitHub Issues, Jira):
+
+```rust
+pub struct SyncMapping {
+    pub id: i64,
+    pub feature_id: i64,
+    pub wp_id: Option<i64>,           // None = feature-level mapping
+    pub platform: String,             // "plane", "github", "jira"
+    pub external_id: String,          // "AGILE-123" or "42"
+    pub external_url: String,         // "https://app.plane.so/..."
+    pub external_state: String,       // Current state in external system
+    pub last_synced_at: DateTime<Utc>,
+    pub sync_direction: SyncDirection,
+}
+
+pub enum SyncDirection {
+    Bidirectional,  // Both systems update each other
+    PushOnly,       // Only AgilePlus → tracker
+    PullOnly,       // Only tracker → AgilePlus
+}
+```
+
+The sync orchestrator uses `SyncMapping` to:
+- Look up the external issue when a WP state changes (to push updates)
+- Identify which local WP to update when a webhook arrives (to pull changes)
+- Detect conflicts (both systems changed since last sync)
+
+## DeviceNode
+
+In multi-device P2P setups (Tailscale mesh), each device that participates in AgilePlus coordination is registered as a `DeviceNode`:
+
+```rust
+pub struct DeviceNode {
+    pub id: i64,
+    pub device_id: String,          // Tailscale machine ID
+    pub hostname: String,           // "macbook-pro" or "build-server"
+    pub tailscale_ip: String,       // "100.x.x.x" Tailscale IP
+    pub nats_endpoint: String,      // "nats://100.x.x.x:4222"
+    pub capabilities: Vec<String>,  // ["agent:claude-code", "builder"]
+    pub vector_clock: VectorClock,  // Causal ordering
+    pub last_seen_at: DateTime<Utc>,
+    pub is_active: bool,
+}
+
+pub struct VectorClock {
+    pub clocks: HashMap<String, u64>, // device_id → logical_time
+}
+```
+
+When a feature transitions on Device A, the vector clock is incremented and included in the NATS message. Device B merges it into its local clock and applies the update. This ensures causal consistency across the mesh.
+
+## Domain Error Taxonomy
+
+All domain operations return `Result<T, DomainError>`. The full error enum:
+
+```rust
+pub enum DomainError {
+    // State machine violations
+    InvalidTransition {
+        from: String,
+        to: String,
+        reason: String,
+    },
+
+    // Entity not found
+    NotFound {
+        entity: String,   // "Feature", "WorkPackage"
+        id: String,       // slug or numeric id
+    },
+
+    // Governance violations
+    GovernanceViolation {
+        requirement: String,   // "TestResult for FR-004"
+        evidence_missing: bool,
+        policy_id: Option<i64>,
+    },
+
+    // Audit chain integrity failure
+    AuditChainTampered {
+        entry_id: i64,
+        expected_hash: [u8; 32],
+        actual_hash: [u8; 32],
+    },
+
+    // Dependency graph issues
+    CyclicDependency {
+        wp_ids: Vec<i64>,   // The cycle: [WP02, WP03, WP02]
+    },
+
+    // File scope violations (agents)
+    ScopeViolation {
+        wp_id: String,
+        unauthorized_file: String,
+        authorized_files: Vec<String>,
+    },
+
+    // Storage failures (wrapped)
+    StorageError(String),
+
+    // VCS failures (wrapped)
+    VcsError(String),
+
+    // Process/agent failures
+    ProcessError(String),
+    Timeout(u64),   // Seconds
+
+    // Serialization
+    SerdeError(String),
+}
+```
+
+This rich error taxonomy allows callers to pattern-match on exactly what went wrong and present appropriate user-facing messages or recovery paths.
+
 ## Related Pages
 
 - [Architecture Overview](overview.md) — Port traits and crate structure
 - [Port Traits](ports.md) — StoragePort, VcsPort, AgentPort definitions
 - [Spec-Driven Development](../concepts/spec-driven-dev.md) — Philosophy and feature lifecycle
 - [Governance & Audit](../concepts/governance.md) — State transitions and audit verification
+- [Storage Port](../sdk/storage-port.md) — Full StoragePort API reference
+- [VCS Port](../sdk/vcs-port.md) — Full VcsPort API reference

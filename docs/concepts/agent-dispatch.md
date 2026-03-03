@@ -352,9 +352,121 @@ Each agent type has a **harness** — an adapter that translates AgilePlus proto
 6. Return AgentResult
 ```
 
-## Related Pages
+## Event Bus Integration (NATS JetStream)
+
+When running with the full platform stack (`agileplus platform up`), agent dispatch events flow through NATS JetStream for durable, at-least-once delivery:
+
+```mermaid
+sequenceDiagram
+    participant CLI as CLI
+    participant Engine as Engine
+    participant NATS as NATS JetStream
+    participant Dispatcher as Dispatcher
+    participant Agent as Agent Process
+    participant Storage as SQLite
+
+    CLI->>Engine: implement WP02
+    Engine->>Storage: load feature + WP
+    Engine->>NATS: publish agent.dispatch.WP02
+    NATS-->>Dispatcher: consume agent.dispatch.WP02
+    Dispatcher->>Agent: spawn subprocess
+    Agent->>Agent: implement code, commit
+    Agent->>Dispatcher: exit 0 + stdout
+    Dispatcher->>NATS: publish agent.completed.WP02
+    NATS-->>Engine: consume agent.completed.WP02
+    Engine->>Storage: record audit entry + evidence
+    Engine->>NATS: publish feature.state.updated
+    NATS-->>CLI: SSE push to dashboard
+```
+
+This decoupling means:
+- The CLI can return immediately while the agent runs in the background
+- If the process crashes, NATS re-delivers the message (durable subscriber)
+- Multiple agents can run concurrently on different WPs
+- The htmx dashboard receives live updates via SSE without polling
+
+## Dragonfly Cache (Redis-Compatible) Layer
+
+The dispatcher uses Dragonfly (Redis-compatible) for job state tracking. When an async dispatch is created, a job entry is written to Dragonfly:
+
+```
+KEY: agileplus:job:{job_id}
+VALUE: {
+  "state": "running",
+  "feature_slug": "user-authentication",
+  "wp_id": "WP01",
+  "pid": 12345,
+  "started_at": "2026-03-01T10:00:00Z",
+  "timeout_at": "2026-03-01T10:30:00Z"
+}
+TTL: 7200 (2 hours after completion)
+```
+
+Job state transitions:
+- `pending` → job created, not yet picked up
+- `running` → agent subprocess is active
+- `waiting_for_review` → agent finished, PR created
+- `completed` → all governance checks passed
+- `failed` → agent exited with non-zero, or governance check failed
+
+```bash
+# Poll job status via CLI
+agileplus events query --job-id 3a6b8c9d-1e2f-4a5b-8c9d
+# Output: state=running, elapsed=4m23s, commits=2
+
+# Or use the dashboard (SSE-driven, real-time)
+agileplus platform status
+```
+
+## P2P Sync via Tailscale
+
+In multi-device setups (e.g., laptop + build server), agent dispatch uses Tailscale for peer discovery and NATS replication. The engine on Device A can dispatch an agent running on Device B:
+
+```mermaid
+graph LR
+    A["Device A (laptop)"] -->|Tailscale VPN| B["Device B (build server)"]
+    A -->|NATS JetStream| B
+    B -->|agent subprocess| C["claude --print ..."]
+    B -->|commits| D["git remote"]
+    A -->|SSE dashboard| E["browser"]
+```
+
+Vector clocks ensure causal ordering when events arrive from multiple devices:
+
+```rust
+pub struct VectorClock {
+    pub clocks: HashMap<String, u64>, // device_id → logical_time
+}
+```
+
+This means AgilePlus can coordinate agent work across machines without requiring shared filesystem access.
+
+## CLI Sub-Command Tracing
+
+Every agent sub-command invocation is traced with OpenTelemetry. The complete audit of what an agent did during a session is reconstructable from the OTEL trace:
+
+```
+Trace: agent_session (job_id=3a6b8c9d)
+  Span: dispatch (4m 23s)
+    Span: setup_worktree (1.2s)
+    Span: generate_prompt (0.3s)
+    Span: spawn_process (0.1s)
+    Span: wait_for_completion (4m 21s)
+      Event: commit (WP01: Implement User model)
+      Event: commit (WP01: Add tests)
+      Event: governance_check (passing)
+    Span: collect_results (0.2s)
+    Span: record_audit_entry (0.05s)
+```
+
+This trace is stored in the OTEL backend (Jaeger by default) and is cross-referenced with the audit chain hash.
+
+## Next Steps
 
 - [Spec-Driven Development](spec-driven-dev.md) — Prompt generation from specs
 - [Governance & Audit](governance.md) — Validation and audit trail
 - [Feature Lifecycle](feature-lifecycle.md) — Agent work within the broader pipeline
 - [Ports & Adapters](../architecture/ports.md) — Technical interface definition
+- [Harness Integration](harness-integration.md) — Adding new agent adapters
+- [Prompt Format](prompt-format.md) — Exact prompt structure agents receive
+- [Environment Variables](../reference/env-vars.md) — NATS, Dragonfly, agent configuration

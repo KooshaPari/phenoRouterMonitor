@@ -54,6 +54,7 @@ export default withMermaid(
             collapsed: true,
             items: [
               { text: 'Prompt Format', link: '/agents/prompt-format' },
+              { text: 'Sub-command Reference', link: '/agents/subcommand-reference' },
               { text: 'Governance Constraints', link: '/agents/governance-constraints' },
               { text: 'Harness Integration', link: '/agents/harness-integration' },
             ]
@@ -71,10 +72,45 @@ export default withMermaid(
             text: 'SDK / API',
             collapsed: true,
             items: [
-              { text: 'gRPC API', link: '/sdk/grpc-api' },
+              { text: 'gRPC API Reference', link: '/sdk/grpc-api' },
               { text: 'MCP Tools', link: '/sdk/mcp-tools' },
-              { text: 'Storage Port', link: '/sdk/storage-port' },
-              { text: 'VCS Port', link: '/sdk/vcs-port' },
+              { text: 'Storage Port API', link: '/sdk/storage-port' },
+              { text: 'VCS Port API', link: '/sdk/vcs-port' },
+            ]
+          },
+          {
+            text: 'Guide',
+            items: [
+              { text: 'Project Setup', link: '/guide/init' },
+              { text: 'Core Workflow', link: '/guide/workflow' },
+              { text: 'Triage & Queue', link: '/guide/triage' },
+              { text: 'Configuration', link: '/guide/configuration' },
+              { text: 'Sync', link: '/guide/sync' },
+            ]
+          },
+          {
+            text: 'Architecture',
+            items: [
+              { text: 'Overview', link: '/architecture/overview' },
+              { text: 'Domain Model', link: '/architecture/domain-model' },
+              { text: 'Port Traits', link: '/architecture/ports' },
+            ]
+          },
+          {
+            text: 'Roadmap & Planning',
+            collapsed: true,
+            items: [
+              { text: 'Roadmap', link: '/roadmap/' },
+              { text: 'Release Notes', link: '/roadmap/release-notes' },
+            ]
+          },
+          {
+            text: 'Reference',
+            items: [
+              { text: 'CLI Commands', link: '/reference/cli' },
+              { text: 'Crate Map', link: '/reference/crates' },
+              { text: 'Sub-commands', link: '/reference/subcommands' },
+              { text: 'Environment Variables', link: '/reference/env-vars' },
             ]
           },
           {
@@ -101,41 +137,6 @@ export default withMermaid(
               { text: 'Analyze', link: '/process/analyze' },
               { text: 'Retrospectives', link: '/process/retrospective' },
               { text: 'Status & Dashboard', link: '/process/status-dashboard' },
-            ]
-          },
-          {
-            text: 'Guide',
-            items: [
-              { text: 'Project Setup', link: '/guide/init' },
-              { text: 'Core Workflow', link: '/guide/workflow' },
-              { text: 'Triage & Queue', link: '/guide/triage' },
-              { text: 'Configuration', link: '/guide/configuration' },
-              { text: 'Sync (Plane + GitHub)', link: '/guide/sync' },
-            ]
-          },
-          {
-            text: 'Architecture',
-            items: [
-              { text: 'Overview', link: '/architecture/overview' },
-              { text: 'Domain Model', link: '/architecture/domain-model' },
-              { text: 'Port Traits', link: '/architecture/ports' },
-            ]
-          },
-          {
-            text: 'Roadmap & Planning',
-            collapsed: true,
-            items: [
-              { text: 'Roadmap', link: '/roadmap/' },
-              { text: 'Release Notes', link: '/roadmap/release-notes' },
-            ]
-          },
-          {
-            text: 'Reference',
-            items: [
-              { text: 'CLI Commands', link: '/reference/cli' },
-              { text: 'Crate Map', link: '/reference/crates' },
-              { text: 'Sub-commands', link: '/reference/subcommands' },
-              { text: 'Environment Variables', link: '/reference/env-vars' },
             ]
           },
           {

@@ -397,3 +397,120 @@ npm run lint --strict 2>&1 | grep -E "error:" && exit 1
 ```
 
 All deliverables must exist and tests must pass for the harness to accept completion.
+
+## Rust Project Prompt Specifics
+
+For Rust codebase targets (the primary AgilePlus use case), the prompt includes additional sections:
+
+### Rust-Specific Context
+
+```markdown
+## Rust Context
+
+### Workspace Layout
+```
+crates/
+├── agileplus-domain/   ← Core entities, no external deps
+├── agileplus-cli/      ← Binary crate, uses engine
+├── agileplus-engine/   ← Orchestration, uses adapters
+├── agileplus-sqlite/   ← StoragePort impl
+└── agileplus-git/      ← VcsPort impl
+```
+
+### Dependency Constraints
+- `serde` v1, `tokio` v1, `sqlx` v0.7 — workspace-level, do NOT change versions
+- New dependencies require governance exception if not in `Cargo.toml` already
+- Use `workspace.dependencies` for shared crates
+
+### Compilation & Test Commands
+```bash
+cargo check                           # Type check only (fast)
+cargo build -p agileplus-domain       # Build a specific crate
+cargo test -p agileplus-domain        # Test a specific crate
+cargo test --all                      # Test entire workspace
+cargo clippy -- -D warnings           # Lint (warnings as errors)
+cargo fmt --check                     # Formatting check
+```
+
+### Code Style
+- No `unwrap()` in library code — use `?` or explicit `match`
+- `thiserror` for error types, `anyhow` only in binary crates
+- `async/await` for all I/O operations
+- `tracing::instrument` on public async functions
+- Test module `#[cfg(test)] mod tests { }` inline with code
+```
+
+### spec-kitty Integration
+
+AgilePlus is integrated with `spec-kitty` — a specification formatting assistant. When the spec document has been through spec-kitty, it will contain additional structured annotations:
+
+```markdown
+<!-- spec-kitty: validated -->
+<!-- spec-kitty: fr-count: 5 -->
+<!-- spec-kitty: fr-coverage: 100% -->
+
+# Feature: User Authentication
+
+## Functional Requirements
+
+<!-- sk:fr id="FR-AUTH-001" priority="high" -->
+- Users can register with email/password
+<!-- /sk:fr -->
+
+<!-- sk:fr id="FR-AUTH-002" priority="high" -->
+- Users can log in and receive a JWT token
+<!-- /sk:fr -->
+```
+
+Agents should treat `<!-- sk:fr id="FR-AUTH-001" -->` markers as authoritative requirement identifiers when referencing requirements in commit messages and acceptance criteria:
+
+```
+feat(WP01): implement User struct [FR-AUTH-001, FR-AUTH-002]
+```
+
+## Multi-Agent Coordination
+
+When `config.num_agents > 1`, multiple instances of the same agent run in parallel on different sub-tasks. Each agent is assigned a subset of deliverables:
+
+```json
+{
+  "job_id": "3a6b8c9d-...",
+  "wp_id": "WP01",
+  "agent_index": 0,
+  "agent_count": 2,
+  "assigned_deliverables": [
+    "src/auth/models.rs",
+    "src/auth/mod.rs"
+  ]
+}
+```
+
+Agent 0 (index=0) handles the first half of deliverables. Agent 1 (index=1) handles the second half. The harness merges their outputs before running validation.
+
+Coordination rules for multi-agent:
+- Each agent owns its assigned files exclusively
+- No agent may touch another agent's assigned files
+- Both agents commit to the same branch with atomic locking
+- If either agent fails, the entire WP is marked `Blocked`
+
+## Audit Trail for Agent Actions
+
+Every meaningful action an agent takes is appended to the JSONL audit trail. This trail is separate from the domain audit chain — it captures the fine-grained mechanics of agent execution:
+
+```jsonl
+{"ts":"2026-03-01T10:15:34Z","actor":"agent:claude-code","job":"3a6b8c9d","action":"read_spec","path":"spec.md","hash":"0x1a2b..."}
+{"ts":"2026-03-01T10:16:12Z","actor":"agent:claude-code","job":"3a6b8c9d","action":"write_file","path":"src/auth/models.rs","lines":87}
+{"ts":"2026-03-01T10:17:45Z","actor":"agent:claude-code","job":"3a6b8c9d","action":"run_tests","command":"cargo test","exit_code":0,"duration_ms":4230}
+{"ts":"2026-03-01T10:18:02Z","actor":"agent:claude-code","job":"3a6b8c9d","action":"commit","sha":"abc123","message":"WP01: Implement User and Session models"}
+{"ts":"2026-03-01T10:18:15Z","actor":"agent:claude-code","job":"3a6b8c9d","action":"exit","code":0,"duration_total_s":162}
+```
+
+This trail is stored in `agileplus-artifacts` MinIO bucket under `audit/{feature_slug}/{job_id}.jsonl`.
+
+## Next Steps
+
+- [Governance Constraints](governance-constraints.md) — What agents can and cannot do
+- [Harness Integration](harness-integration.md) — How to add a new agent adapter
+- [Agent Dispatch](../concepts/agent-dispatch.md) — Dispatch architecture
+- [MCP Tools](../sdk/mcp-tools.md) — Programmatic agent interaction
+- [Environment Variables](../reference/env-vars.md) — Agent timeout and retry configuration

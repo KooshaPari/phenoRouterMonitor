@@ -554,8 +554,152 @@ git commit -m "fix: merge conflicts"
 # Continue with review/accept/merge
 ```
 
+## Full Pipeline State Machine
+
+The following diagram shows all valid state paths through the pipeline, including optional stages and the parallel WP implementation track:
+
+```mermaid
+flowchart TD
+    START([Start]) --> SPECIFY[Specify]
+    SPECIFY -->|spec artifact| CLARIFY{Clarify needed?}
+    CLARIFY -->|yes| CLARIFY_DO[Run clarify]
+    CLARIFY_DO --> RESEARCH{Research needed?}
+    CLARIFY -->|no, skip| RESEARCH
+
+    RESEARCH -->|yes| RESEARCH_DO[Run research]
+    RESEARCH_DO --> PLAN[Plan]
+    RESEARCH -->|no, skip| PLAN
+
+    PLAN --> TASKS[Generate Tasks]
+    TASKS --> PARALLEL
+
+    subgraph PARALLEL [Parallel WP Implementation]
+        WP1[WP01 Doing] --> WP1R[WP01 Review]
+        WP1R --> WP1D[WP01 Done]
+
+        WP2[WP02 Doing] --> WP2R[WP02 Review]
+        WP2R --> WP2D[WP02 Done]
+
+        WP3[WP03 Doing] --> WP3R[WP03 Review]
+        WP3R --> WP3D[WP03 Done]
+    end
+
+    WP1D --> ALL_DONE{All WPs Done?}
+    WP2D --> ALL_DONE
+    WP3D --> ALL_DONE
+
+    ALL_DONE -->|yes| ACCEPT[Accept]
+    ACCEPT --> MERGE[Merge to main]
+    MERGE --> SHIPPED([Shipped])
+
+    WP1R -->|changes requested| WP1
+    WP2R -->|changes requested| WP2
+    WP3R -->|changes requested| WP3
+
+    style PARALLEL fill:#f0f8ff,stroke:#4a9b7f
+    style SHIPPED fill:#f1f8e9,stroke:#4caf50
+```
+
+## Dependency-Aware Scheduling
+
+The task dependency graph controls which WPs can run in parallel. AgilePlus uses Kahn's topological sort algorithm to compute execution layers:
+
+```
+Input dependency graph:
+  WP01 → (no deps)
+  WP02 → WP01
+  WP03 → WP01
+  WP04 → WP02, WP03
+  WP05 → WP04
+
+Execution layers (Kahn's algorithm):
+  Layer 0: [WP01]           ← no deps, run first
+  Layer 1: [WP02, WP03]     ← both depend only on WP01
+  Layer 2: [WP04]           ← depends on WP02 + WP03
+  Layer 3: [WP05]           ← depends on WP04
+
+Total wall-clock time with parallelism:
+  max(WP01) + max(WP02, WP03) + WP04 + WP05
+  = 4h + 6h + 4h + 3h = 17h
+  (vs 21h serial)
+```
+
+AgilePlus surfaces this analysis when you run `agileplus tasks 001`:
+
+```
+Dependency analysis complete:
+  Execution layers: 4
+  Critical path: WP01 → WP02 → WP04 → WP05 (17h)
+  Parallelization opportunity: WP02 and WP03 can run concurrently
+  Estimated total time: 17h (with 2 agents)
+```
+
+## Git Worktree Strategy
+
+Each WP gets an isolated git worktree — a separate working directory that shares the same git object store but has its own `HEAD` and working tree:
+
+```
+project/
+├── .git/                          ← main git object store
+├── src/                           ← main branch working tree
+└── .worktrees/
+    ├── 001-auth-WP01/             ← WP01 working tree
+    │   ├── src/
+    │   └── .git → project/.git   ← symlink to object store
+    ├── 001-auth-WP02/             ← WP02 working tree (independent)
+    │   ├── src/
+    │   └── .git → project/.git
+    └── 001-auth-WP03/             ← WP03 working tree
+        ├── src/
+        └── .git → project/.git
+```
+
+This means:
+- WP01 and WP02 agents can run simultaneously without conflicting
+- Branches are isolated (`feature/auth/WP01` vs `feature/auth/WP02`)
+- Merging is dependency-ordered (WP01 merges before WP02)
+- If a WP goes wrong, just delete its worktree — main is untouched
+
+## Sync with External Trackers
+
+Throughout the workflow, AgilePlus optionally syncs state changes to Plane.so or GitHub Issues:
+
+```
+AgilePlus State       Plane.so               GitHub
+─────────────────────────────────────────────────────
+specify               Create issue           Create issue
+                      status: Backlog        status: open, label: spec
+plan                  Update issue           Update issue
+                      milestone: Sprint 1    milestone: v0.1
+tasks                 Create sub-issues      Create linked issues
+                      for each WP            for each WP
+WP → doing            status: In Progress    label: in-progress
+WP → review           status: In Review      label: in-review, PR linked
+WP → done             status: Done           issue closed
+accept                milestone: complete    milestone closed
+merge                 issue closed           PR merged, issue auto-closed
+```
+
+Configure sync in `.kittify/config.toml`:
+
+```toml
+[sync.plane]
+enabled = true
+workspace = "my-org"
+project = "my-project"
+api_key = "${PLANE_API_KEY}"
+
+[sync.github]
+enabled = true
+repo = "org/repo"
+token = "${GITHUB_TOKEN}"
+```
+
+See [Sync Guide](sync.md) for full configuration details.
+
 ## What's Next
 
+- **[Quick Start](quick-start.md)** — 5-minute walkthrough from install to first feature
 - **[Specify](/workflow/specify)** — Discovery interview and spec generation
 - **[Clarify](/workflow/clarify)** — Resolve specification ambiguities
 - **[Research](/workflow/research)** — Codebase analysis and feasibility
@@ -565,3 +709,4 @@ git commit -m "fix: merge conflicts"
 - **[Review](/workflow/review)** — Code quality review
 - **[Accept](/workflow/accept)** — Feature acceptance
 - **[Merge](/workflow/merge)** — Integration to main
+- **[Sync](sync.md)** — External tracker synchronization

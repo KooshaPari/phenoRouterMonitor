@@ -432,3 +432,222 @@ async fn postgresql_storage_roundtrips() {
 5. **Documentation** — Document configuration requirements
 6. **Logging** — Use structured logging for debugging
 7. **Performance** — Add caching where appropriate (e.g., for read-heavy operations)
+
+## Adding a New CLI Subcommand
+
+New subcommands are defined using `clap` derive macros and registered in `crates/agileplus-cli/src/commands/`:
+
+### 1. Define the command struct
+
+```rust
+// crates/agileplus-cli/src/commands/analyze.rs
+
+use clap::Args;
+
+/// Analyze feature artifacts for consistency issues
+#[derive(Args, Debug)]
+pub struct AnalyzeArgs {
+    /// Feature slug to analyze
+    #[arg(value_name = "FEATURE")]
+    pub feature: String,
+
+    /// Check cross-artifact consistency (spec vs plan vs WPs)
+    #[arg(long, default_value = "true")]
+    pub cross_check: bool,
+
+    /// Output format (text or json)
+    #[arg(long, default_value = "text")]
+    pub output: String,
+}
+
+pub async fn execute(args: AnalyzeArgs, ctx: &Context) -> anyhow::Result<()> {
+    let feature = ctx.storage
+        .get_feature_by_slug(&args.feature)
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("Feature not found: {}", args.feature))?;
+
+    // Delegate to engine (thin handler)
+    let report = ctx.engine.analyze_feature(&feature, args.cross_check).await?;
+
+    match args.output.as_str() {
+        "json" => println!("{}", serde_json::to_string_pretty(&report)?),
+        _ => print_text_report(&report),
+    }
+
+    Ok(())
+}
+```
+
+### 2. Register in the main CLI
+
+```rust
+// crates/agileplus-cli/src/main.rs
+
+#[derive(Subcommand)]
+enum Commands {
+    Specify(commands::specify::SpecifyArgs),
+    Plan(commands::plan::PlanArgs),
+    // ... existing commands ...
+
+    /// Analyze feature artifacts for consistency
+    Analyze(commands::analyze::AnalyzeArgs),
+}
+
+async fn run(cli: Cli) -> anyhow::Result<()> {
+    let ctx = Context::new(&cli.global).await?;
+
+    match cli.command {
+        Commands::Specify(args) => commands::specify::execute(args, &ctx).await,
+        Commands::Plan(args) => commands::plan::execute(args, &ctx).await,
+        // ... existing arms ...
+        Commands::Analyze(args) => commands::analyze::execute(args, &ctx).await,
+    }
+}
+```
+
+### 3. Add engine logic
+
+```rust
+// crates/agileplus-engine/src/analyze.rs
+
+use agileplus_domain::domain::feature::Feature;
+
+pub struct AnalysisReport {
+    pub feature_slug: String,
+    pub issues: Vec<ConsistencyIssue>,
+    pub score: u8,  // 0-100
+}
+
+pub struct ConsistencyIssue {
+    pub severity: Severity,
+    pub description: String,
+    pub location: String,  // "spec.md line 42"
+}
+
+impl Engine {
+    pub async fn analyze_feature(
+        &self,
+        feature: &Feature,
+        cross_check: bool,
+    ) -> Result<AnalysisReport, DomainError> {
+        let spec = self.vcs.read_artifact(&feature.slug, "spec.md").await?;
+        let plan = self.vcs.read_artifact(&feature.slug, "plan.md").await.ok();
+        let wps = self.storage.list_wps_by_feature(feature.id).await?;
+
+        let mut issues = Vec::new();
+
+        if cross_check {
+            // Check that every FR in the spec is covered by at least one WP
+            issues.extend(check_fr_coverage(&spec, &wps));
+            // Check that plan references same files as WP scopes
+            if let Some(plan) = &plan {
+                issues.extend(check_plan_wp_alignment(plan, &wps));
+            }
+        }
+
+        let score = compute_quality_score(&issues);
+
+        Ok(AnalysisReport {
+            feature_slug: feature.slug.clone(),
+            issues,
+            score,
+        })
+    }
+}
+```
+
+## Extending the Event System (NATS)
+
+New domain events are defined in `crates/agileplus-domain/src/events.rs` and published through the engine's event publisher:
+
+### 1. Define the event type
+
+```rust
+// crates/agileplus-domain/src/events.rs
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum DomainEvent {
+    FeatureStateChanged {
+        feature_slug: String,
+        from: FeatureState,
+        to: FeatureState,
+        actor: String,
+        timestamp: DateTime<Utc>,
+        audit_entry_id: i64,
+    },
+    WorkPackageStateChanged {
+        feature_slug: String,
+        wp_id: String,
+        from: WpState,
+        to: WpState,
+        actor: String,
+        timestamp: DateTime<Utc>,
+    },
+    AgentCompleted {
+        job_id: String,
+        feature_slug: String,
+        wp_id: String,
+        success: bool,
+        commits: Vec<String>,
+    },
+
+    // Add your new event here:
+    AnalysisCompleted {
+        feature_slug: String,
+        score: u8,
+        issue_count: u32,
+        duration_ms: u64,
+    },
+}
+```
+
+### 2. Publish from the engine
+
+```rust
+// crates/agileplus-engine/src/analyze.rs
+
+impl Engine {
+    pub async fn analyze_feature(...) -> Result<AnalysisReport> {
+        // ... analysis logic ...
+
+        // Publish event
+        self.event_publisher.publish(DomainEvent::AnalysisCompleted {
+            feature_slug: feature.slug.clone(),
+            score: report.score,
+            issue_count: report.issues.len() as u32,
+            duration_ms: elapsed.as_millis() as u64,
+        }).await?;
+
+        Ok(report)
+    }
+}
+```
+
+### 3. Subscribe in other components (e.g., dashboard SSE)
+
+```rust
+// crates/agileplus-api/src/events.rs
+
+async fn sse_stream(state: AppState) -> impl IntoResponse {
+    let mut subscription = state.nats.subscribe("agileplus.>").await?;
+
+    Sse::new(async_stream::stream! {
+        while let Some(msg) = subscription.next().await {
+            let event: DomainEvent = serde_json::from_slice(&msg.payload)?;
+            yield Ok(Event::default()
+                .data(serde_json::to_string(&event)?)
+                .event(event.type_name()));
+        }
+    })
+}
+```
+
+## Next Steps
+
+- [Contributing](contributing.md) — Development setup and PR workflow
+- [Testing](testing.md) — Test patterns for adapters and commands
+- [Architecture Overview](../architecture/overview.md) — Crate structure
+- [Storage Port](../sdk/storage-port.md) — StoragePort API reference
+- [VCS Port](../sdk/vcs-port.md) — VcsPort API reference
+- [Harness Integration](../agents/harness-integration.md) — Adding agent adapters

@@ -492,8 +492,169 @@ Check that labels and statuses still match:
 agileplus config show --include sync
 ```
 
-## What's Next
+## Webhook-Driven Sync
+
+For real-time bidirectional sync (instead of polling), configure webhooks. When Plane.so or GitHub fires a webhook, AgilePlus processes it immediately:
+
+### GitHub Webhook Setup
+
+1. Go to your repository → Settings → Webhooks → Add webhook
+2. Payload URL: `https://your-server:8080/webhooks/github`
+3. Content type: `application/json`
+4. Secret: generate with `openssl rand -hex 32`
+5. Events: Issues, Pull requests, Issue comments
+
+Configure in AgilePlus:
+
+```toml
+[sync.github.webhook]
+enabled = true
+secret = "${GITHUB_WEBHOOK_SECRET}"
+port = 8080
+path = "/webhooks/github"
+```
+
+When a webhook arrives:
+
+```
+GitHub event: issue.labeled (label: "in-progress")
+  → AgilePlus lookup: which WP maps to issue #42?
+  → SyncMapping: WP02 of feature "user-auth"
+  → Transition WP02 from Planned → Doing
+  → Audit entry recorded: actor=sync:github
+  → NATS event published: wp.state.changed
+  → Dashboard SSE update sent
+```
+
+### Plane.so Webhook Setup
+
+1. Go to Plane workspace → Settings → Webhooks
+2. Add webhook URL: `https://your-server:8080/webhooks/plane`
+3. Select events: Issue updated, Issue state changed
+
+```toml
+[sync.plane.webhook]
+enabled = true
+workspace_secret = "${PLANE_WEBHOOK_SECRET}"
+port = 8080
+path = "/webhooks/plane"
+```
+
+## State Mapping Reference
+
+The complete mapping between AgilePlus states and external tracker states:
+
+### AgilePlus Feature States → Plane.so
+
+| AgilePlus State | Plane.so Issue State | Label Added |
+|-----------------|---------------------|-------------|
+| Created | Backlog | — |
+| Specified | Backlog | spec |
+| Researched | Todo | spec, researched |
+| Planned | Todo | planned |
+| Implementing | In Progress | in-progress |
+| Validated | Done | validated |
+| Shipped | Done | shipped |
+| Cancelled | Cancelled | cancelled |
+
+### AgilePlus WP States → GitHub
+
+| AgilePlus WP State | GitHub Issue Label | PR State |
+|--------------------|--------------------|----------|
+| Planned | work-package, planned | — |
+| Doing | work-package, in-progress | Draft PR |
+| ForReview | work-package, in-review | PR ready for review |
+| Done | work-package | PR merged, issue closed |
+| Blocked | work-package, blocked | PR blocked label |
+
+### Customizing State Mappings
+
+```toml
+[sync.plane.state_map]
+# AgilePlus state = Plane.so state name
+"Created" = "Backlog"
+"Specified" = "Todo"
+"Planned" = "Todo"
+"Implementing" = "In Progress"
+"Validated" = "In Review"   # Custom: use "In Review" instead of "Done"
+"Shipped" = "Done"
+
+[sync.github.label_map]
+# AgilePlus state = GitHub label
+"Doing" = "wip"             # Custom: use "wip" instead of "in-progress"
+"ForReview" = "needs-review"
+"Blocked" = "blocked"
+```
+
+## Conflict Resolution Deep Dive
+
+When both AgilePlus and an external tracker change state since the last sync, a conflict is detected:
+
+```
+Conflict detected for WP02 (feature: user-auth):
+  AgilePlus state:  Doing (updated 5 min ago by agent:claude-code)
+  Plane.so state:   Done  (updated 2 min ago by human:alice)
+  Last synced:      15 min ago
+```
+
+Resolution strategies:
+
+### `local-wins`
+
+```toml
+[sync]
+conflict_strategy = "local-wins"
+```
+
+AgilePlus state wins. Plane.so is updated to match AgilePlus:
+```
+Resolution: AgilePlus "Doing" wins → update Plane.so to "In Progress"
+Audit: conflict recorded, resolution actor = sync:local-wins
+```
+
+### `remote-wins`
+
+```toml
+[sync]
+conflict_strategy = "remote-wins"
+```
+
+External tracker wins. AgilePlus state is updated to match tracker. This triggers a governance check — if transitioning WP02 from `Doing` to `Done` without completing acceptance criteria, the transition is blocked:
+
+```
+Resolution: Plane.so "Done" wins → attempt WP02 Done transition
+Governance check: acceptance criteria not met
+BLOCKED: Cannot apply remote-wins transition (governance violation)
+Action required: Human must resolve manually
+```
+
+### `manual`
+
+```toml
+[sync]
+conflict_strategy = "manual"
+```
+
+Conflicts are logged and require manual resolution:
+
+```bash
+# List unresolved conflicts
+agileplus sync status --conflicts
+
+# Output:
+# Conflict 1: WP02 (user-auth) — AgilePlus=Doing, Plane.so=Done
+# Conflict 2: WP05 (email-notif) — AgilePlus=ForReview, GitHub=Closed
+
+# Resolve by choosing a winner
+agileplus sync resolve WP02 --use local    # Keep AgilePlus state
+agileplus sync resolve WP05 --use remote   # Use tracker state
+```
+
+## Next Steps
 
 - **[Configuration](/guide/configuration)** — Detailed config options
 - **[Getting Started](/guide/getting-started)** — Full setup walkthrough
 - **[Core Workflow](/guide/workflow)** — Understand the pipeline
+- **[Environment Variables](../reference/env-vars.md)** — Plane.so and GitHub configuration
+- **[MCP Tools](../sdk/mcp-tools.md)** — Programmatic sync control
+- **[Feature Lifecycle](../concepts/feature-lifecycle.md)** — How sync fits in the feature flow

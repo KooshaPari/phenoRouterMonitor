@@ -506,9 +506,147 @@ After the feature is retrospected, the audit chain contains entries like:
 
 Each entry is cryptographically signed and chained. The complete history is **immutable** and **auditable**.
 
-## Related Pages
+## State Machine Summary
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created : feature create
+    Created --> Specified : specify (spec artifact)
+    Specified --> Researched : research (research artifact)
+    Specified --> Planned : plan (skip research)
+    Researched --> Planned : plan (WPs generated)
+    Planned --> Implementing : implement (branch + assign)
+    Implementing --> Validated : validate (all WPs Done, CI green)
+    Validated --> Shipped : ship (governance checks pass, merge)
+    Shipped --> Retrospected : retrospect
+    Retrospected --> [*]
+
+    Created --> Cancelled : cancel
+    Specified --> Cancelled : cancel
+    Researched --> Cancelled : cancel
+    Planned --> Cancelled : cancel
+    Implementing --> Cancelled : cancel
+    Cancelled --> [*]
+```
+
+## Parallel WP Timeline
+
+For a feature with multiple WPs and dependency constraints:
+
+```
+Timeline (horizontal = time):
+
+Week 1            Week 2              Week 3
+─────────────────────────────────────────────────
+Specify ──→
+Research ────────→
+Plan ─────────────→
+                  WP01 ──────────────→ Done
+                       WP02 ──────────→ Done
+                       WP03 ────────────────→ Done
+                                         Validate ─→
+                                                 Ship ─→
+```
+
+WP01 runs first (no deps). WP02 and WP03 both depend on WP01 but not each other, so they can run concurrently once WP01 merges. WP04 (not shown) would wait for all three.
+
+## NATS Events Throughout Lifecycle
+
+Every phase transition publishes to NATS JetStream. This drives:
+- Real-time SSE updates to the dashboard
+- Dragonfly cache invalidation
+- External sync hooks (Plane.so, GitHub)
+- OpenTelemetry span generation
+
+```
+Subject: agileplus.feature.{slug}.state.changed
+Payload: {
+  "feature_slug": "user-authentication",
+  "from": "researched",
+  "to": "planned",
+  "actor": "human:alice",
+  "timestamp": "2026-03-01T16:00:00Z",
+  "audit_entry_id": 3,
+  "audit_hash": "0x9c0d..."
+}
+```
+
+Subscribe to events in real-time:
+
+```bash
+# Watch all events for a feature
+agileplus events query --feature user-authentication --follow
+
+# Watch all feature state changes
+nats sub "agileplus.feature.*.state.changed"
+```
+
+## Evidence Collection per Phase
+
+Evidence accumulates as the feature progresses. By the time it reaches `Validated`, multiple evidence types are on file:
+
+| Phase | Evidence Type | Example |
+|-------|--------------|---------|
+| Specified | `ArtifactPresent` | SHA-256 of spec.md |
+| Researched | `ManualAttestation` | Research doc hash |
+| Planned | `CiOutput` | Plan validation output |
+| Implementing → Validated | `TestResult` | 456 tests, 0 failed |
+| Implementing → Validated | `LintResult` | 0 clippy warnings |
+| Implementing → Validated | `SecurityScan` | 0 CVEs |
+| Validated → Shipped | `ReviewApproval` | PR #42 approved |
+
+The `GovernanceContract` bound at `Planned` state defines exactly which evidence types are required for the `implementing → validated` and `validated → shipped` transitions.
+
+## Retrospective Structure
+
+The retrospective artifact is a structured markdown document in `features/{slug}/retrospective.md`:
+
+```markdown
+---
+feature_slug: user-authentication
+completed_at: 2026-03-10T14:00:00Z
+cycle_time_hours: 18
+agent_hours: 10
+developer_hours: 4
+---
+
+# Retrospective: User Authentication
+
+## What Went Well
+
+- Clean dependency graph: WP01 → WP02 → WP03 with no conflicts
+- Agent-generated code passed all tests first attempt
+- Spec was clear: no ambiguities discovered during implementation
+
+## What Could Improve
+
+- JWT expiry edge case was underspecified in the spec
+- WP03 scope was too large (4h estimated, 7h actual)
+- Security scan should run earlier, not just at Validated gate
+
+## Action Items
+
+| Item | Owner | Due Date |
+|------|-------|----------|
+| Split large WPs at 4h max | Architect | Next feature |
+| Add security scan to WP-level CI | DevOps | Sprint 12 |
+| Document JWT edge cases in spec template | PM | This week |
+
+## Metrics
+
+- Time from Created to Shipped: 18 hours
+- Agent hours: 10h (WP01, WP02)
+- Developer hours: 4h (WP03, review)
+- Review cycles: 1 (approved on first pass)
+- Lines added: 1,247  |  Lines removed: 84
+- Test coverage: 94%
+```
+
+## Next Steps
 
 - [Spec-Driven Development](spec-driven-dev.md) — Philosophy
 - [Governance & Audit](governance.md) — State machine details
 - [Agent Dispatch](agent-dispatch.md) — How agents work
-- [Work Package Management](../guides/work-packages.md) — WP operations
+- [Quick Start](../guide/quick-start.md) — Get started in 5 minutes
+- [Core Workflow](../guide/workflow.md) — Full pipeline walkthrough
+- [Prompt Format](../agents/prompt-format.md) — What agents receive

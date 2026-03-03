@@ -226,9 +226,219 @@ Multiple agents can work on different WPs in **parallel**:
 - **Audit chain**: `crates/agileplus-domain/src/domain/audit.rs`
 - **Storage port**: `crates/agileplus-domain/src/ports/storage.rs` (persistence layer)
 
-## Related Pages
+## Cancellation Paths
+
+Features can be cancelled at any point before `Shipped`. Cancellation is a valid terminal state, not a failure:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> Specified : specify
+    Specified --> Researched : research
+    Researched --> Planned : plan
+    Planned --> Implementing : implement
+    Implementing --> Validated : validate
+    Validated --> Shipped : ship
+    Shipped --> [*]
+
+    Created --> Cancelled : cancel
+    Specified --> Cancelled : cancel
+    Researched --> Cancelled : cancel
+    Planned --> Cancelled : cancel
+    Implementing --> Cancelled : cancel
+    Cancelled --> [*]
+```
+
+Cancellation requires a reason (stored in the audit entry) and is recorded like any other transition. This keeps the audit trail complete even for abandoned features.
+
+## Work Package State Machine (Full Detail)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Planned
+    Planned --> Doing : assign / start
+    Doing --> ForReview : submit
+    ForReview --> Done : approve
+    ForReview --> Doing : request changes
+    Doing --> Blocked : block
+    Planned --> Blocked : block
+    Blocked --> Planned : unblock
+    Blocked --> Doing : unblock and start
+    Done --> [*]
+```
+
+Unlike features, WPs can cycle (`ForReview → Doing → ForReview`) for review-fix loops. The maximum review cycles is controlled by `AgentConfig::max_review_cycles`.
+
+## Audit Hash-Chain Deep Dive
+
+The hash chain is the central integrity mechanism. Here is the exact computation:
+
+```rust
+pub fn hash_entry(entry: &AuditEntry) -> [u8; 32] {
+    use sha2::{Sha256, Digest};
+    let mut hasher = Sha256::new();
+
+    // All fields contribute to the hash
+    hasher.update(entry.feature_id.to_le_bytes());
+    if let Some(wp_id) = entry.wp_id {
+        hasher.update(wp_id.to_le_bytes());
+    }
+    hasher.update(entry.timestamp.timestamp_millis().to_le_bytes());
+    hasher.update(entry.actor.as_bytes());
+    hasher.update(entry.transition.as_bytes());
+    for ev_ref in &entry.evidence_refs {
+        hasher.update(ev_ref.fr_id.as_bytes());
+        hasher.update(ev_ref.evidence_id.to_le_bytes());
+    }
+    // THE CHAIN LINK — previous entry's hash is included
+    hasher.update(&entry.prev_hash);
+
+    hasher.finalize().into()
+}
+```
+
+Visual representation of the chain for a feature going from `Created` to `Shipped`:
+
+```
+Genesis (prev_hash = 0x0000...0000)
+    │
+    ▼
+Entry 0: created → specified
+    actor: human:alice
+    timestamp: 2026-03-01T10:00:00Z
+    prev_hash: 0x0000...0000
+    hash: 0x1a2b3c4d...  ──────────────────────┐
+                                               │
+Entry 1: specified → researched               │
+    actor: agent:claude-code                  │
+    timestamp: 2026-03-01T12:30:00Z           │
+    prev_hash: 0x1a2b3c4d... ◄────────────────┘
+    hash: 0x5e6f7a8b...  ──────────────────────┐
+                                               │
+Entry 2: researched → planned                 │
+    actor: human:alice                        │
+    timestamp: 2026-03-01T14:00:00Z           │
+    prev_hash: 0x5e6f7a8b... ◄────────────────┘
+    hash: 0x9c0d1e2f...  ──────────────────────┐
+                                               │
+Entry 3: planned → implementing               │
+    actor: agent:claude-code                  │
+    timestamp: 2026-03-02T09:00:00Z           │
+    prev_hash: 0x9c0d1e2f... ◄────────────────┘
+    hash: 0x3a4b5c6d...
+```
+
+If an attacker modifies Entry 0 (e.g., changes the actor from `human:alice` to `human:bob`), the hash of Entry 0 changes. Entry 1's `prev_hash` field no longer matches, breaking the chain at that link. `AuditChain::verify_chain()` catches this immediately.
+
+### Chain Verification
+
+```rust
+impl AuditChain {
+    pub fn verify_chain(&self) -> Result<(), AuditChainError> {
+        let mut prev_hash = [0u8; 32]; // Genesis hash is all zeros
+
+        for entry in &self.entries {
+            // 1. Check prev_hash matches what we computed
+            if entry.prev_hash != prev_hash {
+                return Err(AuditChainError::HashMismatch {
+                    entry_id: entry.id,
+                    expected: prev_hash,
+                    actual: entry.prev_hash,
+                });
+            }
+
+            // 2. Recompute this entry's hash
+            let computed = hash_entry(entry);
+
+            // 3. Check the stored hash matches
+            if entry.hash != computed {
+                return Err(AuditChainError::TamperedEntry {
+                    entry_id: entry.id,
+                    expected: computed,
+                    actual: entry.hash,
+                });
+            }
+
+            // 4. Advance the chain
+            prev_hash = computed;
+        }
+
+        Ok(())
+    }
+}
+```
+
+Run verification at any time:
+
+```bash
+agileplus events audit-verify --feature user-authentication
+# Output: ✓ Audit chain intact (10 entries verified)
+# Or:     ✗ Chain broken at entry 5 (tampering detected)
+```
+
+## OpenTelemetry Integration
+
+Every governance operation emits OpenTelemetry spans and metrics. This allows observability platforms (Jaeger, Grafana, Honeycomb) to track transition latency, failure rates, and audit performance:
+
+```
+Span: feature.transition
+  feature.id: 42
+  feature.slug: user-authentication
+  transition.from: researched
+  transition.to: planned
+  transition.actor: human:alice
+  transition.success: true
+  transition.duration_ms: 145
+```
+
+Governance failures also emit events:
+
+```
+Event: governance.violation
+  feature.id: 42
+  transition.attempted: implementing → validated
+  violation.rule: TestResult required for FR-004
+  violation.evidence_missing: true
+```
+
+Configure the OTEL exporter:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+export OTEL_SERVICE_NAME=agileplus
+agileplus sync push
+```
+
+## Governance Rule Configuration
+
+The default governance rules are defined in `crates/agileplus-domain/src/domain/governance.rs`. They can be extended for project-specific requirements by adding `PolicyRule` entries:
+
+```rust
+// Example: require security scan before shipping
+let security_policy = PolicyRule {
+    id: 0, // assigned by storage
+    domain: PolicyDomain::Security,
+    rule: PolicyDefinition {
+        description: "Security scan required before shipping".into(),
+        check: PolicyCheck::EvidencePresent {
+            evidence_type: EvidenceType::SecurityScan,
+        },
+    },
+    active: true,
+    created_at: Utc::now(),
+    updated_at: Utc::now(),
+};
+
+storage.create_policy_rule(&security_policy).await?;
+```
+
+Once active, this policy is automatically incorporated into governance contracts for any new feature transitioning to `Planned` state.
+
+## Next Steps
 
 - [Spec-Driven Development](spec-driven-dev.md) — Philosophy and principles
 - [Agent Dispatch](agent-dispatch.md) — How agents are held accountable
 - [Architecture Overview](../architecture/overview.md) — Port trait design
 - [Domain Model](../architecture/domain-model.md) — Entity relationships
+- [Feature Lifecycle](feature-lifecycle.md) — Full phase-by-phase walkthrough
+- [Environment Variables](../reference/env-vars.md) — OTEL and audit configuration

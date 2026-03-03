@@ -374,3 +374,155 @@ impl VcsPort for MyVcsAdapter {
 ```
 
 Then wire into the CLI and configure in `.kittify/config.toml`.
+
+## Git-Backed State Sync
+
+Beyond worktrees and branches, the `VcsPort` supports exporting and importing the full AgilePlus state into a git-tracked directory. This enables:
+- Sharing feature state across machines without a network service
+- Git-based backup and restore of AgilePlus data
+- Diffing feature state over time (`git log -- features/`)
+
+```rust
+/// Export AgilePlus domain state to a git-tracked directory.
+fn export_state(
+    &self,
+    export_path: &Path,
+    features: &[Feature],
+    wps: &[WorkPackage],
+    audit_entries: &[AuditEntry],
+) -> impl Future<Output = Result<String, DomainError>> + Send;
+// Returns the commit hash of the export commit.
+
+/// Import AgilePlus domain state from a git-tracked export.
+fn import_state(
+    &self,
+    import_path: &Path,
+) -> impl Future<Output = Result<ImportResult, DomainError>> + Send;
+
+pub struct ImportResult {
+    pub features_imported: usize,
+    pub wps_imported: usize,
+    pub audit_entries_imported: usize,
+    pub conflicts: Vec<ImportConflict>,
+}
+```
+
+Exported directory structure:
+
+```
+.agileplus-state/                ← git-tracked directory
+├── features/
+│   ├── user-authentication.json
+│   └── email-notifications.json
+├── work-packages/
+│   ├── user-authentication/
+│   │   ├── WP01.json
+│   │   ├── WP02.json
+│   │   └── WP03.json
+│   └── email-notifications/
+│       └── WP01.json
+├── audit/
+│   ├── user-authentication.jsonl
+│   └── email-notifications.jsonl
+└── sync-mappings.json
+```
+
+Workflow:
+
+```bash
+# Export on Device A
+agileplus state export --path /path/to/state-repo
+
+# Push to shared git remote
+cd /path/to/state-repo && git push origin main
+
+# On Device B, import
+cd /path/to/state-repo && git pull
+agileplus state import --path /path/to/state-repo
+```
+
+## Conflict Detection Before Merge
+
+The `detect_conflicts` method is useful for pre-merge validation:
+
+```rust
+// Check if WP02 would conflict with current main before merging
+let conflicts = vcs.detect_conflicts("feat/user-auth/WP02", "main").await?;
+
+if conflicts.is_empty() {
+    println!("Clean merge possible");
+} else {
+    for conflict in &conflicts {
+        println!("Conflict in {}: {:?} vs {:?}", conflict.path, conflict.ours, conflict.theirs);
+    }
+}
+```
+
+This is run automatically before any WP merge in the engine:
+
+```
+Merge pre-check for WP02:
+  ✓ src/auth/login.rs — no conflicts
+  ✓ src/auth/session.rs — no conflicts
+  ✗ src/auth/mod.rs — CONFLICT (WP01 and WP02 both modified)
+
+Resolution: WP02 must rebase on WP01's merge commit first.
+```
+
+## Worktree Branch Naming Convention
+
+The `GitVcsAdapter` follows this naming convention for worktrees and branches:
+
+```
+Branch:   feat/{feature-slug}/{wp-id}
+Worktree: .worktrees/{feature-slug}-{wp-id}/
+
+Examples:
+  Feature: user-authentication, WP01
+  Branch:   feat/user-authentication/WP01
+  Worktree: .worktrees/user-authentication-WP01/
+
+  Feature: 001-email-notifications, WP03
+  Branch:   feat/001-email-notifications/WP03
+  Worktree: .worktrees/001-email-notifications-WP03/
+```
+
+The worktree directory lives inside the main repo (git 2.7+ supports this) and shares the `.git/objects` database. Disk usage is efficient — only changed files are duplicated.
+
+## Scan Artifacts: What Gets Detected
+
+`scan_feature_artifacts` traverses the artifact directory and populates `FeatureArtifacts`:
+
+```rust
+pub struct FeatureArtifacts {
+    pub spec_path: Option<String>,           // spec.md
+    pub research_path: Option<String>,       // research.md
+    pub plan_path: Option<String>,           // plan.md
+    pub meta_json: Option<String>,           // meta.json content
+    pub audit_chain_path: Option<String>,    // audit/chain.jsonl
+    pub wp_prompts: Vec<(String, String)>,   // [(wp_id, prompt_path)]
+    pub evidence_paths: Vec<String>,         // evidence artifacts
+    pub retrospective_path: Option<String>,  // retrospective.md
+}
+```
+
+Example:
+
+```rust
+let artifacts = vcs.scan_feature_artifacts("user-authentication").await?;
+
+if artifacts.spec_path.is_none() {
+    println!("Warning: no spec.md found for user-authentication");
+}
+
+println!("Found {} WP prompts", artifacts.wp_prompts.len());
+println!("Found {} evidence artifacts", artifacts.evidence_paths.len());
+```
+
+## Next Steps
+
+- [Storage Port](storage-port.md) — StoragePort API reference
+- [MCP Tools](mcp-tools.md) — MCP tool catalog
+- [Domain Model](../architecture/domain-model.md) — Entity relationships
+- [Extending](../developers/extending.md) — Implementing custom VCS adapters
+- [Governance Constraints](../agents/governance-constraints.md) — Agent worktree rules

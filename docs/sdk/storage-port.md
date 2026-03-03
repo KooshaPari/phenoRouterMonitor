@@ -400,3 +400,176 @@ futures::executor::block_on(async {
     let features = storage.list_all_features().await?;
 })?;
 ```
+
+## SyncMapping Operations
+
+The StoragePort also manages sync mappings for external tracker integration:
+
+```rust
+/// Create a mapping between a feature/WP and an external issue.
+fn create_sync_mapping(
+    &self,
+    mapping: &SyncMapping,
+) -> impl Future<Output = Result<i64, DomainError>> + Send;
+
+/// Look up a sync mapping by feature and platform.
+fn get_sync_mapping(
+    &self,
+    feature_id: i64,
+    platform: &str,
+) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send;
+
+/// Update the external state in a sync mapping.
+fn update_sync_mapping_state(
+    &self,
+    mapping_id: i64,
+    external_state: &str,
+    last_synced_at: DateTime<Utc>,
+) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+/// List all sync mappings that are overdue for sync.
+fn list_stale_sync_mappings(
+    &self,
+    older_than: Duration,
+) -> impl Future<Output = Result<Vec<SyncMapping>, DomainError>> + Send;
+```
+
+Example usage:
+
+```rust
+// After creating a Plane.so issue, record the mapping
+let mapping = SyncMapping {
+    id: 0,
+    feature_id: feature.id,
+    wp_id: None,
+    platform: "plane".to_string(),
+    external_id: "AGILE-123".to_string(),
+    external_url: "https://app.plane.so/workspace/project/issues/AGILE-123".to_string(),
+    external_state: "Backlog".to_string(),
+    last_synced_at: Utc::now(),
+    sync_direction: SyncDirection::Bidirectional,
+};
+
+let mapping_id = storage.create_sync_mapping(&mapping).await?;
+
+// Later, when Plane.so webhook fires:
+storage.update_sync_mapping_state(
+    mapping_id,
+    "In Progress",
+    Utc::now(),
+).await?;
+```
+
+## DeviceNode Operations
+
+For P2P multi-device setups:
+
+```rust
+/// Register or update a device node.
+fn upsert_device_node(
+    &self,
+    node: &DeviceNode,
+) -> impl Future<Output = Result<i64, DomainError>> + Send;
+
+/// List all active device nodes (seen within last N minutes).
+fn list_active_devices(
+    &self,
+    active_within: Duration,
+) -> impl Future<Output = Result<Vec<DeviceNode>, DomainError>> + Send;
+
+/// Update a device node's vector clock.
+fn update_device_clock(
+    &self,
+    device_id: &str,
+    clock: &VectorClock,
+) -> impl Future<Output = Result<(), DomainError>> + Send;
+```
+
+## SQLite Schema Reference
+
+The `agileplus-sqlite` adapter creates these tables via migrations in `crates/agileplus-sqlite/src/migrations/`:
+
+```sql
+-- 001_initial_schema.sql
+CREATE TABLE features (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug         TEXT NOT NULL UNIQUE,
+    friendly_name TEXT NOT NULL,
+    state        TEXT NOT NULL DEFAULT 'Created',
+    spec_hash    BLOB,
+    target_branch TEXT NOT NULL DEFAULT 'main',
+    created_at   DATETIME NOT NULL DEFAULT (datetime('now')),
+    updated_at   DATETIME NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE work_packages (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    feature_id       INTEGER NOT NULL REFERENCES features(id),
+    title            TEXT NOT NULL,
+    state            TEXT NOT NULL DEFAULT 'Planned',
+    sequence         INTEGER NOT NULL,
+    file_scope       TEXT NOT NULL DEFAULT '[]',  -- JSON array
+    acceptance_criteria TEXT NOT NULL DEFAULT '',
+    agent_id         TEXT,
+    pr_url           TEXT,
+    pr_state         TEXT,
+    worktree_path    TEXT,
+    created_at       DATETIME NOT NULL DEFAULT (datetime('now')),
+    updated_at       DATETIME NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE wp_dependencies (
+    wp_id        INTEGER NOT NULL REFERENCES work_packages(id),
+    depends_on   INTEGER NOT NULL REFERENCES work_packages(id),
+    dep_type     TEXT NOT NULL DEFAULT 'Explicit',
+    PRIMARY KEY (wp_id, depends_on)
+);
+
+-- 002_audit_chain.sql
+CREATE TABLE audit_entries (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    feature_id   INTEGER NOT NULL REFERENCES features(id),
+    wp_id        INTEGER REFERENCES work_packages(id),
+    timestamp    DATETIME NOT NULL,
+    actor        TEXT NOT NULL,
+    transition   TEXT NOT NULL,
+    prev_hash    BLOB NOT NULL,
+    hash         BLOB NOT NULL UNIQUE
+);
+
+CREATE TABLE evidence_refs (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    audit_entry_id INTEGER NOT NULL REFERENCES audit_entries(id),
+    evidence_id   INTEGER NOT NULL REFERENCES evidence(id),
+    fr_id         TEXT NOT NULL
+);
+
+CREATE TABLE evidence (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    wp_id         INTEGER NOT NULL REFERENCES work_packages(id),
+    fr_id         TEXT NOT NULL,
+    evidence_type TEXT NOT NULL,
+    artifact_path TEXT NOT NULL,
+    metadata      TEXT,  -- JSON
+    created_at    DATETIME NOT NULL DEFAULT (datetime('now'))
+);
+```
+
+Run migrations:
+
+```bash
+# Migrations run automatically on startup, or manually:
+agileplus db migrate
+
+# Check current migration version:
+agileplus db version
+# Output: Applied migrations: 1..5 (latest: 005_sync_mappings.sql)
+```
+
+## Next Steps
+
+- [VCS Port](vcs-port.md) — VcsPort API reference
+- [MCP Tools](mcp-tools.md) — MCP tool catalog using StoragePort
+- [Domain Model](../architecture/domain-model.md) — Full entity relationships
+- [Extending](../developers/extending.md) — Implementing custom storage backends
+- [Environment Variables](../reference/env-vars.md) — Database configuration

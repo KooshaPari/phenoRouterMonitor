@@ -218,10 +218,164 @@ agileplus tasks 001         # Re-task
 
 Then continue implementing.
 
-## What's Next?
+## Platform Mode: Full Infrastructure Stack
+
+For production use, AgilePlus can run with a full infrastructure stack (NATS, Dragonfly, Neo4j, MinIO):
+
+### Prerequisites for Platform Mode
+
+```bash
+# Install process-compose
+brew install F1bonacci/homebrew-tap/process-compose
+# or: cargo install process-compose
+
+# Install NATS server
+brew install nats-server
+
+# Install Dragonfly (Redis-compatible)
+brew install dragonflydb/dragonfly/dragonfly
+
+# Neo4j (optional, for advanced dependency graph queries)
+brew install neo4j
+
+# MinIO (optional, for artifact storage)
+brew install minio/stable/minio
+```
+
+### Start the Full Stack
+
+```bash
+# Start all infrastructure services
+agileplus platform up
+
+# Output:
+# ✓ NATS JetStream running on :4222
+# ✓ Dragonfly (Redis-compatible) running on :6379
+# ✓ Neo4j running on :7687
+# ✓ MinIO running on :9000
+# ✓ AgilePlus API running on :8080
+# Dashboard: http://localhost:8080
+
+# Check status
+agileplus platform status
+
+# View logs from a service
+agileplus platform logs --service nats --tail 50
+
+# Stop everything
+agileplus platform down
+```
+
+### Dashboard Overview
+
+With the platform running, open `http://localhost:8080` for the htmx-powered dashboard:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  AgilePlus Dashboard                    [Sync] [Settings]  │
+├──────────────┬──────────────┬───────────────┬──────────────┤
+│  SPECIFIED   │   PLANNED    │  IMPLEMENTING │   SHIPPED    │
+├──────────────┼──────────────┼───────────────┼──────────────┤
+│ user-auth    │ email-notif  │ 2fa-support   │ login-flow   │
+│ [WP: 0/3]   │ [WP: 3/3]   │ [WP: 1/3 ●]  │ [WP: 3/3]   │
+│              │              │               │              │
+│              │ dark-mode    │               │ csv-export   │
+│              │ [WP: 2/4]   │               │ [WP: 4/4]   │
+└──────────────┴──────────────┴───────────────┴──────────────┘
+● = agent running (live update via SSE)
+```
+
+Features can be dragged between columns (Alpine.js drag-and-drop) and the state machine enforces valid transitions server-side.
+
+## CLI Commands: Complete Reference
+
+### Lifecycle Commands
+
+```bash
+# Feature management
+agileplus feature create --slug "user-auth" --title "User Authentication"
+agileplus feature list                     # All features
+agileplus feature list --state planned     # Filter by state
+agileplus feature show user-auth           # Feature detail
+agileplus feature transition user-auth --to specified  # Manual transition
+
+# Work package management
+agileplus wp list user-auth                # WPs for a feature
+agileplus wp show user-auth WP01           # WP detail
+agileplus wp transition WP01 --to doing   # Move WP state
+```
+
+### Sync Commands
+
+```bash
+agileplus sync push                        # Push state to Plane.so/GitHub
+agileplus sync pull                        # Pull updates from trackers
+agileplus sync auto                        # Run continuous sync loop
+agileplus sync status                      # Show sync status + last sync time
+agileplus sync resolve --conflict WP02     # Resolve a sync conflict manually
+```
+
+### Platform Commands
+
+```bash
+agileplus platform up                      # Start all services
+agileplus platform down                    # Stop all services
+agileplus platform status                  # Health check
+agileplus platform logs [--service NAME]   # View service logs
+```
+
+### Device Commands (P2P Tailscale)
+
+```bash
+agileplus device discover                  # Find peers on Tailscale mesh
+agileplus device sync                      # Sync state with peer devices
+agileplus device status                    # Show connected devices
+```
+
+### Events Commands
+
+```bash
+agileplus events query --feature user-auth             # Query event history
+agileplus events query --type "feature.state.changed"  # Filter by event type
+agileplus events audit-verify --feature user-auth      # Verify audit hash chain
+```
+
+## Environment Setup
+
+Create a `.env` file (or export these in your shell profile) for local development:
+
+```bash
+# Core
+AGILEPLUS_LOG_LEVEL=info
+AGILEPLUS_DB=.agileplus/agileplus.db
+
+# NATS (required for platform mode)
+NATS_URL=nats://localhost:4222
+
+# Dragonfly/Redis (required for platform mode)
+DRAGONFLY_URL=redis://localhost:6379
+
+# Plane.so sync (optional)
+PLANE_API_KEY=your-plane-api-key
+PLANE_WORKSPACE=your-workspace
+
+# GitHub sync (optional)
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
+GITHUB_OWNER=your-org
+GITHUB_REPO=your-repo
+
+# Claude Code agent
+CLAUDE_CODE_PATH=claude   # or full path to binary
+```
+
+See [Environment Variables](../reference/env-vars.md) for the complete reference.
+
+## Next Steps
 
 - **[Getting Started](/guide/getting-started)** — Full detailed walkthrough
 - **[Core Workflow](/guide/workflow)** — Understand all 7 phases
-- **[Work with Trackers](/guide/sync)** — Sync with Plane.so or GitHub
+- **[Feature Lifecycle](../concepts/feature-lifecycle.md)** — Phase-by-phase deep dive
+- **[Work with Trackers](sync.md)** — Sync with Plane.so or GitHub
 - **[Configuration](/guide/configuration)** — Customize for your team
 - **[Spec-Driven Development](/concepts/spec-driven-dev)** — Learn the philosophy
+- **[Environment Variables](../reference/env-vars.md)** — Full configuration reference

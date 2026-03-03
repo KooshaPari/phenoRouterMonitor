@@ -8,29 +8,58 @@ How to set up your development environment, follow the development workflow, and
 
 ## Prerequisites
 
-- **Rust 1.75+** — Language toolchain
+- **Rust 1.85+** (edition 2024) — Language toolchain
   ```bash
   rustup default stable
+  rustup update stable
   rustup component add rustfmt clippy
+  # Verify version
+  rustc --version   # must be >= 1.85.0
   ```
 
-- **Bun** — JavaScript runtime for docs/build
+- **process-compose** — Service orchestration
+  ```bash
+  brew install F1bonacci/homebrew-tap/process-compose
+  # or: cargo install process-compose
+  ```
+
+- **NATS server** — Event bus (required for integration tests)
+  ```bash
+  brew install nats-server
+  nats-server --version   # verify install
+  ```
+
+- **Dragonfly** — Redis-compatible cache
+  ```bash
+  brew install dragonflydb/dragonfly/dragonfly
+  ```
+
+- **Bun** — JavaScript runtime for docs build
   ```bash
   curl -fsSL https://bun.sh/install | bash
   ```
 
-- **Git** — Version control (2.30+)
-- **PostgreSQL** — Database (for local testing)
+- **Git 2.30+** — Version control (git worktree support required)
   ```bash
-  # macOS
-  brew install postgresql
-  brew services start postgresql
+  git --version   # must be >= 2.30
   ```
 
-- **Redis** — Cache (optional, for sync testing)
+- **SQLite 3.35+** — Default database (comes with macOS; check version)
   ```bash
-  brew install redis
-  brew services start redis
+  sqlite3 --version
+  ```
+
+**Optional (for full platform integration tests):**
+
+- **Neo4j** — Dependency graph storage
+  ```bash
+  brew install neo4j
+  neo4j start
+  ```
+
+- **MinIO** — Artifact storage
+  ```bash
+  brew install minio/stable/minio
   ```
 
 ## Setup
@@ -41,30 +70,52 @@ How to set up your development environment, follow the development workflow, and
 git clone https://github.com/KooshaPari/AgilePlus.git
 cd AgilePlus
 
-# Create database
-createdb agileplus_dev
+# Build entire workspace
+cargo build --workspace
 
-# Build core library
-cargo build
-
-# Build CLI
+# Build just the CLI binary
 cargo build -p agileplus-cli
+
+# Verify the CLI runs
+./target/debug/agileplus --version
+# Output: agileplus 0.1.0
 
 # Build docs
 bun install
+bun run docs:dev   # Start dev server at http://localhost:5173
 ```
 
 ### Verify Setup
 
 ```bash
-# Test cargo works
-cargo test --lib --all
+# Run all workspace tests
+cargo test --workspace
 
-# Test CLI works
-cargo run -p agileplus-cli -- --version
+# Run domain crate tests only (no external deps needed)
+cargo test -p agileplus-domain
 
-# Test docs can build
-bun run build
+# Check all clippy warnings (must be zero)
+cargo clippy --workspace -- -D warnings
+
+# Check formatting
+cargo fmt --all --check
+
+# Test docs build
+bun run docs:build
+```
+
+### Start Platform Services (for integration tests)
+
+```bash
+# Start NATS, Dragonfly, and MinIO for integration testing
+agileplus platform up --dev
+
+# Or start services manually:
+nats-server --jetstream &
+dragonfly --port 6379 &
+
+# Verify services are up
+agileplus platform status
 ```
 
 ### Environment Configuration
@@ -72,12 +123,27 @@ bun run build
 Create `.env` for local development:
 
 ```bash
-# .env
-RUST_LOG=info
-DATABASE_URL=postgresql://localhost/agileplus_dev
-REDIS_URL=redis://localhost:6379
+# .env (never commit this file)
+RUST_LOG=debug
+AGILEPLUS_DB=.agileplus/agileplus.db
+
+# NATS (start with: nats-server --jetstream)
+NATS_URL=nats://localhost:4222
+
+# Dragonfly / Redis
+DRAGONFLY_URL=redis://localhost:6379
+
+# Plane.so (optional for sync testing)
 PLANE_API_KEY=test_key_for_local_testing
-GITHUB_TOKEN=ghp_xxxx  # For sync testing (optional)
+
+# GitHub (optional for sync testing)
+GITHUB_TOKEN=ghp_xxxx
+
+# Claude Code agent
+CLAUDE_CODE_PATH=claude
+
+# OpenTelemetry (optional, for tracing)
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 ```
 
 ## Development Workflow
@@ -474,6 +540,98 @@ If you need help:
 3. Ask in discussions
 4. Review architecture docs for context
 
+## Crate-Specific Guidelines
+
+### agileplus-domain (most important crate)
+
+The domain crate must have **zero external I/O dependencies**. Adding `tokio`, `sqlx`, `reqwest`, or any crate that does I/O is not allowed:
+
+```toml
+# Allowed in agileplus-domain/Cargo.toml:
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }            # for hash chain
+chrono = { workspace = true }          # for timestamps
+thiserror = { workspace = true }       # for error types
+
+# NOT allowed:
+tokio = ...     # no async runtime in domain
+sqlx = ...      # no database in domain
+reqwest = ...   # no HTTP in domain
+```
+
+### agileplus-sqlite (storage adapter)
+
+All queries must use compile-time checked `sqlx::query!` macros:
+
+```rust
+// ✓ Compile-time checked
+let feature = sqlx::query_as!(
+    FeatureRow,
+    "SELECT id, slug, state FROM features WHERE slug = ?",
+    slug
+)
+.fetch_optional(&self.pool)
+.await?;
+
+// ✗ Runtime-only string query (no type checking)
+let feature = sqlx::query("SELECT * FROM features WHERE slug = ?")
+    .bind(slug)
+    .fetch_optional(&self.pool)
+    .await?;
+```
+
+Run `cargo sqlx prepare` to regenerate the offline query cache when changing SQL.
+
+### agileplus-cli (binary crate)
+
+CLI commands must be thin — no business logic here. Commands are orchestrators that call the engine:
+
+```rust
+// ✓ Thin command handler
+async fn handle_specify(args: SpecifyArgs, ctx: &Context) -> Result<()> {
+    let result = ctx.engine.specify_feature(&args.title, &args.description).await?;
+    println!("✓ Created feature: {}", result.slug);
+    Ok(())
+}
+
+// ✗ Business logic in CLI handler
+async fn handle_specify(args: SpecifyArgs, ctx: &Context) -> Result<()> {
+    // Don't put domain logic here — it belongs in the engine
+    let spec = validate_spec(&args.title)?;
+    let hash = sha256(spec.as_bytes());
+    let feature = Feature::new(&args.title, hash);
+    ctx.storage.create_feature(&feature).await?;
+    ...
+}
+```
+
+## Running Benchmarks
+
+Performance-critical paths have Criterion benchmarks:
+
+```bash
+# Run all benchmarks
+cargo bench --workspace
+
+# Run a specific benchmark
+cargo bench -p agileplus-domain -- audit_chain
+
+# Expected benchmark outputs:
+# audit_chain/hash_entry     time:   [1.2 µs 1.3 µs 1.4 µs]
+# audit_chain/verify_chain   time:   [45 µs 46 µs 47 µs] (100 entries)
+# dependency_graph/kahn_sort time:   [8 µs 9 µs 10 µs] (50 WPs)
+```
+
+If a PR regresses performance by >10% on any benchmark, CI will flag it.
+
 ## Code of Conduct
 
 Be respectful, inclusive, and collaborative. See [CODE_OF_CONDUCT.md](https://github.com/KooshaPari/AgilePlus/blob/main/CODE_OF_CONDUCT.md).
+
+## Next Steps
+
+- [Testing](testing.md) — Test patterns and coverage requirements
+- [Extending](extending.md) — Adding storage adapters and CLI subcommands
+- [Architecture Overview](../architecture/overview.md) — Understanding the crate structure
+- [Environment Variables](../reference/env-vars.md) — Local development configuration

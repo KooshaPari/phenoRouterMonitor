@@ -267,3 +267,89 @@ All releases follow this format:
 ```
 
 All changes are tracked in `CHANGELOG.md` in the repository.
+
+## v0.1.x Patch Releases
+
+### v0.1.1 (March 2026 — Expected)
+
+**Bug Fixes**:
+- Fix agent dispatch not inheriting `NATS_URL` from environment when `platform up` is not running
+- Fix `audit-verify` command panicking on empty audit trail (new features with zero transitions)
+- Fix SQLite migration 003 failing on Windows due to path separator in migration filename
+- Fix Plane.so webhook handler returning 500 on malformed JSON payload (now returns 400)
+
+**Improvements**:
+- `agileplus platform status` now shows service uptime and memory usage
+- Audit chain verification is 40% faster (parallel SHA-256 computation)
+- CLI startup time reduced from 120ms to 85ms (lazy-load adapters)
+
+---
+
+## Architectural Changelog
+
+### What Changed in v0.1.0 Architecture vs Pre-release
+
+The pre-release (spec001 WP01-WP20) established the core domain model and CLI. v0.1.0 completed:
+
+**WP19**: Process-compose orchestration
+- Added `process-compose.yaml` with NATS, Dragonfly, Neo4j, MinIO services
+- Added `agileplus platform up/down/status/logs` subcommands
+- Health check endpoints for all services
+
+**WP20**: htmx dashboard MVP
+- Added `agileplus-api` crate with Askama templates
+- SSE event stream for real-time WP state updates
+- Alpine.js drag-and-drop for Kanban board
+- Feature and WP detail pages
+
+**WP21**: Git-backed state sync
+- Added `VcsPort::export_state()` and `import_state()`
+- P2P sync via Tailscale peer discovery
+- Vector clock implementation for causal consistency
+
+**Spec003** (post-v0.1.0): Platform completion
+- NATS JetStream integration for all domain events
+- Dragonfly job state tracking for async agent dispatch
+- Neo4j dependency graph for advanced WP scheduling
+- MinIO artifact storage with presigned URLs
+- OpenTelemetry traces/metrics across all crates
+
+## Compatibility Matrix
+
+| AgilePlus Version | Rust Version | SQLite | NATS | Dragonfly |
+|-------------------|-------------|--------|------|-----------|
+| v0.1.0 | 1.85+ | 3.35+ | 2.10+ | 1.0+ |
+| v0.2.0 (planned) | 1.85+ | 3.35+ | 2.10+ | 1.0+ |
+
+## Upgrade Guide (v0.0.x → v0.1.0)
+
+If you used a pre-release build:
+
+```bash
+# 1. Back up your database
+cp .agileplus/agileplus.db .agileplus/agileplus.db.bak
+
+# 2. Install v0.1.0
+cargo install --path crates/agileplus-cli --force
+
+# 3. Run migrations
+agileplus db migrate
+# Output: Applied 3 new migrations (003..005)
+
+# 4. Verify your data
+agileplus feature list
+agileplus events audit-verify --feature user-authentication
+
+# 5. Update config.toml (new fields in v0.1.0)
+# Add to .kittify/config.toml:
+# [platform]
+# nats_url = "nats://localhost:4222"
+# dragonfly_url = "redis://localhost:6379"
+```
+
+## Next Steps
+
+- [Quick Start](../guide/quick-start.md) — Get running with v0.1.0
+- [Environment Variables](../reference/env-vars.md) — New v0.1.0 configuration options
+- [Architecture Overview](../architecture/overview.md) — What was added in v0.1.0
+- [Roadmap](index.md) — What's coming in v0.2.0

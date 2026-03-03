@@ -524,3 +524,120 @@ agent:
 4. **Real-time monitoring** — Watch agent progress via CLI
 5. **Quality gates** — Automated review before merge
 6. **Dependency awareness** — Unblocking happens automatically when dependencies complete
+
+## Complete Audit Trail After WP02
+
+After WP02 completes and is merged, the audit chain for `003-auth-system` looks like:
+
+```jsonl
+{"id":1,"feature_id":3,"wp_id":null,"timestamp":"2026-03-01T08:00:00Z","actor":"human:alice","transition":"created->specified","prev_hash":"0000...","hash":"1a2b..."}
+{"id":2,"feature_id":3,"wp_id":null,"timestamp":"2026-03-01T10:00:00Z","actor":"agent:claude-code","transition":"specified->researched","prev_hash":"1a2b...","hash":"3c4d..."}
+{"id":3,"feature_id":3,"wp_id":null,"timestamp":"2026-03-01T12:00:00Z","actor":"agent:claude-code","transition":"researched->planned","prev_hash":"3c4d...","hash":"5e6f..."}
+{"id":4,"feature_id":3,"wp_id":1,"timestamp":"2026-03-01T13:00:00Z","actor":"agent:claude-code","transition":"WP01:planned->doing","prev_hash":"5e6f...","hash":"7a8b..."}
+{"id":5,"feature_id":3,"wp_id":1,"timestamp":"2026-03-01T16:00:00Z","actor":"agent:claude-code","transition":"WP01:doing->review","prev_hash":"7a8b...","hash":"9c0d..."}
+{"id":6,"feature_id":3,"wp_id":1,"timestamp":"2026-03-01T17:00:00Z","actor":"ci:automation","transition":"WP01:review->done","prev_hash":"9c0d...","hash":"1e2f...","evidence_refs":[{"fr_id":"FR-001","evidence_id":1}]}
+{"id":7,"feature_id":3,"wp_id":2,"timestamp":"2026-03-02T09:00:00Z","actor":"agent:claude-code","transition":"WP02:planned->doing","prev_hash":"1e2f...","hash":"3a4b..."}
+{"id":8,"feature_id":3,"wp_id":2,"timestamp":"2026-03-02T11:00:00Z","actor":"agent:claude-code","transition":"WP02:doing->review","prev_hash":"3a4b...","hash":"5c6d..."}
+{"id":9,"feature_id":3,"wp_id":2,"timestamp":"2026-03-02T12:00:00Z","actor":"ci:automation","transition":"WP02:review->done","prev_hash":"5c6d...","hash":"7e8f..."}
+```
+
+Verify the chain at any time:
+
+```bash
+agileplus events audit-verify --feature 003-auth-system
+# ✓ Audit chain intact (9 entries verified)
+# Hash coverage: created (id=1) → WP02 done (id=9)
+```
+
+## NATS Events Flow for This Example
+
+Every transition above published a NATS message. Here is the full message flow for WP02:
+
+```
+Subject: agileplus.feature.003-auth-system.wp.WP02.state.changed
+Payload: {"from":"planned","to":"doing","actor":"agent:claude-code","job_id":"sess_w7k2j3l9m"}
+
+Subject: agileplus.agent.job.sess_w7k2j3l9m.started
+Payload: {"feature_slug":"003-auth-system","wp_id":"WP02","pid":54321}
+
+Subject: agileplus.agent.job.sess_w7k2j3l9m.commit
+Payload: {"sha":"4e7a3c2","message":"feat(WP02): implement login endpoint with JWT"}
+
+Subject: agileplus.agent.job.sess_w7k2j3l9m.commit
+Payload: {"sha":"a8f2b5e","message":"feat(WP02): add login handler tests (15 test cases)"}
+
+Subject: agileplus.agent.job.sess_w7k2j3l9m.completed
+Payload: {"success":true,"commits":4,"files_changed":6,"tests_passed":26}
+
+Subject: agileplus.feature.003-auth-system.wp.WP02.state.changed
+Payload: {"from":"doing","to":"review","actor":"agent:claude-code"}
+
+Subject: agileplus.feature.003-auth-system.wp.WP02.state.changed
+Payload: {"from":"review","to":"done","actor":"ci:automation"}
+
+Subject: agileplus.feature.003-auth-system.wp.WP03.unblocked
+Payload: {"wp_id":"WP03","unblocked_by":"WP02","ready_to_start":true}
+```
+
+The dashboard receives all these via SSE and updates in real-time. No polling required.
+
+## Error Handling: What If the Agent Fails?
+
+If Claude Code exits non-zero or times out:
+
+```bash
+agileplus implement 003 --wp WP02 --agent claude-code
+```
+
+```
+Dispatching WP02 to Claude Code...
+...
+Agent session timeout after 1800 seconds.
+Capturing partial output...
+
+Agent failed:
+  Exit code: -1 (timeout)
+  Commits made: 2 (partial work)
+  Tests: not run
+
+WP02 moved to Blocked state.
+Audit entry recorded: actor=system, transition=WP02:doing->blocked
+Reason: Agent timeout (SIGKILL after 30s warning period)
+
+Next steps:
+  Option 1: Review partial commits and continue manually
+    cd .worktrees/003-auth-system-WP02
+    git log --oneline   # see what was done
+    # ... continue work ...
+    agileplus wp transition WP02 --to review
+
+  Option 2: Retry with fresh agent session
+    agileplus wp transition WP02 --to planned  # reset
+    agileplus implement 003 --wp WP02 --agent claude-code --timeout 3600
+```
+
+The audit entry for the timeout:
+
+```json
+{
+  "id": 8,
+  "transition": "WP02:doing->blocked",
+  "actor": "system:timeout",
+  "evidence_refs": [],
+  "metadata": {
+    "reason": "agent_timeout",
+    "timeout_secs": 1800,
+    "job_id": "sess_w7k2j3l9m",
+    "partial_commits": 2
+  }
+}
+```
+
+## Next Steps
+
+- [Agent Dispatch](../concepts/agent-dispatch.md) — Architecture deep dive
+- [Prompt Format](../agents/prompt-format.md) — What Claude Code receives
+- [Governance Constraints](../agents/governance-constraints.md) — What agents can do
+- [Harness Integration](../agents/harness-integration.md) — Adding new agent adapters
+- [MCP Tools](../sdk/mcp-tools.md) — Programmatic agent control
+- [Feature Lifecycle](../concepts/feature-lifecycle.md) — Full lifecycle from created to shipped

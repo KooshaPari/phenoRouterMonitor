@@ -527,3 +527,253 @@ jobs:
 5. **Mock external dependencies** — Use mocks to isolate code under test
 6. **Test edge cases** — Empty input, maximum values, error conditions
 7. **Run tests frequently** — Run tests before committing, use watch mode during development
+
+## TestHarness: Integration Test Infrastructure
+
+The `TestHarness` struct provides a complete, real-infrastructure test environment without mocks. It spins up:
+- An in-memory SQLite database (no file I/O)
+- A temporary git repository
+- A NATS test server (embedded)
+
+```rust
+// crates/agileplus-engine/tests/common/harness.rs
+
+pub struct TestHarness {
+    pub storage: Arc<dyn StoragePort>,
+    pub vcs: Arc<dyn VcsPort>,
+    pub engine: Engine,
+    pub tmp_dir: TempDir,
+    pub nats: TestNatsServer,
+}
+
+impl TestHarness {
+    pub async fn new() -> anyhow::Result<Self> {
+        let tmp_dir = TempDir::new("agileplus-test")?;
+
+        // In-memory SQLite
+        let storage = SqliteStorageAdapter::in_memory().await?;
+
+        // Real git repo in tmp dir
+        let repo_path = tmp_dir.path().join("repo");
+        git2::Repository::init(&repo_path)?;
+        let vcs = GitVcsAdapter::new(repo_path.clone())?;
+
+        // Embedded NATS for event testing
+        let nats = TestNatsServer::start().await?;
+
+        let engine = Engine::builder()
+            .storage(Arc::new(storage.clone()))
+            .vcs(Arc::new(vcs.clone()))
+            .nats_url(&nats.url())
+            .build()
+            .await?;
+
+        Ok(Self { storage: Arc::new(storage), vcs: Arc::new(vcs), engine, tmp_dir, nats })
+    }
+
+    /// Create a feature in Created state
+    pub async fn create_feature(&self, slug: &str) -> Feature {
+        let feature = Feature::new(slug, "Test Feature", [0u8; 32], None);
+        let id = self.storage.create_feature(&feature).await.unwrap();
+        Feature { id, ..feature }
+    }
+
+    /// Create a feature in Planned state with N work packages
+    pub async fn planned_feature(&self, slug: &str, wp_count: usize) -> (Feature, Vec<WorkPackage>) {
+        let feature = self.create_feature(slug).await;
+        // ... transition through states, create WPs ...
+        (feature, wps)
+    }
+}
+```
+
+Example usage:
+
+```rust
+#[tokio::test]
+async fn feature_validates_when_all_wps_done() {
+    let h = TestHarness::new().await.unwrap();
+    let (feature, wps) = h.planned_feature("user-auth", 3).await;
+
+    // Complete all WPs
+    for wp in &wps {
+        h.engine.transition_wp(wp.id, WpState::Doing).await.unwrap();
+        h.engine.transition_wp(wp.id, WpState::ForReview).await.unwrap();
+        h.engine.transition_wp(wp.id, WpState::Done).await.unwrap();
+    }
+
+    // Validate the feature
+    let result = h.engine.validate_feature(feature.id).await;
+    assert!(result.is_ok());
+
+    // Verify state changed
+    let updated = h.storage.get_feature_by_slug("user-auth").await.unwrap().unwrap();
+    assert_eq!(updated.state, FeatureState::Validated);
+}
+```
+
+## Testing the Audit Hash Chain
+
+The audit chain is a critical integrity component. Test it thoroughly:
+
+```rust
+#[tokio::test]
+async fn audit_chain_detects_tampering() {
+    let h = TestHarness::new().await.unwrap();
+    let feature = h.create_feature("test-feature").await;
+
+    // Transition through several states to build up chain
+    h.engine.specify_feature(feature.id, "spec content").await.unwrap();
+    h.engine.research_feature(feature.id, "research content").await.unwrap();
+
+    // Get the audit trail
+    let entries = h.storage.get_audit_trail(feature.id).await.unwrap();
+    assert_eq!(entries.len(), 2);
+
+    // Verify chain integrity
+    let chain = AuditChain { entries };
+    assert!(chain.verify_chain().is_ok());
+}
+
+#[tokio::test]
+async fn audit_chain_fails_on_modification() {
+    let h = TestHarness::new().await.unwrap();
+    let feature = h.create_feature("test-feature").await;
+    h.engine.specify_feature(feature.id, "spec content").await.unwrap();
+
+    // Tamper with the database directly (simulating an attack)
+    sqlx::query("UPDATE audit_entries SET actor = 'attacker' WHERE id = 1")
+        .execute(h.storage.pool())
+        .await
+        .unwrap();
+
+    let entries = h.storage.get_audit_trail(feature.id).await.unwrap();
+    let chain = AuditChain { entries };
+
+    // Should detect the tampering
+    assert!(matches!(
+        chain.verify_chain(),
+        Err(AuditChainError::TamperedEntry { entry_id: 1, .. })
+    ));
+}
+```
+
+## Testing the Dependency Graph
+
+```rust
+#[tokio::test]
+async fn dependency_graph_detects_cycles() {
+    let mut graph = DependencyGraph::new();
+
+    // Create a cycle: WP1 → WP2 → WP3 → WP1
+    graph.add_edge(WpDependency { wp_id: 2, depends_on: 1, dep_type: DependencyType::Explicit });
+    graph.add_edge(WpDependency { wp_id: 3, depends_on: 2, dep_type: DependencyType::Explicit });
+    graph.add_edge(WpDependency { wp_id: 1, depends_on: 3, dep_type: DependencyType::Explicit });
+
+    assert!(graph.has_cycle());
+    assert!(matches!(
+        graph.execution_order(),
+        Err(DomainError::CyclicDependency { .. })
+    ));
+}
+
+#[tokio::test]
+async fn dependency_graph_computes_parallel_layers() {
+    let mut graph = DependencyGraph::new();
+
+    // WP1 → no deps
+    // WP2 → WP1
+    // WP3 → WP1
+    // WP4 → WP2, WP3
+    graph.add_edge(WpDependency { wp_id: 2, depends_on: 1, dep_type: DependencyType::Explicit });
+    graph.add_edge(WpDependency { wp_id: 3, depends_on: 1, dep_type: DependencyType::Explicit });
+    graph.add_edge(WpDependency { wp_id: 4, depends_on: 2, dep_type: DependencyType::Explicit });
+    graph.add_edge(WpDependency { wp_id: 4, depends_on: 3, dep_type: DependencyType::Explicit });
+
+    let layers = graph.execution_order().unwrap();
+    assert_eq!(layers.len(), 3);
+    assert_eq!(layers[0], vec![1]);          // WP1 alone
+    assert_eq!(layers[1].sort(), vec![2, 3].sort()); // WP2 and WP3 in parallel
+    assert_eq!(layers[2], vec![4]);          // WP4 after both
+}
+```
+
+## Benchmark Patterns with Criterion
+
+For performance-critical operations, use `criterion`:
+
+```toml
+# crates/agileplus-domain/Cargo.toml
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio"] }
+
+[[bench]]
+name = "audit_chain"
+harness = false
+```
+
+```rust
+// crates/agileplus-domain/benches/audit_chain.rs
+
+use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
+use agileplus_domain::domain::audit::{AuditEntry, AuditChain, hash_entry};
+
+fn bench_hash_single_entry(c: &mut Criterion) {
+    let entry = AuditEntry {
+        id: 1,
+        feature_id: 42,
+        wp_id: None,
+        timestamp: chrono::Utc::now(),
+        actor: "human:alice".into(),
+        transition: "created->specified".into(),
+        evidence_refs: vec![],
+        prev_hash: [0u8; 32],
+        hash: [0u8; 32],
+    };
+
+    c.bench_function("hash_entry", |b| {
+        b.iter(|| hash_entry(&entry))
+    });
+}
+
+fn bench_verify_chain_by_length(c: &mut Criterion) {
+    let mut group = c.benchmark_group("verify_chain");
+
+    for n_entries in [10, 100, 1000].iter() {
+        let entries = build_chain_of(*n_entries);
+        let chain = AuditChain { entries };
+
+        group.bench_with_input(
+            BenchmarkId::from_parameter(n_entries),
+            n_entries,
+            |b, _| {
+                b.iter(|| chain.verify_chain())
+            }
+        );
+    }
+
+    group.finish();
+}
+
+criterion_group!(benches, bench_hash_single_entry, bench_verify_chain_by_length);
+criterion_main!(benches);
+```
+
+Run and compare:
+
+```bash
+cargo bench -p agileplus-domain -- audit_chain
+# audit_chain/hash_entry     time: [1.24 µs 1.26 µs 1.28 µs]
+# audit_chain/verify/10      time: [12.3 µs 12.5 µs 12.7 µs]
+# audit_chain/verify/100     time: [124 µs 126 µs 128 µs]
+# audit_chain/verify/1000    time: [1.24 ms 1.26 ms 1.28 ms]
+```
+
+Performance is linear in chain length — expected given SHA-256 is O(n) per entry.
+
+## Next Steps
+
+- [Contributing](contributing.md) — Development setup and PR workflow
+- [Extending](extending.md) — Adding adapters and subcommands
+- [Architecture Overview](../architecture/overview.md) — Crate structure
+- [Domain Model](../architecture/domain-model.md) — Entity relationships for test data

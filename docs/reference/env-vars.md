@@ -451,3 +451,175 @@ export AGILEPLUS_GRPC_PORT="50051"
 export AGILEPLUS_API_TOKEN="$(openssl rand -hex 32)"
 agileplus mcp serve
 ```
+
+## NATS JetStream Configuration
+
+When running with the full platform stack:
+
+```bash
+NATS_URL=nats://localhost:4222 \
+NATS_STREAM_NAME=agileplus \
+NATS_MAX_AGE=168h \
+agileplus platform up
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NATS_URL` | `nats://localhost:4222` | NATS server URL |
+| `NATS_CREDS` | — | NATS credentials file path (for auth) |
+| `NATS_STREAM_NAME` | `agileplus` | JetStream stream name |
+| `NATS_MAX_AGE` | `168h` (7 days) | Message retention period |
+| `NATS_MAX_BYTES` | `1gb` | Stream storage limit |
+| `NATS_REPLICAS` | `1` | Number of stream replicas (for clustering) |
+
+## Dragonfly / Redis Configuration
+
+```bash
+DRAGONFLY_URL=redis://localhost:6379 \
+DRAGONFLY_MAX_MEMORY=512mb \
+agileplus platform up
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DRAGONFLY_URL` | `redis://localhost:6379` | Dragonfly/Redis connection URL |
+| `DRAGONFLY_PASSWORD` | — | Authentication password |
+| `DRAGONFLY_DB` | `0` | Database number |
+| `DRAGONFLY_KEY_PREFIX` | `agileplus:` | Key namespace prefix |
+| `DRAGONFLY_JOB_TTL` | `7200` | Job state TTL in seconds (2 hours) |
+
+## Neo4j Configuration
+
+```bash
+NEO4J_URI=bolt://localhost:7687 \
+NEO4J_USER=neo4j \
+NEO4J_PASSWORD=password \
+agileplus platform up
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NEO4J_URI` | `bolt://localhost:7687` | Neo4j Bolt protocol URI |
+| `NEO4J_USER` | `neo4j` | Neo4j username |
+| `NEO4J_PASSWORD` | — | Neo4j password |
+| `NEO4J_DATABASE` | `neo4j` | Database name (Enterprise: any name) |
+| `NEO4J_MAX_CONNECTIONS` | `10` | Connection pool size |
+
+## MinIO Artifact Storage
+
+```bash
+MINIO_ENDPOINT=http://localhost:9000 \
+MINIO_ACCESS_KEY=minioadmin \
+MINIO_SECRET_KEY=minioadmin \
+MINIO_BUCKET=agileplus-artifacts \
+agileplus platform up
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MINIO_ENDPOINT` | `http://localhost:9000` | MinIO server URL |
+| `MINIO_ACCESS_KEY` | — | S3 access key ID |
+| `MINIO_SECRET_KEY` | — | S3 secret access key |
+| `MINIO_BUCKET` | `agileplus-artifacts` | Artifact storage bucket |
+| `MINIO_REGION` | `us-east-1` | Region (any value for local MinIO) |
+| `MINIO_USE_SSL` | `false` | Enable HTTPS |
+
+For AWS S3 instead of MinIO:
+
+```bash
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=secret...
+AWS_DEFAULT_REGION=us-east-1
+MINIO_ENDPOINT=https://s3.amazonaws.com
+MINIO_BUCKET=my-agileplus-artifacts
+MINIO_USE_SSL=true
+```
+
+## Tailscale (P2P Sync)
+
+```bash
+TAILSCALE_AUTH_KEY=tskey-auth-... \
+TAILSCALE_HOSTNAME=agileplus-laptop \
+agileplus device discover
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TAILSCALE_AUTH_KEY` | — | Tailscale auth key for device registration |
+| `TAILSCALE_HOSTNAME` | system hostname | Device name on Tailscale mesh |
+| `TAILSCALE_TAGS` | — | ACL tags for the device |
+| `AGILEPLUS_P2P_ENABLED` | `false` | Enable P2P sync via Tailscale |
+| `AGILEPLUS_P2P_SYNC_INTERVAL` | `30` | Seconds between peer sync attempts |
+
+## Sync Platform Configuration
+
+### Plane.so
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PLANE_API_KEY` | Yes for sync | API key from Plane workspace settings |
+| `PLANE_WORKSPACE` | Yes for sync | Workspace slug from URL |
+| `PLANE_PROJECT` | — | Default project slug |
+| `PLANE_API_URL` | — | Custom Plane instance (self-hosted) |
+| `PLANE_WEBHOOK_SECRET` | For webhooks | HMAC secret for webhook validation |
+| `PLANE_SYNC_BIDIRECTIONAL` | `false` | Enable two-way sync |
+
+### GitHub
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GITHUB_TOKEN` | Yes for sync | PAT with `repo, workflow` scopes |
+| `GITHUB_OWNER` | Yes for sync | Repository owner (user or org) |
+| `GITHUB_REPO` | Yes for sync | Repository name |
+| `GITHUB_API_BASE` | — | Custom base URL (GitHub Enterprise) |
+| `GITHUB_WEBHOOK_SECRET` | For webhooks | HMAC secret for webhook validation |
+
+## Complete `.env` Template
+
+```bash
+# Copy to .env and fill in your values
+# Never commit .env to git
+
+# ─── Core ───────────────────────────────────────────────
+AGILEPLUS_LOG_LEVEL=info
+AGILEPLUS_DB=.agileplus/agileplus.db
+AGILEPLUS_WORKTREE_DIR=.worktrees
+
+# ─── Platform Services ──────────────────────────────────
+NATS_URL=nats://localhost:4222
+DRAGONFLY_URL=redis://localhost:6379
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=change-me
+MINIO_ENDPOINT=http://localhost:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=change-me
+
+# ─── Sync Integrations ──────────────────────────────────
+PLANE_API_KEY=
+PLANE_WORKSPACE=
+GITHUB_TOKEN=
+GITHUB_OWNER=
+GITHUB_REPO=
+
+# ─── Agent Dispatch ─────────────────────────────────────
+AGILEPLUS_AGENT=claude-code
+AGILEPLUS_AGENT_TIMEOUT=1800
+CLAUDE_CODE_PATH=claude
+
+# ─── Observability ──────────────────────────────────────
+AGILEPLUS_LOG_FORMAT=json
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+OTEL_SERVICE_NAME=agileplus
+
+# ─── API Server ─────────────────────────────────────────
+AGILEPLUS_HTTP_HOST=127.0.0.1
+AGILEPLUS_HTTP_PORT=8080
+```
+
+## Next Steps
+
+- [Quick Start](../guide/quick-start.md) — Get the platform running
+- [Sync Guide](../guide/sync.md) — Configure Plane.so and GitHub
+- [Architecture Overview](../architecture/overview.md) — Infrastructure components
+- [Contributing](../developers/contributing.md) — Local development setup

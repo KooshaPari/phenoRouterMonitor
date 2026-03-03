@@ -17,6 +17,7 @@ const audienceMap: Record<string, string[]> = {
   'concepts/feature-lifecycle': ['developers', 'pms', 'agents'],
   // Agents
   'agents/prompt-format': ['agents'],
+  'agents/subcommand-reference': ['agents'],
   'agents/governance-constraints': ['agents'],
   'agents/harness-integration': ['agents', 'developers'],
   // Developers
