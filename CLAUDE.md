@@ -1,142 +1,201 @@
-## CI Completeness Policy
+# Agent Rules for Spec Kitty Projects
 
-**This project is managed through AgilePlus.**
+**⚠️ CRITICAL**: All AI agents working in this project must follow these rules.
 
-## AgilePlus Mandate
-
-All work MUST be tracked in AgilePlus:
-- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
-- CLI: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
-
-## Work Requirements
-
-1. **Check for AgilePlus spec before implementing**
-2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
-3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
-4. **No code without corresponding AgilePlus spec**
-
-## Branch Discipline
-
-- Feature branches in `repos/worktrees/<project>/<category>/<branch>`
-- Canonical repository tracks `main` only
-- Return to `main` for merge/integration checkpoints
-
-## UTF-8 Encoding
-
-All markdown files must use UTF-8.
+These rules apply to **all commands** (specify, plan, research, tasks, implement, review, merge, etc.).
 
 ---
 
+## 1. Path Reference Rule
 
+**When you mention directories or files, provide either the absolute path or a path relative to the project root.**
 
-- Always evaluate and fix ALL CI check failures on a PR, including pre-existing failures inherited from main.
-- Never dismiss a CI failure as "pre-existing" or "unrelated to our changes" — if it fails on the PR, fix it in the PR.
-- This includes: build, lint, test, docs build, security scanning (CodeQL), code review gates (CodeRabbit), workflow guard checks, and any other CI jobs.
-- When a failure is caused by infrastructure outside the branch (e.g., rate limits, external service outages), implement or improve automated retry/bypass mechanisms in CI workflows.
-- After fixing CI failures, verify locally where possible (build, vet, tests) before pushing.
+✅ **CORRECT**:
+- `kitty-specs/001-feature/tasks/WP01.md`
+- `/Users/robert/Code/myproject/kitty-specs/001-feature/spec.md`
+- `tasks/WP01.md` (relative to feature directory)
 
-## Phenotype Git and Delivery Workflow Protocol <!-- PHENOTYPE_GIT_DELIVERY_PROTOCOL -->
+❌ **WRONG**:
+- "the tasks folder" (which one? where?)
+- "WP01.md" (in which lane? which feature?)
+- "the spec" (which feature's spec?)
 
-- Use branch-based delivery with pull requests; do not rely on direct default-branch writes where rulesets apply.
-- Prefer stacked PRs for multi-part changes so each PR is small, reviewable, and independently mergeable.
-- Keep PRs linear and scoped: one concern per PR, explicit dependency order for stacks, and clear migration steps.
-- Enforce CI and required checks strictly: do not merge until all required checks and policy gates are green.
-- Resolve all review threads and substantive PR comments before merge; do not leave unresolved reviewer feedback.
-- Follow repository coding standards and best practices (typing, tests, lint, docs, security) before requesting merge.
-- Rebase or restack to keep branches current with target branch and to avoid stale/conflicting stacks.
-- When a ruleset or merge policy blocks progress, surface the blocker explicitly and adapt the plan (for example: open PR path, restack, or split changes).
-
-## Phenotype Org Cross-Project Reuse Protocol <!-- PHENOTYPE_SHARED_REUSE_PROTOCOL -->
-
-- Treat this repository as part of the broader Phenotype organization project collection, not an isolated codebase.
-- During research and implementation, actively identify code that is sharable, modularizable, splittable, or decomposable for reuse across repositories.
-- When reusable logic is found, prefer extraction into existing shared modules/projects first; if none fit, propose creating a new shared module/project.
-- Include a `Cross-Project Reuse Opportunities` section in plans with candidate code, target shared location, impacted repos, and migration order.
-- For cross-repo moves or ownership-impacting extractions, ask the user for confirmation on destination and rollout, then bake that into the execution plan.
-- Execute forward-only migrations: extract shared code, update all callers, and remove duplicated local implementations.
-
-## Phenotype Long-Term Stability and Non-Destructive Change Protocol <!-- PHENOTYPE_LONGTERM_STABILITY_PROTOCOL -->
-
-- Optimize for long-term platform value over short-term convenience; choose durable solutions even when implementation complexity is higher.
-- Classify proposed changes as `quick_fix` or `stable_solution`; prefer `stable_solution` unless an incident response explicitly requires a temporary fix.
-- Do not use deletions/reversions as the default strategy; prefer targeted edits, forward fixes, and incremental hardening.
-- Prefer moving obsolete or superseded material into `.archive/` over destructive removal when retention is operationally useful.
-- Prefer clean manual merges, explicit conflict resolution, and auditable history over forceful rewrites, force merges, or history-destructive workflows.
-- Prefer completing unused stubs into production-quality implementations when they represent intended product direction; avoid leaving stubs ignored indefinitely.
-- Do not merge any PR while any check is failing, including non-required checks, unless the user gives explicit exception approval.
-- When proposing a quick fix, include a scheduled follow-up path to a stable solution in the same plan.
-
-## Worktree Discipline
-
-- Feature work goes in `.worktrees/<topic>/`
-- Legacy `PROJECT-wtrees/` and `repo-wtrees/` roots are for migration only and must not receive new work.
-- Canonical repository remains on `main` for final integration and verification.
+**Why**: Clarity and precision prevent errors. Never refer to a folder by name alone.
 
 ---
 
-## Architecture
+## 2. UTF-8 Encoding Rule
 
-### Hexagonal Architecture (Ports & Adapters)
+**When writing ANY markdown, JSON, YAML, CSV, or code files, use ONLY UTF-8 compatible characters.**
 
-This project follows Hexagonal Architecture with clear separation of concerns:
+### What to Avoid (Will Break the Dashboard)
 
+❌ **Windows-1252 smart quotes**: " " ' ' (from Word/Outlook/Office)
+❌ **Em/en dashes and special punctuation**: — –
+❌ **Copy-pasted arrows**: → (becomes illegal bytes)
+❌ **Multiplication sign**: × (0xD7 in Windows-1252)
+❌ **Plus-minus sign**: ± (0xB1 in Windows-1252)
+❌ **Degree symbol**: ° (0xB0 in Windows-1252)
+❌ **Copy/paste from Microsoft Office** without cleaning
+
+**Real examples that crashed the dashboard:**
+- "User's favorite feature" → "User's favorite feature" (smart quote)
+- "Price: $100 ± $10" → "Price: $100 +/- $10"
+- "Temperature: 72°F" → "Temperature: 72 degrees F"
+- "3 × 4 matrix" → "3 x 4 matrix"
+
+### What to Use Instead
+
+✅ Standard ASCII quotes: `"`, `'`
+✅ Hyphen-minus: `-` instead of en/em dash
+✅ ASCII arrow: `->` instead of →
+✅ Lowercase `x` for multiplication
+✅ `+/-` for plus-minus
+✅ ` degrees` for temperature
+✅ Plain punctuation
+
+### Safe Characters
+
+✅ Emoji (proper UTF-8)  
+✅ Accented characters typed directly: café, naïve, Zürich  
+✅ Unicode math typed directly (√ ≈ ≠ ≤ ≥)  
+
+### Copy/Paste Guidance
+
+1. Paste into a plain-text buffer first (VS Code, TextEdit in plain mode)
+2. Replace smart quotes and dashes
+3. Verify no � replacement characters appear
+4. Run `spec-kitty validate-encoding --feature <feature-id>` to check
+5. Run `spec-kitty validate-encoding --feature <feature-id> --fix` to auto-repair
+
+**Failure to follow this rule causes the dashboard to render blank pages.**
+
+### Auto-Fix Available
+
+If you accidentally introduce problematic characters:
+```bash
+# Check for encoding issues
+spec-kitty validate-encoding --feature 001-my-feature
+
+# Automatically fix all issues (creates .bak backups)
+spec-kitty validate-encoding --feature 001-my-feature --fix
+
+# Check all features at once
+spec-kitty validate-encoding --all --fix
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         Hexagonal Architecture                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   ┌──────────────┐     ┌──────────────────┐     ┌──────────────────┐        │
-│   │    Ports    │     │      Domain      │     │    Adapters     │        │
-│   │(Interfaces) │◄────▶│     (Core)       │◄────▶│(Implementations)│        │
-│   │             │     │                  │     │                  │        │
-│   │  Inbound:   │     │   Business       │     │  Outbound:      │        │
-│   │  - UseCase │     │   Logic          │     │  - Repository   │        │
-│   │  - Command │     │                  │     │  - CachePort    │        │
-│   │  - Query   │     │                  │     │  - SecretPort   │        │
-│   │  - Event   │     │                  │     │  - EventBus     │        │
-│   └──────────────┘     └──────────────────┘     └──────────────────┘        │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+
+---
+
+## 3. Context Management Rule
+
+**Build the context you need, then maintain it intelligently.**
+
+- Session start (0 tokens): You have zero context. Read plan.md, tasks.md, relevant artifacts.  
+- Mid-session (you already read them): Use your judgment—don’t re-read everything unless necessary.  
+- Never skip relevant information; do skip redundant re-reads to save tokens.  
+- Rely on the steps in the command you are executing.
+
+---
+
+## 4. Work Quality Rule
+
+**Produce secure, tested, documented work.**
+
+- Follow the plan and constitution requirements.  
+- Prefer existing patterns over invention.  
+- Treat security warnings as fatal—fix or escalate.  
+- Run all required tests before claiming work is complete.  
+- Be transparent: state what you did, what you didn’t, and why.
+
+---
+
+## 5. Git Discipline Rule
+
+**Keep commits clean and auditable.**
+
+- Commit only meaningful units of work.
+- Write descriptive commit messages (imperative mood).
+- Do not rewrite history of shared branches.
+- Keep feature branches up to date with main via merge or rebase as appropriate.
+- Never commit secrets, tokens, or credentials.
+
+---
+
+## 6. Git Best Practices for Agent Directories
+
+**NEVER commit agent directories to git.**
+
+### Why Agent Directories Must Not Be Committed
+
+Agent directories like `.claude/`, `.codex/`, `.gemini/` contain:
+- Authentication tokens and API keys
+- User-specific credentials (auth.json)
+- Session data and conversation history
+- Temporary files and caches
+
+### What Should Be Committed
+
+✅ **DO commit:**
+- `.kittify/templates/` - Command templates (source)
+- `.kittify/missions/` - Mission definitions
+- `.kittify/memory/constitution.md` - Project constitution
+- `.gitignore` - With all agent directories excluded
+
+❌ **DO NOT commit:**
+- `.claude/`, `.codex/`, `.gemini/`, etc. - Agent runtime directories
+- `.kittify/templates/command-templates/` - These are templates, not final commands
+- Any `auth.json`, `credentials.json`, or similar files
+
+### Automatic Protection
+
+Spec Kitty automatically:
+1. Adds all agent directories to `.gitignore` during `spec-kitty init`
+2. Installs pre-commit hook to block accidental commits
+3. Creates `.claudeignore` to optimize AI scanning
+
+### Manual Verification
+
+```bash
+# Verify .gitignore protection
+cat .gitignore | grep -E '\.(claude|codex|gemini|cursor)/'
+
+# Check for accidentally staged agent files
+git status | grep -E '\.(claude|codex|gemini|cursor)/'
+
+# If you find staged agent files, unstage them:
+git reset HEAD .claude/
 ```
 
-### Crate Structure
+### Worktree Constitution Sharing
 
-```
-crates/
-├── phenotype-contracts/     # Ports (interfaces) for hexagonal architecture
-│   └── src/
-│       ├── ports/
-│       │   ├── inbound/    # Driving ports (UseCase, CommandHandler, QueryHandler)
-│       │   └── outbound/   # Driven ports (Repository, CachePort, SecretPort)
-│       └── models/         # Domain models (Entity, ValueObject, AggregateRoot)
-├── phenotype-cache-adapter/ # Redis cache adapter
-├── phenotype-event-sourcing/# Event sourcing infrastructure
-├── phenotype-policy-engine/ # Policy evaluation engine
-└── phenotype-state-machine/ # State machine implementation
+In worktrees, `.kittify/memory/` is a symlink to the main repo's memory,
+ensuring all feature branches share the same constitution.
+
+```bash
+# In a worktree, this should show a symlink:
+ls -la .kittify/memory
+# lrwxr-xr-x ... .kittify/memory -> ../../../.kittify/memory
 ```
 
-### Design Principles
+This is intentional and correct - it ensures a single source of truth for project principles.
 
-| Principle | Description | Application |
-|-----------|-------------|-------------|
-| **SOLID** | Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion | Ports define minimal interfaces; Domain depends on abstractions |
-| **GRASP** | General Responsibility Assignment Software Patterns | Low Coupling, High Cohesion, Information Expert |
-| **Law of Demeter** | Talk only to immediate friends | Adapters only access ports they implement |
-| **DRY** | Don't Repeat Yourself | Shared contracts in `phenotype-contracts` |
-| **KISS** | Keep It Simple, Stupid | Minimal interfaces, focused crates |
-| **YAGNI** | You Aren't Gonna Need It | Build features as needed |
+---
 
-### xDD Methodologies Applied
+### Quick Reference
 
-| Category | Methodologies |
-|----------|--------------|
-| **Development** | TDD, BDD, DDD, CQRS, ATDD, SDD |
-| **Design** | SOLID, GRASP, DRY, KISS, YAGNI, LoD, SoC |
-| **Architecture** | Clean, Hexagonal, Onion, EDA, Event Sourcing |
-| **Quality** | Property-Based Testing, Mutation Testing, Contract Testing |
-| **Process** | CI/CD, Agile, Scrum, Kanban, GitOps |
-| **Documentation** | ADRs, RFC, Runbooks, SpecDD |
+- 📁 **Paths**: Always specify exact locations.  
+- 🔤 **Encoding**: UTF-8 only. Run the validator when unsure.  
+- 🧠 **Context**: Read what you need; don’t forget what you already learned.  
+- ✅ **Quality**: Follow secure, tested, documented practices.  
+- 📝 **Git**: Commit cleanly with clear messages.
+## Child-Agent and Delegation Policy
+- Use child agents liberally for scoped discovery, audits, multi-repo scans, and implementation planning before direct parent-agent edits.
+- Prefer delegating high-context or high-churn tasks to subagents, and keep parent-agent changes focused on integration and finalization.
+- Reserve parent-agent direct writes for the narrowest, final decision layer.
 
-### ADRs (Architecture Decision Records)
+## Child Agent Usage
+- Use child agents liberally for discovery-heavy, migration-heavy, and high-context work.
+- Delegate broad scans, decomposition, and implementation waves to subagents before final parent-agent integration.
+- Keep the parent lane focused on deterministic integration and finalization.
+- Preserve explicit handoffs and cross-agent context in session notes and audits.
 
-See `docs/adr/` for architecture decisions.
