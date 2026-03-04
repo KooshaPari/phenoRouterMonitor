@@ -1,13 +1,17 @@
 ---
 work_package_id: WP01
-title: "Domain Entities - Module & Cycle"
-lane: planned
-phase: "Phase 1 - Domain"
+title: Domain Entities - Module & Cycle
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 3d3f72886c95592ae83f525d4416118882ab189f
+created_at: '2026-03-04T01:51:18.239715+00:00'
 subtasks: [T001, T002, T003, T004, T005, T006]
-priority: P1
-frs: [FR-M01, FR-M02, FR-M03, FR-M04, FR-M07, FR-C01, FR-C02, FR-C03, FR-C04, FR-C05, FR-C07]
+phase: Phase 1 - Domain
 estimated_lines: 350
+frs: [FR-M01, FR-M02, FR-M03, FR-M04, FR-M07, FR-C01, FR-C02, FR-C03, FR-C04, FR-C05, FR-C07]
+priority: P1
+shell_pid: "88923"
 ---
 
 # WP01: Domain Entities - Module & Cycle
