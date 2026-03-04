@@ -22,6 +22,11 @@ pub struct Feature {
     /// Labels synced with Plane.so.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub labels: Vec<String>,
+    /// Module that owns this feature (strict ownership, one per feature).
+    /// Null for features that predate module support or are unassigned.
+    /// Traces to: FR-M03
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub module_id: Option<i64>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -44,6 +49,7 @@ impl Feature {
             plane_issue_id: None,
             plane_state_id: None,
             labels: Vec::new(),
+            module_id: None,
             created_at: now,
             updated_at: now,
         }
@@ -143,5 +149,28 @@ mod tests {
         assert!(json.contains("abababab"));
         let f2: Feature = serde_json::from_str(&json).unwrap();
         assert_eq!(f2.spec_hash, [0xab; 32]);
+    }
+
+    #[test]
+    fn feature_module_id_defaults_to_none() {
+        let f = Feature::new("f", "F", [0u8; 32], None);
+        assert_eq!(f.module_id, None);
+    }
+
+    #[test]
+    fn feature_without_module_id_deserialises() {
+        // JSON without a module_id key must deserialise with module_id == None.
+        let json = r#"{
+            "id": 0,
+            "slug": "test",
+            "friendly_name": "Test",
+            "state": "created",
+            "spec_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "target_branch": "main",
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-01T00:00:00Z"
+        }"#;
+        let f: Feature = serde_json::from_str(json).unwrap();
+        assert_eq!(f.module_id, None);
     }
 }

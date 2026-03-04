@@ -28,4 +28,21 @@ pub enum DomainError {
     Conflict(String),
     #[error("{0}")]
     Other(String),
+    // --- Module errors ---
+    #[error("module not found: {0}")]
+    ModuleNotFound(String),
+    #[error("circular module reference: cannot set {child} as parent of {ancestor}")]
+    CircularModuleRef { child: String, ancestor: String },
+    #[error("module has dependents: {0}")]
+    ModuleHasDependents(String),
+    #[error("feature not in module scope: feature {feature_slug} is not owned by or tagged to module {module_slug}")]
+    FeatureNotInModuleScope {
+        feature_slug: String,
+        module_slug: String,
+    },
+    // --- Cycle errors ---
+    #[error("cycle not found: {0}")]
+    CycleNotFound(String),
+    #[error("cycle gate not met: {0}")]
+    CycleGateNotMet(String),
 }
