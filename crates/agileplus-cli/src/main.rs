@@ -10,7 +10,7 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use agileplus_cli::commands::{
-    implement::ImplementArgs, plan::PlanArgs, queue::QueueArgs,
+    implement::ImplementArgs, module::ModuleArgs, plan::PlanArgs, queue::QueueArgs,
     research::ResearchArgs, retrospective::RetrospectiveArgs,
     ship::ShipArgs, specify::SpecifyArgs, triage::TriageArgs,
     validate::ValidateArgs,
@@ -61,6 +61,8 @@ enum Commands {
     Triage(TriageArgs),
     /// Manage the triage backlog queue.
     Queue(QueueArgs),
+    /// Manage modules (product-area groupings of features).
+    Module(ModuleArgs),
 }
 
 #[tokio::main]
@@ -91,6 +93,20 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Triage(args) => return agileplus_cli::commands::triage::run_triage(args).await,
         Commands::Queue(args) => return agileplus_cli::commands::queue::run_queue(args).await,
         _ => {}
+    }
+
+    // Module command only needs storage (no VCS)
+    if let Commands::Module(args) = cli.command {
+        // Initialise storage adapter early for module commands
+        if let Some(parent) = cli.db.parent() {
+            if !parent.as_os_str().is_empty() && !parent.exists() {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("creating directory {}", parent.display()))?;
+            }
+        }
+        let storage = SqliteStorageAdapter::new(&cli.db)
+            .with_context(|| format!("opening database at {}", cli.db.display()))?;
+        return agileplus_cli::commands::module::run(args, &storage).await;
     }
 
     // Initialise storage adapter (create DB directory if needed)
@@ -137,7 +153,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Retrospective(args) => {
             agileplus_cli::commands::retrospective::run_retrospective(args, &storage, &vcs).await?;
         }
-        Commands::Triage(_) | Commands::Queue(_) => unreachable!("handled above"),
+        Commands::Triage(_) | Commands::Queue(_) | Commands::Module(_) => unreachable!("handled above"),
     }
 
     Ok(())
