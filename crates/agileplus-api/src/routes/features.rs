@@ -129,6 +129,7 @@ where
         plane_issue_id: None,
         plane_state_id: None,
         labels: vec![],
+        module_id: None,
         created_at: now,
         updated_at: now,
     };

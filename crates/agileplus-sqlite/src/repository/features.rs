@@ -33,6 +33,8 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
     let target_branch: String = row.get(5)?;
     let created_at_str: String = row.get(6)?;
     let updated_at_str: String = row.get(7)?;
+    // module_id column added by migration 015 -- may be NULL.
+    let module_id: Option<i64> = row.get(8).unwrap_or(None);
 
     let state = state_str
         .parse::<FeatureState>()
@@ -61,6 +63,7 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
         plane_issue_id: None,
         plane_state_id: None,
         labels: Vec::new(),
+        module_id,
         created_at,
         updated_at,
     })

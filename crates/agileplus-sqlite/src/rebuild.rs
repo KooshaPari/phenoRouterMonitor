@@ -166,6 +166,7 @@ impl SqliteStorageAdapter {
             plane_issue_id: None,
             plane_state_id: None,
             labels: Vec::new(),
+            module_id: None,
             created_at,
             updated_at,
         };

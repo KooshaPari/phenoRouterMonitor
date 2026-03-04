@@ -15,9 +15,11 @@ use rusqlite::Connection;
 use agileplus_domain::{
     domain::{
         audit::AuditEntry,
+        cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures},
         feature::Feature,
         governance::{Evidence, GovernanceContract, PolicyRule},
         metric::Metric,
+        module::{Module, ModuleFeatureTag, ModuleWithFeatures},
         state_machine::FeatureState,
         work_package::{WpDependency, WpState, WorkPackage},
     },
@@ -29,7 +31,7 @@ use agileplus_domain::domain::event::Event;
 use agileplus_events::{EventError, EventStore};
 
 use crate::migrations::MigrationRunner;
-use crate::repository::{audit, events, evidence, features, governance, metrics, work_packages};
+use crate::repository::{audit, cycles, events, evidence, features, governance, metrics, modules, work_packages};
 
 /// SQLite-backed storage adapter.
 ///
@@ -243,6 +245,121 @@ impl StoragePort for SqliteStorageAdapter {
     ) -> Result<Option<GovernanceContract>, DomainError> {
         let conn = self.lock()?;
         governance::get_latest_governance_contract(&conn, feature_id)
+    }
+
+    // -- Module CRUD (T007) --
+
+    async fn create_module(&self, module: &Module) -> Result<i64, DomainError> {
+        let conn = self.lock()?;
+        modules::create_module(&conn, module)
+    }
+
+    async fn get_module(&self, id: i64) -> Result<Option<Module>, DomainError> {
+        let conn = self.lock()?;
+        modules::get_module(&conn, id)
+    }
+
+    async fn get_module_by_slug(&self, slug: &str) -> Result<Option<Module>, DomainError> {
+        let conn = self.lock()?;
+        modules::get_module_by_slug(&conn, slug)
+    }
+
+    async fn update_module(
+        &self,
+        id: i64,
+        friendly_name: &str,
+        description: Option<&str>,
+    ) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        modules::update_module(&conn, id, friendly_name, description)
+    }
+
+    async fn delete_module(&self, id: i64) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        modules::delete_module(&conn, id)
+    }
+
+    async fn list_root_modules(&self) -> Result<Vec<Module>, DomainError> {
+        let conn = self.lock()?;
+        modules::list_root_modules(&conn)
+    }
+
+    async fn list_child_modules(&self, parent_id: i64) -> Result<Vec<Module>, DomainError> {
+        let conn = self.lock()?;
+        modules::list_child_modules(&conn, parent_id)
+    }
+
+    async fn get_module_with_features(
+        &self,
+        id: i64,
+    ) -> Result<Option<ModuleWithFeatures>, DomainError> {
+        let conn = self.lock()?;
+        modules::get_module_with_features(&conn, id)
+    }
+
+    // -- Cycle CRUD (T008) --
+
+    async fn create_cycle(&self, cycle: &Cycle) -> Result<i64, DomainError> {
+        let conn = self.lock()?;
+        cycles::create_cycle(&conn, cycle)
+    }
+
+    async fn get_cycle(&self, id: i64) -> Result<Option<Cycle>, DomainError> {
+        let conn = self.lock()?;
+        cycles::get_cycle(&conn, id)
+    }
+
+    async fn update_cycle_state(&self, id: i64, state: CycleState) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        cycles::update_cycle_state(&conn, id, state)
+    }
+
+    async fn list_cycles_by_state(&self, state: CycleState) -> Result<Vec<Cycle>, DomainError> {
+        let conn = self.lock()?;
+        cycles::list_cycles_by_state(&conn, state)
+    }
+
+    async fn list_cycles_by_module(&self, module_id: i64) -> Result<Vec<Cycle>, DomainError> {
+        let conn = self.lock()?;
+        cycles::list_cycles_by_module(&conn, module_id)
+    }
+
+    async fn get_cycle_with_features(
+        &self,
+        id: i64,
+    ) -> Result<Option<CycleWithFeatures>, DomainError> {
+        let conn = self.lock()?;
+        cycles::get_cycle_with_features(&conn, id)
+    }
+
+    // -- Join table ops (T009) --
+
+    async fn tag_feature_to_module(&self, tag: &ModuleFeatureTag) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        modules::tag_feature_to_module(&conn, tag)
+    }
+
+    async fn untag_feature_from_module(
+        &self,
+        module_id: i64,
+        feature_id: i64,
+    ) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        modules::untag_feature_from_module(&conn, module_id, feature_id)
+    }
+
+    async fn add_feature_to_cycle(&self, entry: &CycleFeature) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        cycles::add_feature_to_cycle(&conn, entry)
+    }
+
+    async fn remove_feature_from_cycle(
+        &self,
+        cycle_id: i64,
+        feature_id: i64,
+    ) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        cycles::remove_feature_from_cycle(&conn, cycle_id, feature_id)
     }
 }
 
@@ -705,5 +822,279 @@ mod tests {
         assert_eq!(ms[0].command, "spec-kitty implement");
         assert_eq!(ms[0].duration_ms, 1234);
         assert!(ms[0].metadata.is_some());
+    }
+
+    // -- Module tests --
+
+    use agileplus_domain::domain::module::{Module, ModuleFeatureTag};
+
+    #[tokio::test]
+    async fn module_create_and_get() {
+        let db = make_adapter();
+        let m = Module::new("Auth Module", None);
+        let id = db.create_module(&m).await.unwrap();
+        assert!(id > 0);
+
+        let got = db.get_module(id).await.unwrap().unwrap();
+        assert_eq!(got.id, id);
+        assert_eq!(got.slug, "auth-module");
+        assert_eq!(got.friendly_name, "Auth Module");
+        assert!(got.parent_module_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn module_get_by_slug() {
+        let db = make_adapter();
+        let m = Module::new("Billing", None);
+        let id = db.create_module(&m).await.unwrap();
+        let got = db.get_module_by_slug("billing").await.unwrap().unwrap();
+        assert_eq!(got.id, id);
+    }
+
+    #[tokio::test]
+    async fn module_not_found_returns_none() {
+        let db = make_adapter();
+        assert!(db.get_module(9999).await.unwrap().is_none());
+        assert!(db.get_module_by_slug("no-such").await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn module_update() {
+        let db = make_adapter();
+        let m = Module::new("Old Name", None);
+        let id = db.create_module(&m).await.unwrap();
+        db.update_module(id, "New Name", Some("a description")).await.unwrap();
+        let got = db.get_module(id).await.unwrap().unwrap();
+        assert_eq!(got.friendly_name, "New Name");
+        assert_eq!(got.slug, "new-name");
+        assert_eq!(got.description.as_deref(), Some("a description"));
+    }
+
+    #[tokio::test]
+    async fn module_delete_simple() {
+        let db = make_adapter();
+        let m = Module::new("Temp", None);
+        let id = db.create_module(&m).await.unwrap();
+        db.delete_module(id).await.unwrap();
+        assert!(db.get_module(id).await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn module_delete_with_children_fails() {
+        let db = make_adapter();
+        let parent = Module::new("Parent", None);
+        let pid = db.create_module(&parent).await.unwrap();
+        let child = Module::new("Child", Some(pid));
+        db.create_module(&child).await.unwrap();
+
+        let result = db.delete_module(pid).await;
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), agileplus_domain::error::DomainError::ModuleHasDependents(_)));
+    }
+
+    #[tokio::test]
+    async fn module_delete_with_owned_features_fails() {
+        let db = make_adapter();
+        let m = Module::new("Owner", None);
+        let mid = db.create_module(&m).await.unwrap();
+        // Create feature and link it via tag
+        let f = Feature::new("feat", "Feat", [0u8; 32], None);
+        let fid = db.create_feature(&f).await.unwrap();
+        // Manually set module_id via tag so the module owns this feature
+        // (we use the raw feature.module_id path by updating directly)
+        let conn = db.conn_for_bench().unwrap();
+        conn.execute(
+            "UPDATE features SET module_id = ?1 WHERE id = ?2",
+            rusqlite::params![mid, fid],
+        )
+        .unwrap();
+        drop(conn);
+
+        let result = db.delete_module(mid).await;
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), agileplus_domain::error::DomainError::ModuleHasDependents(_)));
+    }
+
+    #[tokio::test]
+    async fn module_list_root_and_children() {
+        let db = make_adapter();
+        let r1 = db.create_module(&Module::new("Root1", None)).await.unwrap();
+        let r2 = db.create_module(&Module::new("Root2", None)).await.unwrap();
+        let _ = db.create_module(&Module::new("Child1", Some(r1))).await.unwrap();
+
+        let roots = db.list_root_modules().await.unwrap();
+        assert_eq!(roots.len(), 2);
+
+        let children = db.list_child_modules(r1).await.unwrap();
+        assert_eq!(children.len(), 1);
+
+        let r2_children = db.list_child_modules(r2).await.unwrap();
+        assert!(r2_children.is_empty());
+    }
+
+    #[tokio::test]
+    async fn module_tag_and_untag_feature() {
+        let db = make_adapter();
+        let mid = db.create_module(&Module::new("M", None)).await.unwrap();
+        let fid = db.create_feature(&Feature::new("f-tag", "FTag", [0u8; 32], None)).await.unwrap();
+
+        let tag = ModuleFeatureTag::new(mid, fid);
+        db.tag_feature_to_module(&tag).await.unwrap();
+        // Idempotent -- should not fail
+        db.tag_feature_to_module(&tag).await.unwrap();
+
+        let mwf = db.get_module_with_features(mid).await.unwrap().unwrap();
+        assert_eq!(mwf.tagged_features.len(), 1);
+        assert_eq!(mwf.tagged_features[0].id, fid);
+
+        db.untag_feature_from_module(mid, fid).await.unwrap();
+        let mwf2 = db.get_module_with_features(mid).await.unwrap().unwrap();
+        assert!(mwf2.tagged_features.is_empty());
+    }
+
+    #[tokio::test]
+    async fn module_get_with_features_none_for_missing() {
+        let db = make_adapter();
+        assert!(db.get_module_with_features(9999).await.unwrap().is_none());
+    }
+
+    // -- Cycle tests --
+
+    use agileplus_domain::domain::cycle::{Cycle, CycleFeature, CycleState};
+    use chrono::NaiveDate;
+
+    fn make_date(y: i32, m: u32, d: u32) -> NaiveDate {
+        NaiveDate::from_ymd_opt(y, m, d).expect("valid date")
+    }
+
+    #[tokio::test]
+    async fn cycle_create_and_get() {
+        let db = make_adapter();
+        let c = Cycle::new("Q1-2026", make_date(2026, 1, 1), make_date(2026, 3, 31), None)
+            .unwrap();
+        let id = db.create_cycle(&c).await.unwrap();
+        assert!(id > 0);
+
+        let got = db.get_cycle(id).await.unwrap().unwrap();
+        assert_eq!(got.id, id);
+        assert_eq!(got.name, "Q1-2026");
+        assert_eq!(got.state, CycleState::Draft);
+        assert!(got.module_scope_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn cycle_not_found_returns_none() {
+        let db = make_adapter();
+        assert!(db.get_cycle(9999).await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn cycle_update_state() {
+        let db = make_adapter();
+        let c = Cycle::new("Cycle-A", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
+        let id = db.create_cycle(&c).await.unwrap();
+        db.update_cycle_state(id, CycleState::Active).await.unwrap();
+        let got = db.get_cycle(id).await.unwrap().unwrap();
+        assert_eq!(got.state, CycleState::Active);
+    }
+
+    #[tokio::test]
+    async fn cycle_list_by_state() {
+        let db = make_adapter();
+        let c1 = Cycle::new("Draft-1", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
+        let c2 = Cycle::new("Draft-2", make_date(2026, 3, 1), make_date(2026, 4, 1), None).unwrap();
+        let id1 = db.create_cycle(&c1).await.unwrap();
+        let id2 = db.create_cycle(&c2).await.unwrap();
+        db.update_cycle_state(id1, CycleState::Active).await.unwrap();
+
+        let drafts = db.list_cycles_by_state(CycleState::Draft).await.unwrap();
+        assert_eq!(drafts.len(), 1);
+        assert_eq!(drafts[0].id, id2);
+
+        let actives = db.list_cycles_by_state(CycleState::Active).await.unwrap();
+        assert_eq!(actives.len(), 1);
+        assert_eq!(actives[0].id, id1);
+    }
+
+    #[tokio::test]
+    async fn cycle_list_by_module() {
+        let db = make_adapter();
+        let mid = db.create_module(&Module::new("ScopeModule", None)).await.unwrap();
+        let c1 = Cycle::new("Scoped", make_date(2026, 1, 1), make_date(2026, 2, 1), Some(mid)).unwrap();
+        let c2 = Cycle::new("Unscoped", make_date(2026, 3, 1), make_date(2026, 4, 1), None).unwrap();
+        let id1 = db.create_cycle(&c1).await.unwrap();
+        db.create_cycle(&c2).await.unwrap();
+
+        let scoped = db.list_cycles_by_module(mid).await.unwrap();
+        assert_eq!(scoped.len(), 1);
+        assert_eq!(scoped[0].id, id1);
+    }
+
+    #[tokio::test]
+    async fn cycle_add_and_remove_feature() {
+        let db = make_adapter();
+        let c = Cycle::new("C1", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
+        let cid = db.create_cycle(&c).await.unwrap();
+        let fid = db.create_feature(&Feature::new("cyc-feat", "CycFeat", [0u8; 32], None)).await.unwrap();
+
+        let entry = CycleFeature::new(cid, fid);
+        db.add_feature_to_cycle(&entry).await.unwrap();
+        // Idempotent
+        db.add_feature_to_cycle(&entry).await.unwrap();
+
+        let cwf = db.get_cycle_with_features(cid).await.unwrap().unwrap();
+        assert_eq!(cwf.features.len(), 1);
+        assert_eq!(cwf.features[0].id, fid);
+
+        db.remove_feature_from_cycle(cid, fid).await.unwrap();
+        let cwf2 = db.get_cycle_with_features(cid).await.unwrap().unwrap();
+        assert!(cwf2.features.is_empty());
+    }
+
+    #[tokio::test]
+    async fn cycle_with_features_none_for_missing() {
+        let db = make_adapter();
+        assert!(db.get_cycle_with_features(9999).await.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn cycle_module_scope_enforcement() {
+        let db = make_adapter();
+        let mid = db.create_module(&Module::new("Scope", None)).await.unwrap();
+        // Cycle scoped to this module
+        let c = Cycle::new("Scoped-Cycle", make_date(2026, 1, 1), make_date(2026, 2, 1), Some(mid)).unwrap();
+        let cid = db.create_cycle(&c).await.unwrap();
+
+        // Feature NOT in module scope
+        let fid = db.create_feature(&Feature::new("out-of-scope", "OOS", [0u8; 32], None)).await.unwrap();
+        let entry = CycleFeature::new(cid, fid);
+        let result = db.add_feature_to_cycle(&entry).await;
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), agileplus_domain::error::DomainError::FeatureNotInModuleScope { .. }));
+
+        // Tag feature to module -- now it should work
+        db.tag_feature_to_module(&ModuleFeatureTag::new(mid, fid)).await.unwrap();
+        db.add_feature_to_cycle(&CycleFeature::new(cid, fid)).await.unwrap();
+        let cwf = db.get_cycle_with_features(cid).await.unwrap().unwrap();
+        assert_eq!(cwf.features.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn cycle_wp_progress_summary() {
+        let db = make_adapter();
+        let c = Cycle::new("WP-Prog", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
+        let cid = db.create_cycle(&c).await.unwrap();
+        let fid = db.create_feature(&Feature::new("prog-feat", "Prog", [0u8; 32], None)).await.unwrap();
+        db.add_feature_to_cycle(&CycleFeature::new(cid, fid)).await.unwrap();
+
+        // Create 2 WPs
+        let _wp1 = db.create_work_package(&WorkPackage::new(fid, "WP1", 1, "c")).await.unwrap();
+        let wp2 = db.create_work_package(&WorkPackage::new(fid, "WP2", 2, "c")).await.unwrap();
+        db.update_wp_state(wp2, agileplus_domain::domain::work_package::WpState::Done).await.unwrap();
+
+        let cwf = db.get_cycle_with_features(cid).await.unwrap().unwrap();
+        assert_eq!(cwf.wp_progress.total, 2);
+        assert_eq!(cwf.wp_progress.planned, 1);
+        assert_eq!(cwf.wp_progress.done, 1);
     }
 }

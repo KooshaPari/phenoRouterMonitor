@@ -1,13 +1,15 @@
-//! Storage port — persistence abstraction for all domain entities.
+//! Storage port -- persistence abstraction for all domain entities.
 //!
 //! Traceability: FR-STORE-* / WP05-T025
 
 use std::future::Future;
 
 use crate::domain::audit::AuditEntry;
+use crate::domain::cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures};
 use crate::domain::feature::Feature;
 use crate::domain::governance::{Evidence, GovernanceContract, PolicyRule};
 use crate::domain::metric::Metric;
+use crate::domain::module::{Module, ModuleFeatureTag, ModuleWithFeatures};
 use crate::domain::state_machine::FeatureState;
 use crate::domain::work_package::{WorkPackage, WpDependency, WpState};
 use crate::error::DomainError;
@@ -181,4 +183,122 @@ pub trait StoragePort: Send + Sync {
         &self,
         feature_id: i64,
     ) -> impl Future<Output = Result<Option<GovernanceContract>, DomainError>> + Send;
+
+    // -- Module CRUD (T007) --
+
+    /// Create a new module, returning its assigned ID.
+    fn create_module(
+        &self,
+        module: &Module,
+    ) -> impl Future<Output = Result<i64, DomainError>> + Send;
+
+    /// Look up a module by primary key.
+    fn get_module(
+        &self,
+        id: i64,
+    ) -> impl Future<Output = Result<Option<Module>, DomainError>> + Send;
+
+    /// Look up a module by its unique slug.
+    fn get_module_by_slug(
+        &self,
+        slug: &str,
+    ) -> impl Future<Output = Result<Option<Module>, DomainError>> + Send;
+
+    /// Update a module's friendly_name and optionally its description.
+    fn update_module(
+        &self,
+        id: i64,
+        friendly_name: &str,
+        description: Option<&str>,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// Delete a module. Fails with `ModuleHasDependents` if it has child modules or owned features.
+    fn delete_module(
+        &self,
+        id: i64,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// List all top-level modules (parent_module_id IS NULL).
+    fn list_root_modules(
+        &self,
+    ) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send;
+
+    /// List direct children of a module.
+    fn list_child_modules(
+        &self,
+        parent_id: i64,
+    ) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send;
+
+    /// Load a module with its owned features, tagged features, and direct children.
+    fn get_module_with_features(
+        &self,
+        id: i64,
+    ) -> impl Future<Output = Result<Option<ModuleWithFeatures>, DomainError>> + Send;
+
+    // -- Cycle CRUD (T008) --
+
+    /// Create a new cycle, returning its assigned ID.
+    fn create_cycle(
+        &self,
+        cycle: &Cycle,
+    ) -> impl Future<Output = Result<i64, DomainError>> + Send;
+
+    /// Look up a cycle by primary key.
+    fn get_cycle(
+        &self,
+        id: i64,
+    ) -> impl Future<Output = Result<Option<Cycle>, DomainError>> + Send;
+
+    /// Update only the state field of a cycle.
+    fn update_cycle_state(
+        &self,
+        id: i64,
+        state: CycleState,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// List all cycles in the given state.
+    fn list_cycles_by_state(
+        &self,
+        state: CycleState,
+    ) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send;
+
+    /// List all cycles scoped to a module.
+    fn list_cycles_by_module(
+        &self,
+        module_id: i64,
+    ) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send;
+
+    /// Load a cycle together with its assigned features and WP progress summary.
+    fn get_cycle_with_features(
+        &self,
+        id: i64,
+    ) -> impl Future<Output = Result<Option<CycleWithFeatures>, DomainError>> + Send;
+
+    // -- Join table ops (T009) --
+
+    /// Tag a feature to a module (module_feature_tags). Idempotent.
+    fn tag_feature_to_module(
+        &self,
+        tag: &ModuleFeatureTag,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// Remove a module-feature tag.
+    fn untag_feature_from_module(
+        &self,
+        module_id: i64,
+        feature_id: i64,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// Add a feature to a cycle. Enforces module_scope_id if set.
+    fn add_feature_to_cycle(
+        &self,
+        entry: &CycleFeature,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// Remove a feature from a cycle.
+    fn remove_feature_from_cycle(
+        &self,
+        cycle_id: i64,
+        feature_id: i64,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
 }
