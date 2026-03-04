@@ -268,6 +268,9 @@ pub trait StoragePort: Send + Sync {
         module_id: i64,
     ) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send;
 
+    /// List every cycle in the system, regardless of state.
+    fn list_all_cycles(&self) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send;
+
     /// Load a cycle together with its assigned features and WP progress summary.
     fn get_cycle_with_features(
         &self,

@@ -257,6 +257,21 @@ pub fn list_cycles_by_module(
     rows.collect::<rusqlite::Result<Vec<_>>>().map_err(map_err)
 }
 
+/// List every cycle regardless of state.
+pub fn list_all_cycles(conn: &Connection) -> Result<Vec<Cycle>, DomainError> {
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, name, description, state, start_date, end_date, module_scope_id,
+                    created_at, updated_at
+             FROM cycles ORDER BY start_date",
+        )
+        .map_err(map_err)?;
+    let rows = stmt
+        .query_map([], row_to_cycle)
+        .map_err(map_err)?;
+    rows.collect::<rusqlite::Result<Vec<_>>>().map_err(map_err)
+}
+
 /// Load a cycle with its assigned features and compute a `WpProgressSummary`.
 pub fn get_cycle_with_features(
     conn: &Connection,

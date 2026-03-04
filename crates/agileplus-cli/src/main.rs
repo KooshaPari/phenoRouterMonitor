@@ -10,7 +10,8 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use agileplus_cli::commands::{
-    implement::ImplementArgs, module::ModuleArgs, plan::PlanArgs, queue::QueueArgs,
+    cycle::CycleArgs,
+    implement::ImplementArgs, plan::PlanArgs, queue::QueueArgs,
     research::ResearchArgs, retrospective::RetrospectiveArgs,
     ship::ShipArgs, specify::SpecifyArgs, triage::TriageArgs,
     validate::ValidateArgs,
@@ -43,6 +44,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Manage cycles (time-boxed delivery units).
+    Cycle(CycleArgs),
     /// Create or revise a feature specification.
     Specify(SpecifyArgs),
     /// Research a feature (pre-specify codebase scan or post-specify feasibility).
@@ -132,6 +135,9 @@ async fn run(cli: Cli) -> Result<()> {
     let agent = StubAgentAdapter;
 
     match cli.command {
+        Commands::Cycle(args) => {
+            agileplus_cli::commands::cycle::run(args, &storage).await?;
+        }
         Commands::Specify(args) => {
             agileplus_cli::commands::specify::run_specify(args, &storage, &vcs).await?;
         }

@@ -1,3 +1,4 @@
+pub mod cycle;
 pub mod governance;
 pub mod module;
 pub mod queue;

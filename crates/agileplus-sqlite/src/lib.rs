@@ -324,6 +324,11 @@ impl StoragePort for SqliteStorageAdapter {
         cycles::list_cycles_by_module(&conn, module_id)
     }
 
+    async fn list_all_cycles(&self) -> Result<Vec<Cycle>, DomainError> {
+        let conn = self.lock()?;
+        cycles::list_all_cycles(&conn)
+    }
+
     async fn get_cycle_with_features(
         &self,
         id: i64,
