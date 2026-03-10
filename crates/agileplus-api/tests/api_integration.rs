@@ -24,6 +24,8 @@ use agileplus_domain::domain::governance::{Evidence, GovernanceContract, PolicyR
 use agileplus_domain::domain::metric::Metric;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::{WorkPackage, WpDependency, WpState};
+use agileplus_domain::domain::cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures};
+use agileplus_domain::domain::module::{Module, ModuleFeatureTag, ModuleWithFeatures};
 use agileplus_domain::error::DomainError;
 use agileplus_domain::ports::observability::{
     LogEntry, ObservabilityPort, SpanContext,
@@ -60,6 +62,7 @@ impl MockStorage {
             plane_issue_id: None,
             plane_state_id: None,
             labels: vec![],
+            module_id: None,
             created_at: now,
             updated_at: now,
         });
@@ -241,6 +244,88 @@ impl StoragePort for MockStorage {
     fn get_latest_governance_contract(&self, feature_id: i64) -> impl Future<Output = Result<Option<GovernanceContract>, DomainError>> + Send {
         let found = self.governance.lock().unwrap().iter().filter(|c| c.feature_id == feature_id).max_by_key(|c| c.version).cloned();
         async move { Ok(found) }
+    }
+
+    // -- Module stubs (WP02/WP04) --
+
+    fn create_module(&self, _module: &Module) -> impl Future<Output = Result<i64, DomainError>> + Send {
+        async move { Ok(1) }
+    }
+
+    fn get_module(&self, _id: i64) -> impl Future<Output = Result<Option<Module>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    fn get_module_by_slug(&self, _slug: &str) -> impl Future<Output = Result<Option<Module>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    fn update_module(&self, _id: i64, _friendly_name: &str, _description: Option<&str>) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn delete_module(&self, _id: i64) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn list_root_modules(&self) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send {
+        async move { Ok(vec![]) }
+    }
+
+    fn list_child_modules(&self, _parent_id: i64) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send {
+        async move { Ok(vec![]) }
+    }
+
+    fn get_module_with_features(&self, _id: i64) -> impl Future<Output = Result<Option<ModuleWithFeatures>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    // -- Cycle stubs (WP02/WP04) --
+
+    fn create_cycle(&self, _cycle: &Cycle) -> impl Future<Output = Result<i64, DomainError>> + Send {
+        async move { Ok(1) }
+    }
+
+    fn get_cycle(&self, _id: i64) -> impl Future<Output = Result<Option<Cycle>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    fn update_cycle_state(&self, _id: i64, _state: CycleState) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn list_cycles_by_state(&self, _state: CycleState) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send {
+        async move { Ok(vec![]) }
+    }
+
+    fn list_cycles_by_module(&self, _module_id: i64) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send {
+        async move { Ok(vec![]) }
+    }
+
+    fn list_all_cycles(&self) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send {
+        async move { Ok(vec![]) }
+    }
+
+    fn get_cycle_with_features(&self, _id: i64) -> impl Future<Output = Result<Option<CycleWithFeatures>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    // -- Join table stubs (WP02/WP04) --
+
+    fn tag_feature_to_module(&self, _tag: &ModuleFeatureTag) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn untag_feature_from_module(&self, _module_id: i64, _feature_id: i64) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn add_feature_to_cycle(&self, _entry: &CycleFeature) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn remove_feature_from_cycle(&self, _cycle_id: i64, _feature_id: i64) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
     }
 }
 
