@@ -50,12 +50,39 @@ pub struct PlaneWebhookIssue {
 }
 
 /// Plane.so webhook payload envelope.
+///
+/// The `data` field is parsed lazily based on `event` type since modules
+/// and cycles have different shapes than issues.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlaneWebhookPayload {
     pub event: String,
     pub action: PlaneWebhookAction,
     #[serde(default)]
-    pub data: Option<PlaneWebhookIssue>,
+    pub data: Option<serde_json::Value>,
+}
+
+/// Module data embedded in a webhook payload.
+///
+/// Traceability: WP06-T032
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlaneWebhookModule {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub description: Option<String>,
+}
+
+/// Cycle data embedded in a webhook payload.
+///
+/// Traceability: WP06-T032
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlaneWebhookCycle {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub start_date: Option<String>,
+    #[serde(default)]
+    pub end_date: Option<String>,
 }
 
 /// Parsed webhook event ready for inbound processing.
@@ -64,6 +91,14 @@ pub enum PlaneInboundEvent {
     IssueCreated(PlaneWebhookIssue),
     IssueUpdated(PlaneWebhookIssue),
     IssueDeleted { issue_id: String },
+    /// A module was updated in Plane.so.
+    ModuleUpdated(PlaneWebhookModule),
+    /// A module was deleted in Plane.so.
+    ModuleDeleted { module_id: String },
+    /// A cycle was updated in Plane.so.
+    CycleUpdated(PlaneWebhookCycle),
+    /// A cycle was deleted in Plane.so.
+    CycleDeleted { cycle_id: String },
 }
 
 /// Verify the HMAC-SHA256 signature from Plane.so webhook headers.
@@ -115,33 +150,46 @@ pub fn parse_webhook(
     let payload: PlaneWebhookPayload =
         serde_json::from_slice(body).map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
 
-    // Map to typed event.
-    let event = match payload.action {
-        PlaneWebhookAction::Create => {
-            let issue = payload
-                .data
-                .ok_or_else(|| (StatusCode::BAD_REQUEST, "missing data field".to_string()))?;
-            PlaneInboundEvent::IssueCreated(issue)
+    // Extract raw data value for type-specific parsing.
+    let raw_data = payload
+        .data
+        .ok_or_else(|| (StatusCode::BAD_REQUEST, "missing data field".to_string()))?;
+
+    // Determine entity type from the event string.
+    let event_prefix = payload.event.as_str();
+
+    let event = if event_prefix.starts_with("module") {
+        // Module events
+        let module: PlaneWebhookModule = serde_json::from_value(raw_data)
+            .map_err(|e| (StatusCode::BAD_REQUEST, format!("invalid module data: {e}")))?;
+        match payload.action {
+            PlaneWebhookAction::Update => PlaneInboundEvent::ModuleUpdated(module),
+            PlaneWebhookAction::Delete => PlaneInboundEvent::ModuleDeleted { module_id: module.id },
+            _ => PlaneInboundEvent::ModuleUpdated(module), // treat create as update
         }
-        PlaneWebhookAction::Update => {
-            let issue = payload
-                .data
-                .ok_or_else(|| (StatusCode::BAD_REQUEST, "missing data field".to_string()))?;
-            PlaneInboundEvent::IssueUpdated(issue)
+    } else if event_prefix.starts_with("cycle") {
+        // Cycle events
+        let cycle: PlaneWebhookCycle = serde_json::from_value(raw_data)
+            .map_err(|e| (StatusCode::BAD_REQUEST, format!("invalid cycle data: {e}")))?;
+        match payload.action {
+            PlaneWebhookAction::Update => PlaneInboundEvent::CycleUpdated(cycle),
+            PlaneWebhookAction::Delete => PlaneInboundEvent::CycleDeleted { cycle_id: cycle.id },
+            _ => PlaneInboundEvent::CycleUpdated(cycle), // treat create as update
         }
-        PlaneWebhookAction::Delete => {
-            let issue = payload
-                .data
-                .ok_or_else(|| (StatusCode::BAD_REQUEST, "missing data field".to_string()))?;
-            PlaneInboundEvent::IssueDeleted {
-                issue_id: issue.id,
+    } else {
+        // Issue events (default)
+        let issue: PlaneWebhookIssue = serde_json::from_value(raw_data)
+            .map_err(|e| (StatusCode::BAD_REQUEST, format!("invalid issue data: {e}")))?;
+        match payload.action {
+            PlaneWebhookAction::Create => PlaneInboundEvent::IssueCreated(issue),
+            PlaneWebhookAction::Update => PlaneInboundEvent::IssueUpdated(issue),
+            PlaneWebhookAction::Delete => PlaneInboundEvent::IssueDeleted { issue_id: issue.id },
+            PlaneWebhookAction::Unknown => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    format!("unknown action for event {}", payload.event),
+                ))
             }
-        }
-        PlaneWebhookAction::Unknown => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                format!("unknown action for event {}", payload.event),
-            ))
         }
     };
 
@@ -234,5 +282,55 @@ mod tests {
         assert!(result.is_err());
         let (code, _) = result.unwrap_err();
         assert_eq!(code, StatusCode::BAD_REQUEST);
+    }
+
+    #[test]
+    fn parse_module_updated_event() {
+        let body_str = r#"{"event":"module","action":"update","data":{"id":"mod-1","name":"Auth Module","description":"desc"}}"#;
+        let body = Bytes::from(body_str);
+        let result = parse_webhook(b"", &HeaderMap::new(), &body).unwrap();
+        if let PlaneInboundEvent::ModuleUpdated(m) = result {
+            assert_eq!(m.id, "mod-1");
+            assert_eq!(m.name, "Auth Module");
+        } else {
+            panic!("expected ModuleUpdated");
+        }
+    }
+
+    #[test]
+    fn parse_module_deleted_event() {
+        let body_str = r#"{"event":"module","action":"delete","data":{"id":"mod-2","name":"Old"}}"#;
+        let body = Bytes::from(body_str);
+        let result = parse_webhook(b"", &HeaderMap::new(), &body).unwrap();
+        if let PlaneInboundEvent::ModuleDeleted { module_id } = result {
+            assert_eq!(module_id, "mod-2");
+        } else {
+            panic!("expected ModuleDeleted");
+        }
+    }
+
+    #[test]
+    fn parse_cycle_updated_event() {
+        let body_str = r#"{"event":"cycle","action":"update","data":{"id":"cyc-1","name":"Sprint 1","start_date":"2026-01-01","end_date":"2026-01-14"}}"#;
+        let body = Bytes::from(body_str);
+        let result = parse_webhook(b"", &HeaderMap::new(), &body).unwrap();
+        if let PlaneInboundEvent::CycleUpdated(c) = result {
+            assert_eq!(c.id, "cyc-1");
+            assert_eq!(c.name, "Sprint 1");
+        } else {
+            panic!("expected CycleUpdated");
+        }
+    }
+
+    #[test]
+    fn parse_cycle_deleted_event() {
+        let body_str = r#"{"event":"cycle","action":"delete","data":{"id":"cyc-2","name":"Old Sprint"}}"#;
+        let body = Bytes::from(body_str);
+        let result = parse_webhook(b"", &HeaderMap::new(), &body).unwrap();
+        if let PlaneInboundEvent::CycleDeleted { cycle_id } = result {
+            assert_eq!(cycle_id, "cyc-2");
+        } else {
+            panic!("expected CycleDeleted");
+        }
     }
 }

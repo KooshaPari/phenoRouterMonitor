@@ -31,7 +31,9 @@ use agileplus_domain::domain::event::Event;
 use agileplus_events::{EventError, EventStore};
 
 use crate::migrations::MigrationRunner;
-use crate::repository::{audit, cycles, events, evidence, features, governance, metrics, modules, work_packages};
+use agileplus_domain::domain::sync_mapping::SyncMapping;
+
+use crate::repository::{audit, cycles, events, evidence, features, governance, metrics, modules, sync_mappings, work_packages};
 
 /// SQLite-backed storage adapter.
 ///
@@ -365,6 +367,40 @@ impl StoragePort for SqliteStorageAdapter {
     ) -> Result<(), DomainError> {
         let conn = self.lock()?;
         cycles::remove_feature_from_cycle(&conn, cycle_id, feature_id)
+    }
+
+    // -- Sync Mapping CRUD (WP06-T033) --
+
+    async fn get_sync_mapping(
+        &self,
+        entity_type: &str,
+        entity_id: i64,
+    ) -> Result<Option<SyncMapping>, DomainError> {
+        let conn = self.lock()?;
+        sync_mappings::get_sync_mapping(&conn, entity_type, entity_id)
+    }
+
+    async fn upsert_sync_mapping(&self, mapping: &SyncMapping) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        sync_mappings::upsert_sync_mapping(&conn, mapping)
+    }
+
+    async fn get_sync_mapping_by_plane_id(
+        &self,
+        entity_type: &str,
+        plane_issue_id: &str,
+    ) -> Result<Option<SyncMapping>, DomainError> {
+        let conn = self.lock()?;
+        sync_mappings::get_sync_mapping_by_plane_id(&conn, entity_type, plane_issue_id)
+    }
+
+    async fn delete_sync_mapping(
+        &self,
+        entity_type: &str,
+        entity_id: i64,
+    ) -> Result<(), DomainError> {
+        let conn = self.lock()?;
+        sync_mappings::delete_sync_mapping(&conn, entity_type, entity_id)
     }
 }
 

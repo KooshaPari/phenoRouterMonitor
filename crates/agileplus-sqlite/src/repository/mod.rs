@@ -8,4 +8,5 @@ pub mod features;
 pub mod governance;
 pub mod metrics;
 pub mod modules;
+pub mod sync_mappings;
 pub mod work_packages;

@@ -77,6 +77,13 @@ impl InboundSync {
             PlaneInboundEvent::IssueCreated(issue) => self.handle_create(issue, store),
             PlaneInboundEvent::IssueUpdated(issue) => self.handle_update(issue, store),
             PlaneInboundEvent::IssueDeleted { issue_id } => self.handle_delete(issue_id, store),
+            // Module/Cycle events are handled at the webhook layer, not here.
+            PlaneInboundEvent::ModuleUpdated(_)
+            | PlaneInboundEvent::ModuleDeleted { .. }
+            | PlaneInboundEvent::CycleUpdated(_)
+            | PlaneInboundEvent::CycleDeleted { .. } => {
+                Ok(InboundOutcome::NotTracked { issue_id: String::new() })
+            }
         }
     }
 

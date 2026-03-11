@@ -124,6 +124,48 @@ impl PlaneClient {
         )
     }
 
+    fn modules_url(&self) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/modules/",
+            self.base_url, self.workspace_slug, self.project_id
+        )
+    }
+
+    fn module_url(&self, module_id: &str) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/modules/{}/",
+            self.base_url, self.workspace_slug, self.project_id, module_id
+        )
+    }
+
+    fn module_issues_url(&self, module_id: &str) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/modules/{}/module-issues/",
+            self.base_url, self.workspace_slug, self.project_id, module_id
+        )
+    }
+
+    fn cycles_url(&self) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/cycles/",
+            self.base_url, self.workspace_slug, self.project_id
+        )
+    }
+
+    fn cycle_url(&self, cycle_id: &str) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/cycles/{}/",
+            self.base_url, self.workspace_slug, self.project_id, cycle_id
+        )
+    }
+
+    fn cycle_issues_url(&self, cycle_id: &str) -> String {
+        format!(
+            "{}/api/v1/workspaces/{}/projects/{}/cycles/{}/cycle-issues/",
+            self.base_url, self.workspace_slug, self.project_id, cycle_id
+        )
+    }
+
     fn issue_url(&self, issue_id: &str) -> String {
         format!(
             "{}/api/v1/workspaces/{}/projects/{}/issues/{}/",
@@ -245,6 +287,229 @@ impl PlaneClient {
 
         resp.json().await.context("parsing Plane.so response")
     }
+
+    // -- Module API (WP06-T029) --
+
+    /// Create a Module in Plane.so. Returns Plane's module UUID.
+    pub async fn create_module(&self, req: &PlaneCreateModuleRequest) -> Result<PlaneModuleResponse> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .post(&self.modules_url())
+            .header("X-API-Key", &self.api_key)
+            .json(req)
+            .send()
+            .await
+            .context("Plane.so create module request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so module create failed: HTTP {status}: {body}");
+        }
+
+        resp.json().await.context("parsing Plane.so module response")
+    }
+
+    /// Update a Module in Plane.so (PATCH).
+    pub async fn update_module(
+        &self,
+        plane_module_id: &str,
+        req: &PlaneCreateModuleRequest,
+    ) -> Result<()> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .patch(&self.module_url(plane_module_id))
+            .header("X-API-Key", &self.api_key)
+            .json(req)
+            .send()
+            .await
+            .context("Plane.so update module request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so module update failed: HTTP {status}: {body}");
+        }
+
+        Ok(())
+    }
+
+    /// Delete a Module in Plane.so.
+    pub async fn delete_module(&self, plane_module_id: &str) -> Result<()> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .delete(&self.module_url(plane_module_id))
+            .header("X-API-Key", &self.api_key)
+            .send()
+            .await
+            .context("Plane.so delete module request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so module delete failed: HTTP {status}: {body}");
+        }
+
+        Ok(())
+    }
+
+    /// Add a Plane issue to a Plane module.
+    pub async fn add_issue_to_module(
+        &self,
+        plane_module_id: &str,
+        plane_issue_id: &str,
+    ) -> Result<()> {
+        self.acquire_token().await?;
+        let body = serde_json::json!({ "issues": [plane_issue_id] });
+        let resp = self
+            .client
+            .post(&self.module_issues_url(plane_module_id))
+            .header("X-API-Key", &self.api_key)
+            .json(&body)
+            .send()
+            .await
+            .context("Plane.so add issue to module request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so add issue to module failed: HTTP {status}: {body}");
+        }
+
+        Ok(())
+    }
+
+    // -- Cycle API (WP06-T030) --
+
+    /// Create a Cycle in Plane.so. Returns Plane's cycle UUID.
+    pub async fn create_cycle(&self, req: &PlaneCreateCycleRequest) -> Result<PlaneCycleResponse> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .post(&self.cycles_url())
+            .header("X-API-Key", &self.api_key)
+            .json(req)
+            .send()
+            .await
+            .context("Plane.so create cycle request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so cycle create failed: HTTP {status}: {body}");
+        }
+
+        resp.json().await.context("parsing Plane.so cycle response")
+    }
+
+    /// Update a Cycle in Plane.so (PATCH).
+    pub async fn update_cycle(
+        &self,
+        plane_cycle_id: &str,
+        req: &PlaneCreateCycleRequest,
+    ) -> Result<()> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .patch(&self.cycle_url(plane_cycle_id))
+            .header("X-API-Key", &self.api_key)
+            .json(req)
+            .send()
+            .await
+            .context("Plane.so update cycle request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so cycle update failed: HTTP {status}: {body}");
+        }
+
+        Ok(())
+    }
+
+    /// Delete a Cycle in Plane.so.
+    pub async fn delete_cycle(&self, plane_cycle_id: &str) -> Result<()> {
+        self.acquire_token().await?;
+        let resp = self
+            .client
+            .delete(&self.cycle_url(plane_cycle_id))
+            .header("X-API-Key", &self.api_key)
+            .send()
+            .await
+            .context("Plane.so delete cycle request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so cycle delete failed: HTTP {status}: {body}");
+        }
+
+        Ok(())
+    }
+
+    /// Add a Plane issue to a Plane cycle.
+    pub async fn add_issue_to_cycle(
+        &self,
+        plane_cycle_id: &str,
+        plane_issue_id: &str,
+    ) -> Result<()> {
+        self.acquire_token().await?;
+        let body = serde_json::json!({ "issues": [plane_issue_id] });
+        let resp = self
+            .client
+            .post(&self.cycle_issues_url(plane_cycle_id))
+            .header("X-API-Key", &self.api_key)
+            .json(&body)
+            .send()
+            .await
+            .context("Plane.so add issue to cycle request failed")?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            anyhow::bail!("Plane.so add issue to cycle failed: HTTP {status}: {body}");
+        }
+
+        Ok(())
+    }
+}
+
+/// Request body for creating/updating a Plane module.
+#[derive(Debug, Clone, Serialize)]
+pub struct PlaneCreateModuleRequest {
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
+
+/// Response from Plane.so module API.
+#[derive(Debug, Clone, Deserialize)]
+pub struct PlaneModuleResponse {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+}
+
+/// Request body for creating/updating a Plane cycle.
+#[derive(Debug, Clone, Serialize)]
+pub struct PlaneCreateCycleRequest {
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    pub start_date: String,
+    pub end_date: String,
+}
+
+/// Response from Plane.so cycle API.
+#[derive(Debug, Clone, Deserialize)]
+pub struct PlaneCycleResponse {
+    pub id: String,
+    pub name: String,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
 }
 
 #[cfg(test)]
@@ -264,6 +529,188 @@ mod tests {
         assert!(bucket.try_acquire());
         assert!(bucket.try_acquire());
         assert!(!bucket.try_acquire()); // exhausted
+    }
+
+    #[tokio::test]
+    async fn create_module_sends_post() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .set_body_json(serde_json::json!({"id": "mod-uuid-1", "name": "Auth", "description": null})),
+            )
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let req = PlaneCreateModuleRequest {
+            name: "Auth".to_string(),
+            description: None,
+        };
+        let resp = client.create_module(&req).await.unwrap();
+        assert_eq!(resp.id, "mod-uuid-1");
+        assert_eq!(resp.name, "Auth");
+    }
+
+    #[tokio::test]
+    async fn create_module_http_error_propagates() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
+            .respond_with(ResponseTemplate::new(500).set_body_string("internal error"))
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let req = PlaneCreateModuleRequest {
+            name: "Fail".to_string(),
+            description: None,
+        };
+        let result = client.create_module(&req).await;
+        assert!(result.is_err());
+        let err_msg = format!("{}", result.unwrap_err());
+        assert!(err_msg.contains("500"), "expected 500 in error: {err_msg}");
+    }
+
+    #[tokio::test]
+    async fn create_cycle_sends_correct_dates() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/cycles/"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .set_body_json(serde_json::json!({
+                        "id": "cyc-uuid-1",
+                        "name": "Sprint 1",
+                        "start_date": "2026-01-01",
+                        "end_date": "2026-01-14"
+                    })),
+            )
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let req = PlaneCreateCycleRequest {
+            name: "Sprint 1".to_string(),
+            description: None,
+            start_date: "2026-01-01".to_string(),
+            end_date: "2026-01-14".to_string(),
+        };
+        let resp = client.create_cycle(&req).await.unwrap();
+        assert_eq!(resp.id, "cyc-uuid-1");
+    }
+
+    #[tokio::test]
+    async fn add_issue_to_cycle_sends_post() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/cycles/cyc-1/cycle-issues/"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({})))
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let result = client.add_issue_to_cycle("cyc-1", "issue-1").await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn add_issue_to_module_sends_post() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/modules/mod-1/module-issues/"))
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({})))
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let result = client.add_issue_to_module("mod-1", "issue-1").await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn delete_module_sends_delete() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("DELETE"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/modules/mod-1/"))
+            .respond_with(ResponseTemplate::new(204))
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let result = client.delete_module("mod-1").await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn delete_cycle_sends_delete() {
+        use wiremock::{MockServer, Mock, ResponseTemplate};
+        use wiremock::matchers::{method, path};
+
+        let mock_server = MockServer::start().await;
+        Mock::given(method("DELETE"))
+            .and(path("/api/v1/workspaces/ws/projects/proj/cycles/cyc-1/"))
+            .respond_with(ResponseTemplate::new(204))
+            .mount(&mock_server)
+            .await;
+
+        let client = PlaneClient::new(
+            mock_server.uri(),
+            "key".into(),
+            "ws".into(),
+            "proj".into(),
+        );
+        let result = client.delete_cycle("cyc-1").await;
+        assert!(result.is_ok());
     }
 
     #[test]

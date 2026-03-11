@@ -20,11 +20,17 @@ pub use client::PlaneClient;
 pub use content_hash::{compute_content_hash, detect_conflict, ConflictStatus};
 pub use inbound::{InboundOutcome, InboundSync, LocalEntityStore};
 pub use labels::{LabelSync, PlaneLabel};
-pub use outbound::OutboundSync;
+pub use outbound::{
+    OutboundSync, push_module, push_cycle, push_module_delete, push_cycle_delete,
+    push_feature_module_assignment, push_feature_cycle_assignment,
+};
 pub use state_mapper::{PlaneStateMapper, PlaneStateMapperConfig};
 pub use sync::{PlaneSyncAdapter, SyncState};
 pub use sync_queue::{SyncQueue, SyncQueueItem, SyncQueueStore, SyncOpKind};
 pub use webhook::{
     handle_plane_webhook, parse_webhook, verify_hmac_signature, PlaneInboundEvent,
-    PlaneWebhookAction, PlaneWebhookPayload,
+    PlaneWebhookAction, PlaneWebhookPayload, PlaneWebhookModule, PlaneWebhookCycle,
+};
+pub use client::{
+    PlaneCreateModuleRequest, PlaneModuleResponse, PlaneCreateCycleRequest, PlaneCycleResponse,
 };

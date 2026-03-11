@@ -26,6 +26,7 @@ use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::{WorkPackage, WpDependency, WpState};
 use agileplus_domain::domain::cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures};
 use agileplus_domain::domain::module::{Module, ModuleFeatureTag, ModuleWithFeatures};
+use agileplus_domain::domain::sync_mapping::SyncMapping;
 use agileplus_domain::error::DomainError;
 use agileplus_domain::ports::observability::{
     LogEntry, ObservabilityPort, SpanContext,
@@ -325,6 +326,24 @@ impl StoragePort for MockStorage {
     }
 
     fn remove_feature_from_cycle(&self, _cycle_id: i64, _feature_id: i64) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    // -- Sync Mapping stubs (WP06) --
+
+    fn get_sync_mapping(&self, _entity_type: &str, _entity_id: i64) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    fn upsert_sync_mapping(&self, _mapping: &SyncMapping) -> impl Future<Output = Result<(), DomainError>> + Send {
+        async move { Ok(()) }
+    }
+
+    fn get_sync_mapping_by_plane_id(&self, _entity_type: &str, _plane_issue_id: &str) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send {
+        async move { Ok(None) }
+    }
+
+    fn delete_sync_mapping(&self, _entity_type: &str, _entity_id: i64) -> impl Future<Output = Result<(), DomainError>> + Send {
         async move { Ok(()) }
     }
 }

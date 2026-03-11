@@ -11,6 +11,7 @@ use crate::domain::governance::{Evidence, GovernanceContract, PolicyRule};
 use crate::domain::metric::Metric;
 use crate::domain::module::{Module, ModuleFeatureTag, ModuleWithFeatures};
 use crate::domain::state_machine::FeatureState;
+use crate::domain::sync_mapping::SyncMapping;
 use crate::domain::work_package::{WorkPackage, WpDependency, WpState};
 use crate::error::DomainError;
 
@@ -303,5 +304,34 @@ pub trait StoragePort: Send + Sync {
         &self,
         cycle_id: i64,
         feature_id: i64,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    // -- Sync Mapping CRUD (WP06-T033) --
+
+    /// Look up a sync mapping by entity type and local ID.
+    fn get_sync_mapping(
+        &self,
+        entity_type: &str,
+        entity_id: i64,
+    ) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send;
+
+    /// Insert or update a sync mapping (upsert on entity_type + entity_id).
+    fn upsert_sync_mapping(
+        &self,
+        mapping: &SyncMapping,
+    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+
+    /// Look up a sync mapping by entity type and Plane issue ID.
+    fn get_sync_mapping_by_plane_id(
+        &self,
+        entity_type: &str,
+        plane_issue_id: &str,
+    ) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send;
+
+    /// Delete a sync mapping by entity type and local ID.
+    fn delete_sync_mapping(
+        &self,
+        entity_type: &str,
+        entity_id: i64,
     ) -> impl Future<Output = Result<(), DomainError>> + Send;
 }
