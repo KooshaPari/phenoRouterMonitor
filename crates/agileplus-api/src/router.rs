@@ -44,7 +44,7 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 use crate::middleware::otel::opentelemetry_tracing_layer;
 use crate::responses::{DetailedHealthResponse, HealthResponse};
-use crate::routes::{audit, events, features, governance, stream, work_packages};
+use crate::routes::{audit, cycle, events, features, governance, module, stream, work_packages};
 use crate::state::AppState;
 
 /// Build the axum [`Router`] with all routes, middleware, and shared state.
@@ -56,10 +56,14 @@ where
 {
     let creds: Arc<dyn CredentialStore> = state.credentials.clone();
 
-    // Public routes — no auth middleware.
+    // Public routes -- no auth middleware.
     let public = Router::new()
         .route("/health", get(health_handler::<S, V, O>))
         .route("/info", get(info_handler))
+        // HTML dashboard pages (no auth for browser access)
+        .route("/modules", get(module::module_tree_page::<S, V, O>))
+        .route("/cycles", get(cycle::cycle_kanban_page::<S, V, O>))
+        .route("/cycles/{id}", get(cycle::cycle_detail_page::<S, V, O>))
         .with_state(state.clone());
 
     // Protected routes — all require a valid API key.
@@ -73,6 +77,9 @@ where
         // Governance and audit nested under features
         .nest("/api/v1/features", governance::routes::<S, V, O>())
         .nest("/api/v1/features", audit::routes::<S, V, O>())
+        // Module and Cycle API routes
+        .nest("/api/modules", module::routes::<S, V, O>())
+        .nest("/api/cycles", cycle::routes::<S, V, O>())
         // Event query endpoints
         .nest("/api/v1/events", events::routes::<S, V, O>())
         // SSE streaming

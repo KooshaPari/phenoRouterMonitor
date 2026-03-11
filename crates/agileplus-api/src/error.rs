@@ -21,6 +21,8 @@ pub enum ApiError {
     Unauthorized(String),
     #[error("{0}")]
     Conflict(String),
+    #[error("{0}")]
+    Template(String),
     #[error("internal server error")]
     Internal(String),
 }
@@ -32,6 +34,13 @@ impl IntoResponse for ApiError {
             ApiError::BadRequest(m) => (StatusCode::BAD_REQUEST, m.clone()),
             ApiError::Unauthorized(m) => (StatusCode::UNAUTHORIZED, m.clone()),
             ApiError::Conflict(m) => (StatusCode::CONFLICT, m.clone()),
+            ApiError::Template(m) => {
+                tracing::error!("template render error: {m}");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "template render error".to_string(),
+                )
+            }
             ApiError::Internal(m) => {
                 tracing::error!("internal API error: {m}");
                 (

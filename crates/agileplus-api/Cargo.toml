@@ -26,6 +26,7 @@ rand = "0.8"
 base64 = "0.22"
 sha2 = "0.10"
 chrono = { version = "0.4", features = ["serde"] }
+askama = "0.12"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
