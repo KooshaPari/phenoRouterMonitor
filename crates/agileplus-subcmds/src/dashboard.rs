@@ -196,18 +196,15 @@ mod tests {
     }
 
     #[test]
-    fn test_configured_port_default() {
-        // Without env var, should return 8080.
+    fn test_configured_port_default_and_env_override() {
+        // Combined into one test to avoid env-var race conditions across threads.
         // SAFETY: single-threaded test, no other thread reads this var concurrently.
         unsafe { std::env::remove_var("AGILEPLUS_DASHBOARD_PORT") };
         assert_eq!(configured_port(), 8080);
-    }
 
-    #[test]
-    fn test_configured_port_env_override() {
-        // SAFETY: single-threaded test, no other thread reads this var concurrently.
         unsafe { std::env::set_var("AGILEPLUS_DASHBOARD_PORT", "9090") };
         assert_eq!(configured_port(), 9090);
+
         unsafe { std::env::remove_var("AGILEPLUS_DASHBOARD_PORT") };
     }
 

@@ -18,6 +18,7 @@ use agileplus_cli::commands::{
 };
 use agileplus_git::GitVcsAdapter;
 use agileplus_sqlite::SqliteStorageAdapter;
+use agileplus_subcmds::{DashboardArgs, run_dashboard, PlatformArgs, run_platform};
 
 mod agent_stub;
 use agent_stub::StubAgentAdapter;
@@ -66,6 +67,10 @@ enum Commands {
     Queue(QueueArgs),
     /// Manage modules (product-area groupings of features).
     Module(ModuleArgs),
+    /// Open or configure the web dashboard.
+    Dashboard(DashboardArgs),
+    /// Manage platform services (up, down, status, logs).
+    Platform(PlatformArgs),
 }
 
 #[tokio::main]
@@ -95,6 +100,8 @@ async fn run(cli: Cli) -> Result<()> {
     match cli.command {
         Commands::Triage(args) => return agileplus_cli::commands::triage::run_triage(args).await,
         Commands::Queue(args) => return agileplus_cli::commands::queue::run_queue(args).await,
+        Commands::Dashboard(args) => return run_dashboard(args).map_err(Into::into),
+        Commands::Platform(args) => return run_platform(args).map_err(Into::into),
         _ => {}
     }
 
@@ -159,7 +166,8 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Retrospective(args) => {
             agileplus_cli::commands::retrospective::run_retrospective(args, &storage, &vcs).await?;
         }
-        Commands::Triage(_) | Commands::Queue(_) | Commands::Module(_) => unreachable!("handled above"),
+        Commands::Triage(_) | Commands::Queue(_) | Commands::Module(_)
+        | Commands::Dashboard(_) | Commands::Platform(_) => unreachable!("handled above"),
     }
 
     Ok(())

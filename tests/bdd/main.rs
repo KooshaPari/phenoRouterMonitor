@@ -134,6 +134,8 @@ fn build_valid_audit_chain(feature_id: i64, count: usize) -> Vec<AuditEntry> {
             evidence_refs: vec![],
             prev_hash,
             hash: [0u8; 32],
+            event_id: None,
+            archived_to: None,
         };
         entry.hash = hash_entry(&entry);
         prev_hash = entry.hash;
@@ -422,6 +424,8 @@ async fn run_specify(world: &mut AgilePlusWorld, slug: String) {
                             evidence_refs: vec![],
                             prev_hash,
                             hash: [0u8; 32],
+                            event_id: None,
+                            archived_to: None,
                         };
                         audit.hash = hash_entry(&audit);
                         world.storage.append_audit(fid, audit);
@@ -489,6 +493,8 @@ async fn run_implement(world: &mut AgilePlusWorld, slug: String) {
                 evidence_refs: vec![],
                 prev_hash,
                 hash: [0u8; 32],
+                event_id: None,
+                archived_to: None,
             };
             audit.hash = hash_entry(&audit);
             world.storage.append_audit(fid, audit);
