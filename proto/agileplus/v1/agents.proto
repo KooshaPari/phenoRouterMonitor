@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package agileplus.v1;
 
-option java_package = "com.phenotype.agileplus.v1";
-option java_outer_classname = "AgentsProto";
-option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
-
 import "agileplus/v1/common.proto";
+
+option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
+option java_outer_classname = "AgentsProto";
+option java_package = "com.phenotype.agileplus.v1";
 
 // Agent dispatch service: spawn agents, manage PR lifecycle, review loop.
 // Implemented by agileplus-agents. Called by agileplus-core (via gRPC).

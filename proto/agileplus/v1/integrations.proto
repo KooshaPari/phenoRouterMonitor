@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package agileplus.v1;
 
-option java_package = "com.phenotype.agileplus.v1";
-option java_outer_classname = "IntegrationsProto";
 option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
+option java_outer_classname = "IntegrationsProto";
+option java_package = "com.phenotype.agileplus.v1";
 
 // Integrations service: Plane.so sync, GitHub sync, triage/backlog.
 // Implemented by agileplus-integrations. Called by agileplus-core (via gRPC).

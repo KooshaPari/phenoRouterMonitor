@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package agileplus.v1;
 
-option java_package = "com.phenotype.agileplus.v1";
-option java_outer_classname = "CoreProto";
-option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
-
 import "agileplus/v1/common.proto";
+
+option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
+option java_outer_classname = "CoreProto";
+option java_package = "com.phenotype.agileplus.v1";
 
 // Core domain service: features, work packages, governance, audit, command dispatch.
 // Implemented by agileplus-core. Called by agileplus-mcp, agileplus-agents, agileplus-integrations.
@@ -29,7 +29,7 @@ service AgilePlusCoreService {
   rpc DispatchCommand(DispatchCommandRequest) returns (DispatchCommandResponse);
 
   // Server-streaming real-time agent status events (MCP -> Core subscription)
-  rpc StreamAgentEvents(StreamAgentEventsRequest) returns (stream AgentEvent);
+  rpc StreamAgentEvents(StreamAgentEventsRequest) returns (stream StreamAgentEventsResponse);
 }
 
 // --- Requests ---
@@ -116,4 +116,8 @@ message DispatchCommandResponse {
 
 message StreamAgentEventsRequest {
   string feature_slug = 1;
+}
+
+message StreamAgentEventsResponse {
+  AgentEvent event = 1;
 }

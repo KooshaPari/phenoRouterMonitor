@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package agileplus.v1;
 
-option java_package = "com.phenotype.agileplus.v1";
-option java_outer_classname = "CommonProto";
 option go_package = "github.com/phenotype/agileplus-proto/gen/go/agileplus/v1;agileplusv1";
+option java_outer_classname = "CommonProto";
+option java_package = "com.phenotype.agileplus.v1";
 
 // Shared message types used across all AgilePlus services.
 

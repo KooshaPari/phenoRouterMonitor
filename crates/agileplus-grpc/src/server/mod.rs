@@ -413,7 +413,7 @@ where
     // -------------------------------------------------------------------------
 
     type StreamAgentEventsStream = Pin<
-        Box<dyn tokio_stream::Stream<Item = Result<agileplus_proto::agileplus::v1::AgentEvent, Status>> + Send>,
+        Box<dyn tokio_stream::Stream<Item = Result<agileplus_proto::agileplus::v1::StreamAgentEventsResponse, Status>> + Send>,
     >;
 
     async fn stream_agent_events(
