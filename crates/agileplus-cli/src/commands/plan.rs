@@ -219,7 +219,7 @@ where
     // Print summary table
     println!("Feature '{slug}' planned.");
     println!("  Generated {} work package(s):", persisted_wps.len());
-    println!("  {:<6} {:<4} {:<40} {}", "WP ID", "Seq", "Title", "Dependencies");
+    println!("  {:<6} {:<4} {:<40} Dependencies", "WP ID", "Seq", "Title");
     println!("  {}", "-".repeat(70));
     for wp in &persisted_wps {
         let dep_list: Vec<String> = deps
@@ -300,7 +300,7 @@ fn group_frs_into_wps(
         return Vec::new();
     }
     let target_per_wp = ((frs.len() as f64) / (max_wps as f64).min(frs.len() as f64)).ceil() as usize;
-    let per_wp = target_per_wp.max(3).min(7);
+    let per_wp = target_per_wp.clamp(3, 7);
     frs.chunks(per_wp)
         .map(|chunk| chunk.to_vec())
         .collect()

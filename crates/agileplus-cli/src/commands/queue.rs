@@ -6,7 +6,7 @@
 
 use anyhow::Result;
 
-use agileplus_triage::{BacklogItem, BacklogPriority, BacklogStatus, Intent, TriageClassifier};
+use agileplus_triage::{BacklogItem, Intent, TriageClassifier};
 
 /// Arguments for the `queue` subcommand.
 #[derive(Debug, clap::Args)]
@@ -78,7 +78,7 @@ pub async fn run_queue(args: QueueArgs) -> Result<()> {
         QueueAction::List {
             status,
             r#type,
-            output,
+            output: _,
         } => {
             // In full implementation, this reads from SQLite.
             // For now, print placeholder.

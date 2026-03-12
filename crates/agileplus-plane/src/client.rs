@@ -227,7 +227,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .post(&self.issues_url())
+            .post(self.issues_url())
             .header("X-API-Key", &self.api_key)
             .json(issue)
             .send()
@@ -252,7 +252,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .patch(&self.issue_url(issue_id))
+            .patch(self.issue_url(issue_id))
             .header("X-API-Key", &self.api_key)
             .json(issue)
             .send()
@@ -273,7 +273,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .get(&self.issue_url(issue_id))
+            .get(self.issue_url(issue_id))
             .header("X-API-Key", &self.api_key)
             .send()
             .await
@@ -295,7 +295,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .post(&self.modules_url())
+            .post(self.modules_url())
             .header("X-API-Key", &self.api_key)
             .json(req)
             .send()
@@ -320,7 +320,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .patch(&self.module_url(plane_module_id))
+            .patch(self.module_url(plane_module_id))
             .header("X-API-Key", &self.api_key)
             .json(req)
             .send()
@@ -341,7 +341,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .delete(&self.module_url(plane_module_id))
+            .delete(self.module_url(plane_module_id))
             .header("X-API-Key", &self.api_key)
             .send()
             .await
@@ -366,7 +366,7 @@ impl PlaneClient {
         let body = serde_json::json!({ "issues": [plane_issue_id] });
         let resp = self
             .client
-            .post(&self.module_issues_url(plane_module_id))
+            .post(self.module_issues_url(plane_module_id))
             .header("X-API-Key", &self.api_key)
             .json(&body)
             .send()
@@ -389,7 +389,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .post(&self.cycles_url())
+            .post(self.cycles_url())
             .header("X-API-Key", &self.api_key)
             .json(req)
             .send()
@@ -414,7 +414,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .patch(&self.cycle_url(plane_cycle_id))
+            .patch(self.cycle_url(plane_cycle_id))
             .header("X-API-Key", &self.api_key)
             .json(req)
             .send()
@@ -435,7 +435,7 @@ impl PlaneClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .delete(&self.cycle_url(plane_cycle_id))
+            .delete(self.cycle_url(plane_cycle_id))
             .header("X-API-Key", &self.api_key)
             .send()
             .await
@@ -460,7 +460,7 @@ impl PlaneClient {
         let body = serde_json::json!({ "issues": [plane_issue_id] });
         let resp = self
             .client
-            .post(&self.cycle_issues_url(plane_cycle_id))
+            .post(self.cycle_issues_url(plane_cycle_id))
             .header("X-API-Key", &self.api_key)
             .json(&body)
             .send()

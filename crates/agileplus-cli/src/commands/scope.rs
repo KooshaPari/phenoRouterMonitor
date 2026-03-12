@@ -84,7 +84,7 @@ pub fn detect_file_scope(wp_description: &str) -> Vec<String> {
             found.insert(w.to_string());
         } else if let Some(dot_pos) = w.rfind('.') {
             let ext = &w[dot_pos + 1..];
-            if ext.len() >= 1 && ext.len() <= 6 && ext.chars().all(|c| c.is_ascii_alphabetic()) {
+            if !ext.is_empty() && ext.len() <= 6 && ext.chars().all(|c| c.is_ascii_alphabetic()) {
                 found.insert(w.to_string());
             }
         }

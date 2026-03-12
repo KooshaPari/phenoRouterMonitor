@@ -132,7 +132,7 @@ impl GitHubClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .post(&self.issues_url())
+            .post(self.issues_url())
             .header("Authorization", format!("Bearer {}", self.token))
             .header("Accept", "application/vnd.github+json")
             .header("User-Agent", "agileplus")
@@ -159,7 +159,7 @@ impl GitHubClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .patch(&self.issue_url(number))
+            .patch(self.issue_url(number))
             .header("Authorization", format!("Bearer {}", self.token))
             .header("Accept", "application/vnd.github+json")
             .header("User-Agent", "agileplus")
@@ -182,7 +182,7 @@ impl GitHubClient {
         self.acquire_token().await?;
         let resp = self
             .client
-            .get(&self.issue_url(number))
+            .get(self.issue_url(number))
             .header("Authorization", format!("Bearer {}", self.token))
             .header("Accept", "application/vnd.github+json")
             .header("User-Agent", "agileplus")

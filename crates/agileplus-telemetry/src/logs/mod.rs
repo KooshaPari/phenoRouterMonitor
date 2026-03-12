@@ -17,17 +17,14 @@ use tracing_subscriber::{EnvFilter, fmt::format::FmtSpan, prelude::*};
 /// Where structured logs are written.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
+#[derive(Default)]
 pub enum LogOutput {
+    #[default]
     Stdout,
     File(PathBuf),
     Both(PathBuf),
 }
 
-impl Default for LogOutput {
-    fn default() -> Self {
-        LogOutput::Stdout
-    }
-}
 
 /// Configuration for structured JSON logging.
 #[derive(Debug, Clone, Serialize, Deserialize)]

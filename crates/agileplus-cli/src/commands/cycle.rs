@@ -206,14 +206,14 @@ async fn cmd_list<S: StoragePort>(args: ListArgs, storage: &S) -> Result<()> {
     for c in &cycles {
         let scope = if let Some(mid) = c.module_scope_id {
             // Resolve module slug for display
-            let label = storage
+            
+            storage
                 .get_module(mid)
                 .await
                 .ok()
                 .flatten()
                 .map(|m| m.slug)
-                .unwrap_or_else(|| format!("id:{}", mid));
-            label
+                .unwrap_or_else(|| format!("id:{}", mid))
         } else {
             "-".to_string()
         };

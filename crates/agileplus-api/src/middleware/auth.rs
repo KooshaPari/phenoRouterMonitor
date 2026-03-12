@@ -47,9 +47,9 @@ pub async fn validate_api_key(
         query
             .split('&')
             .find_map(|pair| {
-                let mut parts = pair.splitn(2, '=');
-                let k = parts.next()?;
-                let v = parts.next()?;
+                let (k, v) = pair.split_once('=')?;
+                
+                
                 if k == "api_key" { Some(v.to_string()) } else { None }
             })
             .ok_or_else(|| ApiError::Unauthorized("Missing API key (X-API-Key header or ?api_key= param required)".to_string()))?

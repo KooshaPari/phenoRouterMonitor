@@ -15,7 +15,7 @@ pub fn record_metric(conn: &Connection, metric: &Metric) -> Result<i64, DomainEr
     let metadata_s = metric
         .metadata
         .as_ref()
-        .map(|m| serde_json::to_string(m))
+        .map(serde_json::to_string)
         .transpose()
         .map_err(|e| DomainError::Storage(e.to_string()))?;
 

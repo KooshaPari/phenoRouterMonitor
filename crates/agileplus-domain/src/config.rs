@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 /// All sections have defaults so a missing `config.toml` (or missing sections
 /// within it) never causes a parse error.
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Default)]
 pub struct AppConfig {
     #[serde(default)]
     pub core: CoreConfig,
@@ -25,17 +26,6 @@ pub struct AppConfig {
     pub agents: AgentConfig,
 }
 
-impl Default for AppConfig {
-    fn default() -> Self {
-        Self {
-            core: CoreConfig::default(),
-            credentials: CredentialConfig::default(),
-            telemetry: TelemetryConfig::default(),
-            api: ApiConfig::default(),
-            agents: AgentConfig::default(),
-        }
-    }
-}
 
 // ----- Core -----
 

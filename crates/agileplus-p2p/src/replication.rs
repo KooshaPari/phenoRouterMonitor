@@ -190,11 +190,9 @@ async fn drain_pending(
             break;
         }
 
-        for msg_result in msgs {
-            if let Ok(msg) = msg_result {
-                count += 1;
-                let _ = msg.ack().await;
-            }
+        for msg in msgs.into_iter().flatten() {
+            count += 1;
+            let _ = msg.ack().await;
         }
     }
     count

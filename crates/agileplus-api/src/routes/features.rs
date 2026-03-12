@@ -10,7 +10,7 @@
 
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::routing::{get, patch, post};
+use axum::routing::{get, post};
 use axum::{Json, Router};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -228,5 +228,5 @@ where
 
 pub fn parse_feature_state(s: &str) -> Result<FeatureState, ApiError> {
     s.parse::<FeatureState>()
-        .map_err(|e| ApiError::BadRequest(e))
+        .map_err(ApiError::BadRequest)
 }

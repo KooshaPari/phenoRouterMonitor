@@ -100,8 +100,8 @@ async fn run(cli: Cli) -> Result<()> {
     match cli.command {
         Commands::Triage(args) => return agileplus_cli::commands::triage::run_triage(args).await,
         Commands::Queue(args) => return agileplus_cli::commands::queue::run_queue(args).await,
-        Commands::Dashboard(args) => return run_dashboard(args).map_err(Into::into),
-        Commands::Platform(args) => return run_platform(args).map_err(Into::into),
+        Commands::Dashboard(args) => return run_dashboard(args),
+        Commands::Platform(args) => return run_platform(args),
         _ => {}
     }
 

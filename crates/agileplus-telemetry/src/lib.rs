@@ -21,7 +21,6 @@ pub mod traces;
 use agileplus_domain::ports::observability::{LogEntry, LogLevel, ObservabilityPort, SpanContext};
 use opentelemetry::global;
 use opentelemetry::metrics::MeterProvider as _MeterProvider;
-use opentelemetry::trace::TracerProvider as _;
 use opentelemetry_sdk::metrics::SdkMeterProvider;
 use tracing_appender::non_blocking::WorkerGuard;
 

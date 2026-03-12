@@ -340,8 +340,8 @@ fn synthetic_platform_health() -> PlatformHealth {
 
 fn print_status_table_up(services: &[ServiceHealth]) {
     println!(
-        "{:<14} {:<9} {:<9} {}",
-        "Service", "Status", "Uptime", "Port"
+        "{:<14} {:<9} {:<9} Port",
+        "Service", "Status", "Uptime"
     );
     println!("{}", "─".repeat(45));
     for svc in services {
@@ -462,8 +462,8 @@ fn fetch_platform_health(api_url: &str) -> PlatformHealth {
 
 fn print_status_table(services: &[ServiceHealth]) {
     println!(
-        "{:<14} {:<11} {:<10} {:<12} {}",
-        "Service", "Status", "Latency", "Uptime", "Last Check"
+        "{:<14} {:<11} {:<10} {:<12} Last Check",
+        "Service", "Status", "Latency", "Uptime"
     );
     println!("{}", "─".repeat(63));
     for svc in services {

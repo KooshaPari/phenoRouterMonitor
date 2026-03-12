@@ -14,17 +14,14 @@ use serde::{Deserialize, Serialize};
 
 /// Output format for event listing.
 #[derive(Debug, Clone, PartialEq, Eq, clap::ValueEnum)]
+#[derive(Default)]
 pub enum EventOutputFormat {
+    #[default]
     Table,
     Json,
     Jsonl,
 }
 
-impl Default for EventOutputFormat {
-    fn default() -> Self {
-        Self::Table
-    }
-}
 
 /// Arguments for `agileplus events`.
 #[derive(Debug, Args)]

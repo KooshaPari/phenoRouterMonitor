@@ -73,7 +73,7 @@ pub fn create_evidence(conn: &Connection, evidence: &Evidence) -> Result<i64, Do
     let metadata_s = evidence
         .metadata
         .as_ref()
-        .map(|m| serde_json::to_string(m))
+        .map(serde_json::to_string)
         .transpose()
         .map_err(|e| DomainError::Storage(e.to_string()))?;
 

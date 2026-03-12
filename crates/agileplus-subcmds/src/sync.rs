@@ -105,15 +105,11 @@ pub enum ConflictResolution {
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct SyncConfig {
     pub auto_sync_enabled: bool,
 }
 
-impl Default for SyncConfig {
-    fn default() -> Self {
-        Self { auto_sync_enabled: false }
-    }
-}
 
 impl SyncConfig {
     /// Load from `<root>/.agileplus/sync-config.json`, returning default if absent.
@@ -433,7 +429,7 @@ pub fn run_sync_status(args: SyncStatusArgs) -> Result<()> {
     for row in &rows {
         let entity = format!("{}: {}", row.entity_kind, row.entity_name);
         let remote = row.remote_state.as_deref().unwrap_or("—");
-        let last_synced = row.last_synced.map(|t| format_age(t)).unwrap_or("never".to_string());
+        let last_synced = row.last_synced.map(format_age).unwrap_or("never".to_string());
         let match_icon = if row.conflict_count > 0 {
             "\u{2717}" // ✗ conflict
         } else if row.in_sync {
