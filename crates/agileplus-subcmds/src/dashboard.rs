@@ -4,7 +4,7 @@
 //!
 //! Traceability: WP14-T089
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use clap::{Args, Subcommand};
 
 // ---------------------------------------------------------------------------
@@ -174,9 +174,7 @@ fn persist_port_config(port: u16) -> Result<()> {
             .map_err(|e| anyhow!("Failed to write config: {e}"))?;
     } else {
         // Fallback: tell the user how to set it.
-        println!(
-            "To persist, set: export AGILEPLUS_DASHBOARD_PORT={port}"
-        );
+        println!("To persist, set: export AGILEPLUS_DASHBOARD_PORT={port}");
     }
     Ok(())
 }
@@ -241,7 +239,10 @@ mod tests {
 
     #[test]
     fn test_dashboard_args_defaults() {
-        let args = DashboardArgs { subcommand: None, port: None };
+        let args = DashboardArgs {
+            subcommand: None,
+            port: None,
+        };
         assert!(args.subcommand.is_none());
         assert!(args.port.is_none());
     }

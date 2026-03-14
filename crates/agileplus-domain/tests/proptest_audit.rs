@@ -2,7 +2,13 @@ use agileplus_domain::domain::audit::{AuditChain, AuditEntry, hash_entry};
 use chrono::Utc;
 use proptest::prelude::*;
 
-fn make_entry(feature_id: i64, wp_id: Option<i64>, actor: &str, transition: &str, prev_hash: [u8; 32]) -> AuditEntry {
+fn make_entry(
+    feature_id: i64,
+    wp_id: Option<i64>,
+    actor: &str,
+    transition: &str,
+    prev_hash: [u8; 32],
+) -> AuditEntry {
     let mut entry = AuditEntry {
         id: 0,
         feature_id,

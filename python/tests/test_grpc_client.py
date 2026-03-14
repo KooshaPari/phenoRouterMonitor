@@ -16,6 +16,7 @@ from agileplus_mcp.grpc_client import AgilePlusCoreClient, GrpcConnectionError
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 def _make_mock_feature(slug: str = "test-feat") -> MagicMock:
     f = MagicMock()
     f.id = 1
@@ -42,9 +43,7 @@ def _make_mock_stub() -> MagicMock:
     stub.ListFeatures = AsyncMock(return_value=list_response)
 
     state_response = MagicMock()
-    state_response.feature_state = MagicMock(
-        state="created", next_command="specify", blockers=[]
-    )
+    state_response.feature_state = MagicMock(state="created", next_command="specify", blockers=[])
     stub.GetFeatureState = AsyncMock(return_value=state_response)
 
     # Command dispatch
@@ -72,6 +71,7 @@ def _make_mock_stub() -> MagicMock:
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def client_with_stub():
@@ -120,9 +120,7 @@ async def test_run_command_returns_dict(client_with_stub):
 
 @pytest.mark.asyncio
 async def test_check_governance_gate_passed(client_with_stub):
-    result = await client_with_stub.check_governance_gate(
-        "test-feat", "specified->planned"
-    )
+    result = await client_with_stub.check_governance_gate("test-feat", "specified->planned")
     assert result["passed"] is True
     assert result["violations"] == []
 

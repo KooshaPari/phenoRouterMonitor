@@ -102,12 +102,18 @@ impl FeatureState {
     ];
 
     /// Transition to a target state. Allows forward moves only.
-    pub fn transition(self, target: FeatureState) -> Result<TransitionResult, crate::error::DomainError> {
+    pub fn transition(
+        self,
+        target: FeatureState,
+    ) -> Result<TransitionResult, crate::error::DomainError> {
         if target.ordinal() <= self.ordinal() {
             return Err(crate::error::DomainError::InvalidTransition {
                 from: self.to_string(),
                 to: target.to_string(),
-                reason: format!("backward transition from {} to {} is not allowed", self, target),
+                reason: format!(
+                    "backward transition from {} to {} is not allowed",
+                    self, target
+                ),
             });
         }
         let skipped: Vec<FeatureState> = Self::ALL

@@ -52,7 +52,7 @@ pub fn audit_entry_to_proto(e: DomainAuditEntry) -> ProtoAuditEntry {
     ProtoAuditEntry {
         id: e.id,
         feature_slug: String::new(), // Caller fills from context
-        wp_sequence: 0,             // Caller fills when needed
+        wp_sequence: 0,              // Caller fills when needed
         timestamp: e.timestamp.to_rfc3339(),
         actor: e.actor,
         transition: e.transition,

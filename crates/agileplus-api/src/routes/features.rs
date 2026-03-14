@@ -17,7 +17,9 @@ use serde::{Deserialize, Serialize};
 
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::state_machine::FeatureState;
-use agileplus_domain::ports::{observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort};
+use agileplus_domain::ports::{
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+};
 
 use crate::error::ApiError;
 use crate::responses::FeatureResponse;
@@ -30,8 +32,14 @@ where
     O: ObservabilityPort + Send + Sync + Clone + 'static,
 {
     Router::new()
-        .route("/", get(list_features::<S, V, O>).post(create_feature::<S, V, O>))
-        .route("/{slug}", get(get_feature::<S, V, O>).patch(update_feature::<S, V, O>))
+        .route(
+            "/",
+            get(list_features::<S, V, O>).post(create_feature::<S, V, O>),
+        )
+        .route(
+            "/{slug}",
+            get(get_feature::<S, V, O>).patch(update_feature::<S, V, O>),
+        )
         .route("/{slug}/transition", post(transition_feature::<S, V, O>))
 }
 
@@ -69,7 +77,9 @@ where
     // label filter is informational for now — domain layer doesn't have label storage yet
     let _ = params.label;
 
-    Ok(Json(features.into_iter().map(FeatureResponse::from).collect()))
+    Ok(Json(
+        features.into_iter().map(FeatureResponse::from).collect(),
+    ))
 }
 
 /// `GET /api/v1/features/:slug`
@@ -227,6 +237,5 @@ where
 }
 
 pub fn parse_feature_state(s: &str) -> Result<FeatureState, ApiError> {
-    s.parse::<FeatureState>()
-        .map_err(ApiError::BadRequest)
+    s.parse::<FeatureState>().map_err(ApiError::BadRequest)
 }

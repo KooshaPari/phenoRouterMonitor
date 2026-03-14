@@ -291,7 +291,10 @@ impl PlaneClient {
     // -- Module API (WP06-T029) --
 
     /// Create a Module in Plane.so. Returns Plane's module UUID.
-    pub async fn create_module(&self, req: &PlaneCreateModuleRequest) -> Result<PlaneModuleResponse> {
+    pub async fn create_module(
+        &self,
+        req: &PlaneCreateModuleRequest,
+    ) -> Result<PlaneModuleResponse> {
         self.acquire_token().await?;
         let resp = self
             .client
@@ -308,7 +311,9 @@ impl PlaneClient {
             anyhow::bail!("Plane.so module create failed: HTTP {status}: {body}");
         }
 
-        resp.json().await.context("parsing Plane.so module response")
+        resp.json()
+            .await
+            .context("parsing Plane.so module response")
     }
 
     /// Update a Module in Plane.so (PATCH).
@@ -533,25 +538,19 @@ mod tests {
 
     #[tokio::test]
     async fn create_module_sends_post() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
-            .respond_with(
-                ResponseTemplate::new(200)
-                    .set_body_json(serde_json::json!({"id": "mod-uuid-1", "name": "Auth", "description": null})),
-            )
+            .respond_with(ResponseTemplate::new(200).set_body_json(
+                serde_json::json!({"id": "mod-uuid-1", "name": "Auth", "description": null}),
+            ))
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let req = PlaneCreateModuleRequest {
             name: "Auth".to_string(),
             description: None,
@@ -563,8 +562,8 @@ mod tests {
 
     #[tokio::test]
     async fn create_module_http_error_propagates() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
@@ -573,12 +572,7 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let req = PlaneCreateModuleRequest {
             name: "Fail".to_string(),
             description: None,
@@ -591,30 +585,22 @@ mod tests {
 
     #[tokio::test]
     async fn create_cycle_sends_correct_dates() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/api/v1/workspaces/ws/projects/proj/cycles/"))
-            .respond_with(
-                ResponseTemplate::new(200)
-                    .set_body_json(serde_json::json!({
-                        "id": "cyc-uuid-1",
-                        "name": "Sprint 1",
-                        "start_date": "2026-01-01",
-                        "end_date": "2026-01-14"
-                    })),
-            )
+            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+                "id": "cyc-uuid-1",
+                "name": "Sprint 1",
+                "start_date": "2026-01-01",
+                "end_date": "2026-01-14"
+            })))
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let req = PlaneCreateCycleRequest {
             name: "Sprint 1".to_string(),
             description: None,
@@ -627,52 +613,46 @@ mod tests {
 
     #[tokio::test]
     async fn add_issue_to_cycle_sends_post() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
-            .and(path("/api/v1/workspaces/ws/projects/proj/cycles/cyc-1/cycle-issues/"))
+            .and(path(
+                "/api/v1/workspaces/ws/projects/proj/cycles/cyc-1/cycle-issues/",
+            ))
             .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({})))
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let result = client.add_issue_to_cycle("cyc-1", "issue-1").await;
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn add_issue_to_module_sends_post() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("POST"))
-            .and(path("/api/v1/workspaces/ws/projects/proj/modules/mod-1/module-issues/"))
+            .and(path(
+                "/api/v1/workspaces/ws/projects/proj/modules/mod-1/module-issues/",
+            ))
             .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({})))
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let result = client.add_issue_to_module("mod-1", "issue-1").await;
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn delete_module_sends_delete() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("DELETE"))
@@ -681,20 +661,15 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let result = client.delete_module("mod-1").await;
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn delete_cycle_sends_delete() {
-        use wiremock::{MockServer, Mock, ResponseTemplate};
         use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
 
         let mock_server = MockServer::start().await;
         Mock::given(method("DELETE"))
@@ -703,12 +678,7 @@ mod tests {
             .mount(&mock_server)
             .await;
 
-        let client = PlaneClient::new(
-            mock_server.uri(),
-            "key".into(),
-            "ws".into(),
-            "proj".into(),
-        );
+        let client = PlaneClient::new(mock_server.uri(), "key".into(), "ws".into(), "proj".into());
         let result = client.delete_cycle("cyc-1").await;
         assert!(result.is_ok());
     }

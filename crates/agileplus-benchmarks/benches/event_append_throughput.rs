@@ -23,9 +23,7 @@ fn bench_append_sequential(c: &mut Criterion) {
             |b, &n| {
                 b.iter(|| {
                     let adapter = make_in_memory_adapter();
-                    let conn_guard = adapter
-                        .conn_for_bench()
-                        .expect("bench conn");
+                    let conn_guard = adapter.conn_for_bench().expect("bench conn");
 
                     for i in 0..n {
                         let ev = make_event(
@@ -102,7 +100,9 @@ criterion_main!(benches);
 #[cfg(test)]
 #[allow(unused_imports)]
 mod tests {
-    use agileplus_benchmarks::helpers::{make_event, make_events_multi_entity, make_in_memory_adapter};
+    use agileplus_benchmarks::helpers::{
+        make_event, make_events_multi_entity, make_in_memory_adapter,
+    };
     use agileplus_sqlite::repository::events as event_repo;
 
     #[test]

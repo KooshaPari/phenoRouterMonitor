@@ -71,7 +71,9 @@ pub fn detect_file_scope(wp_description: &str) -> Vec<String> {
 
     for word in wp_description.split_whitespace() {
         // Strip surrounding punctuation (backticks, parens, commas, etc.)
-        let w = word.trim_matches(|c: char| !c.is_alphanumeric() && c != '/' && c != '.' && c != '_' && c != '-');
+        let w = word.trim_matches(|c: char| {
+            !c.is_alphanumeric() && c != '/' && c != '.' && c != '_' && c != '-'
+        });
         if w.is_empty() {
             continue;
         }

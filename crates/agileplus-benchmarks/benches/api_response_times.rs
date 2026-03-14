@@ -42,18 +42,14 @@ fn bench_list_features(c: &mut Criterion) {
 
     for count in [10_i64, 100] {
         let adapter = seed_features(count);
-        group.bench_with_input(
-            BenchmarkId::new("list_features", count),
-            &count,
-            |b, _| {
-                use agileplus_sqlite::repository::features as feat_repo;
-                b.iter(|| {
-                    let conn = adapter.conn_for_bench().expect("conn");
-                    let features = feat_repo::list_all_features(&conn).expect("list");
-                    black_box(features.len())
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("list_features", count), &count, |b, _| {
+            use agileplus_sqlite::repository::features as feat_repo;
+            b.iter(|| {
+                let conn = adapter.conn_for_bench().expect("conn");
+                let features = feat_repo::list_all_features(&conn).expect("list");
+                black_box(features.len())
+            });
+        });
     }
 
     group.finish();
@@ -88,11 +84,14 @@ fn bench_feature_transition(c: &mut Criterion) {
         b.iter(|| {
             // Reset to Created then advance to Specified (allowed transition).
             let conn = adapter.conn_for_bench().expect("conn");
-            feat_repo::update_feature_state(&conn, black_box(1), black_box(FeatureState::Specified))
-                .expect("transition");
+            feat_repo::update_feature_state(
+                &conn,
+                black_box(1),
+                black_box(FeatureState::Specified),
+            )
+            .expect("transition");
             // Reset for next iteration
-            feat_repo::update_feature_state(&conn, 1, FeatureState::Created)
-                .expect("reset");
+            feat_repo::update_feature_state(&conn, 1, FeatureState::Created).expect("reset");
         });
     });
 }
@@ -157,9 +156,10 @@ mod tests {
     fn feature_transition_smoke() {
         let adapter = seed_features(1);
         let conn = adapter.conn_for_bench().expect("conn");
-        feat_repo::update_feature_state(&conn, 1, FeatureState::Specified)
-            .expect("transition");
-        let f = feat_repo::get_feature_by_id(&conn, 1).expect("get").unwrap();
+        feat_repo::update_feature_state(&conn, 1, FeatureState::Specified).expect("transition");
+        let f = feat_repo::get_feature_by_id(&conn, 1)
+            .expect("get")
+            .unwrap();
         assert_eq!(f.state, FeatureState::Specified);
     }
 
@@ -167,7 +167,9 @@ mod tests {
     fn health_check_smoke() {
         let adapter = make_in_memory_adapter();
         let conn = adapter.conn_for_bench().expect("conn");
-        let result: i64 = conn.query_row("SELECT 1", [], |row| row.get(0)).expect("ping");
+        let result: i64 = conn
+            .query_row("SELECT 1", [], |row| row.get(0))
+            .expect("ping");
         assert_eq!(result, 1);
     }
 }

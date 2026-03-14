@@ -223,8 +223,8 @@ mod tests {
 
         a.merge(&b);
         assert_eq!(a.get("Feature", "1"), 8); // b had higher value
-        assert_eq!(a.get("Epic", "2"), 3);     // a had higher value
-        assert_eq!(a.get("Story", "3"), 2);    // new key from b
+        assert_eq!(a.get("Epic", "2"), 3); // a had higher value
+        assert_eq!(a.get("Story", "3"), 2); // new key from b
     }
 
     #[test]
@@ -241,10 +241,7 @@ mod tests {
         let mut b_then_a = b.clone();
         b_then_a.merge(&a);
 
-        assert_eq!(
-            a_then_b.get("Feature", "1"),
-            b_then_a.get("Feature", "1")
-        );
+        assert_eq!(a_then_b.get("Feature", "1"), b_then_a.get("Feature", "1"));
     }
 
     // ── compute_missing_locally tests ────────────────────────────────────────
@@ -257,7 +254,7 @@ mod tests {
 
         let mut peer = SyncVector::new("dev-b");
         peer.advance("Feature", "1", 7); // behind
-        peer.advance("Epic", "2", 5);    // equal — no transfer needed
+        peer.advance("Epic", "2", 5); // equal — no transfer needed
 
         let missing = compute_missing_locally(&local, &peer);
         assert_eq!(missing.len(), 1);
@@ -288,6 +285,9 @@ mod tests {
         peer.advance("Feature", "1", 10); // peer is ahead
 
         let missing = compute_missing_locally(&local, &peer);
-        assert!(missing.is_empty(), "local should not send events it doesn't have");
+        assert!(
+            missing.is_empty(),
+            "local should not send events it doesn't have"
+        );
     }
 }

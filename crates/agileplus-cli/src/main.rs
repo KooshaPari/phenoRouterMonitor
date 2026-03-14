@@ -10,15 +10,13 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use agileplus_cli::commands::{
-    cycle::CycleArgs,
-    implement::ImplementArgs, plan::PlanArgs, queue::QueueArgs,
-    research::ResearchArgs, retrospective::RetrospectiveArgs,
-    ship::ShipArgs, specify::SpecifyArgs, triage::TriageArgs,
-    validate::ValidateArgs,
+    cycle::CycleArgs, implement::ImplementArgs, module::ModuleArgs, plan::PlanArgs,
+    queue::QueueArgs, research::ResearchArgs, retrospective::RetrospectiveArgs, ship::ShipArgs,
+    specify::SpecifyArgs, triage::TriageArgs, validate::ValidateArgs,
 };
 use agileplus_git::GitVcsAdapter;
 use agileplus_sqlite::SqliteStorageAdapter;
-use agileplus_subcmds::{DashboardArgs, run_dashboard, PlatformArgs, run_platform};
+use agileplus_subcmds::{DashboardArgs, PlatformArgs, run_dashboard, run_platform};
 
 mod agent_stub;
 use agent_stub::StubAgentAdapter;
@@ -132,8 +130,9 @@ async fn run(cli: Cli) -> Result<()> {
 
     // Initialise VCS adapter
     let vcs = match cli.repo {
-        Some(ref path) => GitVcsAdapter::new(path.clone())
-            .context("opening git repository at specified path")?,
+        Some(ref path) => {
+            GitVcsAdapter::new(path.clone()).context("opening git repository at specified path")?
+        }
         None => GitVcsAdapter::from_current_dir()
             .context("Not inside a git repository. Run agileplus from your project root.")?,
     };
@@ -166,8 +165,11 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Retrospective(args) => {
             agileplus_cli::commands::retrospective::run_retrospective(args, &storage, &vcs).await?;
         }
-        Commands::Triage(_) | Commands::Queue(_) | Commands::Module(_)
-        | Commands::Dashboard(_) | Commands::Platform(_) => unreachable!("handled above"),
+        Commands::Triage(_)
+        | Commands::Queue(_)
+        | Commands::Module(_)
+        | Commands::Dashboard(_)
+        | Commands::Platform(_) => unreachable!("handled above"),
     }
 
     Ok(())

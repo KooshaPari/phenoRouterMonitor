@@ -34,10 +34,7 @@ impl<'a> GraphQueries<'a> {
     }
 
     /// Get what blocks a work package (transitive).
-    pub async fn get_blocking_path(
-        &self,
-        wp_id: i64,
-    ) -> Result<Vec<(i64, String)>, GraphError> {
+    pub async fn get_blocking_path(&self, wp_id: i64) -> Result<Vec<(i64, String)>, GraphError> {
         let rows = self
             .store
             .query_cypher(

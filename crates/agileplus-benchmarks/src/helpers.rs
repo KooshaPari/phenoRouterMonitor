@@ -3,11 +3,7 @@
 //! All helpers are sync (return values directly) so they can be called
 //! from both Criterion bench closures and regular `#[test]` functions.
 
-use agileplus_domain::domain::{
-    event::Event,
-    feature::Feature,
-    state_machine::FeatureState,
-};
+use agileplus_domain::domain::{event::Event, feature::Feature, state_machine::FeatureState};
 use agileplus_sqlite::SqliteStorageAdapter;
 use chrono::Utc;
 
@@ -93,10 +89,7 @@ pub struct CountingAggregate {
 
 #[async_trait::async_trait]
 impl agileplus_events::Aggregate for CountingAggregate {
-    async fn apply(
-        &mut self,
-        event: &Event,
-    ) -> Result<(), agileplus_events::ReplayError> {
+    async fn apply(&mut self, event: &Event) -> Result<(), agileplus_events::ReplayError> {
         self.events_applied += 1;
         self.last_state = event
             .payload
@@ -175,9 +168,9 @@ pub fn simulate_sync_roundtrip(payload: &SyncPayload) -> SyncPayload {
     });
     let s: serde_json::Value = serde_json::from_str(&json.to_string()).unwrap();
     SyncPayload {
-        id:          s["id"].as_i64().unwrap(),
-        slug:        s["slug"].as_str().unwrap().to_string(),
-        state:       FeatureState::Specified,
+        id: s["id"].as_i64().unwrap(),
+        slug: s["slug"].as_str().unwrap().to_string(),
+        state: FeatureState::Specified,
         description: s["description"].as_str().unwrap().to_string(),
     }
 }

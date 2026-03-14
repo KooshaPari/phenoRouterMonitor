@@ -12,9 +12,7 @@
 //! A Neo4j-backed benchmark would be added in CI using the `neo4j` feature.
 
 use agileplus_benchmarks::helpers::make_feature;
-use agileplus_graph::{
-    GraphConfig, GraphStore, NodeStore, RelationshipStore, GraphQueries,
-};
+use agileplus_graph::{GraphConfig, GraphQueries, GraphStore, NodeStore, RelationshipStore};
 use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use tokio::runtime::Runtime;
 
@@ -32,7 +30,12 @@ async fn seed_features(store: &GraphStore, n: i64) {
     for i in 1..=n {
         let f = make_feature(i);
         nodes
-            .create_feature(f.id, f.slug.clone(), format!("{:?}", f.state), f.friendly_name.clone())
+            .create_feature(
+                f.id,
+                f.slug.clone(),
+                format!("{:?}", f.state),
+                f.friendly_name.clone(),
+            )
             .await
             .expect("create feature node");
     }
@@ -93,16 +96,12 @@ fn bench_seed_n_features(c: &mut Criterion) {
     let mut group = c.benchmark_group("graph_seed_features");
 
     for count in [10_i64, 50, 100] {
-        group.bench_with_input(
-            BenchmarkId::new("seed_features", count),
-            &count,
-            |b, &n| {
-                b.iter(|| {
-                    let store = make_store();
-                    rt.block_on(seed_features(&store, black_box(n)));
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("seed_features", count), &count, |b, &n| {
+            b.iter(|| {
+                let store = make_store();
+                rt.block_on(seed_features(&store, black_box(n)));
+            });
+        });
     }
 
     group.finish();
@@ -119,8 +118,14 @@ fn bench_create_relationships(c: &mut Criterion) {
         // Seed features 1..=10 and WPs 1..=10
         let nodes = NodeStore::new(&store);
         for i in 1..=10_i64 {
-            nodes.create_feature(i, format!("f-{i}"), "Created".into(), format!("F{i}")).await.unwrap();
-            nodes.create_workpackage(i, format!("WP-{i}"), "todo".into(), i as i32).await.unwrap();
+            nodes
+                .create_feature(i, format!("f-{i}"), "Created".into(), format!("F{i}"))
+                .await
+                .unwrap();
+            nodes
+                .create_workpackage(i, format!("WP-{i}"), "todo".into(), i as i32)
+                .await
+                .unwrap();
         }
     });
 
@@ -128,9 +133,7 @@ fn bench_create_relationships(c: &mut Criterion) {
         b.iter(|| {
             let rels = RelationshipStore::new(&store);
             rt.block_on(async {
-                rels.owns(black_box(1), black_box(1))
-                    .await
-                    .expect("owns");
+                rels.owns(black_box(1), black_box(1)).await.expect("owns");
             });
         });
     });
@@ -149,7 +152,10 @@ fn bench_dependency_chain_query(c: &mut Criterion) {
         b.iter(|| {
             let queries = GraphQueries::new(&store);
             rt.block_on(async {
-                let chain = queries.get_dependency_chain(black_box(1)).await.expect("query");
+                let chain = queries
+                    .get_dependency_chain(black_box(1))
+                    .await
+                    .expect("query");
                 black_box(chain.len())
             })
         });
@@ -174,7 +180,7 @@ criterion_main!(benches);
 #[allow(unused_imports)]
 mod tests {
     use super::{make_store, seed_features};
-    use agileplus_graph::{NodeStore, RelationshipStore, GraphQueries};
+    use agileplus_graph::{GraphQueries, NodeStore, RelationshipStore};
 
     #[tokio::test]
     async fn create_and_get_feature_smoke() {
@@ -212,8 +218,14 @@ mod tests {
     async fn relationship_create_smoke() {
         let store = make_store();
         let nodes = NodeStore::new(&store);
-        nodes.create_feature(1, "f1".into(), "Created".into(), "F1".into()).await.unwrap();
-        nodes.create_workpackage(1, "WP1".into(), "todo".into(), 1).await.unwrap();
+        nodes
+            .create_feature(1, "f1".into(), "Created".into(), "F1".into())
+            .await
+            .unwrap();
+        nodes
+            .create_workpackage(1, "WP1".into(), "todo".into(), 1)
+            .await
+            .unwrap();
         let rels = RelationshipStore::new(&store);
         rels.owns(1, 1).await.unwrap();
     }

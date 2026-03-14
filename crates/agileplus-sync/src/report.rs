@@ -52,36 +52,11 @@ impl fmt::Display for SyncReport {
         writeln!(f, "┌{sep}┐")?;
         writeln!(f, "│  AgilePlus Sync Report{:>29}│", "")?;
         writeln!(f, "├{sep}┤")?;
-        writeln!(
-            f,
-            "│  {:<20} {:>28}│",
-            "Created",
-            self.created.len()
-        )?;
-        writeln!(
-            f,
-            "│  {:<20} {:>28}│",
-            "Updated",
-            self.updated.len()
-        )?;
-        writeln!(
-            f,
-            "│  {:<20} {:>28}│",
-            "Skipped",
-            self.skipped.len()
-        )?;
-        writeln!(
-            f,
-            "│  {:<20} {:>28}│",
-            "Conflicts",
-            self.conflicts.len()
-        )?;
-        writeln!(
-            f,
-            "│  {:<20} {:>28}│",
-            "Errors",
-            self.errors.len()
-        )?;
+        writeln!(f, "│  {:<20} {:>28}│", "Created", self.created.len())?;
+        writeln!(f, "│  {:<20} {:>28}│", "Updated", self.updated.len())?;
+        writeln!(f, "│  {:<20} {:>28}│", "Skipped", self.skipped.len())?;
+        writeln!(f, "│  {:<20} {:>28}│", "Conflicts", self.conflicts.len())?;
+        writeln!(f, "│  {:<20} {:>28}│", "Errors", self.errors.len())?;
         writeln!(
             f,
             "│  {:<20} {:>26.3}s│",
@@ -96,7 +71,10 @@ impl fmt::Display for SyncReport {
                 writeln!(
                     f,
                     "  • {}/{} — local={} remote={}",
-                    c.entity_type, c.entity_id, &c.local_hash[..8], &c.remote_hash[..8]
+                    c.entity_type,
+                    c.entity_id,
+                    &c.local_hash[..8],
+                    &c.remote_hash[..8]
                 )?;
             }
         }

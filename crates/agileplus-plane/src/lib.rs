@@ -17,20 +17,20 @@ pub mod sync_queue;
 pub mod webhook;
 
 pub use client::PlaneClient;
-pub use content_hash::{compute_content_hash, detect_conflict, ConflictStatus};
+pub use client::{
+    PlaneCreateCycleRequest, PlaneCreateModuleRequest, PlaneCycleResponse, PlaneModuleResponse,
+};
+pub use content_hash::{ConflictStatus, compute_content_hash, detect_conflict};
 pub use inbound::{InboundOutcome, InboundSync, LocalEntityStore};
 pub use labels::{LabelSync, PlaneLabel};
 pub use outbound::{
-    OutboundSync, push_module, push_cycle, push_module_delete, push_cycle_delete,
-    push_feature_module_assignment, push_feature_cycle_assignment,
+    OutboundSync, push_cycle, push_cycle_delete, push_feature_cycle_assignment,
+    push_feature_module_assignment, push_module, push_module_delete,
 };
 pub use state_mapper::{PlaneStateMapper, PlaneStateMapperConfig};
 pub use sync::{PlaneSyncAdapter, SyncState};
-pub use sync_queue::{SyncQueue, SyncQueueItem, SyncQueueStore, SyncOpKind};
+pub use sync_queue::{SyncOpKind, SyncQueue, SyncQueueItem, SyncQueueStore};
 pub use webhook::{
-    handle_plane_webhook, parse_webhook, verify_hmac_signature, PlaneInboundEvent,
-    PlaneWebhookAction, PlaneWebhookPayload, PlaneWebhookModule, PlaneWebhookCycle,
-};
-pub use client::{
-    PlaneCreateModuleRequest, PlaneModuleResponse, PlaneCreateCycleRequest, PlaneCycleResponse,
+    PlaneInboundEvent, PlaneWebhookAction, PlaneWebhookCycle, PlaneWebhookModule,
+    PlaneWebhookPayload, handle_plane_webhook, parse_webhook, verify_hmac_signature,
 };

@@ -116,8 +116,16 @@ fn specify_creates_spec_artifact() {
         .success();
 
     // Verify the spec.md was written
-    let spec_file = repo_dir.path().join("kitty-specs").join("my-feature").join("spec.md");
-    assert!(spec_file.exists(), "spec.md should have been created at {}", spec_file.display());
+    let spec_file = repo_dir
+        .path()
+        .join("kitty-specs")
+        .join("my-feature")
+        .join("spec.md");
+    assert!(
+        spec_file.exists(),
+        "spec.md should have been created at {}",
+        spec_file.display()
+    );
 }
 
 #[test]

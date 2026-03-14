@@ -81,21 +81,35 @@ mod tests {
             self.version = event.sequence;
             Ok(())
         }
-        fn version(&self) -> i64 { self.version }
-        fn set_version(&mut self, v: i64) { self.version = v; }
+        fn version(&self) -> i64 {
+            self.version
+        }
+        fn set_version(&mut self, v: i64) {
+            self.version = v;
+        }
     }
 
     fn make_event(seq: i64, entity_id: i64, payload: serde_json::Value) -> Event {
         Event {
-            id: seq, entity_type: "T".into(), entity_id, event_type: "U".into(),
-            payload, actor: "t".into(), timestamp: chrono::Utc::now(),
-            prev_hash: [0u8; 32], hash: [0u8; 32], sequence: seq,
+            id: seq,
+            entity_type: "T".into(),
+            entity_id,
+            event_type: "U".into(),
+            payload,
+            actor: "t".into(),
+            timestamp: chrono::Utc::now(),
+            prev_hash: [0u8; 32],
+            hash: [0u8; 32],
+            sequence: seq,
         }
     }
 
     #[tokio::test]
     async fn replay_applies_events() {
-        let mut agg = TestAggregate { version: 0, state: serde_json::json!({}) };
+        let mut agg = TestAggregate {
+            version: 0,
+            state: serde_json::json!({}),
+        };
         let events = vec![
             make_event(1, 1, serde_json::json!({"v": 1})),
             make_event(2, 1, serde_json::json!({"v": 2})),
@@ -107,7 +121,10 @@ mod tests {
 
     #[tokio::test]
     async fn replay_rejects_mixed_entities() {
-        let mut agg = TestAggregate { version: 0, state: serde_json::json!({}) };
+        let mut agg = TestAggregate {
+            version: 0,
+            state: serde_json::json!({}),
+        };
         let events = vec![
             make_event(1, 1, serde_json::json!({})),
             make_event(2, 2, serde_json::json!({})),
@@ -117,7 +134,10 @@ mod tests {
 
     #[tokio::test]
     async fn replay_since_filters() {
-        let mut agg = TestAggregate { version: 0, state: serde_json::json!({}) };
+        let mut agg = TestAggregate {
+            version: 0,
+            state: serde_json::json!({}),
+        };
         let events = vec![
             make_event(1, 1, serde_json::json!({"v": 1})),
             make_event(2, 1, serde_json::json!({"v": 2})),

@@ -206,10 +206,7 @@ impl EventBus for InMemoryBus {
     }
 
     async fn unsubscribe(&self, subscription_id: &str) -> Result<(), EventBusError> {
-        self.subscriptions
-            .lock()
-            .unwrap()
-            .remove(subscription_id);
+        self.subscriptions.lock().unwrap().remove(subscription_id);
         Ok(())
     }
 
@@ -320,10 +317,8 @@ mod tests {
         let bus_clone = bus.clone();
         let handler = Arc::new(FnHandler(move |env: &Envelope| {
             if let Some(reply_to) = &env.reply_to {
-                let reply = Envelope::new(
-                    &Subject::new(reply_to),
-                    serde_json::json!({"answer": 42}),
-                );
+                let reply =
+                    Envelope::new(&Subject::new(reply_to), serde_json::json!({"answer": 42}));
                 let bus_inner = bus_clone.clone();
                 // Spawn the reply asynchronously to avoid deadlock.
                 tokio::spawn(async move {
@@ -348,10 +343,7 @@ mod tests {
     #[tokio::test]
     async fn request_timeout() {
         let bus = InMemoryBus::new();
-        let req = Envelope::new(
-            &Subject::new("agileplus.rpc.nobody"),
-            serde_json::json!({}),
-        );
+        let req = Envelope::new(&Subject::new("agileplus.rpc.nobody"), serde_json::json!({}));
         let result = bus.request(req, Duration::from_millis(50)).await;
         assert!(matches!(result, Err(EventBusError::Timeout)));
     }

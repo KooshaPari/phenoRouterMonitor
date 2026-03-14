@@ -13,15 +13,13 @@ use serde::{Deserialize, Serialize};
 // ---------------------------------------------------------------------------
 
 /// Output format for event listing.
-#[derive(Debug, Clone, PartialEq, Eq, clap::ValueEnum)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Eq, clap::ValueEnum, Default)]
 pub enum EventOutputFormat {
     #[default]
     Table,
     Json,
     Jsonl,
 }
-
 
 /// Arguments for `agileplus events`.
 #[derive(Debug, Args)]
@@ -222,7 +220,10 @@ pub fn render_jsonl(events: &[EventRecord]) -> anyhow::Result<String> {
 pub fn run_events(args: EventsArgs) -> anyhow::Result<()> {
     let all_events = load_events_stub();
     let filtered = filter_events(&all_events, &args);
-    let result = EventQueryResult { total: filtered.len(), events: filtered.clone() };
+    let result = EventQueryResult {
+        total: filtered.len(),
+        events: filtered.clone(),
+    };
 
     let output = match args.format {
         EventOutputFormat::Table => render_table(&result.events),

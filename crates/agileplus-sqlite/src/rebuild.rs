@@ -81,9 +81,13 @@ impl SqliteStorageAdapter {
         let mut report = RebuildReport::default();
 
         // Lock the connection and do everything in a single transaction
-        let conn = self.conn.lock().map_err(|e| DomainError::Storage(e.to_string()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|e| DomainError::Storage(e.to_string()))?;
 
-        conn.execute_batch("BEGIN;").map_err(|e| DomainError::Storage(e.to_string()))?;
+        conn.execute_batch("BEGIN;")
+            .map_err(|e| DomainError::Storage(e.to_string()))?;
 
         // Clear existing data
         conn.execute_batch(
@@ -120,7 +124,10 @@ impl SqliteStorageAdapter {
         }
 
         // Commit
-        let conn = self.conn.lock().map_err(|e| DomainError::Storage(e.to_string()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|e| DomainError::Storage(e.to_string()))?;
         conn.execute_batch("COMMIT;")
             .map_err(|e| DomainError::Storage(format!("commit failed: {e}")))?;
 
@@ -273,9 +280,8 @@ mod tests {
         domain::audit::hash_entry,
         error::DomainError,
         ports::{
+            StoragePort, VcsPort,
             vcs::{ConflictInfo, FeatureArtifacts, MergeResult, WorktreeInfo},
-            StoragePort,
-            VcsPort,
         },
     };
 
@@ -468,14 +474,20 @@ mod tests {
 
         let feat = db.get_feature_by_slug(slug).await.unwrap().unwrap();
         assert_eq!(feat.slug, slug);
-        assert_eq!(feat.state, agileplus_domain::domain::state_machine::FeatureState::Specified);
+        assert_eq!(
+            feat.state,
+            agileplus_domain::domain::state_machine::FeatureState::Specified
+        );
     }
 
     #[tokio::test]
     async fn rebuild_skips_missing_meta() {
         let mock = MockVcs::new(); // No artifacts
         let db = SqliteStorageAdapter::in_memory().unwrap();
-        let report = db.rebuild_from_git(&mock, &["no-such-feature"]).await.unwrap();
+        let report = db
+            .rebuild_from_git(&mock, &["no-such-feature"])
+            .await
+            .unwrap();
         assert_eq!(report.features_restored, 0);
     }
 }

@@ -12,8 +12,8 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use agileplus_triage::BacklogItem;
 use crate::client::{GitHubClient, GitHubIssuePayload};
+use agileplus_triage::BacklogItem;
 
 /// Sync state for GitHub Issues tracking.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -106,10 +106,7 @@ impl GitHubSyncAdapter {
     }
 
     /// Poll GitHub for status changes and return items that changed.
-    pub async fn poll_status_changes(
-        &self,
-        state: &GitHubSyncState,
-    ) -> Result<Vec<(i64, String)>> {
+    pub async fn poll_status_changes(&self, state: &GitHubSyncState) -> Result<Vec<(i64, String)>> {
         let mut changes = Vec::new();
 
         for (&item_id, &issue_number) in &state.issue_mappings {
@@ -118,11 +115,7 @@ impl GitHubSyncAdapter {
                     changes.push((item_id, issue.state));
                 }
                 Err(e) => {
-                    tracing::warn!(
-                        "Failed to poll GitHub issue #{}: {}",
-                        issue_number,
-                        e
-                    );
+                    tracing::warn!("Failed to poll GitHub issue #{}: {}", issue_number, e);
                 }
             }
         }
@@ -144,7 +137,10 @@ fn format_bug_body(item: &BacklogItem) -> String {
     if let Some(ref slug) = item.feature_slug {
         body.push_str(&format!("- **Feature**: {slug}\n"));
     }
-    body.push_str(&format!("- **Created**: {}\n", item.created_at.to_rfc3339()));
+    body.push_str(&format!(
+        "- **Created**: {}\n",
+        item.created_at.to_rfc3339()
+    ));
     body.push_str("\n---\n*Synced by AgilePlus*\n");
     body
 }

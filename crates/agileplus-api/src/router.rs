@@ -38,7 +38,9 @@ use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
 use agileplus_domain::credentials::CredentialStore;
-use agileplus_domain::ports::{observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort};
+use agileplus_domain::ports::{
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+};
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -73,7 +75,10 @@ where
         // Work-package CRUD + transitions
         .nest("/api/v1/work-packages", work_packages::routes::<S, V, O>())
         // Work-package routes nested under features
-        .nest("/api/v1/features", work_packages::feature_wp_routes::<S, V, O>())
+        .nest(
+            "/api/v1/features",
+            work_packages::feature_wp_routes::<S, V, O>(),
+        )
         // Governance and audit nested under features
         .nest("/api/v1/features", governance::routes::<S, V, O>())
         .nest("/api/v1/features", audit::routes::<S, V, O>())

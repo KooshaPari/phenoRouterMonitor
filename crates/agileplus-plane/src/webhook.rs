@@ -3,10 +3,10 @@
 //! Traceability: WP08-T047
 
 use axum::{
+    Json,
     body::Bytes,
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
 };
 use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
@@ -90,15 +90,21 @@ pub struct PlaneWebhookCycle {
 pub enum PlaneInboundEvent {
     IssueCreated(PlaneWebhookIssue),
     IssueUpdated(PlaneWebhookIssue),
-    IssueDeleted { issue_id: String },
+    IssueDeleted {
+        issue_id: String,
+    },
     /// A module was updated in Plane.so.
     ModuleUpdated(PlaneWebhookModule),
     /// A module was deleted in Plane.so.
-    ModuleDeleted { module_id: String },
+    ModuleDeleted {
+        module_id: String,
+    },
     /// A cycle was updated in Plane.so.
     CycleUpdated(PlaneWebhookCycle),
     /// A cycle was deleted in Plane.so.
-    CycleDeleted { cycle_id: String },
+    CycleDeleted {
+        cycle_id: String,
+    },
 }
 
 /// Verify the HMAC-SHA256 signature from Plane.so webhook headers.
@@ -164,7 +170,9 @@ pub fn parse_webhook(
             .map_err(|e| (StatusCode::BAD_REQUEST, format!("invalid module data: {e}")))?;
         match payload.action {
             PlaneWebhookAction::Update => PlaneInboundEvent::ModuleUpdated(module),
-            PlaneWebhookAction::Delete => PlaneInboundEvent::ModuleDeleted { module_id: module.id },
+            PlaneWebhookAction::Delete => PlaneInboundEvent::ModuleDeleted {
+                module_id: module.id,
+            },
             _ => PlaneInboundEvent::ModuleUpdated(module), // treat create as update
         }
     } else if event_prefix.starts_with("cycle") {
@@ -188,7 +196,7 @@ pub fn parse_webhook(
                 return Err((
                     StatusCode::BAD_REQUEST,
                     format!("unknown action for event {}", payload.event),
-                ))
+                ));
             }
         }
     };
@@ -249,7 +257,8 @@ mod tests {
         // With empty secret we still call verify which will accept any
         // but parse_webhook skips if secret is empty.
         let headers = HeaderMap::new();
-        let body_str = r#"{"event":"issue","action":"create","data":{"id":"123","name":"Test","labels":[]}}"#;
+        let body_str =
+            r#"{"event":"issue","action":"create","data":{"id":"123","name":"Test","labels":[]}}"#;
         let body = Bytes::from(body_str);
         let result = parse_webhook(b"", &headers, &body);
         assert!(result.is_ok());
@@ -265,7 +274,8 @@ mod tests {
 
     #[test]
     fn parse_delete_event() {
-        let body_str = r#"{"event":"issue","action":"delete","data":{"id":"abc","name":"X","labels":[]}}"#;
+        let body_str =
+            r#"{"event":"issue","action":"delete","data":{"id":"abc","name":"X","labels":[]}}"#;
         let body = Bytes::from(body_str);
         let result = parse_webhook(b"", &HeaderMap::new(), &body).unwrap();
         if let PlaneInboundEvent::IssueDeleted { issue_id } = result {
@@ -324,7 +334,8 @@ mod tests {
 
     #[test]
     fn parse_cycle_deleted_event() {
-        let body_str = r#"{"event":"cycle","action":"delete","data":{"id":"cyc-2","name":"Old Sprint"}}"#;
+        let body_str =
+            r#"{"event":"cycle","action":"delete","data":{"id":"cyc-2","name":"Old Sprint"}}"#;
         let body = Bytes::from(body_str);
         let result = parse_webhook(b"", &HeaderMap::new(), &body).unwrap();
         if let PlaneInboundEvent::CycleDeleted { cycle_id } = result {

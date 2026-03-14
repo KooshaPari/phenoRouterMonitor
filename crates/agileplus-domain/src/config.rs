@@ -11,8 +11,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// All sections have defaults so a missing `config.toml` (or missing sections
 /// within it) never causes a parse error.
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AppConfig {
     #[serde(default)]
     pub core: CoreConfig,
@@ -25,7 +24,6 @@ pub struct AppConfig {
     #[serde(default)]
     pub agents: AgentConfig,
 }
-
 
 // ----- Core -----
 
@@ -296,9 +294,7 @@ impl AppConfig {
             )));
         }
         if self.api.port == 0 {
-            return Err(ConfigError::Validation(
-                "api.port must be > 0".to_string(),
-            ));
+            return Err(ConfigError::Validation("api.port must be > 0".to_string()));
         }
         if self.api.grpc_port == 0 {
             return Err(ConfigError::Validation(
@@ -356,10 +352,7 @@ log_level = "verbose"
         unsafe {
             env::set_var("AGILEPLUS_API_PORT", "9999");
         }
-        let port: u16 = env::var("AGILEPLUS_API_PORT")
-            .unwrap()
-            .parse()
-            .unwrap();
+        let port: u16 = env::var("AGILEPLUS_API_PORT").unwrap().parse().unwrap();
         assert_eq!(port, 9999);
         unsafe {
             env::remove_var("AGILEPLUS_API_PORT");

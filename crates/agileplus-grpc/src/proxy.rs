@@ -66,7 +66,9 @@ impl ProxyRouter {
     /// Probe whether a gRPC endpoint is reachable by attempting a TCP connect.
     async fn probe(addr: &str) -> bool {
         // Strip grpc:// scheme if present
-        let host_port = addr.trim_start_matches("http://").trim_start_matches("grpc://");
+        let host_port = addr
+            .trim_start_matches("http://")
+            .trim_start_matches("grpc://");
         tokio::net::TcpStream::connect(host_port).await.is_ok()
     }
 

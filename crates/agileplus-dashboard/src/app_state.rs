@@ -44,11 +44,47 @@ impl DashboardStore {
 pub fn default_health() -> Vec<ServiceHealth> {
     let now = Utc::now();
     vec![
-        ServiceHealth { name: "NATS".into(), healthy: true, degraded: false, latency_ms: Some(2), last_check: now },
-        ServiceHealth { name: "Dragonfly".into(), healthy: true, degraded: false, latency_ms: Some(1), last_check: now },
-        ServiceHealth { name: "Neo4j".into(), healthy: true, degraded: false, latency_ms: Some(8), last_check: now },
-        ServiceHealth { name: "MinIO".into(), healthy: true, degraded: false, latency_ms: Some(5), last_check: now },
-        ServiceHealth { name: "SQLite".into(), healthy: true, degraded: false, latency_ms: Some(0), last_check: now },
-        ServiceHealth { name: "API".into(), healthy: true, degraded: false, latency_ms: Some(3), last_check: now },
+        ServiceHealth {
+            name: "NATS".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(2),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "Dragonfly".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(1),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "Neo4j".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(8),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "MinIO".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(5),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "SQLite".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(0),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "API".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(3),
+            last_check: now,
+        },
     ]
 }

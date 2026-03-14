@@ -43,21 +43,36 @@ pub struct Constitution {
 /// Attempt to load the project constitution from well-known paths.
 pub async fn load_constitution<V: VcsPort>(vcs: &V) -> Option<Constitution> {
     // Try .kittify/memory/constitution.md
-    if let Ok(content) = vcs.read_artifact("", "../.kittify/memory/constitution.md").await {
+    if let Ok(content) = vcs
+        .read_artifact("", "../.kittify/memory/constitution.md")
+        .await
+    {
         return Some(Constitution { content });
     }
     None
 }
 
 /// Validate spec content against basic structural governance rules.
-pub fn validate_spec_consistency(spec_content: &str, _constitution: &Constitution) -> Vec<Violation> {
+pub fn validate_spec_consistency(
+    spec_content: &str,
+    _constitution: &Constitution,
+) -> Vec<Violation> {
     let mut violations = Vec::new();
 
     // Check required sections
     let required_sections = [
-        ("## Problem Statement", "Problem Statement section is required"),
-        ("## Functional Requirements", "Functional Requirements section is required"),
-        ("## Acceptance Criteria", "Acceptance Criteria section is required"),
+        (
+            "## Problem Statement",
+            "Problem Statement section is required",
+        ),
+        (
+            "## Functional Requirements",
+            "Functional Requirements section is required",
+        ),
+        (
+            "## Acceptance Criteria",
+            "Acceptance Criteria section is required",
+        ),
     ];
 
     for (section, message) in &required_sections {
@@ -122,21 +137,30 @@ mod tests {
     use super::*;
 
     fn dummy_constitution() -> Constitution {
-        Constitution { content: String::new() }
+        Constitution {
+            content: String::new(),
+        }
     }
 
     #[test]
     fn validates_required_sections() {
         let spec = "# Spec\n## Problem Statement\nfoo\n## Functional Requirements\n- **FR-1**: bar\n## Acceptance Criteria\nbaz\n";
         let violations = validate_spec_consistency(spec, &dummy_constitution());
-        assert!(violations.is_empty(), "should have no violations: {violations:?}");
+        assert!(
+            violations.is_empty(),
+            "should have no violations: {violations:?}"
+        );
     }
 
     #[test]
     fn detects_missing_sections() {
         let spec = "# Spec\nno sections here";
         let violations = validate_spec_consistency(spec, &dummy_constitution());
-        assert!(violations.iter().any(|v| v.severity == ViolationSeverity::Error));
+        assert!(
+            violations
+                .iter()
+                .any(|v| v.severity == ViolationSeverity::Error)
+        );
     }
 
     #[test]

@@ -35,7 +35,9 @@ pub enum DomainError {
     CircularModuleRef { child: String, ancestor: String },
     #[error("module has dependents: {0}")]
     ModuleHasDependents(String),
-    #[error("feature not in module scope: feature {feature_slug} is not owned by or tagged to module {module_slug}")]
+    #[error(
+        "feature not in module scope: feature {feature_slug} is not owned by or tagged to module {module_slug}"
+    )]
     FeatureNotInModuleScope {
         feature_slug: String,
         module_slug: String,

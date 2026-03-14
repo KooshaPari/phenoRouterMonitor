@@ -52,9 +52,11 @@ pub fn default_key_file_path() -> PathBuf {
 /// plaintext to `~/.config/agileplus/api-key`, and prints it to stdout.
 ///
 /// Returns `true` if a new key was generated, `false` if one already existed.
-pub async fn ensure_api_key(creds: &dyn CredentialStore) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+pub async fn ensure_api_key(
+    creds: &dyn CredentialStore,
+) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
     // Check if a key already exists.
-    let existing = creds.get("agileplus", keys::API_KEYS).await;
+    let existing = creds.get("agileplus", keys::API_KEYS);
     if let Ok(val) = existing {
         if !val.trim().is_empty() {
             return Ok(false);
@@ -67,7 +69,7 @@ pub async fn ensure_api_key(creds: &dyn CredentialStore) -> Result<bool, Box<dyn
     // Store the plaintext directly in the credential store for validation
     // (the default InMemoryCredentialStore / FileCredentialStore validate
     // against comma-separated plaintext keys — see credentials.rs).
-    creds.set("agileplus", keys::API_KEYS, &plaintext).await?;
+    creds.set("agileplus", keys::API_KEYS, &plaintext)?;
 
     // Write plaintext to config file with 0600 permissions.
     let key_path = default_key_file_path();

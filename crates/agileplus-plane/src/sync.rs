@@ -120,9 +120,10 @@ impl PlaneSyncAdapter {
         title: &str,
         description: &str,
     ) -> Result<SyncOutcome> {
-        let parent_id = state.plane_issue_id.as_deref().context(
-            "cannot sync WP before parent feature is synced",
-        )?;
+        let parent_id = state
+            .plane_issue_id
+            .as_deref()
+            .context("cannot sync WP before parent feature is synced")?;
 
         let issue = PlaneIssue {
             id: None,
@@ -174,7 +175,9 @@ mod tests {
     fn sync_state_serialization() {
         let mut state = SyncState::new("feat".to_string());
         state.plane_issue_id = Some("issue-123".to_string());
-        state.wp_mappings.insert("WP01".to_string(), "sub-456".to_string());
+        state
+            .wp_mappings
+            .insert("WP01".to_string(), "sub-456".to_string());
 
         let json = serde_json::to_string(&state).unwrap();
         let restored: SyncState = serde_json::from_str(&json).unwrap();

@@ -1,4 +1,4 @@
-//! Credential management — OS keychain + encrypted-file fallback.
+//! Credential management -- OS keychain + encrypted-file fallback.
 //!
 //! Traceability: FR-030, FR-031 / WP15-T088
 
@@ -6,7 +6,6 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
 
-use async_trait::async_trait;
 use zeroize::Zeroizing;
 
 /// Known credential keys used by AgilePlus.
@@ -35,27 +34,29 @@ pub enum CredentialError {
 
 /// Port for storing and retrieving credentials.
 ///
+/// All methods are synchronous -- implementations use blocking I/O only.
+/// This keeps the trait dyn-compatible without requiring `async_trait`.
+///
 /// Implementations: [`KeychainCredentialStore`], [`FileCredentialStore`],
 /// [`InMemoryCredentialStore`] (tests).
-#[async_trait]
 pub trait CredentialStore: Send + Sync {
     /// Retrieve a credential value.
-    async fn get(&self, service: &str, key: &str) -> Result<String, CredentialError>;
+    fn get(&self, service: &str, key: &str) -> Result<String, CredentialError>;
 
     /// Store a credential value.
-    async fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError>;
+    fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError>;
 
     /// Delete a credential.
-    async fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError>;
+    fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError>;
 
     /// List all stored keys for a service.
-    async fn list_keys(&self, service: &str) -> Result<Vec<String>, CredentialError>;
+    fn list_keys(&self, service: &str) -> Result<Vec<String>, CredentialError>;
 
     /// Validate whether a raw API key matches any stored API key.
     ///
     /// Uses constant-time comparison to prevent timing attacks.
-    async fn validate_api_key(&self, provided_key: &str) -> Result<bool, CredentialError> {
-        let stored = match self.get("agileplus", keys::API_KEYS).await {
+    fn validate_api_key(&self, provided_key: &str) -> Result<bool, CredentialError> {
+        let stored = match self.get("agileplus", keys::API_KEYS) {
             Ok(v) => v,
             Err(CredentialError::NotFound(_)) => return Ok(false),
             Err(e) => return Err(e),
@@ -106,9 +107,8 @@ impl KeychainCredentialStore {
 }
 
 #[cfg(feature = "keychain")]
-#[async_trait]
 impl CredentialStore for KeychainCredentialStore {
-    async fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
+    fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
         let entry = keyring::Entry::new(&self.entry_service(service), key)
             .map_err(|e| CredentialError::BackendError(e.to_string()))?;
         entry.get_password().map_err(|e| match e {
@@ -117,7 +117,7 @@ impl CredentialStore for KeychainCredentialStore {
         })
     }
 
-    async fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError> {
+    fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError> {
         let entry = keyring::Entry::new(&self.entry_service(service), key)
             .map_err(|e| CredentialError::BackendError(e.to_string()))?;
         entry
@@ -125,7 +125,7 @@ impl CredentialStore for KeychainCredentialStore {
             .map_err(|e| CredentialError::BackendError(e.to_string()))
     }
 
-    async fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError> {
+    fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError> {
         let entry = keyring::Entry::new(&self.entry_service(service), key)
             .map_err(|e| CredentialError::BackendError(e.to_string()))?;
         entry.delete_credential().map_err(|e| match e {
@@ -134,7 +134,7 @@ impl CredentialStore for KeychainCredentialStore {
         })
     }
 
-    async fn list_keys(&self, _service: &str) -> Result<Vec<String>, CredentialError> {
+    fn list_keys(&self, _service: &str) -> Result<Vec<String>, CredentialError> {
         // The `keyring` crate does not expose enumeration; return empty list.
         Ok(Vec::new())
     }
@@ -149,7 +149,7 @@ impl CredentialStore for KeychainCredentialStore {
 /// File permissions are set to 0o600 on creation (Unix only).
 pub struct FileCredentialStore {
     path: PathBuf,
-    /// In-memory cache (service → key → value), protected by a RwLock.
+    /// In-memory cache (service -> key -> value), protected by a RwLock.
     cache: RwLock<HashMap<String, HashMap<String, String>>>,
     loaded: RwLock<bool>,
 }
@@ -210,9 +210,8 @@ impl FileCredentialStore {
     }
 }
 
-#[async_trait]
 impl CredentialStore for FileCredentialStore {
-    async fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
+    fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
         self.ensure_loaded()?;
         let cache = self.cache.read().unwrap();
         cache
@@ -222,7 +221,7 @@ impl CredentialStore for FileCredentialStore {
             .ok_or_else(|| CredentialError::NotFound(key.to_string()))
     }
 
-    async fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError> {
+    fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError> {
         self.ensure_loaded()?;
         {
             let mut cache = self.cache.write().unwrap();
@@ -234,7 +233,7 @@ impl CredentialStore for FileCredentialStore {
         self.persist()
     }
 
-    async fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError> {
+    fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError> {
         self.ensure_loaded()?;
         {
             let mut cache = self.cache.write().unwrap();
@@ -249,7 +248,7 @@ impl CredentialStore for FileCredentialStore {
         self.persist()
     }
 
-    async fn list_keys(&self, service: &str) -> Result<Vec<String>, CredentialError> {
+    fn list_keys(&self, service: &str) -> Result<Vec<String>, CredentialError> {
         self.ensure_loaded()?;
         let cache = self.cache.read().unwrap();
         Ok(cache
@@ -277,9 +276,8 @@ impl InMemoryCredentialStore {
     }
 }
 
-#[async_trait]
 impl CredentialStore for InMemoryCredentialStore {
-    async fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
+    fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
         let store = self.store.read().unwrap();
         store
             .get(service)
@@ -288,7 +286,7 @@ impl CredentialStore for InMemoryCredentialStore {
             .ok_or_else(|| CredentialError::NotFound(Self::namespace(service, key)))
     }
 
-    async fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError> {
+    fn set(&self, service: &str, key: &str, value: &str) -> Result<(), CredentialError> {
         let mut store = self.store.write().unwrap();
         store
             .entry(service.to_string())
@@ -297,7 +295,7 @@ impl CredentialStore for InMemoryCredentialStore {
         Ok(())
     }
 
-    async fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError> {
+    fn delete(&self, service: &str, key: &str) -> Result<(), CredentialError> {
         let mut store = self.store.write().unwrap();
         if let Some(svc) = store.get_mut(service) {
             if svc.remove(key).is_none() {
@@ -309,7 +307,7 @@ impl CredentialStore for InMemoryCredentialStore {
         Ok(())
     }
 
-    async fn list_keys(&self, service: &str) -> Result<Vec<String>, CredentialError> {
+    fn list_keys(&self, service: &str) -> Result<Vec<String>, CredentialError> {
         let store = self.store.read().unwrap();
         Ok(store
             .get(service)
@@ -341,74 +339,72 @@ pub fn create_credential_store(config: &AppConfig) -> Box<dyn CredentialStore> {
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn in_memory_set_get_delete() {
+    #[test]
+    fn in_memory_set_get_delete() {
         let store = InMemoryCredentialStore::new();
-        store.set("svc", "key1", "val1").await.unwrap();
-        assert_eq!(store.get("svc", "key1").await.unwrap(), "val1");
-        store.delete("svc", "key1").await.unwrap();
+        store.set("svc", "key1", "val1").unwrap();
+        assert_eq!(store.get("svc", "key1").unwrap(), "val1");
+        store.delete("svc", "key1").unwrap();
         assert!(matches!(
-            store.get("svc", "key1").await,
+            store.get("svc", "key1"),
             Err(CredentialError::NotFound(_))
         ));
     }
 
-    #[tokio::test]
-    async fn in_memory_list_keys() {
+    #[test]
+    fn in_memory_list_keys() {
         let store = InMemoryCredentialStore::new();
-        store.set("svc", "a", "1").await.unwrap();
-        store.set("svc", "b", "2").await.unwrap();
-        let mut keys = store.list_keys("svc").await.unwrap();
+        store.set("svc", "a", "1").unwrap();
+        store.set("svc", "b", "2").unwrap();
+        let mut keys = store.list_keys("svc").unwrap();
         keys.sort();
         assert_eq!(keys, vec!["a", "b"]);
     }
 
-    #[tokio::test]
-    async fn validate_api_key_single() {
+    #[test]
+    fn validate_api_key_single() {
         let store = InMemoryCredentialStore::new();
         store
             .set("agileplus", keys::API_KEYS, "secret-key-abc")
-            .await
             .unwrap();
-        assert!(store.validate_api_key("secret-key-abc").await.unwrap());
-        assert!(!store.validate_api_key("wrong-key").await.unwrap());
+        assert!(store.validate_api_key("secret-key-abc").unwrap());
+        assert!(!store.validate_api_key("wrong-key").unwrap());
     }
 
-    #[tokio::test]
-    async fn validate_api_key_multiple() {
+    #[test]
+    fn validate_api_key_multiple() {
         let store = InMemoryCredentialStore::new();
         store
             .set("agileplus", keys::API_KEYS, "key-one, key-two, key-three")
-            .await
             .unwrap();
-        assert!(store.validate_api_key("key-two").await.unwrap());
-        assert!(!store.validate_api_key("key-four").await.unwrap());
+        assert!(store.validate_api_key("key-two").unwrap());
+        assert!(!store.validate_api_key("key-four").unwrap());
     }
 
-    #[tokio::test]
-    async fn validate_api_key_no_keys_stored() {
+    #[test]
+    fn validate_api_key_no_keys_stored() {
         let store = InMemoryCredentialStore::new();
-        assert!(!store.validate_api_key("anything").await.unwrap());
+        assert!(!store.validate_api_key("anything").unwrap());
     }
 
-    #[tokio::test]
-    async fn file_store_set_get() {
+    #[test]
+    fn file_store_set_get() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("creds.json");
         let store = FileCredentialStore::new(&path);
-        store.set("svc", "tok", "abc123").await.unwrap();
+        store.set("svc", "tok", "abc123").unwrap();
         assert!(path.exists());
-        assert_eq!(store.get("svc", "tok").await.unwrap(), "abc123");
+        assert_eq!(store.get("svc", "tok").unwrap(), "abc123");
     }
 
-    #[tokio::test]
-    async fn constant_time_eq_same_length() {
+    #[test]
+    fn constant_time_eq_same_length() {
         assert!(constant_time_eq(b"hello", b"hello"));
         assert!(!constant_time_eq(b"hello", b"hellx"));
     }
 
-    #[tokio::test]
-    async fn constant_time_eq_different_length() {
+    #[test]
+    fn constant_time_eq_different_length() {
         assert!(!constant_time_eq(b"hello", b"helloo"));
     }
 }

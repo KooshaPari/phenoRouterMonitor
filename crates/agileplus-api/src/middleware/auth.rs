@@ -48,11 +48,18 @@ pub async fn validate_api_key(
             .split('&')
             .find_map(|pair| {
                 let (k, v) = pair.split_once('=')?;
-                
-                
-                if k == "api_key" { Some(v.to_string()) } else { None }
+
+                if k == "api_key" {
+                    Some(v.to_string())
+                } else {
+                    None
+                }
             })
-            .ok_or_else(|| ApiError::Unauthorized("Missing API key (X-API-Key header or ?api_key= param required)".to_string()))?
+            .ok_or_else(|| {
+                ApiError::Unauthorized(
+                    "Missing API key (X-API-Key header or ?api_key= param required)".to_string(),
+                )
+            })?
     } else {
         return Err(ApiError::Unauthorized(
             "Missing API key (X-API-Key header or ?api_key= param required)".to_string(),
@@ -61,16 +68,11 @@ pub async fn validate_api_key(
 
     let valid = creds
         .validate_api_key(&api_key)
-        .await
         .map_err(|e| ApiError::Internal(format!("credential store error: {e}")))?;
 
     if !valid {
         // Log only a truncated hint for identification — never the raw key.
-        let key_hint: String = api_key
-            .chars()
-            .take(4)
-            .chain(['*'; 8])
-            .collect();
+        let key_hint: String = api_key.chars().take(4).chain(['*'; 8]).collect();
         warn!(key_hint, "API authentication failed for key hint");
         return Err(ApiError::Unauthorized("Invalid API key".to_string()));
     }

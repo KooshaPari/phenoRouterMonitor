@@ -38,8 +38,8 @@ fn bench_full_replay_1000(c: &mut Criterion) {
     c.bench_function("full_replay_1000_events", |b| {
         b.iter(|| {
             let conn = adapter.conn_for_bench().expect("conn");
-            let events = event_repo::get_events(&conn, "Feature", black_box(1))
-                .expect("get_events");
+            let events =
+                event_repo::get_events(&conn, "Feature", black_box(1)).expect("get_events");
             drop(conn);
 
             let mut agg = CountingAggregate::default();
@@ -68,9 +68,13 @@ fn bench_snapshot_replay_900_plus_100(c: &mut Criterion) {
         b.iter(|| {
             // Load delta events since snapshot sequence
             let conn = adapter.conn_for_bench().expect("conn");
-            let delta_events =
-                event_repo::get_events_since(&conn, "Feature", 1, black_box(snapshot.event_sequence))
-                    .expect("get_events_since");
+            let delta_events = event_repo::get_events_since(
+                &conn,
+                "Feature",
+                1,
+                black_box(snapshot.event_sequence),
+            )
+            .expect("get_events_since");
             drop(conn);
 
             // Reconstruct from snapshot state (pre-built aggregate version)

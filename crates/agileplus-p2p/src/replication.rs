@@ -146,11 +146,7 @@ async fn connect_with_retry(url: &str, peer_id: &str) -> Result<async_nats::Clie
 }
 
 /// Pull and count any messages already queued in `stream` / `subject`.
-async fn drain_pending(
-    js: &jetstream::Context,
-    stream_name: &str,
-    subject: &str,
-) -> usize {
+async fn drain_pending(js: &jetstream::Context, stream_name: &str, subject: &str) -> usize {
     use tokio::time::timeout;
 
     let consumer_cfg = jetstream::consumer::pull::Config {

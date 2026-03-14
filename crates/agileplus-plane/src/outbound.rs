@@ -2,17 +2,15 @@
 //!
 //! Traceability: WP08-T048, WP06-T031, WP06-T033
 
-use anyhow::{Context, Result};
-use chrono::Utc;
 use agileplus_domain::domain::cycle::Cycle;
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::module::Module;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 use agileplus_domain::ports::StoragePort;
+use anyhow::{Context, Result};
+use chrono::Utc;
 
-use crate::client::{
-    PlaneClient, PlaneCreateCycleRequest, PlaneCreateModuleRequest, PlaneIssue,
-};
+use crate::client::{PlaneClient, PlaneCreateCycleRequest, PlaneCreateModuleRequest, PlaneIssue};
 use crate::state_mapper::PlaneStateMapper;
 
 /// Outbound sync adapter for pushing AgilePlus entities to Plane.so.
@@ -64,11 +62,10 @@ impl OutboundSync {
             );
             resp.id
         } else {
-            let resp = self
-                .client
-                .create_issue(&issue)
-                .await
-                .with_context(|| format!("creating Plane issue for feature {}", feature.slug))?;
+            let resp =
+                self.client.create_issue(&issue).await.with_context(|| {
+                    format!("creating Plane issue for feature {}", feature.slug)
+                })?;
             tracing::info!(
                 feature_slug = feature.slug,
                 plane_issue_id = resp.id,
@@ -111,7 +108,11 @@ impl OutboundSync {
                 .update_issue(existing_id, &issue)
                 .await
                 .with_context(|| format!("updating Plane sub-issue {existing_id}"))?;
-            tracing::info!(wp_id, plane_issue_id = resp.id, "updated Plane.so sub-issue");
+            tracing::info!(
+                wp_id,
+                plane_issue_id = resp.id,
+                "updated Plane.so sub-issue"
+            );
             resp.id
         } else {
             let resp = self
@@ -174,7 +175,11 @@ pub async fn push_module<S: StoragePort>(
             .upsert_sync_mapping(&mapping)
             .await
             .context("storing module sync mapping")?;
-        tracing::info!(module_id = module.id, plane_module_id = resp.id, "synced module to Plane.so");
+        tracing::info!(
+            module_id = module.id,
+            plane_module_id = resp.id,
+            "synced module to Plane.so"
+        );
     }
 
     Ok(())
@@ -222,7 +227,11 @@ pub async fn push_cycle<S: StoragePort>(
             .upsert_sync_mapping(&mapping)
             .await
             .context("storing cycle sync mapping")?;
-        tracing::info!(cycle_id = cycle.id, plane_cycle_id = resp.id, "synced cycle to Plane.so");
+        tracing::info!(
+            cycle_id = cycle.id,
+            plane_cycle_id = resp.id,
+            "synced cycle to Plane.so"
+        );
     }
 
     Ok(())
@@ -248,7 +257,11 @@ pub async fn push_module_delete<S: StoragePort>(
             .delete_sync_mapping("module", module_id)
             .await
             .context("removing module sync mapping")?;
-        tracing::info!(module_id, plane_module_id = m.plane_issue_id, "deleted Plane module");
+        tracing::info!(
+            module_id,
+            plane_module_id = m.plane_issue_id,
+            "deleted Plane module"
+        );
     }
 
     Ok(())
@@ -274,7 +287,11 @@ pub async fn push_cycle_delete<S: StoragePort>(
             .delete_sync_mapping("cycle", cycle_id)
             .await
             .context("removing cycle sync mapping")?;
-        tracing::info!(cycle_id, plane_cycle_id = m.plane_issue_id, "deleted Plane cycle");
+        tracing::info!(
+            cycle_id,
+            plane_cycle_id = m.plane_issue_id,
+            "deleted Plane cycle"
+        );
     }
 
     Ok(())

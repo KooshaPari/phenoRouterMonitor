@@ -170,7 +170,10 @@ mod tests {
     #[test]
     fn default_backlog_maps_to_created() {
         let mapper = PlaneStateMapper::new();
-        assert_eq!(mapper.from_plane("backlog", "Backlog"), FeatureState::Created);
+        assert_eq!(
+            mapper.from_plane("backlog", "Backlog"),
+            FeatureState::Created
+        );
     }
 
     #[test]
@@ -225,9 +228,10 @@ mod tests {
     #[test]
     fn to_plane_with_config_returns_custom_id() {
         let mut config = PlaneStateMapperConfig::default();
-        config
-            .state_id_map
-            .insert(FeatureState::Implementing, ("started".into(), "uuid-123".into()));
+        config.state_id_map.insert(
+            FeatureState::Implementing,
+            ("started".into(), "uuid-123".into()),
+        );
         let mapper = PlaneStateMapper::with_config(config);
         let (group, id) = mapper.to_plane(FeatureState::Implementing);
         assert_eq!(group, "started");

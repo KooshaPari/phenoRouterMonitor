@@ -145,9 +145,7 @@ async fn cmd_create<S: StoragePort>(args: CreateArgs, storage: &S) -> Result<()>
             .get_module_by_slug(module_slug)
             .await
             .context("looking up module by slug")?
-            .ok_or_else(|| {
-                anyhow::anyhow!("Module '{}' not found.", module_slug)
-            })?;
+            .ok_or_else(|| anyhow::anyhow!("Module '{}' not found.", module_slug))?;
         Some(m.id)
     } else {
         None
@@ -206,7 +204,7 @@ async fn cmd_list<S: StoragePort>(args: ListArgs, storage: &S) -> Result<()> {
     for c in &cycles {
         let scope = if let Some(mid) = c.module_scope_id {
             // Resolve module slug for display
-            
+
             storage
                 .get_module(mid)
                 .await
@@ -323,7 +321,10 @@ async fn cmd_add<S: StoragePort>(args: AddArgs, storage: &S) -> Result<()> {
     let entry = CycleFeature::new(cycle.id, feature.id);
     match storage.add_feature_to_cycle(&entry).await {
         Ok(()) => {
-            println!("Feature '{}' added to cycle '{}'.", args.feature, args.cycle);
+            println!(
+                "Feature '{}' added to cycle '{}'.",
+                args.feature, args.cycle
+            );
         }
         Err(DomainError::FeatureNotInModuleScope {
             ref feature_slug,
@@ -356,9 +357,7 @@ async fn cmd_remove<S: StoragePort>(args: RemoveArgs, storage: &S) -> Result<()>
         .get_feature_by_slug(&args.feature)
         .await
         .context("looking up feature")?
-        .ok_or_else(|| {
-            anyhow::anyhow!("Feature '{}' not found.", args.feature)
-        })?;
+        .ok_or_else(|| anyhow::anyhow!("Feature '{}' not found.", args.feature))?;
 
     storage
         .remove_feature_from_cycle(cycle.id, feature.id)
@@ -445,10 +444,7 @@ async fn cmd_transition<S: StoragePort>(args: TransitionArgs, storage: &S) -> Re
 
 /// Find a cycle by its name, scanning all states.
 async fn find_cycle_by_name<S: StoragePort>(name: &str, storage: &S) -> Result<Cycle> {
-    let all = storage
-        .list_all_cycles()
-        .await
-        .context("listing cycles")?;
+    let all = storage.list_all_cycles().await.context("listing cycles")?;
     all.into_iter()
         .find(|c| c.name == name)
         .ok_or_else(|| anyhow::anyhow!("Cycle '{}' not found. Create it with `agileplus cycle create --name {} --start YYYY-MM-DD --end YYYY-MM-DD`.", name, name))
@@ -510,7 +506,11 @@ mod tests {
     fn transition_args_state_parsing() {
         let valid = ["Draft", "Active", "Review", "Shipped", "Archived"];
         for s in valid {
-            assert!(s.parse::<CycleState>().is_ok(), "state '{}' should parse", s);
+            assert!(
+                s.parse::<CycleState>().is_ok(),
+                "state '{}' should parse",
+                s
+            );
         }
         let bad = "unknown".parse::<CycleState>();
         assert!(bad.is_err());
@@ -519,9 +519,13 @@ mod tests {
     /// Traces to: FR-C02
     #[test]
     fn prior_state_label_coverage() {
-        let cycle =
-            Cycle::new("c", NaiveDate::from_ymd_opt(2026, 1, 1).unwrap(), NaiveDate::from_ymd_opt(2026, 2, 1).unwrap(), None)
-                .unwrap();
+        let cycle = Cycle::new(
+            "c",
+            NaiveDate::from_ymd_opt(2026, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2026, 2, 1).unwrap(),
+            None,
+        )
+        .unwrap();
         let label = prior_state_label(CycleState::Active, &cycle);
         assert!(!label.is_empty());
     }

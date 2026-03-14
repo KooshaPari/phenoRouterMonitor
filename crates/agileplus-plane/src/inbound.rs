@@ -50,7 +50,8 @@ pub trait LocalEntityStore: Send + Sync {
     fn mark_archived(&mut self, plane_issue_id: &str) -> anyhow::Result<()>;
 
     /// Record a new auto-imported entity.
-    fn auto_import(&mut self, issue: &PlaneWebhookIssue, state: FeatureState) -> anyhow::Result<()>;
+    fn auto_import(&mut self, issue: &PlaneWebhookIssue, state: FeatureState)
+    -> anyhow::Result<()>;
 }
 
 /// Inbound sync processor.
@@ -81,9 +82,9 @@ impl InboundSync {
             PlaneInboundEvent::ModuleUpdated(_)
             | PlaneInboundEvent::ModuleDeleted { .. }
             | PlaneInboundEvent::CycleUpdated(_)
-            | PlaneInboundEvent::CycleDeleted { .. } => {
-                Ok(InboundOutcome::NotTracked { issue_id: String::new() })
-            }
+            | PlaneInboundEvent::CycleDeleted { .. } => Ok(InboundOutcome::NotTracked {
+                issue_id: String::new(),
+            }),
         }
     }
 
@@ -143,7 +144,10 @@ impl InboundSync {
         );
 
         if new_hash == existing_hash {
-            tracing::debug!(plane_issue_id = issue.id, "content hash unchanged; skipping");
+            tracing::debug!(
+                plane_issue_id = issue.id,
+                "content hash unchanged; skipping"
+            );
             return Ok(InboundOutcome::Unchanged { issue_id: issue.id });
         }
 
@@ -203,7 +207,12 @@ mod tests {
             self.hashes.get(id).cloned()
         }
 
-        fn apply_update(&mut self, id: &str, _state: FeatureState, hash: String) -> anyhow::Result<()> {
+        fn apply_update(
+            &mut self,
+            id: &str,
+            _state: FeatureState,
+            hash: String,
+        ) -> anyhow::Result<()> {
             self.hashes.insert(id.to_string(), hash);
             Ok(())
         }
@@ -213,7 +222,11 @@ mod tests {
             Ok(())
         }
 
-        fn auto_import(&mut self, issue: &PlaneWebhookIssue, _state: FeatureState) -> anyhow::Result<()> {
+        fn auto_import(
+            &mut self,
+            issue: &PlaneWebhookIssue,
+            _state: FeatureState,
+        ) -> anyhow::Result<()> {
             self.imported.push(issue.id.clone());
             Ok(())
         }
@@ -236,7 +249,8 @@ mod tests {
         let processor = InboundSync::new(mapper, true);
         let mut store = MockStore::new();
 
-        let event = PlaneInboundEvent::IssueCreated(make_issue("id1", "New Issue", Some("backlog")));
+        let event =
+            PlaneInboundEvent::IssueCreated(make_issue("id1", "New Issue", Some("backlog")));
         let outcome = processor.process(event, &mut store).unwrap();
         assert!(matches!(outcome, InboundOutcome::AutoImported { .. }));
         assert!(store.imported.contains(&"id1".to_string()));
@@ -258,7 +272,9 @@ mod tests {
         let mapper = PlaneStateMapper::new();
         let processor = InboundSync::new(mapper, true);
         let mut store = MockStore::new();
-        store.hashes.insert("id3".to_string(), "oldhash".to_string());
+        store
+            .hashes
+            .insert("id3".to_string(), "oldhash".to_string());
 
         let event = PlaneInboundEvent::IssueUpdated(make_issue("id3", "Updated", Some("started")));
         let outcome = processor.process(event, &mut store).unwrap();
@@ -272,7 +288,9 @@ mod tests {
         let mut store = MockStore::new();
         store.hashes.insert("id4".to_string(), "hash".to_string());
 
-        let event = PlaneInboundEvent::IssueDeleted { issue_id: "id4".to_string() };
+        let event = PlaneInboundEvent::IssueDeleted {
+            issue_id: "id4".to_string(),
+        };
         let outcome = processor.process(event, &mut store).unwrap();
         assert!(matches!(outcome, InboundOutcome::Archived { .. }));
         assert!(store.archived.contains(&"id4".to_string()));

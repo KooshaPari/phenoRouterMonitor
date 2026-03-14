@@ -147,10 +147,7 @@ impl<'a> NodeStore<'a> {
             .await
     }
 
-    pub async fn get_project(
-        &self,
-        slug: &str,
-    ) -> Result<Option<serde_json::Value>, GraphError> {
+    pub async fn get_project(&self, slug: &str) -> Result<Option<serde_json::Value>, GraphError> {
         let rows = self
             .store
             .query_cypher(

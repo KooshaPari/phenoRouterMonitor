@@ -25,7 +25,6 @@ pub enum LogOutput {
     Both(PathBuf),
 }
 
-
 /// Configuration for structured JSON logging.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogConfig {

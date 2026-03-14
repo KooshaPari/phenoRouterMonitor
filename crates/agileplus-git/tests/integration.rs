@@ -23,7 +23,13 @@ fn setup_test_repo() -> (TempDir, GitVcsAdapter) {
     drop(config);
 
     // Create an initial commit so HEAD exists.
-    make_commit(&repo, dir.path(), "README.md", "# Test repo\n", "Initial commit");
+    make_commit(
+        &repo,
+        dir.path(),
+        "README.md",
+        "# Test repo\n",
+        "Initial commit",
+    );
 
     let adapter = GitVcsAdapter::new(dir.path().to_path_buf()).expect("adapter");
     (dir, adapter)
@@ -118,9 +124,7 @@ async fn test_artifact_exists_before_and_after() {
 #[tokio::test]
 async fn test_read_missing_artifact_returns_not_found() {
     let (dir, adapter) = setup_test_repo();
-    let result = adapter
-        .read_artifact("nonexistent", "spec.md")
-        .await;
+    let result = adapter.read_artifact("nonexistent", "spec.md").await;
     assert!(result.is_err());
     let err_str = result.unwrap_err().to_string();
     assert!(
@@ -169,14 +173,17 @@ async fn test_scan_feature_artifacts() {
         .await
         .unwrap();
 
-    let artifacts = adapter
-        .scan_feature_artifacts(slug)
-        .await
-        .unwrap();
+    let artifacts = adapter.scan_feature_artifacts(slug).await.unwrap();
 
     assert!(artifacts.meta_json.is_some(), "meta.json should be present");
-    assert!(artifacts.audit_chain.is_some(), "chain.jsonl should be present");
-    assert!(!artifacts.evidence_paths.is_empty(), "evidence should be found");
+    assert!(
+        artifacts.audit_chain.is_some(),
+        "chain.jsonl should be present"
+    );
+    assert!(
+        !artifacts.evidence_paths.is_empty(),
+        "evidence should be found"
+    );
     drop(dir);
 }
 
@@ -252,7 +259,13 @@ async fn test_merge_fast_forward() {
     adapter.checkout_branch("feat").await.unwrap();
 
     let repo = Repository::open(dir.path()).unwrap();
-    make_commit(&repo, dir.path(), "new-file.txt", "new content\n", "feat commit");
+    make_commit(
+        &repo,
+        dir.path(),
+        "new-file.txt",
+        "new content\n",
+        "feat commit",
+    );
     drop(repo);
 
     let result = adapter.merge_to_target("feat", "master").await;
@@ -282,18 +295,33 @@ async fn test_merge_with_conflict() {
     // Branch A: edit conflict.txt.
     adapter.checkout_branch("branch-a").await.unwrap();
     let repo = Repository::open(dir.path()).unwrap();
-    make_commit(&repo, dir.path(), "conflict.txt", "version from A\n", "branch-a commit");
+    make_commit(
+        &repo,
+        dir.path(),
+        "conflict.txt",
+        "version from A\n",
+        "branch-a commit",
+    );
     drop(repo);
 
     // Branch B: edit the same file differently.
     adapter.checkout_branch("branch-b").await.unwrap();
     let repo = Repository::open(dir.path()).unwrap();
-    make_commit(&repo, dir.path(), "conflict.txt", "version from B\n", "branch-b commit");
+    make_commit(
+        &repo,
+        dir.path(),
+        "conflict.txt",
+        "version from B\n",
+        "branch-b commit",
+    );
     drop(repo);
 
     // Merge A into default branch first.
     adapter.checkout_branch(&default_branch).await.unwrap();
-    adapter.merge_to_target("branch-a", &default_branch).await.unwrap();
+    adapter
+        .merge_to_target("branch-a", &default_branch)
+        .await
+        .unwrap();
 
     // Now merge B (should conflict).
     let result = adapter
@@ -305,7 +333,10 @@ async fn test_merge_with_conflict() {
     // Either way, result should not panic. Conflicts should be detected.
     // Since both branches divergently edited conflict.txt from same base, we expect conflicts.
     if !result.success {
-        assert!(!result.conflicts.is_empty(), "conflicts should be non-empty on failure");
+        assert!(
+            !result.conflicts.is_empty(),
+            "conflicts should be non-empty on failure"
+        );
     }
     drop(dir);
 }
@@ -331,7 +362,10 @@ async fn test_detect_conflicts_divergent_branches() {
     drop(repo);
 
     // detect_conflicts should report conflict on shared.txt without mutating state.
-    let conflicts = adapter.detect_conflicts("branch-x", "branch-y").await.unwrap();
+    let conflicts = adapter
+        .detect_conflicts("branch-x", "branch-y")
+        .await
+        .unwrap();
     assert!(
         !conflicts.is_empty(),
         "expected conflict on shared.txt between branch-x and branch-y"
@@ -350,16 +384,34 @@ async fn test_detect_conflicts_no_conflict() {
 
     adapter.checkout_branch("clean-a").await.unwrap();
     let repo = Repository::open(dir.path()).unwrap();
-    make_commit(&repo, dir.path(), "file-a.txt", "a content\n", "clean-a commit");
+    make_commit(
+        &repo,
+        dir.path(),
+        "file-a.txt",
+        "a content\n",
+        "clean-a commit",
+    );
     drop(repo);
 
     adapter.checkout_branch("clean-b").await.unwrap();
     let repo = Repository::open(dir.path()).unwrap();
-    make_commit(&repo, dir.path(), "file-b.txt", "b content\n", "clean-b commit");
+    make_commit(
+        &repo,
+        dir.path(),
+        "file-b.txt",
+        "b content\n",
+        "clean-b commit",
+    );
     drop(repo);
 
-    let conflicts = adapter.detect_conflicts("clean-a", "clean-b").await.unwrap();
-    assert!(conflicts.is_empty(), "no conflicts expected for non-overlapping changes");
+    let conflicts = adapter
+        .detect_conflicts("clean-a", "clean-b")
+        .await
+        .unwrap();
+    assert!(
+        conflicts.is_empty(),
+        "no conflicts expected for non-overlapping changes"
+    );
     drop(dir);
 }
 
@@ -387,16 +439,19 @@ async fn test_create_and_list_worktree() {
 async fn test_cleanup_worktree() {
     let (dir, adapter) = setup_test_repo();
 
-    let path = adapter
-        .create_worktree("feat-x", "WP02")
-        .await
-        .unwrap();
+    let path = adapter.create_worktree("feat-x", "WP02").await.unwrap();
 
     assert!(path.exists());
 
-    adapter.cleanup_worktree(&path).await.expect("cleanup_worktree");
+    adapter
+        .cleanup_worktree(&path)
+        .await
+        .expect("cleanup_worktree");
 
-    assert!(!path.exists(), "worktree dir should be removed after cleanup");
+    assert!(
+        !path.exists(),
+        "worktree dir should be removed after cleanup"
+    );
     drop(dir);
 }
 
@@ -405,7 +460,10 @@ async fn test_cleanup_worktree_safety_check() {
     let (dir, adapter) = setup_test_repo();
     // Try to cleanup a path outside .worktrees/.
     let result = adapter.cleanup_worktree(dir.path()).await;
-    assert!(result.is_err(), "should not allow cleanup outside .worktrees/");
+    assert!(
+        result.is_err(),
+        "should not allow cleanup outside .worktrees/"
+    );
     drop(dir);
 }
 

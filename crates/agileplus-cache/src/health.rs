@@ -19,9 +19,7 @@ impl CacheHealthChecker {
     pub async fn check(&self) -> CacheHealth {
         match self.pool.get_connection().await {
             Ok(mut conn) => {
-                let result: Result<String, _> = redis::cmd("PING")
-                    .query_async(&mut *conn)
-                    .await;
+                let result: Result<String, _> = redis::cmd("PING").query_async(&mut *conn).await;
                 match result {
                     Ok(pong) if pong == "PONG" => CacheHealth::Healthy,
                     _ => CacheHealth::Unavailable,

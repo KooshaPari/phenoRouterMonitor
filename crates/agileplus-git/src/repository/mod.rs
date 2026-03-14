@@ -6,10 +6,10 @@ use agileplus_domain::{
     error::DomainError,
     ports::{ConflictInfo, MergeResult},
 };
-use git2::{BranchType, MergeAnalysis, Repository, Signature};
 use git2::build::CheckoutBuilder;
+use git2::{BranchType, MergeAnalysis, Repository, Signature};
 
-use crate::{git_err, GitVcsAdapter};
+use crate::{GitVcsAdapter, git_err};
 
 /// Create a new branch from a base ref (branch name, tag, or commit SHA).
 pub(crate) fn create_branch(
@@ -59,14 +59,8 @@ pub(crate) fn merge_to_target(
     let source_ref = repo
         .find_branch(source, BranchType::Local)
         .map_err(git_err)?;
-    let source_oid = source_ref
-        .get()
-        .peel_to_commit()
-        .map_err(git_err)?
-        .id();
-    let annotated = repo
-        .find_annotated_commit(source_oid)
-        .map_err(git_err)?;
+    let source_oid = source_ref.get().peel_to_commit().map_err(git_err)?.id();
+    let annotated = repo.find_annotated_commit(source_oid).map_err(git_err)?;
 
     let (analysis, _) = repo.merge_analysis(&[&annotated]).map_err(git_err)?;
 

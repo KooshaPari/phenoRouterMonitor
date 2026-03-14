@@ -15,7 +15,6 @@ use agileplus_domain::domain::audit::AuditChain;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{AgentPort, ObservabilityPort, ReviewPort, StoragePort, VcsPort};
 use agileplus_proto::agileplus::v1::{
-    agile_plus_core_service_server::{AgilePlusCoreService, AgilePlusCoreServiceServer},
     CheckGovernanceGateRequest, CheckGovernanceGateResponse, CommandResponse,
     DispatchCommandRequest, DispatchCommandResponse, GateViolation as ProtoGateViolation,
     GetAuditTrailRequest, GetAuditTrailResponse, GetFeatureRequest, GetFeatureResponse,
@@ -23,6 +22,7 @@ use agileplus_proto::agileplus::v1::{
     GetWorkPackageStatusResponse, ListFeaturesRequest, ListFeaturesResponse,
     ListWorkPackagesRequest, ListWorkPackagesResponse, VerifyAuditChainRequest,
     VerifyAuditChainResponse,
+    agile_plus_core_service_server::{AgilePlusCoreService, AgilePlusCoreServiceServer},
 };
 
 use crate::conversions::{audit_entry_to_proto, feature_to_proto, wp_to_proto};
@@ -413,7 +413,14 @@ where
     // -------------------------------------------------------------------------
 
     type StreamAgentEventsStream = Pin<
-        Box<dyn tokio_stream::Stream<Item = Result<agileplus_proto::agileplus::v1::StreamAgentEventsResponse, Status>> + Send>,
+        Box<
+            dyn tokio_stream::Stream<
+                    Item = Result<
+                        agileplus_proto::agileplus::v1::StreamAgentEventsResponse,
+                        Status,
+                    >,
+                > + Send,
+        >,
     >;
 
     async fn stream_agent_events(
@@ -451,7 +458,11 @@ where
                 .proxy
                 .dispatch_agent_command(command, feature_slug, args)
                 .await;
-            (result.is_success(), result.message().to_string(), result.outputs())
+            (
+                result.is_success(),
+                result.message().to_string(),
+                result.outputs(),
+            )
         } else {
             match self
                 .dispatch_core_command(command, feature_slug, args)
@@ -489,15 +500,11 @@ where
     ) -> Result<(String, HashMap<String, String>), Status> {
         match command {
             "specify" | "research" | "plan" | "validate" | "ship" | "retrospective" => {
-                let msg = format!(
-                    "command '{command}' queued for feature '{feature_slug}'"
-                );
+                let msg = format!("command '{command}' queued for feature '{feature_slug}'");
                 info!(command, feature_slug, "core command dispatched via gRPC");
                 Ok((msg, args.clone()))
             }
-            other => Err(Status::unimplemented(format!(
-                "unknown command: '{other}'"
-            ))),
+            other => Err(Status::unimplemented(format!("unknown command: '{other}'"))),
         }
     }
 }

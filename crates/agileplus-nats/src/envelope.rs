@@ -78,11 +78,8 @@ mod tests {
 
     #[test]
     fn with_reply_to() {
-        let env = Envelope::new(
-            &Subject::new("agileplus.rpc.triage"),
-            serde_json::json!({}),
-        )
-        .with_reply_to(&Subject::new("_INBOX.abc123"));
+        let env = Envelope::new(&Subject::new("agileplus.rpc.triage"), serde_json::json!({}))
+            .with_reply_to(&Subject::new("_INBOX.abc123"));
         assert_eq!(env.reply_to.as_deref(), Some("_INBOX.abc123"));
     }
 }

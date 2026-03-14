@@ -214,15 +214,10 @@ pub trait StoragePort: Send + Sync {
     ) -> impl Future<Output = Result<(), DomainError>> + Send;
 
     /// Delete a module. Fails with `ModuleHasDependents` if it has child modules or owned features.
-    fn delete_module(
-        &self,
-        id: i64,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+    fn delete_module(&self, id: i64) -> impl Future<Output = Result<(), DomainError>> + Send;
 
     /// List all top-level modules (parent_module_id IS NULL).
-    fn list_root_modules(
-        &self,
-    ) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send;
+    fn list_root_modules(&self) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send;
 
     /// List direct children of a module.
     fn list_child_modules(
@@ -239,16 +234,11 @@ pub trait StoragePort: Send + Sync {
     // -- Cycle CRUD (T008) --
 
     /// Create a new cycle, returning its assigned ID.
-    fn create_cycle(
-        &self,
-        cycle: &Cycle,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send;
+    fn create_cycle(&self, cycle: &Cycle) -> impl Future<Output = Result<i64, DomainError>> + Send;
 
     /// Look up a cycle by primary key.
-    fn get_cycle(
-        &self,
-        id: i64,
-    ) -> impl Future<Output = Result<Option<Cycle>, DomainError>> + Send;
+    fn get_cycle(&self, id: i64)
+    -> impl Future<Output = Result<Option<Cycle>, DomainError>> + Send;
 
     /// Update only the state field of a cycle.
     fn update_cycle_state(

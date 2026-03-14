@@ -7,7 +7,7 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 use clap::ValueEnum;
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
 
@@ -218,8 +218,8 @@ async fn research_post_specify<S: StoragePort, V: VcsPort>(
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage
@@ -237,12 +237,23 @@ async fn research_post_specify<S: StoragePort, V: VcsPort>(
 async fn scan_directory_structure<V: VcsPort>(vcs: &V) -> String {
     // We use artifact_exists to probe for common top-level items
     let common_dirs = [
-        "src", "crates", "packages", "lib", "tests", "docs", "scripts", "kitty-specs",
+        "src",
+        "crates",
+        "packages",
+        "lib",
+        "tests",
+        "docs",
+        "scripts",
+        "kitty-specs",
     ];
     let mut found = Vec::new();
     for dir in &common_dirs {
         // We check for a README or common file inside
-        if vcs.artifact_exists("", &format!("../../{dir}", dir = dir)).await.unwrap_or(false) {
+        if vcs
+            .artifact_exists("", &format!("../../{dir}", dir = dir))
+            .await
+            .unwrap_or(false)
+        {
             found.push(format!("- `{dir}/`"));
         }
     }

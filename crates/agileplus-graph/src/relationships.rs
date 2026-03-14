@@ -21,11 +21,7 @@ impl<'a> RelationshipStore<'a> {
     }
 
     /// WorkPackage -[:ASSIGNED_TO]-> Agent
-    pub async fn assign_to_agent(
-        &self,
-        wp_id: i64,
-        agent_name: String,
-    ) -> Result<(), GraphError> {
+    pub async fn assign_to_agent(&self, wp_id: i64, agent_name: String) -> Result<(), GraphError> {
         self.store
             .run_cypher(
                 "MATCH (w:WorkPackage {id: $wp_id}), (a:Agent {name: $agent_name}) CREATE (w)-[:ASSIGNED_TO]->(a)",
@@ -49,11 +45,7 @@ impl<'a> RelationshipStore<'a> {
     }
 
     /// WorkPackage -[:BLOCKS]-> WorkPackage
-    pub async fn blocks(
-        &self,
-        blocking_wp_id: i64,
-        blocked_wp_id: i64,
-    ) -> Result<(), GraphError> {
+    pub async fn blocks(&self, blocking_wp_id: i64, blocked_wp_id: i64) -> Result<(), GraphError> {
         self.store
             .run_cypher(
                 "MATCH (w1:WorkPackage {id: $w1_id}), (w2:WorkPackage {id: $w2_id}) CREATE (w1)-[:BLOCKS]->(w2)",
@@ -63,11 +55,7 @@ impl<'a> RelationshipStore<'a> {
     }
 
     /// Feature -[:TAGGED]-> Label
-    pub async fn tag_feature(
-        &self,
-        feature_id: i64,
-        label_name: String,
-    ) -> Result<(), GraphError> {
+    pub async fn tag_feature(&self, feature_id: i64, label_name: String) -> Result<(), GraphError> {
         self.store
             .run_cypher(
                 "MATCH (f:Feature {id: $f_id}), (l:Label {name: $label_name}) CREATE (f)-[:TAGGED]->(l)",
@@ -187,9 +175,10 @@ mod tests {
         let store = GraphStore::in_memory(GraphConfig::default());
         let rels = RelationshipStore::new(&store);
 
-        assert!(rels
-            .delete_relationship("Feature", 1, "DEPENDS_ON", "Feature", 2)
-            .await
-            .is_ok());
+        assert!(
+            rels.delete_relationship("Feature", 1, "DEPENDS_ON", "Feature", 2)
+                .await
+                .is_ok()
+        );
     }
 }

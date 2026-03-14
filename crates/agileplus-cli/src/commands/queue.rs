@@ -65,12 +65,8 @@ pub async fn run_queue(args: QueueArgs) -> Result<()> {
                 classifier.classify(&title).intent
             };
 
-            let item = BacklogItem::from_triage(
-                title.clone(),
-                description,
-                intent,
-                "cli".to_string(),
-            );
+            let item =
+                BacklogItem::from_triage(title.clone(), description, intent, "cli".to_string());
 
             println!("Added to queue: \"{}\" ({})", title, intent);
             println!("Priority: {}", item.priority);
@@ -82,7 +78,8 @@ pub async fn run_queue(args: QueueArgs) -> Result<()> {
         } => {
             // In full implementation, this reads from SQLite.
             // For now, print placeholder.
-            println!("Backlog queue (filters: status={}, type={})",
+            println!(
+                "Backlog queue (filters: status={}, type={})",
                 status.as_deref().unwrap_or("all"),
                 r#type.as_deref().unwrap_or("all"),
             );

@@ -16,7 +16,9 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
 use agileplus_domain::domain::work_package::{WorkPackage, WpState};
-use agileplus_domain::ports::{observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort};
+use agileplus_domain::ports::{
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+};
 
 use crate::error::ApiError;
 use crate::responses::WorkPackageResponse;
@@ -29,7 +31,10 @@ where
     O: ObservabilityPort + Send + Sync + Clone + 'static,
 {
     Router::new()
-        .route("/{id}", get(get_work_package::<S, V, O>).patch(update_work_package::<S, V, O>))
+        .route(
+            "/{id}",
+            get(get_work_package::<S, V, O>).patch(update_work_package::<S, V, O>),
+        )
         .route("/{id}/transition", post(transition_work_package::<S, V, O>))
 }
 
@@ -40,11 +45,10 @@ where
     V: VcsPort + Send + Sync + Clone + 'static,
     O: ObservabilityPort + Send + Sync + Clone + 'static,
 {
-    Router::new()
-        .route(
-            "/{slug}/work-packages",
-            get(list_work_packages::<S, V, O>).post(create_work_package::<S, V, O>),
-        )
+    Router::new().route(
+        "/{slug}/work-packages",
+        get(list_work_packages::<S, V, O>).post(create_work_package::<S, V, O>),
+    )
 }
 
 /// `GET /api/v1/work-packages/:id`
@@ -90,7 +94,9 @@ where
         .await
         .map_err(ApiError::from)?;
 
-    Ok(Json(wps.into_iter().map(WorkPackageResponse::from).collect()))
+    Ok(Json(
+        wps.into_iter().map(WorkPackageResponse::from).collect(),
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -136,9 +142,16 @@ where
         updated_at: now,
     };
 
-    let id = app.storage.create_work_package(&wp).await.map_err(ApiError::from)?;
+    let id = app
+        .storage
+        .create_work_package(&wp)
+        .await
+        .map_err(ApiError::from)?;
     let created = WorkPackage { id, ..wp };
-    Ok((StatusCode::CREATED, Json(WorkPackageResponse::from(created))))
+    Ok((
+        StatusCode::CREATED,
+        Json(WorkPackageResponse::from(created)),
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -168,7 +181,9 @@ where
 
     let updated = WorkPackage {
         title: body.title.unwrap_or(wp.title.clone()),
-        acceptance_criteria: body.acceptance_criteria.unwrap_or(wp.acceptance_criteria.clone()),
+        acceptance_criteria: body
+            .acceptance_criteria
+            .unwrap_or(wp.acceptance_criteria.clone()),
         pr_url: body.pr_url.or(wp.pr_url.clone()),
         updated_at: Utc::now(),
         ..wp

@@ -11,7 +11,7 @@
 use std::process::Command;
 use std::time::{Duration, Instant};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use clap::{Args, Subcommand};
 use serde::{Deserialize, Serialize};
 
@@ -335,14 +335,14 @@ fn synthetic_platform_health() -> PlatformHealth {
             last_check: Some("just now".to_string()),
         },
     ];
-    PlatformHealth { services, overall: OverallStatus::Healthy }
+    PlatformHealth {
+        services,
+        overall: OverallStatus::Healthy,
+    }
 }
 
 fn print_status_table_up(services: &[ServiceHealth]) {
-    println!(
-        "{:<14} {:<9} {:<9} Port",
-        "Service", "Status", "Uptime"
-    );
+    println!("{:<14} {:<9} {:<9} Port", "Service", "Status", "Uptime");
     println!("{}", "─".repeat(45));
     for svc in services {
         let port_str = svc
@@ -445,17 +445,18 @@ fn fetch_platform_health(api_url: &str) -> PlatformHealth {
         Ok(h) => h,
         Err(_) => {
             // API not running; return unknown state.
-            let services = vec![
-                ServiceHealth {
-                    name: "API".to_string(),
-                    status: ServiceStatus::Unknown,
-                    latency_ms: None,
-                    uptime: None,
-                    port: Some(8080),
-                    last_check: None,
-                },
-            ];
-            PlatformHealth { services, overall: OverallStatus::Down }
+            let services = vec![ServiceHealth {
+                name: "API".to_string(),
+                status: ServiceStatus::Unknown,
+                latency_ms: None,
+                uptime: None,
+                port: Some(8080),
+                last_check: None,
+            }];
+            PlatformHealth {
+                services,
+                overall: OverallStatus::Down,
+            }
         }
     }
 }
@@ -558,9 +559,11 @@ mod tests {
         let h = synthetic_platform_health();
         assert_eq!(h.services.len(), 6);
         assert_eq!(h.overall, OverallStatus::Healthy);
-        assert!(h.services.iter().all(|s| {
-            s.status == ServiceStatus::Healthy || s.status == ServiceStatus::Ready
-        }));
+        assert!(
+            h.services.iter().all(|s| {
+                s.status == ServiceStatus::Healthy || s.status == ServiceStatus::Ready
+            })
+        );
     }
 
     #[test]

@@ -61,7 +61,9 @@ struct TailscalePeer {
 pub fn tailscale_socket_path() -> Result<std::path::PathBuf, PeerDiscoveryError> {
     #[cfg(target_os = "linux")]
     {
-        Ok(std::path::PathBuf::from("/var/run/tailscale/tailscaled.sock"))
+        Ok(std::path::PathBuf::from(
+            "/var/run/tailscale/tailscaled.sock",
+        ))
     }
     #[cfg(target_os = "macos")]
     {

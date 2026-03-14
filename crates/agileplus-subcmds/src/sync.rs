@@ -59,7 +59,11 @@ pub struct SyncReport {
 
 impl SyncReport {
     pub fn new(direction: SyncDirection) -> Self {
-        Self { direction, entries: Vec::new(), duration_ms: 0 }
+        Self {
+            direction,
+            entries: Vec::new(),
+            duration_ms: 0,
+        }
     }
 
     pub fn add(&mut self, entry: SyncReportEntry) {
@@ -104,12 +108,10 @@ pub enum ConflictResolution {
 // Auto-sync config (persisted to .agileplus/sync-config.json)
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SyncConfig {
     pub auto_sync_enabled: bool,
 }
-
 
 impl SyncConfig {
     /// Load from `<root>/.agileplus/sync-config.json`, returning default if absent.
@@ -130,8 +132,7 @@ impl SyncConfig {
             std::fs::create_dir_all(parent)?;
         }
         let json = serde_json::to_string_pretty(self)?;
-        std::fs::write(&path, json)
-            .with_context(|| format!("writing {}", path.display()))
+        std::fs::write(&path, json).with_context(|| format!("writing {}", path.display()))
     }
 }
 
@@ -178,7 +179,11 @@ pub async fn run_sync_push(args: SyncPushArgs) -> Result<()> {
             entity_kind: "feature".to_string(),
             entity_name: "auth-flow".to_string(),
             outcome: SyncItemOutcome::Created,
-            plane_id: if args.dry_run { None } else { Some("#42".to_string()) },
+            plane_id: if args.dry_run {
+                None
+            } else {
+                Some("#42".to_string())
+            },
             message: if args.dry_run {
                 Some("would create".to_string())
             } else {
@@ -189,7 +194,11 @@ pub async fn run_sync_push(args: SyncPushArgs) -> Result<()> {
             entity_kind: "wp".to_string(),
             entity_name: "api-endpoints".to_string(),
             outcome: SyncItemOutcome::Updated,
-            plane_id: if args.dry_run { None } else { Some("#43".to_string()) },
+            plane_id: if args.dry_run {
+                None
+            } else {
+                Some("#43".to_string())
+            },
             message: None,
         });
         report.add(SyncReportEntry {
@@ -211,8 +220,16 @@ fn stub_push_entry(slug: &str, dry_run: bool) -> SyncReportEntry {
         entity_kind: "feature".to_string(),
         entity_name: slug.to_string(),
         outcome: SyncItemOutcome::Updated,
-        plane_id: if dry_run { None } else { Some("#99".to_string()) },
-        message: if dry_run { Some("would update".to_string()) } else { None },
+        plane_id: if dry_run {
+            None
+        } else {
+            Some("#99".to_string())
+        },
+        message: if dry_run {
+            Some("would update".to_string())
+        } else {
+            None
+        },
     }
 }
 
@@ -271,7 +288,11 @@ pub async fn run_sync_pull(args: SyncPullArgs) -> Result<()> {
             entity_name: slug.clone(),
             outcome: SyncItemOutcome::Updated,
             plane_id: None,
-            message: if args.dry_run { Some("would update".to_string()) } else { None },
+            message: if args.dry_run {
+                Some("would update".to_string())
+            } else {
+                None
+            },
         });
     } else {
         report.add(SyncReportEntry {
@@ -429,7 +450,10 @@ pub fn run_sync_status(args: SyncStatusArgs) -> Result<()> {
     for row in &rows {
         let entity = format!("{}: {}", row.entity_kind, row.entity_name);
         let remote = row.remote_state.as_deref().unwrap_or("—");
-        let last_synced = row.last_synced.map(format_age).unwrap_or("never".to_string());
+        let last_synced = row
+            .last_synced
+            .map(format_age)
+            .unwrap_or("never".to_string());
         let match_icon = if row.conflict_count > 0 {
             "\u{2717}" // ✗ conflict
         } else if row.in_sync {
@@ -440,12 +464,7 @@ pub fn run_sync_status(args: SyncStatusArgs) -> Result<()> {
 
         println!(
             "{:<26} | {:<14} | {:<14} | {:<12} | {:<5} | {}",
-            entity,
-            row.local_state,
-            remote,
-            last_synced,
-            match_icon,
-            row.conflict_count,
+            entity, row.local_state, remote, last_synced, match_icon, row.conflict_count,
         );
     }
     Ok(())
@@ -684,7 +703,10 @@ mod tests {
 
     #[tokio::test]
     async fn push_dry_run_all() {
-        let args = SyncPushArgs { feature: None, dry_run: true };
+        let args = SyncPushArgs {
+            feature: None,
+            dry_run: true,
+        };
         assert!(run_sync_push(args).await.is_ok());
     }
 
@@ -699,19 +721,26 @@ mod tests {
 
     #[tokio::test]
     async fn pull_dry_run() {
-        let args = SyncPullArgs { feature: None, dry_run: true };
+        let args = SyncPullArgs {
+            feature: None,
+            dry_run: true,
+        };
         assert!(run_sync_pull(args).await.is_ok());
     }
 
     #[test]
     fn status_table_output() {
-        let args = SyncStatusArgs { output: "table".to_string() };
+        let args = SyncStatusArgs {
+            output: "table".to_string(),
+        };
         assert!(run_sync_status(args).is_ok());
     }
 
     #[test]
     fn status_json_output() {
-        let args = SyncStatusArgs { output: "json".to_string() };
+        let args = SyncStatusArgs {
+            output: "json".to_string(),
+        };
         assert!(run_sync_status(args).is_ok());
     }
 

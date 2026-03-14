@@ -51,24 +51,18 @@ pub fn apply_resolution(
     strategy: &ResolutionStrategy,
 ) -> Result<ResolutionResult, SyncError> {
     let (resolved_value, strategy_label) = match strategy {
-        ResolutionStrategy::LocalWins => (
-            conflict.local_version.clone(),
-            "local_wins".to_string(),
-        ),
-        ResolutionStrategy::RemoteWins => (
-            conflict.remote_version.clone(),
-            "remote_wins".to_string(),
-        ),
+        ResolutionStrategy::LocalWins => (conflict.local_version.clone(), "local_wins".to_string()),
+        ResolutionStrategy::RemoteWins => {
+            (conflict.remote_version.clone(), "remote_wins".to_string())
+        }
         ResolutionStrategy::Manual(v) => (v.clone(), "manual".to_string()),
         ResolutionStrategy::FieldLevel(field_map) => {
-            let local_obj = conflict
-                .local_version
-                .as_object()
-                .ok_or_else(|| SyncError::ResolutionFailed("local version is not an object".into()))?;
-            let remote_obj = conflict
-                .remote_version
-                .as_object()
-                .ok_or_else(|| SyncError::ResolutionFailed("remote version is not an object".into()))?;
+            let local_obj = conflict.local_version.as_object().ok_or_else(|| {
+                SyncError::ResolutionFailed("local version is not an object".into())
+            })?;
+            let remote_obj = conflict.remote_version.as_object().ok_or_else(|| {
+                SyncError::ResolutionFailed("remote version is not an object".into())
+            })?;
 
             let mut merged = serde_json::Map::new();
             // Collect all field names from both sides.
@@ -150,8 +144,7 @@ mod tests {
         let mut field_map = HashMap::new();
         field_map.insert("title".to_string(), FieldSource::Local);
         field_map.insert("status".to_string(), FieldSource::Remote);
-        let result =
-            apply_resolution(&c, &ResolutionStrategy::FieldLevel(field_map)).unwrap();
+        let result = apply_resolution(&c, &ResolutionStrategy::FieldLevel(field_map)).unwrap();
         assert_eq!(result.resolved_value["title"], "local title");
         assert_eq!(result.resolved_value["status"], "closed");
         assert_eq!(result.strategy_label, "field_level");

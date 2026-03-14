@@ -198,13 +198,8 @@ mod tests {
         let log = AuditLog::new(tmp.path().join("audit.jsonl"));
 
         for i in 0..5 {
-            log.log_pre_dispatch(
-                &format!("cmd:{i}"),
-                None,
-                None,
-                serde_json::Value::Null,
-            )
-            .unwrap();
+            log.log_pre_dispatch(&format!("cmd:{i}"), None, None, serde_json::Value::Null)
+                .unwrap();
         }
 
         let entries = log.read_all().unwrap();
@@ -216,9 +211,6 @@ mod tests {
     #[test]
     fn default_path() {
         let log = AuditLog::default_path(Path::new("/project"));
-        assert_eq!(
-            log.path,
-            PathBuf::from("/project/.agileplus/audit.jsonl")
-        );
+        assert_eq!(log.path, PathBuf::from("/project/.agileplus/audit.jsonl"));
     }
 }

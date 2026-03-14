@@ -15,24 +15,21 @@ pub mod sync;
 
 pub use audit::AuditLog;
 pub use dashboard::{
-    run_dashboard, run_dashboard_open, run_dashboard_port,
-    DashboardArgs, DashboardSubcommand, DashboardOpenArgs, DashboardPortArgs,
-    dashboard_url, configured_port, api_reachable,
+    DashboardArgs, DashboardOpenArgs, DashboardPortArgs, DashboardSubcommand, api_reachable,
+    configured_port, dashboard_url, run_dashboard, run_dashboard_open, run_dashboard_port,
 };
 pub use events::{
-    run_events, filter_events, parse_since, render_table, render_json, render_jsonl,
-    EventsArgs, EventRecord, EventQueryResult, EventOutputFormat,
+    EventOutputFormat, EventQueryResult, EventRecord, EventsArgs, filter_events, parse_since,
+    render_json, render_jsonl, render_table, run_events,
 };
 pub use platform::{
-    run_platform, run_platform_up, run_platform_down, run_platform_status, run_platform_logs,
-    PlatformArgs, PlatformSubcommand,
-    PlatformUpArgs, PlatformDownArgs, PlatformStatusArgs, PlatformLogsArgs,
-    ServiceHealth, ServiceStatus, PlatformHealth, OverallStatus,
+    OverallStatus, PlatformArgs, PlatformDownArgs, PlatformHealth, PlatformLogsArgs,
+    PlatformStatusArgs, PlatformSubcommand, PlatformUpArgs, ServiceHealth, ServiceStatus,
+    run_platform, run_platform_down, run_platform_logs, run_platform_status, run_platform_up,
 };
 pub use registry::{SubCommand, SubCommandCategory, SubCommandRegistry};
 pub use sync::{
-    run_sync, SyncArgs, SyncSubcommand,
-    SyncPushArgs, SyncPullArgs, SyncAutoArgs, SyncStatusArgs, SyncResolveArgs,
-    SyncConfig, SyncReport, SyncReportEntry, SyncStatusRow, SyncConflict,
-    SyncDirection, SyncItemOutcome, ConflictResolution, AutoSyncAction,
+    AutoSyncAction, ConflictResolution, SyncArgs, SyncAutoArgs, SyncConfig, SyncConflict,
+    SyncDirection, SyncItemOutcome, SyncPullArgs, SyncPushArgs, SyncReport, SyncReportEntry,
+    SyncResolveArgs, SyncStatusArgs, SyncStatusRow, SyncSubcommand, run_sync,
 };

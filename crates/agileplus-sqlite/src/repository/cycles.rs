@@ -240,10 +240,7 @@ pub fn list_cycles_by_state(
     rows.collect::<rusqlite::Result<Vec<_>>>().map_err(map_err)
 }
 
-pub fn list_cycles_by_module(
-    conn: &Connection,
-    module_id: i64,
-) -> Result<Vec<Cycle>, DomainError> {
+pub fn list_cycles_by_module(conn: &Connection, module_id: i64) -> Result<Vec<Cycle>, DomainError> {
     let mut stmt = conn
         .prepare(
             "SELECT id, name, description, state, start_date, end_date, module_scope_id,
@@ -266,9 +263,7 @@ pub fn list_all_cycles(conn: &Connection) -> Result<Vec<Cycle>, DomainError> {
              FROM cycles ORDER BY start_date",
         )
         .map_err(map_err)?;
-    let rows = stmt
-        .query_map([], row_to_cycle)
-        .map_err(map_err)?;
+    let rows = stmt.query_map([], row_to_cycle).map_err(map_err)?;
     rows.collect::<rusqlite::Result<Vec<_>>>().map_err(map_err)
 }
 
@@ -356,10 +351,7 @@ fn compute_wp_progress(conn: &Connection, cycle_id: i64) -> Result<WpProgressSum
 
 /// Add a feature to a cycle. Enforces module_scope_id validation if set.
 /// Idempotent (INSERT OR IGNORE).
-pub fn add_feature_to_cycle(
-    conn: &Connection,
-    entry: &CycleFeature,
-) -> Result<(), DomainError> {
+pub fn add_feature_to_cycle(conn: &Connection, entry: &CycleFeature) -> Result<(), DomainError> {
     // Check if the cycle has a module scope restriction.
     let module_scope_id: Option<i64> = conn
         .query_row(

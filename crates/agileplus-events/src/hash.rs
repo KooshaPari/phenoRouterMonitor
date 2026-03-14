@@ -136,8 +136,26 @@ mod tests {
         let ts = DateTime::parse_from_rfc3339("2026-03-02T00:00:00Z")
             .unwrap()
             .with_timezone(&Utc);
-        let h1 = compute_hash(1, "Feature", "created", &serde_json::json!({"n": "t"}), ts, "u1", &[0u8; 32]).unwrap();
-        let h2 = compute_hash(1, "Feature", "created", &serde_json::json!({"n": "t"}), ts, "u1", &[0u8; 32]).unwrap();
+        let h1 = compute_hash(
+            1,
+            "Feature",
+            "created",
+            &serde_json::json!({"n": "t"}),
+            ts,
+            "u1",
+            &[0u8; 32],
+        )
+        .unwrap();
+        let h2 = compute_hash(
+            1,
+            "Feature",
+            "created",
+            &serde_json::json!({"n": "t"}),
+            ts,
+            "u1",
+            &[0u8; 32],
+        )
+        .unwrap();
         assert_eq!(h1, h2);
         assert_ne!(h1, [0u8; 32]);
     }
@@ -177,17 +195,31 @@ mod tests {
         let p1 = serde_json::json!({"v": 1});
         let h1 = compute_hash(1, "F", "c", &p1, ts, "a", &[0u8; 32]).unwrap();
         let e1 = Event {
-            id: 1, entity_type: "F".into(), entity_id: 1, event_type: "c".into(),
-            payload: p1, actor: "a".into(), timestamp: ts,
-            prev_hash: [0u8; 32], hash: h1, sequence: 1,
+            id: 1,
+            entity_type: "F".into(),
+            entity_id: 1,
+            event_type: "c".into(),
+            payload: p1,
+            actor: "a".into(),
+            timestamp: ts,
+            prev_hash: [0u8; 32],
+            hash: h1,
+            sequence: 1,
         };
 
         let p2 = serde_json::json!({"v": 2});
         let h2 = compute_hash(1, "F", "u", &p2, ts, "a", &h1).unwrap();
         let e2 = Event {
-            id: 2, entity_type: "F".into(), entity_id: 1, event_type: "u".into(),
-            payload: p2, actor: "a".into(), timestamp: ts,
-            prev_hash: h1, hash: h2, sequence: 2,
+            id: 2,
+            entity_type: "F".into(),
+            entity_id: 1,
+            event_type: "u".into(),
+            payload: p2,
+            actor: "a".into(),
+            timestamp: ts,
+            prev_hash: h1,
+            hash: h2,
+            sequence: 2,
         };
 
         verify_chain(&[e1, e2]).unwrap();
@@ -201,9 +233,16 @@ mod tests {
         let p1 = serde_json::json!({"v": 1});
         let h1 = compute_hash(1, "F", "c", &p1, ts, "a", &[0u8; 32]).unwrap();
         let mut e1 = Event {
-            id: 1, entity_type: "F".into(), entity_id: 1, event_type: "c".into(),
-            payload: p1, actor: "a".into(), timestamp: ts,
-            prev_hash: [0u8; 32], hash: h1, sequence: 1,
+            id: 1,
+            entity_type: "F".into(),
+            entity_id: 1,
+            event_type: "c".into(),
+            payload: p1,
+            actor: "a".into(),
+            timestamp: ts,
+            prev_hash: [0u8; 32],
+            hash: h1,
+            sequence: 1,
         };
         // Tamper
         e1.hash[0] ^= 0xFF;

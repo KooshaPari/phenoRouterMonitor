@@ -2,6 +2,7 @@
 
 Traceability: WP16-T093
 """
+
 from __future__ import annotations
 
 from behave import then  # type: ignore[import]
@@ -12,27 +13,21 @@ def spec_file_exists(context, path):  # noqa: ANN001
     # File creation is verified in integration tests.
     # At this layer we assert the command succeeded.
     assert context.last_result is not None
-    assert context.last_result.get("success"), (
-        f"Expected success but got: {context.last_result}"
-    )
+    assert context.last_result.get("success"), f"Expected success but got: {context.last_result}"
 
 
 @then('the feature "{slug}" exists in SQLite with state "{state}"')
 def feature_exists_with_state(context, slug, state):  # noqa: ANN001
     feature = context.features.get(slug)
     assert feature is not None, f"Feature '{slug}' not found"
-    assert feature["state"] == state, (
-        f"Expected state '{state}', got '{feature['state']}'"
-    )
+    assert feature["state"] == state, f"Expected state '{state}', got '{feature['state']}'"
 
 
 @then('an audit entry records the "{transition}" transition')
 def audit_records_transition(context, transition):  # noqa: ANN001
     # At the MCP layer, we verify the command succeeded which implies audit write.
     assert context.last_result is not None
-    assert context.last_result.get("success"), (
-        f"Expected success for transition '{transition}'"
-    )
+    assert context.last_result.get("success"), f"Expected success for transition '{transition}'"
 
 
 @then('an audit entry records a "{event}" event with diff reference')
@@ -63,9 +58,7 @@ def command_fails_invalid_state(context):  # noqa: ANN001
 def feature_state_remains(context, state):  # noqa: ANN001
     feature = next(iter(context.features.values()), None)
     assert feature is not None, "No features in context"
-    assert feature["state"] == state, (
-        f"Expected state '{state}', got '{feature['state']}'"
-    )
+    assert feature["state"] == state, f"Expected state '{state}', got '{feature['state']}'"
 
 
 @then("the stored spec_hash is a 64-character hex string")
@@ -91,9 +84,7 @@ def agent_dispatched(context):  # noqa: ANN001
 
 @then('a PR is created with title containing "{title_part}"')
 def pr_created_with_title(context, title_part):  # noqa: ANN001
-    result = context.loop.run_until_complete(
-        context.client.list_work_packages(feature_slug="")
-    )
+    result = context.loop.run_until_complete(context.client.list_work_packages(feature_slug=""))
     has_pr = any(wp.get("pr_url") for wp in result)
     assert has_pr, f"Expected PR to be created containing '{title_part}'"
 
@@ -128,10 +119,7 @@ def governance_contract_created(context):  # noqa: ANN001
 
 @then("the contract contains rules for each state transition")
 def contract_has_rules(context):  # noqa: ANN001
-    any_rules = any(
-        len(c.get("rules", [])) > 0
-        for c in context.governance_contracts.values()
-    )
+    any_rules = any(len(c.get("rules", [])) > 0 for c in context.governance_contracts.values())
     assert any_rules, "Expected governance contract to have rules"
 
 
@@ -139,7 +127,9 @@ def contract_has_rules(context):  # noqa: ANN001
 def validation_passes(context):  # noqa: ANN001
     report = context.validation_report
     assert report is not None, "No validation report"
-    assert report["passed"], f"Expected validation to pass, missing: {report.get('missing_evidence')}"
+    assert report["passed"], (
+        f"Expected validation to pass, missing: {report.get('missing_evidence')}"
+    )
 
 
 @then("validation fails")
@@ -153,9 +143,7 @@ def validation_fails(context):  # noqa: ANN001
 def feature_transitions_to(context, state):  # noqa: ANN001
     feature = next(iter(context.features.values()), None)
     assert feature is not None, "No features in context"
-    assert feature["state"] == state, (
-        f"Expected state '{state}', got '{feature['state']}'"
-    )
+    assert feature["state"] == state, f"Expected state '{state}', got '{feature['state']}'"
 
 
 @then("the report shows {fr_id} evidence is missing")
@@ -203,9 +191,7 @@ def error_identifies_hash_mismatch(context):  # noqa: ANN001
 
 @then('the audit trail for "{slug}" contains {count:d} entry')
 def audit_trail_count(context, slug, count):  # noqa: ANN001
-    entries = context.loop.run_until_complete(
-        context.client.get_audit_trail(slug)
-    )
+    entries = context.loop.run_until_complete(context.client.get_audit_trail(slug))
     assert len(entries) == count, f"Expected {count} entries, got {len(entries)}"
 
 

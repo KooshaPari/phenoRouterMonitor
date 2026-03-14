@@ -45,11 +45,7 @@ async fn service_failure_recovery_integration() -> anyhow::Result<()> {
     // -----------------------------------------------------------------------
     // Step 1: Confirm all services are healthy at the start
     // -----------------------------------------------------------------------
-    let health_resp = harness
-        .client()
-        .get(harness.url("/health"))
-        .send()
-        .await?;
+    let health_resp = harness.client().get(harness.url("/health")).send().await?;
 
     assert_eq!(health_resp.status().as_u16(), 200);
     let health: serde_json::Value = health_resp.json().await?;
@@ -82,11 +78,7 @@ async fn service_failure_recovery_integration() -> anyhow::Result<()> {
     // -----------------------------------------------------------------------
     // Step 3: Verify health reports degraded
     // -----------------------------------------------------------------------
-    let degraded_resp = harness
-        .client()
-        .get(harness.url("/health"))
-        .send()
-        .await?;
+    let degraded_resp = harness.client().get(harness.url("/health")).send().await?;
 
     // The API should still respond (degraded, not down).
     assert!(
@@ -177,7 +169,10 @@ async fn service_failure_recovery_integration() -> anyhow::Result<()> {
         }
     }
 
-    assert!(recovered, "service should recover to healthy within 30 seconds");
+    assert!(
+        recovered,
+        "service should recover to healthy within 30 seconds"
+    );
 
     // -----------------------------------------------------------------------
     // Step 7: Verify cache is warm again (feature readable quickly)

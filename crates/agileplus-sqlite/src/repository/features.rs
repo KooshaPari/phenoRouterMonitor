@@ -36,9 +36,13 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
     // module_id column added by migration 015 -- may be NULL.
     let module_id: Option<i64> = row.get(8).unwrap_or(None);
 
-    let state = state_str
-        .parse::<FeatureState>()
-        .map_err(|e| rusqlite::Error::FromSqlConversionFailure(3, rusqlite::types::Type::Text, Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e))))?;
+    let state = state_str.parse::<FeatureState>().map_err(|e| {
+        rusqlite::Error::FromSqlConversionFailure(
+            3,
+            rusqlite::types::Type::Text,
+            Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e)),
+        )
+    })?;
 
     let mut spec_hash = [0u8; 32];
     if spec_hash_bytes.len() == 32 {
@@ -47,11 +51,29 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
 
     let created_at = created_at_str
         .parse::<chrono::DateTime<chrono::Utc>>()
-        .map_err(|e| rusqlite::Error::FromSqlConversionFailure(6, rusqlite::types::Type::Text, Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))))?;
+        .map_err(|e| {
+            rusqlite::Error::FromSqlConversionFailure(
+                6,
+                rusqlite::types::Type::Text,
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    e.to_string(),
+                )),
+            )
+        })?;
 
     let updated_at = updated_at_str
         .parse::<chrono::DateTime<chrono::Utc>>()
-        .map_err(|e| rusqlite::Error::FromSqlConversionFailure(7, rusqlite::types::Type::Text, Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))))?;
+        .map_err(|e| {
+            rusqlite::Error::FromSqlConversionFailure(
+                7,
+                rusqlite::types::Type::Text,
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    e.to_string(),
+                )),
+            )
+        })?;
 
     Ok(Feature {
         id,

@@ -75,9 +75,18 @@ fn sample_governance_parses() {
 #[test]
 fn sample_spec_contains_frs() {
     let spec = load_fixture("sample-spec.md");
-    assert!(spec.contains("FR-001"), "sample-spec.md must reference FR-001");
-    assert!(spec.contains("FR-002"), "sample-spec.md must reference FR-002");
-    assert!(spec.contains("FR-003"), "sample-spec.md must reference FR-003");
+    assert!(
+        spec.contains("FR-001"),
+        "sample-spec.md must reference FR-001"
+    );
+    assert!(
+        spec.contains("FR-002"),
+        "sample-spec.md must reference FR-002"
+    );
+    assert!(
+        spec.contains("FR-003"),
+        "sample-spec.md must reference FR-003"
+    );
 }
 
 #[test]
@@ -98,23 +107,23 @@ fn sample_meta_parses() {
 
 #[test]
 fn evidence_fixtures_parse() {
-    let ev = serde_json::from_str::<serde_json::Value>(
-        &load_fixture("sample-evidence/WP01/test-results.json"),
-    )
+    let ev = serde_json::from_str::<serde_json::Value>(&load_fixture(
+        "sample-evidence/WP01/test-results.json",
+    ))
     .unwrap();
     assert_eq!(ev["evidence_type"], "test_result");
     assert!(ev["passed"].as_u64().unwrap_or(0) > 0);
 
-    let rev = serde_json::from_str::<serde_json::Value>(
-        &load_fixture("sample-evidence/WP01/review-approval.json"),
-    )
+    let rev = serde_json::from_str::<serde_json::Value>(&load_fixture(
+        "sample-evidence/WP01/review-approval.json",
+    ))
     .unwrap();
     assert_eq!(rev["evidence_type"], "review_approval");
     assert_eq!(rev["approved"], true);
 
-    let wp2_ev = serde_json::from_str::<serde_json::Value>(
-        &load_fixture("sample-evidence/WP02/test-results.json"),
-    )
+    let wp2_ev = serde_json::from_str::<serde_json::Value>(&load_fixture(
+        "sample-evidence/WP02/test-results.json",
+    ))
     .unwrap();
     assert_eq!(wp2_ev["evidence_type"], "test_result");
     assert_eq!(wp2_ev["wp_sequence"], 2);
@@ -132,5 +141,8 @@ fn pact_fixture_parses() {
     assert_eq!(v["consumer"]["name"], "AgilePlusMCP");
     assert_eq!(v["provider"]["name"], "AgilePlusCore");
     let interactions = v["interactions"].as_array().unwrap();
-    assert!(!interactions.is_empty(), "Pact must have at least one interaction");
+    assert!(
+        !interactions.is_empty(),
+        "Pact must have at least one interaction"
+    );
 }

@@ -5,15 +5,15 @@
 //!
 //! Traceability: WP14-T079, T080, T080b, T083
 
+use agileplus_domain::{
+    domain::{feature::Feature, work_package::WorkPackage},
+    error::DomainError,
+};
 use agileplus_grpc::{
     conversions::{feature_to_proto, wp_to_proto},
     event_bus::{AgentEvent, EventBus},
     proxy::ProxyRouter,
     server::domain_error_to_status,
-};
-use agileplus_domain::{
-    domain::{feature::Feature, work_package::WorkPackage},
-    error::DomainError,
 };
 
 // --- Conversion tests ---
@@ -121,8 +121,12 @@ async fn event_bus_filter_by_slug() {
     let mut b_count = 0;
     for _ in 0..2 {
         let e = rx.recv().await.unwrap();
-        if e.matches_feature("feat-a") { a_count += 1; }
-        if e.matches_feature("feat-b") { b_count += 1; }
+        if e.matches_feature("feat-a") {
+            a_count += 1;
+        }
+        if e.matches_feature("feat-b") {
+            b_count += 1;
+        }
         if e.matches_feature("") { /* matches all */ }
     }
     assert_eq!(a_count, 1);

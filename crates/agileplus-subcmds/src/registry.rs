@@ -59,95 +59,163 @@ impl SubCommandRegistry {
 
         let all = vec![
             // Triage (3)
-            cmd("triage:classify", SubCommandCategory::Triage,
+            cmd(
+                "triage:classify",
+                SubCommandCategory::Triage,
                 "Classify input text as bug/feature/idea/task",
-                "triage:classify <text>"),
-            cmd("triage:file-bug", SubCommandCategory::Triage,
+                "triage:classify <text>",
+            ),
+            cmd(
+                "triage:file-bug",
+                SubCommandCategory::Triage,
                 "File a bug report to the backlog",
-                "triage:file-bug --title <title> --description <desc>"),
-            cmd("triage:queue-idea", SubCommandCategory::Triage,
+                "triage:file-bug --title <title> --description <desc>",
+            ),
+            cmd(
+                "triage:queue-idea",
+                SubCommandCategory::Triage,
                 "Queue an idea for later consideration",
-                "triage:queue-idea --title <title> --description <desc>"),
-
+                "triage:queue-idea --title <title> --description <desc>",
+            ),
             // Governance (3)
-            cmd("governance:check-gates", SubCommandCategory::Governance,
+            cmd(
+                "governance:check-gates",
+                SubCommandCategory::Governance,
                 "Check all governance gates for a feature",
-                "governance:check-gates --feature <slug>"),
-            cmd("governance:evaluate-policy", SubCommandCategory::Governance,
+                "governance:check-gates --feature <slug>",
+            ),
+            cmd(
+                "governance:evaluate-policy",
+                SubCommandCategory::Governance,
                 "Evaluate a specific policy rule",
-                "governance:evaluate-policy --policy <id> --feature <slug>"),
-            cmd("governance:verify-chain", SubCommandCategory::Governance,
+                "governance:evaluate-policy --policy <id> --feature <slug>",
+            ),
+            cmd(
+                "governance:verify-chain",
+                SubCommandCategory::Governance,
                 "Verify the audit chain integrity",
-                "governance:verify-chain --feature <slug>"),
-
+                "governance:verify-chain --feature <slug>",
+            ),
             // Sync (3)
-            cmd("sync:push-plane", SubCommandCategory::Sync,
+            cmd(
+                "sync:push-plane",
+                SubCommandCategory::Sync,
                 "Push feature/WP state to Plane.so",
-                "sync:push-plane --feature <slug>"),
-            cmd("sync:push-github", SubCommandCategory::Sync,
+                "sync:push-plane --feature <slug>",
+            ),
+            cmd(
+                "sync:push-github",
+                SubCommandCategory::Sync,
                 "Push bug to GitHub Issues",
-                "sync:push-github --item <id>"),
-            cmd("sync:pull-status", SubCommandCategory::Sync,
+                "sync:push-github --item <id>",
+            ),
+            cmd(
+                "sync:pull-status",
+                SubCommandCategory::Sync,
                 "Pull status updates from external trackers",
-                "sync:pull-status"),
-
+                "sync:pull-status",
+            ),
             // Git (3)
-            cmd("git:create-worktree", SubCommandCategory::Git,
+            cmd(
+                "git:create-worktree",
+                SubCommandCategory::Git,
                 "Create a git worktree for a work package",
-                "git:create-worktree --feature <slug> --wp <id>"),
-            cmd("git:branch-from-wp", SubCommandCategory::Git,
+                "git:create-worktree --feature <slug> --wp <id>",
+            ),
+            cmd(
+                "git:branch-from-wp",
+                SubCommandCategory::Git,
                 "Create a branch from a work package worktree",
-                "git:branch-from-wp --feature <slug> --wp <id>"),
-            cmd("git:merge-and-cleanup", SubCommandCategory::Git,
+                "git:branch-from-wp --feature <slug> --wp <id>",
+            ),
+            cmd(
+                "git:merge-and-cleanup",
+                SubCommandCategory::Git,
                 "Merge WP branch and remove worktree",
-                "git:merge-and-cleanup --feature <slug> --wp <id>"),
-
+                "git:merge-and-cleanup --feature <slug> --wp <id>",
+            ),
             // DevOps (3)
-            cmd("devops:lint-and-format", SubCommandCategory::DevOps,
+            cmd(
+                "devops:lint-and-format",
+                SubCommandCategory::DevOps,
                 "Run project-specific lint and format checks",
-                "devops:lint-and-format"),
-            cmd("devops:conventional-commit", SubCommandCategory::DevOps,
+                "devops:lint-and-format",
+            ),
+            cmd(
+                "devops:conventional-commit",
+                SubCommandCategory::DevOps,
                 "Validate commit message format",
-                "devops:conventional-commit --message <msg>"),
-            cmd("devops:run-ci-checks", SubCommandCategory::DevOps,
+                "devops:conventional-commit --message <msg>",
+            ),
+            cmd(
+                "devops:run-ci-checks",
+                SubCommandCategory::DevOps,
                 "Run CI check suite locally",
-                "devops:run-ci-checks"),
-
+                "devops:run-ci-checks",
+            ),
             // Context (4)
-            cmd("context:load-spec", SubCommandCategory::Context,
+            cmd(
+                "context:load-spec",
+                SubCommandCategory::Context,
                 "Load feature specification into context",
-                "context:load-spec --feature <slug>"),
-            cmd("context:load-plan", SubCommandCategory::Context,
+                "context:load-spec --feature <slug>",
+            ),
+            cmd(
+                "context:load-plan",
+                SubCommandCategory::Context,
                 "Load feature plan into context",
-                "context:load-plan --feature <slug>"),
-            cmd("context:load-constitution", SubCommandCategory::Context,
+                "context:load-plan --feature <slug>",
+            ),
+            cmd(
+                "context:load-constitution",
+                SubCommandCategory::Context,
                 "Load project constitution",
-                "context:load-constitution"),
-            cmd("context:scan-codebase", SubCommandCategory::Context,
+                "context:load-constitution",
+            ),
+            cmd(
+                "context:scan-codebase",
+                SubCommandCategory::Context,
                 "Scan codebase for conventions and patterns",
-                "context:scan-codebase"),
-
+                "context:scan-codebase",
+            ),
             // Escape (3)
-            cmd("escape:quick-fix", SubCommandCategory::Escape,
+            cmd(
+                "escape:quick-fix",
+                SubCommandCategory::Escape,
                 "Apply a quick fix bypassing full workflow (logged as governance exception)",
-                "escape:quick-fix --description <desc>"),
-            cmd("escape:hotfix", SubCommandCategory::Escape,
+                "escape:quick-fix --description <desc>",
+            ),
+            cmd(
+                "escape:hotfix",
+                SubCommandCategory::Escape,
                 "Create a hotfix branch directly on main",
-                "escape:hotfix --description <desc>"),
-            cmd("escape:skip-with-warning", SubCommandCategory::Escape,
+                "escape:hotfix --description <desc>",
+            ),
+            cmd(
+                "escape:skip-with-warning",
+                SubCommandCategory::Escape,
                 "Skip a governance gate with explicit warning",
-                "escape:skip-with-warning --gate <name> --reason <reason>"),
-
+                "escape:skip-with-warning --gate <name> --reason <reason>",
+            ),
             // Meta (3)
-            cmd("meta:generate-router", SubCommandCategory::Meta,
+            cmd(
+                "meta:generate-router",
+                SubCommandCategory::Meta,
                 "Regenerate CLAUDE.md and AGENTS.md from project config",
-                "meta:generate-router"),
-            cmd("meta:update-agents-md", SubCommandCategory::Meta,
+                "meta:generate-router",
+            ),
+            cmd(
+                "meta:update-agents-md",
+                SubCommandCategory::Meta,
                 "Update AGENTS.md with current agent rules",
-                "meta:update-agents-md"),
-            cmd("meta:list-commands", SubCommandCategory::Meta,
+                "meta:update-agents-md",
+            ),
+            cmd(
+                "meta:list-commands",
+                SubCommandCategory::Meta,
                 "List all available sub-commands",
-                "meta:list-commands"),
+                "meta:list-commands",
+            ),
         ];
 
         for c in all {

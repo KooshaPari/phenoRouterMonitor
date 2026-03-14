@@ -48,11 +48,7 @@ impl RateLimiter {
         Ok(count <= max_requests)
     }
 
-    pub async fn get_remaining(
-        &self,
-        key: &str,
-        max_requests: u32,
-    ) -> Result<u32, LimiterError> {
+    pub async fn get_remaining(&self, key: &str, max_requests: u32) -> Result<u32, LimiterError> {
         let mut conn = self
             .pool
             .get_connection()

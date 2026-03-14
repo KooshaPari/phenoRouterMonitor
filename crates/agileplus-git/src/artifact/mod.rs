@@ -52,8 +52,7 @@ pub(crate) fn read_artifact(
             "artifact not found: kitty-specs/{feature_slug}/{relative_path}"
         )));
     }
-    std::fs::read_to_string(&path)
-        .map_err(|e| DomainError::Vcs(format!("read artifact: {e}")))
+    std::fs::read_to_string(&path).map_err(|e| DomainError::Vcs(format!("read artifact: {e}")))
 }
 
 /// Write a text artifact and stage it in the git index.
@@ -71,8 +70,7 @@ pub(crate) fn write_artifact(
             .map_err(|e| DomainError::Vcs(format!("create artifact dirs: {e}")))?;
     }
 
-    std::fs::write(&path, content)
-        .map_err(|e| DomainError::Vcs(format!("write artifact: {e}")))?;
+    std::fs::write(&path, content).map_err(|e| DomainError::Vcs(format!("write artifact: {e}")))?;
 
     // Stage the file in git index.
     let repo = adapter.open_repo()?;
@@ -104,10 +102,7 @@ pub(crate) fn scan_feature_artifacts(
     adapter: &GitVcsAdapter,
     feature_slug: &str,
 ) -> Result<FeatureArtifacts, DomainError> {
-    let base = adapter
-        .repo_path()
-        .join("kitty-specs")
-        .join(feature_slug);
+    let base = adapter.repo_path().join("kitty-specs").join(feature_slug);
 
     let meta_json = {
         let p = base.join("meta.json");

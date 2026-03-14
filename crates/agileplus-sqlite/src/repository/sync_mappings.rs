@@ -3,7 +3,7 @@
 //! Traceability: WP06-T033
 
 use chrono::Utc;
-use rusqlite::{params, Connection};
+use rusqlite::{Connection, params};
 
 use agileplus_domain::domain::sync_mapping::{SyncDirection, SyncMapping};
 use agileplus_domain::error::DomainError;
@@ -26,29 +26,26 @@ pub fn get_sync_mapping(
         )
         .map_err(map_err)?;
 
-    let result = stmt
-        .query_row(params![entity_type, entity_id], |row| {
-            Ok(SyncMapping {
-                id: row.get(0)?,
-                entity_type: row.get(1)?,
-                entity_id: row.get(2)?,
-                plane_issue_id: row.get(3)?,
-                content_hash: row.get(4)?,
-                last_synced_at: row.get::<_, String>(5).map(|s| {
-                    chrono::DateTime::parse_from_rfc3339(&s)
-                        .map(|dt| dt.with_timezone(&Utc))
-                        .unwrap_or_else(|_| Utc::now())
-                })?,
-                sync_direction: row
-                    .get::<_, String>(6)
-                    .map(|s| match s.as_str() {
-                        "push" => SyncDirection::Push,
-                        "pull" => SyncDirection::Pull,
-                        _ => SyncDirection::Bidirectional,
-                    })?,
-                conflict_count: row.get(7)?,
-            })
-        });
+    let result = stmt.query_row(params![entity_type, entity_id], |row| {
+        Ok(SyncMapping {
+            id: row.get(0)?,
+            entity_type: row.get(1)?,
+            entity_id: row.get(2)?,
+            plane_issue_id: row.get(3)?,
+            content_hash: row.get(4)?,
+            last_synced_at: row.get::<_, String>(5).map(|s| {
+                chrono::DateTime::parse_from_rfc3339(&s)
+                    .map(|dt| dt.with_timezone(&Utc))
+                    .unwrap_or_else(|_| Utc::now())
+            })?,
+            sync_direction: row.get::<_, String>(6).map(|s| match s.as_str() {
+                "push" => SyncDirection::Push,
+                "pull" => SyncDirection::Pull,
+                _ => SyncDirection::Bidirectional,
+            })?,
+            conflict_count: row.get(7)?,
+        })
+    });
 
     match result {
         Ok(m) => Ok(Some(m)),
@@ -58,10 +55,7 @@ pub fn get_sync_mapping(
 }
 
 /// Insert or update a sync mapping (upsert on entity_type + entity_id).
-pub fn upsert_sync_mapping(
-    conn: &Connection,
-    mapping: &SyncMapping,
-) -> Result<(), DomainError> {
+pub fn upsert_sync_mapping(conn: &Connection, mapping: &SyncMapping) -> Result<(), DomainError> {
     conn.execute(
         "INSERT INTO sync_mappings (entity_type, entity_id, plane_issue_id, content_hash, \
          last_synced_at, sync_direction, conflict_count) \
@@ -112,13 +106,11 @@ pub fn get_sync_mapping_by_plane_id(
                     .map(|dt| dt.with_timezone(&Utc))
                     .unwrap_or_else(|_| Utc::now())
             })?,
-            sync_direction: row
-                .get::<_, String>(6)
-                .map(|s| match s.as_str() {
-                    "push" => SyncDirection::Push,
-                    "pull" => SyncDirection::Pull,
-                    _ => SyncDirection::Bidirectional,
-                })?,
+            sync_direction: row.get::<_, String>(6).map(|s| match s.as_str() {
+                "push" => SyncDirection::Push,
+                "pull" => SyncDirection::Pull,
+                _ => SyncDirection::Bidirectional,
+            })?,
             conflict_count: row.get(7)?,
         })
     });

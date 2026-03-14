@@ -194,6 +194,9 @@ mod tests {
         // Create a dummy harness using from_running to test URL building.
         let harness = TestHarness::from_running("http://localhost:3000");
         assert_eq!(harness.url("/health"), "http://localhost:3000/health");
-        assert_eq!(harness.url("/api/features"), "http://localhost:3000/api/features");
+        assert_eq!(
+            harness.url("/api/features"),
+            "http://localhost:3000/api/features"
+        );
     }
 }

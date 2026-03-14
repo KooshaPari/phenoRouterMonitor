@@ -25,7 +25,9 @@ def register_tools(mcp: FastMCP, client: AgilePlusCoreClient) -> None:  # noqa: 
     """Register all feature-management tools onto *mcp*."""
 
     @mcp.tool(name="agileplus_specify")
-    async def specify(feature_slug: str, from_file: str = "", target_branch: str = "main") -> dict[str, Any]:
+    async def specify(
+        feature_slug: str, from_file: str = "", target_branch: str = "main"
+    ) -> dict[str, Any]:
         """Create or revise a feature specification.
 
         Runs the `specify` command on the Rust core, which prompts for or reads

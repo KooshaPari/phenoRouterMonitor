@@ -115,14 +115,20 @@ mod tests {
 
     #[test]
     fn should_snapshot_event_threshold() {
-        let config = SnapshotConfig { event_threshold: 100, time_threshold_secs: 300 };
+        let config = SnapshotConfig {
+            event_threshold: 100,
+            time_threshold_secs: 300,
+        };
         assert!(should_snapshot(&config, 100, 0, None));
         assert!(!should_snapshot(&config, 50, 0, None));
     }
 
     #[test]
     fn should_snapshot_time_threshold() {
-        let config = SnapshotConfig { event_threshold: 100, time_threshold_secs: 300 };
+        let config = SnapshotConfig {
+            event_threshold: 100,
+            time_threshold_secs: 300,
+        };
         let old = Utc::now() - TimeDelta::seconds(400);
         assert!(should_snapshot(&config, 50, 0, Some(old)));
         assert!(!should_snapshot(&config, 50, 0, Some(Utc::now())));

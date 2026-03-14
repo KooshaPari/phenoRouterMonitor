@@ -10,7 +10,11 @@ use agileplus_domain::ports::agent::{AgentConfig, AgentPort, AgentResult, AgentS
 pub struct StubAgentAdapter;
 
 impl AgentPort for StubAgentAdapter {
-    async fn dispatch(&self, task: AgentTask, _config: &AgentConfig) -> Result<AgentResult, DomainError> {
+    async fn dispatch(
+        &self,
+        task: AgentTask,
+        _config: &AgentConfig,
+    ) -> Result<AgentResult, DomainError> {
         println!(
             "  [stub-agent] Would dispatch agent for WP '{}' in worktree '{}'.",
             task.wp_id,
@@ -27,7 +31,11 @@ impl AgentPort for StubAgentAdapter {
         })
     }
 
-    async fn dispatch_async(&self, task: AgentTask, _config: &AgentConfig) -> Result<String, DomainError> {
+    async fn dispatch_async(
+        &self,
+        task: AgentTask,
+        _config: &AgentConfig,
+    ) -> Result<String, DomainError> {
         println!(
             "  [stub-agent] Would dispatch agent for WP '{}' in worktree '{}'.",
             task.wp_id,

@@ -125,10 +125,7 @@ impl GitHubClient {
     }
 
     /// Create a new issue.
-    pub async fn create_issue(
-        &self,
-        payload: &GitHubIssuePayload,
-    ) -> Result<GitHubIssueResponse> {
+    pub async fn create_issue(&self, payload: &GitHubIssuePayload) -> Result<GitHubIssueResponse> {
         self.acquire_token().await?;
         let resp = self
             .client

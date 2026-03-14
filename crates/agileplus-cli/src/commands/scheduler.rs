@@ -78,7 +78,10 @@ impl Scheduler {
                 }
             }
 
-            waves.push(ExecutionWave { wave_number, wp_ids: wave_ids });
+            waves.push(ExecutionWave {
+                wave_number,
+                wp_ids: wave_ids,
+            });
             wave_number += 1;
         }
 
@@ -139,7 +142,11 @@ mod tests {
     use agileplus_domain::domain::work_package::DependencyType;
 
     fn dep(wp_id: i64, depends_on: i64) -> WpDependency {
-        WpDependency { wp_id, depends_on, dep_type: DependencyType::Explicit }
+        WpDependency {
+            wp_id,
+            depends_on,
+            dep_type: DependencyType::Explicit,
+        }
     }
 
     fn states(ids: &[i64]) -> HashMap<i64, WpState> {

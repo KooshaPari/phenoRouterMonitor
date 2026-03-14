@@ -61,9 +61,7 @@ class SamplingHandler:
         Returns:
             Pre-check result with ``ready`` bool and ``blockers`` list.
         """
-        logger.info(
-            "Governance pre-check for %s: transition=%s", feature_slug, planned_transition
-        )
+        logger.info("Governance pre-check for %s: transition=%s", feature_slug, planned_transition)
         gate = await self._client.check_governance_gate(feature_slug, planned_transition)
         return {
             "feature_slug": feature_slug,

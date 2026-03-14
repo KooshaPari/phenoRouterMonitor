@@ -220,7 +220,8 @@ mod tests {
     #[test]
     fn backlog_status_update() {
         let mut store = BacklogStore::new();
-        let item = BacklogItem::from_triage("Task".into(), "desc".into(), Intent::Task, "cli".into());
+        let item =
+            BacklogItem::from_triage("Task".into(), "desc".into(), Intent::Task, "cli".into());
         let id = store.add(item);
         assert!(store.update_status(id, BacklogStatus::InProgress));
         assert_eq!(store.get(id).unwrap().status, BacklogStatus::InProgress);
@@ -230,8 +231,18 @@ mod tests {
     #[test]
     fn backlog_filter_by_status() {
         let mut store = BacklogStore::new();
-        store.add(BacklogItem::from_triage("a".into(), "".into(), Intent::Bug, "".into()));
-        store.add(BacklogItem::from_triage("b".into(), "".into(), Intent::Feature, "".into()));
+        store.add(BacklogItem::from_triage(
+            "a".into(),
+            "".into(),
+            Intent::Bug,
+            "".into(),
+        ));
+        store.add(BacklogItem::from_triage(
+            "b".into(),
+            "".into(),
+            Intent::Feature,
+            "".into(),
+        ));
         store.update_status(1, BacklogStatus::Done);
         assert_eq!(store.list_by_status(BacklogStatus::New).len(), 1);
         assert_eq!(store.list_by_status(BacklogStatus::Done).len(), 1);
@@ -240,9 +251,24 @@ mod tests {
     #[test]
     fn backlog_filter_by_intent() {
         let mut store = BacklogStore::new();
-        store.add(BacklogItem::from_triage("a".into(), "".into(), Intent::Bug, "".into()));
-        store.add(BacklogItem::from_triage("b".into(), "".into(), Intent::Bug, "".into()));
-        store.add(BacklogItem::from_triage("c".into(), "".into(), Intent::Idea, "".into()));
+        store.add(BacklogItem::from_triage(
+            "a".into(),
+            "".into(),
+            Intent::Bug,
+            "".into(),
+        ));
+        store.add(BacklogItem::from_triage(
+            "b".into(),
+            "".into(),
+            Intent::Bug,
+            "".into(),
+        ));
+        store.add(BacklogItem::from_triage(
+            "c".into(),
+            "".into(),
+            Intent::Idea,
+            "".into(),
+        ));
         assert_eq!(store.list_by_intent(Intent::Bug).len(), 2);
         assert_eq!(store.list_by_intent(Intent::Idea).len(), 1);
     }
@@ -250,9 +276,24 @@ mod tests {
     #[test]
     fn backlog_pop_priority_order() {
         let mut store = BacklogStore::new();
-        store.add(BacklogItem::from_triage("low".into(), "".into(), Intent::Idea, "".into()));
-        store.add(BacklogItem::from_triage("high".into(), "".into(), Intent::Bug, "".into()));
-        store.add(BacklogItem::from_triage("med".into(), "".into(), Intent::Feature, "".into()));
+        store.add(BacklogItem::from_triage(
+            "low".into(),
+            "".into(),
+            Intent::Idea,
+            "".into(),
+        ));
+        store.add(BacklogItem::from_triage(
+            "high".into(),
+            "".into(),
+            Intent::Bug,
+            "".into(),
+        ));
+        store.add(BacklogItem::from_triage(
+            "med".into(),
+            "".into(),
+            Intent::Feature,
+            "".into(),
+        ));
 
         let first = store.pop_next().unwrap();
         assert_eq!(first.title, "high"); // Bug = High priority

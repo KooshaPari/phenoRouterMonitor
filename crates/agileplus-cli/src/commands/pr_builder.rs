@@ -149,7 +149,12 @@ mod tests {
     }
 
     fn make_wp() -> WorkPackage {
-        let mut wp = WorkPackage::new(1, "Implement auth module", 1, "FR-001 login must work\nFR-002 logout must work");
+        let mut wp = WorkPackage::new(
+            1,
+            "Implement auth module",
+            1,
+            "FR-001 login must work\nFR-002 logout must work",
+        );
         wp.id = 9;
         wp.file_scope = vec!["src/auth.rs".into(), "src/main.rs".into()];
         wp

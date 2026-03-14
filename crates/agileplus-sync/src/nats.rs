@@ -74,10 +74,7 @@ impl NatsSyncBridge {
         let js = jetstream::new(self.client.clone());
         let stream_config = jetstream::stream::Config {
             name: STREAM_NAME.to_string(),
-            subjects: vec![
-                SUBJECT_INBOUND.to_string(),
-                SUBJECT_OUTBOUND.to_string(),
-            ],
+            subjects: vec![SUBJECT_INBOUND.to_string(), SUBJECT_OUTBOUND.to_string()],
             ..Default::default()
         };
         match js.get_or_create_stream(stream_config).await {
@@ -117,9 +114,15 @@ impl NatsSyncBridge {
         F: Fn(InboundSyncEvent) -> Fut + Send + Sync,
         Fut: std::future::Future<Output = Result<(), SyncError>> + Send,
     {
-        let mut sub = self.client.subscribe(SUBJECT_INBOUND).await
+        let mut sub = self
+            .client
+            .subscribe(SUBJECT_INBOUND)
+            .await
             .map_err(|e| SyncError::Nats(e.into()))?;
-        info!(subject = SUBJECT_INBOUND, "Subscribed to inbound sync events");
+        info!(
+            subject = SUBJECT_INBOUND,
+            "Subscribed to inbound sync events"
+        );
 
         while let Some(msg) = sub.next().await {
             match serde_json::from_slice::<InboundSyncEvent>(&msg.payload) {

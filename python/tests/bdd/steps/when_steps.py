@@ -2,6 +2,7 @@
 
 Traceability: WP16-T093
 """
+
 from __future__ import annotations
 
 from unittest.mock import AsyncMock
@@ -71,7 +72,7 @@ def run_implement(context, slug):  # noqa: ANN001
     context.last_result = result
 
 
-@when("I run \"agileplus implement\" for the feature")
+@when('I run "agileplus implement" for the feature')
 def run_implement_for_the_feature(context):  # noqa: ANN001
     slug = next(iter(context.features), "parallel-feature")
     run_implement(context, slug)
@@ -111,9 +112,7 @@ def run_plan(context, slug):  # noqa: ANN001
     context.client.run_command = AsyncMock(
         return_value={"success": True, "message": "Plan generated", "outputs": {}}
     )
-    result = context.loop.run_until_complete(
-        context.client.run_command("plan", feature_slug=slug)
-    )
+    result = context.loop.run_until_complete(context.client.run_command("plan", feature_slug=slug))
     if result["success"]:
         updated = dict(feature)
         updated["state"] = "planned"
@@ -151,8 +150,7 @@ def run_validate(context, slug):  # noqa: ANN001
         fr_id = rule["fr_id"]
         ev_type = rule["evidence_type"]
         found = any(
-            e.get("fr_id") == fr_id and e.get("evidence_type") == ev_type
-            for e in context.evidence
+            e.get("fr_id") == fr_id and e.get("evidence_type") == ev_type for e in context.evidence
         )
         if not found:
             missing.append(fr_id)
@@ -187,7 +185,5 @@ def run_validate(context, slug):  # noqa: ANN001
 
 @when('I verify the audit chain for "{slug}"')
 def verify_audit_chain(context, slug):  # noqa: ANN001
-    result = context.loop.run_until_complete(
-        context.client.verify_audit_chain(slug)
-    )
+    result = context.loop.run_until_complete(context.client.verify_audit_chain(slug))
     context.last_result = result

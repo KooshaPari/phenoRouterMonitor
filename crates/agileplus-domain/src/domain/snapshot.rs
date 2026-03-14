@@ -43,7 +43,12 @@ mod tests {
 
     #[test]
     fn new_snapshot() {
-        let s = Snapshot::new("feature", 1, serde_json::json!({"state": "implementing"}), 100);
+        let s = Snapshot::new(
+            "feature",
+            1,
+            serde_json::json!({"state": "implementing"}),
+            100,
+        );
         assert_eq!(s.entity_type, "feature");
         assert_eq!(s.event_sequence, 100);
     }

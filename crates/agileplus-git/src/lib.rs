@@ -11,9 +11,7 @@ use std::path::{Path, PathBuf};
 
 use agileplus_domain::{
     error::DomainError,
-    ports::{
-        ConflictInfo, FeatureArtifacts, MergeResult, VcsPort, WorktreeInfo,
-    },
+    ports::{ConflictInfo, FeatureArtifacts, MergeResult, VcsPort, WorktreeInfo},
 };
 use git2::Repository;
 

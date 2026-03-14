@@ -3,7 +3,9 @@
 use rusqlite::{Connection, Row, params};
 
 use agileplus_domain::{
-    domain::governance::{GovernanceContract, GovernanceRule, PolicyDefinition, PolicyDomain, PolicyRule},
+    domain::governance::{
+        GovernanceContract, GovernanceRule, PolicyDefinition, PolicyDomain, PolicyRule,
+    },
     error::DomainError,
 };
 
@@ -38,8 +40,8 @@ pub fn create_governance_contract(
     conn: &Connection,
     contract: &GovernanceContract,
 ) -> Result<i64, DomainError> {
-    let rules_json = serde_json::to_string(&contract.rules)
-        .map_err(|e| DomainError::Storage(e.to_string()))?;
+    let rules_json =
+        serde_json::to_string(&contract.rules).map_err(|e| DomainError::Storage(e.to_string()))?;
 
     conn.execute(
         "INSERT INTO governance_contracts (feature_id, version, rules, bound_at)
@@ -71,8 +73,8 @@ fn parse_contract(
 ) -> Result<GovernanceContract, DomainError> {
     let (id, feature_id, version, rules_json, bound_at_s) = parts;
 
-    let rules: Vec<GovernanceRule> = serde_json::from_str(&rules_json)
-        .map_err(|e| DomainError::Storage(e.to_string()))?;
+    let rules: Vec<GovernanceRule> =
+        serde_json::from_str(&rules_json).map_err(|e| DomainError::Storage(e.to_string()))?;
     let bound_at = bound_at_s
         .parse::<chrono::DateTime<chrono::Utc>>()
         .map_err(|e| DomainError::Storage(e.to_string()))?;
@@ -122,8 +124,8 @@ pub fn get_latest_governance_contract(
 // -- Policy Rules --
 
 pub fn create_policy_rule(conn: &Connection, rule: &PolicyRule) -> Result<i64, DomainError> {
-    let rule_json = serde_json::to_string(&rule.rule)
-        .map_err(|e| DomainError::Storage(e.to_string()))?;
+    let rule_json =
+        serde_json::to_string(&rule.rule).map_err(|e| DomainError::Storage(e.to_string()))?;
 
     conn.execute(
         "INSERT INTO policy_rules (domain, rule, active, created_at, updated_at)
@@ -165,25 +167,27 @@ pub fn list_active_policies(conn: &Connection) -> Result<Vec<PolicyRule>, Domain
     rows.collect::<rusqlite::Result<Vec<_>>>()
         .map_err(map_err)?
         .into_iter()
-        .map(|(id, domain_s, rule_json, active, created_at_s, updated_at_s)| {
-            let domain = policy_domain_from_str(&domain_s)?;
-            let rule: PolicyDefinition = serde_json::from_str(&rule_json)
-                .map_err(|e| DomainError::Storage(e.to_string()))?;
-            let created_at = created_at_s
-                .parse::<chrono::DateTime<chrono::Utc>>()
-                .map_err(|e| DomainError::Storage(e.to_string()))?;
-            let updated_at = updated_at_s
-                .parse::<chrono::DateTime<chrono::Utc>>()
-                .map_err(|e| DomainError::Storage(e.to_string()))?;
-            Ok(PolicyRule {
-                id,
-                domain,
-                rule,
-                active: active != 0,
-                created_at,
-                updated_at,
-            })
-        })
+        .map(
+            |(id, domain_s, rule_json, active, created_at_s, updated_at_s)| {
+                let domain = policy_domain_from_str(&domain_s)?;
+                let rule: PolicyDefinition = serde_json::from_str(&rule_json)
+                    .map_err(|e| DomainError::Storage(e.to_string()))?;
+                let created_at = created_at_s
+                    .parse::<chrono::DateTime<chrono::Utc>>()
+                    .map_err(|e| DomainError::Storage(e.to_string()))?;
+                let updated_at = updated_at_s
+                    .parse::<chrono::DateTime<chrono::Utc>>()
+                    .map_err(|e| DomainError::Storage(e.to_string()))?;
+                Ok(PolicyRule {
+                    id,
+                    domain,
+                    rule,
+                    active: active != 0,
+                    created_at,
+                    updated_at,
+                })
+            },
+        )
         .collect()
 }
 

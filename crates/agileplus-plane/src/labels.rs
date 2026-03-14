@@ -86,15 +86,17 @@ impl LabelSync {
         local_labels: &[String],
     ) -> Result<std::collections::HashMap<String, String>> {
         let remote = self.fetch_remote_labels().await?;
-        let mut name_to_id: std::collections::HashMap<String, String> = remote
-            .into_iter()
-            .map(|l| (l.name.clone(), l.id))
-            .collect();
+        let mut name_to_id: std::collections::HashMap<String, String> =
+            remote.into_iter().map(|l| (l.name.clone(), l.id)).collect();
 
         for label in local_labels {
             if !name_to_id.contains_key(label.as_str()) {
                 let created = self.create_remote_label(label, None).await?;
-                tracing::info!(label_name = label, plane_label_id = created.id, "created remote label");
+                tracing::info!(
+                    label_name = label,
+                    plane_label_id = created.id,
+                    "created remote label"
+                );
                 name_to_id.insert(label.clone(), created.id);
             }
         }

@@ -72,7 +72,13 @@ mod tests {
 
     #[test]
     fn new_event_defaults() {
-        let e = Event::new("feature", 1, "state_transitioned", serde_json::json!({}), "system");
+        let e = Event::new(
+            "feature",
+            1,
+            "state_transitioned",
+            serde_json::json!({}),
+            "system",
+        );
         assert_eq!(e.id, 0);
         assert_eq!(e.entity_type, "feature");
         assert_eq!(e.entity_id, 1);
@@ -82,7 +88,13 @@ mod tests {
 
     #[test]
     fn event_serde_roundtrip() {
-        let e = Event::new("wp", 5, "created", serde_json::json!({"title": "WP05"}), "agent");
+        let e = Event::new(
+            "wp",
+            5,
+            "created",
+            serde_json::json!({"title": "WP05"}),
+            "agent",
+        );
         let json = serde_json::to_string(&e).unwrap();
         let e2: Event = serde_json::from_str(&json).unwrap();
         assert_eq!(e2.entity_type, "wp");

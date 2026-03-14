@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
 
@@ -50,7 +50,7 @@ struct FeatureMetrics {
     avg_review_cycles_per_wp: f64,
     state_transition_durations: Vec<(String, i64)>,
     governance_exceptions: Vec<String>,
-    high_review_wps: Vec<(i32, String, i32)>,  // (sequence, title, review_cycles)
+    high_review_wps: Vec<(i32, String, i32)>, // (sequence, title, review_cycles)
     wp_metrics: Vec<WpMetrics>,
 }
 
@@ -67,7 +67,9 @@ fn generate_insights(metrics: &FeatureMetrics) -> Vec<String> {
     }
 
     if !metrics.high_review_wps.is_empty() {
-        let wp_list: Vec<String> = metrics.high_review_wps.iter()
+        let wp_list: Vec<String> = metrics
+            .high_review_wps
+            .iter()
             .map(|(seq, title, cycles)| format!("WP{:02} '{}' ({} cycles)", seq, title, cycles))
             .collect();
         insights.push(format!(
@@ -96,9 +98,12 @@ fn generate_insights(metrics: &FeatureMetrics) -> Vec<String> {
     }
 
     if metrics.total_duration_ms > 0 {
-        let implement_fraction = metrics.wp_metrics.iter()
+        let implement_fraction = metrics
+            .wp_metrics
+            .iter()
             .map(|w| w.duration_ms)
-            .sum::<i64>() as f64 / metrics.total_duration_ms as f64;
+            .sum::<i64>() as f64
+            / metrics.total_duration_ms as f64;
         if implement_fraction > 0.5 {
             insights.push(format!(
                 "{:.0}% of total time was spent in implementation/review phases. \
@@ -109,7 +114,8 @@ fn generate_insights(metrics: &FeatureMetrics) -> Vec<String> {
     }
 
     if insights.is_empty() {
-        insights.push("No significant issues detected. Development process is healthy.".to_string());
+        insights
+            .push("No significant issues detected. Development process is healthy.".to_string());
     }
 
     insights
@@ -127,7 +133,8 @@ fn generate_constitution_suggestions(metrics: &FeatureMetrics) -> Vec<String> {
             name = \"pre-review-self-check\"\n\
             description = \"Agent must verify acceptance criteria before requesting review\"\n\
             trigger = \"doing -> review\"\n\
-            ```".to_string()
+            ```"
+            .to_string(),
         );
     }
 
@@ -140,12 +147,15 @@ fn generate_constitution_suggestions(metrics: &FeatureMetrics) -> Vec<String> {
             description = \"Allow expedited transitions with documented rationale\"\n\
             allow_skip = true\n\
             require_justification = true\n\
-            ```".to_string()
+            ```"
+            .to_string(),
         );
     }
 
     if suggestions.is_empty() {
-        suggestions.push("No constitution amendments suggested. Current governance is appropriate.".to_string());
+        suggestions.push(
+            "No constitution amendments suggested. Current governance is appropriate.".to_string(),
+        );
     }
 
     suggestions
@@ -184,16 +194,30 @@ fn generate_retro_markdown(
 
     let mut lines = vec![
         format!("# Retrospective: {feature_name}"),
-        format!("**Feature**: `{feature_slug}` | **Generated**: {}", Utc::now().format("%Y-%m-%d")),
+        format!(
+            "**Feature**: `{feature_slug}` | **Generated**: {}",
+            Utc::now().format("%Y-%m-%d")
+        ),
         String::new(),
         "## Summary".to_string(),
         String::new(),
-        format!("- **Total duration**: {}", format_duration(metrics.total_duration_ms)),
+        format!(
+            "- **Total duration**: {}",
+            format_duration(metrics.total_duration_ms)
+        ),
         format!("- **Work packages**: {}", metrics.wp_count),
-        format!("- **Total agent invocations**: {}", metrics.total_agent_runs),
-        format!("- **Total review cycles**: {} (avg {:.1} per WP)",
-            metrics.total_review_cycles, metrics.avg_review_cycles_per_wp),
-        format!("- **Governance exceptions**: {}", metrics.governance_exceptions.len()),
+        format!(
+            "- **Total agent invocations**: {}",
+            metrics.total_agent_runs
+        ),
+        format!(
+            "- **Total review cycles**: {} (avg {:.1} per WP)",
+            metrics.total_review_cycles, metrics.avg_review_cycles_per_wp
+        ),
+        format!(
+            "- **Governance exceptions**: {}",
+            metrics.governance_exceptions.len()
+        ),
         String::new(),
     ];
 
@@ -269,7 +293,8 @@ where
         .ok_or_else(|| {
             anyhow::anyhow!(
                 "Feature '{}' not found. Run `agileplus specify --feature {}` first.",
-                slug, slug
+                slug,
+                slug
             )
         })?;
 
@@ -278,7 +303,9 @@ where
         anyhow::bail!(
             "Feature '{}' is in state '{}'. Expected 'Shipped'. \
             Run `agileplus ship --feature {}` first.",
-            slug, feature.state, slug
+            slug,
+            feature.state,
+            slug
         );
     }
 
@@ -305,25 +332,31 @@ where
         compute_durations_from_audit(&audit_trail, &feature.created_at);
 
     // Extract governance exceptions from audit trail
-    let governance_exceptions: Vec<String> = audit_trail.iter()
+    let governance_exceptions: Vec<String> = audit_trail
+        .iter()
         .filter(|e| e.transition.contains("skipped") || e.transition.contains("exception"))
         .map(|e| format!("{}: {}", e.timestamp.format("%Y-%m-%d"), e.transition))
         .collect();
 
     // Compute per-WP metrics from stored metrics
-    let wp_metrics: Vec<WpMetrics> = wps.iter().map(|wp| {
-        // Find metrics for this WP
-        let wp_metric = metrics_data.iter()
-            .find(|m| m.feature_id == Some(feature.id) && m.command.contains(&format!("WP{:02}", wp.sequence)));
+    let wp_metrics: Vec<WpMetrics> = wps
+        .iter()
+        .map(|wp| {
+            // Find metrics for this WP
+            let wp_metric = metrics_data.iter().find(|m| {
+                m.feature_id == Some(feature.id)
+                    && m.command.contains(&format!("WP{:02}", wp.sequence))
+            });
 
-        WpMetrics {
-            sequence: wp.sequence,
-            title: wp.title.clone(),
-            agent_runs: wp_metric.map(|m| m.agent_runs).unwrap_or(0),
-            review_cycles: wp_metric.map(|m| m.review_cycles).unwrap_or(0),
-            duration_ms: wp_metric.map(|m| m.duration_ms).unwrap_or(0),
-        }
-    }).collect();
+            WpMetrics {
+                sequence: wp.sequence,
+                title: wp.title.clone(),
+                agent_runs: wp_metric.map(|m| m.agent_runs).unwrap_or(0),
+                review_cycles: wp_metric.map(|m| m.review_cycles).unwrap_or(0),
+                duration_ms: wp_metric.map(|m| m.duration_ms).unwrap_or(0),
+            }
+        })
+        .collect();
 
     let total_agent_runs: i32 = wp_metrics.iter().map(|w| w.agent_runs).sum::<i32>()
         + metrics_data.iter().map(|m| m.agent_runs).sum::<i32>();
@@ -337,7 +370,8 @@ where
         0.0
     };
 
-    let high_review_wps: Vec<(i32, String, i32)> = wp_metrics.iter()
+    let high_review_wps: Vec<(i32, String, i32)> = wp_metrics
+        .iter()
         .filter(|w| w.review_cycles > 3)
         .map(|w| (w.sequence, w.title.clone(), w.review_cycles))
         .collect();
@@ -355,17 +389,14 @@ where
     };
 
     // Generate report
-    let report_content = generate_retro_markdown(
-        slug,
-        &feature.friendly_name,
-        &feature_metrics,
-        args.verbose,
-    );
+    let report_content =
+        generate_retro_markdown(slug, &feature.friendly_name, &feature_metrics, args.verbose);
 
     // Write to output path
-    let output_path = args.output.clone().unwrap_or_else(|| {
-        PathBuf::from(format!("kitty-specs/{slug}/retrospective.md"))
-    });
+    let output_path = args
+        .output
+        .clone()
+        .unwrap_or_else(|| PathBuf::from(format!("kitty-specs/{slug}/retrospective.md")));
 
     // Write to file if we have a path that's not the VCS path
     if args.output.is_some() {
@@ -399,8 +430,8 @@ where
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage
@@ -581,15 +612,13 @@ mod tests {
             state_transition_durations: vec![("Created -> Specified".to_string(), 3600000)],
             governance_exceptions: vec![],
             high_review_wps: vec![],
-            wp_metrics: vec![
-                WpMetrics {
-                    sequence: 1,
-                    title: "Auth Module".to_string(),
-                    agent_runs: 2,
-                    review_cycles: 2,
-                    duration_ms: 28800000,
-                },
-            ],
+            wp_metrics: vec![WpMetrics {
+                sequence: 1,
+                title: "Auth Module".to_string(),
+                agent_runs: 2,
+                review_cycles: 2,
+                duration_ms: 28800000,
+            }],
         };
         let report = generate_retro_markdown("my-feat", "My Feature", &metrics, false);
         assert!(report.contains("# Retrospective: My Feature"));

@@ -65,7 +65,10 @@ pub async fn run_review_loop<A: AgentPort>(
                     return ReviewOutcome::Approved;
                 } else {
                     last_feedback = result.stderr.clone();
-                    println!("  Agent completed with failure: {}", &result.stderr[..result.stderr.len().min(200)]);
+                    println!(
+                        "  Agent completed with failure: {}",
+                        &result.stderr[..result.stderr.len().min(200)]
+                    );
                     // Feed back stderr as instruction for next cycle
                     if cycle < max_cycles {
                         let instruction = format!(
@@ -103,7 +106,10 @@ pub async fn run_review_loop<A: AgentPort>(
         "  Max review cycles ({max_cycles}) reached for WP {}.",
         wp.id
     );
-    ReviewOutcome::MaxCyclesReached { cycles: max_cycles, last_feedback }
+    ReviewOutcome::MaxCyclesReached {
+        cycles: max_cycles,
+        last_feedback,
+    }
 }
 
 /// Format structured review comments into an agent instruction.

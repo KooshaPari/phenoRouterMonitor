@@ -9,14 +9,14 @@ use std::collections::{HashMap, HashSet};
 use anyhow::{Context, Result};
 use chrono::Utc;
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::{WorkPackage, WpState};
 use agileplus_domain::ports::agent::{AgentConfig, AgentKind, AgentPort, AgentTask};
 use agileplus_domain::ports::{StoragePort, VcsPort};
 
 use super::pr_builder::{build_pr_description, build_pr_title};
-use super::review_loop::{run_review_loop, ReviewOutcome};
+use super::review_loop::{ReviewOutcome, run_review_loop};
 use super::scheduler::Scheduler;
 
 /// Arguments for the `implement` subcommand.
@@ -44,7 +44,12 @@ pub struct ImplementArgs {
 }
 
 /// Run the `implement` command.
-pub async fn run_implement<S, V, A>(args: ImplementArgs, storage: &S, vcs: &V, agent: &A) -> Result<()>
+pub async fn run_implement<S, V, A>(
+    args: ImplementArgs,
+    storage: &S,
+    vcs: &V,
+    agent: &A,
+) -> Result<()>
 where
     S: StoragePort,
     V: VcsPort,
@@ -100,7 +105,10 @@ where
             archived_to: None,
         };
         audit.hash = hash_entry(&audit);
-        storage.append_audit_entry(&audit).await.context("appending audit entry")?;
+        storage
+            .append_audit_entry(&audit)
+            .await
+            .context("appending audit entry")?;
         println!("Feature '{slug}' transitioned to Implementing.");
     }
 
@@ -125,14 +133,20 @@ where
             .iter()
             .filter(|wp| {
                 let wp_str = wp_ref.to_uppercase();
-                let by_seq = wp_str.strip_prefix("WP").and_then(|s| s.parse::<i32>().ok())
+                let by_seq = wp_str
+                    .strip_prefix("WP")
+                    .and_then(|s| s.parse::<i32>().ok())
                     == Some(wp.sequence);
                 let by_id = wp_ref.parse::<i64>().ok() == Some(wp.id);
                 by_seq || by_id
             })
             .collect();
         if matched.is_empty() {
-            anyhow::bail!("Work package '{}' not found for feature '{}'.", wp_ref, slug);
+            anyhow::bail!(
+                "Work package '{}' not found for feature '{}'.",
+                wp_ref,
+                slug
+            );
         }
         matched
     } else {
@@ -186,7 +200,10 @@ where
     for wp in &target_wps {
         // Skip already done
         if completed.contains(&wp.id) {
-            println!("  WP{:02} '{}' already done, skipping.", wp.sequence, wp.title);
+            println!(
+                "  WP{:02} '{}' already done, skipping.",
+                wp.sequence, wp.title
+            );
             continue;
         }
 
@@ -206,7 +223,10 @@ where
 
         // Resume mode: check if worktree already exists
         if args.resume && wp.state == WpState::Doing {
-            println!("  Resuming WP{:02} (already in 'doing' state)...", wp.sequence);
+            println!(
+                "  Resuming WP{:02} (already in 'doing' state)...",
+                wp.sequence
+            );
         }
 
         // Create worktree
@@ -256,7 +276,10 @@ where
         println!("  Agent dispatched (job: {job_id}).");
 
         // Build PR description
-        let feature_ref = storage.get_feature_by_id(feature.id).await?.unwrap_or(feature.clone());
+        let feature_ref = storage
+            .get_feature_by_id(feature.id)
+            .await?
+            .unwrap_or(feature.clone());
         let pr_title = build_pr_title(wp);
         let pr_body = build_pr_description(wp, &feature_ref, &spec_content);
 
@@ -299,18 +322,24 @@ where
                     evidence_refs: vec![],
                     prev_hash,
                     hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+                    event_id: None,
+                    archived_to: None,
                 };
                 audit.hash = hash_entry(&audit);
-                storage.append_audit_entry(&audit).await.context("appending audit entry")?;
+                storage
+                    .append_audit_entry(&audit)
+                    .await
+                    .context("appending audit entry")?;
 
                 // Cleanup worktree
                 if let Err(e) = vcs.cleanup_worktree(&worktree_path).await {
                     tracing::warn!(error = %e, "worktree cleanup failed (non-fatal)");
                 }
             }
-            ReviewOutcome::MaxCyclesReached { cycles, last_feedback } => {
+            ReviewOutcome::MaxCyclesReached {
+                cycles,
+                last_feedback,
+            } => {
                 println!(
                     "  WP{:02} reached max review cycles ({cycles}). Marking blocked.",
                     wp.sequence
@@ -327,12 +356,15 @@ where
                     wp_id: Some(wp.id),
                     timestamp: Utc::now(),
                     actor: "system".into(),
-                    transition: format!("WP{:02} Doing -> Blocked (max review cycles)", wp.sequence),
+                    transition: format!(
+                        "WP{:02} Doing -> Blocked (max review cycles)",
+                        wp.sequence
+                    ),
                     evidence_refs: vec![],
                     prev_hash,
                     hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+                    event_id: None,
+                    archived_to: None,
                 };
                 audit.hash = hash_entry(&audit);
                 storage.append_audit_entry(&audit).await.ok();
@@ -345,11 +377,7 @@ where
             }
             ReviewOutcome::AgentFailed { error } => {
                 storage.update_wp_state(wp.id, WpState::Blocked).await.ok();
-                anyhow::bail!(
-                    "Agent failed for WP{:02}: {}",
-                    wp.sequence,
-                    error
-                );
+                anyhow::bail!("Agent failed for WP{:02}: {}", wp.sequence, error);
             }
             ReviewOutcome::Cancelled => {
                 storage.update_wp_state(wp.id, WpState::Blocked).await.ok();
@@ -359,7 +387,10 @@ where
     }
 
     let elapsed_ms = start.elapsed().as_millis();
-    let done_count = target_ids.iter().filter(|id| completed.contains(id)).count();
+    let done_count = target_ids
+        .iter()
+        .filter(|id| completed.contains(id))
+        .count();
     tracing::info!(command = "implement", slug = %slug, done = done_count, elapsed_ms = %elapsed_ms, "implement completed");
 
     println!();
@@ -373,7 +404,13 @@ where
 
 fn slugify(s: &str) -> String {
     s.chars()
-        .map(|c| if c.is_alphanumeric() { c.to_ascii_lowercase() } else { '-' })
+        .map(|c| {
+            if c.is_alphanumeric() {
+                c.to_ascii_lowercase()
+            } else {
+                '-'
+            }
+        })
         .collect::<String>()
         .split('-')
         .filter(|p| !p.is_empty())
@@ -398,6 +435,9 @@ mod tests {
 
     #[test]
     fn slugify_basic() {
-        assert_eq!(slugify("Implement Auth Module (WP01)"), "implement-auth-module-wp01");
+        assert_eq!(
+            slugify("Implement Auth Module (WP01)"),
+            "implement-auth-module-wp01"
+        );
     }
 }

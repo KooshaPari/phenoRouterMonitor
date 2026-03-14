@@ -9,9 +9,7 @@
 //! - Full sync 100 features:       < 30 s
 //! - Sync with 5 conflicts:        < 10 s
 
-use agileplus_benchmarks::helpers::{
-    SyncPayload, make_sync_payloads, simulate_sync_roundtrip,
-};
+use agileplus_benchmarks::helpers::{SyncPayload, make_sync_payloads, simulate_sync_roundtrip};
 use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 
 // ---------------------------------------------------------------------------
@@ -50,8 +48,7 @@ fn bench_pull_single(c: &mut Criterion) {
     c.bench_function("pull_single_feature", |b| {
         b.iter(|| {
             // Simulate inbound mapping: Plane.so JSON → domain
-            let v: serde_json::Value =
-                serde_json::from_str(black_box(&raw_json)).expect("deser");
+            let v: serde_json::Value = serde_json::from_str(black_box(&raw_json)).expect("deser");
             black_box(v["id"].as_i64().unwrap())
         });
     });

@@ -49,6 +49,7 @@ def _get_client() -> AgilePlusCoreClient:
 # T084c: MCP Roots primitive — declare workspace boundaries.
 # ---------------------------------------------------------------------------
 
+
 @mcp.resource("roots://workspace")
 async def get_workspace_roots() -> dict[str, Any]:
     """Declare workspace roots for the MCP client.
@@ -88,6 +89,7 @@ async def get_workspace_roots() -> dict[str, Any]:
 # T084d: MCP Elicitation primitive — structured discovery interviews.
 # ---------------------------------------------------------------------------
 
+
 @mcp.tool(name="agileplus_elicit_feature")
 async def elicit_feature(
     feature_name: str,
@@ -109,9 +111,7 @@ async def elicit_feature(
     import hashlib
     import time
 
-    session_id = hashlib.sha1(
-        f"{feature_name}{time.time()}".encode()
-    ).hexdigest()[:8]
+    session_id = hashlib.sha1(f"{feature_name}{time.time()}".encode()).hexdigest()[:8]
 
     return {
         "session_id": session_id,
@@ -199,6 +199,7 @@ async def elicit_clarify(feature_slug: str) -> dict[str, Any]:
 # T084b: Sampling tool — server-initiated analysis
 # ---------------------------------------------------------------------------
 
+
 @mcp.tool(name="agileplus_sample_triage")
 async def sample_triage(feature_slug: str, agent_output: str) -> dict[str, Any]:
     """Server-initiated triage of agent output.
@@ -219,9 +220,7 @@ async def sample_triage(feature_slug: str, agent_output: str) -> dict[str, Any]:
 
 
 @mcp.tool(name="agileplus_sample_governance_check")
-async def sample_governance_check(
-    feature_slug: str, planned_transition: str
-) -> dict[str, Any]:
+async def sample_governance_check(feature_slug: str, planned_transition: str) -> dict[str, Any]:
     """Server-initiated governance pre-check before a state transition.
 
     Args:
@@ -256,6 +255,7 @@ async def sample_retrospective(feature_slug: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Startup / shutdown lifecycle
 # ---------------------------------------------------------------------------
+
 
 async def startup(grpc_address: str = GRPC_ADDRESS) -> None:
     """Initialise the gRPC client and register all tools."""

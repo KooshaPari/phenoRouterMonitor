@@ -24,7 +24,16 @@ fn row_to_audit_entry(row: &Row<'_>) -> rusqlite::Result<AuditEntry> {
 
     let timestamp = timestamp_s
         .parse::<chrono::DateTime<chrono::Utc>>()
-        .map_err(|e| rusqlite::Error::FromSqlConversionFailure(3, rusqlite::types::Type::Text, Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string()))))?;
+        .map_err(|e| {
+            rusqlite::Error::FromSqlConversionFailure(
+                3,
+                rusqlite::types::Type::Text,
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    e.to_string(),
+                )),
+            )
+        })?;
 
     let evidence_refs: Vec<EvidenceRef> =
         serde_json::from_str(&evidence_refs_json).unwrap_or_default();

@@ -7,7 +7,7 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::WpState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
@@ -49,7 +49,8 @@ where
         .ok_or_else(|| {
             anyhow::anyhow!(
                 "Feature '{}' not found. Run `agileplus plan --feature {}` first.",
-                slug, slug
+                slug,
+                slug
             )
         })?;
 
@@ -64,13 +65,18 @@ where
             anyhow::bail!(
                 "Feature '{}' is in state '{}'. Expected 'Validated'. \
                 Run `agileplus validate --feature {}` first, or use --skip-validate.",
-                slug, feature.state, slug
+                slug,
+                feature.state,
+                slug
             );
         }
     }
 
     // Determine target branch
-    let target_branch = args.target.clone().unwrap_or_else(|| feature.target_branch.clone());
+    let target_branch = args
+        .target
+        .clone()
+        .unwrap_or_else(|| feature.target_branch.clone());
     tracing::debug!(target_branch = %target_branch, "shipping to target branch");
 
     // Load all WPs for the feature
@@ -80,13 +86,20 @@ where
         .context("listing work packages")?;
 
     // Check all WPs are done
-    let incomplete: Vec<_> = all_wps.iter()
+    let incomplete: Vec<_> = all_wps
+        .iter()
         .filter(|wp| wp.state != WpState::Done)
         .collect();
 
     if !incomplete.is_empty() {
-        let names: Vec<String> = incomplete.iter()
-            .map(|wp| format!("WP{:02} '{}' (state: {:?})", wp.sequence, wp.title, wp.state))
+        let names: Vec<String> = incomplete
+            .iter()
+            .map(|wp| {
+                format!(
+                    "WP{:02} '{}' (state: {:?})",
+                    wp.sequence, wp.title, wp.state
+                )
+            })
             .collect();
         anyhow::bail!(
             "Feature '{}' has incomplete work packages:\n  {}\nFinish all WPs before shipping.",
@@ -101,10 +114,13 @@ where
 
     // Derive branch name for each WP from worktree_path or a convention
     // Convention: feature/{slug}/wp{sequence:02}
-    let wp_branches: Vec<(String, String)> = sorted_wps.iter()
+    let wp_branches: Vec<(String, String)> = sorted_wps
+        .iter()
         .map(|wp| {
             // Derive branch from worktree_path if available, otherwise use convention
-            let branch = wp.worktree_path.as_deref()
+            let branch = wp
+                .worktree_path
+                .as_deref()
                 .and_then(|p| {
                     // Extract branch name from path like ".worktrees/slug-WP01" -> "slug/wp01"
                     std::path::Path::new(p)
@@ -145,7 +161,9 @@ where
         };
 
         if !merge_result.success {
-            let conflicts: Vec<String> = merge_result.conflicts.iter()
+            let conflicts: Vec<String> = merge_result
+                .conflicts
+                .iter()
                 .map(|c| c.path.clone())
                 .collect();
             anyhow::bail!(
@@ -169,7 +187,9 @@ where
         if worktree.feature_slug == *slug {
             match vcs.cleanup_worktree(&worktree.path).await {
                 Ok(()) => tracing::info!(path = ?worktree.path, "cleaned up worktree"),
-                Err(e) => tracing::warn!(path = ?worktree.path, error = %e, "failed to clean worktree (skipping)"),
+                Err(e) => {
+                    tracing::warn!(path = ?worktree.path, error = %e, "failed to clean worktree (skipping)")
+                }
             }
         }
     }
@@ -208,8 +228,8 @@ where
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage

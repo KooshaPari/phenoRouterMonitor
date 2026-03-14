@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use chrono::Utc;
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::governance::{Evidence, GovernanceContract, PolicyCheck};
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
@@ -74,7 +74,11 @@ impl ValidationReport {
         let status = if self.overall_pass { "PASS" } else { "FAIL" };
         let mut lines = vec![
             format!("# Validation Report: {}", self.feature_slug),
-            format!("**Timestamp**: {} | **Result**: {}", self.timestamp.format("%Y-%m-%dT%H:%M:%SZ"), status),
+            format!(
+                "**Timestamp**: {} | **Result**: {}",
+                self.timestamp.format("%Y-%m-%dT%H:%M:%SZ"),
+                status
+            ),
             String::new(),
             "## Evidence Checks".to_string(),
             String::new(),
@@ -137,25 +141,35 @@ impl ValidationReport {
     }
 
     fn to_json(&self) -> String {
-        let missing: Vec<serde_json::Value> = self.missing_evidence.iter()
+        let missing: Vec<serde_json::Value> = self
+            .missing_evidence
+            .iter()
             .map(|(f, t)| serde_json::json!({"fr_id": f, "type": t}))
             .collect();
-        let evidence: Vec<serde_json::Value> = self.evidence_results.iter()
-            .map(|e| serde_json::json!({
-                "fr_id": e.fr_id,
-                "type": e.evidence_type,
-                "found": e.found,
-                "threshold_met": e.threshold_met,
-                "message": e.message,
-            }))
+        let evidence: Vec<serde_json::Value> = self
+            .evidence_results
+            .iter()
+            .map(|e| {
+                serde_json::json!({
+                    "fr_id": e.fr_id,
+                    "type": e.evidence_type,
+                    "found": e.found,
+                    "threshold_met": e.threshold_met,
+                    "message": e.message,
+                })
+            })
             .collect();
-        let policies: Vec<serde_json::Value> = self.policy_results.iter()
-            .map(|p| serde_json::json!({
-                "policy_id": p.policy_id,
-                "domain": p.domain,
-                "passed": p.passed,
-                "message": p.message,
-            }))
+        let policies: Vec<serde_json::Value> = self
+            .policy_results
+            .iter()
+            .map(|p| {
+                serde_json::json!({
+                    "policy_id": p.policy_id,
+                    "domain": p.domain,
+                    "passed": p.passed,
+                    "message": p.message,
+                })
+            })
             .collect();
         serde_json::to_string_pretty(&serde_json::json!({
             "feature_slug": self.feature_slug,
@@ -165,7 +179,8 @@ impl ValidationReport {
             "policy_results": policies,
             "missing_evidence": missing,
             "governance_exceptions": self.governance_exceptions,
-        })).unwrap_or_default()
+        }))
+        .unwrap_or_default()
     }
 }
 
@@ -184,7 +199,8 @@ async fn evaluate_evidence<S: StoragePort>(
     let target_transition_keywords = ["Implementing", "validated", "Validate", "implementing"];
 
     for rule in &contract.rules {
-        let is_validate_rule = target_transition_keywords.iter()
+        let is_validate_rule = target_transition_keywords
+            .iter()
             .any(|kw| rule.transition.to_lowercase().contains(&kw.to_lowercase()));
 
         // Include all rules — implementing-level rules apply here
@@ -248,7 +264,8 @@ fn evaluate_threshold(evidence: &[&Evidence], threshold: &serde_json::Value) -> 
         return false;
     }
     if let Some(max_crit) = threshold.get("max_critical").and_then(|v| v.as_u64()) {
-        let critical_count: u64 = evidence.iter()
+        let critical_count: u64 = evidence
+            .iter()
             .filter_map(|ev| ev.metadata.as_ref())
             .filter_map(|meta| meta.get("critical_count"))
             .filter_map(|v| v.as_u64())
@@ -270,7 +287,9 @@ async fn evaluate_policies<S: StoragePort>(
         .context("loading active policies")?;
 
     // Gather policy refs referenced in the contract
-    let referenced: std::collections::HashSet<String> = contract.rules.iter()
+    let referenced: std::collections::HashSet<String> = contract
+        .rules
+        .iter()
         .flat_map(|r| r.policy_refs.iter().cloned())
         .collect();
 
@@ -293,26 +312,42 @@ async fn evaluate_policies<S: StoragePort>(
                 // We search across all FR evidence — a simple heuristic
                 let ev_type_str = format!("{:?}", evidence_type);
                 // Since StoragePort doesn't have get_evidence_by_type, we list WPs and check
-                (true, format!("Evidence type {} check (assumed present)", ev_type_str))
+                (
+                    true,
+                    format!("Evidence type {} check (assumed present)", ev_type_str),
+                )
             }
             PolicyCheck::ThresholdMet { metric, min } => {
-                let metrics = storage.get_metrics_by_feature(feature_id).await.unwrap_or_default();
-                let found = metrics.iter().any(|m| {
-                    m.command == *metric
-                });
-                (found, if found {
-                    format!("Metric '{}' present (threshold >= {})", metric, min)
-                } else {
-                    format!("Metric '{}' not found (threshold >= {})", metric, min)
-                })
+                let metrics = storage
+                    .get_metrics_by_feature(feature_id)
+                    .await
+                    .unwrap_or_default();
+                let found = metrics.iter().any(|m| m.command == *metric);
+                (
+                    found,
+                    if found {
+                        format!("Metric '{}' present (threshold >= {})", metric, min)
+                    } else {
+                        format!("Metric '{}' not found (threshold >= {})", metric, min)
+                    },
+                )
             }
             PolicyCheck::ManualApproval => {
                 // Cannot auto-approve; fail with instructions
-                (false, "Manual approval required — run the approval workflow".to_string())
+                (
+                    false,
+                    "Manual approval required — run the approval workflow".to_string(),
+                )
             }
             PolicyCheck::Custom { script } => {
                 // Custom scripts not supported in CLI validation; skip
-                (true, format!("Custom policy skipped: {}", script.chars().take(60).collect::<String>()))
+                (
+                    true,
+                    format!(
+                        "Custom policy skipped: {}",
+                        script.chars().take(60).collect::<String>()
+                    ),
+                )
             }
         };
 
@@ -344,7 +379,8 @@ where
         .ok_or_else(|| {
             anyhow::anyhow!(
                 "Feature '{}' not found. Run `agileplus plan --feature {}` first.",
-                slug, slug
+                slug,
+                slug
             )
         })?;
 
@@ -362,7 +398,9 @@ where
             anyhow::bail!(
                 "Feature '{}' is in state '{}'. Expected 'Implementing'. \
                 Run `agileplus implement --feature {}` first, or use --force.",
-                slug, feature.state, slug
+                slug,
+                feature.state,
+                slug
             );
         }
     }
@@ -391,8 +429,8 @@ where
     };
 
     // Compute overall pass
-    let evidence_pass = missing_evidence.is_empty()
-        && evidence_results.iter().all(|e| e.found && e.threshold_met);
+    let evidence_pass =
+        missing_evidence.is_empty() && evidence_results.iter().all(|e| e.found && e.threshold_met);
     let policy_pass = policy_results.iter().all(|p| p.passed);
     let overall_pass = evidence_pass && policy_pass;
 
@@ -445,8 +483,8 @@ where
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage

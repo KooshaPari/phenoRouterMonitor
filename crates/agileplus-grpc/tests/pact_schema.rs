@@ -23,7 +23,10 @@ fn proto_feature_contract_fields() {
 
     // Contract: all required fields must be present and non-empty where expected
     assert_eq!(proto.slug, "contract-test", "slug must match");
-    assert_eq!(proto.friendly_name, "Contract Test", "friendly_name must match");
+    assert_eq!(
+        proto.friendly_name, "Contract Test",
+        "friendly_name must match"
+    );
     assert!(!proto.state.is_empty(), "state must be non-empty");
     assert!(!proto.created_at.is_empty(), "created_at must be ISO 8601");
     assert!(!proto.updated_at.is_empty(), "updated_at must be ISO 8601");
@@ -52,7 +55,7 @@ fn proto_wp_status_contract_fields() {
 /// Any change here is a breaking contract change.
 #[test]
 fn wp_state_encoding_contract() {
-    use agileplus_domain::domain::work_package::{WpState, WorkPackage};
+    use agileplus_domain::domain::work_package::{WorkPackage, WpState};
 
     let state_cases = vec![
         (WpState::Planned, "planned"),

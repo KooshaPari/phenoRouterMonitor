@@ -97,6 +97,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: rustsec/audit-check@v2.0.0
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: rust
       - name: Install cargo-deny
         run: cargo install cargo-deny
@@ -171,7 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@1.100.0
+      - uses: dtolnay/rust-toolchain@1.85.0
       - uses: Swatinem/rust-cache@v2
       - uses: arduino/setup-protoc@v3
         with:
@@ -201,7 +202,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Validate domain crate dependencies
         run: |
-          ALLOWED="serde serde_json chrono sha2 thiserror"
+          ALLOWED="serde serde_json chrono sha2 thiserror toml dirs-next zeroize keyring"
           DEPS=$(grep -A 100 '^\[dependencies\]' crates/agileplus-domain/Cargo.toml | grep -E '^\w' | grep -v '^\[' | cut -d'.' -f1 | cut -d' ' -f1)
           for dep in $DEPS; do
             if ! echo "$ALLOWED" | grep -qw "$dep"; then

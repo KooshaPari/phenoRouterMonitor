@@ -6,6 +6,7 @@ Mark with pytest.mark.integration and skip when the server is unavailable.
 
 Traceability: WP16-T096
 """
+
 from __future__ import annotations
 
 import os

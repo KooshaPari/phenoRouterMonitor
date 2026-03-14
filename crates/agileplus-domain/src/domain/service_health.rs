@@ -77,7 +77,10 @@ impl PlatformStatus {
     pub fn from_services(services: Vec<ServiceHealth>) -> Self {
         let overall = if services.iter().all(|s| s.status == HealthStatus::Healthy) {
             HealthStatus::Healthy
-        } else if services.iter().any(|s| s.status == HealthStatus::Unavailable) {
+        } else if services
+            .iter()
+            .any(|s| s.status == HealthStatus::Unavailable)
+        {
             HealthStatus::Unavailable
         } else {
             HealthStatus::Degraded

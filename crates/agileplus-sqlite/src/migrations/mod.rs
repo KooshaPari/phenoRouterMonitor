@@ -115,9 +115,9 @@ impl<'a> MigrationRunner<'a> {
             }
 
             let up_sql = parse_up(sql);
-            self.conn.execute_batch(up_sql).map_err(|e| {
-                DomainError::Storage(format!("migration {name} failed: {e}"))
-            })?;
+            self.conn
+                .execute_batch(up_sql)
+                .map_err(|e| DomainError::Storage(format!("migration {name} failed: {e}")))?;
 
             let now = chrono::Utc::now().to_rfc3339();
             self.conn
@@ -154,9 +154,9 @@ impl<'a> MigrationRunner<'a> {
         if let Some((_, sql)) = migration {
             let down_sql = parse_down(sql);
             if !down_sql.is_empty() {
-                self.conn.execute_batch(down_sql).map_err(|e| {
-                    DomainError::Storage(format!("rollback of {name} failed: {e}"))
-                })?;
+                self.conn
+                    .execute_batch(down_sql)
+                    .map_err(|e| DomainError::Storage(format!("rollback of {name} failed: {e}")))?;
             }
         }
 

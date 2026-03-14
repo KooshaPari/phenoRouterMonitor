@@ -8,11 +8,9 @@
 use std::collections::HashMap;
 
 use agileplus_domain::domain::{
-    audit::{AuditChain, AuditEntry, AuditChainError, hash_entry},
+    audit::{AuditChain, AuditChainError, AuditEntry, hash_entry},
     feature::Feature,
-    governance::{
-        Evidence, EvidenceRequirement, EvidenceType, GovernanceContract, GovernanceRule,
-    },
+    governance::{Evidence, EvidenceRequirement, EvidenceType, GovernanceContract, GovernanceRule},
     state_machine::FeatureState,
     work_package::{WorkPackage, WpState},
 };
@@ -177,21 +175,12 @@ async fn feature_in_state_with_wps(
 
     for i in 1..=wp_count {
         let wp = WorkPackage::new(fid, &format!("WP{i:02}"), i as i32, "done when green");
-        world
-            .storage
-            .work_packages
-            .entry(fid)
-            .or_default()
-            .push(wp);
+        world.storage.work_packages.entry(fid).or_default().push(wp);
     }
 }
 
 #[given(expr = "a feature {string} with WP01 in state {string}")]
-async fn feature_with_wp_in_state(
-    world: &mut AgilePlusWorld,
-    slug: String,
-    wp_state: String,
-) {
+async fn feature_with_wp_in_state(world: &mut AgilePlusWorld, slug: String, wp_state: String) {
     let mut f = Feature::new(&slug, &slug.replace('-', " "), [0u8; 32], Some("main"));
     f.state = FeatureState::Implementing;
     world.storage.insert_feature(f);
@@ -205,12 +194,7 @@ async fn feature_with_wp_in_state(
     };
     let mut wp = WorkPackage::new(fid, "WP01", 1, "done when green");
     wp.state = state;
-    world
-        .storage
-        .work_packages
-        .entry(fid)
-        .or_default()
-        .push(wp);
+    world.storage.work_packages.entry(fid).or_default().push(wp);
 }
 
 #[given(expr = "the agent has committed code in the WP01 worktree")]
@@ -220,11 +204,7 @@ async fn agent_committed_code(_world: &mut AgilePlusWorld) {
 }
 
 #[given(expr = "a feature with WP01 file_scope {string} and WP02 file_scope {string}")]
-async fn feature_with_two_wps(
-    world: &mut AgilePlusWorld,
-    scope1: String,
-    scope2: String,
-) {
+async fn feature_with_two_wps(world: &mut AgilePlusWorld, scope1: String, scope2: String) {
     let slug = "parallel-feature";
     let mut f = Feature::new(slug, "Parallel Feature", [0u8; 32], Some("main"));
     f.state = FeatureState::Planned;
@@ -243,11 +223,7 @@ async fn feature_with_two_wps(
 }
 
 #[given(expr = "a feature {string} with {int} audit entries")]
-async fn feature_with_audit_entries(
-    world: &mut AgilePlusWorld,
-    slug: String,
-    count: usize,
-) {
+async fn feature_with_audit_entries(world: &mut AgilePlusWorld, slug: String, count: usize) {
     if count == 0 {
         let f = Feature::new(&slug, &slug.replace('-', " "), [0u8; 32], Some("main"));
         world.storage.insert_feature(f);
@@ -373,7 +349,12 @@ async fn evidence_exists(world: &mut AgilePlusWorld, fr_id: String, ev_type_str:
         metadata: Some(serde_json::json!({"passed": 42, "failed": 0, "coverage": 85.2})),
         created_at: Utc::now(),
     };
-    world.storage.evidence.entry(feature_id).or_default().push(evidence);
+    world
+        .storage
+        .evidence
+        .entry(feature_id)
+        .or_default()
+        .push(evidence);
 }
 
 #[given(expr = "no evidence exists for {word}")]
@@ -521,7 +502,13 @@ async fn run_implement_for_the_feature(world: &mut AgilePlusWorld) {
 #[when(expr = "the agent completes WP01 implementation")]
 async fn agent_completes_wp01(world: &mut AgilePlusWorld) {
     // Find WP01 and transition it to Review -> Done and record a PR
-    let fid = world.storage.work_packages.keys().copied().next().unwrap_or(1);
+    let fid = world
+        .storage
+        .work_packages
+        .keys()
+        .copied()
+        .next()
+        .unwrap_or(1);
     if let Some(wps) = world.storage.work_packages.get_mut(&fid) {
         if let Some(wp) = wps.first_mut() {
             wp.state = WpState::Review;
@@ -608,7 +595,10 @@ async fn run_validate(world: &mut AgilePlusWorld, slug: String) {
                     feat.state = FeatureState::Validated;
                 }
             }
-            world.last_validation_report = Some(ValidationReport { passed, missing_evidence: missing });
+            world.last_validation_report = Some(ValidationReport {
+                passed,
+                missing_evidence: missing,
+            });
             world.last_result = Some(if passed {
                 Ok("validated".to_string())
             } else {
@@ -715,10 +705,7 @@ async fn spec_file_updated(_world: &mut AgilePlusWorld) {
 
 #[then(expr = "the command fails with an invalid state error")]
 async fn command_fails_invalid_state(world: &mut AgilePlusWorld) {
-    let result = world
-        .last_result
-        .as_ref()
-        .expect("No result recorded");
+    let result = world.last_result.as_ref().expect("No result recorded");
     assert!(result.is_err(), "Expected command to fail");
     let msg = result.as_ref().unwrap_err();
     assert!(
@@ -750,7 +737,11 @@ async fn spec_hash_is_hex(world: &mut AgilePlusWorld) {
         .values()
         .next()
         .expect("No features in world");
-    let hex: String = feature.spec_hash.iter().map(|b| format!("{b:02x}")).collect();
+    let hex: String = feature
+        .spec_hash
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
     assert_eq!(hex.len(), 64, "spec_hash should be 64-char hex, got: {hex}");
 }
 
@@ -774,17 +765,12 @@ async fn agent_dispatched(world: &mut AgilePlusWorld) {
 
 #[then(expr = "a PR is created with title containing {string}")]
 async fn pr_created_with_title(world: &mut AgilePlusWorld, title_part: String) {
-    let pr_exists = world
-        .storage
-        .work_packages
-        .values()
-        .flatten()
-        .any(|wp| {
-            wp.pr_url
-                .as_ref()
-                .map(|u| u.contains("pull"))
-                .unwrap_or(false)
-        });
+    let pr_exists = world.storage.work_packages.values().flatten().any(|wp| {
+        wp.pr_url
+            .as_ref()
+            .map(|u| u.contains("pull"))
+            .unwrap_or(false)
+    });
     assert!(
         pr_exists,
         "Expected PR to be created for WP containing '{title_part}'"
@@ -847,12 +833,7 @@ async fn validation_fails(world: &mut AgilePlusWorld) {
 #[then(expr = "the feature transitions to {string}")]
 async fn feature_transitions_to(world: &mut AgilePlusWorld, state: String) {
     let expected = parse_feature_state(&state);
-    let feature = world
-        .storage
-        .features
-        .values()
-        .next()
-        .expect("No features");
+    let feature = world.storage.features.values().next().expect("No features");
     assert_eq!(
         feature.state, expected,
         "Expected feature to be in state {state}"
@@ -947,10 +928,7 @@ async fn first_entry_has_transition(world: &mut AgilePlusWorld, transition: Stri
 async fn verification_fails_empty_chain(world: &mut AgilePlusWorld) {
     let result = world.last_result.as_ref().expect("No result");
     let err = result.as_ref().unwrap_err();
-    assert_eq!(
-        err, "EmptyChain",
-        "Expected EmptyChain error, got: {err}"
-    );
+    assert_eq!(err, "EmptyChain", "Expected EmptyChain error, got: {err}");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -961,8 +939,7 @@ async fn verification_fails_empty_chain(world: &mut AgilePlusWorld) {
 async fn main() {
     // Resolve the features path relative to the workspace root (CARGO_MANIFEST_DIR
     // is set to the crate root, which is `tests/bdd/`; features are two levels up).
-    let features_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("features");
+    let features_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("features");
 
     AgilePlusWorld::cucumber()
         .with_default_cli()

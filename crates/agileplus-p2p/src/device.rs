@@ -218,6 +218,9 @@ mod tests {
         };
         store.insert_device(&device).unwrap();
         let result = store.insert_device(&device);
-        assert!(matches!(result, Err(ConnectionError::ConflictingRegistration)));
+        assert!(matches!(
+            result,
+            Err(ConnectionError::ConflictingRegistration)
+        ));
     }
 }

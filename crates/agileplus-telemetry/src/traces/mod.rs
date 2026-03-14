@@ -93,7 +93,11 @@ where
             .with_endpoint(&endpoint)
             .build()
             .ok()?;
-        Some(SdkTracerProvider::builder().with_batch_exporter(exporter).build())
+        Some(
+            SdkTracerProvider::builder()
+                .with_batch_exporter(exporter)
+                .build(),
+        )
     })()
     .unwrap_or_else(SdkTracerProvider::default);
 
@@ -126,19 +130,12 @@ pub fn create_command_span(command_name: &str, feature_slug: Option<&str>) -> tr
             { ATTR_COMMAND } = command_name,
             { ATTR_FEATURE_SLUG } = slug,
         ),
-        None => tracing::info_span!(
-            "agileplus.command",
-            { ATTR_COMMAND } = command_name,
-        ),
+        None => tracing::info_span!("agileplus.command", { ATTR_COMMAND } = command_name,),
     }
 }
 
 /// Create an agent-dispatch span as a child of `parent`.
-pub fn create_agent_span(
-    parent: &tracing::Span,
-    wp_id: &str,
-    agent_type: &str,
-) -> tracing::Span {
+pub fn create_agent_span(parent: &tracing::Span, wp_id: &str, agent_type: &str) -> tracing::Span {
     let _guard = parent.enter();
     tracing::info_span!(
         "agileplus.agent",
@@ -150,10 +147,7 @@ pub fn create_agent_span(
 /// Create a review-loop iteration span as a child of `parent`.
 pub fn create_review_span(parent: &tracing::Span, cycle: u32) -> tracing::Span {
     let _guard = parent.enter();
-    tracing::info_span!(
-        "agileplus.review",
-        { ATTR_REVIEW_CYCLE } = cycle,
-    )
+    tracing::info_span!("agileplus.review", { ATTR_REVIEW_CYCLE } = cycle,)
 }
 
 /// Add a named event with key-value attributes to an existing span.
@@ -162,10 +156,7 @@ pub fn create_review_span(parent: &tracing::Span, cycle: u32) -> tracing::Span {
 pub fn record_span_event(span: &tracing::Span, name: &str, attributes: &[(String, String)]) {
     let _guard = span.enter();
     // Build a KV string for the event fields.
-    let fields: Vec<String> = attributes
-        .iter()
-        .map(|(k, v)| format!("{k}={v}"))
-        .collect();
+    let fields: Vec<String> = attributes.iter().map(|(k, v)| format!("{k}={v}")).collect();
     tracing::info!(event = name, fields = ?fields);
 }
 

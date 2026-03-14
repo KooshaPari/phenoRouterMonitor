@@ -8,10 +8,12 @@
 use axum::extract::{Path, State};
 use axum::routing::{get, post};
 use axum::{Json, Router};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use agileplus_domain::domain::audit::AuditChain;
-use agileplus_domain::ports::{observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort};
+use agileplus_domain::ports::{
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+};
 
 use crate::error::ApiError;
 use crate::responses::AuditEntryResponse;
@@ -81,7 +83,9 @@ where
         .await
         .map_err(ApiError::from)?;
 
-    let chain = AuditChain { entries: trail.clone() };
+    let chain = AuditChain {
+        entries: trail.clone(),
+    };
     match chain.verify_chain() {
         Ok(()) => Ok(Json(json!({
             "feature_slug": slug,

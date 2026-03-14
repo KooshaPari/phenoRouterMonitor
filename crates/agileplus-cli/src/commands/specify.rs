@@ -10,7 +10,7 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 use sha2::{Digest, Sha256};
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
@@ -62,15 +62,7 @@ where
         .context("checking for existing feature")?;
 
     if let Some(existing_feature) = existing {
-        run_refinement(
-            existing_feature,
-            &slug,
-            &spec_content,
-            &args,
-            storage,
-            vcs,
-        )
-        .await?;
+        run_refinement(existing_feature, &slug, &spec_content, &args, storage, vcs).await?;
     } else {
         run_create(
             &slug,
@@ -105,12 +97,18 @@ async fn gather_spec<S: StoragePort>(
             .map(|l| l.trim_start_matches("# Specification:").trim().to_string())
             .unwrap_or_else(|| "Unnamed Feature".to_string());
 
-        let slug = args.feature.clone().unwrap_or_else(|| Feature::slug_from_name(&friendly_name));
+        let slug = args
+            .feature
+            .clone()
+            .unwrap_or_else(|| Feature::slug_from_name(&friendly_name));
         Ok((slug, friendly_name, content))
     } else {
         // Interactive stdin interview
         let (friendly_name, spec_content) = run_interview()?;
-        let slug = args.feature.clone().unwrap_or_else(|| Feature::slug_from_name(&friendly_name));
+        let slug = args
+            .feature
+            .clone()
+            .unwrap_or_else(|| Feature::slug_from_name(&friendly_name));
         Ok((slug, friendly_name, spec_content))
     }
 }
@@ -146,7 +144,9 @@ fn run_interview() -> Result<(String, String)> {
     let mut frs = Vec::new();
     let mut fr_idx = 1;
     loop {
-        let fr = read_line_prompt(&format!("Functional requirement FR-{fr_idx} (leave empty to stop)"))?;
+        let fr = read_line_prompt(&format!(
+            "Functional requirement FR-{fr_idx} (leave empty to stop)"
+        ))?;
         if fr.is_empty() {
             break;
         }
@@ -263,10 +263,7 @@ async fn run_refinement<S: StoragePort, V: VcsPort>(
     }
 
     // Read old spec
-    let old_spec = vcs
-        .read_artifact(slug, "spec.md")
-        .await
-        .unwrap_or_default();
+    let old_spec = vcs.read_artifact(slug, "spec.md").await.unwrap_or_default();
 
     if old_spec == new_spec_content {
         println!("No changes to spec for '{slug}'.");
@@ -310,8 +307,8 @@ async fn run_refinement<S: StoragePort, V: VcsPort>(
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage
@@ -364,7 +361,12 @@ async fn get_latest_hash<S: StoragePort>(storage: &S, feature_id: i64) -> [u8; 3
 }
 
 /// Build a new audit entry with proper hash.
-fn build_audit_entry(feature_id: i64, actor: &str, transition: &str, prev_hash: [u8; 32]) -> AuditEntry {
+fn build_audit_entry(
+    feature_id: i64,
+    actor: &str,
+    transition: &str,
+    prev_hash: [u8; 32],
+) -> AuditEntry {
     let mut entry = AuditEntry {
         id: 0,
         feature_id,
@@ -375,8 +377,8 @@ fn build_audit_entry(feature_id: i64, actor: &str, transition: &str, prev_hash: 
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     entry.hash = hash_entry(&entry);
     entry

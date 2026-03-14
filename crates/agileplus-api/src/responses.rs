@@ -193,12 +193,10 @@ impl DetailedHealthResponse {
     /// Build a basic healthy response (used when no external services are wired up).
     pub fn basic(uptime_seconds: u64) -> Self {
         use std::collections::HashMap;
-        let services: HashMap<String, ServiceHealth> = [
-            ("sqlite", ServiceHealth::healthy(0)),
-        ]
-        .into_iter()
-        .map(|(k, v)| (k.to_string(), v))
-        .collect();
+        let services: HashMap<String, ServiceHealth> = [("sqlite", ServiceHealth::healthy(0))]
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect();
 
         Self {
             status: "healthy".to_string(),
@@ -212,7 +210,9 @@ impl DetailedHealthResponse {
     }
 
     /// Derive overall status from individual service statuses.
-    pub fn compute_status(services: &std::collections::HashMap<String, ServiceHealth>) -> &'static str {
+    pub fn compute_status(
+        services: &std::collections::HashMap<String, ServiceHealth>,
+    ) -> &'static str {
         if services.values().any(|s| s.status == "unavailable") {
             return "unavailable";
         }

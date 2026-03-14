@@ -6,9 +6,9 @@
 use std::path::{Path, PathBuf};
 
 use agileplus_domain::{error::DomainError, ports::WorktreeInfo};
-use git2::{WorktreeAddOptions};
+use git2::WorktreeAddOptions;
 
-use crate::{git_err, GitVcsAdapter};
+use crate::{GitVcsAdapter, git_err};
 
 /// Worktree directory name relative to repo root.
 fn worktree_name(feature_slug: &str, wp_id: &str) -> String {
@@ -44,9 +44,9 @@ pub(crate) fn create_worktree(
     // Create branch (ignore if already exists).
     let branch = match repo.branch(&name, &head_commit, false) {
         Ok(b) => b,
-        Err(e) if e.code() == git2::ErrorCode::Exists => {
-            repo.find_branch(&name, git2::BranchType::Local).map_err(git_err)?
-        }
+        Err(e) if e.code() == git2::ErrorCode::Exists => repo
+            .find_branch(&name, git2::BranchType::Local)
+            .map_err(git_err)?,
         Err(e) => return Err(git_err(e)),
     };
 
@@ -61,8 +61,7 @@ pub(crate) fn create_worktree(
     repo.worktree(&name, &path, Some(&opts))
         .map_err(|e| DomainError::Vcs(format!("create worktree '{name}': {e}")))?;
 
-    let canonical = std::fs::canonicalize(&path)
-        .unwrap_or(path);
+    let canonical = std::fs::canonicalize(&path).unwrap_or(path);
 
     Ok(canonical)
 }
@@ -136,10 +135,9 @@ pub(crate) fn cleanup_worktree(
 ) -> Result<(), DomainError> {
     // Safety check: path must be under .worktrees/.
     let worktrees_dir = adapter.repo_path().join(".worktrees");
-    let canonical_path = std::fs::canonicalize(worktree_path)
-        .unwrap_or_else(|_| worktree_path.to_path_buf());
-    let canonical_wt_dir = std::fs::canonicalize(&worktrees_dir)
-        .unwrap_or(worktrees_dir);
+    let canonical_path =
+        std::fs::canonicalize(worktree_path).unwrap_or_else(|_| worktree_path.to_path_buf());
+    let canonical_wt_dir = std::fs::canonicalize(&worktrees_dir).unwrap_or(worktrees_dir);
 
     if !canonical_path.starts_with(&canonical_wt_dir) {
         return Err(DomainError::Vcs(format!(
@@ -159,8 +157,8 @@ pub(crate) fn cleanup_worktree(
             None => continue,
         };
         if let Ok(wt) = repo.find_worktree(name) {
-            let wt_canonical = std::fs::canonicalize(wt.path())
-                .unwrap_or_else(|_| PathBuf::from(wt.path()));
+            let wt_canonical =
+                std::fs::canonicalize(wt.path()).unwrap_or_else(|_| PathBuf::from(wt.path()));
             if wt_canonical == canonical_path {
                 found_name = Some(name.to_string());
                 break;

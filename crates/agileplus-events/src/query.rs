@@ -79,28 +79,44 @@ impl EventQuery {
             .iter()
             .filter(|e| {
                 if let Some(ref et) = self.entity_type {
-                    if e.entity_type != *et { return false; }
+                    if e.entity_type != *et {
+                        return false;
+                    }
                 }
                 if let Some(id) = self.entity_id {
-                    if e.entity_id != id { return false; }
+                    if e.entity_id != id {
+                        return false;
+                    }
                 }
                 if let Some(ref et) = self.event_type {
-                    if e.event_type != *et { return false; }
+                    if e.event_type != *et {
+                        return false;
+                    }
                 }
                 if let Some(ref a) = self.actor {
-                    if e.actor != *a { return false; }
+                    if e.actor != *a {
+                        return false;
+                    }
                 }
                 if let Some(from) = self.from_time {
-                    if e.timestamp < from { return false; }
+                    if e.timestamp < from {
+                        return false;
+                    }
                 }
                 if let Some(to) = self.to_time {
-                    if e.timestamp > to { return false; }
+                    if e.timestamp > to {
+                        return false;
+                    }
                 }
                 if let Some(from) = self.from_sequence {
-                    if e.sequence < from { return false; }
+                    if e.sequence < from {
+                        return false;
+                    }
                 }
                 if let Some(to) = self.to_sequence {
-                    if e.sequence > to { return false; }
+                    if e.sequence > to {
+                        return false;
+                    }
                 }
                 true
             })
@@ -116,10 +132,16 @@ mod tests {
 
     fn make_event(seq: i64, entity_type: &str, event_type: &str, actor: &str) -> Event {
         Event {
-            id: seq, entity_type: entity_type.into(), entity_id: 1,
-            event_type: event_type.into(), payload: serde_json::json!({}),
-            actor: actor.into(), timestamp: chrono::Utc::now(),
-            prev_hash: [0u8; 32], hash: [0u8; 32], sequence: seq,
+            id: seq,
+            entity_type: entity_type.into(),
+            entity_id: 1,
+            event_type: event_type.into(),
+            payload: serde_json::json!({}),
+            actor: actor.into(),
+            timestamp: chrono::Utc::now(),
+            prev_hash: [0u8; 32],
+            hash: [0u8; 32],
+            sequence: seq,
         }
     }
 
@@ -162,7 +184,10 @@ mod tests {
             make_event(2, "F", "c", "a"),
             make_event(3, "F", "c", "a"),
         ];
-        let result = EventQuery::new().from_sequence(2).to_sequence(2).filter(&events);
+        let result = EventQuery::new()
+            .from_sequence(2)
+            .to_sequence(2)
+            .filter(&events);
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].sequence, 2);
     }

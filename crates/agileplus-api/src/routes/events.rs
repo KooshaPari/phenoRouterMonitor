@@ -15,7 +15,9 @@ use axum::{Json, Router};
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 
-use agileplus_domain::ports::{observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort};
+use agileplus_domain::ports::{
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+};
 
 use crate::error::ApiError;
 use crate::state::AppState;
@@ -129,7 +131,10 @@ where
     let until_dt: Option<DateTime<Utc>> = params
         .until
         .as_deref()
-        .map(|s| s.parse::<DateTime<Utc>>().map_err(|e| ApiError::BadRequest(format!("invalid until: {e}"))))
+        .map(|s| {
+            s.parse::<DateTime<Utc>>()
+                .map_err(|e| ApiError::BadRequest(format!("invalid until: {e}")))
+        })
         .transpose()?;
 
     let filtered: Vec<EventResponse> = events

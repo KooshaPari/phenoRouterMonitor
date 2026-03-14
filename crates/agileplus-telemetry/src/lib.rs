@@ -24,11 +24,7 @@ use opentelemetry::metrics::MeterProvider as _MeterProvider;
 use opentelemetry_sdk::metrics::SdkMeterProvider;
 use tracing_appender::non_blocking::WorkerGuard;
 
-use crate::{
-    config::TelemetryConfig,
-    logs::LogError,
-    metrics::MetricsRecorder,
-};
+use crate::{config::TelemetryConfig, logs::LogError, metrics::MetricsRecorder};
 
 // ---------------------------------------------------------------------------
 // Error
@@ -199,10 +195,7 @@ impl ObservabilityPort for TelemetryAdapter {
         if self.noop {
             return;
         }
-        let fields: Vec<String> = attributes
-            .iter()
-            .map(|(k, v)| format!("{k}={v}"))
-            .collect();
+        let fields: Vec<String> = attributes.iter().map(|(k, v)| format!("{k}={v}")).collect();
         tracing::info!(
             span_id = %ctx.span_id,
             event = name,
@@ -359,9 +352,9 @@ fn noop_span_context() -> SpanContext {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use agileplus_domain::ports::observability::LogEntry;
+    use std::collections::HashMap;
 
     #[test]
     fn noop_adapter_does_not_panic() {

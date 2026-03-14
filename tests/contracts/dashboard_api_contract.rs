@@ -8,8 +8,8 @@ use agileplus_api::responses::{FeatureResponse, WorkPackageResponse};
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::WorkPackage;
-use axum::response::IntoResponse;
 use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use chrono::Utc;
 
 // ---------------------------------------------------------------------------
@@ -117,7 +117,11 @@ fn contract_work_package_response_has_required_fields() {
 fn contract_work_package_response_state_lowercase() {
     let wp = make_wp(10, "WP");
     let resp = WorkPackageResponse::from(wp);
-    assert_eq!(resp.state, resp.state.to_lowercase(), "state must be lowercase");
+    assert_eq!(
+        resp.state,
+        resp.state.to_lowercase(),
+        "state must be lowercase"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -185,6 +189,10 @@ fn contract_timestamps_are_rfc3339() {
     let feature = make_feature("ts-test", FeatureState::Created);
     let resp = FeatureResponse::from(feature);
     // RFC3339 timestamps can be parsed by chrono.
-    resp.created_at.parse::<chrono::DateTime<chrono::Utc>>().expect("created_at is RFC3339");
-    resp.updated_at.parse::<chrono::DateTime<chrono::Utc>>().expect("updated_at is RFC3339");
+    resp.created_at
+        .parse::<chrono::DateTime<chrono::Utc>>()
+        .expect("created_at is RFC3339");
+    resp.updated_at
+        .parse::<chrono::DateTime<chrono::Utc>>()
+        .expect("updated_at is RFC3339");
 }

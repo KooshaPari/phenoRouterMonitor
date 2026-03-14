@@ -76,9 +76,18 @@ async fn contract_get_events_ordered_by_sequence_ascending() {
 #[tokio::test]
 async fn contract_get_events_scoped_to_entity() {
     let store = make_adapter();
-    store.append(&make_event("Feature", 1, "Created", 1)).await.unwrap();
-    store.append(&make_event("Feature", 2, "Created", 1)).await.unwrap();
-    store.append(&make_event("WorkPackage", 1, "Created", 1)).await.unwrap();
+    store
+        .append(&make_event("Feature", 1, "Created", 1))
+        .await
+        .unwrap();
+    store
+        .append(&make_event("Feature", 2, "Created", 1))
+        .await
+        .unwrap();
+    store
+        .append(&make_event("WorkPackage", 1, "Created", 1))
+        .await
+        .unwrap();
 
     let feature_1_events = store.get_events("Feature", 1).await.unwrap();
     assert_eq!(feature_1_events.len(), 1);
@@ -96,7 +105,10 @@ async fn contract_get_events_scoped_to_entity() {
 #[tokio::test]
 async fn contract_get_events_empty_for_unknown_entity() {
     let store = make_adapter();
-    let events = store.get_events("NonExistent", 9999).await.expect("get_events");
+    let events = store
+        .get_events("NonExistent", 9999)
+        .await
+        .expect("get_events");
     assert!(events.is_empty(), "unknown entity must return empty list");
 }
 
@@ -108,7 +120,10 @@ async fn contract_get_events_empty_for_unknown_entity() {
 async fn contract_get_events_since_is_exclusive() {
     let store = make_adapter();
     for seq in 1..=5 {
-        store.append(&make_event("Feature", 20, "Step", seq)).await.unwrap();
+        store
+            .append(&make_event("Feature", 20, "Step", seq))
+            .await
+            .unwrap();
     }
 
     let since_3 = store.get_events_since("Feature", 20, 3).await.unwrap();
@@ -123,7 +138,10 @@ async fn contract_get_events_since_is_exclusive() {
 #[tokio::test]
 async fn contract_get_latest_sequence_zero_for_empty() {
     let store = make_adapter();
-    let seq = store.get_latest_sequence("Feature", 999).await.expect("latest_sequence");
+    let seq = store
+        .get_latest_sequence("Feature", 999)
+        .await
+        .expect("latest_sequence");
     assert_eq!(seq, 0);
 }
 
@@ -135,7 +153,10 @@ async fn contract_get_latest_sequence_zero_for_empty() {
 async fn contract_get_latest_sequence_reflects_max() {
     let store = make_adapter();
     for seq in 1..=4 {
-        store.append(&make_event("Feature", 30, "Step", seq)).await.unwrap();
+        store
+            .append(&make_event("Feature", 30, "Step", seq))
+            .await
+            .unwrap();
     }
 
     let latest = store.get_latest_sequence("Feature", 30).await.unwrap();
@@ -152,7 +173,10 @@ async fn contract_get_events_by_range_inclusive() {
     let t0 = Utc::now() - chrono::Duration::seconds(10);
     let t1 = Utc::now() + chrono::Duration::seconds(10);
 
-    store.append(&make_event("Feature", 40, "Created", 1)).await.unwrap();
+    store
+        .append(&make_event("Feature", 40, "Created", 1))
+        .await
+        .unwrap();
 
     let events = store
         .get_events_by_range("Feature", 40, t0, t1)
@@ -204,7 +228,10 @@ async fn contract_entity_streams_are_isolated() {
     let store = make_adapter();
     for id in [1i64, 2, 3] {
         for seq in 1..=3 {
-            store.append(&make_event("Feature", id, "Step", seq)).await.unwrap();
+            store
+                .append(&make_event("Feature", id, "Step", seq))
+                .await
+                .unwrap();
         }
     }
 

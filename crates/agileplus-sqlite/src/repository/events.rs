@@ -27,7 +27,10 @@ fn row_to_event(row: &Row<'_>) -> rusqlite::Result<Event> {
             rusqlite::Error::FromSqlConversionFailure(
                 6,
                 rusqlite::types::Type::Text,
-                Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string())),
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    e.to_string(),
+                )),
             )
         })?;
 

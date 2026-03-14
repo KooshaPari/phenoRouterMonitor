@@ -64,9 +64,7 @@ class AgilePlusCoreClient:
                 f"agileplus_proto stubs not found — run `buf generate` first: {exc}"
             ) from exc
         except Exception as exc:
-            raise GrpcConnectionError(
-                f"Failed to connect to {self._address}: {exc}"
-            ) from exc
+            raise GrpcConnectionError(f"Failed to connect to {self._address}: {exc}") from exc
 
     async def close(self) -> None:
         """Close the gRPC channel gracefully."""
@@ -171,9 +169,7 @@ class AgilePlusCoreClient:
         response = await self._call_with_retry(lambda: stub.ListWorkPackages(request))
         return [self._wp_to_dict(wp) for wp in response.packages]
 
-    async def get_work_package_status(
-        self, feature_slug: str, wp_sequence: int
-    ) -> dict[str, Any]:
+    async def get_work_package_status(self, feature_slug: str, wp_sequence: int) -> dict[str, Any]:
         """Get status of a specific work package."""
         from agileplus_proto.gen.agileplus.v1 import core_pb2  # type: ignore[import]
 
@@ -181,18 +177,14 @@ class AgilePlusCoreClient:
         request = core_pb2.GetWorkPackageStatusRequest(
             feature_slug=feature_slug, wp_sequence=wp_sequence
         )
-        response = await self._call_with_retry(
-            lambda: stub.GetWorkPackageStatus(request)
-        )
+        response = await self._call_with_retry(lambda: stub.GetWorkPackageStatus(request))
         return self._wp_to_dict(response.work_package_status)
 
     # ------------------------------------------------------------------
     # Governance RPCs
     # ------------------------------------------------------------------
 
-    async def check_governance_gate(
-        self, feature_slug: str, transition: str
-    ) -> dict[str, Any]:
+    async def check_governance_gate(self, feature_slug: str, transition: str) -> dict[str, Any]:
         """Check whether a governance gate passes for a state transition."""
         from agileplus_proto.gen.agileplus.v1 import core_pb2  # type: ignore[import]
 
@@ -219,9 +211,7 @@ class AgilePlusCoreClient:
         from agileplus_proto.gen.agileplus.v1 import core_pb2  # type: ignore[import]
 
         stub = self._require_stub()
-        request = core_pb2.GetAuditTrailRequest(
-            feature_slug=feature_slug, after_id=after_id
-        )
+        request = core_pb2.GetAuditTrailRequest(feature_slug=feature_slug, after_id=after_id)
         entries = []
         async for response in stub.GetAuditTrail(request):
             entries.append(self._audit_entry_to_dict(response.audit_entry))
@@ -245,7 +235,9 @@ class AgilePlusCoreClient:
     # Command dispatch RPC
     # ------------------------------------------------------------------
 
-    async def run_command(self, command: str, feature_slug: str = "", **kwargs: Any) -> dict[str, Any]:
+    async def run_command(
+        self, command: str, feature_slug: str = "", **kwargs: Any
+    ) -> dict[str, Any]:
         """Dispatch a named command to the Rust core.
 
         Args:

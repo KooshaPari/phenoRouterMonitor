@@ -62,8 +62,18 @@ mod tests {
 
     #[test]
     fn hash_deterministic() {
-        let h1 = compute_content_hash("Title", "Desc", "implementing", &["bug".into(), "feature".into()]);
-        let h2 = compute_content_hash("Title", "Desc", "implementing", &["bug".into(), "feature".into()]);
+        let h1 = compute_content_hash(
+            "Title",
+            "Desc",
+            "implementing",
+            &["bug".into(), "feature".into()],
+        );
+        let h2 = compute_content_hash(
+            "Title",
+            "Desc",
+            "implementing",
+            &["bug".into(), "feature".into()],
+        );
         assert_eq!(h1, h2);
     }
 
@@ -86,7 +96,10 @@ mod tests {
         let baseline = "base";
         let local = "new-local";
         let remote = "base"; // remote unchanged
-        assert_eq!(detect_conflict(baseline, local, remote), ConflictStatus::Clean);
+        assert_eq!(
+            detect_conflict(baseline, local, remote),
+            ConflictStatus::Clean
+        );
     }
 
     #[test]
@@ -94,11 +107,17 @@ mod tests {
         let baseline = "base";
         let local = "new-local";
         let remote = "new-remote";
-        assert_eq!(detect_conflict(baseline, local, remote), ConflictStatus::Conflict);
+        assert_eq!(
+            detect_conflict(baseline, local, remote),
+            ConflictStatus::Conflict
+        );
     }
 
     #[test]
     fn no_conflict_when_both_unchanged() {
-        assert_eq!(detect_conflict("base", "base", "base"), ConflictStatus::Clean);
+        assert_eq!(
+            detect_conflict("base", "base", "base"),
+            ConflictStatus::Clean
+        );
     }
 }

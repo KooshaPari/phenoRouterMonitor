@@ -205,12 +205,9 @@ impl CycleWithFeatures {
     /// A Cycle with no assigned Features is a planning placeholder -- callers may
     /// apply an additional "at least one feature" guard at the service layer.
     pub fn is_shippable(&self) -> bool {
-        self.features.iter().all(|f| {
-            matches!(
-                f.state,
-                FeatureState::Validated | FeatureState::Shipped
-            )
-        })
+        self.features
+            .iter()
+            .all(|f| matches!(f.state, FeatureState::Validated | FeatureState::Shipped))
     }
 }
 
@@ -310,16 +307,21 @@ mod tests {
 
     #[test]
     fn cycle_transition_updates_state() {
-        let mut c = Cycle::new("C", make_date(2026, 1, 1), make_date(2026, 2, 1), None)
-            .expect("valid");
+        let mut c =
+            Cycle::new("C", make_date(2026, 1, 1), make_date(2026, 2, 1), None).expect("valid");
         c.transition(CycleState::Active).expect("Draft->Active ok");
         assert_eq!(c.state, CycleState::Active);
     }
 
     #[test]
     fn cycle_new_with_scope() {
-        let c = Cycle::new("Scoped", make_date(2026, 1, 1), make_date(2026, 2, 1), Some(7))
-            .expect("valid");
+        let c = Cycle::new(
+            "Scoped",
+            make_date(2026, 1, 1),
+            make_date(2026, 2, 1),
+            Some(7),
+        )
+        .expect("valid");
         assert_eq!(c.module_scope_id, Some(7));
     }
 
@@ -339,8 +341,8 @@ mod tests {
     // --- is_shippable tests ---
 
     fn make_cycle_with_features(features: Vec<Feature>) -> CycleWithFeatures {
-        let cycle = Cycle::new("C", make_date(2026, 1, 1), make_date(2026, 2, 1), None)
-            .expect("valid");
+        let cycle =
+            Cycle::new("C", make_date(2026, 1, 1), make_date(2026, 2, 1), None).expect("valid");
         CycleWithFeatures {
             cycle,
             features,

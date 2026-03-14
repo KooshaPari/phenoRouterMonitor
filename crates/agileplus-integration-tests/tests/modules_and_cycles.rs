@@ -47,11 +47,7 @@ async fn store_feature(storage: &SqliteStorageAdapter, slug: &str, name: &str) -
 }
 
 /// Persist a `Module` via StoragePort and return its assigned ID.
-async fn store_module(
-    storage: &SqliteStorageAdapter,
-    name: &str,
-    parent_id: Option<i64>,
-) -> i64 {
+async fn store_module(storage: &SqliteStorageAdapter, name: &str, parent_id: Option<i64>) -> i64 {
     let m = Module::new(name, parent_id);
     storage
         .create_module(&m)
@@ -602,7 +598,10 @@ async fn feature_without_module_id_can_be_created() {
         .expect("get_feature_by_id should succeed")
         .expect("feature should exist");
 
-    assert_eq!(feat.module_id, None, "new feature must have no module_id by default");
+    assert_eq!(
+        feat.module_id, None,
+        "new feature must have no module_id by default"
+    );
 }
 
 /// A feature without a module_id appears in `list_all_features` normally.
@@ -620,7 +619,10 @@ async fn feature_without_module_id_lists_normally() {
         .expect("list_all_features should succeed");
 
     let found = all.iter().any(|f| f.id == feature_id);
-    assert!(found, "feature without module_id must appear in list_all_features");
+    assert!(
+        found,
+        "feature without module_id must appear in list_all_features"
+    );
 }
 
 /// A feature without a module_id can be added to an unscoped cycle.
@@ -682,7 +684,10 @@ async fn existing_feature_transitions_work_without_module_id() {
         .expect("feature should exist");
 
     assert_eq!(feat.state, FeatureState::Specified);
-    assert_eq!(feat.module_id, None, "module_id should remain None after transition");
+    assert_eq!(
+        feat.module_id, None,
+        "module_id should remain None after transition"
+    );
 }
 
 // ===========================================================================
@@ -817,10 +822,7 @@ async fn delete_module_with_children_requires_reparenting_first() {
 
     // Delete parent must fail.
     let result = storage.delete_module(parent_id).await;
-    assert!(
-        result.is_err(),
-        "deleting parent with children must fail"
-    );
+    assert!(result.is_err(), "deleting parent with children must fail");
 
     // Delete child first, then parent should succeed.
     storage
@@ -890,7 +892,12 @@ async fn cycle_date_constraint_rejected() {
     );
 
     // end_date before start_date is also invalid.
-    let result2 = Cycle::new("Bad Date Cycle 2", date(2026, 6, 10), date(2026, 6, 1), None);
+    let result2 = Cycle::new(
+        "Bad Date Cycle 2",
+        date(2026, 6, 10),
+        date(2026, 6, 1),
+        None,
+    );
     assert!(
         result2.is_err(),
         "Cycle::new with end_date before start_date must fail"

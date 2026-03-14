@@ -6,7 +6,9 @@ use std::sync::Arc;
 
 use agileplus_domain::config::AppConfig;
 use agileplus_domain::credentials::CredentialStore;
-use agileplus_domain::ports::{observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort};
+use agileplus_domain::ports::{
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+};
 use tokio::sync::broadcast;
 
 /// Broadcast channel capacity for SSE event streaming.

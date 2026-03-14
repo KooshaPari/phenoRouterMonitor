@@ -22,8 +22,7 @@ pub enum GraphError {
 #[async_trait]
 pub trait GraphBackend: Send + Sync {
     async fn run_cypher(&self, query: &str, params: &Value) -> Result<(), GraphError>;
-    async fn query_cypher(&self, query: &str, params: &Value)
-        -> Result<Vec<Value>, GraphError>;
+    async fn query_cypher(&self, query: &str, params: &Value) -> Result<Vec<Value>, GraphError>;
     async fn health_check(&self) -> Result<(), GraphError>;
 }
 
@@ -243,11 +242,7 @@ impl GraphBackend for InMemoryBackend {
         Ok(())
     }
 
-    async fn query_cypher(
-        &self,
-        query: &str,
-        params: &Value,
-    ) -> Result<Vec<Value>, GraphError> {
+    async fn query_cypher(&self, query: &str, params: &Value) -> Result<Vec<Value>, GraphError> {
         let q = query.trim();
 
         // MATCH (f:Feature {id: $id}) RETURN f
@@ -264,8 +259,7 @@ impl GraphBackend for InMemoryBackend {
         }
 
         // MATCH (w:WorkPackage {id: $id}) RETURN w
-        if q.contains("MATCH (w:WorkPackage {id:") && q.contains("RETURN w") && !q.contains("->")
-        {
+        if q.contains("MATCH (w:WorkPackage {id:") && q.contains("RETURN w") && !q.contains("->") {
             let nodes = self.nodes.lock().unwrap();
             if let Some(list) = nodes.get("WorkPackage") {
                 for node in list {

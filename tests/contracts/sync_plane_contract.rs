@@ -8,7 +8,7 @@ use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_plane::client::{PlaneIssue, PlaneIssueResponse};
 use agileplus_plane::labels::PlaneLabel;
-use agileplus_plane::state_mapper::{PlaneStateMapper, PlaneStateMapperConfig, PlaneStateGroup};
+use agileplus_plane::state_mapper::{PlaneStateGroup, PlaneStateMapper, PlaneStateMapperConfig};
 
 // ---------------------------------------------------------------------------
 // Contract: PlaneStateMapper — AgilePlus state → Plane state group
@@ -90,9 +90,18 @@ fn contract_plane_unknown_group_is_handled_gracefully() {
 
 #[test]
 fn contract_plane_state_group_parsing_case_insensitive() {
-    assert_eq!(PlaneStateGroup::from_str("BACKLOG"), PlaneStateGroup::Backlog);
-    assert_eq!(PlaneStateGroup::from_str("Started"), PlaneStateGroup::Started);
-    assert_eq!(PlaneStateGroup::from_str("COMPLETED"), PlaneStateGroup::Completed);
+    assert_eq!(
+        PlaneStateGroup::from_str("BACKLOG"),
+        PlaneStateGroup::Backlog
+    );
+    assert_eq!(
+        PlaneStateGroup::from_str("Started"),
+        PlaneStateGroup::Started
+    );
+    assert_eq!(
+        PlaneStateGroup::from_str("COMPLETED"),
+        PlaneStateGroup::Completed
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -165,7 +174,11 @@ fn contract_plane_issue_built_from_feature_preserves_name() {
     // Simulate what OutboundSync.push_feature does when building the issue.
     let mapper = default_mapper();
     let (_group, state_id) = mapper.to_plane(feature.state);
-    let state_opt = if state_id.is_empty() { None } else { Some(state_id) };
+    let state_opt = if state_id.is_empty() {
+        None
+    } else {
+        Some(state_id)
+    };
 
     let issue = PlaneIssue {
         id: None,
@@ -188,7 +201,10 @@ fn contract_feature_with_plane_id_produces_update_not_create() {
 
     // Contract: if plane_issue_id is Some, the sync adapter must use PATCH (update),
     // not POST (create). Verified by checking the optional id field is treated correctly.
-    assert!(feature.plane_issue_id.is_some(), "plane_issue_id must be propagated");
+    assert!(
+        feature.plane_issue_id.is_some(),
+        "plane_issue_id must be propagated"
+    );
 }
 
 // ---------------------------------------------------------------------------

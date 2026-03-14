@@ -45,9 +45,7 @@ def register_tools(mcp: FastMCP, client: AgilePlusCoreClient) -> None:
         }
 
     @mcp.tool(name="agileplus_check_governance_gate")
-    async def check_governance_gate(
-        feature_slug: str, transition: str
-    ) -> dict[str, Any]:
+    async def check_governance_gate(feature_slug: str, transition: str) -> dict[str, Any]:
         """Check whether a governance gate passes for a planned state transition.
 
         Args:

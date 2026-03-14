@@ -3,7 +3,7 @@
 //! Provides CRUD and association management for Module entities.
 //! Traces to: FR-M01, FR-M02, FR-M04, FR-M07 / WP03-T014..T018
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 
 use agileplus_domain::domain::module::{Module, ModuleFeatureTag};
 use agileplus_domain::error::DomainError;
@@ -163,7 +163,10 @@ async fn run_create<S: StoragePort>(args: CreateArgs, storage: &S) -> Result<()>
         .await
         .context("persisting new module")?;
 
-    println!("Module '{}' created (id={}, slug={}).", module.friendly_name, id, module.slug);
+    println!(
+        "Module '{}' created (id={}, slug={}).",
+        module.friendly_name, id, module.slug
+    );
     if let Some(pid) = parent_module_id {
         println!("  Parent module id: {pid}");
     }
@@ -236,7 +239,10 @@ fn print_module_tree<'a, S: StoragePort>(
     Box::pin(async move {
         let indent = "  ".repeat(depth);
         let connector = if depth == 0 { "" } else { "+-- " };
-        println!("{indent}{connector}{} (slug: {})", module.friendly_name, module.slug);
+        println!(
+            "{indent}{connector}{} (slug: {})",
+            module.friendly_name, module.slug
+        );
 
         let children = storage
             .list_child_modules(module.id)
@@ -262,7 +268,10 @@ fn print_children_flat<'a, S: StoragePort>(
             .context("listing child modules")?;
 
         for child in &children {
-            println!("  {} (slug: {}, parent_id: {})", child.friendly_name, child.slug, parent_id);
+            println!(
+                "  {} (slug: {}, parent_id: {})",
+                child.friendly_name, child.slug, parent_id
+            );
             print_children_flat(storage, child.id).await?;
         }
         Ok(())
@@ -282,15 +291,24 @@ async fn run_show<S: StoragePort>(args: ShowArgs, storage: &S) -> Result<()> {
         .context("loading module details")?
         .ok_or_else(|| anyhow!("module '{}' disappeared during load", args.slug))?;
 
-    println!("Module: {} (slug: {})", details.module.friendly_name, details.module.slug);
+    println!(
+        "Module: {} (slug: {})",
+        details.module.friendly_name, details.module.slug
+    );
     if let Some(ref desc) = details.module.description {
         println!("  Description: {desc}");
     }
     if let Some(pid) = details.module.parent_module_id {
         println!("  Parent module id: {pid}");
     }
-    println!("  Created: {}", details.module.created_at.format("%Y-%m-%d %H:%M UTC"));
-    println!("  Updated: {}", details.module.updated_at.format("%Y-%m-%d %H:%M UTC"));
+    println!(
+        "  Created: {}",
+        details.module.created_at.format("%Y-%m-%d %H:%M UTC")
+    );
+    println!(
+        "  Updated: {}",
+        details.module.updated_at.format("%Y-%m-%d %H:%M UTC")
+    );
 
     println!();
     println!("Owned features ({}):", details.owned_features.len());
@@ -376,7 +394,10 @@ async fn run_tag<S: StoragePort>(args: TagArgs, storage: &S) -> Result<()> {
         .await
         .context("tagging feature to module")?;
 
-    println!("Feature '{}' tagged to module '{}'.", args.feature, args.module);
+    println!(
+        "Feature '{}' tagged to module '{}'.",
+        args.feature, args.module
+    );
     Ok(())
 }
 
@@ -398,7 +419,10 @@ async fn run_untag<S: StoragePort>(args: UntagArgs, storage: &S) -> Result<()> {
         .await
         .context("removing feature tag from module")?;
 
-    println!("Feature '{}' untagged from module '{}'.", args.feature, args.module);
+    println!(
+        "Feature '{}' untagged from module '{}'.",
+        args.feature, args.module
+    );
     Ok(())
 }
 
@@ -438,8 +462,14 @@ mod tests {
     #[test]
     fn parse_create_full() {
         let cmd = parse(&[
-            "cli", "create", "--name", "Auth", "--description", "Authentication module",
-            "--parent", "platform",
+            "cli",
+            "create",
+            "--name",
+            "Auth",
+            "--description",
+            "Authentication module",
+            "--parent",
+            "platform",
         ]);
         match cmd {
             ModuleCommand::Create(a) => {

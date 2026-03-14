@@ -361,10 +361,7 @@ pub fn get_module_with_features(
 // ---------------------------------------------------------------------------
 
 /// Tag a feature to a module. Idempotent (INSERT OR IGNORE).
-pub fn tag_feature_to_module(
-    conn: &Connection,
-    tag: &ModuleFeatureTag,
-) -> Result<(), DomainError> {
+pub fn tag_feature_to_module(conn: &Connection, tag: &ModuleFeatureTag) -> Result<(), DomainError> {
     let now = chrono::Utc::now().to_rfc3339();
     conn.execute(
         "INSERT OR IGNORE INTO module_feature_tags (module_id, feature_id, created_at)

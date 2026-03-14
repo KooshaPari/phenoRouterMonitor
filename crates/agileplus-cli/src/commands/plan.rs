@@ -8,7 +8,7 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
 
-use agileplus_domain::domain::audit::{hash_entry, AuditEntry};
+use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
 use agileplus_domain::domain::governance::{
     EvidenceRequirement, EvidenceType, GovernanceContract, GovernanceRule,
 };
@@ -16,8 +16,8 @@ use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::{DependencyType, WorkPackage, WpDependency};
 use agileplus_domain::ports::{StoragePort, VcsPort};
 
-use super::scope::{build_overlap_graph, detect_file_scope};
 use super::scheduler::Scheduler;
+use super::scope::{build_overlap_graph, detect_file_scope};
 
 /// Arguments for the `plan` subcommand.
 #[derive(Debug, clap::Args)]
@@ -143,13 +143,20 @@ where
         // Lower sequence depends on higher; higher depends on lower
         let a = persisted_wps.iter().find(|w| w.id == *a_id).unwrap();
         let b = persisted_wps.iter().find(|w| w.id == *b_id).unwrap();
-        let (earlier, later) = if a.sequence <= b.sequence { (a, b) } else { (b, a) };
+        let (earlier, later) = if a.sequence <= b.sequence {
+            (a, b)
+        } else {
+            (b, a)
+        };
         let dep = WpDependency {
             wp_id: later.id,
             depends_on: earlier.id,
             dep_type: DependencyType::FileOverlap,
         };
-        storage.add_wp_dependency(&dep).await.context("adding wp dependency")?;
+        storage
+            .add_wp_dependency(&dep)
+            .await
+            .context("adding wp dependency")?;
         deps.push(dep);
     }
 
@@ -157,7 +164,9 @@ where
     let wp_states: std::collections::HashMap<i64, agileplus_domain::domain::work_package::WpState> =
         persisted_wps.iter().map(|w| (w.id, w.state)).collect();
     let scheduler = Scheduler::new(wp_states, deps.clone());
-    let waves = scheduler.execution_plan().map_err(|e| anyhow::anyhow!("dependency cycle: {e}"))?;
+    let waves = scheduler
+        .execution_plan()
+        .map_err(|e| anyhow::anyhow!("dependency cycle: {e}"))?;
 
     // Generate plan.md
     let plan_content = generate_plan_md(slug, &persisted_wps, &deps, &waves);
@@ -176,8 +185,8 @@ where
 
     // Create governance contract
     let contract = build_governance_contract(feature.id, &persisted_wps);
-    let contract_json = serde_json::to_string_pretty(&contract)
-        .context("serializing governance contract")?;
+    let contract_json =
+        serde_json::to_string_pretty(&contract).context("serializing governance contract")?;
     vcs.write_artifact(slug, "contracts/governance-v1.json", &contract_json)
         .await
         .context("writing governance contract artifact")?;
@@ -204,8 +213,8 @@ where
         evidence_refs: vec![],
         prev_hash,
         hash: [0u8; 32],
-            event_id: None,
-            archived_to: None,
+        event_id: None,
+        archived_to: None,
     };
     audit.hash = hash_entry(&audit);
     storage
@@ -299,11 +308,10 @@ fn group_frs_into_wps(
     if frs.is_empty() {
         return Vec::new();
     }
-    let target_per_wp = ((frs.len() as f64) / (max_wps as f64).min(frs.len() as f64)).ceil() as usize;
+    let target_per_wp =
+        ((frs.len() as f64) / (max_wps as f64).min(frs.len() as f64)).ceil() as usize;
     let per_wp = target_per_wp.clamp(3, 7);
-    frs.chunks(per_wp)
-        .map(|chunk| chunk.to_vec())
-        .collect()
+    frs.chunks(per_wp).map(|chunk| chunk.to_vec()).collect()
 }
 
 /// Derive a human-readable WP title from a group of FRs.
@@ -320,7 +328,13 @@ fn derive_wp_title(frs: &[FunctionalRequirement], index: usize) -> String {
 /// Slugify a string for use in file paths.
 fn slugify(s: &str) -> String {
     s.chars()
-        .map(|c| if c.is_alphanumeric() { c.to_ascii_lowercase() } else { '-' })
+        .map(|c| {
+            if c.is_alphanumeric() {
+                c.to_ascii_lowercase()
+            } else {
+                '-'
+            }
+        })
         .collect::<String>()
         .split('-')
         .filter(|p| !p.is_empty())
@@ -396,7 +410,11 @@ fn generate_wp_prompt(wp: &WorkPackage, feature_name: &str, slug: &str) -> Strin
     let file_scope_str = if wp.file_scope.is_empty() {
         "(auto-detect from spec)".to_string()
     } else {
-        wp.file_scope.iter().map(|f| format!("- `{f}`")).collect::<Vec<_>>().join("\n")
+        wp.file_scope
+            .iter()
+            .map(|f| format!("- `{f}`"))
+            .collect::<Vec<_>>()
+            .join("\n")
     };
     let mut lines = Vec::new();
     lines.push("---".to_string());
@@ -421,9 +439,15 @@ fn generate_wp_prompt(wp: &WorkPackage, feature_name: &str, slug: &str) -> Strin
     lines.push(file_scope_str);
     lines.push(String::new());
     lines.push("## Instructions".to_string());
-    lines.push("Implement this work package according to the acceptance criteria above.".to_string());
-    lines.push(format!("Refer to `kitty-specs/{slug}/spec.md` for the full specification and"));
-    lines.push(format!("`kitty-specs/{slug}/plan.md` for the implementation plan."));
+    lines.push(
+        "Implement this work package according to the acceptance criteria above.".to_string(),
+    );
+    lines.push(format!(
+        "Refer to `kitty-specs/{slug}/spec.md` for the full specification and"
+    ));
+    lines.push(format!(
+        "`kitty-specs/{slug}/plan.md` for the implementation plan."
+    ));
     lines.join("\n")
 }
 
@@ -492,7 +516,10 @@ mod tests {
     #[test]
     fn group_frs_small() {
         let frs: Vec<FunctionalRequirement> = (1..=5)
-            .map(|i| FunctionalRequirement { id: format!("FR-{i:03}"), description: format!("desc {i}") })
+            .map(|i| FunctionalRequirement {
+                id: format!("FR-{i:03}"),
+                description: format!("desc {i}"),
+            })
             .collect();
         let groups = group_frs_into_wps(&frs, 20);
         // All 5 frs should fit in some groups, each group 3-7
@@ -512,7 +539,12 @@ mod tests {
 
     #[test]
     fn generate_plan_md_contains_sections() {
-        let wps = vec![WorkPackage::new(1, "Auth Module (WP01)", 1, "- FR-001 login")];
+        let wps = vec![WorkPackage::new(
+            1,
+            "Auth Module (WP01)",
+            1,
+            "- FR-001 login",
+        )];
         let plan = generate_plan_md("my-feature", &wps, &[], &[]);
         assert!(plan.contains("# Plan: my-feature"));
         assert!(plan.contains("WP01: Auth Module"));

@@ -21,7 +21,7 @@ use agileplus_domain::{
         metric::Metric,
         module::{Module, ModuleFeatureTag, ModuleWithFeatures},
         state_machine::FeatureState,
-        work_package::{WpDependency, WpState, WorkPackage},
+        work_package::{WorkPackage, WpDependency, WpState},
     },
     error::DomainError,
     ports::StoragePort,
@@ -33,7 +33,10 @@ use agileplus_events::{EventError, EventStore};
 use crate::migrations::MigrationRunner;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 
-use crate::repository::{audit, cycles, events, evidence, features, governance, metrics, modules, sync_mappings, work_packages};
+use crate::repository::{
+    audit, cycles, events, evidence, features, governance, metrics, modules, sync_mappings,
+    work_packages,
+};
 
 /// SQLite-backed storage adapter.
 ///
@@ -88,9 +91,7 @@ impl SqliteStorageAdapter {
     /// This method is intentionally public so that benchmark crates can access
     /// the underlying rusqlite `Connection` to call repository functions directly
     /// without going through the async `StoragePort` trait.
-    pub fn conn_for_bench(
-        &self,
-    ) -> Result<std::sync::MutexGuard<'_, Connection>, DomainError> {
+    pub fn conn_for_bench(&self) -> Result<std::sync::MutexGuard<'_, Connection>, DomainError> {
         self.lock()
     }
 }
@@ -118,7 +119,10 @@ impl StoragePort for SqliteStorageAdapter {
         features::update_feature_state(&conn, id, state)
     }
 
-    async fn list_features_by_state(&self, state: FeatureState) -> Result<Vec<Feature>, DomainError> {
+    async fn list_features_by_state(
+        &self,
+        state: FeatureState,
+    ) -> Result<Vec<Feature>, DomainError> {
         let conn = self.lock()?;
         features::list_features_by_state(&conn, state)
     }
@@ -407,7 +411,9 @@ impl StoragePort for SqliteStorageAdapter {
 #[async_trait::async_trait]
 impl EventStore for SqliteStorageAdapter {
     async fn append(&self, event: &Event) -> Result<i64, EventError> {
-        let conn = self.lock().map_err(|e| EventError::StorageError(e.to_string()))?;
+        let conn = self
+            .lock()
+            .map_err(|e| EventError::StorageError(e.to_string()))?;
         events::append_event(&conn, event).map_err(|e| EventError::StorageError(e.to_string()))
     }
 
@@ -416,7 +422,9 @@ impl EventStore for SqliteStorageAdapter {
         entity_type: &str,
         entity_id: i64,
     ) -> Result<Vec<Event>, EventError> {
-        let conn = self.lock().map_err(|e| EventError::StorageError(e.to_string()))?;
+        let conn = self
+            .lock()
+            .map_err(|e| EventError::StorageError(e.to_string()))?;
         events::get_events(&conn, entity_type, entity_id)
             .map_err(|e| EventError::StorageError(e.to_string()))
     }
@@ -427,7 +435,9 @@ impl EventStore for SqliteStorageAdapter {
         entity_id: i64,
         sequence: i64,
     ) -> Result<Vec<Event>, EventError> {
-        let conn = self.lock().map_err(|e| EventError::StorageError(e.to_string()))?;
+        let conn = self
+            .lock()
+            .map_err(|e| EventError::StorageError(e.to_string()))?;
         events::get_events_since(&conn, entity_type, entity_id, sequence)
             .map_err(|e| EventError::StorageError(e.to_string()))
     }
@@ -439,7 +449,9 @@ impl EventStore for SqliteStorageAdapter {
         from: chrono::DateTime<chrono::Utc>,
         to: chrono::DateTime<chrono::Utc>,
     ) -> Result<Vec<Event>, EventError> {
-        let conn = self.lock().map_err(|e| EventError::StorageError(e.to_string()))?;
+        let conn = self
+            .lock()
+            .map_err(|e| EventError::StorageError(e.to_string()))?;
         events::get_events_by_range(
             &conn,
             entity_type,
@@ -455,7 +467,9 @@ impl EventStore for SqliteStorageAdapter {
         entity_type: &str,
         entity_id: i64,
     ) -> Result<i64, EventError> {
-        let conn = self.lock().map_err(|e| EventError::StorageError(e.to_string()))?;
+        let conn = self
+            .lock()
+            .map_err(|e| EventError::StorageError(e.to_string()))?;
         events::get_latest_sequence(&conn, entity_type, entity_id)
             .map_err(|e| EventError::StorageError(e.to_string()))
     }
@@ -465,7 +479,7 @@ impl EventStore for SqliteStorageAdapter {
 mod tests {
     use super::*;
     use agileplus_domain::domain::{
-        audit::{hash_entry, AuditEntry},
+        audit::{AuditEntry, hash_entry},
         feature::Feature,
         governance::{
             Evidence, EvidenceType, GovernanceContract, GovernanceRule, PolicyCheck,
@@ -473,7 +487,7 @@ mod tests {
         },
         metric::Metric,
         state_machine::FeatureState,
-        work_package::{DependencyType, WpDependency, WpState, WorkPackage},
+        work_package::{DependencyType, WorkPackage, WpDependency, WpState},
     };
 
     fn make_adapter() -> SqliteStorageAdapter {
@@ -512,7 +526,9 @@ mod tests {
         let f = Feature::new("upd-feat", "Upd", [0u8; 32], None);
         let id = db.create_feature(&f).await.unwrap();
 
-        db.update_feature_state(id, FeatureState::Specified).await.unwrap();
+        db.update_feature_state(id, FeatureState::Specified)
+            .await
+            .unwrap();
         let got = db.get_feature_by_id(id).await.unwrap().unwrap();
         assert_eq!(got.state, FeatureState::Specified);
     }
@@ -524,13 +540,21 @@ mod tests {
         let f2 = Feature::new("f2", "F2", [0u8; 32], None);
         let id1 = db.create_feature(&f1).await.unwrap();
         let _id2 = db.create_feature(&f2).await.unwrap();
-        db.update_feature_state(id1, FeatureState::Specified).await.unwrap();
+        db.update_feature_state(id1, FeatureState::Specified)
+            .await
+            .unwrap();
 
-        let specified = db.list_features_by_state(FeatureState::Specified).await.unwrap();
+        let specified = db
+            .list_features_by_state(FeatureState::Specified)
+            .await
+            .unwrap();
         assert_eq!(specified.len(), 1);
         assert_eq!(specified[0].slug, "f1");
 
-        let created = db.list_features_by_state(FeatureState::Created).await.unwrap();
+        let created = db
+            .list_features_by_state(FeatureState::Created)
+            .await
+            .unwrap();
         assert_eq!(created.len(), 1);
         assert_eq!(created[0].slug, "f2");
     }
@@ -538,8 +562,12 @@ mod tests {
     #[tokio::test]
     async fn feature_list_all() {
         let db = make_adapter();
-        db.create_feature(&Feature::new("aa", "AA", [0u8; 32], None)).await.unwrap();
-        db.create_feature(&Feature::new("bb", "BB", [0u8; 32], None)).await.unwrap();
+        db.create_feature(&Feature::new("aa", "AA", [0u8; 32], None))
+            .await
+            .unwrap();
+        db.create_feature(&Feature::new("bb", "BB", [0u8; 32], None))
+            .await
+            .unwrap();
         let all = db.list_all_features().await.unwrap();
         assert_eq!(all.len(), 2);
     }
@@ -585,8 +613,14 @@ mod tests {
     #[tokio::test]
     async fn wp_update_state() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("f", "F", [0u8; 32], None)).await.unwrap();
-        let wp_id = db.create_work_package(&WorkPackage::new(fid, "T", 1, "c")).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("f", "F", [0u8; 32], None))
+            .await
+            .unwrap();
+        let wp_id = db
+            .create_work_package(&WorkPackage::new(fid, "T", 1, "c"))
+            .await
+            .unwrap();
         db.update_wp_state(wp_id, WpState::Doing).await.unwrap();
         let got = db.get_work_package(wp_id).await.unwrap().unwrap();
         assert_eq!(got.state, WpState::Doing);
@@ -595,9 +629,16 @@ mod tests {
     #[tokio::test]
     async fn wp_list_by_feature_ordered_by_sequence() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("f2", "F2", [0u8; 32], None)).await.unwrap();
-        db.create_work_package(&WorkPackage::new(fid, "B", 2, "c")).await.unwrap();
-        db.create_work_package(&WorkPackage::new(fid, "A", 1, "c")).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("f2", "F2", [0u8; 32], None))
+            .await
+            .unwrap();
+        db.create_work_package(&WorkPackage::new(fid, "B", 2, "c"))
+            .await
+            .unwrap();
+        db.create_work_package(&WorkPackage::new(fid, "A", 1, "c"))
+            .await
+            .unwrap();
 
         let wps = db.list_wps_by_feature(fid).await.unwrap();
         assert_eq!(wps.len(), 2);
@@ -608,9 +649,18 @@ mod tests {
     #[tokio::test]
     async fn wp_dependencies_and_ready_wps() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("f3", "F3", [0u8; 32], None)).await.unwrap();
-        let wp1 = db.create_work_package(&WorkPackage::new(fid, "WP1", 1, "c")).await.unwrap();
-        let wp2 = db.create_work_package(&WorkPackage::new(fid, "WP2", 2, "c")).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("f3", "F3", [0u8; 32], None))
+            .await
+            .unwrap();
+        let wp1 = db
+            .create_work_package(&WorkPackage::new(fid, "WP1", 1, "c"))
+            .await
+            .unwrap();
+        let wp2 = db
+            .create_work_package(&WorkPackage::new(fid, "WP2", 2, "c"))
+            .await
+            .unwrap();
 
         // wp2 depends on wp1
         db.add_wp_dependency(&WpDependency {
@@ -640,11 +690,25 @@ mod tests {
     #[tokio::test]
     async fn wp_get_dependencies() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("fd", "FD", [0u8; 32], None)).await.unwrap();
-        let w1 = db.create_work_package(&WorkPackage::new(fid, "W1", 1, "c")).await.unwrap();
-        let w2 = db.create_work_package(&WorkPackage::new(fid, "W2", 2, "c")).await.unwrap();
-        db.add_wp_dependency(&WpDependency { wp_id: w2, depends_on: w1, dep_type: DependencyType::Data })
-            .await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("fd", "FD", [0u8; 32], None))
+            .await
+            .unwrap();
+        let w1 = db
+            .create_work_package(&WorkPackage::new(fid, "W1", 1, "c"))
+            .await
+            .unwrap();
+        let w2 = db
+            .create_work_package(&WorkPackage::new(fid, "W2", 2, "c"))
+            .await
+            .unwrap();
+        db.add_wp_dependency(&WpDependency {
+            wp_id: w2,
+            depends_on: w1,
+            dep_type: DependencyType::Data,
+        })
+        .await
+        .unwrap();
         let deps = db.get_wp_dependencies(w2).await.unwrap();
         assert_eq!(deps.len(), 1);
         assert_eq!(deps[0].depends_on, w1);
@@ -673,7 +737,10 @@ mod tests {
     #[tokio::test]
     async fn audit_append_and_trail() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("af", "AF", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("af", "AF", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let e1 = make_audit_entry(fid, [0u8; 32]);
         let _id1 = db.append_audit_entry(&e1).await.unwrap();
@@ -694,7 +761,10 @@ mod tests {
     #[tokio::test]
     async fn audit_wrong_prev_hash_rejected() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("afc", "AFC", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("afc", "AFC", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let e1 = make_audit_entry(fid, [0u8; 32]);
         db.append_audit_entry(&e1).await.unwrap();
@@ -708,7 +778,10 @@ mod tests {
     #[tokio::test]
     async fn audit_get_latest() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("al", "AL", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("al", "AL", [0u8; 32], None))
+            .await
+            .unwrap();
 
         assert!(db.get_latest_audit_entry(fid).await.unwrap().is_none());
 
@@ -727,8 +800,14 @@ mod tests {
     #[tokio::test]
     async fn evidence_create_and_get_by_wp() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("ef", "EF", [0u8; 32], None)).await.unwrap();
-        let wp_id = db.create_work_package(&WorkPackage::new(fid, "WP", 1, "c")).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("ef", "EF", [0u8; 32], None))
+            .await
+            .unwrap();
+        let wp_id = db
+            .create_work_package(&WorkPackage::new(fid, "WP", 1, "c"))
+            .await
+            .unwrap();
 
         let ev = Evidence {
             id: 0,
@@ -752,13 +831,33 @@ mod tests {
     #[tokio::test]
     async fn evidence_get_by_fr() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("efr", "EFR", [0u8; 32], None)).await.unwrap();
-        let wp_id = db.create_work_package(&WorkPackage::new(fid, "WP", 1, "c")).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("efr", "EFR", [0u8; 32], None))
+            .await
+            .unwrap();
+        let wp_id = db
+            .create_work_package(&WorkPackage::new(fid, "WP", 1, "c"))
+            .await
+            .unwrap();
 
-        let ev1 = Evidence { id: 0, wp_id, fr_id: "FR-001".into(), evidence_type: EvidenceType::CiOutput,
-            artifact_path: "ci.log".into(), metadata: None, created_at: chrono::Utc::now() };
-        let ev2 = Evidence { id: 0, wp_id, fr_id: "FR-002".into(), evidence_type: EvidenceType::LintResult,
-            artifact_path: "lint.log".into(), metadata: None, created_at: chrono::Utc::now() };
+        let ev1 = Evidence {
+            id: 0,
+            wp_id,
+            fr_id: "FR-001".into(),
+            evidence_type: EvidenceType::CiOutput,
+            artifact_path: "ci.log".into(),
+            metadata: None,
+            created_at: chrono::Utc::now(),
+        };
+        let ev2 = Evidence {
+            id: 0,
+            wp_id,
+            fr_id: "FR-002".into(),
+            evidence_type: EvidenceType::LintResult,
+            artifact_path: "lint.log".into(),
+            metadata: None,
+            created_at: chrono::Utc::now(),
+        };
         db.create_evidence(&ev1).await.unwrap();
         db.create_evidence(&ev2).await.unwrap();
 
@@ -796,7 +895,10 @@ mod tests {
     #[tokio::test]
     async fn governance_contract_create_and_get() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("gc", "GC", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("gc", "GC", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let contract = GovernanceContract {
             id: 0,
@@ -817,21 +919,44 @@ mod tests {
         assert_eq!(got.version, 1);
         assert_eq!(got.rules.len(), 1);
 
-        let latest = db.get_latest_governance_contract(fid).await.unwrap().unwrap();
+        let latest = db
+            .get_latest_governance_contract(fid)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(latest.version, 1);
     }
 
     #[tokio::test]
     async fn governance_contract_versioning() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("gcv", "GCV", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("gcv", "GCV", [0u8; 32], None))
+            .await
+            .unwrap();
 
-        let c1 = GovernanceContract { id: 0, feature_id: fid, version: 1, rules: vec![], bound_at: chrono::Utc::now() };
-        let c2 = GovernanceContract { id: 0, feature_id: fid, version: 2, rules: vec![], bound_at: chrono::Utc::now() };
+        let c1 = GovernanceContract {
+            id: 0,
+            feature_id: fid,
+            version: 1,
+            rules: vec![],
+            bound_at: chrono::Utc::now(),
+        };
+        let c2 = GovernanceContract {
+            id: 0,
+            feature_id: fid,
+            version: 2,
+            rules: vec![],
+            bound_at: chrono::Utc::now(),
+        };
         db.create_governance_contract(&c1).await.unwrap();
         db.create_governance_contract(&c2).await.unwrap();
 
-        let latest = db.get_latest_governance_contract(fid).await.unwrap().unwrap();
+        let latest = db
+            .get_latest_governance_contract(fid)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(latest.version, 2);
 
         let v1 = db.get_governance_contract(fid, 1).await.unwrap().unwrap();
@@ -843,7 +968,10 @@ mod tests {
     #[tokio::test]
     async fn metric_record_and_get() {
         let db = make_adapter();
-        let fid = db.create_feature(&Feature::new("mf", "MF", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("mf", "MF", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let m = Metric {
             id: 0,
@@ -904,7 +1032,9 @@ mod tests {
         let db = make_adapter();
         let m = Module::new("Old Name", None);
         let id = db.create_module(&m).await.unwrap();
-        db.update_module(id, "New Name", Some("a description")).await.unwrap();
+        db.update_module(id, "New Name", Some("a description"))
+            .await
+            .unwrap();
         let got = db.get_module(id).await.unwrap().unwrap();
         assert_eq!(got.friendly_name, "New Name");
         assert_eq!(got.slug, "new-name");
@@ -930,7 +1060,10 @@ mod tests {
 
         let result = db.delete_module(pid).await;
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), agileplus_domain::error::DomainError::ModuleHasDependents(_)));
+        assert!(matches!(
+            result.unwrap_err(),
+            agileplus_domain::error::DomainError::ModuleHasDependents(_)
+        ));
     }
 
     #[tokio::test]
@@ -953,7 +1086,10 @@ mod tests {
 
         let result = db.delete_module(mid).await;
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), agileplus_domain::error::DomainError::ModuleHasDependents(_)));
+        assert!(matches!(
+            result.unwrap_err(),
+            agileplus_domain::error::DomainError::ModuleHasDependents(_)
+        ));
     }
 
     #[tokio::test]
@@ -961,7 +1097,10 @@ mod tests {
         let db = make_adapter();
         let r1 = db.create_module(&Module::new("Root1", None)).await.unwrap();
         let r2 = db.create_module(&Module::new("Root2", None)).await.unwrap();
-        let _ = db.create_module(&Module::new("Child1", Some(r1))).await.unwrap();
+        let _ = db
+            .create_module(&Module::new("Child1", Some(r1)))
+            .await
+            .unwrap();
 
         let roots = db.list_root_modules().await.unwrap();
         assert_eq!(roots.len(), 2);
@@ -977,7 +1116,10 @@ mod tests {
     async fn module_tag_and_untag_feature() {
         let db = make_adapter();
         let mid = db.create_module(&Module::new("M", None)).await.unwrap();
-        let fid = db.create_feature(&Feature::new("f-tag", "FTag", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("f-tag", "FTag", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let tag = ModuleFeatureTag::new(mid, fid);
         db.tag_feature_to_module(&tag).await.unwrap();
@@ -1011,8 +1153,13 @@ mod tests {
     #[tokio::test]
     async fn cycle_create_and_get() {
         let db = make_adapter();
-        let c = Cycle::new("Q1-2026", make_date(2026, 1, 1), make_date(2026, 3, 31), None)
-            .unwrap();
+        let c = Cycle::new(
+            "Q1-2026",
+            make_date(2026, 1, 1),
+            make_date(2026, 3, 31),
+            None,
+        )
+        .unwrap();
         let id = db.create_cycle(&c).await.unwrap();
         assert!(id > 0);
 
@@ -1032,7 +1179,13 @@ mod tests {
     #[tokio::test]
     async fn cycle_update_state() {
         let db = make_adapter();
-        let c = Cycle::new("Cycle-A", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
+        let c = Cycle::new(
+            "Cycle-A",
+            make_date(2026, 1, 1),
+            make_date(2026, 2, 1),
+            None,
+        )
+        .unwrap();
         let id = db.create_cycle(&c).await.unwrap();
         db.update_cycle_state(id, CycleState::Active).await.unwrap();
         let got = db.get_cycle(id).await.unwrap().unwrap();
@@ -1042,11 +1195,25 @@ mod tests {
     #[tokio::test]
     async fn cycle_list_by_state() {
         let db = make_adapter();
-        let c1 = Cycle::new("Draft-1", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
-        let c2 = Cycle::new("Draft-2", make_date(2026, 3, 1), make_date(2026, 4, 1), None).unwrap();
+        let c1 = Cycle::new(
+            "Draft-1",
+            make_date(2026, 1, 1),
+            make_date(2026, 2, 1),
+            None,
+        )
+        .unwrap();
+        let c2 = Cycle::new(
+            "Draft-2",
+            make_date(2026, 3, 1),
+            make_date(2026, 4, 1),
+            None,
+        )
+        .unwrap();
         let id1 = db.create_cycle(&c1).await.unwrap();
         let id2 = db.create_cycle(&c2).await.unwrap();
-        db.update_cycle_state(id1, CycleState::Active).await.unwrap();
+        db.update_cycle_state(id1, CycleState::Active)
+            .await
+            .unwrap();
 
         let drafts = db.list_cycles_by_state(CycleState::Draft).await.unwrap();
         assert_eq!(drafts.len(), 1);
@@ -1060,9 +1227,24 @@ mod tests {
     #[tokio::test]
     async fn cycle_list_by_module() {
         let db = make_adapter();
-        let mid = db.create_module(&Module::new("ScopeModule", None)).await.unwrap();
-        let c1 = Cycle::new("Scoped", make_date(2026, 1, 1), make_date(2026, 2, 1), Some(mid)).unwrap();
-        let c2 = Cycle::new("Unscoped", make_date(2026, 3, 1), make_date(2026, 4, 1), None).unwrap();
+        let mid = db
+            .create_module(&Module::new("ScopeModule", None))
+            .await
+            .unwrap();
+        let c1 = Cycle::new(
+            "Scoped",
+            make_date(2026, 1, 1),
+            make_date(2026, 2, 1),
+            Some(mid),
+        )
+        .unwrap();
+        let c2 = Cycle::new(
+            "Unscoped",
+            make_date(2026, 3, 1),
+            make_date(2026, 4, 1),
+            None,
+        )
+        .unwrap();
         let id1 = db.create_cycle(&c1).await.unwrap();
         db.create_cycle(&c2).await.unwrap();
 
@@ -1076,7 +1258,10 @@ mod tests {
         let db = make_adapter();
         let c = Cycle::new("C1", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
         let cid = db.create_cycle(&c).await.unwrap();
-        let fid = db.create_feature(&Feature::new("cyc-feat", "CycFeat", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("cyc-feat", "CycFeat", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let entry = CycleFeature::new(cid, fid);
         db.add_feature_to_cycle(&entry).await.unwrap();
@@ -1103,19 +1288,35 @@ mod tests {
         let db = make_adapter();
         let mid = db.create_module(&Module::new("Scope", None)).await.unwrap();
         // Cycle scoped to this module
-        let c = Cycle::new("Scoped-Cycle", make_date(2026, 1, 1), make_date(2026, 2, 1), Some(mid)).unwrap();
+        let c = Cycle::new(
+            "Scoped-Cycle",
+            make_date(2026, 1, 1),
+            make_date(2026, 2, 1),
+            Some(mid),
+        )
+        .unwrap();
         let cid = db.create_cycle(&c).await.unwrap();
 
         // Feature NOT in module scope
-        let fid = db.create_feature(&Feature::new("out-of-scope", "OOS", [0u8; 32], None)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("out-of-scope", "OOS", [0u8; 32], None))
+            .await
+            .unwrap();
         let entry = CycleFeature::new(cid, fid);
         let result = db.add_feature_to_cycle(&entry).await;
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), agileplus_domain::error::DomainError::FeatureNotInModuleScope { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            agileplus_domain::error::DomainError::FeatureNotInModuleScope { .. }
+        ));
 
         // Tag feature to module -- now it should work
-        db.tag_feature_to_module(&ModuleFeatureTag::new(mid, fid)).await.unwrap();
-        db.add_feature_to_cycle(&CycleFeature::new(cid, fid)).await.unwrap();
+        db.tag_feature_to_module(&ModuleFeatureTag::new(mid, fid))
+            .await
+            .unwrap();
+        db.add_feature_to_cycle(&CycleFeature::new(cid, fid))
+            .await
+            .unwrap();
         let cwf = db.get_cycle_with_features(cid).await.unwrap().unwrap();
         assert_eq!(cwf.features.len(), 1);
     }
@@ -1123,15 +1324,34 @@ mod tests {
     #[tokio::test]
     async fn cycle_wp_progress_summary() {
         let db = make_adapter();
-        let c = Cycle::new("WP-Prog", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
+        let c = Cycle::new(
+            "WP-Prog",
+            make_date(2026, 1, 1),
+            make_date(2026, 2, 1),
+            None,
+        )
+        .unwrap();
         let cid = db.create_cycle(&c).await.unwrap();
-        let fid = db.create_feature(&Feature::new("prog-feat", "Prog", [0u8; 32], None)).await.unwrap();
-        db.add_feature_to_cycle(&CycleFeature::new(cid, fid)).await.unwrap();
+        let fid = db
+            .create_feature(&Feature::new("prog-feat", "Prog", [0u8; 32], None))
+            .await
+            .unwrap();
+        db.add_feature_to_cycle(&CycleFeature::new(cid, fid))
+            .await
+            .unwrap();
 
         // Create 2 WPs
-        let _wp1 = db.create_work_package(&WorkPackage::new(fid, "WP1", 1, "c")).await.unwrap();
-        let wp2 = db.create_work_package(&WorkPackage::new(fid, "WP2", 2, "c")).await.unwrap();
-        db.update_wp_state(wp2, agileplus_domain::domain::work_package::WpState::Done).await.unwrap();
+        let _wp1 = db
+            .create_work_package(&WorkPackage::new(fid, "WP1", 1, "c"))
+            .await
+            .unwrap();
+        let wp2 = db
+            .create_work_package(&WorkPackage::new(fid, "WP2", 2, "c"))
+            .await
+            .unwrap();
+        db.update_wp_state(wp2, agileplus_domain::domain::work_package::WpState::Done)
+            .await
+            .unwrap();
 
         let cwf = db.get_cycle_with_features(cid).await.unwrap().unwrap();
         assert_eq!(cwf.wp_progress.total, 2);
