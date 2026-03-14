@@ -32,3 +32,6 @@ kitty-specs/
 
 # Local development data
 .agileplus/
+
+# Reference repos (not submodules)
+references/
