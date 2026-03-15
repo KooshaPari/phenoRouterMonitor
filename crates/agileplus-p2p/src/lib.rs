@@ -15,6 +15,9 @@ pub mod replication;
 pub mod vector_clock;
 
 pub use device::{DeviceNode, DeviceStore, InMemoryDeviceStore, get_local_device, register_device};
+#[cfg(not(unix))]
+pub use discovery::{PeerInfo, PeerStatus};
+#[cfg(unix)]
 pub use discovery::{PeerInfo, PeerStatus, discover_peers};
 pub use error::{ConnectionError, PeerDiscoveryError, SyncError};
 pub use replication::{EventBatch, ReplicationResult, replicate_events};

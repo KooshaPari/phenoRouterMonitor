@@ -6,16 +6,22 @@
 //!
 //! Traceability: WP16 / T097
 
+#[cfg(unix)]
 use bytes::Bytes;
 use chrono::{DateTime, Utc};
+#[cfg(unix)]
 use http_body_util::{BodyExt as _, Empty};
+#[cfg(unix)]
 use hyper::Request;
+#[cfg(unix)]
 use hyper_util::rt::TokioIo;
 use serde::{Deserialize, Serialize};
+#[cfg(unix)]
 use tokio::net::UnixStream;
 use tracing::{debug, info};
 use uuid::Uuid;
 
+#[cfg(unix)]
 use crate::discovery::tailscale_socket_path;
 use crate::error::{ConnectionError, PeerDiscoveryError};
 
@@ -38,12 +44,14 @@ pub trait DeviceStore: Send + Sync {
 
 // ── Tailscale self-info ───────────────────────────────────────────────────────
 
+#[cfg(unix)]
 #[derive(Debug, Deserialize)]
 struct TailscaleStatusSelf {
     #[serde(rename = "Self")]
     self_node: TailscaleSelf,
 }
 
+#[cfg(unix)]
 #[derive(Debug, Deserialize)]
 struct TailscaleSelf {
     #[serde(rename = "DNSName", default)]
@@ -52,6 +60,7 @@ struct TailscaleSelf {
     tailscale_ips: Vec<String>,
 }
 
+#[cfg(unix)]
 async fn query_local_tailscale() -> Result<(String, String), PeerDiscoveryError> {
     let socket_path = tailscale_socket_path()?;
 
@@ -114,6 +123,7 @@ pub async fn register_device(store: &dyn DeviceStore) -> Result<DeviceNode, Conn
         return Ok(existing);
     }
 
+    #[cfg(unix)]
     let (hostname, tailscale_ip) = match query_local_tailscale().await {
         Ok(pair) => pair,
         Err(e) => {
@@ -123,6 +133,13 @@ pub async fn register_device(store: &dyn DeviceStore) -> Result<DeviceNode, Conn
                 .unwrap_or_else(|_| "unknown".to_string());
             (h, String::new())
         }
+    };
+    #[cfg(not(unix))]
+    let (hostname, tailscale_ip) = {
+        let h = hostname::get()
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_else(|_| "unknown".to_string());
+        (h, String::new())
     };
 
     let device = DeviceNode {

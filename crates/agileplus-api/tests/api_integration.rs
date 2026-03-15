@@ -133,7 +133,10 @@ impl MockStorage {
 }
 
 impl StoragePort for MockStorage {
-    fn create_feature(&self, f: &Feature) -> impl Future<Output = Result<i64, DomainError>> + Send {
+    fn create_feature(
+        &self,
+        _f: &Feature,
+    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
         let id = (self.features.lock().unwrap().len() + 1) as i64;
         async move { Ok(id) }
     }

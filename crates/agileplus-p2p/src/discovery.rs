@@ -4,12 +4,19 @@
 //! `/localapi/v0/status` to enumerate peers on the tailnet.
 //! Traceability: WP16 / T096
 
+#[cfg(unix)]
 use bytes::Bytes;
+#[cfg(unix)]
 use http_body_util::{BodyExt as _, Empty};
+#[cfg(unix)]
 use hyper::Request;
+#[cfg(unix)]
 use hyper_util::rt::TokioIo;
+#[cfg(unix)]
 use serde::Deserialize;
+#[cfg(unix)]
 use tokio::net::UnixStream;
+#[cfg(unix)]
 use tracing::{debug, warn};
 
 use crate::error::PeerDiscoveryError;
@@ -36,6 +43,7 @@ pub enum PeerStatus {
 
 // ── Tailscale JSON response shapes ──────────────────────────────────────────
 
+#[cfg(unix)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct TailscaleStatus {
@@ -43,6 +51,7 @@ struct TailscaleStatus {
     peer: std::collections::HashMap<String, TailscalePeer>,
 }
 
+#[cfg(unix)]
 #[derive(Debug, Deserialize)]
 struct TailscalePeer {
     #[serde(rename = "ID")]
@@ -82,6 +91,7 @@ pub fn tailscale_socket_path() -> Result<std::path::PathBuf, PeerDiscoveryError>
 
 // ── HTTP-over-UNIX-socket client ─────────────────────────────────────────────
 
+#[cfg(unix)]
 async fn tailscale_get(path: &str) -> Result<String, PeerDiscoveryError> {
     let socket_path = tailscale_socket_path()?;
 
@@ -129,6 +139,7 @@ async fn tailscale_get(path: &str) -> Result<String, PeerDiscoveryError> {
 // ── Public API ───────────────────────────────────────────────────────────────
 
 /// Discover peers on the local Tailscale network.
+#[cfg(unix)]
 pub async fn discover_peers() -> Result<Vec<PeerInfo>, PeerDiscoveryError> {
     let body = tailscale_get("/localapi/v0/status").await?;
     debug!("Tailscale status response: {} bytes", body.len());
@@ -162,6 +173,7 @@ pub async fn discover_peers() -> Result<Vec<PeerInfo>, PeerDiscoveryError> {
 }
 
 /// Attempt a short TCP connection to `ip:3000` to detect AgilePlus.
+#[cfg(unix)]
 async fn probe_agileplus(ip: &str) -> PeerStatus {
     use tokio::net::TcpStream;
     use tokio::time::{Duration, timeout};
