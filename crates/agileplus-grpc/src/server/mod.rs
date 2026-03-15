@@ -336,6 +336,7 @@ where
     type GetAuditTrailStream =
         Pin<Box<dyn tokio_stream::Stream<Item = Result<GetAuditTrailResponse, Status>> + Send>>;
 
+    #[allow(clippy::result_large_err)]
     async fn get_audit_trail(
         &self,
         request: Request<GetAuditTrailRequest>,
