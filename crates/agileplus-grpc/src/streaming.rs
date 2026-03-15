@@ -53,7 +53,7 @@ pub fn agent_event_stream(
 mod tests {
     use super::*;
     use crate::event_bus::EventBus;
-    use futures::StreamExt as _;
+
 
     #[tokio::test]
     async fn stream_delivers_matching_events() {

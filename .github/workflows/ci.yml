@@ -107,7 +107,7 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check licenses, advisories, duplicates
-        run: cargo deny --config rust/deny.toml check
+        run: cargo deny check -c rust/deny.toml
 
   rust-extras:
     name: Rust Extras (machete, semver, typos)
