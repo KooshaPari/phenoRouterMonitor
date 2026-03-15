@@ -10,14 +10,15 @@ use axum::{
     Router,
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
-    response::{Html, IntoResponse, Response},
+    response::{Html, IntoResponse, Redirect, Response},
     routing::get,
 };
 
 use crate::app_state::SharedState;
 use crate::templates::{
-    AgentActivityPartial, AgentView, DashboardPage, EventTimelinePartial, FeatureDetailPage,
-    FeatureView, HealthPanelPartial, KanbanPartial, SettingsPage, WpListPartial, WpView,
+    AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EventTimelinePartial,
+    EventsPage, FeatureDetailPage, FeatureView, FeaturesPage, HealthPanelPartial, KanbanPartial,
+    PlaneSettingsPage, ServicesSettingsPage, SettingsPage, WpListPartial, WpView,
     all_feature_states,
 };
 
@@ -58,6 +59,33 @@ fn build_kanban_cards(
         cards.insert(state_key.to_string(), views);
     }
     cards
+}
+
+fn sample_events() -> Vec<crate::templates::EventView> {
+    vec![
+        crate::templates::EventView {
+            id: "evt-1".into(),
+            kind: "system".into(),
+            description: "Dashboard booted with native Plane surface".into(),
+            timestamp: "just now".into(),
+        },
+        crate::templates::EventView {
+            id: "evt-2".into(),
+            kind: "agent_action".into(),
+            description: "Planner synced feature ownership metadata".into(),
+            timestamp: "2m ago".into(),
+        },
+        crate::templates::EventView {
+            id: "evt-3".into(),
+            kind: "state_change".into(),
+            description: "Feature moved from researched to planned".into(),
+            timestamp: "9m ago".into(),
+        },
+    ]
+}
+
+pub async fn root() -> Redirect {
+    Redirect::to("/dashboard")
 }
 
 // ── /dashboard ───────────────────────────────────────────────────────────
@@ -176,12 +204,96 @@ pub async fn settings_page() -> Response {
     render(SettingsPage)
 }
 
+// ── /features ────────────────────────────────────────────────────────────
+
+pub async fn features_page(State(state): State<SharedState>) -> Response {
+    let store = state.read().await;
+    let features = store
+        .features
+        .iter()
+        .map(FeatureView::from_feature)
+        .collect::<Vec<_>>();
+    render(FeaturesPage { features })
+}
+
+// ── /events ──────────────────────────────────────────────────────────────
+
+pub async fn events_page() -> Response {
+    render(EventsPage {
+        events: sample_events(),
+    })
+}
+
+// ── /settings/* ──────────────────────────────────────────────────────────
+
+pub async fn plane_settings_page(State(state): State<SharedState>) -> Response {
+    let store = state.read().await;
+    let mapped_features = store
+        .features
+        .iter()
+        .filter(|feature| feature.plane_issue_id.is_some())
+        .count();
+    let mapped_work_packages = store
+        .work_packages
+        .values()
+        .flatten()
+        .filter(|wp| wp.plane_sub_issue_id.is_some())
+        .count();
+
+    render(PlaneSettingsPage {
+        workspace_name: "AgilePlus Core Workspace".into(),
+        plane_api_url: std::env::var("PLANE_API_URL")
+            .unwrap_or_else(|_| "https://app.plane.so".into()),
+        sync_enabled: true,
+        connected: std::env::var("PLANE_API_KEY").is_ok(),
+        mapped_features,
+        mapped_work_packages,
+    })
+}
+
+pub async fn agent_settings_page() -> Response {
+    render(AgentSettingsPage {
+        agent_pool_size: 6,
+        retry_budget: 3,
+        dispatch_mode: "balanced".into(),
+    })
+}
+
+pub async fn services_settings_page(State(state): State<SharedState>) -> Response {
+    let store = state.read().await;
+    render(ServicesSettingsPage {
+        services: store.health.clone(),
+    })
+}
+
+// ── /api/time ────────────────────────────────────────────────────────────
+
+pub async fn time_footer() -> Html<String> {
+    Html(
+        chrono::Utc::now()
+            .format("%Y-%m-%d %H:%M:%S UTC")
+            .to_string(),
+    )
+}
+
+pub async fn stream_placeholder() -> StatusCode {
+    StatusCode::NO_CONTENT
+}
+
 // ── Router builder ───────────────────────────────────────────────────────
 
 pub fn router(state: SharedState) -> Router {
     Router::new()
+        .route("/", get(root))
         .route("/dashboard", get(dashboard_page))
+        .route("/features", get(features_page))
+        .route("/events", get(events_page))
         .route("/settings", get(settings_page))
+        .route("/settings/plane", get(plane_settings_page))
+        .route("/settings/agents", get(agent_settings_page))
+        .route("/settings/services", get(services_settings_page))
+        .route("/api/time", get(time_footer))
+        .route("/api/stream", get(stream_placeholder))
         .route("/api/dashboard/kanban", get(kanban_board))
         .route("/api/dashboard/features/{id}", get(feature_detail))
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
@@ -214,6 +326,17 @@ mod tests {
         };
         let html = tpl.render().expect("template renders");
         assert!(html.contains("NATS"));
+    }
+
+    #[tokio::test]
+    async fn plane_settings_page_renders() {
+        let state = make_state();
+        let response = plane_settings_page(State(state)).await;
+        let body = response.into_body();
+        let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
+        let html = String::from_utf8(bytes.to_vec()).unwrap();
+        assert!(html.contains("Plane Native Surface"));
+        assert!(html.contains("AgilePlus Core Workspace"));
     }
 
     #[tokio::test]

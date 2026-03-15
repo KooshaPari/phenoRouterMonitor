@@ -80,6 +80,43 @@ pub struct FeatureDetailPage {
 #[template(path = "pages/settings.html")]
 pub struct SettingsPage;
 
+#[derive(Template)]
+#[template(path = "pages/features.html")]
+pub struct FeaturesPage {
+    pub features: Vec<FeatureView>,
+}
+
+#[derive(Template)]
+#[template(path = "pages/events.html")]
+pub struct EventsPage {
+    pub events: Vec<EventView>,
+}
+
+#[derive(Template)]
+#[template(path = "pages/settings-plane.html")]
+pub struct PlaneSettingsPage {
+    pub workspace_name: String,
+    pub plane_api_url: String,
+    pub sync_enabled: bool,
+    pub connected: bool,
+    pub mapped_features: usize,
+    pub mapped_work_packages: usize,
+}
+
+#[derive(Template)]
+#[template(path = "pages/settings-agents.html")]
+pub struct AgentSettingsPage {
+    pub agent_pool_size: usize,
+    pub retry_budget: usize,
+    pub dispatch_mode: String,
+}
+
+#[derive(Template)]
+#[template(path = "pages/settings-services.html")]
+pub struct ServicesSettingsPage {
+    pub services: Vec<ServiceHealth>,
+}
+
 // ── Partial templates ──────────────────────────────────────────────────────
 
 #[derive(Template)]

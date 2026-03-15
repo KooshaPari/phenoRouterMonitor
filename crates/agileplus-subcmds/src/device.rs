@@ -7,9 +7,13 @@
 //!
 //! Traceability: WP18 / T104, T105, T106
 
+#[cfg(unix)]
 use std::time::{Duration, Instant};
 
-use agileplus_p2p::discovery::{PeerInfo, PeerStatus, discover_peers};
+use agileplus_p2p::discovery::{PeerInfo, PeerStatus};
+#[cfg(unix)]
+use agileplus_p2p::discovery::discover_peers;
+#[cfg(unix)]
 use agileplus_p2p::vector_clock::SyncVector;
 use clap::{Args, Subcommand};
 use serde::Serialize;
@@ -83,6 +87,7 @@ impl From<&PeerInfo> for PeerRow {
 /// Run the `device discover` subcommand.
 ///
 /// Returns `Err` if Tailscale is unavailable or no peers are found.
+#[cfg(unix)]
 pub async fn run_discover(args: &DiscoverArgs) -> anyhow::Result<()> {
     let discover_fut = discover_peers();
     let peers = tokio::time::timeout(Duration::from_secs(args.timeout), discover_fut)
@@ -212,6 +217,7 @@ pub struct PeerSyncReport {
 }
 
 /// Run the `device sync` subcommand.
+#[cfg(unix)]
 pub async fn run_sync(args: &SyncArgs) -> anyhow::Result<()> {
     // Validate flag combinations.
     if !args.all && args.peer.is_none() {
@@ -406,6 +412,7 @@ pub struct KnownPeerEntry {
 }
 
 /// Run the `device status` subcommand.
+#[cfg(unix)]
 pub async fn run_status(args: &StatusArgs) -> anyhow::Result<()> {
     // Gather local identity.  In a full integration this comes from DeviceStore.
     let hostname = hostname::get()
@@ -513,12 +520,19 @@ pub async fn run_status(args: &StatusArgs) -> anyhow::Result<()> {
 // ── Dispatch ──────────────────────────────────────────────────────────────────
 
 /// Dispatch a `DeviceArgs` to the appropriate handler.
+#[cfg(unix)]
 pub async fn run(args: &DeviceArgs) -> anyhow::Result<()> {
     match &args.command {
         DeviceSubcommand::Discover(a) => run_discover(a).await,
         DeviceSubcommand::Sync(a) => run_sync(a).await,
         DeviceSubcommand::Status(a) => run_status(a).await,
     }
+}
+
+/// Dispatch a `DeviceArgs` to the appropriate handler.
+#[cfg(not(unix))]
+pub async fn run(_args: &DeviceArgs) -> anyhow::Result<()> {
+    anyhow::bail!("Device commands require Unix (Tailscale UNIX socket)")
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
