@@ -44,6 +44,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Format check
         run: cd rust && cargo fmt --check
       - name: Clippy (warnings = errors)
@@ -69,6 +70,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: cd rust && cargo build
 
@@ -85,6 +87,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check MSRV compatibility
         run: cd rust && cargo check
 
@@ -93,6 +96,9 @@ jobs:
     name: Rust Security Audit
     needs: buf
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v6
       - uses: rustsec/audit-check@v2.0.0
@@ -116,6 +122,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install extras
         run: cargo install cargo-machete cargo-semver-checks
       - name: Detect unused deps
@@ -139,6 +146,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Format check
         run: cargo fmt --all -- --check
       - name: Clippy (warnings = errors)
@@ -162,6 +170,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: cargo build --workspace
 
@@ -176,6 +185,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check MSRV compatibility
         run: cargo check --workspace
 
@@ -190,6 +200,7 @@ jobs:
       - uses: arduino/setup-protoc@v3
         with:
           version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build docs
         run: cargo doc --no-deps --workspace
 

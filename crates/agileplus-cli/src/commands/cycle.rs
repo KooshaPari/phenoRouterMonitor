@@ -232,6 +232,7 @@ async fn cmd_list<S: StoragePort>(args: ListArgs, storage: &S) -> Result<()> {
 // T021: show
 // ---------------------------------------------------------------------------
 
+#[allow(unknown_lints, clippy::manual_checked_ops)]
 async fn cmd_show<S: StoragePort>(args: ShowArgs, storage: &S) -> Result<()> {
     let cycle = find_cycle_by_name(&args.name, storage).await?;
 
