@@ -106,7 +106,8 @@ use std::sync::Mutex;
 pub struct InMemoryBackend {
     /// Label -> id-key -> Vec<Value>
     nodes: Mutex<HashMap<String, Vec<Value>>>,
-    /// (from_label, rel_type, to_label) -> Vec<(from_id, to_id, props)>
+    /// (from_label, rel_type, to_label, from_id, to_id, props)
+    #[allow(clippy::type_complexity)]
     relationships: Mutex<Vec<(String, String, String, Value, Value, Value)>>,
 }
 

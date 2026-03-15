@@ -275,8 +275,8 @@ class AgilePlusCoreClient:
 
         Reconnects automatically on UNAVAILABLE errors.
         """
-        from agileplus_proto.gen.agileplus.v1 import core_pb2  # type: ignore[import]
         import grpc
+        from agileplus_proto.gen.agileplus.v1 import core_pb2  # type: ignore[import]
 
         stub = self._require_stub()
         request = core_pb2.StreamAgentEventsRequest(feature_slug=feature_slug)

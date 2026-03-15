@@ -73,6 +73,7 @@ impl SqliteStorageAdapter {
     ///
     /// This clears all existing data and reconstructs from scratch within a
     /// single transaction. If any error occurs, the database is left unchanged.
+    #[allow(clippy::await_holding_lock)] // Guard is explicitly dropped before any .await
     pub async fn rebuild_from_git<V: VcsPort>(
         &self,
         vcs: &V,
@@ -80,7 +81,8 @@ impl SqliteStorageAdapter {
     ) -> Result<RebuildReport, DomainError> {
         let mut report = RebuildReport::default();
 
-        // Lock the connection and do everything in a single transaction
+        // Lock the connection and do everything in a single transaction.
+        // The guard is explicitly dropped below before any `.await`.
         let conn = self
             .conn
             .lock()

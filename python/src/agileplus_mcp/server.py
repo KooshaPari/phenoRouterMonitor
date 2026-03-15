@@ -111,7 +111,7 @@ async def elicit_feature(
     import hashlib
     import time
 
-    session_id = hashlib.sha1(f"{feature_name}{time.time()}".encode()).hexdigest()[:8]
+    session_id = hashlib.sha256(f"{feature_name}{time.time()}".encode()).hexdigest()[:8]
 
     return {
         "session_id": session_id,
@@ -175,7 +175,10 @@ async def elicit_clarify(feature_slug: str) -> dict[str, Any]:
         "questions": [
             {
                 "id": "blockers",
-                "question": f"Are there any blockers preventing moving from {state['state']} to {state.get('next_command', 'next state')}?",
+                "question": (
+                    f"Are there any blockers preventing moving from {state['state']}"
+                    f" to {state.get('next_command', 'next state')}?"
+                ),
                 "type": "text",
                 "required": False,
             },
@@ -259,7 +262,7 @@ async def sample_retrospective(feature_slug: str) -> dict[str, Any]:
 
 async def startup(grpc_address: str = GRPC_ADDRESS) -> None:
     """Initialise the gRPC client and register all tools."""
-    global _client, _sampling  # noqa: PLW0603
+    global _client, _sampling
 
     client = AgilePlusCoreClient(grpc_address)
     try:
@@ -284,7 +287,7 @@ async def startup(grpc_address: str = GRPC_ADDRESS) -> None:
 
 async def shutdown() -> None:
     """Close the gRPC connection."""
-    global _client  # noqa: PLW0603
+    global _client
     if _client is not None:
         await _client.close()
         _client = None

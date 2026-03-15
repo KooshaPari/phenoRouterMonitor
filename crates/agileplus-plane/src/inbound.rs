@@ -99,7 +99,7 @@ impl InboundSync {
         }
 
         if self.auto_import_enabled {
-            let state = self.mapper.from_plane(
+            let state = self.mapper.map_plane_state(
                 issue.state.as_deref().unwrap_or("backlog"),
                 issue.state.as_deref().unwrap_or(""),
             );
@@ -135,7 +135,7 @@ impl InboundSync {
         };
 
         let state_group = issue.state.as_deref().unwrap_or("backlog");
-        let new_state = self.mapper.from_plane(state_group, state_group);
+        let new_state = self.mapper.map_plane_state(state_group, state_group);
         let new_hash = compute_content_hash(
             &issue.name,
             issue.state.as_deref().unwrap_or(""),

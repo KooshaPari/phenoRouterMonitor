@@ -171,7 +171,7 @@ impl TriageClassifier {
         let confidence = if best_keywords.is_empty() {
             0.3 // Default to task with low confidence
         } else {
-            (best_score / 3.0).min(1.0).max(0.4)
+            (best_score / 3.0).clamp(0.4, 1.0)
         };
 
         TriageResult {

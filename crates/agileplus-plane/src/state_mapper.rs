@@ -17,18 +17,22 @@ pub enum PlaneStateGroup {
     Unknown(String),
 }
 
-impl PlaneStateGroup {
-    pub fn from_str(s: &str) -> Self {
-        match s.to_lowercase().as_str() {
+impl std::str::FromStr for PlaneStateGroup {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s.to_lowercase().as_str() {
             "backlog" => Self::Backlog,
             "unstarted" | "todo" => Self::Unstarted,
             "started" | "in_progress" | "in progress" => Self::Started,
             "completed" | "done" => Self::Completed,
             "cancelled" | "canceled" => Self::Cancelled,
             other => Self::Unknown(other.to_string()),
-        }
+        })
     }
+}
 
+impl PlaneStateGroup {
     pub fn as_str(&self) -> &str {
         match self {
             Self::Backlog => "backlog",
@@ -91,7 +95,7 @@ impl PlaneStateMapper {
     ///
     /// Custom overrides are checked first (most specific first: group+name, then group-only).
     /// Falls back to the default group mapping if no override matches.
-    pub fn from_plane(&self, state_group: &str, state_name: &str) -> FeatureState {
+    pub fn map_plane_state(&self, state_group: &str, state_name: &str) -> FeatureState {
         // Check overrides: group + name match first.
         for o in &self.config.overrides {
             if o.plane_group.eq_ignore_ascii_case(state_group) {
@@ -110,7 +114,7 @@ impl PlaneStateMapper {
         }
 
         // Default mapping by group.
-        match PlaneStateGroup::from_str(state_group) {
+        match state_group.parse::<PlaneStateGroup>().unwrap() {
             PlaneStateGroup::Backlog => FeatureState::Created,
             PlaneStateGroup::Unstarted => FeatureState::Specified,
             PlaneStateGroup::Started => FeatureState::Implementing,
@@ -171,7 +175,7 @@ mod tests {
     fn default_backlog_maps_to_created() {
         let mapper = PlaneStateMapper::new();
         assert_eq!(
-            mapper.from_plane("backlog", "Backlog"),
+            mapper.map_plane_state("backlog", "Backlog"),
             FeatureState::Created
         );
     }
@@ -180,7 +184,7 @@ mod tests {
     fn default_unstarted_maps_to_specified() {
         let mapper = PlaneStateMapper::new();
         assert_eq!(
-            mapper.from_plane("unstarted", "Todo"),
+            mapper.map_plane_state("unstarted", "Todo"),
             FeatureState::Specified
         );
     }
@@ -189,7 +193,7 @@ mod tests {
     fn default_started_maps_to_implementing() {
         let mapper = PlaneStateMapper::new();
         assert_eq!(
-            mapper.from_plane("started", "In Progress"),
+            mapper.map_plane_state("started", "In Progress"),
             FeatureState::Implementing
         );
     }
@@ -198,7 +202,7 @@ mod tests {
     fn default_completed_maps_to_validated() {
         let mapper = PlaneStateMapper::new();
         assert_eq!(
-            mapper.from_plane("completed", "Done"),
+            mapper.map_plane_state("completed", "Done"),
             FeatureState::Validated
         );
     }
@@ -207,7 +211,7 @@ mod tests {
     fn cancelled_warns_and_defaults() {
         let mapper = PlaneStateMapper::new();
         // Cancelled has no direct equivalent; returns Validated with warning.
-        let result = mapper.from_plane("cancelled", "Wont Fix");
+        let result = mapper.map_plane_state("cancelled", "Wont Fix");
         assert_eq!(result, FeatureState::Validated);
     }
 
@@ -251,12 +255,12 @@ mod tests {
         let mapper = PlaneStateMapper::with_config(config);
         // Override matches: started + "review" → Validated
         assert_eq!(
-            mapper.from_plane("started", "review"),
+            mapper.map_plane_state("started", "review"),
             FeatureState::Validated
         );
         // No override: started + "coding" → Implementing (default)
         assert_eq!(
-            mapper.from_plane("started", "coding"),
+            mapper.map_plane_state("started", "coding"),
             FeatureState::Implementing
         );
     }

@@ -8,6 +8,7 @@ Traceability: WP14-T082
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 
 from agileplus_mcp.grpc_client import AgilePlusCoreClient
@@ -48,6 +49,7 @@ def _mock_client() -> MagicMock:
 @pytest.mark.asyncio
 async def test_specify_tool_calls_run_command():
     from fastmcp import FastMCP
+
     from agileplus_mcp.tools import features as features_module
 
     mcp = FastMCP("test")

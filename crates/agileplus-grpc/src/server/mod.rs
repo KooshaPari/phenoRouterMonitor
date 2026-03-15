@@ -510,6 +510,7 @@ where
 }
 
 /// Start the gRPC server, binding to the given address.
+#[allow(clippy::too_many_arguments)] // Server bootstrap requires all service ports
 pub async fn start_server<S, V, A, R, O>(
     addr: SocketAddr,
     storage: Arc<S>,

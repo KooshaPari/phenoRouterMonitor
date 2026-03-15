@@ -98,11 +98,10 @@ jobs:
       - uses: rustsec/audit-check@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: rust
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check licenses, advisories, duplicates
-        run: cd rust && cargo deny check
+        run: cargo deny check
 
   rust-extras:
     name: Rust Extras (machete, semver, typos)
@@ -203,7 +202,7 @@ jobs:
       - name: Validate domain crate dependencies
         run: |
           ALLOWED="serde serde_json chrono sha2 thiserror toml dirs-next zeroize keyring"
-          DEPS=$(grep -A 100 '^\[dependencies\]' crates/agileplus-domain/Cargo.toml | grep -E '^\w' | grep -v '^\[' | cut -d'.' -f1 | cut -d' ' -f1)
+          DEPS=$(sed -n '/^\[dependencies\]/,/^\[/{/^\[/d;p}' crates/agileplus-domain/Cargo.toml | grep -E '^\w' | cut -d'.' -f1 | cut -d' ' -f1)
           for dep in $DEPS; do
             if ! echo "$ALLOWED" | grep -qw "$dep"; then
               echo "ERROR: disallowed dependency '$dep' in agileplus-domain"

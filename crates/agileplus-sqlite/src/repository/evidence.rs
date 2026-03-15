@@ -34,6 +34,7 @@ fn evidence_type_from_str(s: &str) -> Result<EvidenceType, DomainError> {
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn row_to_evidence(
     row: &Row<'_>,
 ) -> rusqlite::Result<(i64, i64, String, String, String, Option<String>, String)> {

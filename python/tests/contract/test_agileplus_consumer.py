@@ -17,9 +17,9 @@ Traceability: WP14-T084
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock
-import pytest
+from unittest.mock import MagicMock
 
+import pytest
 
 # ---------------------------------------------------------------------------
 # Contract: GetFeature
@@ -80,7 +80,7 @@ class TestGetFeatureContract:
         """GetFeature response must contain id, slug, state, and timestamps."""
         from agileplus_mcp.grpc_client import AgilePlusCoreClient
 
-        client = AgilePlusCoreClient()
+        _client = AgilePlusCoreClient()
 
         mock_feature = MagicMock(
             id=42,
@@ -171,7 +171,6 @@ class TestDispatchCommandContract:
 
     def test_command_response_shape(self):
         """CommandResponse must have success, message, and outputs."""
-        from agileplus_mcp.grpc_client import AgilePlusCoreClient
 
         mock_result = MagicMock(
             success=True,

@@ -29,7 +29,7 @@ def _make_feature(slug: str, state: str) -> dict[str, Any]:
     }
 
 
-def before_scenario(context, scenario):  # noqa: ANN001
+def before_scenario(context, scenario):
     """Initialise fresh mock state before each BDD scenario."""
     context.loop = asyncio.new_event_loop()
     context.client = MagicMock(spec=AgilePlusCoreClient)
@@ -66,6 +66,6 @@ def before_scenario(context, scenario):  # noqa: ANN001
     context.validation_report: dict[str, Any] | None = None
 
 
-def after_scenario(context, scenario):  # noqa: ANN001
+def after_scenario(context, scenario):
     """Clean up the event loop after each scenario."""
     context.loop.close()

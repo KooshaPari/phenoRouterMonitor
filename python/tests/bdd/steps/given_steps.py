@@ -26,13 +26,13 @@ def _make_feature(slug: str, state: str) -> dict[str, Any]:
 
 
 @given("a fresh AgilePlus project with no features")
-def fresh_project(context):  # noqa: ANN001
+def fresh_project(context):
     context.client.list_features = AsyncMock(return_value=[])
     context.features = {}
 
 
 @given('a feature "{slug}" in state "{state}"')
-def feature_in_state(context, slug, state):  # noqa: ANN001
+def feature_in_state(context, slug, state):
     feature = _make_feature(slug, state)
     context.features[slug] = feature
     context.client.get_feature = AsyncMock(return_value=feature)
@@ -42,7 +42,7 @@ def feature_in_state(context, slug, state):  # noqa: ANN001
 
 
 @given('a feature "{slug}" in state "{state}" with {count:d} work packages')
-def feature_in_state_with_wps(context, slug, state, count):  # noqa: ANN001
+def feature_in_state_with_wps(context, slug, state, count):
     feature = _make_feature(slug, state)
     feature["wp_count"] = count
     context.features[slug] = feature
@@ -65,7 +65,7 @@ def feature_in_state_with_wps(context, slug, state, count):  # noqa: ANN001
 
 
 @given('a feature "{slug}" with WP01 in state "{wp_state}"')
-def feature_with_wp_in_state(context, slug, wp_state):  # noqa: ANN001
+def feature_with_wp_in_state(context, slug, wp_state):
     feature = _make_feature(slug, "implementing")
     context.features[slug] = feature
     context.client.get_feature = AsyncMock(return_value=feature)
@@ -84,13 +84,13 @@ def feature_with_wp_in_state(context, slug, wp_state):  # noqa: ANN001
 
 
 @given("the agent has committed code in the WP01 worktree")
-def agent_committed_code(context):  # noqa: ANN001
+def agent_committed_code(context):
     # Declarative pre-condition only; mock already in place.
     pass
 
 
 @given('a feature with WP01 file_scope "{scope1}" and WP02 file_scope "{scope2}"')
-def feature_with_two_wps(context, scope1, scope2):  # noqa: ANN001
+def feature_with_two_wps(context, scope1, scope2):
     slug = "parallel-feature"
     feature = _make_feature(slug, "planned")
     feature["wp_count"] = 2
@@ -124,7 +124,7 @@ def feature_with_two_wps(context, scope1, scope2):  # noqa: ANN001
 
 
 @given('a feature "{slug}" with {count:d} audit entries')
-def feature_with_audit_entries(context, slug, count):  # noqa: ANN001
+def feature_with_audit_entries(context, slug, count):
     feature = _make_feature(slug, "specified")
     context.features[slug] = feature
     context.client.get_feature = AsyncMock(return_value=feature)
@@ -167,7 +167,7 @@ def feature_with_audit_entries(context, slug, count):  # noqa: ANN001
 
 
 @given("audit entry {index:d} has been tampered with")
-def audit_entry_tampered(context, index):  # noqa: ANN001
+def audit_entry_tampered(context, index):
     # Simulate tampered chain: verification will fail at given index
     context.client.verify_audit_chain = AsyncMock(
         return_value={
@@ -180,12 +180,12 @@ def audit_entry_tampered(context, index):  # noqa: ANN001
 
 
 @given("the governance contract requires test_result evidence for {fr_id}")
-def governance_requires_test_result(context, fr_id):  # noqa: ANN001
+def governance_requires_test_result(context, fr_id):
     _add_governance_requirement(context, fr_id, "test_result")
 
 
 @given("the governance contract requires review_approval evidence for {fr_id}")
-def governance_requires_review_approval(context, fr_id):  # noqa: ANN001
+def governance_requires_review_approval(context, fr_id):
     _add_governance_requirement(context, fr_id, "review_approval")
 
 
@@ -209,11 +209,11 @@ def _add_governance_requirement(context, fr_id: str, ev_type: str) -> None:
 
 
 @given('evidence exists for {fr_id} with type "{ev_type}"')
-def evidence_exists(context, fr_id, ev_type):  # noqa: ANN001
+def evidence_exists(context, fr_id, ev_type):
     context.evidence.append({"fr_id": fr_id, "evidence_type": ev_type})
 
 
 @given("no evidence exists for {fr_id}")
-def no_evidence_exists(context, fr_id):  # noqa: ANN001
+def no_evidence_exists(context, fr_id):
     # Ensure no evidence for this FR
     context.evidence = [e for e in context.evidence if e.get("fr_id") != fr_id]

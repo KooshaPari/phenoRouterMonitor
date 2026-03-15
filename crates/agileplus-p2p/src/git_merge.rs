@@ -148,7 +148,7 @@ fn resolve_jsonl_conflict(path: &Path) -> Result<bool, MergeError> {
                         }
                     }
                     Err(e) => {
-                        warn!("Skipping unparseable event line in {}: {e}", path.display());
+                        warn!("Skipping unparsable event line in {}: {e}", path.display());
                     }
                 }
             }
@@ -208,7 +208,7 @@ fn resolve_snapshot_conflict(path: &Path) -> Result<bool, MergeError> {
                     }
                 }
                 Err(e) => {
-                    warn!("Skipping unparseable snapshot side in {}: {e}", path.display());
+                    warn!("Skipping unparsable snapshot side in {}: {e}", path.display());
                 }
             }
         }

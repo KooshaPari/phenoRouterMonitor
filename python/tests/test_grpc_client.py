@@ -5,12 +5,11 @@ Traceability: WP14-T081
 
 from __future__ import annotations
 
-import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 
 from agileplus_mcp.grpc_client import AgilePlusCoreClient, GrpcConnectionError
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

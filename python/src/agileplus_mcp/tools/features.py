@@ -21,7 +21,7 @@ from agileplus_mcp.grpc_client import AgilePlusCoreClient
 # Module-level registration happens via register_tools().
 
 
-def register_tools(mcp: FastMCP, client: AgilePlusCoreClient) -> None:  # noqa: C901
+def register_tools(mcp: FastMCP, client: AgilePlusCoreClient) -> None:
     """Register all feature-management tools onto *mcp*."""
 
     @mcp.tool(name="agileplus_specify")

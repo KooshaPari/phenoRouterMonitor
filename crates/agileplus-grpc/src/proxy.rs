@@ -18,7 +18,9 @@ pub struct DownstreamHealth {
 /// `agileplus-integrations` services. If they are unavailable it logs a
 /// warning and uses in-process stubs for development / single-binary mode.
 pub struct ProxyRouter {
+    #[allow(dead_code)] // WIP: used for future downstream forwarding
     agents_address: Option<String>,
+    #[allow(dead_code)] // WIP: used for future downstream forwarding
     integrations_address: Option<String>,
     health: DownstreamHealth,
 }

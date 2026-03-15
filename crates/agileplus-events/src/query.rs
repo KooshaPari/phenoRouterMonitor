@@ -48,22 +48,22 @@ impl EventQuery {
         self
     }
 
-    pub fn from_time(mut self, t: DateTime<Utc>) -> Self {
+    pub fn start_time(mut self, t: DateTime<Utc>) -> Self {
         self.from_time = Some(t);
         self
     }
 
-    pub fn to_time(mut self, t: DateTime<Utc>) -> Self {
+    pub fn end_time(mut self, t: DateTime<Utc>) -> Self {
         self.to_time = Some(t);
         self
     }
 
-    pub fn from_sequence(mut self, s: i64) -> Self {
+    pub fn after_sequence(mut self, s: i64) -> Self {
         self.from_sequence = Some(s);
         self
     }
 
-    pub fn to_sequence(mut self, s: i64) -> Self {
+    pub fn end_sequence(mut self, s: i64) -> Self {
         self.to_sequence = Some(s);
         self
     }
@@ -185,8 +185,8 @@ mod tests {
             make_event(3, "F", "c", "a"),
         ];
         let result = EventQuery::new()
-            .from_sequence(2)
-            .to_sequence(2)
+            .after_sequence(2)
+            .end_sequence(2)
             .filter(&events);
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].sequence, 2);

@@ -11,7 +11,7 @@ from behave import when  # type: ignore[import]
 
 
 @when('I run "agileplus specify" with feature slug "{slug}"')
-def run_specify(context, slug):  # noqa: ANN001
+def run_specify(context, slug):
     feature_state = context.features.get(slug, {}).get("state", "created")
     allowed_states = ("created", "specified")
 
@@ -38,18 +38,18 @@ def run_specify(context, slug):  # noqa: ANN001
 
 
 @when("I provide specification details via stdin")
-def provide_spec_stdin(context):  # noqa: ANN001
+def provide_spec_stdin(context):
     # Stdin interaction simulated in run_specify.
     pass
 
 
 @when("I provide updated specification details")
-def provide_updated_spec(context):  # noqa: ANN001
+def provide_updated_spec(context):
     pass
 
 
 @when('I run "agileplus implement" for feature "{slug}"')
-def run_implement(context, slug):  # noqa: ANN001
+def run_implement(context, slug):
     feature = context.features.get(slug, {})
     if feature.get("state") != "planned":
         context.last_result = {
@@ -73,13 +73,13 @@ def run_implement(context, slug):  # noqa: ANN001
 
 
 @when('I run "agileplus implement" for the feature')
-def run_implement_for_the_feature(context):  # noqa: ANN001
+def run_implement_for_the_feature(context):
     slug = next(iter(context.features), "parallel-feature")
     run_implement(context, slug)
 
 
 @when("the agent completes WP01 implementation")
-def agent_completes_wp01(context):  # noqa: ANN001
+def agent_completes_wp01(context):
     # Simulate PR creation by updating mock
     context.client.list_work_packages = AsyncMock(
         return_value=[
@@ -100,7 +100,7 @@ def agent_completes_wp01(context):  # noqa: ANN001
 
 
 @when('I run "agileplus plan" for feature "{slug}"')
-def run_plan(context, slug):  # noqa: ANN001
+def run_plan(context, slug):
     feature = context.features.get(slug, {})
     if feature.get("state") != "researched":
         context.last_result = {
@@ -133,7 +133,7 @@ def run_plan(context, slug):  # noqa: ANN001
 
 
 @when('I run "agileplus validate" for feature "{slug}"')
-def run_validate(context, slug):  # noqa: ANN001
+def run_validate(context, slug):
     feature = context.features.get(slug, {})
     if feature.get("state") != "implementing":
         context.last_result = {
@@ -184,6 +184,6 @@ def run_validate(context, slug):  # noqa: ANN001
 
 
 @when('I verify the audit chain for "{slug}"')
-def verify_audit_chain(context, slug):  # noqa: ANN001
+def verify_audit_chain(context, slug):
     result = context.loop.run_until_complete(context.client.verify_audit_chain(slug))
     context.last_result = result

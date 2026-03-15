@@ -234,27 +234,16 @@ fn parse_since(s: &str) -> Result<DateTime<Utc>, ApiError> {
         return Ok(dt);
     }
     // Try relative durations like "1h", "24h", "30m".
-    let (num, unit) = if s.ends_with('h') {
-        (
-            s[..s.len() - 1]
-                .parse::<i64>()
-                .map_err(|_| ApiError::BadRequest(format!("invalid since: {s}")))?,
-            "h",
-        )
-    } else if s.ends_with('m') {
-        (
-            s[..s.len() - 1]
-                .parse::<i64>()
-                .map_err(|_| ApiError::BadRequest(format!("invalid since: {s}")))?,
-            "m",
-        )
+    let parse_num = |n: &str| {
+        n.parse::<i64>()
+            .map_err(|_| ApiError::BadRequest(format!("invalid since: {s}")))
+    };
+    let duration = if let Some(n) = s.strip_suffix('h') {
+        Duration::hours(parse_num(n)?)
+    } else if let Some(n) = s.strip_suffix('m') {
+        Duration::minutes(parse_num(n)?)
     } else {
         return Err(ApiError::BadRequest(format!("invalid since: {s}")));
-    };
-    let duration = match unit {
-        "h" => Duration::hours(num),
-        "m" => Duration::minutes(num),
-        _ => unreachable!(),
     };
     Ok(Utc::now() - duration)
 }
