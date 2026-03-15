@@ -54,7 +54,6 @@ mod tests {
     use super::*;
     use crate::event_bus::EventBus;
 
-
     #[tokio::test]
     async fn stream_delivers_matching_events() {
         let bus = EventBus::new(16);
