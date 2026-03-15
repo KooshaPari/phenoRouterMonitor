@@ -55,7 +55,7 @@ fn proto_wp_status_contract_fields() {
 /// Any change here is a breaking contract change.
 #[test]
 fn wp_state_encoding_contract() {
-    use agileplus_domain::domain::work_package::{WorkPackage, WpState};
+    use agileplus_domain::domain::work_package::WpState;
 
     let state_cases = vec![
         (WpState::Planned, "planned"),
@@ -92,8 +92,7 @@ fn feature_state_encoding_contract() {
     ];
 
     for (state, expected_display) in state_cases {
-        let domain_feat = Feature::new("s", "S", [0u8; 32], None);
-        // We can't mutate state here so just test display directly
+        // Test display directly
         let displayed = state.to_string();
         assert_eq!(
             displayed, expected_display,
