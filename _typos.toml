@@ -11,4 +11,5 @@ extend-exclude = [
     "python/src/gen/",
     "rust/src/gen/",
     "pheno-cli/go.mod",
+    "templates/static/*.min.js",
 ]

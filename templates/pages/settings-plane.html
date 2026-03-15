@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Plane Settings{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-4xl mx-auto space-y-6">
+  <div class="border-b border-zinc-700 pb-4">
+    <h1 class="text-2xl font-bold tracking-tight">Plane Native Surface</h1>
+    <p class="text-sm text-zinc-400 mt-1">Plane is surfaced here as an AgilePlus-native frontend for sync, mapping, and workspace visibility.</p>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Workspace</div>
+      <div class="mt-2 font-semibold">{{ workspace_name }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Mapped Features</div>
+      <div class="mt-2 text-2xl font-bold">{{ mapped_features }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Mapped Work Packages</div>
+      <div class="mt-2 text-2xl font-bold">{{ mapped_work_packages }}</div>
+    </div>
+  </div>
+
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
+    <h2 class="font-bold text-zinc-100">Connection State</h2>
+    <div class="grid md:grid-cols-2 gap-4 text-sm">
+      <div>
+        <div class="text-zinc-400">Plane API URL</div>
+        <div class="mt-1 font-mono break-all">{{ plane_api_url }}</div>
+      </div>
+      <div>
+        <div class="text-zinc-400">Connection</div>
+        <div class="mt-1">
+          {% if connected %}
+            <span class="text-green-400">Connected via `PLANE_API_KEY`</span>
+          {% else %}
+            <span class="text-yellow-400">No API key configured locally</span>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="text-zinc-400">Sync Mode</div>
+        <div class="mt-1">
+          {% if sync_enabled %}
+            <span class="text-blue-300">Native AgilePlus frontend + Plane sync enabled</span>
+          {% else %}
+            <span class="text-zinc-300">Sync disabled</span>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="text-zinc-400">Coverage</div>
+        <div class="mt-1 text-zinc-300">Features, work packages, cycles, modules, webhook intake</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-3">
+    <h2 class="font-bold text-zinc-100">Native Plane Views</h2>
+    <p class="text-sm text-zinc-400">This page is the bundled Plane-facing control surface inside AgilePlus. It is intentionally not a redirect out to the Plane app.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="/features" class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">Browse Synced Features</a>
+      <a href="/events" class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">View Sync Timeline</a>
+      <a href="/dashboard" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-sm rounded border border-blue-600 transition">Return to Dashboard</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

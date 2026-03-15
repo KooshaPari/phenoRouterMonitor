@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Agent Settings{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-3xl mx-auto space-y-6">
+  <div class="border-b border-zinc-700 pb-4">
+    <h1 class="text-2xl font-bold tracking-tight">Agent Settings</h1>
+    <p class="text-sm text-zinc-400 mt-1">Execution policy for native AgilePlus planning and implementation agents.</p>
+  </div>
+
+  <div class="grid gap-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Dispatch Mode</div>
+      <div class="mt-2 font-semibold">{{ dispatch_mode }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Agent Pool Size</div>
+      <div class="mt-2 text-2xl font-bold">{{ agent_pool_size }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Retry Budget</div>
+      <div class="mt-2 text-2xl font-bold">{{ retry_budget }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
