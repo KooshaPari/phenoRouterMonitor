@@ -11,7 +11,6 @@ use agileplus_domain::domain::work_package::WorkPackage;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 
-
 // ---------------------------------------------------------------------------
 // Contract: FeatureResponse JSON shape expected by dashboard
 // ---------------------------------------------------------------------------

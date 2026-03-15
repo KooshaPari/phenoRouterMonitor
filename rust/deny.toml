@@ -3,7 +3,9 @@ all-features = true
 
 [advisories]
 version = 2
-ignore = []
+ignore = [
+    "RUSTSEC-2025-0134", # rustls-pemfile unmaintained - transitive dep, no action needed
+]
 
 [licenses]
 version = 2
