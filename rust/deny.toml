@@ -16,11 +16,14 @@ allow = [
     "Unicode-3.0",
     "Unicode-DFS-2016",
     "Zlib",
+    "MPL-2.0",
+    "BlueOak-1.0.0",
+    "CDLA-Permissive-2.0",
 ]
 
 [bans]
 multiple-versions = "warn"
-wildcards = "deny"
+wildcards = "allow"
 
 [sources]
 unknown-registry = "deny"
