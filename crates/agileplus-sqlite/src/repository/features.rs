@@ -86,6 +86,7 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
         plane_state_id: None,
         labels: Vec::new(),
         module_id,
+        project_id: None,
         created_at,
         updated_at,
     })

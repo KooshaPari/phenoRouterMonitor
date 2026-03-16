@@ -11,15 +11,15 @@ use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
     response::{Html, IntoResponse, Redirect, Response},
-    routing::get,
+    routing::{get, post},
 };
 
 use crate::app_state::SharedState;
 use crate::templates::{
     AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EventTimelinePartial,
     EventsPage, FeatureDetailPage, FeatureView, FeaturesPage, HealthPanelPartial, KanbanPartial,
-    PlaneSettingsPage, ServicesSettingsPage, SettingsPage, WpListPartial, WpView,
-    all_feature_states,
+    PlaneSettingsPage, ProjectSwitcherPartial, ProjectView, ServicesSettingsPage, SettingsPage,
+    WpListPartial, WpView, all_feature_states,
 };
 
 /// Returns `true` if the `HX-Request` header is present and truthy.
@@ -42,21 +42,41 @@ fn render<T: Template>(tpl: T) -> Response {
     }
 }
 
+/// Build the project list and active project from the store.
+fn load_projects(store: &crate::app_state::DashboardStore) -> (Vec<ProjectView>, Option<ProjectView>) {
+    let projects: Vec<ProjectView> = store
+        .projects
+        .iter()
+        .map(|p| ProjectView {
+            id: p.id,
+            slug: p.slug.clone(),
+            name: p.name.clone(),
+            description: p.description.clone(),
+        })
+        .collect();
+    let active_project = store.active_project().map(|p| ProjectView {
+        id: p.id,
+        slug: p.slug.clone(),
+        name: p.name.clone(),
+        description: p.description.clone(),
+    });
+    (projects, active_project)
+}
+
 fn build_kanban_cards(
     store: &crate::app_state::DashboardStore,
 ) -> HashMap<String, Vec<FeatureView>> {
     let states = all_feature_states();
-    let by_state = store.features_by_state();
+    let active_features = store.features_for_active_project();
     let mut cards: HashMap<String, Vec<FeatureView>> = HashMap::new();
     for s in &states {
         cards.insert(s.clone(), vec![]);
     }
-    for (state_key, features) in &by_state {
-        let views: Vec<FeatureView> = features
-            .iter()
-            .map(|f| FeatureView::from_feature(f))
-            .collect();
-        cards.insert(state_key.to_string(), views);
+    // Group active features by state
+    for feature in active_features {
+        let state_key = feature.state.to_string();
+        let view = FeatureView::from_feature(feature);
+        cards.entry(state_key).or_insert_with(Vec::new).push(view);
     }
     cards
 }
@@ -93,9 +113,12 @@ pub async fn root() -> Redirect {
 pub async fn dashboard_page(State(state): State<SharedState>) -> Response {
     let store = state.read().await;
     let cards = build_kanban_cards(&store);
+    let (projects, active_project) = load_projects(&store);
     render(DashboardPage {
         kanban_cards: cards,
         health: store.health.clone(),
+        projects,
+        active_project,
     })
 }
 
@@ -108,9 +131,12 @@ pub async fn kanban_board(State(state): State<SharedState>, headers: HeaderMap) 
     if is_htmx(&headers) {
         render(KanbanPartial { cards })
     } else {
+        let (projects, active_project) = load_projects(&store);
         render(DashboardPage {
             kanban_cards: cards,
             health: store.health.clone(),
+            projects,
+            active_project,
         })
     }
 }
@@ -196,6 +222,50 @@ pub async fn agent_activity(_state: State<SharedState>) -> Response {
         },
     ];
     render(AgentActivityPartial { agents })
+}
+
+// ── /api/dashboard/projects ──────────────────────────────────────────
+
+pub async fn project_switcher(State(state): State<SharedState>) -> Response {
+    let store = state.read().await;
+    let projects: Vec<ProjectView> = store
+        .projects
+        .iter()
+        .map(|p| ProjectView {
+            id: p.id,
+            slug: p.slug.clone(),
+            name: p.name.clone(),
+            description: p.description.clone(),
+        })
+        .collect();
+    render(ProjectSwitcherPartial {
+        projects,
+        active_id: store.active_project_id,
+    })
+}
+
+// ── /api/dashboard/projects/:id/activate ─────────────────────────────
+
+pub async fn switch_project(
+    State(state): State<SharedState>,
+    Path(id): Path<i64>,
+) -> Response {
+    {
+        let mut store = state.write().await;
+        if id == 0 {
+            // id=0 means "All Projects" -- clear the filter.
+            store.active_project_id = None;
+        } else if store.projects.iter().any(|p| p.id == id) {
+            store.active_project_id = Some(id);
+        } else {
+            return (StatusCode::NOT_FOUND, "Project not found").into_response();
+        }
+    }
+
+    // Reload the kanban board with the updated project filter.
+    let store = state.read().await;
+    let cards = build_kanban_cards(&store);
+    render(KanbanPartial { cards })
 }
 
 // ── /settings ────────────────────────────────────────────────────────────
@@ -300,6 +370,8 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/dashboard/health", get(health_panel))
         .route("/api/dashboard/events", get(event_timeline))
         .route("/api/dashboard/agents", get(agent_activity))
+        .route("/api/dashboard/projects", get(project_switcher))
+        .route("/api/dashboard/projects/{id}/activate", post(switch_project))
         .with_state(state)
 }
 

@@ -140,6 +140,7 @@ where
         plane_state_id: None,
         labels: vec![],
         module_id: None,
+        project_id: None,
         created_at: now,
         updated_at: now,
     };

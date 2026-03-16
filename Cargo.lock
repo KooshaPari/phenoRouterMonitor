@@ -6,6 +6,7 @@ version = 4
 name = "agileplus-api"
 version = "0.1.0"
 dependencies = [
+ "agileplus-dashboard",
  "agileplus-domain",
  "agileplus-telemetry",
  "askama",

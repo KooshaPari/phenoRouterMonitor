@@ -28,6 +28,7 @@ impl TestFixtures {
             plane_state_id: None,
             labels: vec![],
             module_id: None,
+            project_id: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
@@ -43,6 +44,7 @@ impl TestFixtures {
             plane_state_id: None,
             labels: vec![],
             module_id: None,
+            project_id: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };

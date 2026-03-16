@@ -8,7 +8,8 @@ use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_plane::client::{PlaneIssue, PlaneIssueResponse};
 use agileplus_plane::labels::PlaneLabel;
-use agileplus_plane::state_mapper::{PlaneStateGroup, PlaneStateMapper};
+use agileplus_plane::state_mapper::{PlaneStateGroup, PlaneStateMapper, PlaneStateMapperConfig};
+use std::str::FromStr;
 
 // ---------------------------------------------------------------------------
 // Contract: PlaneStateMapper — AgilePlus state → Plane state group

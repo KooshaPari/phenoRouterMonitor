@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use agileplus_domain::domain::feature::Feature;
+use agileplus_domain::domain::project::Project;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::work_package::WorkPackage;
 use chrono::{DateTime, Utc};
@@ -27,17 +28,53 @@ pub struct DashboardStore {
     pub features: Vec<Feature>,
     pub work_packages: HashMap<i64, Vec<WorkPackage>>,
     pub health: Vec<ServiceHealth>,
+    pub projects: Vec<Project>,
+    pub active_project_id: Option<i64>,
 }
 
 pub type SharedState = Arc<RwLock<DashboardStore>>;
 
 impl DashboardStore {
+    /// Create a new DashboardStore seeded with all AgilePlus dogfood features.
+    ///
+    /// Populates the store with:
+    /// - All 4 AgilePlus kitty-specs as features (001-004)
+    /// - Work packages for each feature (2-4 per feature)
+    /// - Default health status for all services
+    /// - Empty projects list (project scoping deferred)
+    pub fn seeded() -> Self {
+        let (features, work_packages) = crate::seed::seed_dogfood_features();
+        let projects = vec![
+            Project::with_id(1, "agileplus", "AgilePlus", "Spec-driven development platform"),
+            Project::with_id(2, "speckitty", "SpecKitty", "Spec Kitty CLI and framework"),
+        ];
+        Self {
+            features,
+            work_packages,
+            health: default_health(),
+            projects,
+            active_project_id: None,
+        }
+    }
+
     pub fn features_by_state(&self) -> HashMap<FeatureState, Vec<&Feature>> {
         let mut map: HashMap<FeatureState, Vec<&Feature>> = HashMap::new();
         for f in &self.features {
             map.entry(f.state).or_default().push(f);
         }
         map
+    }
+
+    pub fn active_project(&self) -> Option<&Project> {
+        self.active_project_id
+            .and_then(|id| self.projects.iter().find(|p| p.id == id))
+    }
+
+    pub fn features_for_active_project(&self) -> Vec<&Feature> {
+        match self.active_project_id {
+            Some(pid) => self.features.iter().filter(|f| f.project_id == Some(pid)).collect(),
+            None => self.features.iter().collect(),
+        }
     }
 }
 
@@ -84,6 +121,20 @@ pub fn default_health() -> Vec<ServiceHealth> {
             healthy: true,
             degraded: false,
             latency_ms: Some(3),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "Plane API".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(12),
+            last_check: now,
+        },
+        ServiceHealth {
+            name: "Plane Web".into(),
+            healthy: true,
+            degraded: false,
+            latency_ms: Some(8),
             last_check: now,
         },
     ]

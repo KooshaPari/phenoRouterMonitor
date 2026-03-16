@@ -27,6 +27,10 @@ pub struct Feature {
     /// Traces to: FR-M03
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub module_id: Option<i64>,
+    /// Project that this feature belongs to.
+    /// Used for filtering features by project in the dashboard.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<i64>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -50,6 +54,7 @@ impl Feature {
             plane_state_id: None,
             labels: Vec::new(),
             module_id: None,
+            project_id: None,
             created_at: now,
             updated_at: now,
         }

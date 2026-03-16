@@ -73,6 +73,102 @@ services:
       - MINIO_LOG_DIR=.agileplus/logs
       - MINIO_LOGS_DIR=.agileplus/logs
 
+  postgres:
+    command: postgres -D .agileplus/postgres-data -p 5432
+    depends_on:
+      minio:
+        condition: process_healthy
+    log_location: .agileplus/logs/postgres.log
+    readiness_probe:
+      exec:
+        command: pg_isready -h localhost -p 5432
+      initial_delay_seconds: 10
+      period_seconds: 5
+      failure_threshold: 3
+    environment:
+      - PGDATA=.agileplus/postgres-data
+      - POSTGRES_USER=agileplus
+      - POSTGRES_PASSWORD=${PLANE_POSTGRES_PASSWORD:-agileplus-dev}
+      - POSTGRES_DB=plane
+
+  plane-api:
+    command: sh -c "cd .agileplus/plane/apiserver && .venv/bin/python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      postgres:
+        condition: process_healthy
+      dragonfly:
+        condition: process_healthy
+    log_location: .agileplus/logs/plane-api.log
+    readiness_probe:
+      http_get:
+        host: localhost
+        port: 8000
+        path: /api/health
+      initial_delay_seconds: 15
+      period_seconds: 5
+      failure_threshold: 3
+    environment:
+      - DATABASE_URL=postgresql://agileplus:${PLANE_POSTGRES_PASSWORD:-agileplus-dev}@localhost:5432/plane
+      - REDIS_URL=redis://localhost:6379
+      - SECRET_KEY=${PLANE_SECRET_KEY:-agileplus-dev-secret-key}
+      - WEB_URL=http://localhost:3100
+      - CORS_ALLOWED_ORIGINS=http://localhost:3100,http://localhost:3000
+      - PYTHONUNBUFFERED=1
+
+  plane-web:
+    command: sh -c "cd .agileplus/plane-web && npx next start -p 3100"
+    depends_on:
+      plane-api:
+        condition: process_healthy
+    log_location: .agileplus/logs/plane-web.log
+    readiness_probe:
+      http_get:
+        host: localhost
+        port: 3100
+        path: /
+      initial_delay_seconds: 20
+      period_seconds: 5
+      failure_threshold: 3
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_WEB_URL=http://localhost:3100
+
+  plane-worker:
+    command: sh -c "cd .agileplus/plane/apiserver && .venv/bin/celery -A plane worker -l info"
+    depends_on:
+      plane-api:
+        condition: process_healthy
+    log_location: .agileplus/logs/plane-worker.log
+    readiness_probe:
+      exec:
+        command: sh -c "cd .agileplus/plane/apiserver && .venv/bin/celery -A plane inspect ping | grep -q pong"
+      initial_delay_seconds: 15
+      period_seconds: 10
+      failure_threshold: 3
+    environment:
+      - DATABASE_URL=postgresql://agileplus:${PLANE_POSTGRES_PASSWORD:-agileplus-dev}@localhost:5432/plane
+      - REDIS_URL=redis://localhost:6379
+      - SECRET_KEY=${PLANE_SECRET_KEY:-agileplus-dev-secret-key}
+      - PYTHONUNBUFFERED=1
+
+  plane-beat:
+    command: sh -c "cd .agileplus/plane/apiserver && .venv/bin/celery -A plane beat -l info --pidfile=../../plane-beat.pid"
+    depends_on:
+      plane-api:
+        condition: process_healthy
+    log_location: .agileplus/logs/plane-beat.log
+    readiness_probe:
+      exec:
+        command: test -f .agileplus/plane-beat.pid
+      initial_delay_seconds: 15
+      period_seconds: 10
+      failure_threshold: 3
+    environment:
+      - DATABASE_URL=postgresql://agileplus:${PLANE_POSTGRES_PASSWORD:-agileplus-dev}@localhost:5432/plane
+      - REDIS_URL=redis://localhost:6379
+      - SECRET_KEY=${PLANE_SECRET_KEY:-agileplus-dev-secret-key}
+      - PYTHONUNBUFFERED=1
+
   agileplus-api:
     command: cargo run --release -p agileplus-api
     depends_on:
@@ -83,6 +179,8 @@ services:
       neo4j:
         condition: process_healthy
       minio:
+        condition: process_healthy
+      plane-web:
         condition: process_healthy
     log_location: .agileplus/logs/agileplus-api.log
     readiness_probe:
@@ -107,3 +205,4 @@ services:
       - DATABASE_URL=sqlite:.agileplus/agileplus.db
       - API_PORT=3000
       - API_HOST=0.0.0.0
+      - PLANE_API_URL=http://localhost:8000

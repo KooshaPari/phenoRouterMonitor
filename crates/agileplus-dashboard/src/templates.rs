@@ -12,6 +12,15 @@ use askama::Template;
 
 use crate::app_state::ServiceHealth;
 
+/// Project view model used in project switcher and pages.
+#[derive(Debug, Clone)]
+pub struct ProjectView {
+    pub id: i64,
+    pub slug: String,
+    pub name: String,
+    pub description: String,
+}
+
 /// Work-package view model used in partials.
 #[derive(Debug, Clone)]
 pub struct WpView {
@@ -65,6 +74,8 @@ impl FeatureView {
 pub struct DashboardPage {
     pub kanban_cards: HashMap<String, Vec<FeatureView>>,
     pub health: Vec<ServiceHealth>,
+    pub projects: Vec<ProjectView>,
+    pub active_project: Option<ProjectView>,
 }
 
 #[derive(Template)]
@@ -166,6 +177,13 @@ pub struct AgentView {
 #[template(path = "partials/agent-activity.html")]
 pub struct AgentActivityPartial {
     pub agents: Vec<AgentView>,
+}
+
+#[derive(Template)]
+#[template(path = "partials/project-switcher.html")]
+pub struct ProjectSwitcherPartial {
+    pub projects: Vec<ProjectView>,
+    pub active_id: Option<i64>,
 }
 
 /// Helper: build ordered kanban states list.
