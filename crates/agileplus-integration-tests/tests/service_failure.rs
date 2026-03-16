@@ -5,19 +5,23 @@
 //!
 //! Traceability: WP19-T111
 
-use std::time::{Duration, Instant};
-
 use agileplus_integration_tests::common::{
-    fixtures::feature_create_payload,
-    harness::{TestHarness, is_process_compose_installed, project_root},
+    fixtures::feature_create_payload, harness::project_root,
 };
 
+#[cfg(feature = "integration")]
+use std::time::{Duration, Instant};
+
+#[cfg(feature = "integration")]
+use agileplus_integration_tests::common::harness::{TestHarness, is_process_compose_installed};
+
 /// Helper: skip the test if services are unavailable.
+#[cfg(feature = "integration")]
 macro_rules! require_services {
     () => {
         if !is_process_compose_installed() {
             eprintln!(
-                "SKIP: process-compose not installed — \
+                "SKIP: process-compose not installed -- \
                  run with --features integration and a live stack to execute this test."
             );
             return Ok(());
