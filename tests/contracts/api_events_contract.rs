@@ -127,11 +127,11 @@ fn contract_query_sequence_range_enables_offset_pagination() {
 
     // Simulate page 1 (sequences 1-5) and page 2 (sequences 6-10).
     let page1 = EventQuery::new()
-        .from_sequence(1)
+        .after_sequence(1)
         .to_sequence(5)
         .filter(&events);
     let page2 = EventQuery::new()
-        .from_sequence(6)
+        .after_sequence(6)
         .to_sequence(10)
         .filter(&events);
 

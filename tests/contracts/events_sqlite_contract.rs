@@ -5,7 +5,7 @@
 //! error conditions, and hash-chain integrity.
 
 use agileplus_domain::domain::event::Event;
-use agileplus_events::{EventError, EventStore};
+use agileplus_events::EventStore;
 use agileplus_sqlite::SqliteStorageAdapter;
 use chrono::Utc;
 
