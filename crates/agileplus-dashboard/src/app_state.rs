@@ -87,6 +87,24 @@ impl DashboardStore {
             None => self.features.iter().collect(),
         }
     }
+
+    pub fn project_for_feature(&self, feature: &Feature) -> Option<&Project> {
+        feature.project_id.and_then(|pid| self.projects.iter().find(|p| p.id == pid))
+    }
+
+    pub fn feature_counts_for_project(&self, project_id: i64) -> (usize, usize, usize) {
+        let features: Vec<&Feature> = self.features.iter()
+            .filter(|f| f.project_id == Some(project_id))
+            .collect();
+        let total = features.len();
+        let active = features.iter()
+            .filter(|f| !matches!(f.state, FeatureState::Shipped | FeatureState::Retrospected))
+            .count();
+        let shipped = features.iter()
+            .filter(|f| matches!(f.state, FeatureState::Shipped | FeatureState::Retrospected))
+            .count();
+        (total, active, shipped)
+    }
 }
 
 pub fn default_health() -> Vec<ServiceHealth> {
