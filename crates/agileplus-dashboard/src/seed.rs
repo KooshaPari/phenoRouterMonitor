@@ -467,7 +467,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
 
     let mut wp_id = work_packages.values().flatten().map(|wp| wp.id).max().unwrap_or(0) + 1;
     for (id, slug, name, labels) in speckitty_specs {
-        features.push(make_shipped_feature(id, slug, name, labels, Some(2)));
+        features.push(make_shipped_feature(id, slug, name, labels, Some(1)));
         let wps = make_shipped_wps(
             id,
             wp_id,

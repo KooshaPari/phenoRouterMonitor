@@ -46,7 +46,18 @@ impl DashboardStore {
         let (features, work_packages) = crate::seed::seed_dogfood_features();
         let projects = vec![
             Project::with_id(1, "agileplus", "AgilePlus", "Spec-driven development platform"),
-            Project::with_id(2, "speckitty", "SpecKitty", "Spec Kitty CLI and framework"),
+            Project::with_id(2, "bifrost-extensions", "Bifrost Extensions", "Clean extension layer for Bifrost LLM gateway"),
+            Project::with_id(3, "cliproxyapi-plusplus", "CLIProxy API++", "CLI proxy with third-party provider support"),
+            Project::with_id(4, "agentapi-plusplus", "AgentAPI++", "AgentAPI fork with provider support and OAuth"),
+            Project::with_id(5, "colab", "Colab", "Hybrid web browser and local code editor"),
+            Project::with_id(6, "helios", "Helios", "Helios application and CLI"),
+            Project::with_id(7, "thegent", "TheGent", "Agent orchestration, governance, and lifecycle framework"),
+            Project::with_id(8, "tokenledger", "TokenLedger", "Token management and pricing governance for AI agents"),
+            Project::with_id(9, "trace", "Trace", "Multi-view requirements traceability system"),
+            Project::with_id(10, "phenotype-config", "Phenotype Config", "Local-first config, feature flags, and secrets"),
+            Project::with_id(11, "phenotype-infra", "Phenotype Infra", "Shared actions, design tokens, and doc federation"),
+            Project::with_id(12, "portage", "Portage", "Agent and LLM evaluation framework"),
+            Project::with_id(13, "civ", "Civ", "Deterministic simulation and policy architecture"),
         ];
         Self {
             features,
