@@ -1,6 +1,7 @@
 <div id="kanban-board"
      hx-get="/api/dashboard/kanban"
-     hx-trigger="load, sse:feature_updated"
+     hx-trigger="sse:feature_updated"
+     hx-swap="outerHTML"
      x-data="kanbanBoard()"
      class="flex gap-4 p-4 overflow-x-auto">
   {% for (state, col_cards) in cards %}
