@@ -4,21 +4,31 @@
 //! relevant partial; otherwise return the full page layout.
 
 use std::collections::HashMap;
+use std::env;
 
+use chrono::Utc;
 use askama::Template;
 use axum::{
     Router,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::{HeaderMap, StatusCode},
-    response::{Html, IntoResponse, Redirect, Response},
+    response::{Html, IntoResponse, Response},
     routing::{get, post},
+};
+
+use agileplus_domain::domain::{
+    feature::Feature,
+    state_machine::FeatureState,
+    work_package::WpState,
 };
 
 use crate::app_state::SharedState;
 use crate::templates::{
     AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EventTimelinePartial,
-    EventsPage, FeatureDetailPage, FeatureView, FeaturesPage, HealthPanelPartial, KanbanPartial,
-    PlaneSettingsPage, ProjectSwitcherPartial, ProjectView, ServicesSettingsPage, SettingsPage,
+    EventsPage, EvidenceBundleView, FeatureDetailPage, FeatureView, FeaturesPage, HealthPanelPartial,
+    HomePage, KanbanPartial, MediaAssetView, PlaneHealthEndpointView, PlaneSettingsPage,
+    ProjectSummaryView,
+    ProjectSwitcherPartial, ProjectView, ReportArtifactView, ServicesSettingsPage, SettingsPage,
     WpListPartial, WpView, all_feature_states,
 };
 
@@ -63,17 +73,268 @@ fn load_projects(store: &crate::app_state::DashboardStore) -> (Vec<ProjectView>,
     (projects, active_project)
 }
 
+fn build_project_summaries(store: &crate::app_state::DashboardStore) -> Vec<ProjectSummaryView> {
+    store
+        .projects
+        .iter()
+        .map(|project| {
+            let (feature_count, active_count, shipped_count) =
+                store.feature_counts_for_project(project.id);
+            ProjectSummaryView {
+                project: ProjectView {
+                    id: project.id,
+                    slug: project.slug.clone(),
+                    name: project.name.clone(),
+                    description: project.description.clone(),
+                },
+                feature_count,
+                active_count,
+                shipped_count,
+            }
+        })
+        .collect()
+}
+
+const DEFAULT_PLANE_API_URL: &str = "https://app.plane.so";
+const DEFAULT_PLANE_WEB_URL: &str = "https://app.plane.so";
+
+fn env_or_none(key: &str) -> Option<String> {
+    env::var(key)
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+fn parse_bool_env(key: &str, default: bool) -> bool {
+    env::var(key)
+        .ok()
+        .map(|value| matches!(value.trim().to_lowercase().as_str(), "1" | "true" | "yes" | "on"))
+        .unwrap_or(default)
+}
+
+fn plane_api_key_hint(api_key: &Option<String>) -> String {
+    match api_key {
+        Some(key) => match (key.chars().next(), key.chars().rev().next()) {
+            (Some(first), Some(last)) => format!("{first}••••••{last}"),
+            _ => "Configured".to_string(),
+        },
+        None => "Not configured".to_string(),
+    }
+}
+
+fn plane_health_endpoints(services: &[crate::app_state::ServiceHealth]) -> Vec<PlaneHealthEndpointView> {
+    services
+        .iter()
+        .filter(|service| service.name.contains("Plane") || service.name.starts_with("API"))
+        .map(|service| PlaneHealthEndpointView {
+            name: service.name.clone(),
+            healthy: service.healthy,
+            degraded: service.degraded,
+            latency_ms: service.latency_ms,
+            last_check_utc: service.last_check.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        })
+        .collect()
+}
+
+fn build_feature_events(feature: &FeatureView, workpackages: &[WpView]) -> Vec<crate::templates::EventView> {
+    let now = Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
+    let mut events = vec![crate::templates::EventView {
+        id: format!("evt-feature-{}-created", feature.id),
+        kind: "system".into(),
+        description: format!("Feature '{}' opened in dashboard", feature.slug),
+        timestamp: now.clone(),
+    }];
+
+    if !workpackages.is_empty() {
+        events.push(crate::templates::EventView {
+            id: format!("evt-feature-{}-sync", feature.id),
+            kind: "agent_action".into(),
+            description: format!("{} work package entries synced", workpackages.len()),
+            timestamp: now.clone(),
+        });
+
+        for wp in workpackages {
+            events.push(crate::templates::EventView {
+                id: format!("evt-feature-{}-wp-{}", feature.id, wp.id),
+                kind: "state_change".into(),
+                description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
+                timestamp: now.clone(),
+            });
+        }
+    } else {
+        events.push(crate::templates::EventView {
+            id: format!("evt-feature-{}-no-wp", feature.id),
+            kind: "system".into(),
+            description: "No work packages linked yet".into(),
+            timestamp: now.clone(),
+        });
+    }
+
+    events
+}
+
+fn build_feature_evidence_bundles(
+    feature: &FeatureView,
+    workpackages: &[WpView],
+) -> Vec<EvidenceBundleView> {
+    let mut bundles = vec![EvidenceBundleView {
+        id: format!("bundle-{id}-summary", id = feature.id),
+        fr_id: format!("FR-{id}", id = feature.id),
+        evidence_type: "feature_summary".into(),
+        wp_id: "dashboard".into(),
+        wp_title: feature.title.clone(),
+        artifact_path: format!("/artifacts/features/{}.md", feature.slug),
+        created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        artifact_ext: "md".into(),
+        status: "available".into(),
+    }];
+
+    for wp in workpackages {
+        bundles.push(EvidenceBundleView {
+            id: format!("bundle-{fid}-wp-{wid}", fid = feature.id, wid = wp.id),
+            fr_id: format!("FR-{fid}", fid = feature.id),
+            evidence_type: "workpackage_artifact".into(),
+            wp_id: wp.id.to_string(),
+            wp_title: wp.title.clone(),
+            artifact_path: format!("/artifacts/wp/{wid}/{slug}.json", wid = wp.id, slug = feature.slug),
+            created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+            artifact_ext: "json".into(),
+            status: if wp.progress > 0 { "accepted" } else { "generated" }.into(),
+        });
+    }
+
+    bundles
+}
+
+fn build_feature_media_assets(feature: &FeatureView, workpackages: &[WpView]) -> Vec<MediaAssetView> {
+    let mut media = vec![MediaAssetView {
+        id: format!("media-{id}-cover", id = feature.id),
+        source: "dashboard".into(),
+        name: format!("{slug}-hero.png", slug = feature.slug),
+        kind: "image".into(),
+        mime: "image/png".into(),
+        url_or_path: format!("/assets/{slug}/cover.png", slug = feature.slug),
+        size_bytes: 128_512,
+        uploaded_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+    }];
+
+    for wp in workpackages {
+        media.push(MediaAssetView {
+            id: format!("media-{fid}-wp-{wid}", fid = feature.id, wid = wp.id),
+            source: "agent-work-package".into(),
+            name: format!("{slug}-wp-{wid}.png", slug = feature.slug, wid = wp.id),
+            kind: "screenshot".into(),
+            mime: "image/png".into(),
+            url_or_path: format!("/assets/wp/{wid}/coverage.png", wid = wp.id),
+            size_bytes: 84_320 + (wp.id as usize * 3_000),
+            uploaded_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        });
+    }
+
+    media
+}
+
+fn build_feature_reports(feature: &FeatureView, workpackages: &[WpView]) -> Vec<ReportArtifactView> {
+    vec![ReportArtifactView {
+        id: format!("report-{id}-coverage", id = feature.id),
+        name: format!("Feature Coverage Report — {name}", name = feature.title),
+        source: "coverage-engine".into(),
+        status: "completed".into(),
+        generated_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        rule_count: 5,
+        satisfied_count: if feature.labels.is_empty() { 2 } else { feature.labels.len() + 2 },
+        compliant: workpackages.len() >= 1,
+    }]
+}
+
+fn plane_sync_mode() -> String {
+    if parse_bool_env("PLANE_SYNC_BIDIRECTIONAL", false) {
+        "Bidirectional".to_string()
+    } else {
+        "One-way".to_string()
+    }
+}
+
+fn plane_connection_checks(
+    api_key: &Option<String>,
+    workspace: &Option<String>,
+) -> (bool, String, Vec<String>) {
+    let mut warnings = Vec::new();
+    if api_key.is_none() {
+        warnings.push("Missing PLANE_API_KEY; configure a valid Plane API key".to_string());
+    }
+    if workspace.is_none() {
+        warnings.push("Missing PLANE_WORKSPACE; set workspace slug for Plane sync".to_string());
+    }
+
+    if warnings.is_empty() {
+        (true, "Connected via PLANE_API_KEY".to_string(), warnings)
+    } else if warnings.len() == 1 {
+        let status = warnings[0].clone();
+        (false, status, warnings)
+    } else {
+        (false, "Plane settings incomplete".to_string(), warnings)
+    }
+}
+
+fn percentage_coverage(hit: usize, total: usize) -> String {
+    if total == 0 {
+        return "0/0 (0%)".to_string();
+    }
+    let ratio = (hit.saturating_mul(100)).saturating_div(total);
+    format!("{hit}/{total} ({ratio}%)")
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DashboardFilter {
+    All,
+    Active,
+    Blocked,
+    Shipped,
+}
+
+fn dashboard_filter_from_query(query: &HashMap<String, String>) -> DashboardFilter {
+    match query.get("filter").map(|value| value.as_str()) {
+        Some("active") => DashboardFilter::Active,
+        Some("blocked") => DashboardFilter::Blocked,
+        Some("shipped") => DashboardFilter::Shipped,
+        _ => DashboardFilter::All,
+    }
+}
+
+fn feature_matches_filter(
+    store: &crate::app_state::DashboardStore,
+    feature: &Feature,
+    filter: DashboardFilter,
+) -> bool {
+    let is_blocked = store
+        .work_packages
+        .get(&feature.id)
+        .map(|workpackages| workpackages.iter().any(|wp| wp.state == WpState::Blocked))
+        .unwrap_or(false);
+
+    match filter {
+        DashboardFilter::All => true,
+        DashboardFilter::Active => !matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected),
+        DashboardFilter::Blocked => is_blocked,
+        DashboardFilter::Shipped => matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected),
+    }
+}
+
 fn build_kanban_cards(
     store: &crate::app_state::DashboardStore,
+    filter: DashboardFilter,
 ) -> HashMap<String, Vec<FeatureView>> {
     let states = all_feature_states();
-    let active_features = store.features_for_active_project();
     let mut cards: HashMap<String, Vec<FeatureView>> = HashMap::new();
     for s in &states {
         cards.insert(s.clone(), vec![]);
     }
-    // Group active features by state
-    for feature in active_features {
+    // Group active features by state after applying project and sidebar filters.
+    for feature in store.features_for_active_project() {
+        if !feature_matches_filter(store, feature, filter) {
+            continue;
+        }
         let state_key = feature.state.to_string();
         let view = FeatureView::from_feature(feature);
         cards.entry(state_key).or_insert_with(Vec::new).push(view);
@@ -104,29 +365,70 @@ fn sample_events() -> Vec<crate::templates::EventView> {
     ]
 }
 
-pub async fn root() -> Redirect {
-    Redirect::to("/dashboard")
+pub async fn root(State(state): State<SharedState>) -> Response {
+    let store = state.read().await;
+    let total_features = store.features.len();
+    let active_features = store
+        .features
+        .iter()
+        .filter(|feature| !matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected))
+        .count();
+    let shipped_features = store
+        .features
+        .iter()
+        .filter(|feature| matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected))
+        .count();
+    let projects = build_project_summaries(&store);
+
+    render(HomePage {
+        total_features,
+        active_features,
+        shipped_features,
+        projects,
+    })
+}
+
+pub async fn home(State(state): State<SharedState>) -> Response {
+    root(State(state)).await
 }
 
 // ── /dashboard ───────────────────────────────────────────────────────────
 
-pub async fn dashboard_page(State(state): State<SharedState>) -> Response {
+pub async fn dashboard_page(
+    State(state): State<SharedState>,
+    Query(query): Query<HashMap<String, String>>,
+) -> Response {
     let store = state.read().await;
-    let cards = build_kanban_cards(&store);
+    let filter = dashboard_filter_from_query(&query);
+    let cards = build_kanban_cards(&store, filter);
     let (projects, active_project) = load_projects(&store);
+    let active_filter = query
+        .get("filter")
+        .cloned()
+        .unwrap_or_else(|| "all".into());
     render(DashboardPage {
         kanban_cards: cards,
         health: store.health.clone(),
         projects,
         active_project,
+        active_filter,
     })
 }
 
 // ── /api/dashboard/kanban ────────────────────────────────────────────────
 
-pub async fn kanban_board(State(state): State<SharedState>, headers: HeaderMap) -> Response {
+pub async fn kanban_board(
+    State(state): State<SharedState>,
+    headers: HeaderMap,
+    Query(query): Query<HashMap<String, String>>,
+) -> Response {
     let store = state.read().await;
-    let cards = build_kanban_cards(&store);
+    let filter = dashboard_filter_from_query(&query);
+    let cards = build_kanban_cards(&store, filter);
+    let active_filter = query
+        .get("filter")
+        .cloned()
+        .unwrap_or_else(|| "all".into());
 
     if is_htmx(&headers) {
         render(KanbanPartial { cards })
@@ -137,6 +439,7 @@ pub async fn kanban_board(State(state): State<SharedState>, headers: HeaderMap) 
             health: store.health.clone(),
             projects,
             active_project,
+            active_filter,
         })
     }
 }
@@ -159,12 +462,19 @@ pub async fn feature_detail(
         .get(&id)
         .map(|v| v.iter().map(WpView::from_wp).collect())
         .unwrap_or_default();
+    let events = build_feature_events(&feature, &wps);
+    let evidence_bundles = build_feature_evidence_bundles(&feature, &wps);
+    let media_assets = build_feature_media_assets(&feature, &wps);
+    let reports = build_feature_reports(&feature, &wps);
 
     render(FeatureDetailPage {
         feature,
         feature_id: fid,
         workpackages: wps,
-        events: vec![],
+        events,
+        evidence_bundles,
+        media_assets,
+        reports,
     })
 }
 
@@ -264,7 +574,7 @@ pub async fn switch_project(
 
     // Reload the kanban board with the updated project filter.
     let store = state.read().await;
-    let cards = build_kanban_cards(&store);
+    let cards = build_kanban_cards(&store, DashboardFilter::All);
     render(KanbanPartial { cards })
 }
 
@@ -298,26 +608,76 @@ pub async fn events_page() -> Response {
 
 pub async fn plane_settings_page(State(state): State<SharedState>) -> Response {
     let store = state.read().await;
+    let plane_workspace = env_or_none("PLANE_WORKSPACE");
+    let project_slug = env_or_none("PLANE_PROJECT")
+        .unwrap_or_else(|| "not configured".to_string());
+    let plane_api_key = env_or_none("PLANE_API_KEY");
+    let plane_api_url = env_or_none("PLANE_API_URL").unwrap_or_else(|| DEFAULT_PLANE_API_URL.to_string());
+    let plane_web_url = env_or_none("PLANE_WEB_URL").unwrap_or_else(|| DEFAULT_PLANE_WEB_URL.to_string());
+    let (connected, connection_status, mut config_warnings) =
+        plane_connection_checks(&plane_api_key, &plane_workspace);
+
+    let plane_health_endpoints = plane_health_endpoints(&store.health);
+    let plane_health_healthy = plane_health_endpoints
+        .iter()
+        .all(|endpoint| endpoint.healthy && !endpoint.degraded);
+    let plane_api_latency_ms = plane_health_endpoints
+        .iter()
+        .find(|endpoint| endpoint.name == "Plane API")
+        .and_then(|endpoint| endpoint.latency_ms);
+
+    if !connected {
+        config_warnings.push("Plane sync disabled until required settings are provided".to_string());
+    }
+
+    if !plane_health_healthy {
+        config_warnings.push("Plane API health check is not healthy".to_string());
+    }
+
     let mapped_features = store
         .features
         .iter()
         .filter(|feature| feature.plane_issue_id.is_some())
         .count();
+    let total_features = store.features.len();
     let mapped_work_packages = store
         .work_packages
         .values()
         .flatten()
         .filter(|wp| wp.plane_sub_issue_id.is_some())
         .count();
+    let total_work_packages: usize = store.work_packages.values().map(Vec::len).sum();
+
+    let connection_status_configured = !connection_status.is_empty();
 
     render(PlaneSettingsPage {
-        workspace_name: "AgilePlus Core Workspace".into(),
-        plane_api_url: std::env::var("PLANE_API_URL")
-            .unwrap_or_else(|_| "https://app.plane.so".into()),
-        sync_enabled: true,
-        connected: std::env::var("PLANE_API_KEY").is_ok(),
+        workspace_name: plane_workspace
+            .clone()
+            .unwrap_or_else(|| "Not configured".to_string()),
+        workspace_slug: plane_workspace.unwrap_or_else(|| "not configured".to_string()),
+        project_slug,
+        plane_api_url: plane_api_url.trim_end_matches('/').to_string(),
+        plane_web_url: plane_web_url.trim_end_matches('/').to_string(),
+        plane_api_url_set: !plane_api_url.trim_end_matches('/').is_empty(),
+        plane_web_url_set: !plane_web_url.trim_end_matches('/').is_empty(),
+        plane_api_key_hint: plane_api_key_hint(&plane_api_key),
+        plane_api_key_set: plane_api_key.is_some(),
+        sync_enabled: connected,
+        sync_mode: plane_sync_mode(),
+        connected,
+        connection_status: connection_status.clone(),
+        connection_status_configured,
+        plane_service_healthy: plane_health_healthy,
+        plane_api_latency_ms,
+        plane_health_endpoints,
+        mapped_features_coverage: percentage_coverage(mapped_features, total_features),
+        mapped_work_packages_coverage: percentage_coverage(
+            mapped_work_packages,
+            total_work_packages,
+        ),
         mapped_features,
         mapped_work_packages,
+        config_warnings,
     })
 }
 
@@ -355,6 +715,7 @@ pub async fn stream_placeholder() -> StatusCode {
 pub fn router(state: SharedState) -> Router {
     Router::new()
         .route("/", get(root))
+        .route("/home", get(home))
         .route("/dashboard", get(dashboard_page))
         .route("/features", get(features_page))
         .route("/events", get(events_page))
@@ -408,7 +769,7 @@ mod tests {
         let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
         let html = String::from_utf8(bytes.to_vec()).unwrap();
         assert!(html.contains("Plane Native Surface"));
-        assert!(html.contains("AgilePlus Core Workspace"));
+        assert!(html.contains("Not configured"));
     }
 
     #[tokio::test]

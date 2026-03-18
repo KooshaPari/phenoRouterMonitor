@@ -5,32 +5,22 @@
 {% block content %}
 <div class="p-6 max-w-4xl mx-auto space-y-6">
   <div class="border-b border-zinc-700 pb-4">
-    <h1 class="text-2xl font-bold tracking-tight">Service Endpoints</h1>
-    <p class="text-sm text-zinc-400 mt-1">Current health snapshot for platform dependencies surfaced inside the native dashboard.</p>
+    <h1 class="text-2xl font-bold tracking-tight">Service Settings</h1>
+    <p class="text-sm text-zinc-400 mt-1">Live dependency health for the AgilePlus platform.</p>
   </div>
 
-  <div class="grid md:grid-cols-2 gap-4">
+  <div class="grid md:grid-cols-2 gap-3">
     {% for svc in services %}
       <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
-        <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center justify-between gap-3">
           <div class="font-semibold">{{ svc.name }}</div>
           <div class="text-xs text-zinc-400">
-            {% if svc.healthy %}
-              healthy
-            {% else if svc.degraded %}
-              degraded
-            {% else %}
-              unavailable
-            {% endif %}
+            {% if svc.healthy %}healthy{% else if svc.degraded %}degraded{% else %}down{% endif %}
           </div>
         </div>
-        <div class="text-sm text-zinc-400 mt-2">
-          {% if let Some(lat) = svc.latency_ms %}
-            latency {{ lat }}ms
-          {% else %}
-            no latency data
-          {% endif %}
-        </div>
+        {% if let Some(latency) = svc.latency_ms %}
+          <div class="mt-2 text-sm text-zinc-400">{{ latency }}ms</div>
+        {% endif %}
       </div>
     {% endfor %}
   </div>

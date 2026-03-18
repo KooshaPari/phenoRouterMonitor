@@ -3,150 +3,40 @@
 {% block title %}{{ feature.title }}{% endblock %}
 
 {% block content %}
-<div class="p-6 max-w-5xl mx-auto space-y-8" hx-ext="sse" sse-connect="/api/stream">
-
-  <!-- Header -->
-  <div class="border-b border-zinc-700 pb-6">
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight">{{ feature.title }}</h1>
-        <p class="text-zinc-500 text-sm mt-1">slug: {{ feature.slug }}</p>
-      </div>
-      <div class="flex flex-col items-end gap-1">
-        <span class="badge badge-{{ feature.state }} text-xs px-2 py-1 rounded border border-zinc-600 capitalize">
-          {{ feature.state }}
-        </span>
-      </div>
-    </div>
-    <div class="flex gap-2 mt-3 flex-wrap">
+<div class="p-6 max-w-5xl mx-auto space-y-8">
+  <section class="border-b border-zinc-700 pb-6">
+    <h1 class="text-3xl font-bold tracking-tight">{{ feature.title }}</h1>
+    <p class="text-sm text-zinc-500 mt-1">slug: {{ feature.slug }}</p>
+    <div class="mt-3 flex flex-wrap gap-2">
       {% for label in feature.labels %}
         <span class="text-xs px-2 py-0.5 rounded border border-zinc-600 text-zinc-300 bg-zinc-800">{{ label }}</span>
       {% endfor %}
     </div>
-  </div>
+  </section>
 
-  <!-- Work Packages — subscribes to sse:wp_updated -->
-  <section id="wp-list-{{ feature_id }}"
-           hx-get="/api/dashboard/features/{{ feature_id }}/work-packages"
-           hx-trigger="load, sse:wp_updated"
-           hx-swap="innerHTML">
-    <h2 class="text-xl font-bold mb-3">Work Packages</h2>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold">Work Packages</h2>
     {% include "partials/wp-list.html" %}
   </section>
 
-  <!-- Event Timeline -->
-  <section x-data="timelineFilter()" class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold">Event Timeline</h2>
-      <div class="flex gap-2 text-xs">
-        <button @click="setFilter('all')"
-                :class="filter === 'all' ? 'filter-btn-active' : 'filter-btn'"
-                class="filter-btn-base">All</button>
-        <button @click="setFilter('state_change')"
-                :class="filter === 'state_change' ? 'filter-btn-active' : 'filter-btn'"
-                class="filter-btn-base">State Changes</button>
-        <button @click="setFilter('agent_action')"
-                :class="filter === 'agent_action' ? 'filter-btn-active' : 'filter-btn'"
-                class="filter-btn-base">Agent Actions</button>
-        <button @click="setFilter('system')"
-                :class="filter === 'system' ? 'filter-btn-active' : 'filter-btn'"
-                class="filter-btn-base">System</button>
-      </div>
-    </div>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold">Event Timeline</h2>
     {% include "partials/event-timeline.html" %}
   </section>
 
-  <!-- T080: Actions / state transitions -->
-  <section class="border-t border-zinc-700 pt-6">
-    <h2 class="text-xl font-bold mb-3">Actions</h2>
-    <div class="flex flex-wrap gap-3">
-      <button
-        hx-post="/api/features/{{ feature.id }}/transition"
-        hx-vals='{"target_state":"specified"}'
-        hx-confirm="Transition to Specified?"
-        hx-target="body"
-        hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Specified
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/transition"
-        hx-vals='{"target_state":"researched"}'
-        hx-confirm="Transition to Researched?"
-        hx-target="body"
-        hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Researched
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/transition"
-        hx-vals='{"target_state":"planned"}'
-        hx-confirm="Transition to Planned?"
-        hx-target="body"
-        hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Planned
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/transition"
-        hx-vals='{"target_state":"implementing"}'
-        hx-confirm="Transition to Implementing?"
-        hx-target="body"
-        hx-swap="none"
-        class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm rounded border border-blue-600 transition">
-        → Implementing
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/transition"
-        hx-vals='{"target_state":"validated"}'
-        hx-confirm="Transition to Validated?"
-        hx-target="body"
-        hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Validated
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/transition"
-        hx-vals='{"target_state":"shipped"}'
-        hx-confirm="Mark as Shipped?"
-        hx-target="body"
-        hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Shipped
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/sync"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        Sync with Plane
-      </button>
-      <button
-        hx-post="/api/features/{{ feature.id }}/dispatch"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        Dispatch Agent
-      </button>
-    </div>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold">Evidence Bundles</h2>
+    {% include "partials/feature-evidence.html" %}
   </section>
 
-</div>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold">Media Assets</h2>
+    {% include "partials/feature-media.html" %}
+  </section>
 
-<script>
-/* T082: Timeline filter Alpine component */
-function timelineFilter() {
-  return {
-    filter: 'all',
-    setFilter(type) {
-      this.filter = type;
-      // show/hide events based on data-kind attribute
-      document.querySelectorAll('.timeline-event').forEach(el => {
-        const kind = el.dataset.kind || '';
-        if (type === 'all' || kind === type) {
-          el.style.display = '';
-        } else {
-          el.style.display = 'none';
-        }
-      });
-    },
-  };
-}
-</script>
+  <section class="space-y-3">
+    <h2 class="text-xl font-bold">Reports</h2>
+    {% include "partials/feature-reports.html" %}
+  </section>
+</div>
 {% endblock %}

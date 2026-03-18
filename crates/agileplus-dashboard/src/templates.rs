@@ -21,6 +21,15 @@ pub struct ProjectView {
     pub description: String,
 }
 
+/// Project summary view model used on the homepage.
+#[derive(Debug, Clone)]
+pub struct ProjectSummaryView {
+    pub project: ProjectView,
+    pub feature_count: usize,
+    pub active_count: usize,
+    pub shipped_count: usize,
+}
+
 /// Work-package view model used in partials.
 #[derive(Debug, Clone)]
 pub struct WpView {
@@ -70,12 +79,22 @@ impl FeatureView {
 // ── Full-page templates ────────────────────────────────────────────────────
 
 #[derive(Template)]
+#[template(path = "pages/home.html")]
+pub struct HomePage {
+    pub total_features: usize,
+    pub active_features: usize,
+    pub shipped_features: usize,
+    pub projects: Vec<ProjectSummaryView>,
+}
+
+#[derive(Template)]
 #[template(path = "pages/dashboard.html")]
 pub struct DashboardPage {
     pub kanban_cards: HashMap<String, Vec<FeatureView>>,
     pub health: Vec<ServiceHealth>,
     pub projects: Vec<ProjectView>,
     pub active_project: Option<ProjectView>,
+    pub active_filter: String,
 }
 
 #[derive(Template)]
@@ -85,6 +104,46 @@ pub struct FeatureDetailPage {
     pub feature_id: i64,
     pub workpackages: Vec<WpView>,
     pub events: Vec<EventView>,
+    pub evidence_bundles: Vec<EvidenceBundleView>,
+    pub media_assets: Vec<MediaAssetView>,
+    pub reports: Vec<ReportArtifactView>,
+}
+
+#[derive(Debug, Clone)]
+pub struct EvidenceBundleView {
+    pub id: String,
+    pub fr_id: String,
+    pub evidence_type: String,
+    pub wp_id: String,
+    pub wp_title: String,
+    pub artifact_path: String,
+    pub created_at: String,
+    pub artifact_ext: String,
+    pub status: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct MediaAssetView {
+    pub id: String,
+    pub source: String,
+    pub name: String,
+    pub kind: String,
+    pub mime: String,
+    pub url_or_path: String,
+    pub size_bytes: usize,
+    pub uploaded_at: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct ReportArtifactView {
+    pub id: String,
+    pub name: String,
+    pub source: String,
+    pub status: String,
+    pub generated_at: String,
+    pub rule_count: usize,
+    pub satisfied_count: usize,
+    pub compliant: bool,
 }
 
 #[derive(Template)]
@@ -107,11 +166,36 @@ pub struct EventsPage {
 #[template(path = "pages/settings-plane.html")]
 pub struct PlaneSettingsPage {
     pub workspace_name: String,
+    pub workspace_slug: String,
+    pub project_slug: String,
     pub plane_api_url: String,
+    pub plane_web_url: String,
+    pub plane_api_url_set: bool,
+    pub plane_web_url_set: bool,
+    pub plane_api_key_hint: String,
+    pub plane_api_key_set: bool,
     pub sync_enabled: bool,
+    pub sync_mode: String,
     pub connected: bool,
+    pub connection_status: String,
+    pub connection_status_configured: bool,
+    pub plane_service_healthy: bool,
+    pub plane_api_latency_ms: Option<u64>,
+    pub plane_health_endpoints: Vec<PlaneHealthEndpointView>,
+    pub mapped_features_coverage: String,
+    pub mapped_work_packages_coverage: String,
     pub mapped_features: usize,
     pub mapped_work_packages: usize,
+    pub config_warnings: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct PlaneHealthEndpointView {
+    pub name: String,
+    pub healthy: bool,
+    pub degraded: bool,
+    pub latency_ms: Option<u64>,
+    pub last_check_utc: String,
 }
 
 #[derive(Template)]
@@ -141,6 +225,24 @@ pub struct KanbanPartial {
 pub struct WpListPartial {
     pub feature_id: i64,
     pub workpackages: Vec<WpView>,
+}
+
+#[derive(Template)]
+#[template(path = "partials/feature-evidence.html")]
+pub struct FeatureEvidencePartial {
+    pub evidence_bundles: Vec<EvidenceBundleView>,
+}
+
+#[derive(Template)]
+#[template(path = "partials/feature-media.html")]
+pub struct FeatureMediaPartial {
+    pub media_assets: Vec<MediaAssetView>,
+}
+
+#[derive(Template)]
+#[template(path = "partials/feature-reports.html")]
+pub struct FeatureReportsPartial {
+    pub reports: Vec<ReportArtifactView>,
 }
 
 #[derive(Template)]
