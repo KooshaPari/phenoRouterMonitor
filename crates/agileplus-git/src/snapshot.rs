@@ -62,25 +62,21 @@ impl GitSnapshot {
         for entry in statuses.iter() {
             let path = entry.path().unwrap_or("").to_string();
             let status = entry.status();
-            let file_status = if status.contains(git2::Status::WT_NEW)
-                || status.contains(git2::Status::INDEX_NEW)
-            {
-                FileStatus::Added
-            } else if status.contains(git2::Status::WT_DELETED)
-                || status.contains(git2::Status::INDEX_DELETED)
-            {
-                FileStatus::Deleted
-            } else if status.contains(git2::Status::WT_MODIFIED)
-                || status.contains(git2::Status::INDEX_MODIFIED)
-            {
-                FileStatus::Modified
-            } else {
-                FileStatus::Untracked
-            };
-            dirty_files.push(DirtyFile {
-                path,
-                status: file_status,
-            });
+            let file_status =
+                if status.contains(git2::Status::WT_NEW) || status.contains(git2::Status::INDEX_NEW) {
+                    FileStatus::Added
+                } else if status.contains(git2::Status::WT_DELETED)
+                    || status.contains(git2::Status::INDEX_DELETED)
+                {
+                    FileStatus::Deleted
+                } else if status.contains(git2::Status::WT_MODIFIED)
+                    || status.contains(git2::Status::INDEX_MODIFIED)
+                {
+                    FileStatus::Modified
+                } else {
+                    FileStatus::Untracked
+                };
+            dirty_files.push(DirtyFile { path, status: file_status });
         }
 
         // Build worktrees list
@@ -96,25 +92,27 @@ impl GitSnapshot {
 
         // Linked worktrees
         if let Ok(wt_names) = repo.worktrees() {
-            for name in wt_names.iter().flatten() {
-                if let Ok(wt) = repo.find_worktree(name) {
-                    let wt_path = wt.path().to_path_buf();
-                    if let Ok(wt_repo) = git2::Repository::open(&wt_path) {
-                        let wt_head = wt_repo.head().ok();
-                        let wt_commit = wt_head
-                            .as_ref()
-                            .and_then(|h| h.peel_to_commit().ok())
-                            .map(|c| c.id().to_string())
-                            .unwrap_or_default();
-                        let wt_branch = wt_head
-                            .as_ref()
-                            .and_then(|h| h.shorthand().map(|s| s.to_string()));
-                        worktrees.push(WorktreeInfo {
-                            path: wt_path,
-                            branch: wt_branch,
-                            head_commit: wt_commit,
-                            is_main: false,
-                        });
+            for name in wt_names.iter() {
+                if let Some(name) = name {
+                    if let Ok(wt) = repo.find_worktree(name) {
+                        let wt_path = wt.path().to_path_buf();
+                        if let Ok(wt_repo) = git2::Repository::open(&wt_path) {
+                            let wt_head = wt_repo.head().ok();
+                            let wt_commit = wt_head
+                                .as_ref()
+                                .and_then(|h| h.peel_to_commit().ok())
+                                .map(|c| c.id().to_string())
+                                .unwrap_or_default();
+                            let wt_branch = wt_head
+                                .as_ref()
+                                .and_then(|h| h.shorthand().map(|s| s.to_string()));
+                            worktrees.push(WorktreeInfo {
+                                path: wt_path,
+                                branch: wt_branch,
+                                head_commit: wt_commit,
+                                is_main: false,
+                            });
+                        }
                     }
                 }
             }
