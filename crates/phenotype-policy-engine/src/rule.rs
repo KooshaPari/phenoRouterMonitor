@@ -48,11 +48,7 @@ pub struct Rule {
 
 impl Rule {
     /// Creates a new rule.
-    pub fn new(
-        rule_type: RuleType,
-        fact: impl Into<String>,
-        pattern: impl Into<String>,
-    ) -> Self {
+    pub fn new(rule_type: RuleType, fact: impl Into<String>, pattern: impl Into<String>) -> Self {
         Self {
             rule_type,
             fact: fact.into(),
@@ -72,12 +68,11 @@ impl Rule {
     /// Returns Ok(true) if the rule is satisfied, Ok(false) if violated.
     /// Returns Err if regex compilation or evaluation fails.
     pub fn evaluate(&self, context: &EvaluationContext) -> Result<bool, PolicyEngineError> {
-        let regex = Regex::new(&self.pattern).map_err(|e| {
-            PolicyEngineError::RegexCompilationError {
+        let regex =
+            Regex::new(&self.pattern).map_err(|e| PolicyEngineError::RegexCompilationError {
                 pattern: self.pattern.clone(),
                 source: e,
-            }
-        })?;
+            })?;
 
         let fact_value = context.get_string(&self.fact);
 

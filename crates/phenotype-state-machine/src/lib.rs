@@ -26,7 +26,9 @@ pub enum StateMachineError {
 }
 
 /// A state in a finite state machine. Implement this for your state enum.
-pub trait State: fmt::Display + Clone + PartialEq + Eq + Serialize + serde::de::DeserializeOwned {
+pub trait State:
+    fmt::Display + Clone + PartialEq + Eq + Serialize + serde::de::DeserializeOwned
+{
     /// Ordered index for determining valid forward transitions.
     /// Lower ordinals come before higher ordinals in the lifecycle.
     fn ordinal(&self) -> u32;
@@ -223,12 +225,7 @@ mod tests {
         }
 
         fn all_states() -> Vec<Self> {
-            vec![
-                Self::Created,
-                Self::InProgress,
-                Self::Review,
-                Self::Done,
-            ]
+            vec![Self::Created, Self::InProgress, Self::Review, Self::Done]
         }
     }
 

@@ -38,8 +38,8 @@ pub fn compute_hash(
     hasher.update(event_type.as_bytes());
 
     // Payload (JSON)
-    let payload_json = serde_json::to_string(payload)
-        .map_err(|_| HashError::InvalidHashLength(0))?;
+    let payload_json =
+        serde_json::to_string(payload).map_err(|_| HashError::InvalidHashLength(0))?;
     hasher.update((payload_json.len() as u32).to_be_bytes());
     hasher.update(payload_json.as_bytes());
 
@@ -135,8 +135,24 @@ mod tests {
             .with_timezone(&Utc);
         let zero_hash = "0".repeat(64);
 
-        let h1 = compute_hash(&id, ts, "created", &serde_json::json!({"n": "t"}), "u1", &zero_hash).unwrap();
-        let h2 = compute_hash(&id, ts, "created", &serde_json::json!({"n": "x"}), "u1", &zero_hash).unwrap();
+        let h1 = compute_hash(
+            &id,
+            ts,
+            "created",
+            &serde_json::json!({"n": "t"}),
+            "u1",
+            &zero_hash,
+        )
+        .unwrap();
+        let h2 = compute_hash(
+            &id,
+            ts,
+            "created",
+            &serde_json::json!({"n": "x"}),
+            "u1",
+            &zero_hash,
+        )
+        .unwrap();
 
         assert_ne!(h1, h2);
     }

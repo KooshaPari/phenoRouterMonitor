@@ -229,12 +229,16 @@ mod tests {
     #[test]
     fn test_engine_evaluate_all() {
         let engine = PolicyEngine::new();
-        engine.add_policy(
-            Policy::new("policy1").add_rule(Rule::new(RuleType::Allow, "status", "^active$")),
-        );
-        engine.add_policy(
-            Policy::new("policy2").add_rule(Rule::new(RuleType::Deny, "role", "^admin$")),
-        );
+        engine.add_policy(Policy::new("policy1").add_rule(Rule::new(
+            RuleType::Allow,
+            "status",
+            "^active$",
+        )));
+        engine.add_policy(Policy::new("policy2").add_rule(Rule::new(
+            RuleType::Deny,
+            "role",
+            "^admin$",
+        )));
 
         let mut ctx = EvaluationContext::new();
         ctx.set_string("status", "active");
@@ -247,20 +251,22 @@ mod tests {
     #[test]
     fn test_engine_evaluate_subset() {
         let engine = PolicyEngine::new();
-        engine.add_policy(
-            Policy::new("policy1").add_rule(Rule::new(RuleType::Allow, "status", "^active$")),
-        );
-        engine.add_policy(
-            Policy::new("policy2").add_rule(Rule::new(RuleType::Deny, "role", "^admin$")),
-        );
+        engine.add_policy(Policy::new("policy1").add_rule(Rule::new(
+            RuleType::Allow,
+            "status",
+            "^active$",
+        )));
+        engine.add_policy(Policy::new("policy2").add_rule(Rule::new(
+            RuleType::Deny,
+            "role",
+            "^admin$",
+        )));
         engine.add_policy(Policy::new("policy3"));
 
         let mut ctx = EvaluationContext::new();
         ctx.set_string("status", "active");
 
-        let result = engine
-            .evaluate_subset(&["policy1"], &ctx)
-            .unwrap();
+        let result = engine.evaluate_subset(&["policy1"], &ctx).unwrap();
         assert!(result.passed);
     }
 
