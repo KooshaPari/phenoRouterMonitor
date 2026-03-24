@@ -100,8 +100,9 @@ impl PoliciesConfigFile {
 
     /// Parses policies from a TOML string.
     pub fn from_string(toml_str: &str) -> Result<Self, PolicyEngineError> {
-        toml::from_str(toml_str)
-            .map_err(|e| PolicyEngineError::SerializationError(format!("Failed to parse TOML: {}", e)))
+        toml::from_str(toml_str).map_err(|e| {
+            PolicyEngineError::SerializationError(format!("Failed to parse TOML: {}", e))
+        })
     }
 
     /// Converts all configurations to Policy objects.
@@ -113,8 +114,8 @@ impl PoliciesConfigFile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::NamedTempFile;
     use std::io::Write;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn test_rule_config_to_rule_allow() {
