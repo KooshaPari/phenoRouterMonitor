@@ -16,6 +16,9 @@ env:
 jobs:
   # ─── Proto Lint & Breaking ─────────────────────────────────────────
   buf:
+    permissions:
+      contents: read
+      pull-requests: write
     name: Buf Lint & Breaking
     runs-on: ubuntu-latest
     permissions:
