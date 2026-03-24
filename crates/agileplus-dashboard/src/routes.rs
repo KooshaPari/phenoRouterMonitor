@@ -118,7 +118,7 @@ fn parse_bool_env(key: &str, default: bool) -> bool {
 
 fn plane_api_key_hint(api_key: &Option<String>) -> String {
     match api_key {
-        Some(key) => match (key.chars().next(), key.chars().rev().next()) {
+        Some(key) => match (key.chars().next(), key.chars().next_back()) {
             (Some(first), Some(last)) => format!("{first}••••••{last}"),
             _ => "Configured".to_string(),
         },
@@ -274,7 +274,7 @@ fn build_feature_reports(
         } else {
             feature.labels.len() + 2
         },
-        compliant: workpackages.len() >= 1,
+        compliant: !workpackages.is_empty(),
     }]
 }
 
