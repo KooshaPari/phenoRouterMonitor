@@ -24,7 +24,7 @@ use agileplus_domain::{
     error::DomainError,
 };
 use chrono::Utc;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::GitVcsAdapter;
 
@@ -57,8 +57,14 @@ pub fn render_status_md(feature: &Feature, work_packages: &[WorkPackage]) -> Str
     out.push_str(&format!("# {}\n\n", feature.friendly_name));
     out.push_str(&format!("**Slug**: `{}`  \n", feature.slug));
     out.push_str(&format!("**State**: {}  \n", feature.state));
-    out.push_str(&format!("**Target branch**: `{}`  \n", feature.target_branch));
-    out.push_str(&format!("**Updated**: {}  \n", feature.updated_at.to_rfc3339()));
+    out.push_str(&format!(
+        "**Target branch**: `{}`  \n",
+        feature.target_branch
+    ));
+    out.push_str(&format!(
+        "**Updated**: {}  \n",
+        feature.updated_at.to_rfc3339()
+    ));
 
     if !feature.labels.is_empty() {
         out.push_str(&format!("**Labels**: {}  \n", feature.labels.join(", ")));
@@ -141,8 +147,9 @@ fn write_and_stage(
     content: &[u8],
 ) -> Result<(), DomainError> {
     if let Some(parent) = full_path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| DomainError::Vcs(format!("create dirs for {}: {e}", full_path.display())))?;
+        std::fs::create_dir_all(parent).map_err(|e| {
+            DomainError::Vcs(format!("create dirs for {}: {e}", full_path.display()))
+        })?;
     }
 
     std::fs::write(full_path, content)
@@ -169,8 +176,9 @@ fn append_and_stage(
     line: &str,
 ) -> Result<(), DomainError> {
     if let Some(parent) = full_path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| DomainError::Vcs(format!("create dirs for {}: {e}", full_path.display())))?;
+        std::fs::create_dir_all(parent).map_err(|e| {
+            DomainError::Vcs(format!("create dirs for {}: {e}", full_path.display()))
+        })?;
     }
 
     let mut file = std::fs::OpenOptions::new()
@@ -296,9 +304,9 @@ pub fn commit_materialization(
     // Determine parent commit (HEAD), if any.
     let parent_commit = match repo.head() {
         Ok(head_ref) => {
-            let head_oid = head_ref.target().ok_or_else(|| {
-                DomainError::Vcs("HEAD reference has no target OID".into())
-            })?;
+            let head_oid = head_ref
+                .target()
+                .ok_or_else(|| DomainError::Vcs("HEAD reference has no target OID".into()))?;
             Some(repo.find_commit(head_oid).map_err(crate::git_err)?)
         }
         Err(e) if e.code() == git2::ErrorCode::UnbornBranch => None,
@@ -341,7 +349,7 @@ mod tests {
     use super::*;
     use agileplus_domain::domain::{
         feature::Feature,
-        work_package::{WpState, WorkPackage},
+        work_package::{WorkPackage, WpState},
     };
 
     fn make_feature() -> Feature {

@@ -62,21 +62,25 @@ impl GitSnapshot {
         for entry in statuses.iter() {
             let path = entry.path().unwrap_or("").to_string();
             let status = entry.status();
-            let file_status =
-                if status.contains(git2::Status::WT_NEW) || status.contains(git2::Status::INDEX_NEW) {
-                    FileStatus::Added
-                } else if status.contains(git2::Status::WT_DELETED)
-                    || status.contains(git2::Status::INDEX_DELETED)
-                {
-                    FileStatus::Deleted
-                } else if status.contains(git2::Status::WT_MODIFIED)
-                    || status.contains(git2::Status::INDEX_MODIFIED)
-                {
-                    FileStatus::Modified
-                } else {
-                    FileStatus::Untracked
-                };
-            dirty_files.push(DirtyFile { path, status: file_status });
+            let file_status = if status.contains(git2::Status::WT_NEW)
+                || status.contains(git2::Status::INDEX_NEW)
+            {
+                FileStatus::Added
+            } else if status.contains(git2::Status::WT_DELETED)
+                || status.contains(git2::Status::INDEX_DELETED)
+            {
+                FileStatus::Deleted
+            } else if status.contains(git2::Status::WT_MODIFIED)
+                || status.contains(git2::Status::INDEX_MODIFIED)
+            {
+                FileStatus::Modified
+            } else {
+                FileStatus::Untracked
+            };
+            dirty_files.push(DirtyFile {
+                path,
+                status: file_status,
+            });
         }
 
         // Build worktrees list

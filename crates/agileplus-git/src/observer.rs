@@ -42,12 +42,11 @@ impl GitObserver {
         let tx_clone = tx.clone();
         let root = repo_root.clone();
 
-        let mut watcher =
-            notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
-                if let Ok(event) = res {
-                    Self::handle_fs_event(&root, &tx_clone, event);
-                }
-            })?;
+        let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
+            if let Ok(event) = res {
+                Self::handle_fs_event(&root, &tx_clone, event);
+            }
+        })?;
 
         // Watch .git directory for ref changes
         let git_dir = repo_root.join(".git");
@@ -91,10 +90,7 @@ impl GitObserver {
         }
     }
 
-    fn classify_change(
-        repo_root: &std::path::Path,
-        path: &std::path::Path,
-    ) -> Option<GitEvent> {
+    fn classify_change(repo_root: &std::path::Path, path: &std::path::Path) -> Option<GitEvent> {
         let rel = path.strip_prefix(repo_root.join(".git")).ok()?;
         let rel_str = rel.to_string_lossy();
 

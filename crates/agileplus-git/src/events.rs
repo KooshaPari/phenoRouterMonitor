@@ -17,7 +17,11 @@ pub struct GitEventEnvelope {
 impl GitEventEnvelope {
     pub fn from_git_event(event: &GitEvent, repo_root: &str) -> Self {
         let (event_type, payload) = match event {
-            GitEvent::RefChanged { ref_name, old_oid, new_oid } => (
+            GitEvent::RefChanged {
+                ref_name,
+                old_oid,
+                new_oid,
+            } => (
                 "ref_changed".to_string(),
                 serde_json::json!({ "ref": ref_name, "old": old_oid, "new": new_oid }),
             ),

@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorktreeClaim {
@@ -23,19 +23,39 @@ pub enum ClaimStatus {
 
 #[derive(Debug)]
 pub enum ClaimError {
-    AlreadyClaimed { existing_agent: String, wp_id: String },
-    FileScopeOverlap { overlapping_files: Vec<String>, other_agent: String },
+    AlreadyClaimed {
+        existing_agent: String,
+        wp_id: String,
+    },
+    FileScopeOverlap {
+        overlapping_files: Vec<String>,
+        other_agent: String,
+    },
     WorktreeNotFound,
 }
 
 impl std::fmt::Display for ClaimError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ClaimError::AlreadyClaimed { existing_agent, wp_id } => {
-                write!(f, "Worktree already claimed by agent '{}' for WP '{}'", existing_agent, wp_id)
+            ClaimError::AlreadyClaimed {
+                existing_agent,
+                wp_id,
+            } => {
+                write!(
+                    f,
+                    "Worktree already claimed by agent '{}' for WP '{}'",
+                    existing_agent, wp_id
+                )
             }
-            ClaimError::FileScopeOverlap { overlapping_files, other_agent } => {
-                write!(f, "File scope overlap with agent '{}': {:?}", other_agent, overlapping_files)
+            ClaimError::FileScopeOverlap {
+                overlapping_files,
+                other_agent,
+            } => {
+                write!(
+                    f,
+                    "File scope overlap with agent '{}': {:?}",
+                    other_agent, overlapping_files
+                )
             }
             ClaimError::WorktreeNotFound => write!(f, "Worktree not found"),
         }
@@ -74,7 +94,11 @@ impl WorktreeCoordinator {
         file_scope: Vec<String>,
     ) -> Result<&WorktreeClaim, ClaimError> {
         // Check for existing active claim on same path
-        if let Some(existing) = self.claims.iter().find(|c| c.path == path && c.status == ClaimStatus::Active) {
+        if let Some(existing) = self
+            .claims
+            .iter()
+            .find(|c| c.path == path && c.status == ClaimStatus::Active)
+        {
             return Err(ClaimError::AlreadyClaimed {
                 existing_agent: existing.agent_id.clone(),
                 wp_id: existing.wp_id.clone(),
@@ -82,7 +106,11 @@ impl WorktreeCoordinator {
         }
 
         // Check for file scope overlap with other active claims
-        for claim in self.claims.iter().filter(|c| c.status == ClaimStatus::Active) {
+        for claim in self
+            .claims
+            .iter()
+            .filter(|c| c.status == ClaimStatus::Active)
+        {
             let overlapping: Vec<String> = file_scope
                 .iter()
                 .filter(|f| claim.file_scope.contains(f))
@@ -114,9 +142,11 @@ impl WorktreeCoordinator {
 
     /// Update heartbeat for an active claim
     pub fn heartbeat(&mut self, path: &std::path::Path, agent_id: &str) -> bool {
-        if let Some(claim) = self.claims.iter_mut().find(|c| {
-            c.path == path && c.agent_id == agent_id && c.status == ClaimStatus::Active
-        }) {
+        if let Some(claim) = self
+            .claims
+            .iter_mut()
+            .find(|c| c.path == path && c.agent_id == agent_id && c.status == ClaimStatus::Active)
+        {
             claim.heartbeat = Utc::now();
             true
         } else {
@@ -126,9 +156,11 @@ impl WorktreeCoordinator {
 
     /// Release a claim
     pub fn release(&mut self, path: &std::path::Path, agent_id: &str) -> bool {
-        if let Some(claim) = self.claims.iter_mut().find(|c| {
-            c.path == path && c.agent_id == agent_id && c.status == ClaimStatus::Active
-        }) {
+        if let Some(claim) = self
+            .claims
+            .iter_mut()
+            .find(|c| c.path == path && c.agent_id == agent_id && c.status == ClaimStatus::Active)
+        {
             claim.status = ClaimStatus::Released;
             true
         } else {
@@ -142,7 +174,11 @@ impl WorktreeCoordinator {
         let threshold = self.stale_threshold;
         let mut stale = Vec::new();
 
-        for claim in self.claims.iter_mut().filter(|c| c.status == ClaimStatus::Active) {
+        for claim in self
+            .claims
+            .iter_mut()
+            .filter(|c| c.status == ClaimStatus::Active)
+        {
             if now.signed_duration_since(claim.heartbeat) > threshold {
                 claim.status = ClaimStatus::Stale;
                 stale.push(claim.clone());
@@ -166,7 +202,10 @@ impl WorktreeCoordinator {
 
     /// List all active claims
     pub fn active_claims(&self) -> Vec<&WorktreeClaim> {
-        self.claims.iter().filter(|c| c.status == ClaimStatus::Active).collect()
+        self.claims
+            .iter()
+            .filter(|c| c.status == ClaimStatus::Active)
+            .collect()
     }
 }
 
@@ -184,14 +223,16 @@ mod tests {
     fn claim_and_release() {
         let mut coord = WorktreeCoordinator::new();
         let path = PathBuf::from("/worktrees/wt1");
-        coord.claim(
-            path.clone(),
-            "agent-1".into(),
-            "sess-1".into(),
-            "WP01".into(),
-            "feature/foo/WP01".into(),
-            vec!["src/lib.rs".into()],
-        ).unwrap();
+        coord
+            .claim(
+                path.clone(),
+                "agent-1".into(),
+                "sess-1".into(),
+                "WP01".into(),
+                "feature/foo/WP01".into(),
+                vec!["src/lib.rs".into()],
+            )
+            .unwrap();
         assert_eq!(coord.active_claims().len(), 1);
         assert!(coord.release(&path, "agent-1"));
         assert_eq!(coord.active_claims().len(), 0);
@@ -201,22 +242,46 @@ mod tests {
     fn double_claim_same_path_fails() {
         let mut coord = WorktreeCoordinator::new();
         let path = PathBuf::from("/worktrees/wt1");
-        coord.claim(path.clone(), "a1".into(), "s1".into(), "WP01".into(), "b1".into(), vec![]).unwrap();
-        let result = coord.claim(path.clone(), "a2".into(), "s2".into(), "WP02".into(), "b2".into(), vec![]);
+        coord
+            .claim(
+                path.clone(),
+                "a1".into(),
+                "s1".into(),
+                "WP01".into(),
+                "b1".into(),
+                vec![],
+            )
+            .unwrap();
+        let result = coord.claim(
+            path.clone(),
+            "a2".into(),
+            "s2".into(),
+            "WP02".into(),
+            "b2".into(),
+            vec![],
+        );
         assert!(matches!(result, Err(ClaimError::AlreadyClaimed { .. })));
     }
 
     #[test]
     fn file_scope_overlap_fails() {
         let mut coord = WorktreeCoordinator::new();
-        coord.claim(
-            PathBuf::from("/wt1"),
-            "a1".into(), "s1".into(), "WP01".into(), "b1".into(),
-            vec!["src/main.rs".into()],
-        ).unwrap();
+        coord
+            .claim(
+                PathBuf::from("/wt1"),
+                "a1".into(),
+                "s1".into(),
+                "WP01".into(),
+                "b1".into(),
+                vec!["src/main.rs".into()],
+            )
+            .unwrap();
         let result = coord.claim(
             PathBuf::from("/wt2"),
-            "a2".into(), "s2".into(), "WP02".into(), "b2".into(),
+            "a2".into(),
+            "s2".into(),
+            "WP02".into(),
+            "b2".into(),
             vec!["src/main.rs".into()],
         );
         assert!(matches!(result, Err(ClaimError::FileScopeOverlap { .. })));
@@ -226,16 +291,34 @@ mod tests {
     fn heartbeat_updates_timestamp() {
         let mut coord = WorktreeCoordinator::new();
         let path = PathBuf::from("/wt1");
-        coord.claim(path.clone(), "a1".into(), "s1".into(), "WP01".into(), "b1".into(), vec![]).unwrap();
+        coord
+            .claim(
+                path.clone(),
+                "a1".into(),
+                "s1".into(),
+                "WP01".into(),
+                "b1".into(),
+                vec![],
+            )
+            .unwrap();
         assert!(coord.heartbeat(&path, "a1"));
     }
 
     #[test]
     fn stale_detection() {
-        let mut coord = WorktreeCoordinator::new()
-            .with_stale_threshold(chrono::Duration::seconds(-1)); // immediately stale
+        let mut coord =
+            WorktreeCoordinator::new().with_stale_threshold(chrono::Duration::seconds(-1)); // immediately stale
         let path = PathBuf::from("/wt1");
-        coord.claim(path.clone(), "a1".into(), "s1".into(), "WP01".into(), "b1".into(), vec![]).unwrap();
+        coord
+            .claim(
+                path.clone(),
+                "a1".into(),
+                "s1".into(),
+                "WP01".into(),
+                "b1".into(),
+                vec![],
+            )
+            .unwrap();
         let stale = coord.detect_stale();
         assert_eq!(stale.len(), 1);
         assert_eq!(stale[0].status, ClaimStatus::Stale);
@@ -243,10 +326,19 @@ mod tests {
 
     #[test]
     fn force_release_stale() {
-        let mut coord = WorktreeCoordinator::new()
-            .with_stale_threshold(chrono::Duration::seconds(-1));
+        let mut coord =
+            WorktreeCoordinator::new().with_stale_threshold(chrono::Duration::seconds(-1));
         let path = PathBuf::from("/wt1");
-        coord.claim(path.clone(), "a1".into(), "s1".into(), "WP01".into(), "b1".into(), vec![]).unwrap();
+        coord
+            .claim(
+                path.clone(),
+                "a1".into(),
+                "s1".into(),
+                "WP01".into(),
+                "b1".into(),
+                vec![],
+            )
+            .unwrap();
         coord.detect_stale();
         assert!(coord.force_release(&path));
         assert_eq!(coord.active_claims().len(), 0);

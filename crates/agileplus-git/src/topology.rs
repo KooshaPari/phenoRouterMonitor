@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use std::path::Path;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BranchPolicy {
@@ -41,7 +41,9 @@ impl std::fmt::Display for TopologyError {
             TopologyError::InvalidBranchName { name, reason } => {
                 write!(f, "Invalid branch name '{}': {}", name, reason)
             }
-            TopologyError::PolicyViolation { message } => write!(f, "Policy violation: {}", message),
+            TopologyError::PolicyViolation { message } => {
+                write!(f, "Policy violation: {}", message)
+            }
         }
     }
 }
@@ -96,9 +98,7 @@ impl BranchTopology {
             name: branch.to_string(),
             reason: format!(
                 "Branch must start with '{}' for features, '{}' for releases, or be '{}'",
-                self.policy.feature_prefix,
-                release_prefix,
-                self.policy.main_branch
+                self.policy.feature_prefix, release_prefix, self.policy.main_branch
             ),
         })
     }
