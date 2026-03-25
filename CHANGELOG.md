@@ -7,17 +7,21 @@ The project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 
 ## [Unreleased]
 
-### Added
+### Fixed
 
-- Storage-backed backlog/queue semantics across the domain, CLI, API, MCP, and SQLite layers.
-- Batch backlog import for HTTP and MCP surfaces.
-- Canary workflow alignment for deploy automation.
-- Coverage upload plumbing for Rust and Python CI jobs.
+- CI: Removed duplicated permissions key in `buf` job.
+- Dashboard: Resolved Alpine scope loss on kanban board by removing `hx-trigger load`.
+- Security: Bumped `time` crate to >=0.3.49 to resolve dependabot alerts.
+- Quality: Resolved clippy warnings in dashboard and git snapshot.
 
-### Changed
+## [0.1.1] - 2026-03-25
 
-- Shared backlog intent, status, priority, and sort semantics now live in the domain layer.
-- Trimmed dead exports from local module filter (useModuleFilter.ts) - aligned with phenodocs centralization.
+### Fixed
+
+- CI: Removed duplicated permissions key in `buf` job.
+- Dashboard: Resolved Alpine scope loss on kanban board by removing `hx-trigger load`.
+- Security: Bumped `time` crate to >=0.3.49 to resolve dependabot alerts.
+- Quality: Resolved clippy warnings in dashboard and git snapshot.
 
 ## [0.1.0] - 2026-03-23
 
