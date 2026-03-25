@@ -192,6 +192,34 @@ pub fn update_wp_state(conn: &Connection, id: i64, state: WpState) -> Result<(),
     Ok(())
 }
 
+pub fn update_work_package(conn: &Connection, wp: &WorkPackage) -> Result<(), DomainError> {
+    let now = chrono::Utc::now().to_rfc3339();
+    let file_scope_json =
+        serde_json::to_string(&wp.file_scope).map_err(|e| DomainError::Storage(e.to_string()))?;
+    let pr_state_s = wp.pr_state.map(pr_state_str);
+
+    conn.execute(
+        "UPDATE work_packages SET title = ?1, state = ?2, sequence = ?3, file_scope = ?4, \
+         acceptance_criteria = ?5, agent_id = ?6, pr_url = ?7, pr_state = ?8, worktree_path = ?9, \
+         updated_at = ?10 WHERE id = ?11",
+        params![
+            wp.title,
+            wp_state_str(wp.state),
+            wp.sequence,
+            file_scope_json,
+            wp.acceptance_criteria,
+            wp.agent_id,
+            wp.pr_url,
+            pr_state_s,
+            wp.worktree_path,
+            now,
+            wp.id
+        ],
+    )
+    .map_err(map_err)?;
+    Ok(())
+}
+
 pub fn list_wps_by_feature(
     conn: &Connection,
     feature_id: i64,

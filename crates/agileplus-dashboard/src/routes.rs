@@ -6,7 +6,6 @@
 use std::collections::HashMap;
 use std::env;
 
-use chrono::Utc;
 use askama::Template;
 use axum::{
     Router,
@@ -15,21 +14,19 @@ use axum::{
     response::{Html, IntoResponse, Response},
     routing::{get, post},
 };
+use chrono::Utc;
 
 use agileplus_domain::domain::{
-    feature::Feature,
-    state_machine::FeatureState,
-    work_package::WpState,
+    feature::Feature, state_machine::FeatureState, work_package::WpState,
 };
 
 use crate::app_state::SharedState;
 use crate::templates::{
     AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EventTimelinePartial,
-    EventsPage, EvidenceBundleView, FeatureDetailPage, FeatureView, FeaturesPage, HealthPanelPartial,
-    HomePage, KanbanPartial, MediaAssetView, PlaneHealthEndpointView, PlaneSettingsPage,
-    ProjectSummaryView,
-    ProjectSwitcherPartial, ProjectView, ReportArtifactView, ServicesSettingsPage, SettingsPage,
-    WpListPartial, WpView, all_feature_states,
+    EventsPage, EvidenceBundleView, FeatureDetailPage, FeatureView, FeaturesPage,
+    HealthPanelPartial, HomePage, KanbanPartial, MediaAssetView, PlaneHealthEndpointView,
+    PlaneSettingsPage, ProjectSummaryView, ProjectSwitcherPartial, ProjectView, ReportArtifactView,
+    ServicesSettingsPage, SettingsPage, WpListPartial, WpView, all_feature_states,
 };
 
 /// Returns `true` if the `HX-Request` header is present and truthy.
@@ -53,7 +50,9 @@ fn render<T: Template>(tpl: T) -> Response {
 }
 
 /// Build the project list and active project from the store.
-fn load_projects(store: &crate::app_state::DashboardStore) -> (Vec<ProjectView>, Option<ProjectView>) {
+fn load_projects(
+    store: &crate::app_state::DashboardStore,
+) -> (Vec<ProjectView>, Option<ProjectView>) {
     let projects: Vec<ProjectView> = store
         .projects
         .iter()
@@ -108,13 +107,18 @@ fn env_or_none(key: &str) -> Option<String> {
 fn parse_bool_env(key: &str, default: bool) -> bool {
     env::var(key)
         .ok()
-        .map(|value| matches!(value.trim().to_lowercase().as_str(), "1" | "true" | "yes" | "on"))
+        .map(|value| {
+            matches!(
+                value.trim().to_lowercase().as_str(),
+                "1" | "true" | "yes" | "on"
+            )
+        })
         .unwrap_or(default)
 }
 
 fn plane_api_key_hint(api_key: &Option<String>) -> String {
     match api_key {
-        Some(key) => match (key.chars().next(), key.chars().rev().next()) {
+        Some(key) => match (key.chars().next(), key.chars().next_back()) {
             (Some(first), Some(last)) => format!("{first}••••••{last}"),
             _ => "Configured".to_string(),
         },
@@ -122,7 +126,9 @@ fn plane_api_key_hint(api_key: &Option<String>) -> String {
     }
 }
 
-fn plane_health_endpoints(services: &[crate::app_state::ServiceHealth]) -> Vec<PlaneHealthEndpointView> {
+fn plane_health_endpoints(
+    services: &[crate::app_state::ServiceHealth],
+) -> Vec<PlaneHealthEndpointView> {
     services
         .iter()
         .filter(|service| service.name.contains("Plane") || service.name.starts_with("API"))
@@ -131,12 +137,18 @@ fn plane_health_endpoints(services: &[crate::app_state::ServiceHealth]) -> Vec<P
             healthy: service.healthy,
             degraded: service.degraded,
             latency_ms: service.latency_ms,
-            last_check_utc: service.last_check.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+            last_check_utc: service
+                .last_check
+                .format("%Y-%m-%d %H:%M:%S UTC")
+                .to_string(),
         })
         .collect()
 }
 
-fn build_feature_events(feature: &FeatureView, workpackages: &[WpView]) -> Vec<crate::templates::EventView> {
+fn build_feature_events(
+    feature: &FeatureView,
+    workpackages: &[WpView],
+) -> Vec<crate::templates::EventView> {
     let now = Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
     let mut events = vec![crate::templates::EventView {
         id: format!("evt-feature-{}-created", feature.id),
@@ -196,17 +208,29 @@ fn build_feature_evidence_bundles(
             evidence_type: "workpackage_artifact".into(),
             wp_id: wp.id.to_string(),
             wp_title: wp.title.clone(),
-            artifact_path: format!("/artifacts/wp/{wid}/{slug}.json", wid = wp.id, slug = feature.slug),
+            artifact_path: format!(
+                "/artifacts/wp/{wid}/{slug}.json",
+                wid = wp.id,
+                slug = feature.slug
+            ),
             created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
             artifact_ext: "json".into(),
-            status: if wp.progress > 0 { "accepted" } else { "generated" }.into(),
+            status: if wp.progress > 0 {
+                "accepted"
+            } else {
+                "generated"
+            }
+            .into(),
         });
     }
 
     bundles
 }
 
-fn build_feature_media_assets(feature: &FeatureView, workpackages: &[WpView]) -> Vec<MediaAssetView> {
+fn build_feature_media_assets(
+    feature: &FeatureView,
+    workpackages: &[WpView],
+) -> Vec<MediaAssetView> {
     let mut media = vec![MediaAssetView {
         id: format!("media-{id}-cover", id = feature.id),
         source: "dashboard".into(),
@@ -234,7 +258,10 @@ fn build_feature_media_assets(feature: &FeatureView, workpackages: &[WpView]) ->
     media
 }
 
-fn build_feature_reports(feature: &FeatureView, workpackages: &[WpView]) -> Vec<ReportArtifactView> {
+fn build_feature_reports(
+    feature: &FeatureView,
+    workpackages: &[WpView],
+) -> Vec<ReportArtifactView> {
     vec![ReportArtifactView {
         id: format!("report-{id}-coverage", id = feature.id),
         name: format!("Feature Coverage Report — {name}", name = feature.title),
@@ -242,8 +269,12 @@ fn build_feature_reports(feature: &FeatureView, workpackages: &[WpView]) -> Vec<
         status: "completed".into(),
         generated_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
         rule_count: 5,
-        satisfied_count: if feature.labels.is_empty() { 2 } else { feature.labels.len() + 2 },
-        compliant: workpackages.len() >= 1,
+        satisfied_count: if feature.labels.is_empty() {
+            2
+        } else {
+            feature.labels.len() + 2
+        },
+        compliant: !workpackages.is_empty(),
     }]
 }
 
@@ -315,9 +346,15 @@ fn feature_matches_filter(
 
     match filter {
         DashboardFilter::All => true,
-        DashboardFilter::Active => !matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected),
+        DashboardFilter::Active => !matches!(
+            feature.state,
+            FeatureState::Shipped | FeatureState::Retrospected
+        ),
         DashboardFilter::Blocked => is_blocked,
-        DashboardFilter::Shipped => matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected),
+        DashboardFilter::Shipped => matches!(
+            feature.state,
+            FeatureState::Shipped | FeatureState::Retrospected
+        ),
     }
 }
 
@@ -337,7 +374,7 @@ fn build_kanban_cards(
         }
         let state_key = feature.state.to_string();
         let view = FeatureView::from_feature(feature);
-        cards.entry(state_key).or_insert_with(Vec::new).push(view);
+        cards.entry(state_key).or_default().push(view);
     }
     cards
 }
@@ -371,12 +408,22 @@ pub async fn root(State(state): State<SharedState>) -> Response {
     let active_features = store
         .features
         .iter()
-        .filter(|feature| !matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected))
+        .filter(|feature| {
+            !matches!(
+                feature.state,
+                FeatureState::Shipped | FeatureState::Retrospected
+            )
+        })
         .count();
     let shipped_features = store
         .features
         .iter()
-        .filter(|feature| matches!(feature.state, FeatureState::Shipped | FeatureState::Retrospected))
+        .filter(|feature| {
+            matches!(
+                feature.state,
+                FeatureState::Shipped | FeatureState::Retrospected
+            )
+        })
         .count();
     let projects = build_project_summaries(&store);
 
@@ -402,10 +449,7 @@ pub async fn dashboard_page(
     let filter = dashboard_filter_from_query(&query);
     let cards = build_kanban_cards(&store, filter);
     let (projects, active_project) = load_projects(&store);
-    let active_filter = query
-        .get("filter")
-        .cloned()
-        .unwrap_or_else(|| "all".into());
+    let active_filter = query.get("filter").cloned().unwrap_or_else(|| "all".into());
     render(DashboardPage {
         kanban_cards: cards,
         health: store.health.clone(),
@@ -425,10 +469,7 @@ pub async fn kanban_board(
     let store = state.read().await;
     let filter = dashboard_filter_from_query(&query);
     let cards = build_kanban_cards(&store, filter);
-    let active_filter = query
-        .get("filter")
-        .cloned()
-        .unwrap_or_else(|| "all".into());
+    let active_filter = query.get("filter").cloned().unwrap_or_else(|| "all".into());
 
     if is_htmx(&headers) {
         render(KanbanPartial { cards })
@@ -556,10 +597,7 @@ pub async fn project_switcher(State(state): State<SharedState>) -> Response {
 
 // ── /api/dashboard/projects/:id/activate ─────────────────────────────
 
-pub async fn switch_project(
-    State(state): State<SharedState>,
-    Path(id): Path<i64>,
-) -> Response {
+pub async fn switch_project(State(state): State<SharedState>, Path(id): Path<i64>) -> Response {
     {
         let mut store = state.write().await;
         if id == 0 {
@@ -609,11 +647,12 @@ pub async fn events_page() -> Response {
 pub async fn plane_settings_page(State(state): State<SharedState>) -> Response {
     let store = state.read().await;
     let plane_workspace = env_or_none("PLANE_WORKSPACE");
-    let project_slug = env_or_none("PLANE_PROJECT")
-        .unwrap_or_else(|| "not configured".to_string());
+    let project_slug = env_or_none("PLANE_PROJECT").unwrap_or_else(|| "not configured".to_string());
     let plane_api_key = env_or_none("PLANE_API_KEY");
-    let plane_api_url = env_or_none("PLANE_API_URL").unwrap_or_else(|| DEFAULT_PLANE_API_URL.to_string());
-    let plane_web_url = env_or_none("PLANE_WEB_URL").unwrap_or_else(|| DEFAULT_PLANE_WEB_URL.to_string());
+    let plane_api_url =
+        env_or_none("PLANE_API_URL").unwrap_or_else(|| DEFAULT_PLANE_API_URL.to_string());
+    let plane_web_url =
+        env_or_none("PLANE_WEB_URL").unwrap_or_else(|| DEFAULT_PLANE_WEB_URL.to_string());
     let (connected, connection_status, mut config_warnings) =
         plane_connection_checks(&plane_api_key, &plane_workspace);
 
@@ -627,7 +666,8 @@ pub async fn plane_settings_page(State(state): State<SharedState>) -> Response {
         .and_then(|endpoint| endpoint.latency_ms);
 
     if !connected {
-        config_warnings.push("Plane sync disabled until required settings are provided".to_string());
+        config_warnings
+            .push("Plane sync disabled until required settings are provided".to_string());
     }
 
     if !plane_health_healthy {
@@ -732,7 +772,10 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/dashboard/events", get(event_timeline))
         .route("/api/dashboard/agents", get(agent_activity))
         .route("/api/dashboard/projects", get(project_switcher))
-        .route("/api/dashboard/projects/{id}/activate", post(switch_project))
+        .route(
+            "/api/dashboard/projects/{id}/activate",
+            post(switch_project),
+        )
         .with_state(state)
 }
 

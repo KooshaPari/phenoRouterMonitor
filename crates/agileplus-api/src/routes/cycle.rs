@@ -57,9 +57,9 @@ pub struct CycleDetailTemplate {
 /// Build the sub-router for cycle API routes.
 pub fn routes<S, V, O>() -> Router<AppState<S, V, O>>
 where
-    S: StoragePort + Send + Sync + Clone + 'static,
-    V: VcsPort + Send + Sync + Clone + 'static,
-    O: ObservabilityPort + Send + Sync + Clone + 'static,
+    S: StoragePort + Send + Sync + 'static,
+    V: VcsPort + Send + Sync + 'static,
+    O: ObservabilityPort + Send + Sync + 'static,
 {
     Router::new()
         .route("/", get(list_cycles::<S, V, O>))
@@ -73,9 +73,9 @@ async fn list_cycles<S, V, O>(
     Query(params): Query<CycleListParams>,
 ) -> Result<Json<Vec<Cycle>>, ApiError>
 where
-    S: StoragePort + Send + Sync + Clone + 'static,
-    V: VcsPort + Send + Sync + Clone + 'static,
-    O: ObservabilityPort + Send + Sync + Clone + 'static,
+    S: StoragePort + Send + Sync + 'static,
+    V: VcsPort + Send + Sync + 'static,
+    O: ObservabilityPort + Send + Sync + 'static,
 {
     let cycles = if let Some(ref state_str) = params.state {
         let cs: CycleState =
@@ -104,9 +104,9 @@ async fn get_cycle<S, V, O>(
     Path(id): Path<i64>,
 ) -> Result<Json<CycleWithFeatures>, ApiError>
 where
-    S: StoragePort + Send + Sync + Clone + 'static,
-    V: VcsPort + Send + Sync + Clone + 'static,
-    O: ObservabilityPort + Send + Sync + Clone + 'static,
+    S: StoragePort + Send + Sync + 'static,
+    V: VcsPort + Send + Sync + 'static,
+    O: ObservabilityPort + Send + Sync + 'static,
 {
     let cwf = app
         .storage
@@ -123,9 +123,9 @@ pub async fn cycle_kanban_page<S, V, O>(
     State(app): State<AppState<S, V, O>>,
 ) -> Result<Html<String>, ApiError>
 where
-    S: StoragePort + Send + Sync + Clone + 'static,
-    V: VcsPort + Send + Sync + Clone + 'static,
-    O: ObservabilityPort + Send + Sync + Clone + 'static,
+    S: StoragePort + Send + Sync + 'static,
+    V: VcsPort + Send + Sync + 'static,
+    O: ObservabilityPort + Send + Sync + 'static,
 {
     let all_cycles = app
         .storage
@@ -179,9 +179,9 @@ pub async fn cycle_detail_page<S, V, O>(
     Path(id): Path<i64>,
 ) -> Result<Html<String>, ApiError>
 where
-    S: StoragePort + Send + Sync + Clone + 'static,
-    V: VcsPort + Send + Sync + Clone + 'static,
-    O: ObservabilityPort + Send + Sync + Clone + 'static,
+    S: StoragePort + Send + Sync + 'static,
+    V: VcsPort + Send + Sync + 'static,
+    O: ObservabilityPort + Send + Sync + 'static,
 {
     let cwf = app
         .storage

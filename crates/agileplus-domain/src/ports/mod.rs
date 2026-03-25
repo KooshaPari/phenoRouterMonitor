@@ -3,6 +3,7 @@
 //! Traceability: WP05-T030
 
 pub mod agent;
+pub mod content;
 pub mod observability;
 pub mod review;
 pub mod storage;
@@ -10,6 +11,7 @@ pub mod vcs;
 
 // -- Trait re-exports --
 pub use agent::AgentPort;
+pub use content::ContentStoragePort;
 pub use observability::ObservabilityPort;
 pub use review::ReviewPort;
 pub use storage::StoragePort;

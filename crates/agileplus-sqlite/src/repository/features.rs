@@ -146,6 +146,22 @@ pub fn update_feature_state(
     Ok(())
 }
 
+pub fn update_feature(conn: &Connection, feature: &Feature) -> Result<(), DomainError> {
+    let now = chrono::Utc::now().to_rfc3339();
+    conn.execute(
+        "UPDATE features SET slug = ?1, friendly_name = ?2, state = ?3, updated_at = ?4 WHERE id = ?5",
+        params![
+            feature.slug,
+            feature.friendly_name,
+            state_str(feature.state),
+            now,
+            feature.id
+        ],
+    )
+    .map_err(map_err)?;
+    Ok(())
+}
+
 pub fn list_features_by_state(
     conn: &Connection,
     state: FeatureState,

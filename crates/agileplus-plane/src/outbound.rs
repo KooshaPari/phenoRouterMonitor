@@ -389,6 +389,96 @@ pub async fn push_feature_cycle_assignment<S: StoragePort>(
     Ok(())
 }
 
+/// When a Feature is removed from a Module, remove the Plane work-item link.
+pub async fn push_feature_module_unassignment<S: StoragePort>(
+    client: &PlaneClient,
+    storage: &S,
+    feature_id: i64,
+    module_id: i64,
+) -> Result<()> {
+    let feature_mapping = storage
+        .get_sync_mapping("feature", feature_id)
+        .await
+        .context("looking up feature sync mapping")?;
+    let module_mapping = storage
+        .get_sync_mapping("module", module_id)
+        .await
+        .context("looking up module sync mapping")?;
+
+    match (feature_mapping, module_mapping) {
+        (Some(fm), Some(mm)) => {
+            client
+                .delete_work_item_from_module(&mm.plane_issue_id, &fm.plane_issue_id)
+                .await
+                .with_context(|| {
+                    format!(
+                        "removing Plane work item {} from module {}",
+                        fm.plane_issue_id, mm.plane_issue_id
+                    )
+                })?;
+            tracing::info!(
+                feature_id,
+                module_id,
+                "synced feature-to-module unassignment to Plane"
+            );
+        }
+        _ => {
+            tracing::debug!(
+                feature_id,
+                module_id,
+                "skipping feature-module unassignment sync: one or both sides not mapped"
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// When a Feature is removed from a Cycle, remove the Plane work-item link.
+pub async fn push_feature_cycle_unassignment<S: StoragePort>(
+    client: &PlaneClient,
+    storage: &S,
+    feature_id: i64,
+    cycle_id: i64,
+) -> Result<()> {
+    let feature_mapping = storage
+        .get_sync_mapping("feature", feature_id)
+        .await
+        .context("looking up feature sync mapping")?;
+    let cycle_mapping = storage
+        .get_sync_mapping("cycle", cycle_id)
+        .await
+        .context("looking up cycle sync mapping")?;
+
+    match (feature_mapping, cycle_mapping) {
+        (Some(fm), Some(cm)) => {
+            client
+                .delete_work_item_from_cycle(&cm.plane_issue_id, &fm.plane_issue_id)
+                .await
+                .with_context(|| {
+                    format!(
+                        "removing Plane work item {} from cycle {}",
+                        fm.plane_issue_id, cm.plane_issue_id
+                    )
+                })?;
+            tracing::info!(
+                feature_id,
+                cycle_id,
+                "synced feature-to-cycle unassignment to Plane"
+            );
+        }
+        _ => {
+            tracing::debug!(
+                feature_id,
+                cycle_id,
+                "skipping feature-cycle unassignment sync: one or both sides not mapped"
+            );
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

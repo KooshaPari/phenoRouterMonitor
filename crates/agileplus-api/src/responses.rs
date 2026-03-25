@@ -8,6 +8,7 @@
 use serde::{Deserialize, Serialize};
 
 use agileplus_domain::domain::audit::AuditEntry;
+use agileplus_domain::domain::backlog::BacklogItem;
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::governance::GovernanceContract;
 use agileplus_domain::domain::work_package::WorkPackage;
@@ -220,5 +221,40 @@ impl DetailedHealthResponse {
             return "degraded";
         }
         "healthy"
+    }
+}
+
+// ----- Backlog -----
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BacklogItemResponse {
+    pub id: Option<i64>,
+    pub title: String,
+    pub description: String,
+    pub intent: String,
+    pub priority: String,
+    pub status: String,
+    pub source: String,
+    pub feature_slug: Option<String>,
+    pub tags: Vec<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+impl From<BacklogItem> for BacklogItemResponse {
+    fn from(item: BacklogItem) -> Self {
+        Self {
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            intent: item.intent.to_string(),
+            priority: format!("{:?}", item.priority).to_lowercase(),
+            status: format!("{:?}", item.status).to_lowercase(),
+            source: item.source,
+            feature_slug: item.feature_slug,
+            tags: item.tags,
+            created_at: item.created_at.to_rfc3339(),
+            updated_at: item.updated_at.to_rfc3339(),
+        }
     }
 }

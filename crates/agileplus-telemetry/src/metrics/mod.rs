@@ -20,6 +20,8 @@ use opentelemetry::{
 // ---------------------------------------------------------------------------
 
 /// Holds the OpenTelemetry metric instruments for AgilePlus.
+///
+/// Not `Clone`: includes `AtomicU64` snapshot fields; share via `Arc` if needed.
 pub struct MetricsRecorder {
     agent_runs: Counter<u64>,
     review_cycles: Counter<u64>,

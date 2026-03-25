@@ -41,8 +41,10 @@ jobs:
             fi
           fi
 
-          git fetch origin "$BASE_REF" --depth=1 || true
-          MERGES=$(git rev-list --merges "origin/$BASE_REF..HEAD" || true)
+          git fetch origin "$BASE_REF" || true
+          # Exclude the topmost commit: on PR runs, GitHub checks out a synthesized
+          # merge commit; excluding HEAD avoids false-positive on that commit.
+          MERGES=$(git rev-list --merges "origin/$BASE_REF..HEAD^" 2>/dev/null || true)
           if [[ -n "$MERGES" ]]; then
             echo "ERROR: merge commits detected in PR diff range:"
             echo "$MERGES"

@@ -11,6 +11,7 @@ pub mod content_hash;
 pub mod inbound;
 pub mod labels;
 pub mod outbound;
+pub mod runtime;
 pub mod state_mapper;
 pub mod sync;
 pub mod sync_queue;
@@ -27,6 +28,7 @@ pub use outbound::{
     OutboundSync, push_cycle, push_cycle_delete, push_feature_cycle_assignment,
     push_feature_module_assignment, push_module, push_module_delete,
 };
+pub use runtime::*;
 pub use state_mapper::{PlaneStateMapper, PlaneStateMapperConfig};
 pub use sync::{PlaneSyncAdapter, SyncState};
 pub use sync_queue::{SyncOpKind, SyncQueue, SyncQueueItem, SyncQueueStore};

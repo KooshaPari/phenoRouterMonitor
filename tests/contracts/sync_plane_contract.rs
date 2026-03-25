@@ -6,11 +6,9 @@
 
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::state_machine::FeatureState;
-use agileplus_plane::client::{PlaneIssue, PlaneIssueResponse};
+use agileplus_plane::client::{PlaneIssue, PlaneWorkItemResponse};
 use agileplus_plane::labels::PlaneLabel;
-use agileplus_plane::state_mapper::{PlaneStateGroup, PlaneStateMapper, PlaneStateMapperConfig};
-use std::str::FromStr;
-
+use agileplus_plane::state_mapper::{PlaneStateGroup, PlaneStateMapper};
 // ---------------------------------------------------------------------------
 // Contract: PlaneStateMapper — AgilePlus state → Plane state group
 // ---------------------------------------------------------------------------
@@ -128,7 +126,7 @@ fn contract_plane_issue_serializes_with_required_name_field() {
 #[test]
 fn contract_plane_issue_response_has_id_and_name() {
     let raw = r#"{"id":"plane-uuid-1","name":"Test","description_html":null,"state":null,"updated_at":null}"#;
-    let resp: PlaneIssueResponse = serde_json::from_str(raw).expect("deserialize");
+    let resp: PlaneWorkItemResponse = serde_json::from_str(raw).expect("deserialize");
     assert_eq!(resp.id, "plane-uuid-1");
     assert_eq!(resp.name, "Test");
 }

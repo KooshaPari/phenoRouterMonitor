@@ -24,9 +24,9 @@ use agileplus_domain::ports::{
 /// Requires a valid API key (enforced by the surrounding middleware layer).
 pub async fn stream_events<S, V, O>(State(app): State<AppState<S, V, O>>) -> impl IntoResponse
 where
-    S: StoragePort + Send + Sync + Clone + 'static,
-    V: VcsPort + Send + Sync + Clone + 'static,
-    O: ObservabilityPort + Send + Sync + Clone + 'static,
+    S: StoragePort + Send + Sync + 'static,
+    V: VcsPort + Send + Sync + 'static,
+    O: ObservabilityPort + Send + Sync + 'static,
 {
     let rx = app.event_tx.subscribe();
     let stream = BroadcastStream::new(rx).filter_map(|msg| {
