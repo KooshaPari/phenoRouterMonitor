@@ -42,3 +42,19 @@
 - **Context:** Downstream consumers must not be broken by proto changes.
 - **Decision:** Breaking changes require version bump (v1 -> v2) and coordination with all consumers.
 - **Rationale:** Protobuf wire format guarantees backward compat for additive changes only.
+
+## ADR-007-016: Architecture Decisions
+
+- **Status:** Accepted
+- **Context:** Need comprehensive architectural guidance for codebase quality.
+- **Decision:** See [docs/adr/ARCHITECTURE.md](docs/adr/ARCHITECTURE.md) for:
+  - ADR-007: Hexagonal Architecture with Clean Architecture Layers
+  - ADR-008: SOLID Principles Enforcement
+  - ADR-009: DDD Bounded Contexts
+  - ADR-010: TDD/BDD Testing Strategy
+  - ADR-011: Specification-Driven Development (SpecDD)
+  - ADR-012: Error Handling Strategy
+  - ADR-013: Observability Stack
+  - ADR-014: Plugin Architecture Pattern
+  - ADR-015: Monorepo Workspace Structure
+  - ADR-016: Code Quality Gates

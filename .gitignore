@@ -26,6 +26,9 @@ python/src/gen/
 # Excluded via sparse-checkout
 kitty-specs/
 
+# Orphan/legacy directories (duplicates of kitty-specs)
+agileplus/
+
 # Local environment files
 .env
 .env.local

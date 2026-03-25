@@ -65,10 +65,12 @@ echo "Waiting for containers to become ready..."
 for i in 1 2 3 4 5 6 7 8 9 10; do
     pg_ok=false
     df_ok=false
+    # Check dragonfly
     if redis-cli -h localhost -p 6379 ping 2>/dev/null | grep -q PONG; then
         df_ok=true
     fi
-    if pg_isready -h localhost -p 5432 2>/dev/null; then
+    # Check postgres - use lsof first then pg_isready
+    if lsof -ti :5432 > /dev/null 2>&1 && pg_isready -h localhost -p 5432 2>/dev/null; then
         pg_ok=true
     fi
     if [ "$pg_ok" = true ] && [ "$df_ok" = true ]; then

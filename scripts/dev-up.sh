@@ -79,7 +79,7 @@ fi
 echo ""
 echo "--- Waiting for PostgreSQL ---"
 for i in 1 2 3 4 5 6 7 8 9 10; do
-    if pg_isready -h localhost -p 5432 -U agileplus 2>/dev/null; then
+    if lsof -ti :5432 > /dev/null 2>&1 && pg_isready -h localhost -p 5432 2>/dev/null; then
         echo "PostgreSQL is ready!"
         break
     fi
