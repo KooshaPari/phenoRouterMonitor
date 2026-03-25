@@ -43,10 +43,9 @@ if [ ! -d "$PLANE_WEB_DIR" ]; then
     cd "$PLANE_WEB_DIR"
     if command -v bun &>/dev/null; then
         bun install
-    elif command -v pnpm &>/dev/null; then
-        pnpm install
     else
-        npm install
+        echo "Error: bun is required. Install from https://bun.sh/"
+        exit 1
     fi
     cd -
 else
