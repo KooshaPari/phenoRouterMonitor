@@ -1,36 +1,33 @@
-# Code Entity Map - phenotype-infrakit
+# AgilePlus: Code Entity Map
 
-## Forward Map (Code -> Requirements)
+## Proto Definitions
 
-| Entity | Crate | FR |
-|--------|-------|----|
-| `EventStore` trait | phenotype-event-sourcing | FR-EVT-001, FR-EVT-004 |
-| `InMemoryEventStore` | phenotype-event-sourcing | FR-EVT-001, FR-EVT-004 |
-| `EventEnvelope` | phenotype-event-sourcing | FR-EVT-002 |
-| `Snapshot` | phenotype-event-sourcing | FR-EVT-003 |
-| `TieredCache` | phenotype-cache-adapter | FR-CACHE-001, FR-CACHE-002 |
-| `MetricsHook` trait | phenotype-cache-adapter | FR-CACHE-003 |
-| `PolicyEngine` | phenotype-policy-engine | FR-POL-001, FR-POL-004 |
-| `Rule` | phenotype-policy-engine | FR-POL-002, FR-POL-003 |
-| `PolicyContext` | phenotype-policy-engine | FR-POL-004 |
-| `StateMachine` | phenotype-state-machine | FR-SM-001, FR-SM-003 |
-| `TransitionGuard` | phenotype-state-machine | FR-SM-002 |
+| Entity | Path | Maps To |
+|--------|------|---------|
+| Common types (Feature, AuditEntry) | `proto/agileplus/v1/common.proto` | FR-CORE-004, FR-AGENT-004, FR-PROTO-003 |
+| AgilePlusCoreService | `proto/agileplus/v1/core.proto` | FR-CORE-001, FR-CORE-002, FR-CORE-003 |
+| AgentDispatchService | `proto/agileplus/v1/agents.proto` | FR-AGENT-001, FR-AGENT-002, FR-AGENT-003 |
+| IntegrationsService | `proto/agileplus/v1/integrations.proto` | FR-INT-001, FR-INT-002, FR-INT-003 |
 
-## Reverse Map (Requirements -> Code)
+## Rust Crate
 
-| FR | Primary Entities |
-|----|-----------------|
-| FR-EVT-001 | `EventStore`, `InMemoryEventStore::append` |
-| FR-EVT-002 | `EventEnvelope` (hash field) |
-| FR-EVT-003 | `Snapshot` |
-| FR-EVT-004 | `EventStore` trait |
-| FR-CACHE-001 | `TieredCache::get` |
-| FR-CACHE-002 | `TieredCache` (TTL check) |
-| FR-CACHE-003 | `MetricsHook` |
-| FR-POL-001 | `PolicyEngine::load_toml_str` |
-| FR-POL-002 | `Rule` (action field) |
-| FR-POL-003 | `Rule` (severity field) |
-| FR-POL-004 | `PolicyEngine::evaluate`, `PolicyContext` |
-| FR-SM-001 | `StateMachine::transition` (ordinal check) |
-| FR-SM-002 | `TransitionGuard` |
-| FR-SM-003 | `StateMachine` (history vec) |
+| Entity | Path | Maps To |
+|--------|------|---------|
+| Rust crate (agileplus-proto) | `rust/` | FR-CODEGEN-001 |
+| Cargo.toml | `rust/Cargo.toml` | FR-CODEGEN-001 |
+| Build script (prost codegen) | `rust/build.rs` | FR-CODEGEN-001 |
+
+## Python Package
+
+| Entity | Path | Maps To |
+|--------|------|---------|
+| Python package (agileplus-proto) | `python/` | FR-CODEGEN-002 |
+| pyproject.toml | `python/pyproject.toml` | FR-CODEGEN-002 |
+
+## Tooling
+
+| Entity | Path | Maps To |
+|--------|------|---------|
+| buf config | `buf.yaml` | FR-PROTO-001, FR-CODEGEN-003 |
+| buf codegen config | `buf.gen.yaml` | FR-CODEGEN-001, FR-CODEGEN-002 |
+| Makefile | `Makefile` | All |
