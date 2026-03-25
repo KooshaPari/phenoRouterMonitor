@@ -98,6 +98,13 @@ tasks:
     desc: Run ruff linter on Python code
     cmds:
       - ruff check python/
+      - ruff format --check python/
+
+  docs:lint:
+    desc: Run oxlint on documentation
+    cmds:
+      - bun run lint
+    dir: docs
 
   python-test:
     desc: Run pytest on Python tests
@@ -130,6 +137,7 @@ tasks:
       - task: fmt:check
       - task: lint
       - task: python-lint
+      - task: docs:lint
       - task: test
       - task: python-test
 
