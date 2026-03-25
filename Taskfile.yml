@@ -1,16 +1,83 @@
 version: '3'
 
+vars:
+  AGILEPLUS_DIR: .agileplus
+
 tasks:
+  # === Dev Stack ===
+  dev:
+    desc: Start the full AgilePlus dev stack (OrbStack containers + native services)
+    cmds:
+      - task: dev:deps
+      - task: dev:up
+
+  dev:deps:
+    desc: Ensure brew dependencies are installed
+    cmds:
+      - |
+        missing=""
+        for cmd in nats-server minio neo4j process-compose orb; do
+          command -v "$cmd" >/dev/null 2>&1 || missing="$missing $cmd"
+        done
+        if [ -n "$missing" ]; then
+          echo "Missing dependencies:$missing"
+          echo "Run: brew bundle --file=Brewfile"
+          exit 1
+        fi
+    silent: true
+
+  dev:up:
+    desc: Start all services via process-compose (OrbStack containers + native)
+    cmds:
+      - mkdir -p {{.AGILEPLUS_DIR}}/logs
+      - bash scripts/orb-up.sh
+      - process-compose up -f process-compose.yml
+
+  dev:down:
+    desc: Stop all services and OrbStack containers
+    cmds:
+      - process-compose down 2>/dev/null || true
+      - bash scripts/orb-down.sh
+
+  dev:status:
+    desc: Show status of all dev stack services
+    cmds:
+      - |
+        echo "=== OrbStack Containers ==="
+        orb list 2>/dev/null | grep agileplus || echo "  No OrbStack containers running"
+        echo ""
+        echo "=== Process Compose ==="
+        process-compose process list 2>/dev/null || echo "  Process compose not running"
+
+  dev:logs:
+    desc: Tail all service logs
+    cmds:
+      - tail -f {{.AGILEPLUS_DIR}}/logs/*.log
+
+  dev:restart:
+    desc: Restart the full dev stack
+    cmds:
+      - task: dev:down
+      - task: dev:up
+
+  # === Build ===
   build:
     desc: Build the Rust workspace
     cmds:
       - cargo build
 
+  build:release:
+    desc: Build release binaries
+    cmds:
+      - cargo build --release
+
+  # === Test ===
   test:
     desc: Run all tests
     cmds:
       - cargo test
 
+  # === Lint & Format ===
   lint:
     desc: Run clippy linter
     cmds:
@@ -21,6 +88,12 @@ tasks:
     cmds:
       - cargo fmt --all
 
+  fmt:check:
+    desc: Check formatting without modifying
+    cmds:
+      - cargo fmt --all -- --check
+
+  # === Python ===
   python-lint:
     desc: Run ruff linter on Python code
     cmds:
@@ -31,14 +104,45 @@ tasks:
     cmds:
       - cd python && uv run pytest
 
+  # === Docs ===
+  docs:build:
+    desc: Build VitePress documentation
+    cmds:
+      - bun run docs:build
+    dir: docs
+
+  docs:dev:
+    desc: Start VitePress dev server
+    cmds:
+      - bun run docs:dev
+    dir: docs
+
+  # === Proto ===
+  proto:
+    desc: Generate protobuf/gRPC code
+    cmds:
+      - buf generate
+
+  # === Quality ===
   quality:
     desc: Run all quality checks
     cmds:
+      - task: fmt:check
       - task: lint
-      - task: fmt
       - task: python-lint
       - task: test
       - task: python-test
+
+  # === Setup ===
+  setup:
+    desc: First-time project setup
+    cmds:
+      - brew bundle --file=Brewfile
+      - mise install
+      - rustup component add clippy rustfmt
+      - cargo fetch
+      - mkdir -p {{.AGILEPLUS_DIR}}/logs
+      - echo "Setup complete. Run 'task dev' to start the dev stack."
 
   default:
     cmds:
