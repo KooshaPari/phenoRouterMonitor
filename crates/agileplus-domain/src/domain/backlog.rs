@@ -99,6 +99,7 @@ impl BacklogPriority {
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum BacklogStatus {
+    #[default]
     New,
     Triaged,
     InProgress,

@@ -157,6 +157,7 @@ dependencies = [
 name = "agileplus-domain"
 version = "0.1.0"
 dependencies = [
+ "agileplus-plugin-core",
  "chrono",
  "dirs-next",
  "keyring",
@@ -329,6 +330,19 @@ dependencies = [
  "tokio",
  "tracing",
  "wiremock",
+]
+
+[[package]]
+name = "agileplus-plugin-core"
+version = "0.1.1"
+source = "git+https://github.com/KooshaPari/agileplus-plugin-core#7d057a3127e2fa6f999c51b965008b48fa183cc3"
+dependencies = [
+ "async-trait",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
