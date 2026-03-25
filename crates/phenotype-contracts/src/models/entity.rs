@@ -75,3 +75,83 @@ impl<T: Entity> EntityExt for T {
         self.id().clone()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Test implementation of Entity for testing
+    #[derive(Debug, Clone, PartialEq)]
+    struct TestId(String);
+
+    impl TestId {
+        fn new(id: &str) -> Self {
+            Self(id.to_string())
+        }
+    }
+
+    #[derive(Debug, Clone)]
+    struct TestEntity {
+        id: TestId,
+        name: String,
+    }
+
+    impl Entity for TestEntity {
+        type Id = TestId;
+
+        fn id(&self) -> &Self::Id {
+            &self.id
+        }
+    }
+
+    #[test]
+    fn test_entity_id_access() {
+        let entity = TestEntity {
+            id: TestId::new("test-123"),
+            name: "Test".to_string(),
+        };
+
+        assert_eq!(entity.id().0, "test-123");
+    }
+
+    #[test]
+    fn test_entity_is_same() {
+        let entity1 = TestEntity {
+            id: TestId::new("same-id"),
+            name: "Entity 1".to_string(),
+        };
+        let entity2 = TestEntity {
+            id: TestId::new("same-id"),
+            name: "Entity 2".to_string(),
+        };
+        let entity3 = TestEntity {
+            id: TestId::new("different-id"),
+            name: "Entity 1".to_string(),
+        };
+
+        assert!(entity1.is_same(&entity2));
+        assert!(!entity1.is_same(&entity3));
+    }
+
+    #[test]
+    fn test_entity_ext_id_ref() {
+        let entity = TestEntity {
+            id: TestId::new("ref-test"),
+            name: "Test".to_string(),
+        };
+
+        let id: TestId = entity.id_ref();
+        assert_eq!(id.0, "ref-test");
+    }
+
+    #[test]
+    fn test_entity_id_clone() {
+        let entity = TestEntity {
+            id: TestId::new("clone-test"),
+            name: "Test".to_string(),
+        };
+
+        let cloned_id = entity.id().clone();
+        assert_eq!(cloned_id.0, "clone-test");
+    }
+}

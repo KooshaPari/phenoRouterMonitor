@@ -89,3 +89,114 @@ impl<T: AggregateRoot> AggregateExt for T {
         format!("{:?}", self.id_ref())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Test aggregate ID
+    #[derive(Debug, Clone, PartialEq)]
+    struct TestAggregateId(String);
+
+    impl TestAggregateId {
+        fn new(id: &str) -> Self {
+            Self(id.to_string())
+        }
+    }
+
+    // Test domain event
+    #[derive(Debug, Clone)]
+    struct TestDomainEvent {
+        aggregate_id: String,
+        event_data: String,
+    }
+
+    impl TestDomainEvent {
+        fn new(aggregate_id: &str, data: &str) -> Self {
+            Self {
+                aggregate_id: aggregate_id.to_string(),
+                event_data: data.to_string(),
+            }
+        }
+    }
+
+    impl DomainEvent for TestDomainEvent {
+        fn event_type(&self) -> &'static str {
+            "TestDomainEvent"
+        }
+
+        fn event_version(&self) -> u32 {
+            1
+        }
+
+        fn aggregate_id(&self) -> &str {
+            &self.aggregate_id
+        }
+    }
+
+    // Test aggregate
+    #[derive(Debug, Clone)]
+    struct TestAggregate {
+        id: TestAggregateId,
+        version: u64,
+        name: String,
+    }
+    // Note: pending_events removed for Clone derive - would need Box<dyn DomainEvent + Clone> in production
+
+    impl TestAggregate {
+        fn new(id: &str, name: &str) -> Self {
+            Self {
+                id: TestAggregateId::new(id),
+                version: 0,
+                name: name.to_string(),
+            }
+        }
+    }
+
+    impl Entity for TestAggregate {
+        type Id = TestAggregateId;
+
+        fn id(&self) -> &Self::Id {
+            &self.id
+        }
+    }
+
+    impl AggregateRoot for TestAggregate {
+        fn version(&self) -> u64 {
+            self.version
+        }
+
+        fn take_events(&mut self) -> Vec<Box<dyn DomainEvent>> {
+            Vec::new() // Empty implementation for test
+        }
+    }
+
+    #[test]
+    fn test_aggregate_id_access() {
+        // Test aggregate creation
+        let aggregate = TestAggregate::new("agg-123", "TestAggregate");
+        assert_eq!(aggregate.id().0, "agg-123");
+        assert_eq!(aggregate.version(), 0);
+    }
+
+    #[test]
+    fn test_aggregate_is_new() {
+        let aggregate = TestAggregate::new("agg-123", "Test");
+        assert!(aggregate.is_new());
+    }
+
+    #[test]
+    fn test_aggregate_id_string() {
+        let aggregate = TestAggregate::new("agg-123", "Test");
+        assert_eq!(aggregate.id_string(), "TestAggregateId(\"agg-123\")");
+    }
+
+    #[test]
+    fn test_domain_event() {
+        let event = TestDomainEvent::new("agg-123", "test data");
+
+        assert_eq!(event.event_type(), "TestDomainEvent");
+        assert_eq!(event.event_version(), 1);
+        assert_eq!(event.aggregate_id(), "agg-123");
+    }
+}
