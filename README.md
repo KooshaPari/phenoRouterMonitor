@@ -114,6 +114,12 @@ phenotype-infrakit/
     phenotype-state-machine/    # StateMachine<S> + TransitionGuard + history
 ```
 
+## x-DD Methodologies
+
+Comprehensive documentation of 200+ software engineering methodologies:
+
+- [XDD-METHODOLOGIES.md](./XDD-METHODOLOGIES.md) - Full reference
+
 ## License
 
 MIT
