@@ -13,10 +13,7 @@ pub trait EvaluablePolicy: Send + Sync {
     fn name(&self) -> &str;
 
     /// Evaluates this policy against the given context.
-    fn evaluate(
-        &self,
-        context: &EvaluationContext,
-    ) -> Result<PolicyResult, crate::error::PolicyEngineError>;
+    fn evaluate(&self, context: &EvaluationContext) -> Result<PolicyResult, crate::error::PolicyEngineError>;
 }
 
 /// A concrete policy implementation with rules.
@@ -72,10 +69,7 @@ impl EvaluablePolicy for Policy {
         &self.name
     }
 
-    fn evaluate(
-        &self,
-        context: &EvaluationContext,
-    ) -> Result<PolicyResult, crate::error::PolicyEngineError> {
+    fn evaluate(&self, context: &EvaluationContext) -> Result<PolicyResult, crate::error::PolicyEngineError> {
         if !self.enabled {
             return Ok(PolicyResult::passed());
         }
