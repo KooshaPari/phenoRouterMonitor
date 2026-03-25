@@ -1,10 +1,7 @@
-# Docs
+# Documentation
 
-Cross-repo documentation and architectural decisions.
+This is the main documentation site for this project.
 
-## Structure
+## Getting Started
 
-- `adr/` - Architecture Decision Records
-- `guides/` - How-to guides
-- `reference/` - Reference documentation
-
+View the reference documentation in the sidebar to get started.
