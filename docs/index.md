@@ -1,27 +1,7 @@
----
-audience: [developers, agents, pms]
----
+# Documentation
 
-# Docs
+This is the main documentation site for this project.
 
-This docs tree is the canonical landing surface for this repository.
+## Getting Started
 
-## Start Here
-
-- `README.md` for workspace and repo entry points
-- `docs/sessions/` for active and historical session-led waves
-
-## Operating Model
-
-Before starting a wave, keep these roles explicit:
-
-- Spec owner
-- Research lead
-- Implementer
-- Validator
-- Docs steward
-- Release steward
-
-Keep wave-specific work in:
-
-`docs/sessions/<YYYYMMDD-descriptive-name>/`
+View the reference documentation in the sidebar to get started.
