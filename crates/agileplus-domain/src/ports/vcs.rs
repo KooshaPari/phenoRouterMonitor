@@ -2,7 +2,6 @@
 //!
 //! Traceability: FR-010, FR-014, FR-017 / WP05-T026
 
-use std::future::Future;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -54,76 +53,61 @@ pub trait VcsPort: Send + Sync {
         &self,
         feature_slug: &str,
         wp_id: &str,
-    ) -> impl Future<Output = Result<PathBuf, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<PathBuf, DomainError>> + Send;
 
-    /// List all active worktrees.
-    fn list_worktrees(&self)
-    -> impl Future<Output = Result<Vec<WorktreeInfo>, DomainError>> + Send;
+    fn list_worktrees(
+        &self,
+    ) -> impl std::future::Future<Output = Result<Vec<WorktreeInfo>, DomainError>> + Send;
 
-    /// Remove a worktree at the given path.
     fn cleanup_worktree(
         &self,
         worktree_path: &Path,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
 
-    // -- Branch operations --
-
-    /// Create a new branch from a base ref.
     fn create_branch(
         &self,
         branch_name: &str,
         base: &str,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
 
-    /// Check out an existing branch.
     fn checkout_branch(
         &self,
         branch_name: &str,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
 
-    /// Merge source branch into target, returning the merge result.
     fn merge_to_target(
         &self,
         source: &str,
         target: &str,
-    ) -> impl Future<Output = Result<MergeResult, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<MergeResult, DomainError>> + Send;
 
-    /// Detect merge conflicts between two branches without performing the merge.
     fn detect_conflicts(
         &self,
         source: &str,
         target: &str,
-    ) -> impl Future<Output = Result<Vec<ConflictInfo>, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<Vec<ConflictInfo>, DomainError>> + Send;
 
-    // -- Artifact operations (FR-014) --
-
-    /// Read a text artifact relative to the feature directory.
     fn read_artifact(
         &self,
         feature_slug: &str,
         relative_path: &str,
-    ) -> impl Future<Output = Result<String, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<String, DomainError>> + Send;
 
-    /// Write a text artifact relative to the feature directory.
     fn write_artifact(
         &self,
         feature_slug: &str,
         relative_path: &str,
         content: &str,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
 
-    /// Check whether an artifact exists.
     fn artifact_exists(
         &self,
         feature_slug: &str,
         relative_path: &str,
-    ) -> impl Future<Output = Result<bool, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<bool, DomainError>> + Send;
 
-    // -- History scanning (FR-017) --
-
-    /// Scan and collect all feature artifacts from the repository.
     fn scan_feature_artifacts(
         &self,
         feature_slug: &str,
-    ) -> impl Future<Output = Result<FeatureArtifacts, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<FeatureArtifacts, DomainError>> + Send;
 }

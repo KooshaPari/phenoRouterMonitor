@@ -212,14 +212,16 @@ mod tests {
     use super::*;
 
     fn sample_config() -> ProjectConfig {
-        let mut cfg = ProjectConfig::default();
-        cfg.name = "my-project".to_string();
-        cfg.languages.insert("Rust".to_string());
-        cfg.languages.insert("TypeScript".to_string());
-        cfg.frameworks.insert("Cargo".to_string());
-        cfg.test_command = Some("cargo test".to_string());
-        cfg.lint_command = Some("cargo clippy".to_string());
-        cfg
+        ProjectConfig {
+            name: "my-project".to_string(),
+            languages: ["Rust".to_string(), "TypeScript".to_string()]
+                .into_iter()
+                .collect(),
+            frameworks: ["Cargo".to_string()].into_iter().collect(),
+            test_command: Some("cargo test".to_string()),
+            lint_command: Some("cargo clippy".to_string()),
+            ..Default::default()
+        }
     }
 
     #[test]

@@ -153,7 +153,12 @@ async def test_retry_on_unavailable(client_with_stub):
         nonlocal call_count
         call_count += 1
         if call_count < 2:
-            exc = grpc.aio.AioRpcError(grpc.StatusCode.UNAVAILABLE, "try again")
+            exc = grpc.aio.AioRpcError(
+                grpc.StatusCode.UNAVAILABLE,
+                initial_metadata=grpc.aio.Metadata(),
+                trailing_metadata=grpc.aio.Metadata(),
+                details="try again",
+            )
             raise exc
         return await original(*args, **kwargs)
 

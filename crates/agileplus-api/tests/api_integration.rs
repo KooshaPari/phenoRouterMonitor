@@ -9,7 +9,6 @@
 
 #![allow(dead_code)]
 
-use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -19,6 +18,9 @@ use agileplus_domain::credentials::CredentialStore;
 use agileplus_domain::credentials::InMemoryCredentialStore;
 use agileplus_domain::credentials::keys as cred_keys;
 use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
+use agileplus_domain::domain::backlog::{
+    BacklogFilters, BacklogItem, BacklogPriority, BacklogStatus,
+};
 use agileplus_domain::domain::cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures};
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::governance::{Evidence, GovernanceContract, PolicyRule};
@@ -28,6 +30,7 @@ use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 use agileplus_domain::domain::work_package::{WorkPackage, WpDependency, WpState};
 use agileplus_domain::error::DomainError;
+use agileplus_domain::ports::ContentStoragePort;
 use agileplus_domain::ports::observability::{LogEntry, ObservabilityPort, SpanContext};
 use agileplus_domain::ports::storage::StoragePort;
 use agileplus_domain::ports::vcs::{
@@ -63,6 +66,8 @@ impl MockStorage {
             labels: vec![],
             module_id: None,
             project_id: None,
+            created_at_commit: None,
+            last_modified_commit: None,
             created_at: now,
             updated_at: now,
         });
@@ -79,6 +84,8 @@ impl MockStorage {
             pr_state: None,
             worktree_path: None,
             plane_sub_issue_id: None,
+            base_commit: None,
+            head_commit: None,
             created_at: now,
             updated_at: now,
         });
@@ -134,18 +141,12 @@ impl MockStorage {
 }
 
 impl StoragePort for MockStorage {
-    fn create_feature(
-        &self,
-        _f: &Feature,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
+    async fn create_feature(&self, _f: &Feature) -> Result<i64, DomainError> {
         let id = (self.features.lock().unwrap().len() + 1) as i64;
-        async move { Ok(id) }
+        Ok(id)
     }
 
-    fn get_feature_by_slug(
-        &self,
-        slug: &str,
-    ) -> impl Future<Output = Result<Option<Feature>, DomainError>> + Send {
+    async fn get_feature_by_slug(&self, slug: &str) -> Result<Option<Feature>, DomainError> {
         let found = self
             .features
             .lock()
@@ -153,13 +154,10 @@ impl StoragePort for MockStorage {
             .iter()
             .find(|f| f.slug == slug)
             .cloned();
-        async move { Ok(found) }
+        Ok(found)
     }
 
-    fn get_feature_by_id(
-        &self,
-        id: i64,
-    ) -> impl Future<Output = Result<Option<Feature>, DomainError>> + Send {
+    async fn get_feature_by_id(&self, id: i64) -> Result<Option<Feature>, DomainError> {
         let found = self
             .features
             .lock()
@@ -167,21 +165,21 @@ impl StoragePort for MockStorage {
             .iter()
             .find(|f| f.id == id)
             .cloned();
-        async move { Ok(found) }
+        Ok(found)
     }
 
-    fn update_feature_state(
+    async fn update_feature_state(
         &self,
         _id: i64,
         _state: FeatureState,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    ) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn list_features_by_state(
+    async fn list_features_by_state(
         &self,
         state: FeatureState,
-    ) -> impl Future<Output = Result<Vec<Feature>, DomainError>> + Send {
+    ) -> Result<Vec<Feature>, DomainError> {
         let features: Vec<Feature> = self
             .features
             .lock()
@@ -190,25 +188,19 @@ impl StoragePort for MockStorage {
             .filter(|f| f.state == state)
             .cloned()
             .collect();
-        async move { Ok(features) }
+        Ok(features)
     }
 
-    fn list_all_features(&self) -> impl Future<Output = Result<Vec<Feature>, DomainError>> + Send {
+    async fn list_all_features(&self) -> Result<Vec<Feature>, DomainError> {
         let features = self.features.lock().unwrap().clone();
-        async move { Ok(features) }
+        Ok(features)
     }
 
-    fn create_work_package(
-        &self,
-        _wp: &WorkPackage,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(99) }
+    async fn create_work_package(&self, _wp: &WorkPackage) -> Result<i64, DomainError> {
+        Ok(99)
     }
 
-    fn get_work_package(
-        &self,
-        id: i64,
-    ) -> impl Future<Output = Result<Option<WorkPackage>, DomainError>> + Send {
+    async fn get_work_package(&self, id: i64) -> Result<Option<WorkPackage>, DomainError> {
         let found = self
             .work_packages
             .lock()
@@ -216,21 +208,14 @@ impl StoragePort for MockStorage {
             .iter()
             .find(|w| w.id == id)
             .cloned();
-        async move { Ok(found) }
+        Ok(found)
     }
 
-    fn update_wp_state(
-        &self,
-        _id: i64,
-        _state: WpState,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn update_wp_state(&self, _id: i64, _state: WpState) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn list_wps_by_feature(
-        &self,
-        feature_id: i64,
-    ) -> impl Future<Output = Result<Vec<WorkPackage>, DomainError>> + Send {
+    async fn list_wps_by_feature(&self, feature_id: i64) -> Result<Vec<WorkPackage>, DomainError> {
         let wps: Vec<WorkPackage> = self
             .work_packages
             .lock()
@@ -239,27 +224,18 @@ impl StoragePort for MockStorage {
             .filter(|w| w.feature_id == feature_id)
             .cloned()
             .collect();
-        async move { Ok(wps) }
+        Ok(wps)
     }
 
-    fn add_wp_dependency(
-        &self,
-        _dep: &WpDependency,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn add_wp_dependency(&self, _dep: &WpDependency) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn get_wp_dependencies(
-        &self,
-        _wp_id: i64,
-    ) -> impl Future<Output = Result<Vec<WpDependency>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn get_wp_dependencies(&self, _wp_id: i64) -> Result<Vec<WpDependency>, DomainError> {
+        Ok(vec![])
     }
 
-    fn get_ready_wps(
-        &self,
-        feature_id: i64,
-    ) -> impl Future<Output = Result<Vec<WorkPackage>, DomainError>> + Send {
+    async fn get_ready_wps(&self, feature_id: i64) -> Result<Vec<WorkPackage>, DomainError> {
         let wps: Vec<WorkPackage> = self
             .work_packages
             .lock()
@@ -268,22 +244,16 @@ impl StoragePort for MockStorage {
             .filter(|w| w.feature_id == feature_id)
             .cloned()
             .collect();
-        async move { Ok(wps) }
+        Ok(wps)
     }
 
-    fn append_audit_entry(
-        &self,
-        entry: &AuditEntry,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
+    async fn append_audit_entry(&self, entry: &AuditEntry) -> Result<i64, DomainError> {
         let id = (self.audit.lock().unwrap().len() + 1) as i64;
         let _ = entry;
-        async move { Ok(id) }
+        Ok(id)
     }
 
-    fn get_audit_trail(
-        &self,
-        feature_id: i64,
-    ) -> impl Future<Output = Result<Vec<AuditEntry>, DomainError>> + Send {
+    async fn get_audit_trail(&self, feature_id: i64) -> Result<Vec<AuditEntry>, DomainError> {
         let trail: Vec<AuditEntry> = self
             .audit
             .lock()
@@ -292,81 +262,63 @@ impl StoragePort for MockStorage {
             .filter(|e| e.feature_id == feature_id)
             .cloned()
             .collect();
-        async move { Ok(trail) }
+        Ok(trail)
     }
 
-    fn get_latest_audit_entry(
+    async fn get_latest_audit_entry(
         &self,
         feature_id: i64,
-    ) -> impl Future<Output = Result<Option<AuditEntry>, DomainError>> + Send {
+    ) -> Result<Option<AuditEntry>, DomainError> {
         let entry = self
             .audit
             .lock()
             .unwrap()
             .iter()
-            .filter(|e| e.feature_id == feature_id)
-            .next_back()
+            .rfind(|e| e.feature_id == feature_id)
             .cloned();
-        async move { Ok(entry) }
+        Ok(entry)
     }
 
-    fn create_evidence(
-        &self,
-        _e: &Evidence,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
+    async fn create_evidence(&self, _e: &Evidence) -> Result<i64, DomainError> {
+        Ok(1)
     }
 
-    fn get_evidence_by_wp(
-        &self,
-        _wp_id: i64,
-    ) -> impl Future<Output = Result<Vec<Evidence>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn get_evidence_by_wp(&self, _wp_id: i64) -> Result<Vec<Evidence>, DomainError> {
+        Ok(vec![])
     }
 
-    fn get_evidence_by_fr(
-        &self,
-        _fr_id: &str,
-    ) -> impl Future<Output = Result<Vec<Evidence>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn get_evidence_by_fr(&self, _fr_id: &str) -> Result<Vec<Evidence>, DomainError> {
+        Ok(vec![])
     }
 
-    fn create_policy_rule(
-        &self,
-        _r: &PolicyRule,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
+    async fn create_policy_rule(&self, _r: &PolicyRule) -> Result<i64, DomainError> {
+        Ok(1)
     }
 
-    fn list_active_policies(
-        &self,
-    ) -> impl Future<Output = Result<Vec<PolicyRule>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_active_policies(&self) -> Result<Vec<PolicyRule>, DomainError> {
+        Ok(vec![])
     }
 
-    fn record_metric(&self, _m: &Metric) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
+    async fn record_metric(&self, _m: &Metric) -> Result<i64, DomainError> {
+        Ok(1)
     }
 
-    fn get_metrics_by_feature(
-        &self,
-        _feature_id: i64,
-    ) -> impl Future<Output = Result<Vec<Metric>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn get_metrics_by_feature(&self, _feature_id: i64) -> Result<Vec<Metric>, DomainError> {
+        Ok(vec![])
     }
 
-    fn create_governance_contract(
+    async fn create_governance_contract(
         &self,
         _c: &GovernanceContract,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
+    ) -> Result<i64, DomainError> {
+        Ok(1)
     }
 
-    fn get_governance_contract(
+    async fn get_governance_contract(
         &self,
         feature_id: i64,
         version: i32,
-    ) -> impl Future<Output = Result<Option<GovernanceContract>, DomainError>> + Send {
+    ) -> Result<Option<GovernanceContract>, DomainError> {
         let found = self
             .governance
             .lock()
@@ -374,13 +326,13 @@ impl StoragePort for MockStorage {
             .iter()
             .find(|c| c.feature_id == feature_id && c.version == version)
             .cloned();
-        async move { Ok(found) }
+        Ok(found)
     }
 
-    fn get_latest_governance_contract(
+    async fn get_latest_governance_contract(
         &self,
         feature_id: i64,
-    ) -> impl Future<Output = Result<Option<GovernanceContract>, DomainError>> + Send {
+    ) -> Result<Option<GovernanceContract>, DomainError> {
         let found = self
             .governance
             .lock()
@@ -389,175 +341,298 @@ impl StoragePort for MockStorage {
             .filter(|c| c.feature_id == feature_id)
             .max_by_key(|c| c.version)
             .cloned();
-        async move { Ok(found) }
+        Ok(found)
     }
 
     // -- Module stubs (WP02/WP04) --
 
-    fn create_module(
-        &self,
-        _module: &Module,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
+    async fn create_module(&self, _module: &Module) -> Result<i64, DomainError> {
+        Ok(1)
     }
 
-    fn get_module(
-        &self,
-        _id: i64,
-    ) -> impl Future<Output = Result<Option<Module>, DomainError>> + Send {
-        async move { Ok(None) }
+    async fn get_module(&self, _id: i64) -> Result<Option<Module>, DomainError> {
+        Ok(None)
     }
 
-    fn get_module_by_slug(
-        &self,
-        _slug: &str,
-    ) -> impl Future<Output = Result<Option<Module>, DomainError>> + Send {
-        async move { Ok(None) }
+    async fn get_module_by_slug(&self, _slug: &str) -> Result<Option<Module>, DomainError> {
+        Ok(None)
     }
 
-    fn update_module(
+    async fn update_module(
         &self,
         _id: i64,
         _friendly_name: &str,
         _description: Option<&str>,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    ) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn delete_module(&self, _id: i64) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn delete_module(&self, _id: i64) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn list_root_modules(&self) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_root_modules(&self) -> Result<Vec<Module>, DomainError> {
+        Ok(vec![])
     }
 
-    fn list_child_modules(
-        &self,
-        _parent_id: i64,
-    ) -> impl Future<Output = Result<Vec<Module>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_child_modules(&self, _parent_id: i64) -> Result<Vec<Module>, DomainError> {
+        Ok(vec![])
     }
 
-    fn get_module_with_features(
+    async fn get_module_with_features(
         &self,
         _id: i64,
-    ) -> impl Future<Output = Result<Option<ModuleWithFeatures>, DomainError>> + Send {
-        async move { Ok(None) }
+    ) -> Result<Option<ModuleWithFeatures>, DomainError> {
+        Ok(None)
     }
 
     // -- Cycle stubs (WP02/WP04) --
 
-    fn create_cycle(
-        &self,
-        _cycle: &Cycle,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
+    async fn create_cycle(&self, _cycle: &Cycle) -> Result<i64, DomainError> {
+        Ok(1)
     }
 
-    fn get_cycle(
-        &self,
-        _id: i64,
-    ) -> impl Future<Output = Result<Option<Cycle>, DomainError>> + Send {
-        async move { Ok(None) }
+    async fn get_cycle(&self, _id: i64) -> Result<Option<Cycle>, DomainError> {
+        Ok(None)
     }
 
-    fn update_cycle_state(
-        &self,
-        _id: i64,
-        _state: CycleState,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn update_cycle_state(&self, _id: i64, _state: CycleState) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn list_cycles_by_state(
-        &self,
-        _state: CycleState,
-    ) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_cycles_by_state(&self, _state: CycleState) -> Result<Vec<Cycle>, DomainError> {
+        Ok(vec![])
     }
 
-    fn list_cycles_by_module(
-        &self,
-        _module_id: i64,
-    ) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_cycles_by_module(&self, _module_id: i64) -> Result<Vec<Cycle>, DomainError> {
+        Ok(vec![])
     }
 
-    fn list_all_cycles(&self) -> impl Future<Output = Result<Vec<Cycle>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_all_cycles(&self) -> Result<Vec<Cycle>, DomainError> {
+        Ok(vec![])
     }
 
-    fn get_cycle_with_features(
+    async fn get_cycle_with_features(
         &self,
         _id: i64,
-    ) -> impl Future<Output = Result<Option<CycleWithFeatures>, DomainError>> + Send {
-        async move { Ok(None) }
+    ) -> Result<Option<CycleWithFeatures>, DomainError> {
+        Ok(None)
     }
 
     // -- Join table stubs (WP02/WP04) --
 
-    fn tag_feature_to_module(
-        &self,
-        _tag: &ModuleFeatureTag,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn tag_feature_to_module(&self, _tag: &ModuleFeatureTag) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn untag_feature_from_module(
+    async fn untag_feature_from_module(
         &self,
         _module_id: i64,
         _feature_id: i64,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    ) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn add_feature_to_cycle(
-        &self,
-        _entry: &CycleFeature,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn add_feature_to_cycle(&self, _entry: &CycleFeature) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn remove_feature_from_cycle(
+    async fn remove_feature_from_cycle(
         &self,
         _cycle_id: i64,
         _feature_id: i64,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    ) -> Result<(), DomainError> {
+        Ok(())
     }
 
     // -- Sync Mapping stubs (WP06) --
 
-    fn get_sync_mapping(
+    async fn get_sync_mapping(
         &self,
         _entity_type: &str,
         _entity_id: i64,
-    ) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send {
-        async move { Ok(None) }
+    ) -> Result<Option<SyncMapping>, DomainError> {
+        Ok(None)
     }
 
-    fn upsert_sync_mapping(
-        &self,
-        _mapping: &SyncMapping,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn upsert_sync_mapping(&self, _mapping: &SyncMapping) -> Result<(), DomainError> {
+        Ok(())
     }
 
-    fn get_sync_mapping_by_plane_id(
+    async fn get_sync_mapping_by_plane_id(
         &self,
         _entity_type: &str,
         _plane_issue_id: &str,
-    ) -> impl Future<Output = Result<Option<SyncMapping>, DomainError>> + Send {
-        async move { Ok(None) }
+    ) -> Result<Option<SyncMapping>, DomainError> {
+        Ok(None)
     }
 
-    fn delete_sync_mapping(
+    async fn delete_sync_mapping(
         &self,
         _entity_type: &str,
         _entity_id: i64,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+}
+
+// ── ContentStoragePort for MockStorage ───────────────────────────────────────
+
+impl ContentStoragePort for MockStorage {
+    async fn create_feature(
+        &self,
+        f: &agileplus_domain::domain::feature::Feature,
+    ) -> Result<i64, DomainError> {
+        let id = (self.features.lock().unwrap().len() + 1) as i64;
+        let _ = f;
+        Ok(id)
+    }
+
+    async fn get_feature_by_slug(
+        &self,
+        slug: &str,
+    ) -> Result<Option<agileplus_domain::domain::feature::Feature>, DomainError> {
+        let feats = self.features.lock().unwrap();
+        let found = feats.iter().find(|f| f.slug == slug).cloned();
+        Ok(found)
+    }
+
+    async fn get_feature_by_id(
+        &self,
+        id: i64,
+    ) -> Result<Option<agileplus_domain::domain::feature::Feature>, DomainError> {
+        let feats = self.features.lock().unwrap();
+        let found = feats.iter().find(|f| f.id == id).cloned();
+        Ok(found)
+    }
+
+    async fn update_feature_state(
+        &self,
+        _id: i64,
+        _state: agileplus_domain::domain::state_machine::FeatureState,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn update_feature(
+        &self,
+        _feature: &agileplus_domain::domain::feature::Feature,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn list_features_by_state(
+        &self,
+        state: agileplus_domain::domain::state_machine::FeatureState,
+    ) -> Result<Vec<agileplus_domain::domain::feature::Feature>, DomainError> {
+        let feats: Vec<_> = self
+            .features
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|f| f.state == state)
+            .cloned()
+            .collect();
+        Ok(feats)
+    }
+
+    async fn list_all_features(
+        &self,
+    ) -> Result<Vec<agileplus_domain::domain::feature::Feature>, DomainError> {
+        let feats: Vec<_> = self.features.lock().unwrap().clone();
+        Ok(feats)
+    }
+
+    async fn create_backlog_item(&self, _item: &BacklogItem) -> Result<i64, DomainError> {
+        Ok(1)
+    }
+
+    async fn get_backlog_item(&self, _id: i64) -> Result<Option<BacklogItem>, DomainError> {
+        Ok(None)
+    }
+
+    async fn list_backlog_items(
+        &self,
+        _filters: &BacklogFilters,
+    ) -> Result<Vec<BacklogItem>, DomainError> {
+        Ok(vec![])
+    }
+
+    async fn update_backlog_status(
+        &self,
+        _id: i64,
+        _status: BacklogStatus,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn update_backlog_priority(
+        &self,
+        _id: i64,
+        _priority: BacklogPriority,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn pop_next_backlog_item(&self) -> Result<Option<BacklogItem>, DomainError> {
+        Ok(None)
+    }
+
+    async fn create_work_package(
+        &self,
+        _wp: &agileplus_domain::domain::work_package::WorkPackage,
+    ) -> Result<i64, DomainError> {
+        Ok(1)
+    }
+
+    async fn get_work_package(
+        &self,
+        _id: i64,
+    ) -> Result<Option<agileplus_domain::domain::work_package::WorkPackage>, DomainError> {
+        Ok(None)
+    }
+
+    async fn update_wp_state(
+        &self,
+        _id: i64,
+        _state: agileplus_domain::domain::work_package::WpState,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn update_work_package(
+        &self,
+        _wp: &agileplus_domain::domain::work_package::WorkPackage,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn list_wps_by_feature(
+        &self,
+        _feature_id: i64,
+    ) -> Result<Vec<agileplus_domain::domain::work_package::WorkPackage>, DomainError> {
+        Ok(vec![])
+    }
+
+    async fn add_wp_dependency(
+        &self,
+        _dep: &agileplus_domain::domain::work_package::WpDependency,
+    ) -> Result<(), DomainError> {
+        Ok(())
+    }
+
+    async fn get_wp_dependencies(
+        &self,
+        _wp_id: i64,
+    ) -> Result<Vec<agileplus_domain::domain::work_package::WpDependency>, DomainError> {
+        Ok(vec![])
+    }
+
+    async fn get_ready_wps(
+        &self,
+        _feature_id: i64,
+    ) -> Result<Vec<agileplus_domain::domain::work_package::WorkPackage>, DomainError> {
+        Ok(vec![])
     }
 }
 
@@ -567,84 +642,46 @@ impl StoragePort for MockStorage {
 struct MockVcs;
 
 impl VcsPort for MockVcs {
-    fn create_worktree(
-        &self,
-        _fs: &str,
-        _wp: &str,
-    ) -> impl Future<Output = Result<PathBuf, DomainError>> + Send {
-        async move { Ok(PathBuf::from("/tmp/worktree")) }
+    async fn create_worktree(&self, _fs: &str, _wp: &str) -> Result<PathBuf, DomainError> {
+        Ok(PathBuf::from("/tmp/worktree"))
     }
-    fn list_worktrees(
-        &self,
-    ) -> impl Future<Output = Result<Vec<WorktreeInfo>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn list_worktrees(&self) -> Result<Vec<WorktreeInfo>, DomainError> {
+        Ok(vec![])
     }
-    fn cleanup_worktree(&self, _p: &Path) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn cleanup_worktree(&self, _p: &Path) -> Result<(), DomainError> {
+        Ok(())
     }
-    fn create_branch(
-        &self,
-        _b: &str,
-        _base: &str,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn create_branch(&self, _b: &str, _base: &str) -> Result<(), DomainError> {
+        Ok(())
     }
-    fn checkout_branch(&self, _b: &str) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn checkout_branch(&self, _b: &str) -> Result<(), DomainError> {
+        Ok(())
     }
-    fn merge_to_target(
-        &self,
-        _s: &str,
-        _t: &str,
-    ) -> impl Future<Output = Result<MergeResult, DomainError>> + Send {
-        async move {
-            Ok(MergeResult {
-                success: true,
-                conflicts: vec![],
-                merged_commit: None,
-            })
-        }
+    async fn merge_to_target(&self, _s: &str, _t: &str) -> Result<MergeResult, DomainError> {
+        Ok(MergeResult {
+            success: true,
+            conflicts: vec![],
+            merged_commit: None,
+        })
     }
-    fn detect_conflicts(
-        &self,
-        _s: &str,
-        _t: &str,
-    ) -> impl Future<Output = Result<Vec<ConflictInfo>, DomainError>> + Send {
-        async move { Ok(vec![]) }
+    async fn detect_conflicts(&self, _s: &str, _t: &str) -> Result<Vec<ConflictInfo>, DomainError> {
+        Ok(vec![])
     }
-    fn read_artifact(
-        &self,
-        _fs: &str,
-        _p: &str,
-    ) -> impl Future<Output = Result<String, DomainError>> + Send {
-        async move { Ok(String::new()) }
+    async fn read_artifact(&self, _fs: &str, _p: &str) -> Result<String, DomainError> {
+        Ok(String::new())
     }
-    fn write_artifact(
-        &self,
-        _fs: &str,
-        _p: &str,
-        _c: &str,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
+    async fn write_artifact(&self, _fs: &str, _p: &str, _c: &str) -> Result<(), DomainError> {
+        Ok(())
     }
-    fn artifact_exists(
-        &self,
-        _fs: &str,
-        _p: &str,
-    ) -> impl Future<Output = Result<bool, DomainError>> + Send {
-        async move { Ok(false) }
+    async fn artifact_exists(&self, _fs: &str, _p: &str) -> Result<bool, DomainError> {
+        Ok(false)
     }
-    fn scan_feature_artifacts(
-        &self,
-        _fs: &str,
-    ) -> impl Future<Output = Result<FeatureArtifacts, DomainError>> + Send {
-        async move {
-            Ok(FeatureArtifacts {
-                meta_json: None,
-                audit_chain: None,
-                evidence_paths: vec![],
-            })
-        }
+    async fn scan_feature_artifacts(&self, _fs: &str) -> Result<FeatureArtifacts, DomainError> {
+        Ok(FeatureArtifacts {
+            meta_json: None,
+            audit_chain: None,
+            evidence_paths: vec![],
+        })
     }
 }
 

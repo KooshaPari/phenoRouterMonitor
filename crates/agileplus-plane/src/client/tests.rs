@@ -23,7 +23,7 @@ async fn create_module_sends_post() {
 
     let mock_server = MockServer::start().await;
     Mock::given(method("POST"))
-    .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
+        .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "id": "mod-uuid-1",
             "name": "Auth",
@@ -49,7 +49,7 @@ async fn create_module_http_error_propagates() {
 
     let mock_server = MockServer::start().await;
     Mock::given(method("POST"))
-    .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
+        .and(path("/api/v1/workspaces/ws/projects/proj/modules/"))
         .respond_with(ResponseTemplate::new(500).set_body_string("internal error"))
         .mount(&mock_server)
         .await;
@@ -72,7 +72,7 @@ async fn create_cycle_sends_correct_dates() {
 
     let mock_server = MockServer::start().await;
     Mock::given(method("POST"))
-    .and(path("/api/v1/workspaces/ws/projects/proj/cycles/"))
+        .and(path("/api/v1/workspaces/ws/projects/proj/cycles/"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "id": "cyc-uuid-1",
             "name": "Sprint 1",
@@ -206,7 +206,9 @@ async fn delete_work_item_from_cycle_sends_delete() {
 
     let mock_server = MockServer::start().await;
     Mock::given(method("DELETE"))
-        .and(path("/api/v1/workspaces/ws/projects/proj/cycles/cyc-1/cycle-issues/wi-1/"))
+        .and(path(
+            "/api/v1/workspaces/ws/projects/proj/cycles/cyc-1/cycle-issues/wi-1/",
+        ))
         .respond_with(ResponseTemplate::new(204))
         .mount(&mock_server)
         .await;
@@ -242,7 +244,9 @@ async fn delete_work_item_from_module_sends_delete() {
 
     let mock_server = MockServer::start().await;
     Mock::given(method("DELETE"))
-        .and(path("/api/v1/workspaces/ws/projects/proj/modules/mod-1/module-issues/wi-1/"))
+        .and(path(
+            "/api/v1/workspaces/ws/projects/proj/modules/mod-1/module-issues/wi-1/",
+        ))
         .respond_with(ResponseTemplate::new(204))
         .mount(&mock_server)
         .await;

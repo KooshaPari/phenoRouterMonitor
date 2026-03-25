@@ -3,9 +3,7 @@ use anyhow::{Context, Result, anyhow};
 use agileplus_domain::domain::cycle::CycleFeature;
 use agileplus_domain::error::DomainError;
 use agileplus_domain::ports::StoragePort;
-use agileplus_plane::{
-    maybe_sync_cycle_from_env, maybe_sync_feature_cycle_assignment_from_env,
-};
+use agileplus_plane::{maybe_sync_cycle_from_env, maybe_sync_feature_cycle_assignment_from_env};
 
 use crate::commands::cycle::args::AddArgs;
 use crate::commands::cycle::find_cycle_by_name;
@@ -35,12 +33,8 @@ pub(super) async fn cmd_add<S: StoragePort>(args: AddArgs, storage: &S) -> Resul
             if let Err(err) = maybe_sync_cycle_from_env(storage, cycle.id).await {
                 tracing::warn!(cycle_id = cycle.id, error = %err, "Plane sync before cycle assignment failed");
             }
-            if let Err(err) = maybe_sync_feature_cycle_assignment_from_env(
-                storage,
-                feature.id,
-                cycle.id,
-            )
-            .await
+            if let Err(err) =
+                maybe_sync_feature_cycle_assignment_from_env(storage, feature.id, cycle.id).await
             {
                 tracing::warn!(
                     feature_id = feature.id,

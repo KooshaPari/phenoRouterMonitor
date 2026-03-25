@@ -16,7 +16,7 @@ agileplus-events = { path = "../agileplus-events" }
 agileplus-sqlite = { path = "../agileplus-sqlite" }
 agileplus-plane = { path = "../agileplus-plane" }
 agileplus-api = { path = "../agileplus-api" }
-axum = { version = "0.8", features = ["json"] }
+axum.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true

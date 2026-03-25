@@ -1,12 +1,6 @@
 use rusqlite::Row;
 
-use agileplus_domain::{
-    domain::{
-        feature::Feature,
-        module::Module,
-        state_machine::FeatureState,
-    },
-};
+use agileplus_domain::domain::{feature::Feature, module::Module, state_machine::FeatureState};
 
 pub(super) fn row_to_module(row: &Row<'_>) -> rusqlite::Result<Module> {
     let id: i64 = row.get(0)?;
@@ -115,6 +109,8 @@ pub(super) fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
         labels: Vec::new(),
         module_id: None,
         project_id: None,
+        created_at_commit: None,
+        last_modified_commit: None,
         created_at,
         updated_at,
     })

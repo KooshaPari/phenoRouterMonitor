@@ -93,7 +93,10 @@ pub(super) fn handle_delete<S: LocalEntityStore>(
     }
 
     store.mark_archived(&issue_id)?;
-    tracing::info!(plane_issue_id = issue_id, "archived deleted Plane.so work item");
+    tracing::info!(
+        plane_issue_id = issue_id,
+        "archived deleted Plane.so work item"
+    );
     Ok(InboundOutcome::Archived { issue_id })
 }
 

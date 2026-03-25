@@ -1,4 +1,4 @@
-use rusqlite::{params, Connection};
+use rusqlite::{Connection, params};
 
 use agileplus_domain::domain::module::ModuleFeatureTag;
 use agileplus_domain::error::DomainError;

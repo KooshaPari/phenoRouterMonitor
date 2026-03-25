@@ -32,10 +32,11 @@ class TestGetFeatureContract:
     @pytest.mark.asyncio
     async def test_get_feature_request_uses_slug_field(self):
         """Consumer must send a GetFeatureRequest with a 'slug' field."""
+        from unittest.mock import patch
+
         from agileplus_mcp.grpc_client import AgilePlusCoreClient
 
         client = AgilePlusCoreClient()
-
         captured_request = {}
 
         async def fake_get_feature(request):
@@ -58,17 +59,26 @@ class TestGetFeatureContract:
         stub.GetFeature = fake_get_feature
         client._stub = stub
 
-        # Patch proto import
+        # Create a mock for core_pb2 that behaves like the real one
         mock_core_pb2 = MagicMock()
-        mock_core_pb2.GetFeatureRequest = lambda slug: MagicMock(slug=slug)
-        with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-            "sys.modules",
-            {"agileplus_proto.gen.agileplus.v1.core_pb2": mock_core_pb2},
-        ):
-            import sys
 
-            sys.modules["agileplus_proto.gen.agileplus.v1"] = MagicMock()
-            sys.modules["agileplus_proto.gen.agileplus.v1.core_pb2"] = mock_core_pb2
+        class MockRequest:
+            def __init__(self, slug=None, **kwargs):
+                self.slug = slug or kwargs.get("slug")
+
+        mock_core_pb2.GetFeatureRequest = MockRequest
+
+        # Create the package mock and set core_pb2 as its attribute
+        mock_v1 = MagicMock()
+        mock_v1.core_pb2 = mock_core_pb2
+
+        with patch.dict(
+            "sys.modules",
+            {
+                "agileplus_proto.gen.agileplus.v1.core_pb2": mock_core_pb2,
+                "agileplus_proto.gen.agileplus.v1": mock_v1,
+            },
+        ):
             result = await client.get_feature("test-feature")
 
         assert captured_request.get("slug") == "test-feature"

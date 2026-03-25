@@ -1,12 +1,6 @@
 use rusqlite::Row;
 
-use agileplus_domain::{
-    domain::{
-        cycle::Cycle,
-        feature::Feature,
-        state_machine::FeatureState,
-    },
-};
+use agileplus_domain::domain::{cycle::Cycle, feature::Feature, state_machine::FeatureState};
 
 fn parse_datetime(
     value: &str,
@@ -35,27 +29,30 @@ pub(super) fn row_to_cycle(row: &Row<'_>) -> rusqlite::Result<Cycle> {
     let created_at_str: String = row.get(7)?;
     let updated_at_str: String = row.get(8)?;
 
-    let state = state_str.parse::<agileplus_domain::domain::cycle::CycleState>().map_err(|e| {
-        rusqlite::Error::FromSqlConversionFailure(
-            3,
-            rusqlite::types::Type::Text,
-            Box::new(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                e.to_string(),
-            )),
-        )
-    })?;
+    let state = state_str
+        .parse::<agileplus_domain::domain::cycle::CycleState>()
+        .map_err(|e| {
+            rusqlite::Error::FromSqlConversionFailure(
+                3,
+                rusqlite::types::Type::Text,
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    e.to_string(),
+                )),
+            )
+        })?;
 
-    let start_date = chrono::NaiveDate::parse_from_str(&start_date_str, "%Y-%m-%d").map_err(|e| {
-        rusqlite::Error::FromSqlConversionFailure(
-            4,
-            rusqlite::types::Type::Text,
-            Box::new(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                e.to_string(),
-            )),
-        )
-    })?;
+    let start_date =
+        chrono::NaiveDate::parse_from_str(&start_date_str, "%Y-%m-%d").map_err(|e| {
+            rusqlite::Error::FromSqlConversionFailure(
+                4,
+                rusqlite::types::Type::Text,
+                Box::new(std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    e.to_string(),
+                )),
+            )
+        })?;
 
     let end_date = chrono::NaiveDate::parse_from_str(&end_date_str, "%Y-%m-%d").map_err(|e| {
         rusqlite::Error::FromSqlConversionFailure(
@@ -122,6 +119,8 @@ pub(super) fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
         labels: Vec::new(),
         module_id: None,
         project_id: None,
+        created_at_commit: None,
+        last_modified_commit: None,
         created_at,
         updated_at,
     })

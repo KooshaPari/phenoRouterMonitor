@@ -322,6 +322,7 @@ fn build_otlp_provider(
     otlp: &crate::config::OtlpConfig,
 ) -> Result<opentelemetry_sdk::trace::SdkTracerProvider, String> {
     use opentelemetry_otlp::WithExportConfig;
+    use opentelemetry_sdk::trace::SdkTracerProvider;
 
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_http()
@@ -330,7 +331,7 @@ fn build_otlp_provider(
         .build()
         .map_err(|e| e.to_string())?;
 
-    let provider = opentelemetry_sdk::trace::SdkTracerProvider::builder()
+    let provider = SdkTracerProvider::builder()
         .with_batch_exporter(exporter)
         .build();
 

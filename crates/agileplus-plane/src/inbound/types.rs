@@ -42,6 +42,9 @@ pub trait LocalEntityStore: Send + Sync {
     fn mark_archived(&mut self, plane_issue_id: &str) -> anyhow::Result<()>;
 
     /// Record a new auto-imported entity.
-    fn auto_import(&mut self, webhook_issue: &PlaneWebhookIssue, state: FeatureState)
-    -> anyhow::Result<()>;
+    fn auto_import(
+        &mut self,
+        webhook_issue: &PlaneWebhookIssue,
+        state: FeatureState,
+    ) -> anyhow::Result<()>;
 }

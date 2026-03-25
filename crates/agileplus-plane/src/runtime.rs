@@ -3,12 +3,12 @@ use std::env;
 use agileplus_domain::ports::StoragePort;
 use anyhow::Context;
 
-use crate::outbound::{
-    push_cycle, push_cycle_delete, push_feature_cycle_assignment,
-    push_feature_cycle_unassignment, push_feature_module_assignment,
-    push_feature_module_unassignment, push_module, push_module_delete,
-};
 use crate::client::PlaneClient;
+use crate::outbound::{
+    push_cycle, push_cycle_delete, push_feature_cycle_assignment, push_feature_cycle_unassignment,
+    push_feature_module_assignment, push_feature_module_unassignment, push_module,
+    push_module_delete,
+};
 
 const DEFAULT_PLANE_API_URL: &str = "https://app.plane.so";
 
@@ -16,8 +16,7 @@ fn plane_client_from_env() -> Option<PlaneClient> {
     let api_key = env::var("PLANE_API_KEY").ok()?;
     let workspace_slug = env::var("PLANE_WORKSPACE").ok()?;
     let project_id = env::var("PLANE_PROJECT").ok()?;
-    let base_url =
-        env::var("PLANE_API_URL").unwrap_or_else(|_| DEFAULT_PLANE_API_URL.to_string());
+    let base_url = env::var("PLANE_API_URL").unwrap_or_else(|_| DEFAULT_PLANE_API_URL.to_string());
 
     Some(PlaneClient::new(
         base_url,

@@ -41,7 +41,7 @@ services:
       - NATS_LOG_FILE=.agileplus/logs/nats.log
 
   neo4j:
-    command: neo4j console
+    command: sh -c "if lsof -i :7687 >/dev/null 2>&1; then echo 'Neo4j already running, skipping start'; sleep infinity; else neo4j console; fi"
     depends_on:
       nats:
         condition: process_healthy

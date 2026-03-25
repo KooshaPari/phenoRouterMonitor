@@ -8,7 +8,7 @@ rust-version.workspace = true
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
 agileplus-dashboard = { path = "../agileplus-dashboard" }
-axum = { version = "0.8", features = ["json", "macros"] }
+axum.workspace = true
 axum-extra = { version = "0.10", features = ["typed-header"] }
 tower = { version = "0.5", features = ["limit", "timeout"] }
 tower-http = { version = "0.6", features = ["cors", "fs", "trace"] }
@@ -19,9 +19,9 @@ serde_json.workspace = true
 thiserror.workspace = true
 async-trait = "0.1"
 tracing.workspace = true
-opentelemetry = { version = "0.28", features = ["trace"] }
-opentelemetry_sdk = { version = "0.28", features = ["trace"] }
-tracing-opentelemetry = "0.29"
+opentelemetry = { workspace = true, features = ["trace"] }
+opentelemetry_sdk = { workspace = true, features = ["trace"] }
+tracing-opentelemetry.workspace = true
 agileplus-telemetry = { path = "../agileplus-telemetry" }
 agileplus-sqlite = { path = "../agileplus-sqlite" }
 agileplus-git = { path = "../agileplus-git" }

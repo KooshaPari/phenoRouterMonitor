@@ -2,8 +2,6 @@
 //!
 //! Traceability: FR-012, FR-013 / WP05-T028
 
-use std::future::Future;
-
 use serde::{Deserialize, Serialize};
 
 use crate::error::DomainError;
@@ -71,41 +69,37 @@ pub trait ReviewPort: Send + Sync {
     fn get_review_status(
         &self,
         pr_url: &str,
-    ) -> impl Future<Output = Result<ReviewStatus, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<ReviewStatus, DomainError>> + Send;
 
-    /// Get all review comments on a pull request.
     fn get_review_comments(
         &self,
         pr_url: &str,
-    ) -> impl Future<Output = Result<Vec<ReviewComment>, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<Vec<ReviewComment>, DomainError>> + Send;
 
-    /// Get only the actionable review comments on a pull request.
     fn get_actionable_comments(
         &self,
         pr_url: &str,
-    ) -> impl Future<Output = Result<Vec<ReviewComment>, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<Vec<ReviewComment>, DomainError>> + Send;
 
-    /// Get the CI status for a pull request.
     fn get_ci_status(
         &self,
         pr_url: &str,
-    ) -> impl Future<Output = Result<CiStatus, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<CiStatus, DomainError>> + Send;
 
-    /// Get summary information about a pull request.
-    fn get_pr_info(&self, pr_url: &str)
-    -> impl Future<Output = Result<PrInfo, DomainError>> + Send;
+    fn get_pr_info(
+        &self,
+        pr_url: &str,
+    ) -> impl std::future::Future<Output = Result<PrInfo, DomainError>> + Send;
 
-    /// Poll until review is complete or timeout is reached.
     fn await_review(
         &self,
         pr_url: &str,
         timeout_secs: u64,
-    ) -> impl Future<Output = Result<ReviewStatus, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<ReviewStatus, DomainError>> + Send;
 
-    /// Poll until CI completes or timeout is reached.
     fn await_ci(
         &self,
         pr_url: &str,
         timeout_secs: u64,
-    ) -> impl Future<Output = Result<CiStatus, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<CiStatus, DomainError>> + Send;
 }

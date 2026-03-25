@@ -14,7 +14,7 @@ plugins:
       - no_client=false
   # Python: protobuf messages
   - remote: buf.build/protocolbuffers/python
-    out: python/src/gen
+    out: python/src/agileplus_proto/gen
   # Python: grpc service stubs
   - remote: buf.build/grpc/python
-    out: python/src/gen
+    out: python/src/agileplus_proto/gen

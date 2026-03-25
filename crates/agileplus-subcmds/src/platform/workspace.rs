@@ -25,9 +25,14 @@ pub(crate) fn resolve_platform_compose(config: &str) -> Result<(PathBuf, PathBuf
     let path = Path::new(config);
     if path.is_absolute() {
         let compose = path.to_path_buf();
-        let meta = compose.metadata().map_err(|e| anyhow!("compose file: {e}"))?;
+        let meta = compose
+            .metadata()
+            .map_err(|e| anyhow!("compose file: {e}"))?;
         if !meta.is_file() {
-            return Err(anyhow!("compose file does not exist: {}", compose.display()));
+            return Err(anyhow!(
+                "compose file does not exist: {}",
+                compose.display()
+            ));
         }
         let workdir = compose
             .parent()
@@ -51,10 +56,7 @@ pub(crate) fn resolve_platform_compose(config: &str) -> Result<(PathBuf, PathBuf
 
     let compose = root.join(config);
     if !compose.is_file() {
-        return Err(anyhow!(
-            "compose file not found: {}",
-            compose.display()
-        ));
+        return Err(anyhow!("compose file not found: {}", compose.display()));
     }
     let compose = compose
         .canonicalize()

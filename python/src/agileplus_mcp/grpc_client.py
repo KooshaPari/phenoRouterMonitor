@@ -53,6 +53,7 @@ class AgilePlusCoreClient:
         """Open the gRPC channel and create the service stub."""
         try:
             import grpc
+
             from agileplus_proto.gen.agileplus.v1 import core_pb2_grpc  # type: ignore[import]
 
             self._channel = grpc.aio.insecure_channel(self._address)
@@ -276,6 +277,7 @@ class AgilePlusCoreClient:
         Reconnects automatically on UNAVAILABLE errors.
         """
         import grpc
+
         from agileplus_proto.gen.agileplus.v1 import core_pb2  # type: ignore[import]
 
         stub = self._require_stub()

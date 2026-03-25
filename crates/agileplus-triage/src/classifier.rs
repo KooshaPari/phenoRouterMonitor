@@ -5,8 +5,8 @@
 //!
 //! Traceability: WP17-T098b, T100
 
-use serde::{Deserialize, Serialize};
 pub use agileplus_domain::domain::backlog::Intent;
+use serde::{Deserialize, Serialize};
 
 /// Result of classifying input text.
 #[derive(Debug, Clone, Serialize, Deserialize)]

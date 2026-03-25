@@ -65,7 +65,8 @@ fn auto_import_new_webhook_issue() {
     let processor = InboundSync::new(PlaneStateMapper::new(), true);
     let mut store = MockStore::new();
 
-    let event = PlaneInboundEvent::IssueCreated(make_webhook_issue("id1", "New Issue", Some("backlog")));
+    let event =
+        PlaneInboundEvent::IssueCreated(make_webhook_issue("id1", "New Issue", Some("backlog")));
     let outcome = processor.process(event, &mut store).unwrap();
 
     assert!(matches!(outcome, InboundOutcome::AutoImported { .. }));
@@ -77,7 +78,8 @@ fn not_tracked_when_auto_import_disabled() {
     let processor = InboundSync::new(PlaneStateMapper::new(), false);
     let mut store = MockStore::new();
 
-    let event = PlaneInboundEvent::IssueCreated(make_webhook_issue("id2", "Issue", Some("started")));
+    let event =
+        PlaneInboundEvent::IssueCreated(make_webhook_issue("id2", "Issue", Some("started")));
     let outcome = processor.process(event, &mut store).unwrap();
 
     assert!(matches!(outcome, InboundOutcome::NotTracked { .. }));
@@ -128,7 +130,8 @@ fn update_tracked_webhook_issue() {
         .hashes
         .insert("id3".to_string(), "oldhash".to_string());
 
-    let event = PlaneInboundEvent::IssueUpdated(make_webhook_issue("id3", "Updated", Some("started")));
+    let event =
+        PlaneInboundEvent::IssueUpdated(make_webhook_issue("id3", "Updated", Some("started")));
     let outcome = processor.process(event, &mut store).unwrap();
 
     assert!(matches!(outcome, InboundOutcome::Updated { .. }));

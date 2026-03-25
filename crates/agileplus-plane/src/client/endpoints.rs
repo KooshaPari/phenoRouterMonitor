@@ -4,11 +4,7 @@
 pub(super) struct ClientEndpoints;
 
 impl ClientEndpoints {
-    pub(super) fn work_items_url(
-        base_url: &str,
-        workspace_slug: &str,
-        project_id: &str,
-    ) -> String {
+    pub(super) fn work_items_url(base_url: &str, workspace_slug: &str, project_id: &str) -> String {
         format!(
             "{}/api/v1/workspaces/{}/projects/{}/work-items/",
             base_url, workspace_slug, project_id

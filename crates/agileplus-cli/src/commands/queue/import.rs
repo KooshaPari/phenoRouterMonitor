@@ -95,7 +95,10 @@ pub(crate) fn build_items_from_file(
     Ok(items)
 }
 
-pub(crate) async fn persist_items<S>(storage: &S, items: Vec<BacklogItem>) -> Result<Vec<BacklogItem>>
+pub(crate) async fn persist_items<S>(
+    storage: &S,
+    items: Vec<BacklogItem>,
+) -> Result<Vec<BacklogItem>>
 where
     S: ContentStoragePort + Send + Sync,
 {

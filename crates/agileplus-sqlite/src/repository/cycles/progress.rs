@@ -1,14 +1,14 @@
-use rusqlite::{params, Connection};
+use rusqlite::{Connection, params};
 
-use agileplus_domain::{
-    domain::cycle::WpProgressSummary,
-    error::DomainError,
-};
+use agileplus_domain::{domain::cycle::WpProgressSummary, error::DomainError};
 
 use crate::repository::features::map_err;
 
 /// Aggregate WP state counts across all features assigned to a cycle.
-pub(super) fn compute_wp_progress(conn: &Connection, cycle_id: i64) -> Result<WpProgressSummary, DomainError> {
+pub(super) fn compute_wp_progress(
+    conn: &Connection,
+    cycle_id: i64,
+) -> Result<WpProgressSummary, DomainError> {
     // Count WPs per state for features in this cycle.
     let mut stmt = conn
         .prepare(

@@ -2,9 +2,7 @@ use anyhow::{Context, Result, anyhow};
 
 use agileplus_domain::domain::module::ModuleFeatureTag;
 use agileplus_domain::ports::StoragePort;
-use agileplus_plane::{
-    maybe_sync_feature_module_assignment_from_env, maybe_sync_module_from_env,
-};
+use agileplus_plane::{maybe_sync_feature_module_assignment_from_env, maybe_sync_module_from_env};
 
 use super::AssignArgs;
 
@@ -36,12 +34,8 @@ pub async fn run_assign<S: StoragePort>(args: AssignArgs, storage: &S) -> Result
     if let Err(err) = maybe_sync_module_from_env(storage, module.id).await {
         tracing::warn!(module_id = module.id, error = %err, "Plane sync before module assignment failed");
     }
-    if let Err(err) = maybe_sync_feature_module_assignment_from_env(
-        storage,
-        feature.id,
-        module.id,
-    )
-    .await
+    if let Err(err) =
+        maybe_sync_feature_module_assignment_from_env(storage, feature.id, module.id).await
     {
         tracing::warn!(
             feature_id = feature.id,

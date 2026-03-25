@@ -2,7 +2,7 @@
 //!
 //! Traces to: FR-C01, FR-C02, FR-C03, FR-C04, FR-C05, FR-C07
 
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{Connection, OptionalExtension, params};
 
 use agileplus_domain::{
     domain::cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures},
@@ -16,7 +16,6 @@ mod progress;
 
 use mappers::{row_to_cycle, row_to_feature};
 use progress::compute_wp_progress;
-
 
 // ---------------------------------------------------------------------------
 // Cycle CRUD

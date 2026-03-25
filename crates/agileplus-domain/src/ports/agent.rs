@@ -2,7 +2,6 @@
 //!
 //! Traceability: FR-004, FR-010, FR-011, FR-012, FR-013 / WP05-T027
 
-use std::future::Future;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
@@ -68,28 +67,27 @@ pub trait AgentPort: Send + Sync {
         &self,
         task: AgentTask,
         config: &AgentConfig,
-    ) -> impl Future<Output = Result<AgentResult, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<AgentResult, DomainError>> + Send;
 
-    /// Spawn an agent without blocking; returns a job ID for later polling.
     fn dispatch_async(
         &self,
         task: AgentTask,
         config: &AgentConfig,
-    ) -> impl Future<Output = Result<String, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<String, DomainError>> + Send;
 
-    /// Query the current status of a previously dispatched job.
     fn query_status(
         &self,
         job_id: &str,
-    ) -> impl Future<Output = Result<AgentStatus, DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<AgentStatus, DomainError>> + Send;
 
-    /// Cancel a running or pending job.
-    fn cancel(&self, job_id: &str) -> impl Future<Output = Result<(), DomainError>> + Send;
+    fn cancel(
+        &self,
+        job_id: &str,
+    ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
 
-    /// Send a follow-up instruction to a running agent.
     fn send_instruction(
         &self,
         job_id: &str,
         instruction: &str,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send;
+    ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
 }

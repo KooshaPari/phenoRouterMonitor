@@ -15,8 +15,8 @@ anyhow.workspace = true
 sha2.workspace = true
 tokio.workspace = true
 thiserror.workspace = true
-reqwest = { version = "0.12", features = ["json"] }
-axum = { version = "0.7", features = ["macros"] }
+reqwest = { version = "0.13", features = ["json"] }
+axum.workspace = true
 hmac = "0.12"
 hex = "0.4"
 async-trait = "0.1"
