@@ -5,8 +5,3 @@ Cargo.lock
 .DS_Store
 worktrees/
 worktrees/
-
-# VitePress
-docs/.vitepress/cache
-docs/.vitepress/dist
-node_modules
