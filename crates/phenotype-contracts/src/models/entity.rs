@@ -46,13 +46,14 @@
 //! ```
 
 use std::fmt::Debug;
+use std::cmp::PartialEq;
 
 /// Trait for entities.
 ///
 /// Entities have identity that persists over time.
 pub trait Entity: Debug + Clone + Send + Sync {
     /// The type of ID this entity uses
-    type Id: Clone + Send + Sync;
+    type Id: Clone + Send + Sync + PartialEq + Debug;
 
     /// Get the entity's ID
     fn id(&self) -> &Self::Id;

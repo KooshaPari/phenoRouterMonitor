@@ -44,5 +44,8 @@
 pub mod ports;
 pub mod models;
 
+#[cfg(test)]
+mod tests;
+
 /// Result type alias using our custom error
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;

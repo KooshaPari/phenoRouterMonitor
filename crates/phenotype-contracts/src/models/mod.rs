@@ -19,5 +19,5 @@ pub mod entity;
 pub mod aggregate;
 
 pub use value_object::ValueObject;
-pub use entity::Entity;
+pub use entity::{Entity, EntityExt};
 pub use aggregate::AggregateRoot;

@@ -42,7 +42,7 @@
 //! ```
 
 use super::Entity;
-use std::sync::Arc;
+use super::entity::EntityExt;
 
 /// Trait for aggregate roots.
 ///
@@ -86,6 +86,6 @@ pub trait AggregateExt: AggregateRoot {
 
 impl<T: AggregateRoot> AggregateExt for T {
     fn id_string(&self) -> String {
-        format!("{:?}", self.id())
+        format!("{:?}", self.id_ref())
     }
 }
