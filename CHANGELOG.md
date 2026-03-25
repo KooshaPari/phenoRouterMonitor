@@ -17,6 +17,15 @@ The project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 ### Changed
 - Domain: Implemented `Default` for `KeychainCredentialStore`.
 
+## [0.1.2] - 2026-03-25 
+
+### Fixed 
+
+- CI: Stabilized and resolved clippy warnings across all crates. 
+- CI: Resolved workspace-level synchronization and configuration conflicts. 
+- Quality: Refactored async implementations and satisfied lock-holding lints. 
+
+
 ## [0.1.1] - 2026-03-25
 
 ### Fixed
