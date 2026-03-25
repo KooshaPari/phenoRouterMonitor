@@ -2,6 +2,8 @@
 resolver = "3"
 members = [
   "crates/agileplus-domain",
+  "crates/agileplus-plugin-core",
+  "crates/agileplus-plugin-git",
   "crates/agileplus-cli",
   "crates/agileplus-api",
   "crates/agileplus-grpc",
@@ -53,3 +55,12 @@ opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "http-p
 opentelemetry_sdk = { version = "0.31", features = ["trace", "metrics", "rt-tokio"] }
 criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
 time = ">=0.3.49"
+trait-variant = "0.1"
+async-trait = "0.1"
+
+# Plugin crates
+agileplus-plugin-core = { path = "crates/agileplus-plugin-core" }
+
+# Git operations
+gix = "0.71"
+git2 = "0.20"

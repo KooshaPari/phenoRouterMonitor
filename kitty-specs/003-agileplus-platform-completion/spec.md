@@ -204,6 +204,31 @@ A developer works on AgilePlus on their laptop, commits and pushes. On their des
 - **AuditEntry**: Hash-chained audit log entry (existing). Enhanced with event store backing and MinIO archival.
 - **Graph Relationships** (Neo4j): Feature→WP ownership, WP→Agent assignment, Feature→Feature dependencies, Cross-project links, Label→Entity associations.
 
+## Architecture Patterns
+
+This project implements:
+
+### Hexagonal Architecture (Ports & Adapters)
+- **Domain**: Core business logic (entities, value objects, services, events, ports)
+- **Application**: Use cases (commands, queries, handlers)
+- **Adapters**: Primary (REST, CLI) and Secondary (persistence, cache, messaging)
+
+### Clean Architecture Layers
+- **Enterprise Rules**: Domain entities, services, value objects
+- **Application**: Use cases, interactors, DTOs
+- **Interface Adapters**: Controllers, presenters, gateways
+- **Frameworks & Drivers**: Database, web, external interfaces
+
+### xDD Methodologies
+- **TDD**: Test-Driven Development - red/green/refactor cycle
+- **BDD**: Behavior-Driven Development - Gherkin scenarios
+- **SDD**: Specification-Driven Development - executable specs
+- **DDD**: Domain-Driven Design - bounded contexts, aggregates
+- **ADD**: Anxiety-Driven Development - addressing technical debt
+- **CQRS**: Command Query Responsibility Segregation
+- **Event Sourcing**: Complete audit trail via events
+- **Specification by Example**: Living documentation from examples
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
