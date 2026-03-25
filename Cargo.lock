@@ -332,45 +332,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "agileplus-plugin-core"
-version = "0.1.1"
-dependencies = [
- "async-trait",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "agileplus-plugin-git"
-version = "0.1.1"
-dependencies = [
- "agileplus-plugin-core",
- "async-trait",
- "git2",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "agileplus-plugin-sqlite"
-version = "0.1.1"
-dependencies = [
- "agileplus-plugin-core",
- "anyhow",
- "async-trait",
- "rusqlite",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
-]
-
-[[package]]
 name = "agileplus-proto"
 version = "0.1.0"
 dependencies = [

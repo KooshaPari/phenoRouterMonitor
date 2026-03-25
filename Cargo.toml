@@ -2,9 +2,6 @@
 resolver = "3"
 members = [
   "crates/agileplus-domain",
-  "crates/agileplus-plugin-core",
-  "crates/agileplus-plugin-git",
-  "crates/agileplus-plugin-sqlite",
   "crates/agileplus-cli",
   "crates/agileplus-api",
   "crates/agileplus-grpc",
@@ -63,8 +60,10 @@ time = ">=0.3.49"
 trait-variant = "0.1"
 async-trait = "0.1"
 
-# Plugin crates
-agileplus-plugin-core = { path = "crates/agileplus-plugin-core" }
+# Plugin crates (external from separate repos)
+agileplus-plugin-core = { git = "https://github.com/KooshaPari/agileplus-plugin-core" }
+agileplus-plugin-git = { git = "https://github.com/KooshaPari/agileplus-plugin-git" }
+agileplus-plugin-sqlite = { git = "https://github.com/KooshaPari/agileplus-plugin-sqlite" }
 
 # Git operations
 gix = "0.71"
