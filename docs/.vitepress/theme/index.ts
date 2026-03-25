@@ -1,8 +1,8 @@
-import DefaultTheme from 'vitepress/theme'
+import phenotypeTheme from '@phenotype/docs/theme'
 import Layout from './Layout.vue'
 import './custom.css'
 
 export default {
-  extends: DefaultTheme,
+  extends: phenotypeTheme,
   Layout,
 }

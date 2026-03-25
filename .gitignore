@@ -14,6 +14,11 @@ dist/
 rust/src/gen/
 python/src/gen/
 
+# Node
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
 # OS
 .DS_Store
 *.swp
