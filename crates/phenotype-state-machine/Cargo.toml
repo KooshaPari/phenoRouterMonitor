@@ -3,10 +3,9 @@ name = "phenotype-state-machine"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Generic finite state machine with transition guards, validation, and forward-only enforcement"
+repository.workspace = true
+description = "Phenotype shared crate"
 
 [dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }
-thiserror = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
