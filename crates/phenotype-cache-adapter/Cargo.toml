@@ -3,11 +3,9 @@ name = "phenotype-cache-adapter"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Generic two-tier cache with L1 (LRU) + L2 (DashMap), TTL expiration, and metrics hooks"
+repository.workspace = true
+description = "Phenotype shared crate"
 
 [dependencies]
-serde = { workspace = true }
-dashmap = { workspace = true }
-lru = { workspace = true }
-parking_lot = { workspace = true }
-moka = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
