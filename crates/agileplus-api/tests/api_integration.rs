@@ -19,9 +19,6 @@ use agileplus_domain::credentials::CredentialStore;
 use agileplus_domain::credentials::InMemoryCredentialStore;
 use agileplus_domain::credentials::keys as cred_keys;
 use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
-use agileplus_domain::domain::backlog::{
-    BacklogFilters, BacklogItem, BacklogPriority, BacklogStatus,
-};
 use agileplus_domain::domain::cycle::{Cycle, CycleFeature, CycleState, CycleWithFeatures};
 use agileplus_domain::domain::feature::Feature;
 use agileplus_domain::domain::governance::{Evidence, GovernanceContract, PolicyRule};
@@ -31,7 +28,6 @@ use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 use agileplus_domain::domain::work_package::{WorkPackage, WpDependency, WpState};
 use agileplus_domain::error::DomainError;
-use agileplus_domain::ports::ContentStoragePort;
 use agileplus_domain::ports::observability::{LogEntry, ObservabilityPort, SpanContext};
 use agileplus_domain::ports::storage::StoragePort;
 use agileplus_domain::ports::vcs::{
@@ -562,188 +558,6 @@ impl StoragePort for MockStorage {
         _entity_id: i64,
     ) -> impl Future<Output = Result<(), DomainError>> + Send {
         async move { Ok(()) }
-    }
-}
-
-// ── ContentStoragePort for MockStorage ───────────────────────────────────────
-
-impl ContentStoragePort for MockStorage {
-    fn create_feature(
-        &self,
-        f: &agileplus_domain::domain::feature::Feature,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        let id = (self.features.lock().unwrap().len() + 1) as i64;
-        let _ = f;
-        async move { Ok(id) }
-    }
-
-    fn get_feature_by_slug(
-        &self,
-        slug: &str,
-    ) -> impl Future<
-        Output = Result<Option<agileplus_domain::domain::feature::Feature>, DomainError>,
-    > + Send {
-        let feats = self.features.lock().unwrap();
-        let found = feats.iter().find(|f| f.slug == slug).cloned();
-        async move { Ok(found) }
-    }
-
-    fn get_feature_by_id(
-        &self,
-        id: i64,
-    ) -> impl Future<
-        Output = Result<Option<agileplus_domain::domain::feature::Feature>, DomainError>,
-    > + Send {
-        let feats = self.features.lock().unwrap();
-        let found = feats.iter().find(|f| f.id == id).cloned();
-        async move { Ok(found) }
-    }
-
-    fn update_feature_state(
-        &self,
-        _id: i64,
-        _state: agileplus_domain::domain::state_machine::FeatureState,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn update_feature(
-        &self,
-        _feature: &agileplus_domain::domain::feature::Feature,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn list_features_by_state(
-        &self,
-        state: agileplus_domain::domain::state_machine::FeatureState,
-    ) -> impl Future<Output = Result<Vec<agileplus_domain::domain::feature::Feature>, DomainError>> + Send
-    {
-        let feats: Vec<_> = self
-            .features
-            .lock()
-            .unwrap()
-            .iter()
-            .filter(|f| f.state == state)
-            .cloned()
-            .collect();
-        async move { Ok(feats) }
-    }
-
-    fn list_all_features(
-        &self,
-    ) -> impl Future<Output = Result<Vec<agileplus_domain::domain::feature::Feature>, DomainError>> + Send
-    {
-        let feats: Vec<_> = self.features.lock().unwrap().clone();
-        async move { Ok(feats) }
-    }
-
-    fn create_backlog_item(
-        &self,
-        _item: &BacklogItem,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
-    }
-
-    fn get_backlog_item(
-        &self,
-        _id: i64,
-    ) -> impl Future<Output = Result<Option<BacklogItem>, DomainError>> + Send {
-        async move { Ok(None) }
-    }
-
-    fn list_backlog_items(
-        &self,
-        _filters: &BacklogFilters,
-    ) -> impl Future<Output = Result<Vec<BacklogItem>, DomainError>> + Send {
-        async move { Ok(vec![]) }
-    }
-
-    fn update_backlog_status(
-        &self,
-        _id: i64,
-        _status: BacklogStatus,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn update_backlog_priority(
-        &self,
-        _id: i64,
-        _priority: BacklogPriority,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn pop_next_backlog_item(
-        &self,
-    ) -> impl Future<Output = Result<Option<BacklogItem>, DomainError>> + Send {
-        async move { Ok(None) }
-    }
-
-    fn create_work_package(
-        &self,
-        _wp: &agileplus_domain::domain::work_package::WorkPackage,
-    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
-        async move { Ok(1) }
-    }
-
-    fn get_work_package(
-        &self,
-        _id: i64,
-    ) -> impl Future<
-        Output = Result<Option<agileplus_domain::domain::work_package::WorkPackage>, DomainError>,
-    > + Send {
-        async move { Ok(None) }
-    }
-
-    fn update_wp_state(
-        &self,
-        _id: i64,
-        _state: agileplus_domain::domain::work_package::WpState,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn update_work_package(
-        &self,
-        _wp: &agileplus_domain::domain::work_package::WorkPackage,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn list_wps_by_feature(
-        &self,
-        _feature_id: i64,
-    ) -> impl Future<
-        Output = Result<Vec<agileplus_domain::domain::work_package::WorkPackage>, DomainError>,
-    > + Send {
-        async move { Ok(vec![]) }
-    }
-
-    fn add_wp_dependency(
-        &self,
-        _dep: &agileplus_domain::domain::work_package::WpDependency,
-    ) -> impl Future<Output = Result<(), DomainError>> + Send {
-        async move { Ok(()) }
-    }
-
-    fn get_wp_dependencies(
-        &self,
-        _wp_id: i64,
-    ) -> impl Future<
-        Output = Result<Vec<agileplus_domain::domain::work_package::WpDependency>, DomainError>,
-    > + Send {
-        async move { Ok(vec![]) }
-    }
-
-    fn get_ready_wps(
-        &self,
-        _feature_id: i64,
-    ) -> impl Future<
-        Output = Result<Vec<agileplus_domain::domain::work_package::WorkPackage>, DomainError>,
-    > + Send {
-        async move { Ok(vec![]) }
     }
 }
 

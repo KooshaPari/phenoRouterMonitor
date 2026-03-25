@@ -166,6 +166,7 @@ mod tests {
             status: BacklogStatus::New,
             source: "user-report".to_string(),
             feature_slug: Some("auth".to_string()),
+            tags: Vec::new(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }

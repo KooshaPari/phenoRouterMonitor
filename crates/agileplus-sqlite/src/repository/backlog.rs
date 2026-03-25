@@ -215,7 +215,8 @@ pub fn list_backlog_items(
     let rows = stmt
         .query_map(params_from_iter(values), row_to_backlog)
         .map_err(map_err)?;
-    rows.collect::<rusqlite::Result<Vec<_>>>().map_err(map_err)
+    rows.collect::<rusqlite::Result<Vec<_>>>()
+        .map_err(map_err)
 }
 
 pub fn update_backlog_status(

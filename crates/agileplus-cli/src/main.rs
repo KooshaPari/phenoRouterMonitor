@@ -94,10 +94,9 @@ async fn main() {
 }
 
 async fn run(cli: Cli) -> Result<()> {
-    // Triage and Queue commands don't need full storage/VCS setup
+    // Triage command doesn't need full storage/VCS setup
     match cli.command {
         Commands::Triage(args) => return agileplus_cli::commands::triage::run_triage(args).await,
-        Commands::Queue(args) => return agileplus_cli::commands::queue::run_queue(args).await,
         Commands::Dashboard(args) => return run_dashboard(args),
         Commands::Platform(args) => return run_platform(args),
         _ => {}
@@ -144,6 +143,9 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Cycle(args) => {
             agileplus_cli::commands::cycle::run(args, &storage).await?;
         }
+        Commands::Queue(args) => {
+            agileplus_cli::commands::queue::run_queue(args, &storage).await?;
+        }
         Commands::Specify(args) => {
             agileplus_cli::commands::specify::run_specify(args, &storage, &vcs).await?;
         }
@@ -166,7 +168,6 @@ async fn run(cli: Cli) -> Result<()> {
             agileplus_cli::commands::retrospective::run_retrospective(args, &storage, &vcs).await?;
         }
         Commands::Triage(_)
-        | Commands::Queue(_)
         | Commands::Module(_)
         | Commands::Dashboard(_)
         | Commands::Platform(_) => unreachable!("handled above"),

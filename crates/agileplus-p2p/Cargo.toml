@@ -16,7 +16,7 @@ chrono = { workspace = true }
 tokio = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
-async-nats = "0.37"
+async-nats = "0.46"
 async-trait = "0.1"
 uuid = { version = "1", features = ["v4", "serde"] }
 hyper = { version = "1", features = ["client", "http1"] }

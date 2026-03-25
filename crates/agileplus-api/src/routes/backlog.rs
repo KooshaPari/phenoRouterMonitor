@@ -12,7 +12,7 @@ use agileplus_domain::domain::backlog::{
     BacklogFilters, BacklogItem, BacklogPriority, BacklogSort, BacklogStatus, Intent,
 };
 use agileplus_domain::ports::{
-    ContentStoragePort, observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
+    observability::ObservabilityPort, storage::StoragePort, vcs::VcsPort,
 };
 
 use crate::error::ApiError;
@@ -21,7 +21,7 @@ use crate::state::AppState;
 
 pub fn routes<S, V, O>() -> Router<AppState<S, V, O>>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {
@@ -53,7 +53,7 @@ pub async fn list_backlog<S, V, O>(
     Query(params): Query<BacklogListParams>,
 ) -> Result<Json<Vec<BacklogItemResponse>>, ApiError>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {
@@ -111,7 +111,7 @@ pub async fn create_backlog<S, V, O>(
     Json(body): Json<CreateBacklogRequest>,
 ) -> Result<(StatusCode, Json<BacklogItemResponse>), ApiError>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {
@@ -151,7 +151,7 @@ pub async fn import_backlog<S, V, O>(
     Json(body): Json<ImportBacklogRequest>,
 ) -> Result<(StatusCode, Json<ImportBacklogResponse>), ApiError>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {
@@ -199,7 +199,7 @@ pub async fn get_backlog_item<S, V, O>(
     Path(id): Path<i64>,
 ) -> Result<Json<BacklogItemResponse>, ApiError>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {
@@ -231,7 +231,7 @@ pub async fn transition_backlog_item<S, V, O>(
     Json(body): Json<TransitionBacklogRequest>,
 ) -> Result<Json<TransitionBacklogResponse>, ApiError>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {
@@ -267,7 +267,7 @@ pub async fn pop_backlog<S, V, O>(
     Query(params): Query<PopBacklogParams>,
 ) -> Result<Json<Vec<BacklogItemResponse>>, ApiError>
 where
-    S: StoragePort + ContentStoragePort + Send + Sync + 'static,
+    S: StoragePort + Send + Sync + 'static,
     V: VcsPort + Send + Sync + 'static,
     O: ObservabilityPort + Send + Sync + 'static,
 {

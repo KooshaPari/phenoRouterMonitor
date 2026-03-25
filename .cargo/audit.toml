@@ -1,8 +1,0 @@
-[advisories]
-ignore = [
-    # RUSTSEC-2026-0049: rustls-webpki CRL matching logic bug
-    # Transitive dep via opentelemetry-http -> opentelemetry-otlp -> reqwest 0.12.
-    # opentelemetry-otlp 0.31 (latest) still pins reqwest 0.12; no upstream fix available yet.
-    # Track: https://github.com/open-telemetry/opentelemetry-rust/issues for reqwest 0.13 support.
-    "RUSTSEC-2026-0049",
-]

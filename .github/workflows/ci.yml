@@ -21,9 +21,6 @@ jobs:
       pull-requests: write
     name: Buf Lint & Breaking
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -225,7 +222,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
       - name: Install uv
@@ -237,9 +234,7 @@ jobs:
       - name: Ruff lint
         run: cd python && uvx ruff check .
       - name: pip-audit
-        # CVE-2026-4539: pygments 2.19.2 vulnerability with no released fix yet.
-        # Ignore until a patched version of pygments is available upstream.
-        run: cd python && uvx pip-audit --ignore-vuln CVE-2026-4539
+        run: cd python && uvx pip-audit
 
   python-install:
     name: Python Install (${{ matrix.os }})
@@ -249,7 +244,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
       - name: Install uv

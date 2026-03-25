@@ -5,8 +5,8 @@
 mod endpoints;
 mod models;
 mod rate_limit;
-mod resources;
 mod transport;
+mod resources;
 
 use std::sync::Arc;
 
@@ -15,8 +15,8 @@ use reqwest::Method;
 use tokio::sync::Mutex;
 
 pub use self::models::{
-    PlaneCreateCycleRequest, PlaneCreateModuleRequest, PlaneCycleResponse, PlaneIssue,
-    PlaneModuleResponse, PlaneWorkItem, PlaneWorkItemResponse,
+    PlaneCreateCycleRequest, PlaneCreateModuleRequest, PlaneCycleResponse, PlaneIssue, PlaneWorkItem,
+    PlaneWorkItemResponse, PlaneModuleResponse,
 };
 use self::rate_limit::TokenBucket;
 

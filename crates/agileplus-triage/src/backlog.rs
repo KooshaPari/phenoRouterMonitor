@@ -5,97 +5,9 @@
 //!
 //! Traceability: WP17-T099
 
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use chrono::Utc;
 
-use crate::classifier::Intent;
-
-/// Priority levels for backlog items.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum BacklogPriority {
-    Critical,
-    High,
-    Medium,
-    Low,
-}
-
-impl std::fmt::Display for BacklogPriority {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Critical => write!(f, "critical"),
-            Self::High => write!(f, "high"),
-            Self::Medium => write!(f, "medium"),
-            Self::Low => write!(f, "low"),
-        }
-    }
-}
-
-/// Status of a backlog item.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum BacklogStatus {
-    New,
-    Triaged,
-    InProgress,
-    Done,
-    Dismissed,
-}
-
-impl std::fmt::Display for BacklogStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::New => write!(f, "new"),
-            Self::Triaged => write!(f, "triaged"),
-            Self::InProgress => write!(f, "in_progress"),
-            Self::Done => write!(f, "done"),
-            Self::Dismissed => write!(f, "dismissed"),
-        }
-    }
-}
-
-/// A triaged backlog item.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BacklogItem {
-    pub id: Option<i64>,
-    pub title: String,
-    pub description: String,
-    pub intent: Intent,
-    pub priority: BacklogPriority,
-    pub status: BacklogStatus,
-    pub source: String,
-    pub feature_slug: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-impl BacklogItem {
-    /// Create a new backlog item from triage result.
-    pub fn from_triage(title: String, description: String, intent: Intent, source: String) -> Self {
-        let now = Utc::now();
-        Self {
-            id: None,
-            title,
-            description,
-            intent,
-            priority: default_priority(intent),
-            status: BacklogStatus::New,
-            source,
-            feature_slug: None,
-            created_at: now,
-            updated_at: now,
-        }
-    }
-}
-
-fn default_priority(intent: Intent) -> BacklogPriority {
-    match intent {
-        Intent::Bug => BacklogPriority::High,
-        Intent::Feature => BacklogPriority::Medium,
-        Intent::Idea => BacklogPriority::Low,
-        Intent::Task => BacklogPriority::Medium,
-    }
-}
+pub use agileplus_domain::domain::backlog::{BacklogItem, BacklogPriority, BacklogStatus, Intent};
 
 /// In-memory backlog store for unit testing and lightweight usage.
 /// Production usage goes through SQLite via StoragePort extension.
@@ -302,9 +214,9 @@ mod tests {
 
     #[test]
     fn default_priorities() {
-        assert_eq!(default_priority(Intent::Bug), BacklogPriority::High);
-        assert_eq!(default_priority(Intent::Feature), BacklogPriority::Medium);
-        assert_eq!(default_priority(Intent::Idea), BacklogPriority::Low);
-        assert_eq!(default_priority(Intent::Task), BacklogPriority::Medium);
+        assert_eq!(Intent::Bug.default_priority(), BacklogPriority::High);
+        assert_eq!(Intent::Feature.default_priority(), BacklogPriority::Medium);
+        assert_eq!(Intent::Idea.default_priority(), BacklogPriority::Low);
+        assert_eq!(Intent::Task.default_priority(), BacklogPriority::Medium);
     }
 }

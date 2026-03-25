@@ -477,7 +477,7 @@ mod tests {
         assert_eq!(report.features_restored, 1);
         assert_eq!(report.audit_entries_restored, 2);
 
-        let feat = db.get_feature_by_slug(slug).await.unwrap().unwrap();
+        let feat = StoragePort::get_feature_by_slug(&db, slug).await.unwrap().unwrap();
         assert_eq!(feat.slug, slug);
         assert_eq!(
             feat.state,

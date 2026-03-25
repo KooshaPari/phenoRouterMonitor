@@ -66,7 +66,7 @@ fn bind_address(config: &AppConfig) -> Result<SocketAddr> {
         .ok_or_else(|| anyhow!("invalid API bind address"))
 }
 
-fn ensure_database_parent(database_path: &std::path::Path) -> Result<()> {
+fn ensure_database_parent(database_path: &PathBuf) -> Result<()> {
     if let Some(parent) = database_path.parent() {
         std::fs::create_dir_all(parent)
             .with_context(|| format!("failed to create database directory {parent:?}"))?;

@@ -68,8 +68,7 @@ impl PlaneClient {
         plane_module_id: &str,
         plane_issue_id: &str,
     ) -> anyhow::Result<()> {
-        self.add_work_item_to_module(plane_module_id, plane_issue_id)
-            .await
+        self.add_work_item_to_module(plane_module_id, plane_issue_id).await
     }
 
     /// Alias for [`Self::add_work_item_to_cycle`].
@@ -78,7 +77,6 @@ impl PlaneClient {
         plane_cycle_id: &str,
         plane_issue_id: &str,
     ) -> anyhow::Result<()> {
-        self.add_work_item_to_cycle(plane_cycle_id, plane_issue_id)
-            .await
+        self.add_work_item_to_cycle(plane_cycle_id, plane_issue_id).await
     }
 }

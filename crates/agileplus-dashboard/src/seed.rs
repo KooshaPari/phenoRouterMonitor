@@ -17,23 +17,8 @@ fn drive_to_state(feature: &mut Feature, target: FeatureState) {
         Planned => &[Specified, Researched, Planned],
         Implementing => &[Specified, Researched, Planned, Implementing],
         Validated => &[Specified, Researched, Planned, Implementing, Validated],
-        Shipped => &[
-            Specified,
-            Researched,
-            Planned,
-            Implementing,
-            Validated,
-            Shipped,
-        ],
-        Retrospected => &[
-            Specified,
-            Researched,
-            Planned,
-            Implementing,
-            Validated,
-            Shipped,
-            Retrospected,
-        ],
+        Shipped => &[Specified, Researched, Planned, Implementing, Validated, Shipped],
+        Retrospected => &[Specified, Researched, Planned, Implementing, Validated, Shipped, Retrospected],
     };
     for &state in path {
         feature
@@ -43,13 +28,7 @@ fn drive_to_state(feature: &mut Feature, target: FeatureState) {
 }
 
 /// Helper function to create a shipped feature with all state transitions.
-fn make_shipped_feature(
-    id: i64,
-    slug: &str,
-    name: &str,
-    labels: Vec<String>,
-    project_id: Option<i64>,
-) -> Feature {
+fn make_shipped_feature(id: i64, slug: &str, name: &str, labels: Vec<String>, project_id: Option<i64>) -> Feature {
     let mut f = Feature::new(slug, name, [0u8; 32], Some("main"));
     f.id = id;
     f.labels = labels;
@@ -368,11 +347,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             18,
             "sk-016-jujutsu-vcs-documentation",
             "Jujutsu VCS Documentation",
-            vec![
-                "documentation".to_string(),
-                "vcs".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["documentation".to_string(), "vcs".to_string(), "specKitty".to_string()],
         ),
         (
             19,
@@ -390,11 +365,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             21,
             "sk-019-autonomous-multi-agent-orchestration-research",
             "Autonomous Multi-Agent Orchestration Research",
-            vec![
-                "agents".to_string(),
-                "research".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["agents".to_string(), "research".to_string(), "specKitty".to_string()],
         ),
         (
             22,
@@ -406,11 +377,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             23,
             "sk-021-orchestrator-end-to-end-testing-suite",
             "Orchestrator End-to-End Testing Suite",
-            vec![
-                "testing".to_string(),
-                "agents".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["testing".to_string(), "agents".to_string(), "specKitty".to_string()],
         ),
         (
             24,
@@ -422,11 +389,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             25,
             "sk-023-documentation-sprint-agent-management-cleanup",
             "Documentation Sprint Agent Management Cleanup",
-            vec![
-                "documentation".to_string(),
-                "agents".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["documentation".to_string(), "agents".to_string(), "specKitty".to_string()],
         ),
         (
             26,
@@ -444,12 +407,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             28,
             "sk-026-agent-directory-centralization-architecture-research",
             "Agent Directory Centralization Architecture Research",
-            vec![
-                "agents".to_string(),
-                "architecture".to_string(),
-                "research".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["agents".to_string(), "architecture".to_string(), "research".to_string(), "specKitty".to_string()],
         ),
         (
             29,
@@ -461,11 +419,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             30,
             "sk-028-cli-event-emission-sync",
             "CLI Event Emission Sync",
-            vec![
-                "cli".to_string(),
-                "sync".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["cli".to_string(), "sync".to_string(), "specKitty".to_string()],
         ),
         (
             31,
@@ -477,21 +431,13 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             32,
             "sk-030-2x-sync-auth-docs",
             "2x Sync Auth Docs",
-            vec![
-                "documentation".to_string(),
-                "sync".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["documentation".to_string(), "sync".to_string(), "specKitty".to_string()],
         ),
         (
             33,
             "sk-032-identity-aware-cli-event-sync",
             "Identity-Aware CLI Event Sync",
-            vec![
-                "cli".to_string(),
-                "sync".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["cli".to_string(), "sync".to_string(), "specKitty".to_string()],
         ),
         (
             34,
@@ -509,11 +455,7 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
             36,
             "sk-040-mission-collaboration-cli-soft-coordination",
             "Mission Collaboration CLI Soft Coordination",
-            vec![
-                "cli".to_string(),
-                "agents".to_string(),
-                "specKitty".to_string(),
-            ],
+            vec!["cli".to_string(), "agents".to_string(), "specKitty".to_string()],
         ),
         (
             37,
@@ -523,16 +465,14 @@ pub fn seed_dogfood_features() -> (Vec<Feature>, HashMap<i64, Vec<WorkPackage>>)
         ),
     ];
 
-    let mut wp_id = work_packages
-        .values()
-        .flatten()
-        .map(|wp| wp.id)
-        .max()
-        .unwrap_or(0)
-        + 1;
+    let mut wp_id = work_packages.values().flatten().map(|wp| wp.id).max().unwrap_or(0) + 1;
     for (id, slug, name, labels) in speckitty_specs {
         features.push(make_shipped_feature(id, slug, name, labels, Some(1)));
-        let wps = make_shipped_wps(id, wp_id, &["Research and design", "Core implementation"]);
+        let wps = make_shipped_wps(
+            id,
+            wp_id,
+            &["Research and design", "Core implementation"],
+        );
         wp_id += wps.len() as i64;
         work_packages.insert(id, wps);
     }

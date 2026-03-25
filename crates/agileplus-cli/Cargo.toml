@@ -11,6 +11,7 @@ path = "src/main.rs"
 
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
+agileplus-plane = { path = "../agileplus-plane" }
 agileplus-sqlite = { path = "../agileplus-sqlite" }
 agileplus-git = { path = "../agileplus-git" }
 agileplus-triage = { path = "../agileplus-triage" }

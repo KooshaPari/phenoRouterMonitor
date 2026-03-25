@@ -35,8 +35,8 @@ use crate::migrations::MigrationRunner;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 
 use crate::repository::{
-    audit, backlog, cycles, events, evidence, features, governance, metrics, modules,
-    sync_mappings, work_packages,
+    audit, backlog, cycles, events, evidence, features, governance, metrics, modules, sync_mappings,
+    work_packages,
 };
 
 /// SQLite-backed storage adapter.
@@ -922,12 +922,10 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(
-            StoragePort::get_latest_audit_entry(&db, fid)
-                .await
-                .unwrap()
-                .is_none()
-        );
+        assert!(StoragePort::get_latest_audit_entry(&db, fid)
+            .await
+            .unwrap()
+            .is_none());
 
         let e1 = make_audit_entry(fid, [0u8; 32]);
         StoragePort::append_audit_entry(&db, &e1).await.unwrap();
@@ -1004,9 +1002,7 @@ mod tests {
         StoragePort::create_evidence(&db, &ev1).await.unwrap();
         StoragePort::create_evidence(&db, &ev2).await.unwrap();
 
-        let fr1 = StoragePort::get_evidence_by_fr(&db, "FR-001")
-            .await
-            .unwrap();
+        let fr1 = StoragePort::get_evidence_by_fr(&db, "FR-001").await.unwrap();
         assert_eq!(fr1.len(), 1);
         assert_eq!(fr1[0].fr_id, "FR-001");
     }
@@ -1178,13 +1174,14 @@ mod tests {
     #[tokio::test]
     async fn module_not_found_returns_none() {
         let db = make_adapter();
-        assert!(StoragePort::get_module(&db, 9999).await.unwrap().is_none());
-        assert!(
-            StoragePort::get_module_by_slug(&db, "no-such")
-                .await
-                .unwrap()
-                .is_none()
-        );
+        assert!(StoragePort::get_module(&db, 9999)
+            .await
+            .unwrap()
+            .is_none());
+        assert!(StoragePort::get_module_by_slug(&db, "no-such")
+            .await
+            .unwrap()
+            .is_none());
     }
 
     #[tokio::test]
@@ -1310,12 +1307,10 @@ mod tests {
     #[tokio::test]
     async fn module_get_with_features_none_for_missing() {
         let db = make_adapter();
-        assert!(
-            StoragePort::get_module_with_features(&db, 9999)
-                .await
-                .unwrap()
-                .is_none()
-        );
+        assert!(StoragePort::get_module_with_features(&db, 9999)
+            .await
+            .unwrap()
+            .is_none());
     }
 
     // -- Cycle tests --
@@ -1440,19 +1435,14 @@ mod tests {
         let db = make_adapter();
         let c = Cycle::new("C1", make_date(2026, 1, 1), make_date(2026, 2, 1), None).unwrap();
         let cid = StoragePort::create_cycle(&db, &c).await.unwrap();
-        let fid =
-            StoragePort::create_feature(&db, &Feature::new("cyc-feat", "CycFeat", [0u8; 32], None))
-                .await
-                .unwrap();
+        let fid = StoragePort::create_feature(&db, &Feature::new("cyc-feat", "CycFeat", [0u8; 32], None))
+            .await
+            .unwrap();
 
         let entry = CycleFeature::new(cid, fid);
-        StoragePort::add_feature_to_cycle(&db, &entry)
-            .await
-            .unwrap();
+        StoragePort::add_feature_to_cycle(&db, &entry).await.unwrap();
         // Idempotent
-        StoragePort::add_feature_to_cycle(&db, &entry)
-            .await
-            .unwrap();
+        StoragePort::add_feature_to_cycle(&db, &entry).await.unwrap();
 
         let cwf = StoragePort::get_cycle_with_features(&db, cid)
             .await
@@ -1474,12 +1464,10 @@ mod tests {
     #[tokio::test]
     async fn cycle_with_features_none_for_missing() {
         let db = make_adapter();
-        assert!(
-            StoragePort::get_cycle_with_features(&db, 9999)
-                .await
-                .unwrap()
-                .is_none()
-        );
+        assert!(StoragePort::get_cycle_with_features(&db, 9999)
+            .await
+            .unwrap()
+            .is_none());
     }
 
     #[tokio::test]
@@ -1499,10 +1487,9 @@ mod tests {
         let cid = StoragePort::create_cycle(&db, &c).await.unwrap();
 
         // Feature NOT in module scope
-        let fid =
-            StoragePort::create_feature(&db, &Feature::new("out-of-scope", "OOS", [0u8; 32], None))
-                .await
-                .unwrap();
+        let fid = StoragePort::create_feature(&db, &Feature::new("out-of-scope", "OOS", [0u8; 32], None))
+            .await
+            .unwrap();
         let entry = CycleFeature::new(cid, fid);
         let result = StoragePort::add_feature_to_cycle(&db, &entry).await;
         assert!(result.is_err());
@@ -1536,10 +1523,9 @@ mod tests {
         )
         .unwrap();
         let cid = StoragePort::create_cycle(&db, &c).await.unwrap();
-        let fid =
-            StoragePort::create_feature(&db, &Feature::new("prog-feat", "Prog", [0u8; 32], None))
-                .await
-                .unwrap();
+        let fid = StoragePort::create_feature(&db, &Feature::new("prog-feat", "Prog", [0u8; 32], None))
+            .await
+            .unwrap();
         StoragePort::add_feature_to_cycle(&db, &CycleFeature::new(cid, fid))
             .await
             .unwrap();

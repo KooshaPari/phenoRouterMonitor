@@ -6,27 +6,7 @@
 //! Traceability: WP17-T098b, T100
 
 use serde::{Deserialize, Serialize};
-
-/// Classified intent type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum Intent {
-    Bug,
-    Feature,
-    Idea,
-    Task,
-}
-
-impl std::fmt::Display for Intent {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Intent::Bug => write!(f, "bug"),
-            Intent::Feature => write!(f, "feature"),
-            Intent::Idea => write!(f, "idea"),
-            Intent::Task => write!(f, "task"),
-        }
-    }
-}
+pub use agileplus_domain::domain::backlog::Intent;
 
 /// Result of classifying input text.
 #[derive(Debug, Clone, Serialize, Deserialize)]
