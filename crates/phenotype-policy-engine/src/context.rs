@@ -30,7 +30,10 @@ impl EvaluationContext {
     pub fn from_json(value: serde_json::Value) -> Self {
         match value {
             serde_json::Value::Object(map) => {
-                let facts = map.into_iter().collect();
+                let facts = map
+                    .into_iter()
+                    .map(|(k, v)| (k, v))
+                    .collect();
                 Self { facts }
             }
             _ => Self::new(),
@@ -51,7 +54,8 @@ impl EvaluationContext {
     /// Sets a numeric fact.
     pub fn set_number(&mut self, key: impl Into<String>, value: f64) {
         if let Some(n) = serde_json::Number::from_f64(value) {
-            self.facts.insert(key.into(), serde_json::Value::Number(n));
+            self.facts
+                .insert(key.into(), serde_json::Value::Number(n));
         }
     }
 

@@ -3,15 +3,9 @@ name = "phenotype-event-sourcing"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+description = "Phenotype shared crate"
 
 [dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }
-sha2 = { workspace = true }
-thiserror = { workspace = true }
-hex = { workspace = true }
-uuid = { workspace = true }
-
-[dev-dependencies]
-tokio = { version = "1.40", features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
