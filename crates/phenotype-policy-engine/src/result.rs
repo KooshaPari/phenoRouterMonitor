@@ -168,13 +168,7 @@ mod tests {
 
     #[test]
     fn test_violation_creation() {
-        let v = Violation::new(
-            "test_policy",
-            "Deny",
-            "pattern",
-            Severity::Error,
-            "Test message",
-        );
+        let v = Violation::new("test_policy", "Deny", "pattern", Severity::Error, "Test message");
         assert_eq!(v.policy, "test_policy");
         assert_eq!(v.severity, Severity::Error);
     }
@@ -203,7 +197,13 @@ mod tests {
     #[test]
     fn test_policy_result_summary() {
         let mut result = PolicyResult::passed();
-        result.add_violation(Violation::new("p1", "Deny", "pat1", Severity::Error, "e1"));
+        result.add_violation(Violation::new(
+            "p1",
+            "Deny",
+            "pat1",
+            Severity::Error,
+            "e1",
+        ));
         result.add_violation(Violation::new(
             "p1",
             "Allow",
