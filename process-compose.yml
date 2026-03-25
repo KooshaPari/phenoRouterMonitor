@@ -5,6 +5,26 @@ env:
   - RUST_BACKTRACE=1
 
 services:
+  # ============================================================
+  # OrbStack containers: Dragonfly + PostgreSQL
+  # Managed via scripts/orb-up.sh and scripts/orb-down.sh
+  # ============================================================
+  orb-containers:
+    command: sh scripts/orb-up.sh
+    shutdown:
+      command: sh scripts/orb-down.sh
+    depends_on: {}
+    log_location: .agileplus/logs/orb-containers.log
+    readiness_probe:
+      exec:
+        command: sh -c "redis-cli -h localhost -p 6379 ping | grep -q PONG && pg_isready -h localhost -p 5432"
+      initial_delay_seconds: 5
+      period_seconds: 5
+      failure_threshold: 6
+
+  # ============================================================
+  # Native services
+  # ============================================================
   nats:
     command: nats-server --jetstream --store_dir .agileplus/nats-data --port 4222 --http_port 8222
     depends_on: {}
@@ -20,25 +40,10 @@ services:
     environment:
       - NATS_LOG_FILE=.agileplus/logs/nats.log
 
-  dragonfly:
-    command: dragonfly --port 6379 --dbfilename .agileplus/dragonfly.rdb --bind localhost
-    depends_on:
-      nats:
-        condition: process_healthy
-    log_location: .agileplus/logs/dragonfly.log
-    readiness_probe:
-      exec:
-        command: redis-cli -p 6379 ping
-      initial_delay_seconds: 3
-      period_seconds: 5
-      failure_threshold: 3
-    environment:
-      - DRAGONFLY_LOG_LEVEL=info
-
   neo4j:
     command: neo4j console
     depends_on:
-      dragonfly:
+      nats:
         condition: process_healthy
     log_location: .agileplus/logs/neo4j.log
     readiness_probe:
@@ -73,30 +78,13 @@ services:
       - MINIO_LOG_DIR=.agileplus/logs
       - MINIO_LOGS_DIR=.agileplus/logs
 
-  postgres:
-    command: postgres -D .agileplus/postgres-data -p 5432
-    depends_on:
-      minio:
-        condition: process_healthy
-    log_location: .agileplus/logs/postgres.log
-    readiness_probe:
-      exec:
-        command: pg_isready -h localhost -p 5432
-      initial_delay_seconds: 10
-      period_seconds: 5
-      failure_threshold: 3
-    environment:
-      - PGDATA=.agileplus/postgres-data
-      - POSTGRES_USER=agileplus
-      - POSTGRES_PASSWORD=${PLANE_POSTGRES_PASSWORD:-agileplus-dev}
-      - POSTGRES_DB=plane
-
+  # ============================================================
+  # Plane.so services (native Python/Node, connect to OrbStack containers)
+  # ============================================================
   plane-api:
     command: sh -c "cd .agileplus/plane/apiserver && .venv/bin/python manage.py runserver 0.0.0.0:8000"
     depends_on:
-      postgres:
-        condition: process_healthy
-      dragonfly:
+      orb-containers:
         condition: process_healthy
     log_location: .agileplus/logs/plane-api.log
     readiness_probe:
@@ -169,12 +157,15 @@ services:
       - SECRET_KEY=${PLANE_SECRET_KEY:-agileplus-dev-secret-key}
       - PYTHONUNBUFFERED=1
 
+  # ============================================================
+  # AgilePlus API (native Rust)
+  # ============================================================
   agileplus-api:
     command: cargo run --release -p agileplus-api
     depends_on:
       nats:
         condition: process_healthy
-      dragonfly:
+      orb-containers:
         condition: process_healthy
       neo4j:
         condition: process_healthy
