@@ -361,7 +361,7 @@ mod tests {
             self.artifacts
                 .get(&key)
                 .cloned()
-                .ok_or_else(|| DomainError::NotFound(key))
+                .ok_or(DomainError::NotFound(key))
         }
 
         async fn write_artifact(

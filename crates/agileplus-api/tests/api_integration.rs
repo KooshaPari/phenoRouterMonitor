@@ -309,7 +309,7 @@ impl StoragePort for MockStorage {
             .unwrap()
             .iter()
             .filter(|e| e.feature_id == feature_id)
-            .last()
+            .next_back()
             .cloned();
         async move { Ok(entry) }
     }

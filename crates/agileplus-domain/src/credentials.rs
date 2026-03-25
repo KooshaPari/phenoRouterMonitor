@@ -94,6 +94,13 @@ pub struct KeychainCredentialStore {
 }
 
 #[cfg(feature = "keychain")]
+impl Default for KeychainCredentialStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "keychain")]
 impl KeychainCredentialStore {
     pub fn new() -> Self {
         Self {

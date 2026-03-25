@@ -63,21 +63,11 @@ impl InMemoryStorage {
     }
 }
 
-#[derive(Debug, World)]
+#[derive(Debug, World, Default)]
 pub struct AgilePlusWorld {
     storage: InMemoryStorage,
     last_result: Option<Result<String, String>>,
     last_validation_report: Option<ValidationReport>,
-}
-
-impl Default for AgilePlusWorld {
-    fn default() -> Self {
-        Self {
-            storage: InMemoryStorage::default(),
-            last_result: None,
-            last_validation_report: None,
-        }
-    }
 }
 
 /// Simplified governance validation result.

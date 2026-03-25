@@ -174,7 +174,7 @@ fn contract_state_strings_parse_to_feature_states() {
         ("retrospected", FeatureState::Retrospected),
     ];
     for (s, expected) in cases {
-        let parsed = FeatureState::from_str(s).expect(&format!("parse state '{s}'"));
+        let parsed = FeatureState::from_str(s).unwrap_or_else(|_| panic!("parse state '{s}'"));
         assert_eq!(parsed, expected);
     }
 }
