@@ -31,6 +31,12 @@ pub struct Feature {
     /// Used for filtering features by project in the dashboard.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub project_id: Option<i64>,
+    /// Git commit SHA at which this feature was first created.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub created_at_commit: Option<String>,
+    /// Git commit SHA of the most recent modification to this feature.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_modified_commit: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -55,6 +61,8 @@ impl Feature {
             labels: Vec::new(),
             module_id: None,
             project_id: None,
+            created_at_commit: None,
+            last_modified_commit: None,
             created_at: now,
             updated_at: now,
         }

@@ -138,6 +138,8 @@ fn row_to_wp(row: &Row<'_>) -> rusqlite::Result<WorkPackage> {
         plane_sub_issue_id: None,
         created_at,
         updated_at,
+        base_commit: None,
+        head_commit: None,
     })
 }
 

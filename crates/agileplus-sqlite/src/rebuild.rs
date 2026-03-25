@@ -179,6 +179,8 @@ impl SqliteStorageAdapter {
             project_id: None,
             created_at,
             updated_at,
+            created_at_commit: None,
+            last_modified_commit: None,
         };
 
         let feature_id = {

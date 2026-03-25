@@ -59,6 +59,12 @@ pub struct WorkPackage {
     /// Plane.so sub-issue ID mapping.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub plane_sub_issue_id: Option<String>,
+    /// Git commit SHA at which this WP's worktree was branched from main.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_commit: Option<String>,
+    /// Git commit SHA of the most recent commit on this WP's branch.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub head_commit: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -79,6 +85,8 @@ impl WorkPackage {
             pr_state: None,
             worktree_path: None,
             plane_sub_issue_id: None,
+            base_commit: None,
+            head_commit: None,
             created_at: now,
             updated_at: now,
         }

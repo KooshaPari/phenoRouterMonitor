@@ -16,6 +16,9 @@ env:
 jobs:
   # ─── Proto Lint & Breaking ─────────────────────────────────────────
   buf:
+    permissions:
+      contents: read
+      pull-requests: write
     name: Buf Lint & Breaking
     runs-on: ubuntu-latest
     permissions:
@@ -30,11 +33,11 @@ jobs:
           lint: true
           format: true
           breaking: false
+          pr_comment: false
 
   # ─── Rust Quality ──────────────────────────────────────────────────
   rust-check:
     name: Rust Quality
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -59,7 +62,6 @@ jobs:
 
   rust-build:
     name: Rust Build (${{ matrix.os }})
-    needs: buf
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -79,7 +81,6 @@ jobs:
 
   rust-msrv:
     name: Rust MSRV (stable)
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -97,7 +98,6 @@ jobs:
   # ─── Rust Security & Dep Audit ─────────────────────────────────────
   rust-audit:
     name: Rust Security Audit
-    needs: buf
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -114,7 +114,6 @@ jobs:
 
   rust-extras:
     name: Rust Extras (machete, semver, typos)
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -138,7 +137,6 @@ jobs:
   # ─── Core Workspace ───────────────────────────────────────────────
   core-check:
     name: Core Workspace Quality
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -161,7 +159,6 @@ jobs:
 
   core-build:
     name: Core Build (${{ matrix.os }})
-    needs: buf
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -179,7 +176,6 @@ jobs:
 
   core-msrv:
     name: Core MSRV (1.85)
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -194,7 +190,6 @@ jobs:
 
   core-docs:
     name: Core Documentation
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -209,7 +204,6 @@ jobs:
 
   domain-deps-lint:
     name: Domain Zero-Dep Lint
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -228,7 +222,6 @@ jobs:
   # ─── Python Quality ────────────────────────────────────────────────
   python-check:
     name: Python Quality
-    needs: buf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -250,7 +243,6 @@ jobs:
 
   python-install:
     name: Python Install (${{ matrix.os }})
-    needs: buf
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]

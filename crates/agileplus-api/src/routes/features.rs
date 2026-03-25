@@ -143,6 +143,8 @@ where
         project_id: None,
         created_at: now,
         updated_at: now,
+        created_at_commit: None,
+        last_modified_commit: None,
     };
 
     let id = app

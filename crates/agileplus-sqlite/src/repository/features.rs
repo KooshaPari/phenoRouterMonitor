@@ -89,6 +89,8 @@ fn row_to_feature(row: &Row<'_>) -> rusqlite::Result<Feature> {
         project_id: None,
         created_at,
         updated_at,
+        created_at_commit: None,
+        last_modified_commit: None,
     })
 }
 

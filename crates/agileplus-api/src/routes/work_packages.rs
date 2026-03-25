@@ -140,6 +140,8 @@ where
         plane_sub_issue_id: None,
         created_at: now,
         updated_at: now,
+        base_commit: None,
+        head_commit: None,
     };
 
     let id = app
