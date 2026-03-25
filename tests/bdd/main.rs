@@ -233,13 +233,13 @@ async fn feature_with_audit_entries(world: &mut AgilePlusWorld, slug: String, co
 async fn audit_entry_tampered(world: &mut AgilePlusWorld, entry_index: usize) {
     // Find any feature that has audit entries
     let feature_ids: Vec<i64> = world.storage.audit_entries.keys().copied().collect();
-    if let Some(&fid) = feature_ids.first() {
-        if let Some(entries) = world.storage.audit_entries.get_mut(&fid) {
-            let idx = entry_index - 1; // convert to 0-based
-            if idx < entries.len() {
-                // Corrupt the transition field (invalidates hash)
-                entries[idx].transition = "TAMPERED".to_string();
-            }
+    if let Some(&fid) = feature_ids.first()
+        && let Some(entries) = world.storage.audit_entries.get_mut(&fid)
+    {
+        let idx = entry_index - 1; // convert to 0-based
+        if idx < entries.len() {
+            // Corrupt the transition field (invalidates hash)
+            entries[idx].transition = "TAMPERED".to_string();
         }
     }
 }
@@ -443,10 +443,10 @@ async fn run_implement(world: &mut AgilePlusWorld, slug: String) {
             }
             // Mark first WP as doing
             let fid = f.id;
-            if let Some(wps) = world.storage.work_packages.get_mut(&fid) {
-                if let Some(wp) = wps.first_mut() {
-                    wp.state = WpState::Doing;
-                }
+            if let Some(wps) = world.storage.work_packages.get_mut(&fid)
+                && let Some(wp) = wps.first_mut()
+            {
+                wp.state = WpState::Doing;
             }
             let prev_hash = world
                 .storage
@@ -499,11 +499,11 @@ async fn agent_completes_wp01(world: &mut AgilePlusWorld) {
         .copied()
         .next()
         .unwrap_or(1);
-    if let Some(wps) = world.storage.work_packages.get_mut(&fid) {
-        if let Some(wp) = wps.first_mut() {
-            wp.state = WpState::Review;
-            wp.pr_url = Some("https://github.com/example/repo/pull/1".to_string());
-        }
+    if let Some(wps) = world.storage.work_packages.get_mut(&fid)
+        && let Some(wp) = wps.first_mut()
+    {
+        wp.state = WpState::Review;
+        wp.pr_url = Some("https://github.com/example/repo/pull/1".to_string());
     }
     world.last_result = Some(Ok("pr_created".to_string()));
 }
@@ -580,10 +580,8 @@ async fn run_validate(world: &mut AgilePlusWorld, slug: String) {
             }
 
             let passed = missing.is_empty();
-            if passed {
-                if let Some(feat) = world.storage.get_feature_mut(&slug) {
-                    feat.state = FeatureState::Validated;
-                }
+            if passed && let Some(feat) = world.storage.get_feature_mut(&slug) {
+                feat.state = FeatureState::Validated;
             }
             world.last_validation_report = Some(ValidationReport {
                 passed,

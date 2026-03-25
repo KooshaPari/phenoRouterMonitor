@@ -98,12 +98,11 @@ impl PlaneStateMapper {
     pub fn map_plane_state(&self, state_group: &str, state_name: &str) -> FeatureState {
         // Check overrides: group + name match first.
         for o in &self.config.overrides {
-            if o.plane_group.eq_ignore_ascii_case(state_group) {
-                if let Some(ref name) = o.plane_name {
-                    if name.eq_ignore_ascii_case(state_name) {
-                        return o.feature_state;
-                    }
-                }
+            if o.plane_group.eq_ignore_ascii_case(state_group)
+                && let Some(ref name) = o.plane_name
+                && name.eq_ignore_ascii_case(state_name)
+            {
+                return o.feature_state;
             }
         }
         // Check overrides: group-only match.

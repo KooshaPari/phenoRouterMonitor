@@ -1,7 +1,7 @@
 use std::env;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use agileplus_api::AppState;
@@ -66,7 +66,7 @@ fn bind_address(config: &AppConfig) -> Result<SocketAddr> {
         .ok_or_else(|| anyhow!("invalid API bind address"))
 }
 
-fn ensure_database_parent(database_path: &PathBuf) -> Result<()> {
+fn ensure_database_parent(database_path: &Path) -> Result<()> {
     if let Some(parent) = database_path.parent() {
         std::fs::create_dir_all(parent)
             .with_context(|| format!("failed to create database directory {parent:?}"))?;

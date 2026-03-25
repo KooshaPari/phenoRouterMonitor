@@ -10,8 +10,9 @@ fn sync_config_default() {
 #[test]
 fn sync_config_save_and_load() {
     let tmp = TempDir::new().unwrap();
-    let mut cfg = SyncConfig::default();
-    cfg.auto_sync_enabled = true;
+    let cfg = SyncConfig {
+        auto_sync_enabled: true,
+    };
     cfg.save(tmp.path()).unwrap();
 
     let loaded = SyncConfig::load(tmp.path()).unwrap();

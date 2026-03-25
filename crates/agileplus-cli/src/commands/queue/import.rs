@@ -1,6 +1,6 @@
 //! Batch import helpers for `agileplus queue`.
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use anyhow::Result;
 use serde::Deserialize;
@@ -28,40 +28,51 @@ pub(crate) struct QueueImportRecord {
     pub feature_slug: Option<String>,
 }
 
+/// Parameters for building a backlog item (reduces argument count).
+pub(crate) struct BuildItemParams {
+    pub title: String,
+    pub description: String,
+    pub intent: Option<String>,
+    pub priority: Option<String>,
+    pub tags: Vec<String>,
+    pub source: String,
+    pub feature_slug: Option<String>,
+}
+
 pub(crate) fn build_item(
     classifier: &TriageClassifier,
-    title: String,
-    description: String,
-    intent: Option<String>,
-    priority: Option<String>,
-    tags: Vec<String>,
-    source: String,
-    feature_slug: Option<String>,
+    params: BuildItemParams,
 ) -> Result<BacklogItem> {
-    let intent = if let Some(intent) = intent {
+    let intent = if let Some(intent) = params.intent {
         parsing::parse_intent(Some(intent))?
     } else {
-        classifier.classify(&title).intent
+        classifier.classify(&params.title).intent
     };
 
-    let mut item = BacklogItem::from_triage(title, description, intent, source)
-        .with_tags(tags)
-        .with_feature_slug(feature_slug);
-    if let Some(priority) = priority {
+    let mut item =
+        BacklogItem::from_triage(params.title, params.description, intent, params.source)
+            .with_tags(params.tags)
+            .with_feature_slug(params.feature_slug);
+    if let Some(priority) = params.priority {
         item.priority = parsing::parse_priority(priority)?;
     }
     Ok(item)
 }
 
+/// Parameters for building items from a file (reduces argument count).
+pub(crate) struct BuildFileParams {
+    pub default_description: String,
+    pub default_type: Option<String>,
+    pub default_priority: Option<String>,
+    pub default_tags: Vec<String>,
+    pub default_source: String,
+    pub default_feature_slug: Option<String>,
+}
+
 pub(crate) fn build_items_from_file(
     classifier: &TriageClassifier,
-    path: &PathBuf,
-    default_description: String,
-    default_type: Option<String>,
-    default_priority: Option<String>,
-    default_tags: Vec<String>,
-    default_source: String,
-    default_feature_slug: Option<String>,
+    path: &Path,
+    defaults: BuildFileParams,
 ) -> Result<Vec<BacklogItem>> {
     let content = std::fs::read_to_string(path)?;
     let mut items = Vec::new();
@@ -74,21 +85,29 @@ pub(crate) fn build_items_from_file(
         let record = parse_import_record(line)?;
         items.push(build_item(
             classifier,
-            record.title,
-            if record.description.is_empty() {
-                default_description.clone()
-            } else {
-                record.description
+            BuildItemParams {
+                title: record.title,
+                description: if record.description.is_empty() {
+                    defaults.default_description.clone()
+                } else {
+                    record.description
+                },
+                intent: record.r#type.or_else(|| defaults.default_type.clone()),
+                priority: record
+                    .priority
+                    .or_else(|| defaults.default_priority.clone()),
+                tags: if record.tags.is_empty() {
+                    defaults.default_tags.clone()
+                } else {
+                    record.tags
+                },
+                source: record
+                    .source
+                    .unwrap_or_else(|| defaults.default_source.clone()),
+                feature_slug: record
+                    .feature_slug
+                    .or_else(|| defaults.default_feature_slug.clone()),
             },
-            record.r#type.or_else(|| default_type.clone()),
-            record.priority.or_else(|| default_priority.clone()),
-            if record.tags.is_empty() {
-                default_tags.clone()
-            } else {
-                record.tags
-            },
-            record.source.unwrap_or_else(|| default_source.clone()),
-            record.feature_slug.or_else(|| default_feature_slug.clone()),
         )?);
     }
 

@@ -118,11 +118,11 @@ pub(crate) fn list_worktrees(adapter: &GitVcsAdapter) -> Result<Vec<WorktreeInfo
 /// Try to determine the branch name for a worktree.
 fn wt_branch_name(wt_name: &str, wt_path: &Path) -> String {
     // Open the worktree repo to read its HEAD.
-    if let Ok(wt_repo) = git2::Repository::open(wt_path) {
-        if let Ok(head) = wt_repo.head() {
-            if let Some(shorthand) = head.shorthand() {
-                return shorthand.to_string();
-            }
+    if let Ok(wt_repo) = git2::Repository::open(wt_path)
+        && let Ok(head) = wt_repo.head()
+    {
+        if let Some(shorthand) = head.shorthand() {
+            return shorthand.to_string();
         }
     }
     wt_name.to_string()

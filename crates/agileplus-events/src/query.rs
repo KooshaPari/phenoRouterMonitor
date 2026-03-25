@@ -78,45 +78,45 @@ impl EventQuery {
         events
             .iter()
             .filter(|e| {
-                if let Some(ref et) = self.entity_type {
-                    if e.entity_type != *et {
-                        return false;
-                    }
+                if let Some(ref et) = self.entity_type
+                    && e.entity_type != *et
+                {
+                    return false;
                 }
-                if let Some(id) = self.entity_id {
-                    if e.entity_id != id {
-                        return false;
-                    }
+                if let Some(id) = self.entity_id
+                    && e.entity_id != id
+                {
+                    return false;
                 }
-                if let Some(ref et) = self.event_type {
-                    if e.event_type != *et {
-                        return false;
-                    }
+                if let Some(ref et) = self.event_type
+                    && e.event_type != *et
+                {
+                    return false;
                 }
-                if let Some(ref a) = self.actor {
-                    if e.actor != *a {
-                        return false;
-                    }
+                if let Some(ref a) = self.actor
+                    && e.actor != *a
+                {
+                    return false;
                 }
-                if let Some(from) = self.from_time {
-                    if e.timestamp < from {
-                        return false;
-                    }
+                if let Some(from) = self.from_time
+                    && e.timestamp < from
+                {
+                    return false;
                 }
-                if let Some(to) = self.to_time {
-                    if e.timestamp > to {
-                        return false;
-                    }
+                if let Some(to) = self.to_time
+                    && e.timestamp > to
+                {
+                    return false;
                 }
-                if let Some(from) = self.from_sequence {
-                    if e.sequence < from {
-                        return false;
-                    }
+                if let Some(from) = self.from_sequence
+                    && e.sequence < from
+                {
+                    return false;
                 }
-                if let Some(to) = self.to_sequence {
-                    if e.sequence > to {
-                        return false;
-                    }
+                if let Some(to) = self.to_sequence
+                    && e.sequence > to
+                {
+                    return false;
                 }
                 true
             })

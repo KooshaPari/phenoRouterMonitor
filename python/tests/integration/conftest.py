@@ -6,10 +6,7 @@ import os
 
 import pytest
 
-
-SKIP_REASON = (
-    "AGILEPLUS_GRPC_URL not set; skipped outside Docker Compose environment"
-)
+SKIP_REASON = "AGILEPLUS_GRPC_URL not set; skipped outside Docker Compose environment"
 
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:

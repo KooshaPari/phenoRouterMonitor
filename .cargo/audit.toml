@@ -1,0 +1,14 @@
+[advisories]
+ignore = [
+    # RUSTSEC-2026-0049: rustls-webpki CRL matching logic bug
+    # Transitive dep via async-nats -> rustls-webpki.
+    # Track upstream: https://github.com/async-nats-rs/async-nats.rs/issues
+    "RUSTSEC-2026-0049",
+    # RUSTSEC-2025-0140: gix-date non-UTF8 string issue
+    # Transitive dep via gix 0.71.0. Awaiting upstream patch.
+    # Track: https://github.com/GitoxideLabs/gitoxide/issues
+    "RUSTSEC-2025-0140",
+    # RUSTSEC-2025-0134: rustls-pemfile unmaintained warning
+    # Transitive dep via rustls-native-certs. Waiting for ecosystem migration.
+    "RUSTSEC-2025-0134",
+]

@@ -144,12 +144,14 @@ where
                 import::build_items_from_file(
                     &classifier,
                     &path,
-                    description,
-                    r#type,
-                    priority,
-                    tags,
-                    source,
-                    feature_slug,
+                    import::BuildFileParams {
+                        default_description: description,
+                        default_type: r#type,
+                        default_priority: priority,
+                        default_tags: tags,
+                        default_source: source,
+                        default_feature_slug: feature_slug,
+                    },
                 )?
             } else {
                 let text = text.unwrap_or_default();
@@ -158,13 +160,15 @@ where
                 }
                 vec![import::build_item(
                     &classifier,
-                    text,
-                    description,
-                    r#type,
-                    priority,
-                    tags,
-                    source,
-                    feature_slug,
+                    import::BuildItemParams {
+                        title: text,
+                        description,
+                        intent: r#type,
+                        priority,
+                        tags,
+                        source,
+                        feature_slug,
+                    },
                 )?]
             };
 
@@ -207,12 +211,14 @@ where
             let items = import::build_items_from_file(
                 &classifier,
                 &file,
-                description,
-                r#type,
-                priority,
-                tags,
-                source,
-                feature_slug,
+                import::BuildFileParams {
+                    default_description: description,
+                    default_type: r#type,
+                    default_priority: priority,
+                    default_tags: tags,
+                    default_source: source,
+                    default_feature_slug: feature_slug,
+                },
             )?;
             let created = import::persist_items(storage, items).await?;
             println!("Imported {} backlog items:", created.len());

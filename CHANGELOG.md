@@ -8,11 +8,14 @@ The project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 ## [Unreleased]
 
 ### Fixed
+- Quality: Resolved all 48+ Clippy warnings across `agileplus-api`, `agileplus-sqlite`, `agileplus-domain`, `agileplus-events`, `agileplus-git`, `agileplus-plane`, `agileplus-triage`, and `agileplus-subcmds`.
+- Quality: Simplified `manual_async_fn` usage in tests.
+- Quality: Fixed `DoubleEndedIterator` usage (`filter().next_back() -> rfind()`).
+- Quality: Fixed `await_holding_lock` in `agileplus-sqlite` tests.
+- CLI: Resolved `E0061` argument count errors in `agileplus-cli` build.
 
-- CI: Removed duplicated permissions key in `buf` job.
-- Dashboard: Resolved Alpine scope loss on kanban board by removing `hx-trigger load`.
-- Security: Bumped `time` crate to >=0.3.49 to resolve dependabot alerts.
-- Quality: Resolved clippy warnings in dashboard and git snapshot.
+### Changed
+- Domain: Implemented `Default` for `KeychainCredentialStore`.
 
 ## [0.1.1] - 2026-03-25
 

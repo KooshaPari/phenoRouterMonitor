@@ -200,19 +200,19 @@ impl GraphBackend for InMemoryBackend {
         // Relationship creation: MATCH ... CREATE ...->...
         if q.contains("CREATE") && q.contains("->") && q.contains("MATCH") {
             // Extract relationship type from pattern like [:OWNS], [:DEPENDS_ON], etc.
-            if let Some(start) = q.find("[:") {
-                if let Some(end) = q[start..].find(']') {
-                    let rel_type = &q[start + 2..start + end];
-                    let mut rels = self.relationships.lock().unwrap();
-                    rels.push((
-                        String::new(), // from_label (unused for simple matching)
-                        rel_type.to_string(),
-                        String::new(), // to_label
-                        params.clone(),
-                        serde_json::json!(null),
-                        serde_json::json!(null),
-                    ));
-                }
+            if let Some(start) = q.find("[:")
+                && let Some(end) = q[start..].find(']')
+            {
+                let rel_type = &q[start + 2..start + end];
+                let mut rels = self.relationships.lock().unwrap();
+                rels.push((
+                    String::new(), // from_label (unused for simple matching)
+                    rel_type.to_string(),
+                    String::new(), // to_label
+                    params.clone(),
+                    serde_json::json!(null),
+                    serde_json::json!(null),
+                ));
             }
             return Ok(());
         }

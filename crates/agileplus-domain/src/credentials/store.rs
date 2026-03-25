@@ -6,8 +6,8 @@ use super::keys;
 /// All methods are synchronous -- implementations use blocking I/O only.
 /// This keeps the trait dyn-compatible without requiring `async_trait`.
 ///
-/// Implementations: [`KeychainCredentialStore`], [`FileCredentialStore`],
-/// [`InMemoryCredentialStore`] (tests).
+/// Implementations: `KeychainCredentialStore`, `FileCredentialStore`,
+/// `InMemoryCredentialStore` (tests).
 pub trait CredentialStore: Send + Sync {
     /// Retrieve a credential value.
     fn get(&self, service: &str, key: &str) -> Result<String, CredentialError>;

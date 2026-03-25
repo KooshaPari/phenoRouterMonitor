@@ -15,7 +15,6 @@ pub(super) async fn request_json<T: Serialize + ?Sized>(
         .json(body)
         .send()
         .await
-        .map_err(|e| e)
         .context("request with json body failed")
 }
 
@@ -32,7 +31,6 @@ pub(super) async fn request_json_value(
         .json(body)
         .send()
         .await
-        .map_err(|e| e)
         .context("request with json body failed")
 }
 
@@ -50,7 +48,6 @@ pub(super) async fn request_raw_body(
         .body(raw_body.to_string())
         .send()
         .await
-        .map_err(|e| e)
         .context("request with raw body failed")
 }
 
@@ -65,7 +62,6 @@ pub(super) async fn request_without_body(
         .header("X-API-Key", api_key)
         .send()
         .await
-        .map_err(|e| e)
         .context("request without body failed")
 }
 

@@ -1,75 +1,79 @@
-# agileplus-proto
-
-Protocol Buffer definitions for the AgilePlus gRPC API.
+# AgilePlus Workspace
 
 ## Overview
 
-This repository is the **single source of truth** for all inter-service contracts in the AgilePlus ecosystem. It defines three gRPC services and a set of shared message types used across five repositories.
+AgilePlus is a schema-driven project management platform built on Rust and gRPC. This repository is a **monorepo** containing the core domain logic, CLI, API server, and Protocol Buffer definitions for the entire ecosystem.
 
 ## Repository Layout
 
 | Path | Description |
 |------|-------------|
-| `proto/agileplus/v1/` | Protocol Buffer definitions (4 files) |
-| `proto/agileplus/v1/common.proto` | Shared message types (Feature, AuditEntry, etc.) |
-| `proto/agileplus/v1/core.proto` | `AgilePlusCoreService` — feature lifecycle, governance, audit |
-| `proto/agileplus/v1/agents.proto` | `AgentDispatchService` — agent spawn, review loop |
-| `proto/agileplus/v1/integrations.proto` | `IntegrationsService` — Plane.so, GitHub, triage |
+| `crates/agileplus-domain` | Core domain entities, business logic, and port abstractions |
+| `crates/agileplus-cli` | The `agileplus` command-line interface |
+| `crates/agileplus-api` | Axum-based HTTP API server |
+| `crates/agileplus-sqlite` | SQLite storage adapter implementation |
+| `crates/agileplus-git` | Git VCS adapter implementation |
+| `crates/agileplus-plane` | Plane.so integration adapter |
+| `crates/agileplus-events` | Event stream and audit log management |
+| `proto/agileplus/v1/` | Protocol Buffer definitions for inter-service gRPC contracts |
 | `rust/` | Rust crate (`agileplus-proto`) with tonic/prost codegen |
 | `python/` | Python package (`agileplus-proto`) with grpcio stubs |
-| `buf.yaml` | buf v2 lint and breaking change configuration |
-| `buf.gen.yaml` | buf codegen plugin configuration |
 
 ## Getting Started
 
 ### Prerequisites
 
+- Rust toolchain (v1.86+)
+- [Task](https://taskfile.dev/installation/) (Taskfile.yml replaces Makefiles)
 - [buf](https://buf.build/docs/installation) v2+
-- Rust toolchain (for building the Rust crate)
-- Python 3.12+ with [uv](https://docs.astral.sh/uv/) (for the Python package)
+- Python 3.14+ with [uv](https://docs.astral.sh/uv/)
 
-### Lint
-
-```bash
-make lint
-```
-
-### Generate Stubs
+### Common Tasks
 
 ```bash
-make generate
+# Lint the entire workspace
+task lint
+
+# Run all tests
+task test
+
+# Format all files
+task fmt
+
+# Build the CLI
+cargo build -p agileplus-cli
 ```
 
-### Build Rust Crate
+### Protos and Codegen
 
 ```bash
-cd rust && cargo build
+# Lint proto files
+task proto:lint
+
+# Generate gRPC stubs for Rust and Python
+task proto:gen
 ```
 
-### Install Python Package
+## Architecture
 
-```bash
-cd python && uv sync
-```
+AgilePlus follows **Hexagonal Architecture** (Ports and Adapters):
 
-### Check for Breaking Changes
+1. **Domain**: Pure business logic and entity definitions in `crates/agileplus-domain`.
+2. **Ports**: Trait definitions in `crates/agileplus-domain/src/ports/` for storage, VCS, and observability.
+3. **Adapters**: Concrete implementations in `crates/agileplus-sqlite`, `crates/agileplus-git`, etc.
+4. **Primary Adapters**: The CLI and API server that drive the domain logic.
 
-```bash
-make breaking
-```
-
-## Breaking Change Policy
+## Breaking Change Policy (Protos)
 
 All proto changes are checked against `main` using `buf breaking`. Breaking changes require:
 
 1. A version bump in `buf.yaml` module path (e.g., `v1` → `v2`)
 2. Explicit documentation in the PR description
-3. Coordination with all downstream consumers (agileplus-core, agileplus-mcp, agileplus-agents, agileplus-integrations)
+3. Coordination with all downstream consumers
 
 ## Contributing
 
-1. Edit proto files in `proto/agileplus/v1/`
-2. Run `make lint` to validate
-3. Run `make generate` to regenerate stubs
-4. Run `cargo build` in `rust/` and `uv sync` in `python/` to verify
-5. Submit a PR — CI will run lint, breaking change detection, and build checks
+1. Edit code or proto files as needed.
+2. Run `task lint` to validate.
+3. Run `task test` to ensure no regressions.
+4. Submit a PR — CI will run full quality gates.

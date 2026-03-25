@@ -25,6 +25,13 @@ impl KeychainCredentialStore {
 }
 
 #[cfg(feature = "keychain")]
+impl Default for KeychainCredentialStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "keychain")]
 impl CredentialStore for KeychainCredentialStore {
     fn get(&self, service: &str, key: &str) -> Result<String, CredentialError> {
         let entry = keyring::Entry::new(&self.entry_service(service), key)
