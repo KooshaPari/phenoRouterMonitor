@@ -4,6 +4,7 @@ members = [
   "crates/agileplus-domain",
   "crates/agileplus-plugin-core",
   "crates/agileplus-plugin-git",
+  "crates/agileplus-plugin-sqlite",
   "crates/agileplus-cli",
   "crates/agileplus-api",
   "crates/agileplus-grpc",
@@ -33,6 +34,10 @@ version = "0.1.1"
 edition = "2024"
 license = "MIT"
 rust-version = "1.86"
+authors = ["AgilePlus Team"]
+repository = "https://github.com/AgilePlus/agileplus"
+keywords = ["agile", "project-management", "software-development"]
+categories = ["Software Development", "Project Management"]
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -64,3 +69,6 @@ agileplus-plugin-core = { path = "crates/agileplus-plugin-core" }
 # Git operations
 gix = "0.71"
 git2 = "0.20"
+
+# Database
+rusqlite = { version = "0.32", features = ["bundled"] }

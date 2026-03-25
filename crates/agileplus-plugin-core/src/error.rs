@@ -31,6 +31,9 @@ pub enum PluginError {
 
     #[error("Plugin execution error: {0}")]
     Execution(String),
+
+    #[error("Validation error: {0}")]
+    Validation(String),
 }
 
 /// Result type alias for plugin operations.
