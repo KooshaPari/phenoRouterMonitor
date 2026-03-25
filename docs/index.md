@@ -1,27 +1,11 @@
----
-audience: [developers, agents, pms]
----
+# PHENOTYPE INFRAKIT
 
-# Docs
+Documentation for PHENOTYPE INFRAKIT project.
 
-This docs tree is the canonical landing surface for this repository.
+## Overview
 
-## Start Here
+This is the main documentation site for PHENOTYPE INFRAKIT.
 
-- `README.md` for workspace and repo entry points
-- `docs/sessions/` for active and historical session-led waves
+## Getting Started
 
-## Operating Model
-
-Before starting a wave, keep these roles explicit:
-
-- Spec owner
-- Research lead
-- Implementer
-- Validator
-- Docs steward
-- Release steward
-
-Keep wave-specific work in:
-
-`docs/sessions/<YYYYMMDD-descriptive-name>/`
+See the guides and reference documentation in the sidebar.
