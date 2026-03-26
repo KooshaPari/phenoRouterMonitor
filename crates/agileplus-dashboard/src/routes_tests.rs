@@ -117,6 +117,11 @@ async fn agent_activity_renders_agents() {
             status: "running".into(),
             current_task: "doing work".into(),
             last_action: "1m ago".into(),
+            pid: Some(9999),
+            started_at: None,
+            worktree: String::new(),
+            worktree_label: String::new(),
+            is_live: true,
         }],
     };
     let html = tpl.render().expect("template renders");

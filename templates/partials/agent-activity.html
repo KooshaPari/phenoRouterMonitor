@@ -1,25 +1,47 @@
-<div id="agent-activity" class="space-y-2 text-sm">
+<div id="agent-activity" class="space-y-2 text-sm" hx-get="/api/dashboard/agents" hx-trigger="load, every 5s">
   <h3 class="font-bold text-zinc-300 text-xs uppercase tracking-widest border-b border-zinc-700 pb-1">
     Agent Activity
   </h3>
   {% for agent in agents %}
-    <div class="agent-row flex items-start gap-2 py-1 border-b border-zinc-800">
-      <span class="agent-status-dot agent-status-{{ agent.status }} w-2 h-2 rounded-full flex-shrink-0 mt-1.5"></span>
+    <div class="agent-row flex items-start gap-2 py-1 border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors rounded px-1">
+      <div class="relative w-2 h-2 flex-shrink-0 mt-1.5">
+        <span class="agent-status-dot agent-status-{{ agent.status }} w-2 h-2 rounded-full absolute"></span>
+        {% if agent.is_live %}
+          <span class="absolute w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75"></span>
+        {% endif %}
+      </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-1">
           <span class="font-mono text-xs text-zinc-200 truncate">{{ agent.name }}</span>
-          <span class="agent-badge agent-badge-{{ agent.status }} text-xs px-1 py-0 rounded uppercase flex-shrink-0">
-            {{ agent.status }}
-          </span>
+          <div class="flex items-center gap-1 flex-shrink-0">
+            {% if let Some(pid) = agent.pid %}
+              <span class="text-xs text-zinc-600 font-mono">PID {{ pid }}</span>
+            {% endif %}
+            <span class="agent-badge agent-badge-{{ agent.status }} text-xs px-1 py-0 rounded uppercase">
+              {{ agent.status }}
+            </span>
+          </div>
         </div>
         {% if !agent.current_task.is_empty() %}
           <p class="text-xs text-zinc-400 truncate mt-0.5">{{ agent.current_task }}</p>
         {% endif %}
-        <p class="text-xs text-zinc-600 mt-0.5">{{ agent.last_action }}</p>
+        <div class="flex items-center gap-2 text-xs text-zinc-600 mt-0.5 flex-wrap">
+          <span>{{ agent.last_action }}</span>
+          {% if !agent.worktree.is_empty() %}
+            <a href="vscode://file/{{ agent.worktree }}"
+               title="{{ agent.worktree }}"
+               class="text-zinc-500 hover:text-zinc-300 underline underline-offset-2 truncate max-w-[120px] font-mono">
+              {{ agent.worktree_label }}
+            </a>
+          {% endif %}
+        </div>
       </div>
     </div>
   {% endfor %}
   {% if agents.is_empty() %}
-    <p class="text-zinc-500 text-xs text-center py-2">No active agents.</p>
+    <div class="py-4 text-center">
+      <p class="text-zinc-500 text-xs">No agents detected.</p>
+      <p class="text-zinc-700 text-xs mt-1">Searches for: claude, gemini, codex, cursor, windsurf, aider, cline</p>
+    </div>
   {% endif %}
 </div>

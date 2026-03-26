@@ -120,11 +120,6 @@ pub struct EvidenceBundleView {
     pub created_at: String,
     pub artifact_ext: String,
     pub status: String,
-    // New fields for evidence viewer/gallery
-    pub content_preview: Option<String>,
-    pub is_text_artifact: bool,
-    pub is_image_artifact: bool,
-    pub download_url: String,
 }
 
 #[derive(Debug, Clone)]
@@ -263,22 +258,12 @@ pub struct EventTimelinePartial {
     pub events: Vec<EventView>,
 }
 
-/// Enhanced event view model with clickable links and metadata.
 #[derive(Debug, Clone)]
 pub struct EventView {
     pub id: String,
     pub kind: String,
     pub description: String,
     pub timestamp: String,
-    // New clickable fields for enhanced timeline
-    pub agent_name: Option<String>,
-    pub agent_link: Option<String>,
-    pub wp_id: Option<String>,
-    pub wp_link: Option<String>,
-    pub commit_sha: Option<String>,
-    pub commit_link: Option<String>,
-    pub ci_run_id: Option<String>,
-    pub ci_run_link: Option<String>,
 }
 
 /// Agent activity view model used in the sidebar panel.
@@ -288,13 +273,6 @@ pub struct AgentView {
     pub status: String,
     pub current_task: String,
     pub last_action: String,
-    pub pid: Option<u32>,
-    pub started_at: Option<String>,
-    /// Full path to the worktree (used as link href). Empty string = not available.
-    pub worktree: String,
-    /// Short display label for the worktree (last path segment). Empty string = not available.
-    pub worktree_label: String,
-    pub is_live: bool,
 }
 
 #[derive(Template)]

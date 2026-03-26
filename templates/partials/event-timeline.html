@@ -1,21 +1,86 @@
 <div id="event-timeline-{{ feature_id }}"
-     class="space-y-3">
+     class="space-y-3"
+     x-data="{ expandedEvent: null }">
   {% for event in events %}
     <div class="timeline-event flex gap-3 items-start"
-         data-kind="{{ event.kind }}">
+         data-kind="{{ event.kind }}"
+         x-data="{ expanded: false }"
+         @click="expanded = !expanded">
       <!-- Color-coded left indicator -->
       <div class="flex-shrink-0 flex flex-col items-center pt-1">
         <span class="timeline-dot timeline-dot-{{ event.kind }} w-2 h-2 rounded-full mt-1"></span>
         <div class="timeline-line w-px flex-1 min-h-[1rem] bg-zinc-700 mt-1"></div>
       </div>
-      <div class="flex-1 pb-3">
+      <div class="flex-1 pb-3 cursor-pointer hover:bg-zinc-800/50 rounded p-2 transition-colors">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="event-kind-badge event-kind-{{ event.kind }} text-xs px-1.5 py-0.5 rounded font-mono uppercase tracking-wider">
             {{ event.kind }}
           </span>
-          <span class="text-xs text-zinc-500 font-mono">{{ event.timestamp }}</span>
+          <span class="text-xs text-zinc-500 font-mono" 
+                x-text="getRelativeTime('{{ event.timestamp }}')">{{ event.timestamp }}</span>
         </div>
         <p class="text-sm text-zinc-200 mt-1">{{ event.description }}</p>
+        
+        <!-- Clickable metadata links (only if present) -->
+        <div class="flex gap-3 mt-2 flex-wrap text-xs">
+          {% match event.agent_name %}
+            {% when Some with (agent_name) %}
+              {% match event.agent_link %}
+                {% when Some with (agent_link) %}
+                  <a href="{{ agent_link }}" 
+                     class="text-blue-400 hover:text-blue-300 underline"
+                     @click.stop>
+                    Agent: {{ agent_name }}
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+          
+          {% match event.wp_id %}
+            {% when Some with (wp_id) %}
+              {% match event.wp_link %}
+                {% when Some with (wp_link) %}
+                  <a href="{{ wp_link }}" 
+                     class="text-green-400 hover:text-green-300 underline"
+                     @click.stop>
+                    Work Package #{{ wp_id }}
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+          
+          {% match event.commit_sha %}
+            {% when Some with (sha) %}
+              {% match event.commit_link %}
+                {% when Some with (link) %}
+                  <a href="{{ link }}" 
+                     target="_blank" rel="noopener noreferrer"
+                     class="text-purple-400 hover:text-purple-300 underline font-mono"
+                     @click.stop>
+                    Commit: {{ sha }}
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+          
+          {% match event.ci_run_id %}
+            {% when Some with (run_id) %}
+              {% match event.ci_run_link %}
+                {% when Some with (link) %}
+                  <a href="{{ link }}" 
+                     target="_blank" rel="noopener noreferrer"
+                     class="text-orange-400 hover:text-orange-300 underline"
+                     @click.stop>
+                    CI Run #{{ run_id }}
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+        </div>
       </div>
     </div>
   {% endfor %}
@@ -23,3 +88,9 @@
     <p class="text-zinc-500 text-sm text-center py-6">No events recorded yet.</p>
   {% endif %}
 </div>
+
+<script>
+function getRelativeTime(isoString) {
+  return isoString;
+}
+</script>

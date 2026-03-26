@@ -5,19 +5,23 @@
 {% block content %}
 <div x-data="featureDetailAssets()" class="p-2 md:p-6 max-w-5xl mx-auto space-y-8" hx-ext="sse" sse-connect="/api/stream">
   <div x-show="mediaOpen"
-       x-transition.opacity
-       class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3"
+       x-transition.opacity.duration.200ms
+       class="lightbox-overlay"
        @click.self="closeMedia()"
        @keyup.escape.window="closeMedia()"
        x-cloak>
-    <div class="relative max-w-5xl max-h-[85vh] w-full">
-      <button type="button" class="absolute top-2 right-2 rounded-full border border-zinc-600 bg-zinc-900 text-zinc-100 px-2 py-1" @click="closeMedia()">
-        X
-      </button>
-      <div class="bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden">
-        <div class="px-3 py-2 text-sm border-b border-zinc-700" x-text="mediaTitle"></div>
-        <img :src="mediaUrl" alt="" class="w-full h-auto max-h-[75vh] object-contain bg-black" />
+    <div class="lightbox-content">
+      <div class="lightbox-header">
+        <span x-text="mediaTitle"></span>
       </div>
+      <div class="lightbox-body">
+        <img :src="mediaUrl" alt="" />
+      </div>
+      <button type="button" class="lightbox-close" @click="closeMedia()" aria-label="Close lightbox">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -38,7 +42,7 @@
         <span class="text-xs px-2 py-0.5 rounded border border-zinc-600 text-zinc-300 bg-zinc-800">{{ label }}</span>
       {% endfor %}
     </div>
-  </section>
+  </div>
 
   <section id="wp-list-{{ feature_id }}"
            hx-get="/api/dashboard/features/{{ feature_id }}/work-packages"
@@ -112,8 +116,11 @@
         hx-confirm="Transition to Specified?"
         hx-target="body"
         hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Specified
+        class="btn-action btn-action-neutral">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+        Specify
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/transition"
@@ -121,8 +128,11 @@
         hx-confirm="Transition to Researched?"
         hx-target="body"
         hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Researched
+        class="btn-action btn-action-neutral">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Research
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/transition"
@@ -130,8 +140,11 @@
         hx-confirm="Transition to Planned?"
         hx-target="body"
         hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Planned
+        class="btn-action btn-action-neutral">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        Plan
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/transition"
@@ -139,8 +152,11 @@
         hx-confirm="Transition to Implementing?"
         hx-target="body"
         hx-swap="none"
-        class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm rounded border border-blue-600 transition">
-        → Implementing
+        class="btn-action btn-action-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Implement
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/transition"
@@ -148,8 +164,11 @@
         hx-confirm="Transition to Validated?"
         hx-target="body"
         hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Validated
+        class="btn-action btn-action-neutral">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Validate
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/transition"
@@ -157,18 +176,27 @@
         hx-confirm="Mark as Shipped?"
         hx-target="body"
         hx-swap="none"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        → Shipped
+        class="btn-action btn-action-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Ship
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/sync"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        Sync with Plane
+        class="btn-action btn-action-neutral">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Sync
       </button>
       <button
         hx-post="/api/dashboard/features/{{ feature.id }}/dispatch"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">
-        Dispatch Agent
+        class="btn-action btn-action-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Agent
       </button>
     </div>
   </section>

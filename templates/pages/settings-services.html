@@ -5,24 +5,98 @@
 {% block content %}
 <div class="p-2 md:p-6 max-w-4xl mx-auto space-y-6">
   <div class="border-b border-zinc-700 pb-4">
-    <h1 class="text-2xl font-bold tracking-tight">Service Settings</h1>
-    <p class="text-sm text-zinc-400 mt-1">Live dependency health for the AgilePlus platform.</p>
+    <h1 class="text-2xl font-bold tracking-tight">Service Endpoints</h1>
+    <p class="text-sm text-zinc-400 mt-1">Monitor and configure critical platform service dependencies.</p>
   </div>
 
-  <div class="grid md:grid-cols-2 gap-3">
+  <div class="grid md:grid-cols-2 gap-4">
     {% for svc in services %}
-      <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
-        <div class="flex items-center justify-between gap-3">
-          <div class="font-semibold">{{ svc.name }}</div>
-          <div class="text-xs text-zinc-400">
-            {% if svc.healthy %}healthy{% else if svc.degraded %}degraded{% else %}down{% endif %}
+      <div class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-zinc-100">{{ svc.name }}</h3>
+            {% if svc.healthy %}
+              <div class="flex items-center gap-2 mt-1">
+                <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="text-xs text-green-400">Healthy</span>
+              </div>
+            {% else if svc.degraded %}
+              <div class="flex items-center gap-2 mt-1">
+                <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full"></span>
+                <span class="text-xs text-yellow-400">Degraded</span>
+              </div>
+            {% else %}
+              <div class="flex items-center gap-2 mt-1">
+                <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                <span class="text-xs text-red-400">Down</span>
+              </div>
+            {% endif %}
           </div>
         </div>
+
         {% if let Some(latency) = svc.latency_ms %}
-          <div class="mt-2 text-sm text-zinc-400">{{ latency }}ms</div>
+          <div class="text-sm text-zinc-400">
+            <span class="text-zinc-500">Response Time:</span>
+            <span class="font-mono">{{ latency }}ms</span>
+          </div>
         {% endif %}
+
+        <div class="pt-2 border-t border-zinc-700">
+          <button
+            type="button"
+            class="w-full px-3 py-1.5 text-xs font-medium text-zinc-100 bg-zinc-700 hover:bg-zinc-600 rounded border border-zinc-600 transition"
+          >
+            Restart Service
+          </button>
+        </div>
       </div>
     {% endfor %}
   </div>
+
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
+    <h2 class="font-bold text-zinc-100 text-lg">Service Architecture</h2>
+
+    <div class="grid gap-3 text-sm">
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
+        <div>
+          <p class="font-medium text-zinc-200">NATS</p>
+          <p class="text-zinc-400 text-xs mt-0.5">Message broker for inter-service communication</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
+        <div>
+          <p class="font-medium text-zinc-200">Dragonfly</p>
+          <p class="text-zinc-400 text-xs mt-0.5">In-memory cache and session store</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
+        <div>
+          <p class="font-medium text-zinc-200">Neo4j</p>
+          <p class="text-zinc-400 text-xs mt-0.5">Graph database for feature relationships</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
+        <div>
+          <p class="font-medium text-zinc-200">MinIO</p>
+          <p class="text-zinc-400 text-xs mt-0.5">S3-compatible object storage</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
+        <div>
+          <p class="font-medium text-zinc-200">PostgreSQL</p>
+          <p class="text-zinc-400 text-xs mt-0.5">Primary data store for features and work packages</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 {% endblock %}

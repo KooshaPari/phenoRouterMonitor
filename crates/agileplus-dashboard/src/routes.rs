@@ -21,13 +21,117 @@ use agileplus_domain::domain::{
 };
 
 use crate::app_state::SharedState;
+use crate::process_detector;
 use crate::templates::{
     AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EventTimelinePartial,
     EventsPage, EvidenceBundleView, FeatureDetailPage, FeatureView, FeaturesPage,
     HealthPanelPartial, HomePage, KanbanPartial, MediaAssetView, PlaneHealthEndpointView,
     PlaneSettingsPage, ProjectSummaryView, ProjectSwitcherPartial, ProjectView, ReportArtifactView,
-    ServicesSettingsPage, SettingsPage, WpListPartial, WpView, all_feature_states,
+    ServicesSettingsPage, SettingsPage, ToastPartial, WpListPartial, WpView, all_feature_states,
 };
+
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
+
+// ── Configuration Types ────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlaneConfig {
+    pub api_url: String,
+    pub api_key: String,
+    pub workspace_slug: String,
+    pub project_slug: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentConfig {
+    pub pool_size: usize,
+    pub retry_budget: usize,
+    pub dispatch_mode: String,
+    pub default_provider: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServiceConfig {
+    pub name: String,
+    pub endpoint_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DashboardConfig {
+    pub theme: String,
+    pub log_level: String,
+    pub data_directory: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    pub plane: Option<PlaneConfig>,
+    pub agents: Option<AgentConfig>,
+    pub services: Option<Vec<ServiceConfig>>,
+    pub dashboard: Option<DashboardConfig>,
+}
+
+impl Config {
+    pub fn load() -> Result<Self, Box<dyn std::error::Error>> {
+        let config_path = Self::config_path();
+        if config_path.exists() {
+            let content = fs::read_to_string(&config_path)?;
+            let config = toml::from_str(&content)?;
+            Ok(config)
+        } else {
+            Ok(Config {
+                plane: None,
+                agents: None,
+                services: None,
+                dashboard: None,
+            })
+        }
+    }
+
+    pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let config_path = Self::config_path();
+        if let Some(parent) = config_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        let content = toml::to_string_pretty(self)?;
+        fs::write(config_path, content)?;
+        Ok(())
+    }
+
+    fn config_path() -> PathBuf {
+        std::env::var("HOME")
+            .ok()
+            .map(|home| PathBuf::from(home).join(".agileplus/config.toml"))
+            .unwrap_or_else(|| PathBuf::from(".agileplus/config.toml"))
+    }
+}
+
+// ── Form Request Types ────────────────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct PlaneSettingsForm {
+    pub api_url: String,
+    pub api_key: String,
+    pub workspace_slug: String,
+    pub project_slug: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AgentSettingsForm {
+    pub pool_size: usize,
+    pub retry_budget: usize,
+    pub dispatch_mode: String,
+    pub default_provider: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DashboardSettingsForm {
+    pub theme: String,
+    pub log_level: String,
+    pub data_directory: String,
+}
 
 /// Returns `true` if the `HX-Request` header is present and truthy.
 fn is_htmx(headers: &HeaderMap) -> bool {
@@ -155,6 +259,14 @@ fn build_feature_events(
         kind: "system".into(),
         description: format!("Feature '{}' opened in dashboard", feature.slug),
         timestamp: now.clone(),
+        agent_name: None,
+        agent_link: None,
+        wp_id: None,
+        wp_link: None,
+        commit_sha: None,
+        commit_link: None,
+        ci_run_id: None,
+        ci_run_link: None,
     }];
 
     if !workpackages.is_empty() {
@@ -163,6 +275,14 @@ fn build_feature_events(
             kind: "agent_action".into(),
             description: format!("{} work package entries synced", workpackages.len()),
             timestamp: now.clone(),
+            agent_name: Some("sync-agent".to_string()),
+            agent_link: Some("/agents/sync-agent".to_string()),
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
         });
 
         for wp in workpackages {
@@ -171,6 +291,14 @@ fn build_feature_events(
                 kind: "state_change".into(),
                 description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
                 timestamp: now.clone(),
+                agent_name: None,
+                agent_link: None,
+                wp_id: Some(wp.id.to_string()),
+                wp_link: Some(format!("/features/{}#wp-{}", feature.id, wp.id)),
+                commit_sha: None,
+                commit_link: None,
+                ci_run_id: None,
+                ci_run_link: None,
             });
         }
     } else {
@@ -179,6 +307,14 @@ fn build_feature_events(
             kind: "system".into(),
             description: "No work packages linked yet".into(),
             timestamp: now.clone(),
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
         });
     }
 
@@ -199,6 +335,12 @@ fn build_feature_evidence_bundles(
         created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
         artifact_ext: "md".into(),
         status: "available".into(),
+        content_preview: Some("# Feature Summary
+
+This feature provides...".to_string()),
+        is_text_artifact: true,
+        is_image_artifact: false,
+        download_url: format!("/api/evidence/{}/summary/content", feature.id),
     }];
 
     for wp in workpackages {
@@ -221,6 +363,10 @@ fn build_feature_evidence_bundles(
                 "generated"
             }
             .into(),
+            content_preview: Some(r#"{"status":"generated","progress":0}"#.to_string()),
+            is_text_artifact: true,
+            is_image_artifact: false,
+            download_url: format!("/api/evidence/{}/{}/content", feature.id, wp.id),
         });
     }
 
@@ -386,18 +532,42 @@ fn sample_events() -> Vec<crate::templates::EventView> {
             kind: "system".into(),
             description: "Dashboard booted with native Plane surface".into(),
             timestamp: "just now".into(),
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
         },
         crate::templates::EventView {
             id: "evt-2".into(),
             kind: "agent_action".into(),
             description: "Planner synced feature ownership metadata".into(),
             timestamp: "2m ago".into(),
+            agent_name: Some("planner-agent".to_string()),
+            agent_link: Some("/agents/planner-agent".to_string()),
+            wp_id: None,
+            wp_link: None,
+            commit_sha: Some("abc1234".to_string()),
+            commit_link: Some("https://github.com/example/repo/commit/abc1234".to_string()),
+            ci_run_id: None,
+            ci_run_link: None,
         },
         crate::templates::EventView {
             id: "evt-3".into(),
             kind: "state_change".into(),
             description: "Feature moved from researched to planned".into(),
             timestamp: "9m ago".into(),
+            agent_name: None,
+            agent_link: None,
+            wp_id: Some("42".to_string()),
+            wp_link: Some("/features/1#wp-42".to_string()),
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: Some("12345678".to_string()),
+            ci_run_link: Some("https://github.com/example/repo/actions/runs/12345678".to_string()),
         },
     ]
 }
@@ -557,21 +727,46 @@ pub async fn event_timeline(State(state): State<SharedState>) -> Response {
 
 pub async fn agent_activity(State(state): State<SharedState>) -> Response {
     let _ = state.read().await;
-    let agents = vec![
-        AgentView {
-            name: "planner-agent".into(),
-            status: "idle".into(),
-            current_task: "none".into(),
-            last_action: "2m ago".into(),
-        },
-        AgentView {
-            name: "impl-agent".into(),
-            status: "running".into(),
-            current_task: "WP13 implementation".into(),
-            last_action: "just now".into(),
-        },
-    ];
+    
+    // Detect real agent processes
+    let detected = process_detector::detect_agents();
+    
+    // Convert detected agents to view models
+    let agents: Vec<AgentView> = detected
+        .into_iter()
+        .map(|agent| {
+            let uptime = calculate_uptime(&agent.started_at);
+            let worktree_label = agent
+                .worktree
+                .as_deref()
+                .and_then(|wt| wt.split('/').last())
+                .unwrap_or("")
+                .to_string();
+            let worktree = agent.worktree.unwrap_or_default();
+            AgentView {
+                name: agent.name,
+                status: agent.status.clone(),
+                current_task: agent.current_task,
+                last_action: uptime,
+                pid: Some(agent.pid),
+                started_at: agent.started_at,
+                worktree,
+                worktree_label,
+                is_live: agent.status == "running",
+            }
+        })
+        .collect();
+    
     render(AgentActivityPartial { agents })
+}
+
+/// Calculate uptime string from the elapsed duration string produced by
+/// `process_detector::get_process_start_time` (e.g. "5m", "1h 20m").
+fn calculate_uptime(started_at: &Option<String>) -> String {
+    match started_at {
+        Some(elapsed) => format!("running for {}", elapsed),
+        None => "uptime unknown".into(),
+    }
 }
 
 // ── /api/dashboard/projects ──────────────────────────────────────────
@@ -745,11 +940,163 @@ pub async fn time_footer() -> Html<String> {
     )
 }
 
+
+// ── /api/evidence ────────────────────────────────────────────────────────
+
+pub async fn evidence_content(
+    State(_state): State<SharedState>,
+    Path((feature_id, artifact_id)): Path<(i64, String)>,
+) -> Response {
+    // In production, this would serve from MinIO or local filesystem
+    // For now, return a sample response
+    let sample_content = format!(
+        "# Evidence Bundle {}
+
+## Artifact ID: {}
+
+This is sample evidence content.",
+        feature_id, artifact_id
+    );
+    Html(sample_content).into_response()
+}
+
+pub async fn evidence_preview(
+    State(_state): State<SharedState>,
+    Path((feature_id, artifact_id)): Path<(i64, String)>,
+) -> Response {
+    // Return an htmx partial with inline preview
+    let preview = format!(
+        "<div class='p-3 rounded bg-zinc-800 border border-zinc-700'>         <pre class='text-xs font-mono text-zinc-300'>Evidence #{} - {}</pre>         </div>",
+        feature_id, artifact_id
+    );
+    Html(preview).into_response()
+}
+
 pub async fn stream_placeholder() -> StatusCode {
     StatusCode::NO_CONTENT
 }
 
 // ── Router builder ───────────────────────────────────────────────────────
+
+// ── Settings POST Handlers ─────────────────────────────────────────────────
+
+pub async fn save_plane_settings(
+    axum::Form(form): axum::Form<PlaneSettingsForm>,
+) -> Response {
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    config.plane = Some(PlaneConfig {
+        api_url: form.api_url.trim().to_string(),
+        api_key: form.api_key.trim().to_string(),
+        workspace_slug: form.workspace_slug.trim().to_string(),
+        project_slug: form.project_slug.trim().to_string(),
+    });
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Plane settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+pub async fn save_agent_settings(
+    axum::Form(form): axum::Form<AgentSettingsForm>,
+) -> Response {
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    config.agents = Some(AgentConfig {
+        pool_size: form.pool_size,
+        retry_budget: form.retry_budget,
+        dispatch_mode: form.dispatch_mode.trim().to_string(),
+        default_provider: form.default_provider.trim().to_string(),
+    });
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Agent settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+pub async fn save_dashboard_settings(
+    axum::Form(form): axum::Form<DashboardSettingsForm>,
+) -> Response {
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    config.dashboard = Some(DashboardConfig {
+        theme: form.theme.trim().to_string(),
+        log_level: form.log_level.trim().to_string(),
+        data_directory: form.data_directory.trim().to_string(),
+    });
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Dashboard settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+pub async fn test_plane_connection(
+    axum::Form(form): axum::Form<PlaneSettingsForm>,
+) -> Response {
+    // Simple validation: check that required fields are filled and api_url looks like a URL
+    let is_valid = !form.api_url.trim().is_empty()
+        && !form.api_key.trim().is_empty()
+        && !form.workspace_slug.trim().is_empty()
+        && form.api_url.starts_with("http");
+
+    if is_valid {
+        // In a real implementation, you would make an HTTP request to verify connectivity
+        render(ToastPartial {
+            message: "Plane connection test passed (mock)".to_string(),
+            success: true,
+        })
+    } else {
+        render(ToastPartial {
+            message: "Plane settings are incomplete or invalid".to_string(),
+            success: false,
+        })
+    }
+}
 
 pub fn router(state: SharedState) -> Router {
     Router::new()
@@ -762,6 +1109,10 @@ pub fn router(state: SharedState) -> Router {
         .route("/settings/plane", get(plane_settings_page))
         .route("/settings/agents", get(agent_settings_page))
         .route("/settings/services", get(services_settings_page))
+        .route("/api/settings/plane", post(save_plane_settings))
+        .route("/api/settings/plane/test", post(test_plane_connection))
+        .route("/api/settings/agents", post(save_agent_settings))
+        .route("/api/settings/dashboard", post(save_dashboard_settings))
         .route("/api/dashboard/kanban", get(kanban_board))
         .route("/api/dashboard/features/{id}", get(feature_detail))
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
@@ -775,6 +1126,8 @@ pub fn router(state: SharedState) -> Router {
         )
         .route("/api/time", get(time_footer))
         .route("/api/stream-placeholder", get(stream_placeholder))
+        .route("/api/evidence/{feature_id}/{artifact_id}/content", get(evidence_content))
+        .route("/api/evidence/{feature_id}/{artifact_id}/preview", get(evidence_preview))
         .with_state(state)
 }
 
@@ -861,6 +1214,11 @@ mod tests {
                 status: "running".into(),
                 current_task: "doing work".into(),
                 last_action: "1m ago".into(),
+                pid: Some(12345),
+                started_at: None,
+                worktree: String::new(),
+                worktree_label: String::new(),
+                is_live: true,
             }],
         };
         let html = tpl.render().expect("template renders");

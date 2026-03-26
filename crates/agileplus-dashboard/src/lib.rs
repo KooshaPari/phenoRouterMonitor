@@ -5,3 +5,4 @@ pub mod app_state;
 pub mod routes;
 pub mod seed;
 pub mod templates;
+pub mod process_detector;

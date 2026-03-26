@@ -3,31 +3,139 @@
 {% block title %}Settings{% endblock %}
 
 {% block content %}
-<div class="p-2 md:p-6 max-w-2xl mx-auto space-y-6">
+<div class="p-2 md:p-6 max-w-3xl mx-auto space-y-6">
   <h1 class="text-2xl font-bold border-b border-zinc-700 pb-4">Platform Settings</h1>
 
-  <section class="bg-zinc-800 border border-zinc-700 rounded p-4 space-y-3">
-    <h2 class="font-bold text-zinc-200">Plane.so Integration</h2>
-    <div class="text-sm text-zinc-400 space-y-2">
-      <p>Configure Plane.so API credentials and workspace sync settings.</p>
-      <a href="/settings/plane" class="text-blue-400 hover:underline text-sm">Configure →</a>
+  <form hx-post="/api/settings/dashboard" hx-swap="none" class="space-y-4">
+    <section class="bg-zinc-800 border border-zinc-700 rounded p-5 space-y-5">
+      <h2 class="font-bold text-zinc-200 text-lg">General Settings</h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Theme
+            <span class="text-red-400">*</span>
+          </label>
+          <select
+            name="theme"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="dark">Dark (Default)</option>
+            <option value="light">Light</option>
+            <option value="auto">Auto (System)</option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Log Level
+            <span class="text-red-400">*</span>
+          </label>
+          <select
+            name="log_level"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="debug">Debug</option>
+            <option value="info">Info (Default)</option>
+            <option value="warn">Warning</option>
+            <option value="error">Error</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2 space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Data Directory
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            name="data_directory"
+            value="~/.agileplus/data"
+            placeholder="~/.agileplus/data"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+          <p class="text-xs text-zinc-500">Path to store dashboard data and cache files</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button
+          type="submit"
+          hx-indicator="#save-indicator"
+          class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition"
+        >
+          Save Settings
+        </button>
+        <span id="save-indicator" class="htmx-request:block hidden ml-2 text-zinc-400 text-sm">Saving...</span>
+      </div>
+    </section>
+  </form>
+
+  <section class="bg-zinc-800 border border-zinc-700 rounded p-5 space-y-4">
+    <h2 class="font-bold text-zinc-200 text-lg">Integration Settings</h2>
+    <div class="space-y-3">
+      <div class="flex items-start justify-between p-3 bg-zinc-700 rounded border border-zinc-600">
+        <div>
+          <h3 class="font-semibold text-zinc-100">Plane.so Integration</h3>
+          <p class="text-sm text-zinc-400 mt-1">Configure API credentials and workspace sync.</p>
+        </div>
+        <a href="/settings/plane" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition whitespace-nowrap ml-3">
+          Configure →
+        </a>
+      </div>
+
+      <div class="flex items-start justify-between p-3 bg-zinc-700 rounded border border-zinc-600">
+        <div>
+          <h3 class="font-semibold text-zinc-100">Agent Configuration</h3>
+          <p class="text-sm text-zinc-400 mt-1">Set dispatch rules, retry policies, and LLM providers.</p>
+        </div>
+        <a href="/settings/agents" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition whitespace-nowrap ml-3">
+          Configure →
+        </a>
+      </div>
+
+      <div class="flex items-start justify-between p-3 bg-zinc-700 rounded border border-zinc-600">
+        <div>
+          <h3 class="font-semibold text-zinc-100">Service Endpoints</h3>
+          <p class="text-sm text-zinc-400 mt-1">Monitor NATS, Dragonfly, Neo4j, MinIO, and PostgreSQL.</p>
+        </div>
+        <a href="/settings/services" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition whitespace-nowrap ml-3">
+          Configure →
+        </a>
+      </div>
     </div>
   </section>
 
-  <section class="bg-zinc-800 border border-zinc-700 rounded p-4 space-y-3">
-    <h2 class="font-bold text-zinc-200">Agent Configuration</h2>
-    <div class="text-sm text-zinc-400 space-y-2">
-      <p>Set agent dispatch rules, retry policies, and timeouts.</p>
-      <a href="/settings/agents" class="text-blue-400 hover:underline text-sm">Configure →</a>
-    </div>
-  </section>
-
-  <section class="bg-zinc-800 border border-zinc-700 rounded p-4 space-y-3">
-    <h2 class="font-bold text-zinc-200">Service Endpoints</h2>
-    <div class="text-sm text-zinc-400 space-y-2">
-      <p>NATS, Dragonfly, Neo4j, and MinIO connection settings.</p>
-      <a href="/settings/services" class="text-blue-400 hover:underline text-sm">Configure →</a>
-    </div>
+  <section class="bg-zinc-800 border border-zinc-700 rounded p-5 space-y-3">
+    <h2 class="font-bold text-zinc-200 text-lg">About AgilePlus Dashboard</h2>
+    <dl class="grid gap-3 text-sm">
+      <div>
+        <dt class="font-medium text-zinc-300">Configuration Storage</dt>
+        <dd class="text-zinc-400 mt-1">Settings are persisted to <code class="font-mono text-xs bg-zinc-700 px-2 py-1 rounded">~/.agileplus/config.toml</code></dd>
+      </div>
+      <div>
+        <dt class="font-medium text-zinc-300">Environment Variables</dt>
+        <dd class="text-zinc-400 mt-1">Environment variables always take precedence over saved settings</dd>
+      </div>
+      <div>
+        <dt class="font-medium text-zinc-300">Version</dt>
+        <dd class="text-zinc-400 mt-1">AgilePlus Dashboard 1.0.0</dd>
+      </div>
+    </dl>
   </section>
 </div>
+
+<div id="toast-container"></div>
+<script>
+  document.body.addEventListener('htmx:xhr:loadend', function(evt) {
+    if (evt.detail.successful) {
+      const response = evt.detail.xhr.responseText;
+      const container = document.getElementById('toast-container');
+      container.innerHTML = response;
+    }
+  });
+</script>
 {% endblock %}
