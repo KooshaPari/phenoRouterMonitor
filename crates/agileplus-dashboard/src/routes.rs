@@ -127,10 +127,9 @@ pub struct AgentSettingsForm {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct DashboardSettingsForm {
-    pub theme: String,
-    pub log_level: String,
-    pub data_directory: String,
+pub struct ServiceSettingsForm {
+    pub names: Vec<String>,
+    pub endpoint_urls: Vec<String>,
 }
 
 /// Returns `true` if the `HX-Request` header is present and truthy.
@@ -279,24 +278,37 @@ fn build_feature_events(
             agent_link: Some("/agents/sync-agent".to_string()),
             wp_id: None,
             wp_link: None,
-            commit_sha: None,
-            commit_link: None,
-            ci_run_id: None,
-            ci_run_link: None,
+            commit_sha: Some("7c5b6ef".to_string()),
+            commit_link: Some("https://github.com/Phenotype/AgilePlus/commit/7c5b6ef".to_string()),
+            ci_run_id: Some("1024".to_string()),
+            ci_run_link: Some(
+                "https://github.com/Phenotype/AgilePlus/actions/runs/1024".to_string(),
+            ),
         });
 
-        for wp in workpackages {
+        for (i, wp) in workpackages.iter().enumerate() {
             events.push(crate::templates::EventView {
                 id: format!("evt-feature-{}-wp-{}", feature.id, wp.id),
                 kind: "state_change".into(),
                 description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
                 timestamp: now.clone(),
-                agent_name: None,
-                agent_link: None,
+                agent_name: Some(format!("worker-agent-{}", i % 3)),
+                agent_link: Some(format!("/agents/worker-agent-{}", i % 3)),
                 wp_id: Some(wp.id.to_string()),
                 wp_link: Some(format!("/features/{}#wp-{}", feature.id, wp.id)),
-                commit_sha: None,
-                commit_link: None,
+                commit_sha: if i % 2 == 0 {
+                    Some(format!("abc{:04}", i))
+                } else {
+                    None
+                },
+                commit_link: if i % 2 == 0 {
+                    Some(format!(
+                        "https://github.com/Phenotype/AgilePlus/commit/abc{:04}",
+                        i
+                    ))
+                } else {
+                    None
+                },
                 ci_run_id: None,
                 ci_run_link: None,
             });
@@ -335,9 +347,12 @@ fn build_feature_evidence_bundles(
         created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
         artifact_ext: "md".into(),
         status: "available".into(),
-        content_preview: Some("# Feature Summary
+        content_preview: Some(
+            "# Feature Summary
 
-This feature provides...".to_string()),
+This feature provides..."
+                .to_string(),
+        ),
         is_text_artifact: true,
         is_image_artifact: false,
         download_url: format!("/api/evidence/{}/summary/content", feature.id),
@@ -727,10 +742,10 @@ pub async fn event_timeline(State(state): State<SharedState>) -> Response {
 
 pub async fn agent_activity(State(state): State<SharedState>) -> Response {
     let _ = state.read().await;
-    
+
     // Detect real agent processes
     let detected = process_detector::detect_agents();
-    
+
     // Convert detected agents to view models
     let agents: Vec<AgentView> = detected
         .into_iter()
@@ -756,7 +771,7 @@ pub async fn agent_activity(State(state): State<SharedState>) -> Response {
             }
         })
         .collect();
-    
+
     render(AgentActivityPartial { agents })
 }
 
@@ -925,8 +940,26 @@ pub async fn agent_settings_page() -> Response {
 
 pub async fn services_settings_page(State(state): State<SharedState>) -> Response {
     let store = state.read().await;
+    let config = Config::load().unwrap_or(Config {
+        plane: None,
+        agents: None,
+        services: None,
+        dashboard: None,
+    });
+
+    let configs: Vec<crate::templates::ServiceConfigView> = config
+        .services
+        .unwrap_or_default()
+        .into_iter()
+        .map(|s| crate::templates::ServiceConfigView {
+            name: s.name,
+            endpoint_url: s.endpoint_url,
+        })
+        .collect();
+
     render(ServicesSettingsPage {
         services: store.health.clone(),
+        configs,
     })
 }
 
@@ -939,7 +972,6 @@ pub async fn time_footer() -> Html<String> {
             .to_string(),
     )
 }
-
 
 // ── /api/evidence ────────────────────────────────────────────────────────
 
@@ -980,9 +1012,7 @@ pub async fn stream_placeholder() -> StatusCode {
 
 // ── Settings POST Handlers ─────────────────────────────────────────────────
 
-pub async fn save_plane_settings(
-    axum::Form(form): axum::Form<PlaneSettingsForm>,
-) -> Response {
+pub async fn save_plane_settings(axum::Form(form): axum::Form<PlaneSettingsForm>) -> Response {
     let mut config = match Config::load() {
         Ok(c) => c,
         Err(_) => Config {
@@ -1012,9 +1042,7 @@ pub async fn save_plane_settings(
     }
 }
 
-pub async fn save_agent_settings(
-    axum::Form(form): axum::Form<AgentSettingsForm>,
-) -> Response {
+pub async fn save_agent_settings(axum::Form(form): axum::Form<AgentSettingsForm>) -> Response {
     let mut config = match Config::load() {
         Ok(c) => c,
         Err(_) => Config {
@@ -1075,9 +1103,65 @@ pub async fn save_dashboard_settings(
     }
 }
 
-pub async fn test_plane_connection(
-    axum::Form(form): axum::Form<PlaneSettingsForm>,
+pub async fn save_services_settings(axum::Form(form): axum::Form<ServiceSettingsForm>) -> Response {
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    let mut services = Vec::new();
+    for (name, url) in form.names.into_iter().zip(form.endpoint_urls.into_iter()) {
+        if !name.trim().is_empty() {
+            services.push(ServiceConfig {
+                name: name.trim().to_string(),
+                endpoint_url: url.trim().to_string(),
+            });
+        }
+    }
+    config.services = Some(services);
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Service settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SingleServiceTestForm {
+    pub name: String,
+    pub endpoint_url: String,
+}
+
+pub async fn test_service_connection(
+    axum::Form(form): axum::Form<SingleServiceTestForm>,
 ) -> Response {
+    let is_valid = !form.endpoint_url.trim().is_empty() && form.endpoint_url.starts_with("http");
+
+    if is_valid {
+        render(ToastPartial {
+            message: format!("Connection to {} successful (mock)", form.name),
+            success: true,
+        })
+    } else {
+        render(ToastPartial {
+            message: format!("Invalid endpoint for {}: {}", form.name, form.endpoint_url),
+            success: false,
+        })
+    }
+}
+
+pub async fn test_plane_connection(axum::Form(form): axum::Form<PlaneSettingsForm>) -> Response {
     // Simple validation: check that required fields are filled and api_url looks like a URL
     let is_valid = !form.api_url.trim().is_empty()
         && !form.api_key.trim().is_empty()
@@ -1109,6 +1193,8 @@ pub fn router(state: SharedState) -> Router {
         .route("/settings/plane", get(plane_settings_page))
         .route("/settings/agents", get(agent_settings_page))
         .route("/settings/services", get(services_settings_page))
+        .route("/api/settings/services", post(save_services_settings))
+        .route("/api/settings/services/test", post(test_service_connection))
         .route("/api/settings/plane", post(save_plane_settings))
         .route("/api/settings/plane/test", post(test_plane_connection))
         .route("/api/settings/agents", post(save_agent_settings))
@@ -1126,8 +1212,14 @@ pub fn router(state: SharedState) -> Router {
         )
         .route("/api/time", get(time_footer))
         .route("/api/stream-placeholder", get(stream_placeholder))
-        .route("/api/evidence/{feature_id}/{artifact_id}/content", get(evidence_content))
-        .route("/api/evidence/{feature_id}/{artifact_id}/preview", get(evidence_preview))
+        .route(
+            "/api/evidence/{feature_id}/{artifact_id}/content",
+            get(evidence_content),
+        )
+        .route(
+            "/api/evidence/{feature_id}/{artifact_id}/preview",
+            get(evidence_preview),
+        )
         .with_state(state)
 }
 
@@ -1156,6 +1248,18 @@ mod tests {
         };
         let html = tpl.render().expect("template renders");
         assert!(html.contains("NATS"));
+    }
+
+    #[tokio::test]
+    async fn services_settings_page_renders() {
+        let state = make_state();
+        let store = state.read().await;
+        let tpl = ServicesSettingsPage {
+            services: store.health.clone(),
+            configs: vec![],
+        };
+        let html = tpl.render().expect("template renders");
+        assert!(html.contains("Service Endpoints"));
     }
 
     #[tokio::test]

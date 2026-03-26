@@ -1,12 +1,20 @@
+---
 version: '3'
 
 vars:
   AGILEPLUS_DIR: .agileplus
+  BINARY: agileplus
 
 tasks:
+  # === Default ===
+  default:
+    desc: Run all quality checks
+    cmds:
+      - task: quality
+
   # === Dev Stack ===
   dev:
-    desc: Start the full AgilePlus dev stack (OrbStack containers + native services)
+    desc: Start the full AgilePlus dev stack
     cmds:
       - task: dev:deps
       - task: dev:up
@@ -27,11 +35,16 @@ tasks:
     silent: true
 
   dev:up:
-    desc: Start all services via process-compose (OrbStack containers + native)
+    desc: Start all services via process-compose (detached, no TUI; logs under .agileplus/logs)
     cmds:
       - mkdir -p {{.AGILEPLUS_DIR}}/logs
       - bash scripts/orb-up.sh
-      - process-compose up -f process-compose.yml
+      - process-compose up -f process-compose.yml -t=false -D -L {{.AGILEPLUS_DIR}}/logs/process-compose.log
+
+  platform:up:
+    desc: Alias for dev stack (OrbStack Dragonfly/Postgres + process-compose)
+    cmds:
+      - task: dev:up
 
   dev:down:
     desc: Stop all services and OrbStack containers
@@ -44,10 +57,12 @@ tasks:
     cmds:
       - |
         echo "=== OrbStack Containers ==="
-        orb list 2>/dev/null | grep agileplus || echo "  No OrbStack containers running"
+        orb list 2>/dev/null | grep agileplus || \
+          echo "  No OrbStack containers"
         echo ""
         echo "=== Process Compose ==="
-        process-compose process list 2>/dev/null || echo "  Process compose not running"
+        process-compose process list 2>/dev/null || \
+          echo "  Process compose not running"
 
   dev:logs:
     desc: Tail all service logs
@@ -71,17 +86,34 @@ tasks:
     cmds:
       - cargo build --release
 
+  build:watch:
+    desc: Build with file watcher
+    cmds:
+      - cargo watch -x build
+
   # === Test ===
   test:
     desc: Run all tests
     cmds:
       - cargo test
 
+  test:watch:
+    desc: Run tests with file watcher
+    cmds:
+      - cargo watch -x test
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - cargo tarpaulin --workspace --out Html
+
   # === Lint & Format ===
   lint:
     desc: Run clippy linter
     cmds:
-      - cargo clippy --all-targets --all-features -- -D warnings
+      - |
+        cargo clippy --all-targets --all-features \
+          -- -D warnings
 
   fmt:
     desc: Format code with rustfmt
@@ -94,24 +126,29 @@ tasks:
       - cargo fmt --all -- --check
 
   # === Python ===
-  python-lint:
+  python:lint:
     desc: Run ruff linter on Python code
     cmds:
       - ruff check python/
       - ruff format --check python/
 
+  python:format:
+    desc: Format Python code with ruff
+    cmds:
+      - ruff format python/
+
+  python:test:
+    desc: Run pytest on Python tests
+    cmds:
+      - cd python && uv run pytest
+
+  # === Documentation ===
   docs:lint:
     desc: Run oxlint on documentation
     cmds:
       - bun run lint
     dir: docs
 
-  python-test:
-    desc: Run pytest on Python tests
-    cmds:
-      - cd python && uv run pytest
-
-  # === Docs ===
   docs:build:
     desc: Build VitePress documentation
     cmds:
@@ -124,7 +161,7 @@ tasks:
       - bun run docs:dev
     dir: docs
 
-  # === Proto ===
+  # === Protocol Buffers ===
   proto:
     desc: Generate protobuf/gRPC code
     cmds:
@@ -136,10 +173,10 @@ tasks:
     cmds:
       - task: fmt:check
       - task: lint
-      - task: python-lint
+      - task: python:lint
       - task: docs:lint
       - task: test
-      - task: python-test
+      - task: python:test
 
   # === Setup ===
   setup:
@@ -150,8 +187,20 @@ tasks:
       - rustup component add clippy rustfmt
       - cargo fetch
       - mkdir -p {{.AGILEPLUS_DIR}}/logs
-      - echo "Setup complete. Run 'task dev' to start the dev stack."
+      - |
+        echo "Setup complete. Run 'task dev' to start the dev stack."
 
-  default:
+  # === Cleanup ===
+  clean:
+    desc: Clean build artifacts
     cmds:
-      - task: quality
+      - cargo clean
+      - rm -rf {{.AGILEPLUS_DIR}}/logs
+
+  clean:all:
+    desc: Clean all build and cache artifacts
+    cmds:
+      - task: clean
+      - cargo clean --release
+      - rm -rf target/
+      - rm -rf .ruff_cache

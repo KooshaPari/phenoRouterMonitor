@@ -215,6 +215,13 @@ pub struct AgentSettingsPage {
 #[template(path = "pages/settings-services.html")]
 pub struct ServicesSettingsPage {
     pub services: Vec<ServiceHealth>,
+    pub configs: Vec<ServiceConfigView>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ServiceConfigView {
+    pub name: String,
+    pub endpoint_url: String,
 }
 
 // ── Partial templates ──────────────────────────────────────────────────────
@@ -332,4 +339,16 @@ pub fn all_feature_states() -> Vec<String> {
     .into_iter()
     .map(|s| s.to_string())
     .collect()
+}
+
+pub fn label_color(label: &str) -> &'static str {
+    match label.to_lowercase().as_str() {
+        "platform" | "infrastructure" => "bg-blue-900/40 text-blue-300 border-blue-700/50",
+        "governance" | "policy" => "bg-purple-900/40 text-purple-300 border-purple-700/50",
+        "automation" | "agents" => "bg-orange-900/40 text-orange-300 border-orange-700/50",
+        "testing" | "qa" => "bg-green-900/40 text-green-300 border-green-700/50",
+        "bug" | "defect" => "bg-red-900/40 text-red-300 border-red-700/50",
+        "research" | "exploration" => "bg-cyan-900/40 text-cyan-300 border-cyan-700/50",
+        _ => "bg-zinc-800 text-zinc-300 border-zinc-700",
+    }
 }

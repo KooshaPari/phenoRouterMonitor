@@ -150,7 +150,6 @@ pub enum BacklogSort {
     Impact,
 }
 
-
 impl std::fmt::Display for BacklogSort {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

@@ -4,54 +4,90 @@
 
 {% block content %}
 <div class="p-2 md:p-6 max-w-4xl mx-auto space-y-6">
-  <div class="border-b border-zinc-700 pb-4">
-    <h1 class="text-2xl font-bold tracking-tight">Service Endpoints</h1>
-    <p class="text-sm text-zinc-400 mt-1">Monitor and configure critical platform service dependencies.</p>
+  <div class="border-b border-zinc-700 pb-4 flex justify-between items-end">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Service Endpoints</h1>
+      <p class="text-sm text-zinc-400 mt-1">Monitor and configure critical platform service dependencies.</p>
+    </div>
+    <div id="settings-toast-container"></div>
   </div>
 
-  <div class="grid md:grid-cols-2 gap-4">
-    {% for svc in services %}
-      <div class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="font-semibold text-zinc-100">{{ svc.name }}</h3>
-            {% if svc.healthy %}
-              <div class="flex items-center gap-2 mt-1">
-                <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                <span class="text-xs text-green-400">Healthy</span>
-              </div>
-            {% else if svc.degraded %}
-              <div class="flex items-center gap-2 mt-1">
-                <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full"></span>
-                <span class="text-xs text-yellow-400">Degraded</span>
-              </div>
-            {% else %}
-              <div class="flex items-center gap-2 mt-1">
-                <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-                <span class="text-xs text-red-400">Down</span>
-              </div>
-            {% endif %}
+  <form hx-post="/api/settings/services" hx-target="#settings-toast-container" hx-swap="innerHTML" class="space-y-6">
+    <div class="grid md:grid-cols-2 gap-4">
+      {% for svc in services %}
+        <div class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold text-zinc-100">{{ svc.name }}</h3>
+              <input type="hidden" name="names" value="{{ svc.name }}">
+              {% if svc.healthy %}
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span class="text-xs text-green-400">Healthy</span>
+                </div>
+              {% else if svc.degraded %}
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full"></span>
+                  <span class="text-xs text-yellow-400">Degraded</span>
+                </div>
+              {% else %}
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span class="text-xs text-red-400">Down</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs text-zinc-500 font-medium">Endpoint URL</label>
+            <input 
+              type="text" 
+              name="endpoint_urls" 
+              class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1.5 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              {% for config in configs %}
+                {% if config.name == svc.name %}
+                  value="{{ config.endpoint_url }}"
+                {% endif %}
+              {% endfor %}
+              placeholder="e.g. http://localhost:4222"
+            >
+          </div>
+
+          {% if let Some(latency) = svc.latency_ms %}
+            <div class="text-sm text-zinc-400">
+              <span class="text-zinc-500">Response Time:</span>
+              <span class="font-mono">{{ latency }}ms</span>
+            </div>
+          {% endif %}
+
+          <div class="pt-2 border-t border-zinc-700">
+            <button
+              type="button"
+              hx-post="/api/settings/services/test"
+              hx-target="#settings-toast-container"
+              hx-vals='js:{
+                name: "{{ svc.name }}",
+                endpoint_url: event.target.closest(".rounded").querySelector("input[name=\"endpoint_urls\"]").value
+              }'
+              class="w-full px-3 py-1.5 text-xs font-medium text-zinc-100 bg-zinc-700 hover:bg-zinc-600 rounded border border-zinc-600 transition"
+            >
+              Test Connection
+            </button>
           </div>
         </div>
+      {% endfor %}
+    </div>
 
-        {% if let Some(latency) = svc.latency_ms %}
-          <div class="text-sm text-zinc-400">
-            <span class="text-zinc-500">Response Time:</span>
-            <span class="font-mono">{{ latency }}ms</span>
-          </div>
-        {% endif %}
-
-        <div class="pt-2 border-t border-zinc-700">
-          <button
-            type="button"
-            class="w-full px-3 py-1.5 text-xs font-medium text-zinc-100 bg-zinc-700 hover:bg-zinc-600 rounded border border-zinc-600 transition"
-          >
-            Restart Service
-          </button>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
+    <div class="flex justify-end pt-4">
+      <button 
+        type="submit" 
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition"
+      >
+        Save Service Configurations
+      </button>
+    </div>
+  </form>
 
   <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
     <h2 class="font-bold text-zinc-100 text-lg">Service Architecture</h2>

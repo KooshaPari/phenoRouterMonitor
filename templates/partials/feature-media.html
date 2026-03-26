@@ -1,42 +1,67 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" 
+     x-data="{ 
+       openMedia(src, title, type) {
+         if (window.__AgilePlusLightbox) {
+           window.__AgilePlusLightbox.show(src, title, type);
+         }
+       } 
+     }">
 {% for media in media_assets %}
-  <article class="media-card">
-    <div class="media-card-image-container">
+  <article class="media-card group relative overflow-hidden bg-zinc-900 border border-zinc-700 rounded-lg hover:border-zinc-500 transition-all duration-200 shadow-lg hover:shadow-black/40">
+    <div class="media-card-image-container aspect-video relative overflow-hidden">
       <button type="button"
-              class="media-card-button w-full block"
-              data-media-url="{{ media.url_or_path }}"
-              data-media-title="{{ media.name }}"
-              @click="openMedia($event)"
+              class="w-full h-full block group-hover:scale-105 transition-transform duration-300"
+              @click="openMedia('{{ media.url_or_path }}', '{{ media.name }}', '{{ media.kind == 'video' ? 'video' : 'image' }}')"
               aria-label="Open {{ media.name }}">
+        {% if media.kind == 'video' %}
+          <div class="absolute inset-0 flex items-center justify-center bg-black/40 z-10 group-hover:bg-black/20 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-white/80 group-hover:text-white transition-all transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        {% endif %}
         <img src="{{ media.url_or_path }}"
              alt="{{ media.name }}"
-             class="media-card-image"
-             onerror="this.style.display='none'" />
-        <div class="media-card-button-overlay">
-          <div class="media-card-button-label">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/>
-            </svg>
-            View
+             class="w-full h-full object-cover"
+             onerror="this.src='/static/placeholder.png'" />
+        
+        <!-- Hover Overlay with Rich Button Appearance -->
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <div class="px-4 py-2 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+            View Asset
           </div>
         </div>
       </button>
     </div>
-    <div class="media-card-info">
-      <div class="flex items-start justify-between">
-        <h3 class="media-card-title">{{ media.name }}</h3>
-        <span class="text-xs text-zinc-500 ml-2 flex-shrink-0">{{ media.kind }}</span>
+    
+    <div class="p-4 bg-zinc-950/50 backdrop-blur-sm border-t border-zinc-800">
+      <div class="flex items-start justify-between gap-2">
+        <h3 class="text-sm font-bold text-zinc-100 truncate flex-1">{{ media.name }}</h3>
+        <span class="px-1.5 py-0.5 bg-zinc-800 text-[10px] font-bold text-zinc-400 uppercase tracking-tighter rounded border border-zinc-700">
+          {{ media.kind }}
+        </span>
       </div>
-      <div class="text-xs text-zinc-400">Source: {{ media.source }}</div>
-      <div class="text-xs text-zinc-500">
-        {% if media.size_bytes > 0 %}
-          {{ media.size_bytes }} bytes
-        {% else %}
-          Size: unknown
-        {% endif %}
+      <div class="mt-1 flex items-center gap-2 text-[10px] text-zinc-500 font-medium">
+        <span>Source: {{ media.source }}</span>
+        <span class="text-zinc-700">•</span>
+        <span>
+          {% if media.size_bytes > 0 %}
+            {{ (media.size_bytes / 1024) | round(1) }} KB
+          {% else %}
+            Size unknown
+          {% endif %}
+        </span>
       </div>
-      <p class="text-xs break-all text-zinc-400 line-clamp-2">{{ media.url_or_path }}</p>
+      <p class="mt-2 text-[10px] font-mono text-zinc-500 truncate opacity-60 hover:opacity-100 transition-opacity">{{ media.url_or_path }}</p>
     </div>
   </article>
 {% else %}
-  <p class="text-zinc-500 text-sm">No media assets available.</p>
+  <div class="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-xl">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-zinc-700 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    <p class="text-zinc-500 text-sm">No media assets found for this feature.</p>
+  </div>
 {% endfor %}
+</div>

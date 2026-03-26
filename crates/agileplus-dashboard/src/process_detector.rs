@@ -3,9 +3,9 @@
 //! Detects Claude and other AI tool processes running on the system
 //! and extracts agent metadata from process information.
 
-use sysinfo::System;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
+use sysinfo::System;
 
 /// Agent process information extracted from system processes.
 #[derive(Debug, Clone)]
@@ -25,13 +25,7 @@ pub fn detect_agents() -> Vec<DetectedAgent> {
     system.refresh_all();
 
     let agent_patterns = [
-        "claude",
-        "gemini",
-        "codex",
-        "cursor",
-        "windsurf",
-        "aider",
-        "cline",
+        "claude", "gemini", "codex", "cursor", "windsurf", "aider", "cline",
     ];
 
     let mut agents = Vec::new();
@@ -57,7 +51,7 @@ pub fn detect_agents() -> Vec<DetectedAgent> {
 /// Extract agent information from a process.
 fn extract_agent_info(pid: u32, process: &sysinfo::Process) -> DetectedAgent {
     let process_name = process.name().to_string_lossy().to_string();
-    
+
     // Convert OsStr command line to String for easier parsing
     let cmd_line = process
         .cmd()
@@ -168,10 +162,7 @@ fn get_process_start_time(process: &sysinfo::Process) -> Option<String> {
     if start_secs == 0 {
         return None;
     }
-    let now_secs = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .ok()?
-        .as_secs();
+    let now_secs = SystemTime::now().duration_since(UNIX_EPOCH).ok()?.as_secs();
     let elapsed = now_secs.saturating_sub(start_secs);
     let formatted = format_elapsed(elapsed);
     Some(formatted)
@@ -222,8 +213,14 @@ fn parse_agent_state(json: &serde_json::Value) -> Option<DetectedAgent> {
     let name = json.get("name")?.as_str()?.to_string();
     let status = json.get("status")?.as_str().unwrap_or("idle").to_string();
     let current_task = json.get("current_task")?.as_str().unwrap_or("").to_string();
-    let worktree = json.get("worktree").and_then(|v| v.as_str()).map(|s| s.to_string());
-    let started_at = json.get("started_at").and_then(|v| v.as_str()).map(|s| s.to_string());
+    let worktree = json
+        .get("worktree")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+    let started_at = json
+        .get("started_at")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
     let process_name = name.clone();
 
     Some(DetectedAgent {

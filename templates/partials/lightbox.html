@@ -1,0 +1,76 @@
+<!-- T089: Lightbox / Asset Viewer -->
+<div x-data="{ 
+       open: false, 
+       src: '', 
+       title: '', 
+       type: 'image',
+       show(src, title, type = 'image') {
+         this.src = src;
+         this.title = title;
+         this.type = type;
+         this.open = true;
+         document.body.classList.add('overflow-hidden');
+       },
+       close() {
+         this.open = false;
+         document.body.classList.remove('overflow-hidden');
+       }
+     }"
+     @keydown.escape.window="close()"
+     x-cloak>
+  
+  <template x-teleport="body">
+    <div x-show="open" 
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 md:p-10"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+      
+      <!-- Close Button -->
+      <button @click="close()" 
+              class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors p-2 z-[110]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Content Container -->
+      <div class="relative max-w-5xl w-full h-full flex flex-col items-center justify-center gap-4"
+           @click.away="close()">
+        
+        <!-- Asset View -->
+        <div class="flex-1 flex items-center justify-center w-full min-h-0">
+          <template x-if="type === 'image'">
+            <img :src="src" :alt="title" class="max-w-full max-h-full object-contain rounded shadow-2xl shadow-black/50 border border-white/10">
+          </template>
+          <template x-if="type === 'video'">
+            <video :src="src" controls autoplay class="max-w-full max-h-full rounded border border-white/10"></video>
+          </template>
+        </div>
+
+        <!-- Meta & Actions -->
+        <div class="w-full flex items-center justify-between bg-zinc-900/80 backdrop-blur border border-zinc-700 p-4 rounded-lg">
+          <div class="flex flex-col">
+            <span class="text-white font-medium" x-text="title"></span>
+            <span class="text-xs text-zinc-400" x-text="src.split('/').pop()"></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <a :href="src" download class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm rounded border border-zinc-600 transition-colors flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download
+            </a>
+            <button @click="close()" class="px-3 py-1.5 bg-zinc-100 hover:bg-white text-black text-sm rounded font-medium transition-colors">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Global trigger helper -->
+  <div x-init="window.__AgilePlusLightbox = { show: (src, title, type) => show(src, title, type) }"></div>
+</div>

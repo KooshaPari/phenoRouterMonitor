@@ -3,28 +3,7 @@
 {% block title %}{{ feature.title }}{% endblock %}
 
 {% block content %}
-<div x-data="featureDetailAssets()" class="p-2 md:p-6 max-w-5xl mx-auto space-y-8" hx-ext="sse" sse-connect="/api/stream">
-  <div x-show="mediaOpen"
-       x-transition.opacity.duration.200ms
-       class="lightbox-overlay"
-       @click.self="closeMedia()"
-       @keyup.escape.window="closeMedia()"
-       x-cloak>
-    <div class="lightbox-content">
-      <div class="lightbox-header">
-        <span x-text="mediaTitle"></span>
-      </div>
-      <div class="lightbox-body">
-        <img :src="mediaUrl" alt="" />
-      </div>
-      <button type="button" class="lightbox-close" @click="closeMedia()" aria-label="Close lightbox">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-
+<div class="p-2 md:p-6 max-w-5xl mx-auto space-y-8" hx-ext="sse" sse-connect="/api/stream">
   <div class="border-b border-zinc-700 pb-6">
     <div class="flex items-start justify-between gap-4">
       <div class="min-w-0 flex-1">
@@ -39,7 +18,9 @@
     </div>
     <div class="flex gap-2 mt-3 flex-wrap">
       {% for label in feature.labels %}
-        <span class="text-xs px-2 py-0.5 rounded border border-zinc-600 text-zinc-300 bg-zinc-800">{{ label }}</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border {{ crate::templates::label_color(label) }}">
+          {{ label }}
+        </span>
       {% endfor %}
     </div>
   </div>
@@ -212,27 +193,6 @@ function timelineFilter() {
         const kind = el.dataset.kind || '';
         el.style.display = (type === 'all' || kind === type) ? '' : 'none';
       });
-    },
-  };
-}
-
-function featureDetailAssets() {
-  return {
-    mediaOpen: false,
-    mediaUrl: '',
-    mediaTitle: '',
-    openMedia(event) {
-      const element = event && event.currentTarget;
-      if (!element) return;
-      const url = element.dataset.mediaUrl;
-      const title = element.dataset.mediaTitle;
-      if (!url) return;
-      this.mediaUrl = url;
-      this.mediaTitle = title || 'Media';
-      this.mediaOpen = true;
-    },
-    closeMedia() {
-      this.mediaOpen = false;
     },
   };
 }

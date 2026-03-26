@@ -1,16 +1,17 @@
 version: "0.5"
 
-# Environment variables apply to all services
-env:
+# Environment variables apply to all processes
+environment:
   - RUST_BACKTRACE=1
 
-services:
+processes:
   # ============================================================
   # OrbStack containers: Dragonfly + PostgreSQL
   # Managed via scripts/orb-up.sh and scripts/orb-down.sh
   # ============================================================
   orb-containers:
-    command: sh scripts/orb-up.sh
+    # orb-up.sh exits when containers are ready; keep this process alive so PC does not tear down the stack.
+    command: sh -c "scripts/orb-up.sh && exec tail -f /dev/null"
     shutdown:
       command: sh scripts/orb-down.sh
     depends_on: {}
