@@ -132,6 +132,13 @@ pub struct ServiceSettingsForm {
     pub endpoint_urls: Vec<String>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct DashboardSettingsForm {
+    pub theme: String,
+    pub log_level: String,
+    pub data_directory: String,
+}
+
 /// Returns `true` if the `HX-Request` header is present and truthy.
 fn is_htmx(headers: &HeaderMap) -> bool {
     headers
