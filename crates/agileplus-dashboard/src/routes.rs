@@ -295,31 +295,55 @@ fn build_feature_events(
             ),
         });
 
-        for (i, wp) in workpackages.iter().enumerate() {
+        for wp in workpackages {
+            // agent_link: route to agent detail page when an agent_id is present.
+            let agent_link = wp
+                .agent_id
+                .as_deref()
+                .map(|aid| format!("/api/dashboard/agents/{aid}"));
+
+            // wp_link: slug-based URL to the work package detail anchor.
+            let wp_link = Some(format!(
+                "/features/{}/work-packages/{}",
+                feature.slug, wp.id
+            ));
+
+            // commit_link: GitHub commit URL when a head commit SHA is present.
+            let (commit_sha, commit_link) = match &wp.head_commit {
+                Some(sha) => (
+                    Some(sha.clone()),
+                    Some(format!(
+                        "https://github.com/KooshaPari/AgilePlus/commit/{sha}"
+                    )),
+                ),
+                None => (None, None),
+            };
+
+            // ci_run_link: derive from pr_url when it is a GitHub PR URL by
+            // redirecting to the Actions tab for that repository.
+            let ci_run_link = wp.pr_url.as_deref().and_then(|url| {
+                // pr_url is typically https://github.com/{owner}/{repo}/pull/{n}
+                // Strip the `/pull/{n}` suffix and append `/actions` for the runs view.
+                let prefix = url
+                    .split("/pull/")
+                    .next()
+                    .filter(|p| p.starts_with("https://github.com/"))?;
+                Some(format!("{prefix}/actions"))
+            });
+
             events.push(crate::templates::EventView {
                 id: format!("evt-feature-{}-wp-{}", feature.id, wp.id),
                 kind: "state_change".into(),
                 description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
                 timestamp: now.clone(),
-                agent_name: Some(format!("worker-agent-{}", i % 3)),
-                agent_link: Some(format!("/agents/worker-agent-{}", i % 3)),
+                agent_name: wp.agent_id.clone(),
+                agent_link,
                 wp_id: Some(wp.id.to_string()),
-                wp_link: Some(format!("/features/{}#wp-{}", feature.id, wp.id)),
-                commit_sha: if i % 2 == 0 {
-                    Some(format!("abc{:04}", i))
-                } else {
-                    None
-                },
-                commit_link: if i % 2 == 0 {
-                    Some(format!(
-                        "https://github.com/Phenotype/AgilePlus/commit/abc{:04}",
-                        i
-                    ))
-                } else {
-                    None
-                },
+                wp_link,
+                commit_sha,
+                commit_link,
                 ci_run_id: None,
-                ci_run_link: None,
+                ci_run_link,
             });
         }
     } else {

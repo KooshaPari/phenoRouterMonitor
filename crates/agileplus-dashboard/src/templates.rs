@@ -39,6 +39,12 @@ pub struct WpView {
     pub agent: String,
     pub progress: u8,
     pub task_count: usize,
+    /// Raw agent identifier, used to build agent deep-links.
+    pub agent_id: Option<String>,
+    /// GitHub PR URL when a PR has been submitted for this work package.
+    pub pr_url: Option<String>,
+    /// Most recent commit SHA on the work package branch.
+    pub head_commit: Option<String>,
 }
 
 impl WpView {
@@ -50,6 +56,9 @@ impl WpView {
             agent: wp.agent_id.clone().unwrap_or_else(|| "—".into()),
             progress: 0,
             task_count: 0,
+            agent_id: wp.agent_id.clone(),
+            pr_url: wp.pr_url.clone(),
+            head_commit: wp.head_commit.clone(),
         }
     }
 }
