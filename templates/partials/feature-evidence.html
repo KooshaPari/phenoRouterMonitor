@@ -110,14 +110,19 @@
 </div>
 
 <script>
+let _galleryImages = [];
+let _currentImageIndex = 0;
+
 function showLightbox(bundleId) {
   const lightbox = document.getElementById('evidence-lightbox');
   const elem = document.getElementById('evidence-' + bundleId);
   if (elem) {
-    const img = elem.querySelector('img');
+    const imgs = elem.querySelectorAll('img');
     const lightboxImg = document.getElementById('lightbox-image');
-    if (img) {
-      lightboxImg.src = img.src;
+    if (imgs.length > 0) {
+      _galleryImages = Array.from(imgs).map(i => i.src);
+      _currentImageIndex = 0;
+      lightboxImg.src = _galleryImages[0];
       lightbox.classList.remove('hidden');
     }
   }
@@ -126,14 +131,22 @@ function showLightbox(bundleId) {
 function hideLightbox() {
   const lightbox = document.getElementById('evidence-lightbox');
   lightbox.classList.add('hidden');
+  _galleryImages = [];
+  _currentImageIndex = 0;
 }
 
 function previousImage() {
-  console.log('Previous image');
+  if (_galleryImages.length > 0) {
+    _currentImageIndex = (_currentImageIndex - 1 + _galleryImages.length) % _galleryImages.length;
+    document.getElementById('lightbox-image').src = _galleryImages[_currentImageIndex];
+  }
 }
 
 function nextImage() {
-  console.log('Next image');
+  if (_galleryImages.length > 0) {
+    _currentImageIndex = (_currentImageIndex + 1) % _galleryImages.length;
+    document.getElementById('lightbox-image').src = _galleryImages[_currentImageIndex];
+  }
 }
 
 document.getElementById('evidence-lightbox')?.addEventListener('click', (e) => {

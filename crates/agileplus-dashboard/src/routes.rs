@@ -1058,6 +1058,106 @@ pub async fn stream_placeholder() -> StatusCode {
     StatusCode::NO_CONTENT
 }
 
+// ── /api/dashboard/services/:name/restart ────────────────────────────────
+
+pub async fn restart_service(Path(name): Path<String>) -> impl IntoResponse {
+    // TODO: wire to actual process/container restart logic (e.g. systemd, docker, process-compose)
+    axum::Json(serde_json::json!({ "status": "ok", "service": name }))
+}
+
+// ── /api/dashboard/services/:name/config  (PATCH) ────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct ServiceConfigForm {
+    pub endpoint_url: Option<String>,
+    pub timeout_ms: Option<u64>,
+    pub max_retries: Option<u32>,
+}
+
+pub async fn patch_service_config(
+    Path(name): Path<String>,
+    axum::Form(form): axum::Form<ServiceConfigForm>,
+) -> impl IntoResponse {
+    let mut config = Config::load().unwrap_or(Config {
+        plane: None,
+        agents: None,
+        services: None,
+        dashboard: None,
+    });
+
+    let services = config.services.get_or_insert_with(Vec::new);
+    if let Some(entry) = services.iter_mut().find(|s| s.name == name) {
+        if let Some(url) = form.endpoint_url.filter(|u| !u.trim().is_empty()) {
+            entry.endpoint_url = url;
+        }
+    } else if let Some(url) = form.endpoint_url.filter(|u| !u.trim().is_empty()) {
+        services.push(ServiceConfig { name: name.clone(), endpoint_url: url });
+    }
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: format!("Service '{}' configuration saved", name),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save: {}", e),
+            success: false,
+        }),
+    }
+}
+
+// ── /api/dashboard/services/:name/toggle (POST) ──────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct ServiceToggleBody {
+    pub enabled: Option<bool>,
+}
+
+pub async fn toggle_service(
+    Path(name): Path<String>,
+    axum::Json(body): axum::Json<ServiceToggleBody>,
+) -> impl IntoResponse {
+    // TODO: propagate enable/disable to process manager or config store
+    let enabled = body.enabled.unwrap_or(true);
+    axum::Json(serde_json::json!({ "status": "ok", "service": name, "enabled": enabled }))
+}
+
+// ── /api/settings/agents/test-connection (POST) ──────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct AgentTestConnectionForm {
+    pub provider: String,
+}
+
+pub async fn test_agent_connection(
+    axum::Form(form): axum::Form<AgentTestConnectionForm>,
+) -> impl IntoResponse {
+    // Provider reachability check: validate that required env vars are present.
+    let (ok, msg) = match form.provider.as_str() {
+        "claude" => {
+            let key = env_or_none("ANTHROPIC_API_KEY");
+            if key.is_some() {
+                (true, "Claude API key detected — connection likely valid".to_string())
+            } else {
+                (false, "ANTHROPIC_API_KEY not set".to_string())
+            }
+        }
+        "gemini" => {
+            let key = env_or_none("GEMINI_API_KEY").or_else(|| env_or_none("GOOGLE_API_KEY"));
+            if key.is_some() {
+                (true, "Gemini API key detected — connection likely valid".to_string())
+            } else {
+                (false, "GEMINI_API_KEY / GOOGLE_API_KEY not set".to_string())
+            }
+        }
+        "local" => (true, "Local provider requires no external credentials".to_string()),
+        other => (false, format!("Unknown provider: {}", other)),
+    };
+
+    let css = if ok { "text-green-400" } else { "text-red-400" };
+    Html(format!(r#"<span class="{}">{}</span>"#, css, msg)).into_response()
+}
+
 // ── Router builder ───────────────────────────────────────────────────────
 
 // ── Settings POST Handlers ─────────────────────────────────────────────────
@@ -1249,8 +1349,12 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/settings/plane", post(save_plane_settings))
         .route("/api/settings/plane/test", post(test_plane_connection))
         .route("/api/settings/agents", post(save_agent_settings))
+        .route("/api/settings/agents/test-connection", post(test_agent_connection))
         .route("/api/settings/dashboard", post(save_dashboard_settings))
         .route("/api/settings/services", post(save_services_settings))
+        .route("/api/dashboard/services/{name}/restart", post(restart_service))
+        .route("/api/dashboard/services/{name}/config", axum::routing::patch(patch_service_config))
+        .route("/api/dashboard/services/{name}/toggle", post(toggle_service))
         .route("/api/dashboard/kanban", get(kanban_board))
         .route("/api/dashboard/features/{id}", get(feature_detail))
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
