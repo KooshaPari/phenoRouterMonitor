@@ -20,9 +20,14 @@ These rules apply to **all commands** (specify, plan, research, tasks, implement
 - "WP01.md" (in which lane? which feature?)
 - "the spec" (which feature's spec?)
 
-**Why**: Clarity and precision prevent errors. Never refer to a folder by name alone.
+## Spec Management
 
----
+Use AgilePlus: `agileplus specify` and `agileplus status`
+
+Specs are stored in `.agileplus/specs/<feature-id>/`:
+- `.agileplus/specs/<feature-id>/spec.md` - feature description
+- `.agileplus/specs/<feature-id>/meta.json` - id, title, status
+- `.agileplus/specs/<feature-id>/tasks.md` - work packages
 
 ## 2. UTF-8 Encoding Rule
 
