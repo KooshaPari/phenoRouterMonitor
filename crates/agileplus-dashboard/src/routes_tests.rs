@@ -37,8 +37,8 @@ async fn plane_settings_page_renders() {
     let body = response.into_body();
     let bytes = to_bytes(body, usize::MAX).await.unwrap();
     let html = String::from_utf8(bytes.to_vec()).unwrap();
-    assert!(html.contains("Plane Native Surface"));
-    assert!(html.contains("Not configured"));
+    assert!(html.contains("Native Plane Views"));
+    assert!(html.contains("Browse Synced Features"));
 }
 
 #[tokio::test]
