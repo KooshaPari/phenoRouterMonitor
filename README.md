@@ -71,6 +71,97 @@ All proto changes are checked against `main` using `buf breaking`. Breaking chan
 2. Explicit documentation in the PR description
 3. Coordination with all downstream consumers
 
+## Running Plane.so + Dragonfly (OrbStack)
+
+AgilePlus ships two complementary approaches for running Plane.so and Dragonfly locally.
+Both require [OrbStack](https://orbstack.dev) as the container runtime (macOS).
+
+### Approach A — Native processes + OrbStack containers (default, recommended)
+
+This is the default `process-compose` stack. Dragonfly and PostgreSQL run as OrbStack
+containers; Plane.so API/worker/beat run as native Python processes; Plane web runs
+natively via Node. This gives fast file-watch reloads and easy breakpoint debugging.
+
+```bash
+# 1. One-time: bootstrap Plane sources and Python env
+bash scripts/setup-plane.sh
+
+# 2. Copy env template and fill in secrets
+cp .env.example .env
+# Set PLANE_SECRET_KEY to output of: openssl rand -hex 32
+
+# 3. Start full stack (OrbStack must be running)
+process-compose up
+
+# Services become available at:
+#   AgilePlus API  http://localhost:3000
+#   Plane.so web   http://localhost:3100
+#   Plane.so API   http://localhost:8000
+#   Dragonfly      redis://localhost:6379
+#   PostgreSQL     postgresql://agileplus:agileplus-dev@localhost:5432/plane
+#   NATS           nats://localhost:4222
+#   MinIO          http://localhost:9000 (console: :9001)
+#   Neo4j          bolt://localhost:7687 (browser: :7474)
+```
+
+The `orb-containers` process in `process-compose.yml` calls `scripts/orb-up.sh` which
+starts (or reuses) the `agileplus-dragonfly` and `agileplus-postgres` containers.
+All Plane processes depend on `orb-containers: process_healthy` before starting.
+
+### Approach B — Fully containerized (CI or no Python/Node runtime)
+
+Use `docker-compose.plane.yml` to run the entire Plane.so stack as OrbStack containers.
+This is useful for CI pipelines or environments where native Python/Node setup is not
+feasible.
+
+```bash
+# Start only the backing stores (Dragonfly + Postgres)
+docker compose -f docker-compose.plane.yml up dragonfly plane-db -d
+
+# Start the full containerized Plane stack
+docker compose -f docker-compose.plane.yml up -d
+
+# Health check
+redis-cli -p 6379 ping                              # expected: PONG
+pg_isready -h localhost -p 5432                     # expected: accepting connections
+curl -s http://localhost:8000/api/health | jq .     # expected: {"status":"ok"}
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3100/  # expected: 200
+
+# Tear down
+docker compose -f docker-compose.plane.yml down
+```
+
+### Container names and ports
+
+| Container | Image | Port |
+|-----------|-------|------|
+| `agileplus-dragonfly` | `dragonflydb/dragonfly:latest` | `6379` |
+| `agileplus-postgres` | `postgres:16-alpine` | `5432` |
+| `agileplus-plane-api` | `makeplane/plane-backend:stable` | `8000` |
+| `agileplus-plane-web` | `makeplane/plane-frontend:stable` | `3100` |
+| `agileplus-plane-worker` | `makeplane/plane-backend:stable` | — |
+| `agileplus-plane-beat` | `makeplane/plane-backend:stable` | — |
+
+### Troubleshooting
+
+```bash
+# Check OrbStack status
+orb status
+
+# Inspect running containers
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Dragonfly memory/stats
+redis-cli -p 6379 info memory | grep used_memory_human
+
+# Follow process-compose logs for a specific service
+process-compose logs -f plane-api
+process-compose logs -f orb-containers
+
+# Restart a single container without disrupting the stack
+docker restart agileplus-dragonfly
+```
+
 ## Contributing
 
 1. Edit code or proto files as needed.
