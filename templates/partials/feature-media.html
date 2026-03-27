@@ -11,12 +11,12 @@
     <div class="media-card-image-container aspect-video relative overflow-hidden">
       <button type="button"
               class="w-full h-full block group-hover:scale-105 transition-transform duration-300"
-              data-media-src="{{ media.url_or_path }}"
+              data-media-url="{{ media.url_or_path }}"
               data-media-name="{{ media.name }}"
               data-media-type="{{ media.kind }}"
-              @click="openMedia($el.dataset.mediaSrc, $el.dataset.mediaName, $el.dataset.mediaType)"
+              onclick="window.__AgilePlusLightbox && window.__AgilePlusLightbox.show(this.dataset.mediaUrl, this.dataset.mediaName, this.dataset.mediaType)"
               aria-label="Open {{ media.name }}">
-        {% if media.kind == "video" %}
+        {% if media.kind == 'video' %}
           <div class="absolute inset-0 flex items-center justify-center bg-black/40 z-10 group-hover:bg-black/20 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-white/80 group-hover:text-white transition-all transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -47,14 +47,6 @@
       </div>
       <div class="mt-1 flex items-center gap-2 text-[10px] text-zinc-500 font-medium">
         <span>Source: {{ media.source }}</span>
-        <span class="text-zinc-700">•</span>
-        <span>
-          {% if media.size_bytes > 0 %}
-            {{ media.size_bytes / 1024 }} KB
-          {% else %}
-            Size unknown
-          {% endif %}
-        </span>
       </div>
       <p class="mt-2 text-[10px] font-mono text-zinc-500 truncate opacity-60 hover:opacity-100 transition-opacity">{{ media.url_or_path }}</p>
     </div>
