@@ -324,6 +324,22 @@ pub struct ProjectSwitcherPartial {
     pub active_id: Option<i64>,
 }
 
+#[derive(Debug, Clone)]
+pub struct EcosystemProject {
+    pub name: &'static str,
+    pub tagline: &'static str,
+    pub stack: &'static str,
+    pub port: Option<u16>,
+    pub github: &'static str,
+    pub category: &'static str,
+}
+
+#[derive(Template)]
+#[template(path = "pages/hub.html")]
+pub struct HubPage {
+    pub projects: Vec<EcosystemProject>,
+}
+
 /// Helper: build ordered kanban states list.
 pub fn all_feature_states() -> Vec<String> {
     vec![

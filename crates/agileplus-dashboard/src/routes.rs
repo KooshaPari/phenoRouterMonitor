@@ -23,11 +23,12 @@ use agileplus_domain::domain::{
 use crate::app_state::SharedState;
 use crate::process_detector;
 use crate::templates::{
-    AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EventTimelinePartial,
-    EventsPage, EvidenceBundleView, FeatureDetailPage, FeatureView, FeaturesPage,
-    HealthPanelPartial, HomePage, KanbanPartial, MediaAssetView, PlaneHealthEndpointView,
-    PlaneSettingsPage, ProjectSummaryView, ProjectSwitcherPartial, ProjectView, ReportArtifactView,
-    ServicesSettingsPage, SettingsPage, ToastPartial, WpListPartial, WpView, all_feature_states,
+    AgentActivityPartial, AgentSettingsPage, AgentView, DashboardPage, EcosystemProject,
+    EventTimelinePartial, EventsPage, EvidenceBundleView, FeatureDetailPage, FeatureView,
+    FeaturesPage, HealthPanelPartial, HomePage, HubPage, KanbanPartial, MediaAssetView,
+    PlaneHealthEndpointView, PlaneSettingsPage, ProjectSummaryView, ProjectSwitcherPartial,
+    ProjectView, ReportArtifactView, ServicesSettingsPage, SettingsPage, ToastPartial,
+    WpListPartial, WpView, all_feature_states,
 };
 
 use serde::{Deserialize, Serialize};
@@ -970,6 +971,23 @@ pub async fn services_settings_page(State(state): State<SharedState>) -> Respons
     })
 }
 
+// ── /hub ─────────────────────────────────────────────────────────────────
+
+pub async fn hub_page() -> Response {
+    let projects = vec![
+        EcosystemProject { name: "phenodocs",            tagline: "Ecosystem docs hub",           stack: "TypeScript · Vue",    port: Some(4100), github: "https://github.com/KooshaPari/phenodocs",             category: "docs" },
+        EcosystemProject { name: "AgilePlus",            tagline: "Spec-driven PM platform",      stack: "Rust · Tauri",        port: Some(4101), github: "https://github.com/KooshaPari/AgilePlus",             category: "app"  },
+        EcosystemProject { name: "heliosApp",            tagline: "TypeScript runtime app",       stack: "TypeScript · Bun",    port: Some(4102), github: "https://github.com/KooshaPari/heliosApp",             category: "app"  },
+        EcosystemProject { name: "thegent",              tagline: "Agent framework",              stack: "TypeScript · Python", port: Some(4103), github: "https://github.com/KooshaPari/thegent",               category: "lib"  },
+        EcosystemProject { name: "bifrost-extensions",  tagline: "LLM gateway extensions",       stack: "Go",                  port: Some(4104), github: "https://github.com/KooshaPari/bifrost-extensions",    category: "lib"  },
+        EcosystemProject { name: "civ",                  tagline: "CI validation",                stack: "TypeScript",          port: Some(4105), github: "https://github.com/KooshaPari/civ",                   category: "docs" },
+        EcosystemProject { name: "TraceRTM",             tagline: "Requirements traceability",    stack: "Python · Go · TS",    port: Some(4110), github: "https://github.com/KooshaPari/trace",                 category: "app"  },
+        EcosystemProject { name: "agentapi-plusplus",    tagline: "Agent HTTP API",               stack: "Go",                  port: None,       github: "https://github.com/KooshaPari/agentapi-plusplus",     category: "api"  },
+        EcosystemProject { name: "cliproxyapi-plusplus", tagline: "Multi-provider CLI proxy",     stack: "Go",                  port: None,       github: "https://github.com/KooshaPari/cliproxyapi-plusplus",  category: "api"  },
+    ];
+    render(HubPage { projects })
+}
+
 // ── /api/time ────────────────────────────────────────────────────────────
 
 pub async fn time_footer() -> Html<String> {
@@ -1202,6 +1220,7 @@ pub fn router(state: SharedState) -> Router {
         .route("/settings/services", get(services_settings_page))
         .route("/api/settings/services", post(save_services_settings))
         .route("/api/settings/services/test", post(test_service_connection))
+        .route("/hub", get(hub_page))
         .route("/api/settings/plane", post(save_plane_settings))
         .route("/api/settings/plane/test", post(test_plane_connection))
         .route("/api/settings/agents", post(save_agent_settings))
