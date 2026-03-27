@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -33,10 +33,12 @@ jobs:
           enablement: true
 
       - name: Install dependencies
+        working-directory: docs
         run: bun install --frozen-lockfile
 
       - name: Build VitePress site
-        run: bun run build
+        working-directory: docs
+        run: bun run docs:build
         env:
           GITHUB_PAGES: "true"
 
