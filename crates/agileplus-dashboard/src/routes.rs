@@ -140,6 +140,7 @@ pub struct DashboardSettingsForm {
     pub data_directory: String,
 }
 
+
 /// Returns `true` if the `HX-Request` header is present and truthy.
 fn is_htmx(headers: &HeaderMap) -> bool {
     headers
@@ -1225,6 +1226,7 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/settings/plane/test", post(test_plane_connection))
         .route("/api/settings/agents", post(save_agent_settings))
         .route("/api/settings/dashboard", post(save_dashboard_settings))
+        .route("/api/settings/services", post(save_services_settings))
         .route("/api/dashboard/kanban", get(kanban_board))
         .route("/api/dashboard/features/{id}", get(feature_detail))
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))

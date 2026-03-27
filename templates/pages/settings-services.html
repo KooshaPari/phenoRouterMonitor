@@ -75,6 +75,12 @@
               Test Connection
             </button>
           </div>
+          {% if let Some(latency) = svc.latency_ms %}
+            <div class="text-right">
+              <div class="text-xs text-zinc-500">Latency</div>
+              <div class="font-mono text-sm text-zinc-300">{{ latency }}ms</div>
+            </div>
+          {% endif %}
         </div>
       {% endfor %}
     </div>
@@ -89,50 +95,105 @@
     </div>
   </form>
 
-  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
-    <h2 class="font-bold text-zinc-100 text-lg">Service Architecture</h2>
-
-    <div class="grid gap-3 text-sm">
-      <div class="flex items-start gap-3">
-        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
-        <div>
-          <p class="font-medium text-zinc-200">NATS</p>
-          <p class="text-zinc-400 text-xs mt-0.5">Message broker for inter-service communication</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3">
-        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
-        <div>
-          <p class="font-medium text-zinc-200">Dragonfly</p>
-          <p class="text-zinc-400 text-xs mt-0.5">In-memory cache and session store</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3">
-        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
-        <div>
-          <p class="font-medium text-zinc-200">Neo4j</p>
-          <p class="text-zinc-400 text-xs mt-0.5">Graph database for feature relationships</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3">
-        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
-        <div>
-          <p class="font-medium text-zinc-200">MinIO</p>
-          <p class="text-zinc-400 text-xs mt-0.5">S3-compatible object storage</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3">
-        <div class="w-2 h-2 bg-blue-400 rounded-full mt-1.5 flex-shrink-0"></div>
-        <div>
-          <p class="font-medium text-zinc-200">PostgreSQL</p>
-          <p class="text-zinc-400 text-xs mt-0.5">Primary data store for features and work packages</p>
-        </div>
-      </div>
+  <!-- URL Configuration form -->
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-5">
+    <div class="border-b border-zinc-700 pb-3">
+      <h2 class="font-bold text-zinc-100 text-lg">Connection URLs</h2>
+      <p class="text-xs text-zinc-400 mt-1">Override default connection endpoints. Leave blank to use environment defaults.</p>
     </div>
+
+    <form hx-post="/api/settings/services" hx-swap="none" class="space-y-4">
+      <!-- NATS -->
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-zinc-300" for="nats_url">
+          NATS URL
+          <span class="text-xs text-zinc-500 font-normal ml-1">(message broker)</span>
+        </label>
+        <input
+          id="nats_url"
+          type="text"
+          name="nats_url"
+          placeholder="nats://localhost:4222"
+          class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 font-mono text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Neo4j -->
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-zinc-300" for="neo4j_url">
+          Neo4j Bolt URL
+          <span class="text-xs text-zinc-500 font-normal ml-1">(graph database)</span>
+        </label>
+        <input
+          id="neo4j_url"
+          type="text"
+          name="neo4j_url"
+          placeholder="bolt://localhost:7687"
+          class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 font-mono text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- MinIO -->
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-zinc-300" for="minio_url">
+          MinIO Endpoint
+          <span class="text-xs text-zinc-500 font-normal ml-1">(object storage)</span>
+        </label>
+        <input
+          id="minio_url"
+          type="text"
+          name="minio_url"
+          placeholder="http://localhost:9000"
+          class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 font-mono text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- PostgreSQL -->
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-zinc-300" for="postgres_url">
+          PostgreSQL URL
+          <span class="text-xs text-zinc-500 font-normal ml-1">(primary data store)</span>
+        </label>
+        <input
+          id="postgres_url"
+          type="text"
+          name="postgres_url"
+          placeholder="postgres://agileplus:password@localhost:5432/agileplus"
+          class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 font-mono text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Dragonfly / Redis -->
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-zinc-300" for="dragonfly_url">
+          Dragonfly / Redis URL
+          <span class="text-xs text-zinc-500 font-normal ml-1">(cache and session store)</span>
+        </label>
+        <input
+          id="dragonfly_url"
+          type="text"
+          name="dragonfly_url"
+          placeholder="redis://localhost:6379"
+          class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 font-mono text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button
+          type="submit"
+          hx-indicator="#svc-save-indicator"
+          class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition"
+        >
+          Save Endpoints
+        </button>
+        <span id="svc-save-indicator" class="htmx-request:inline-block hidden text-zinc-400 text-xs">Saving...</span>
+      </div>
+    </form>
+
+    <p class="text-xs text-zinc-600">
+      Settings persist to <code class="font-mono bg-zinc-700 px-1.5 py-0.5 rounded">~/.agileplus/config.toml</code>.
+      Environment variables (<code class="font-mono bg-zinc-700 px-1.5 py-0.5 rounded">NATS_URL</code>, <code class="font-mono bg-zinc-700 px-1.5 py-0.5 rounded">NEO4J_URL</code>, etc.) always take precedence.
+    </p>
   </section>
 </div>
 {% endblock %}
