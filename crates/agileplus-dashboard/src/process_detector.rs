@@ -95,10 +95,8 @@ fn extract_worktree_from_cmdline(cmdline: &str) -> Option<String> {
     // Look for common patterns like --cwd or -C followed by a path
     let parts: Vec<&str> = cmdline.split_whitespace().collect();
     for i in 0..parts.len() {
-        if parts[i] == "--cwd" || parts[i] == "-C" {
-            if i + 1 < parts.len() {
-                return Some(parts[i + 1].to_string());
-            }
+        if (parts[i] == "--cwd" || parts[i] == "-C") && i + 1 < parts.len() {
+            return Some(parts[i + 1].to_string());
         }
     }
     None
@@ -145,7 +143,7 @@ fn format_agent_name(process_name: &str, worktree: &Option<String>) -> String {
 
     if let Some(wt) = worktree {
         // Extract just the project name from the worktree path
-        if let Some(last_segment) = wt.split('/').last() {
+        if let Some(last_segment) = wt.split('/').next_back() {
             return format!("{}-{}", base_name, last_segment);
         }
     }

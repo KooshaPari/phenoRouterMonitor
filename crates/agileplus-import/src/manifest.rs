@@ -11,11 +11,24 @@ use agileplus_domain::domain::{
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ImportBundle {
     #[serde(default)]
+    pub projects: Vec<ImportProject>,
+    #[serde(default)]
     pub modules: Vec<ImportModule>,
     #[serde(default)]
     pub features: Vec<ImportFeature>,
     #[serde(default)]
     pub cycles: Vec<ImportCycle>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ImportProject {
+    #[serde(default)]
+    pub slug: Option<String>,
+    pub name: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub features: Vec<ImportFeature>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

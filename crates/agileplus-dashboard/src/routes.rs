@@ -761,7 +761,7 @@ pub async fn agent_activity(State(state): State<SharedState>) -> Response {
             let worktree_label = agent
                 .worktree
                 .as_deref()
-                .and_then(|wt| wt.split('/').last())
+                .and_then(|wt| wt.split('/').next_back())
                 .unwrap_or("")
                 .to_string();
             let worktree = agent.worktree.unwrap_or_default();

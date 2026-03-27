@@ -8,6 +8,7 @@ use crate::domain::feature::Feature;
 use crate::domain::governance::{Evidence, GovernanceContract, PolicyRule};
 use crate::domain::metric::Metric;
 use crate::domain::module::{Module, ModuleFeatureTag, ModuleWithFeatures};
+use crate::domain::project::Project;
 use crate::domain::state_machine::FeatureState;
 use crate::domain::sync_mapping::SyncMapping;
 use crate::domain::work_package::{WorkPackage, WpDependency, WpState};
@@ -272,4 +273,18 @@ pub trait StoragePort: Send + Sync {
         entity_type: &str,
         entity_id: i64,
     ) -> impl std::future::Future<Output = Result<(), DomainError>> + Send;
+
+    // -- Project CRUD --
+
+    /// Create a new project, returning its assigned ID.
+    fn create_project(
+        &self,
+        project: &Project,
+    ) -> impl std::future::Future<Output = Result<i64, DomainError>> + Send;
+
+    /// Look up a project by its slug. Returns None if not found.
+    fn get_project_by_slug(
+        &self,
+        slug: &str,
+    ) -> impl std::future::Future<Output = Result<Option<Project>, DomainError>> + Send;
 }

@@ -7,6 +7,8 @@ mod manifest;
 mod report;
 
 pub use importer::import_bundle;
-pub use manifest::{ImportBundle, ImportCycle, ImportFeature, ImportModule, ImportWorkPackage};
+pub use manifest::{
+    ImportBundle, ImportCycle, ImportFeature, ImportModule, ImportProject, ImportWorkPackage,
+};
 pub use report::ImportReport;
 

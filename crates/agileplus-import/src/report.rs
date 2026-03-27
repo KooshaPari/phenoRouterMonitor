@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ImportReport {
+    pub projects_created: usize,
+    pub projects_updated: usize,
     pub modules_created: usize,
     pub modules_updated: usize,
     pub features_created: usize,

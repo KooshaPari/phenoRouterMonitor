@@ -32,10 +32,11 @@ use agileplus_domain::domain::event::Event;
 use agileplus_events::{EventError, EventStore};
 
 use crate::migrations::MigrationRunner;
+use agileplus_domain::domain::project::Project;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 
 use crate::repository::{
-    audit, backlog, cycles, events, evidence, features, governance, metrics, modules,
+    audit, backlog, cycles, events, evidence, features, governance, metrics, modules, projects,
     sync_mappings, work_packages,
 };
 
@@ -406,6 +407,16 @@ impl StoragePort for SqliteStorageAdapter {
     ) -> Result<(), DomainError> {
         let conn = self.lock()?;
         sync_mappings::delete_sync_mapping(&conn, entity_type, entity_id)
+    }
+
+    async fn create_project(&self, project: &Project) -> Result<i64, DomainError> {
+        let conn = self.lock()?;
+        projects::create_project(&conn, project)
+    }
+
+    async fn get_project_by_slug(&self, slug: &str) -> Result<Option<Project>, DomainError> {
+        let conn = self.lock()?;
+        projects::get_project_by_slug(&conn, slug)
     }
 }
 
