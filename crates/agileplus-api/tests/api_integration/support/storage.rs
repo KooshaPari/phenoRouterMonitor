@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
+use agileplus_domain::domain::project::Project;
 use agileplus_domain::domain::backlog::BacklogItem;
 use agileplus_domain::domain::cycle::{Cycle, CycleFeature};
 use agileplus_domain::domain::feature::Feature;
@@ -21,6 +22,7 @@ pub(crate) struct MockStorage {
     pub(crate) cycle_features: Arc<Mutex<Vec<CycleFeature>>>,
     pub(crate) governance: Arc<Mutex<Vec<GovernanceContract>>>,
     pub(crate) audit: Arc<Mutex<Vec<AuditEntry>>>,
+    pub(crate) projects: Arc<Mutex<Vec<Project>>>,
 }
 
 impl MockStorage {

@@ -5,6 +5,7 @@ use agileplus_domain::domain::cycle::{Cycle, CycleFeature, CycleState, CycleWith
 use agileplus_domain::domain::governance::{Evidence, GovernanceContract, PolicyRule};
 use agileplus_domain::domain::metric::Metric;
 use agileplus_domain::domain::module::{Module, ModuleFeatureTag, ModuleWithFeatures};
+use agileplus_domain::domain::project::Project;
 use agileplus_domain::domain::sync_mapping::SyncMapping;
 use agileplus_domain::error::DomainError;
 use agileplus_domain::ports::storage::StoragePort;
@@ -272,4 +273,31 @@ impl StoragePort for MockStorage {
     ) -> impl Future<Output = Result<(), DomainError>> + Send {
         sync_mapping::delete_sync_mapping(self, entity_type, entity_id)
     }
+
+    fn create_project(
+        &self,
+        project: &Project,
+    ) -> impl Future<Output = Result<i64, DomainError>> + Send {
+        let mut projects = self.projects.lock().expect("projects lock poisoned");
+        let id = (projects.len() as i64) + 1;
+        let mut p = project.clone();
+        p.id = id;
+        projects.push(p);
+        async move { Ok(id) }
+    }
+
+    fn get_project_by_slug(
+        &self,
+        slug: &str,
+    ) -> impl Future<Output = Result<Option<Project>, DomainError>> + Send {
+        let found = self
+            .projects
+            .lock()
+            .expect("projects lock poisoned")
+            .iter()
+            .find(|p| p.slug == slug)
+            .cloned();
+        async move { Ok(found) }
+    }
+
 }

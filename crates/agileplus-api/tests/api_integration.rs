@@ -474,6 +474,20 @@ impl StoragePort for MockStorage {
     ) -> Result<(), DomainError> {
         Ok(())
     }
+
+    async fn create_project(
+        &self,
+        _project: &agileplus_domain::domain::project::Project,
+    ) -> Result<i64, DomainError> {
+        Ok(1)
+    }
+
+    async fn get_project_by_slug(
+        &self,
+        _slug: &str,
+    ) -> Result<Option<agileplus_domain::domain::project::Project>, DomainError> {
+        Ok(None)
+    }
 }
 
 // ── ContentStoragePort for MockStorage ───────────────────────────────────────
