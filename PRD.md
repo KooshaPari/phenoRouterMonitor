@@ -151,6 +151,26 @@ As a domain modeler, I want base traits for `Entity`, `ValueObject`, and `Aggreg
 
 ---
 
+## E5: State Machine (`phenotype-state-machine`)
+
+**Goal**: Generic forward-only finite state machine with guard callbacks and full transition history.
+
+### E5.1: Typed Forward-Only FSM
+
+As a service developer, I want a `StateMachine<S>` where `S` is the state enum so workflow state is enforced with forward-only transitions and domain-specific guard callbacks.
+
+**Acceptance criteria**:
+- `StateMachine::new(initial_state: S)` constructs a machine in the given state.
+- `add_transition(from, trigger, to, guard, action)` registers a transition; `guard` is `Option<fn(&Context) -> bool>`.
+- `transition(trigger, context)` returns `Ok(new_state)` or `Err(StateMachineError::InvalidTransition)`.
+- Transitions to states with a lower ordinal value than the current state are rejected (forward-only enforcement).
+- Guard callbacks are evaluated before the transition is applied; a failing guard is treated as a non-matching transition, not an error.
+- `current_state()` returns the current state by reference.
+- Full transition history is maintained for audit and replay.
+- An optional skip-state configuration allows specific non-sequential advances that are explicitly declared.
+
+---
+
 ## Non-Functional Requirements
 
 | ID | Requirement |
