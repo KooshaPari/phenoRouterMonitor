@@ -1,3 +1,3 @@
-# 概覽
+# AgilePlus
 
-`phenotype-infrakit` 的文件入口。
+Docs site locale stub for `zh-TW`.

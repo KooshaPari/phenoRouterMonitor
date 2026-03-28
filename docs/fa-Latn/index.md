@@ -1,3 +1,3 @@
-# Namay-e Koli
+# AgilePlus
 
-`phenotype-infrakit` darvaze-ye mostanadat ast.
+Docs site locale stub for `fa-Latn`.

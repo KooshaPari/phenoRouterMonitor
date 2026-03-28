@@ -1,3 +1,3 @@
-# نمای کلی
+# AgilePlus
 
-`phenotype-infrakit` درگاه مستندات است.
+Docs site locale stub for `fa`.
