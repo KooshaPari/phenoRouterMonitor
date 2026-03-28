@@ -204,3 +204,24 @@ tasks:
       - cargo clean --release
       - rm -rf target/
       - rm -rf .ruff_cache
+
+  # === Short aliases for dev stack operations ===
+  up:
+    desc: "Alias: start the full dev stack (process-compose up)"
+    cmds:
+      - task: dev:up
+
+  down:
+    desc: "Alias: stop all dev stack services (process-compose down)"
+    cmds:
+      - task: dev:down
+
+  logs:
+    desc: "Alias: tail logs for all dev stack services (process-compose logs)"
+    cmds:
+      - task: dev:logs
+
+  status:
+    desc: "Alias: show dev stack service health (process-compose list)"
+    cmds:
+      - task: dev:status
