@@ -1,27 +1,14 @@
-import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-const isPagesBuild = process.env.GITHUB_ACTIONS === 'true' || process.env.GITHUB_PAGES === 'true'
-const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'phenotype-infrakit'
-const docsBase = isPagesBuild ? `/${repoName}/` : '/'
-
-export default defineConfig({
+export default withMermaid({
   title: 'phenotype-infrakit',
-  description: 'Rust infrastructure toolkit for event sourcing, caching, policy, and state machines',
-  lang: 'en-US',
-  base: docsBase,
+  description: 'Rust infrastructure toolkit: event sourcing, caching, policy evaluation, and state machine crates.',
+  appearance: 'dark',
   lastUpdated: true,
-  cleanUrls: true,
   themeConfig: {
-    siteTitle: 'phenotype-infrakit',
-    nav: [{ text: 'Guide', link: '/guide/' }],
-    sidebar: {
-      '/guide/': [
-        { text: 'Guide', items: [{ text: 'Getting Started', link: '/guide/' }] }
-      ]
-    },
-    socialLinks: [{ icon: 'github', link: `https://github.com/KooshaPari/${repoName}` }],
-    search: { provider: 'local' }
+    nav: [{ text: 'Home', link: '/' }],
+    sidebar: [],
+    search: { provider: 'local' },
   },
-  markdown: { lineNumbers: true },
-  ignoreDeadLinks: true
+  mermaid: { theme: 'dark' },
 })
