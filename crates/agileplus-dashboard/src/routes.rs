@@ -1848,7 +1848,8 @@ pub fn router(state: SharedState) -> Router {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use tower::util::ServiceExt;
+        use super::*;
     use crate::app_state::{DashboardStore, default_health};
     use crate::templates::{AgentActivityPartial, AgentView, EventTimelinePartial};
     use std::sync::Arc;
