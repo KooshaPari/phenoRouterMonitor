@@ -139,15 +139,15 @@ This work package implements the `pheno bootstrap` command to automate DX scaffo
      - `files/release.yml.tpl` (see T054)
      - `files/cliff.toml.tpl` (see T055)
   3. Implement template variable substitution:
-     - `{{ .RepoName }}` → package name or directory name
-     - `{{ .Language }}` → detected language
-     - `{{ .Registry }}` → auto-detected or configured (npm, pypi, crates)
-     - `{{ .RiskProfile }}` → from --risk-profile flag
-     - `{{ .Author }}` → from git config or env
-     - `{{ .Email }}` → from git config or env
+    - `\{\{ .RepoName \}\}` → package name or directory name
+    - `\{\{ .Language \}\}` → detected language
+    - `\{\{ .Registry \}\}` → auto-detected or configured (npm, pypi, crates)
+    - `\{\{ .RiskProfile \}\}` → from --risk-profile flag
+    - `\{\{ .Author \}\}` → from git config or env
+    - `\{\{ .Email \}\}` → from git config or env
   4. Template functions for common operations:
-     - `{{ upper .Language }}` → uppercase language name
-     - `{{ eq .Language "go" }}` → conditional rendering per language
+    - `\{\{ upper .Language \}\}` → uppercase language name
+    - `\{\{ eq .Language "go" \}\}` → conditional rendering per language
   5. Error handling: wrap template errors with file name and context
 
 - **Files**: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus/internal/templates/templates.go`, `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus/internal/templates/files/*.tpl`
@@ -158,76 +158,76 @@ This work package implements the `pheno bootstrap` command to automate DX scaffo
 - **Purpose**: Generate language-specific mise task definitions
 - **Steps**:
   1. Create `internal/templates/files/mise.toml.tpl` with common tasks:
-     ```toml
-     [tasks.format]
-     description = "Format code"
-     {{- if eq .Language "go" }}
-     run = "gofmt -w ."
-     {{- else if eq .Language "rust" }}
-     run = "cargo fmt"
-     {{- else if eq .Language "python" }}
-     run = "ruff format ."
-     {{- else if eq .Language "typescript" }}
-     run = "prettier --write ."
-     {{- end }}
+<pre v-pre><code class="language-gotemplate">
+{{- if eq .Language "go" }}
+run = "gofmt -w ."
+{{- else if eq .Language "rust" }}
+run = "cargo fmt"
+{{- else if eq .Language "python" }}
+run = "ruff format ."
+{{- else if eq .Language "typescript" }}
+run = "prettier --write ."
+{{- end }}
 
-     [tasks.lint]
-     description = "Lint code"
-     {{- if eq .Language "go" }}
-     run = "golangci-lint run"
-     {{- else if eq .Language "rust" }}
-     run = "cargo clippy -- -D warnings"
-     {{- else if eq .Language "python" }}
-     run = "ruff check ."
-     {{- else if eq .Language "typescript" }}
-     run = "eslint ."
-     {{- end }}
+[tasks.lint]
+description = "Lint code"
+{{- if eq .Language "go" }}
+run = "golangci-lint run"
+{{- else if eq .Language "rust" }}
+run = "cargo clippy -- -D warnings"
+{{- else if eq .Language "python" }}
+run = "ruff check ."
+{{- else if eq .Language "typescript" }}
+run = "eslint ."
+{{- end }}
 
-     [tasks.test]
-     description = "Run unit tests"
-     {{- if eq .Language "go" }}
-     run = "go test ./..."
-     {{- else if eq .Language "rust" }}
-     run = "cargo test"
-     {{- else if eq .Language "python" }}
-     run = "pytest"
-     {{- else if eq .Language "typescript" }}
-     run = "vitest run"
-     {{- end }}
+[tasks.test]
+description = "Run unit tests"
+{{- if eq .Language "go" }}
+run = "go test ./..."
+{{- else if eq .Language "rust" }}
+run = "cargo test"
+{{- else if eq .Language "python" }}
+run = "pytest"
+{{- else if eq .Language "typescript" }}
+run = "vitest run"
+{{- end }}
 
-     [tasks.build]
-     description = "Build package"
-     {{- if eq .Language "go" }}
-     run = "go build ./..."
-     {{- else if eq .Language "rust" }}
-     run = "cargo build --release"
-     {{- else if eq .Language "python" }}
-     run = "python -m build"
-     {{- else if eq .Language "typescript" }}
-     run = "tsc"
-     {{- end }}
+[tasks.build]
+description = "Build package"
+{{- if eq .Language "go" }}
+run = "go build ./..."
+{{- else if eq .Language "rust" }}
+run = "cargo build --release"
+{{- else if eq .Language "python" }}
+run = "python -m build"
+{{- else if eq .Language "typescript" }}
+run = "tsc"
+{{- end }}
 
-     {{- if or (eq .Language "python") (eq .Language "typescript") }}
-     [tasks."test:integration"]
-     description = "Run integration tests"
-     {{- if eq .Language "python" }}
-     run = "pytest tests/integration"
-     {{- else if eq .Language "typescript" }}
-     run = "vitest run tests/integration"
-     {{- end }}
+{{- if or (eq .Language "python") (eq .Language "typescript") }}
+[tasks."test:integration"]
+description = "Run integration tests"
+{{- if eq .Language "python" }}
+run = "pytest tests/integration"
+{{- else if eq .Language "typescript" }}
+run = "vitest run tests/integration"
+{{- end }}
 
-     [tasks.audit]
-     description = "Security audit"
-     {{- if eq .Language "python" }}
-     run = "bandit -r . || true"
-     {{- else if eq .Language "typescript" }}
-     run = "npm audit --audit-level=moderate || true"
-     {{- end }}
-     {{- end }}
+[tasks.audit]
+description = "Security audit"
+{{- if eq .Language "python" }}
+run = "bandit -r . || true"
+{{- else if eq .Language "typescript" }}
+run = "npm audit --audit-level=moderate || true"
+{{- end }}
+{{- end }}
 
-     {{- if eq .Language "rust" }}
-     [tasks."test:integration"]
-     description = "Run integration tests"
+{{- if eq .Language "rust" }}
+[tasks."test:integration"]
+description = "Run integration tests"
+</code></pre>
+```
      run = "cargo test --test '*' --release"
 
      [tasks.audit]
@@ -401,9 +401,9 @@ This work package implements the `pheno bootstrap` command to automate DX scaffo
            - uses: actions/checkout@v4
            - uses: KooshaPari/phenotypeActions/.github/workflows/gate-check.yml@v1
              with:
-               language: {{ .Language }}
-               channel: alpha
-               risk_profile: {{ .RiskProfile }}
+              language: \{\{ .Language \}\}
+              channel: alpha
+              risk_profile: \{\{ .RiskProfile \}\}
              secrets: inherit
      ```
   2. Create `internal/templates/files/release.yml.tpl`:
@@ -423,12 +423,12 @@ This work package implements the `pheno bootstrap` command to automate DX scaffo
            - uses: actions/checkout@v4
            - uses: KooshaPari/phenotypeActions/.github/workflows/promote.yml@v1
              with:
-               language: {{ .Language }}
-               registry: {{ .Registry }}
+               language: \{\{ .Language \}\}
+               registry: \{\{ .Registry \}\}
                from_channel: alpha
                to_channel: beta
-               risk_profile: {{ .RiskProfile }}
-               version: ${{ github.ref_name }}
+               risk_profile: \{\{ .RiskProfile \}\}
+               version: \${{ github.ref_name }}
              secrets: inherit
 
        changelog:
@@ -439,7 +439,7 @@ This work package implements the `pheno bootstrap` command to automate DX scaffo
            - uses: actions/checkout@v4
            - uses: KooshaPari/phenotypeActions/.github/workflows/changelog.yml@v1
              with:
-               version: ${{ github.ref_name }}
+               version: \${{ github.ref_name }}
      ```
   3. Ensure workflows reference correct phenotypeActions workflows (from WP10)
   4. Support language variable substitution
