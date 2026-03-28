@@ -226,6 +226,12 @@
       "uncommitted_count": 0,
       "recent_commits": [
         {
+          "sha": "cb38ad9170859ac52cd5b4c728de853bbe0ee19d",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:28:39"
+        },
+        {
           "sha": "27e56cad7b55303262b1ef24894cbda908011f52",
           "message": "chore: sync",
           "author": "Claude Code",
@@ -248,12 +254,6 @@
           "message": "chore: sync",
           "author": "Claude Code",
           "date": "2026-03-28 01:56:02"
-        },
-        {
-          "sha": "a74671d11735b38bb46c88d13c152a12f6a62d97",
-          "message": "chore: update docs and configs",
-          "author": "Claude Code",
-          "date": "2026-03-28 01:53:15"
         }
       ],
       "tracking_files": [],
@@ -267,15 +267,21 @@
       "spec_phases": {},
       "has_agents_md": true,
       "branches": [
-        "(HEAD detached from 5bd1f21)",
         "agentops/policy-federation-rollout",
         "chore/add-vitepress",
+        "docs-site-completion",
         "origin",
         "origin/agentops/policy-federation-rollout"
       ],
-      "current_branch": "HEAD",
-      "uncommitted_count": 10,
+      "current_branch": "docs-site-completion",
+      "uncommitted_count": 0,
       "recent_commits": [
+        {
+          "sha": "5d9026692b52e6cd7770028768c8031deaefb133",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:28:39"
+        },
         {
           "sha": "6e78411820190bac50e4849b125de2567d67aa7c",
           "message": "chore: sync",
@@ -648,7 +654,7 @@
         "origin/v2"
       ],
       "current_branch": "main",
-      "uncommitted_count": 8,
+      "uncommitted_count": 9,
       "recent_commits": [
         {
           "sha": "8f8d3ffb554c5903692eab1505bf1fd5c8ea1f06",
@@ -852,7 +858,6 @@
       "spec_phases": {},
       "has_agents_md": true,
       "branches": [
-        "(HEAD detached at 2378385)",
         "chore/add-taskfile",
         "chore/add-worktrees-gitignore",
         "chore/claude-md-agileplus-governance",
@@ -872,7 +877,7 @@
         "origin/fix/stabilize",
         "origin/main"
       ],
-      "current_branch": "HEAD",
+      "current_branch": "main",
       "uncommitted_count": 0,
       "recent_commits": [
         {
@@ -917,7 +922,6 @@
       "spec_phases": {},
       "has_agents_md": true,
       "branches": [
-        "(HEAD detached from 64f2cb8e5)",
         "chore/migrate-kitty-specs-to-agileplus",
         "chore/remove-duplicated-governance-blocks",
         "chore/spec-docs",
@@ -1007,38 +1011,38 @@
         "origin/wave2-lane-a-docs-unification",
         "origin/wip/codex-rs-core"
       ],
-      "current_branch": "HEAD",
+      "current_branch": "main",
       "uncommitted_count": 0,
       "recent_commits": [
         {
-          "sha": "6e7b2e3cf2dcab37d529ab0f8451b516d2aadebe",
-          "message": "chore: update docs and configs",
+          "sha": "f1e2d8bbd2d13133ed9da03482aed22363e40f70",
+          "message": "chore: sync",
           "author": "Claude Code",
-          "date": "2026-03-28 01:53:17"
+          "date": "2026-03-28 02:28:40"
         },
         {
-          "sha": "64f2cb8e529a9191deab1d910647f77f70fbc108",
+          "sha": "6fe919ae78400a74a5602d26d3a0cec436a38fac",
+          "message": "fix(rollout): replace unwrap with expect for file search limit",
+          "author": "Claude Code",
+          "date": "2026-03-27 21:28:13"
+        },
+        {
+          "sha": "a0ca7d297630d2c153882e786b066a129b524a76",
           "message": "chore(artifacts): update heliosCLI-wtrees worktree pointer",
           "author": "Claude Code",
           "date": "2026-03-27 20:37:13"
         },
         {
-          "sha": "090c409289c138168df9a86f2b0f68ea55e6f512",
+          "sha": "4510ad786c62c93263077e92602ba4dbb2e24602",
           "message": "chore(wip): preserve codex-rs core modifications from prior session",
           "author": "Claude Code",
           "date": "2026-03-27 20:37:04"
         },
         {
-          "sha": "5ac442a7557b4a5a9e85d18a7fad159c73850a9c",
-          "message": "fix(ci): fix rust-ci, codespell, cargo-deny failures on main (#125)",
+          "sha": "6d3e8730c21c1f873c9ff413cef70c5bf3f6a918",
+          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#126)",
           "author": "KooshaPari",
-          "date": "2026-03-27 20:02:01"
-        },
-        {
-          "sha": "9319a132be7345b05050a0dd25dd3b07333ee763",
-          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#127)",
-          "author": "KooshaPari",
-          "date": "2026-03-27 18:02:45"
+          "date": "2026-03-27 20:24:11"
         }
       ],
       "tracking_files": [
@@ -1403,7 +1407,6 @@
       },
       "has_agents_md": true,
       "branches": [
-        "(HEAD detached from 64f2cb8e5)",
         "chore/migrate-kitty-specs-to-agileplus",
         "chore/remove-duplicated-governance-blocks",
         "chore/spec-docs",
@@ -1493,38 +1496,38 @@
         "origin/wave2-lane-a-docs-unification",
         "origin/wip/codex-rs-core"
       ],
-      "current_branch": "HEAD",
+      "current_branch": "main",
       "uncommitted_count": 0,
       "recent_commits": [
         {
-          "sha": "6e7b2e3cf2dcab37d529ab0f8451b516d2aadebe",
-          "message": "chore: update docs and configs",
+          "sha": "f1e2d8bbd2d13133ed9da03482aed22363e40f70",
+          "message": "chore: sync",
           "author": "Claude Code",
-          "date": "2026-03-28 01:53:17"
+          "date": "2026-03-28 02:28:40"
         },
         {
-          "sha": "64f2cb8e529a9191deab1d910647f77f70fbc108",
+          "sha": "6fe919ae78400a74a5602d26d3a0cec436a38fac",
+          "message": "fix(rollout): replace unwrap with expect for file search limit",
+          "author": "Claude Code",
+          "date": "2026-03-27 21:28:13"
+        },
+        {
+          "sha": "a0ca7d297630d2c153882e786b066a129b524a76",
           "message": "chore(artifacts): update heliosCLI-wtrees worktree pointer",
           "author": "Claude Code",
           "date": "2026-03-27 20:37:13"
         },
         {
-          "sha": "090c409289c138168df9a86f2b0f68ea55e6f512",
+          "sha": "4510ad786c62c93263077e92602ba4dbb2e24602",
           "message": "chore(wip): preserve codex-rs core modifications from prior session",
           "author": "Claude Code",
           "date": "2026-03-27 20:37:04"
         },
         {
-          "sha": "5ac442a7557b4a5a9e85d18a7fad159c73850a9c",
-          "message": "fix(ci): fix rust-ci, codespell, cargo-deny failures on main (#125)",
+          "sha": "6d3e8730c21c1f873c9ff413cef70c5bf3f6a918",
+          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#126)",
           "author": "KooshaPari",
-          "date": "2026-03-27 20:02:01"
-        },
-        {
-          "sha": "9319a132be7345b05050a0dd25dd3b07333ee763",
-          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#127)",
-          "author": "KooshaPari",
-          "date": "2026-03-27 18:02:45"
+          "date": "2026-03-27 20:24:11"
         }
       ],
       "tracking_files": [
@@ -2625,7 +2628,6 @@
       "spec_phases": {},
       "has_agents_md": true,
       "branches": [
-        "(HEAD detached from 423e742)",
         "chore/add-governance-files",
         "chore/add-worktrees-gitignore",
         "hardening/workflow-governance-wave1",
@@ -2640,15 +2642,9 @@
         "origin/hardening/workflow-protection-wave3",
         "origin/main"
       ],
-      "current_branch": "HEAD",
+      "current_branch": "main",
       "uncommitted_count": 0,
       "recent_commits": [
-        {
-          "sha": "85925f1bd4e63392d2a4f2bdbf74c262c32e8a4b",
-          "message": "chore: sync",
-          "author": "Claude Code",
-          "date": "2026-03-28 02:11:29"
-        },
         {
           "sha": "423e742093ff7dae72ce8b0127e2504e9ca1ef89",
           "message": "Merge branch 'chore/branch-protection-audit-contract'",
@@ -2672,6 +2668,12 @@
           "message": "docs: Turn 14 mass synchronization - Hooks/Containers/Badges/Deployment",
           "author": "Koosha Paridehpour",
           "date": "2026-03-24 04:54:18"
+        },
+        {
+          "sha": "5d97d37c1c0bf310e27f3654825e232cc9deda65",
+          "message": "docs: Turn 12 mass synchronization - Quality/Protection/Security/Automation",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:36:05"
         }
       ],
       "tracking_files": [],
