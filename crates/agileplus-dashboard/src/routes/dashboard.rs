@@ -9,9 +9,10 @@ use chrono::Utc;
 
 use crate::app_state::SharedState;
 use crate::templates::{
-    AgentActivityPartial, AgentView, DashboardPage, EventTimelinePartial, EvidenceBundleView,
-    FeatureDetailPage, FeatureView, HealthPanelPartial, KanbanPartial, MediaAssetView,
-    ProjectSwitcherPartial, ProjectView, ReportArtifactView, WpListPartial, WpView,
+    AgentActivityPartial, AgentView, CiLinkView, DashboardPage, EventTimelinePartial,
+    EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
+    KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
+    ReportArtifactView, WpListPartial, WpView,
 };
 
 use super::helpers::{
@@ -73,6 +74,19 @@ fn build_feature_evidence_bundles(
         created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
         artifact_ext: "md".into(),
         status: "available".into(),
+        content_preview: Some("# Feature Summary\n\nThis feature provides...".to_string()),
+        is_text_artifact: true,
+        is_image_artifact: false,
+        download_url: format!("/api/evidence/{}/summary/content", feature.id),
+        test_passed: None,
+        tests_passed_count: 0,
+        tests_failed_count: 0,
+        test_summary: None,
+        commit_count: 0,
+        pr_count: 0,
+        ci_links: vec![],
+        git_commits: vec![],
+        pr_links: vec![],
     }];
 
     for wp in workpackages {
@@ -89,12 +103,20 @@ fn build_feature_evidence_bundles(
             ),
             created_at: Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
             artifact_ext: "json".into(),
-            status: if wp.progress > 0 {
-                "accepted"
-            } else {
-                "generated"
-            }
-            .into(),
+            status: if wp.progress > 0 { "accepted" } else { "generated" }.into(),
+            content_preview: Some(r#"{"status":"generated","progress":0}"#.to_string()),
+            is_text_artifact: true,
+            is_image_artifact: false,
+            download_url: format!("/api/evidence/{}/{}/content", feature.id, wp.id),
+            test_passed: None,
+            tests_passed_count: 0,
+            tests_failed_count: 0,
+            test_summary: None,
+            commit_count: 0,
+            pr_count: 0,
+            ci_links: vec![],
+            git_commits: vec![],
+            pr_links: vec![],
         });
     }
 

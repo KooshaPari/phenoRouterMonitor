@@ -129,11 +129,62 @@ pub struct EvidenceBundleView {
     pub created_at: String,
     pub artifact_ext: String,
     pub status: String,
-    // New fields for evidence viewer/gallery
+    // Preview / download
     pub content_preview: Option<String>,
     pub is_text_artifact: bool,
     pub is_image_artifact: bool,
     pub download_url: String,
+    // Evidence gallery enrichment fields
+    pub test_passed: Option<bool>,
+    pub tests_passed_count: u32,
+    pub tests_failed_count: u32,
+    pub test_summary: Option<String>,
+    pub commit_count: usize,
+    pub pr_count: usize,
+    pub ci_links: Vec<CiLinkView>,
+    pub git_commits: Vec<GitCommitView>,
+    pub pr_links: Vec<PrLinkView>,
+}
+
+/// A single CI run link for the evidence gallery.
+#[derive(Debug, Clone)]
+pub struct CiLinkView {
+    pub id: i64,
+    pub title: String,
+    pub status: String,
+    pub conclusion: String,
+    pub url: String,
+    pub created_at: String,
+}
+
+/// A git commit entry for the evidence gallery.
+#[derive(Debug, Clone)]
+pub struct GitCommitView {
+    pub short_hash: String,
+    pub subject: String,
+    pub date: String,
+    pub author: String,
+    pub url: String,
+}
+
+/// A PR link for the evidence gallery.
+#[derive(Debug, Clone)]
+pub struct PrLinkView {
+    pub number: u64,
+    pub title: String,
+    pub url: String,
+    pub state: String,
+    pub head_ref: String,
+    pub created_at: String,
+}
+
+/// JSON body returned from `POST /api/features/{id}/evidence/generate`.
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct GenerateEvidenceResponse {
+    pub feature_id: String,
+    pub bundle_path: String,
+    pub status: String,
+    pub message: String,
 }
 
 #[derive(Debug, Clone)]
