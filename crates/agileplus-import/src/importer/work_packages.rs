@@ -64,6 +64,8 @@ pub(super) async fn import_work_packages<S: StoragePort>(
                 plane_sub_issue_id: wp_spec.plane_sub_issue_id.clone(),
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
+                base_commit: None,
+                head_commit: None,
             };
             let id = storage
                 .create_work_package(&wp)
