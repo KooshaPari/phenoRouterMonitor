@@ -15,10 +15,14 @@ These rules apply to **all commands** (specify, plan, research, tasks, implement
 - `/Users/robert/Code/myproject/agileplus/001-feature/spec.md`
 - `tasks/WP01.md` (relative to feature directory)
 
-❌ **WRONG**:
-- "the tasks folder" (which one? where?)
-- "WP01.md" (in which lane? which feature?)
-- "the spec" (which feature's spec?)
+1. **Check for AgilePlus spec before implementing**
+2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
+3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
+4. **No code without corresponding AgilePlus spec**
+5. **Verify dashboard runtime services behavior**:
+   - implement and test `restart_service` and `toggle_service` API endpoints
+   - update service state config and in-memory health status
+   - include regression tests for each handler under `crates/agileplus-dashboard/src/routes.rs`
 
 ## Spec Management
 

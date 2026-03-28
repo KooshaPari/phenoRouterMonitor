@@ -14,13 +14,12 @@ use axum::{
     response::{Html, IntoResponse, Response},
     routing::{get, post},
 };
-use chrono::Utc;
 
 use agileplus_domain::domain::{
     feature::Feature, state_machine::FeatureState, work_package::WpState,
 };
 
-use crate::app_state::SharedState;
+use crate::app_state::{ServiceHealth, SharedState};
 use crate::process_detector;
 use crate::templates::{
     AgentActivityPartial, AgentSettingsPage, AgentView, CiLinkView, DashboardPage,
@@ -32,9 +31,11 @@ use crate::templates::{
     ToastPartial, WpListPartial, WpView, all_feature_states,
 };
 
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use tower::util::ServiceExt;
 
 // ── Configuration Types ────────────────────────────────────────────────────
 
@@ -58,6 +59,16 @@ pub struct AgentConfig {
 pub struct ServiceConfig {
     pub name: String,
     pub endpoint_url: String,
+    #[serde(default = "default_service_enabled")]
+    pub enabled: bool,
+    #[serde(default)]
+    pub timeout_ms: Option<u64>,
+    #[serde(default)]
+    pub max_retries: Option<u32>,
+}
+
+fn default_service_enabled() -> bool {
+    true
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -140,7 +151,6 @@ pub struct DashboardSettingsForm {
     pub log_level: String,
     pub data_directory: String,
 }
-
 
 /// Returns `true` if the `HX-Request` header is present and truthy.
 fn is_htmx(headers: &HeaderMap) -> bool {
@@ -1345,9 +1355,91 @@ pub async fn stream_placeholder() -> StatusCode {
 
 // ── /api/dashboard/services/:name/restart ────────────────────────────────
 
-pub async fn restart_service(Path(name): Path<String>) -> impl IntoResponse {
-    // TODO: wire to actual process/container restart logic (e.g. systemd, docker, process-compose)
-    axum::Json(serde_json::json!({ "status": "ok", "service": name }))
+const ALLOWED_RESTART_PROGRAMS: [&str; 4] = ["systemctl", "docker", "process-compose", "echo"];
+
+fn is_restart_command_allowed(program: &str) -> bool {
+    ALLOWED_RESTART_PROGRAMS.contains(&program)
+}
+
+fn validate_restart_command(cmd_line: &str) -> Result<(), String> {
+    let mut parts: Vec<&str> = cmd_line.split_whitespace().collect();
+    if parts.is_empty() {
+        return Err("empty restart command".into());
+    }
+
+    let program = parts.remove(0);
+    if !is_restart_command_allowed(program) {
+        return Err(format!(
+            "command '{}' is not in approved restart command registry: {:?}",
+            program, ALLOWED_RESTART_PROGRAMS
+        ));
+    }
+
+    Ok(())
+}
+
+fn build_restart_command(cmd_line: &str) -> Result<std::process::Command, String> {
+    validate_restart_command(cmd_line)?;
+
+    let mut parts: Vec<&str> = cmd_line.split_whitespace().collect();
+    let program = parts.remove(0);
+
+    let mut cmd = std::process::Command::new(program);
+    if !parts.is_empty() {
+        cmd.args(parts);
+    }
+    Ok(cmd)
+}
+
+pub async fn restart_service(
+    State(_state): State<SharedState>,
+    Path(name): Path<String>,
+) -> impl IntoResponse {
+    let template = std::env::var("AGILEPLUS_SERVICE_RESTART_CMD")
+        .unwrap_or_else(|_| "systemctl restart {}".to_string());
+
+    if !template.contains("{}") {
+        return axum::Json(serde_json::json!({
+            "status": "error",
+            "service": name,
+            "error": "AGILEPLUS_SERVICE_RESTART_CMD must include '{}' placeholder",
+        }));
+    }
+
+    let command_str = template.replace("{}", &name);
+
+    let mut command = match build_restart_command(&command_str) {
+        Ok(c) => c,
+        Err(err) => {
+            return axum::Json(serde_json::json!({
+                "status": "error",
+                "service": name,
+                "command": command_str,
+                "error": err,
+            }));
+        }
+    };
+
+    match command.output() {
+        Ok(output) => {
+            let success = output.status.success();
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            axum::Json(serde_json::json!({
+                "status": if success { "ok" } else { "error" },
+                "service": name,
+                "command": command_str,
+                "stdout": stdout,
+                "stderr": stderr,
+            }))
+        }
+        Err(err) => axum::Json(serde_json::json!({
+            "status": "error",
+            "service": name,
+            "command": command_str,
+            "error": err.to_string(),
+        })),
+    }
 }
 
 // ── /api/dashboard/services/:name/config  (PATCH) ────────────────────────
@@ -1376,7 +1468,13 @@ pub async fn patch_service_config(
             entry.endpoint_url = url;
         }
     } else if let Some(url) = form.endpoint_url.filter(|u| !u.trim().is_empty()) {
-        services.push(ServiceConfig { name: name.clone(), endpoint_url: url });
+        services.push(ServiceConfig {
+            name: name.clone(),
+            endpoint_url: url,
+            enabled: default_service_enabled(),
+            timeout_ms: form.timeout_ms,
+            max_retries: form.max_retries,
+        });
     }
 
     match config.save() {
@@ -1399,12 +1497,65 @@ pub struct ServiceToggleBody {
 }
 
 pub async fn toggle_service(
+    State(state): State<SharedState>,
     Path(name): Path<String>,
     axum::Json(body): axum::Json<ServiceToggleBody>,
 ) -> impl IntoResponse {
-    // TODO: propagate enable/disable to process manager or config store
     let enabled = body.enabled.unwrap_or(true);
-    axum::Json(serde_json::json!({ "status": "ok", "service": name, "enabled": enabled }))
+
+    // Persist state in config file
+    let mut config = Config::load().unwrap_or(Config {
+        plane: None,
+        agents: None,
+        services: None,
+        dashboard: None,
+    });
+
+    let services = config.services.get_or_insert_with(Vec::new);
+    if let Some(entry) = services.iter_mut().find(|s| s.name == name) {
+        entry.enabled = enabled;
+    } else {
+        services.push(ServiceConfig {
+            name: name.clone(),
+            endpoint_url: String::new(),
+            enabled,
+            timeout_ms: None,
+            max_retries: None,
+        });
+    }
+
+    if let Err(err) = config.save() {
+        return axum::Json(serde_json::json!({
+            "status": "error",
+            "service": name,
+            "enabled": enabled,
+            "error": format!("Failed to save config: {}", err),
+        }));
+    }
+
+    // Update in-memory health status for UI
+    {
+        let mut store = state.write().await;
+        if let Some(item) = store.health.iter_mut().find(|s| s.name == name) {
+            item.healthy = enabled;
+            item.degraded = !enabled;
+            item.last_check = Utc::now();
+        } else {
+            store.health.push(ServiceHealth {
+                name: name.clone(),
+                healthy: enabled,
+                degraded: !enabled,
+                latency_ms: None,
+                last_check: Utc::now(),
+            });
+        }
+    }
+
+    axum::Json(serde_json::json!({
+        "status": "ok",
+        "service": name,
+        "enabled": enabled,
+    }))
 }
 
 // ── /api/settings/agents/test-connection (POST) ──────────────────────────
@@ -1422,7 +1573,10 @@ pub async fn test_agent_connection(
         "claude" => {
             let key = env_or_none("ANTHROPIC_API_KEY");
             if key.is_some() {
-                (true, "Claude API key detected — connection likely valid".to_string())
+                (
+                    true,
+                    "Claude API key detected — connection likely valid".to_string(),
+                )
             } else {
                 (false, "ANTHROPIC_API_KEY not set".to_string())
             }
@@ -1430,12 +1584,18 @@ pub async fn test_agent_connection(
         "gemini" => {
             let key = env_or_none("GEMINI_API_KEY").or_else(|| env_or_none("GOOGLE_API_KEY"));
             if key.is_some() {
-                (true, "Gemini API key detected — connection likely valid".to_string())
+                (
+                    true,
+                    "Gemini API key detected — connection likely valid".to_string(),
+                )
             } else {
                 (false, "GEMINI_API_KEY / GOOGLE_API_KEY not set".to_string())
             }
         }
-        "local" => (true, "Local provider requires no external credentials".to_string()),
+        "local" => (
+            true,
+            "Local provider requires no external credentials".to_string(),
+        ),
         other => (false, format!("Unknown provider: {}", other)),
     };
 
@@ -1555,6 +1715,9 @@ pub async fn save_services_settings(axum::Form(form): axum::Form<ServiceSettings
             services.push(ServiceConfig {
                 name: name.trim().to_string(),
                 endpoint_url: url.trim().to_string(),
+                enabled: default_service_enabled(),
+                timeout_ms: None,
+                max_retries: None,
             });
         }
     }
@@ -1634,12 +1797,23 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/settings/plane", post(save_plane_settings))
         .route("/api/settings/plane/test", post(test_plane_connection))
         .route("/api/settings/agents", post(save_agent_settings))
-        .route("/api/settings/agents/test-connection", post(test_agent_connection))
+        .route(
+            "/api/settings/agents/test-connection",
+            post(test_agent_connection),
+        )
         .route("/api/settings/dashboard", post(save_dashboard_settings))
-        .route("/api/settings/services", post(save_services_settings))
-        .route("/api/dashboard/services/{name}/restart", post(restart_service))
-        .route("/api/dashboard/services/{name}/config", axum::routing::patch(patch_service_config))
-        .route("/api/dashboard/services/{name}/toggle", post(toggle_service))
+        .route(
+            "/api/dashboard/services/{name}/restart",
+            post(restart_service),
+        )
+        .route(
+            "/api/dashboard/services/{name}/config",
+            axum::routing::patch(patch_service_config),
+        )
+        .route(
+            "/api/dashboard/services/{name}/toggle",
+            post(toggle_service),
+        )
         .route("/api/dashboard/kanban", get(kanban_board))
         .route("/api/dashboard/features/{id}", get(feature_detail))
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
@@ -1777,5 +1951,61 @@ mod tests {
         let html = tpl.render().expect("template renders");
         assert!(html.contains("test-agent"));
         assert!(html.contains("running"));
+    }
+
+    #[tokio::test]
+    async fn toggle_service_updates_store_and_responds() {
+        let state = make_state();
+        let app = router(state.clone());
+
+        let request_body = serde_json::json!({ "enabled": false }).to_string();
+        let request = axum::http::Request::builder()
+            .method("POST")
+            .uri("/api/dashboard/services/NATS/toggle")
+            .header("content-type", "application/json")
+            .body(axum::body::Body::from(request_body))
+            .unwrap();
+
+        let response = app.oneshot(request).await.unwrap();
+        assert_eq!(response.status(), axum::http::StatusCode::OK);
+
+        let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body_text = String::from_utf8(body_bytes.to_vec()).unwrap();
+        assert!(body_text.contains("\"status\":\"ok\""));
+        assert!(body_text.contains("\"enabled\":false"));
+
+        let store = state.read().await;
+        let health = store.health.iter().find(|s| s.name == "NATS").unwrap();
+        assert!(!health.healthy);
+        assert!(health.degraded);
+    }
+
+    #[tokio::test]
+    async fn restart_service_executes_command() {
+        let state = make_state();
+        let app = router(state.clone());
+
+        unsafe {
+            std::env::set_var("AGILEPLUS_SERVICE_RESTART_CMD", "echo restarted {}");
+        }
+
+        let request = axum::http::Request::builder()
+            .method("POST")
+            .uri("/api/dashboard/services/NATS/restart")
+            .body(axum::body::Body::empty())
+            .unwrap();
+
+        let response = app.oneshot(request).await.unwrap();
+        assert_eq!(response.status(), axum::http::StatusCode::OK);
+
+        let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body_text = String::from_utf8(body_bytes.to_vec()).unwrap();
+        assert!(body_text.contains("\"status\":\"ok\""));
+        assert!(body_text.contains("\"service\":\"NATS\""));
+        assert!(body_text.contains("restarted NATS"));
     }
 }

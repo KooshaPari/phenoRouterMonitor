@@ -3,10 +3,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use agileplus_domain::domain::feature::Feature;
-use agileplus_domain::domain::project::Project;
-use agileplus_domain::domain::state_machine::FeatureState;
-use agileplus_domain::domain::work_package::WorkPackage;
+use agileplus_domain::domain::{
+    cycle::Cycle, feature::Feature, module::Module, project::Project, state_machine::FeatureState,
+    work_package::WorkPackage,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -27,6 +27,9 @@ pub struct ServiceHealth {
 pub struct DashboardStore {
     pub features: Vec<Feature>,
     pub work_packages: HashMap<i64, Vec<WorkPackage>>,
+    pub modules: Vec<Module>,
+    pub cycles: Vec<Cycle>,
+    pub cycle_features: HashMap<i64, Vec<i64>>,
     pub health: Vec<ServiceHealth>,
     pub projects: Vec<Project>,
     pub active_project_id: Option<i64>,
@@ -40,92 +43,11 @@ impl DashboardStore {
     /// Populates the store with:
     /// - All 4 AgilePlus kitty-specs as features (001-004)
     /// - Work packages for each feature (2-4 per feature)
+    /// - Modules and cycles for native dashboard views
     /// - Default health status for all services
-    /// - Empty projects list (project scoping deferred)
+    /// - Seeded projects for workspace filtering
     pub fn seeded() -> Self {
-        let (features, work_packages) = crate::seed::seed_dogfood_features();
-        let projects = vec![
-            Project::with_id(
-                1,
-                "agileplus",
-                "AgilePlus",
-                "Spec-driven development platform",
-            ),
-            Project::with_id(
-                2,
-                "bifrost-extensions",
-                "Bifrost Extensions",
-                "Clean extension layer for Bifrost LLM gateway",
-            ),
-            Project::with_id(
-                3,
-                "cliproxyapi-plusplus",
-                "CLIProxy API++",
-                "CLI proxy with third-party provider support",
-            ),
-            Project::with_id(
-                4,
-                "agentapi-plusplus",
-                "AgentAPI++",
-                "AgentAPI fork with provider support and OAuth",
-            ),
-            Project::with_id(
-                5,
-                "colab",
-                "Colab",
-                "Hybrid web browser and local code editor",
-            ),
-            Project::with_id(6, "helios", "Helios", "Helios application and CLI"),
-            Project::with_id(
-                7,
-                "thegent",
-                "TheGent",
-                "Agent orchestration, governance, and lifecycle framework",
-            ),
-            Project::with_id(
-                8,
-                "tokenledger",
-                "TokenLedger",
-                "Token management and pricing governance for AI agents",
-            ),
-            Project::with_id(
-                9,
-                "trace",
-                "Trace",
-                "Multi-view requirements traceability system",
-            ),
-            Project::with_id(
-                10,
-                "phenotype-config",
-                "Phenotype Config",
-                "Local-first config, feature flags, and secrets",
-            ),
-            Project::with_id(
-                11,
-                "phenotype-infra",
-                "Phenotype Infra",
-                "Shared actions, design tokens, and doc federation",
-            ),
-            Project::with_id(
-                12,
-                "portage",
-                "Portage",
-                "Agent and LLM evaluation framework",
-            ),
-            Project::with_id(
-                13,
-                "civ",
-                "Civ",
-                "Deterministic simulation and policy architecture",
-            ),
-        ];
-        Self {
-            features,
-            work_packages,
-            health: default_health(),
-            projects,
-            active_project_id: None,
-        }
+        crate::seed_bridge::build_dashboard_store()
     }
 
     pub fn features_by_state(&self) -> HashMap<FeatureState, Vec<&Feature>> {
@@ -174,6 +96,73 @@ impl DashboardStore {
             .filter(|f| matches!(f.state, FeatureState::Shipped | FeatureState::Retrospected))
             .count();
         (total, active, shipped)
+    }
+
+    pub fn feature_counts_for_module(&self, module_id: i64) -> (usize, usize, usize) {
+        let features: Vec<&Feature> = self
+            .features
+            .iter()
+            .filter(|feature| feature.module_id == Some(module_id))
+            .collect();
+        let total = features.len();
+        let active = features
+            .iter()
+            .filter(|feature| {
+                !matches!(
+                    feature.state,
+                    FeatureState::Shipped | FeatureState::Retrospected
+                )
+            })
+            .count();
+        let shipped = features
+            .iter()
+            .filter(|feature| {
+                matches!(
+                    feature.state,
+                    FeatureState::Shipped | FeatureState::Retrospected
+                )
+            })
+            .count();
+        (total, active, shipped)
+    }
+
+    pub fn work_package_count_for_module(&self, module_id: i64) -> usize {
+        self.features
+            .iter()
+            .filter(|feature| feature.module_id == Some(module_id))
+            .map(|feature| self.work_packages.get(&feature.id).map_or(0, Vec::len))
+            .sum()
+    }
+
+    pub fn cycle_feature_ids(&self, cycle_id: i64) -> Vec<i64> {
+        self.cycle_features
+            .get(&cycle_id)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    pub fn cycle_work_package_count(&self, cycle_id: i64) -> usize {
+        self.cycle_feature_ids(cycle_id)
+            .into_iter()
+            .map(|feature_id| self.work_packages.get(&feature_id).map_or(0, Vec::len))
+            .sum()
+    }
+
+    pub fn cycle_is_shippable(&self, cycle_id: i64) -> bool {
+        self.cycle_feature_ids(cycle_id)
+            .into_iter()
+            .all(|feature_id| {
+                self.features
+                    .iter()
+                    .find(|feature| feature.id == feature_id)
+                    .map(|feature| {
+                        matches!(
+                            feature.state,
+                            FeatureState::Validated | FeatureState::Shipped
+                        )
+                    })
+                    .unwrap_or(false)
+            })
     }
 }
 

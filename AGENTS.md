@@ -194,3 +194,14 @@ This is intentional and correct - it ensures a single source of truth for projec
 - Reserve parent-agent direct writes for the final decision layer.
 - Favor clean, auditable handoffs and explicit integration checkpoints.
 
+- kitty-specs/<feature-id>/spec.md
+- kitty-specs/<feature-id>/plan.md
+- kitty-specs/<feature-id>/tasks/WP*.md
+
+## Dashboard Service Control
+
+- Service endpoints now support process control for platform health. Implemented:
+  - `POST /api/dashboard/services/:name/restart` (env configurable command via `AGILEPLUS_SERVICE_RESTART_CMD`)
+  - `POST /api/dashboard/services/:name/toggle` (persisted config + health updates to dashboard state)
+- These endpoint behaviors are covered by unit tests in `crates/agileplus-dashboard/src/routes.rs`.
+- For deployments, configure full process supervisor behavior in your host environment (e.g., systemd/docker service, buildkite agents, etc.).
