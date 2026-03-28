@@ -2,7 +2,7 @@
   "repos": [
     {
       "name": "4sgm",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/4sgm",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/.archive/4sgm.20260325-082955Z",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -45,11 +45,12 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "AgilePlus",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/apps/AgilePlus",
       "has_specs": true,
       "specs": [
         "001-spec-driven-development-engine",
@@ -110,7 +111,8 @@
         "66d68c6 chore: Move WP15 to done on spec 003 [claude-opus]",
         "8a2df91 chore: Move WP14 to done on spec 003 [claude-opus]"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "agent-devops-setups",
@@ -359,7 +361,7 @@
     },
     {
       "name": "colab",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/colab",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/services/colab",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -392,7 +394,8 @@
         "902e403 feat: integrate helios runtime into co(lab) \u2014 Phase 1 (#1)",
         "6e5f33d 0.14.10"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "contracts",
@@ -424,7 +427,7 @@
     },
     {
       "name": "helMo",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/helMo",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/apps/helMo",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -439,11 +442,12 @@
         "482712d chore: remove tracked AI artifact files",
         "0d6e3af Initial commit from Specify template"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "helios-cli",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/helios-cli",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -486,11 +490,12 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "RENAMED_HELIOSCLI"
     },
     {
       "name": "heliosApp",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/heliosApp",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/apps/heliosApp",
       "has_specs": true,
       "specs": [
         "001-colab-agent-terminal-control-plane",
@@ -713,7 +718,8 @@
         "87a5f4c chore: complete heliosApp stabilization stabilization pass",
         "d77314c fix: reduce runtime lint warnings in stubs and muxer route"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "heliosCLI",
@@ -841,7 +847,7 @@
     },
     {
       "name": "phenodocs",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenodocs",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/.archive/phenodocs",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -880,7 +886,8 @@
         "63fb9b9 docs: add stacked PR reconciliation governance (#1)",
         "c4a644f Enhance config for GitHub Pages: base path, breadcrumbs, outline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "phenotype-config",
@@ -984,7 +991,7 @@
     },
     {
       "name": "policy-contract",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/policy-contract",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/governance/policy-contract",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -993,11 +1000,12 @@
       "current_branch": "unknown",
       "uncommitted_count": 0,
       "recent_commits": [],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "portage",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/portage",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/portage",
       "has_specs": true,
       "specs": [
         "002-portage-multi-runtime-execution-stack"
@@ -1048,7 +1056,8 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "profiler",
@@ -1065,7 +1074,7 @@
     },
     {
       "name": "sdk",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/sdk",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/python/phenotype-sdk",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1074,11 +1083,12 @@
       "current_branch": "unknown",
       "uncommitted_count": 0,
       "recent_commits": [],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "SPLIT_SDK"
     },
     {
       "name": "template-commons",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-commons",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-commons",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1119,11 +1129,12 @@
         "08d092b chore: enforce branch protection checks contract (#4)",
         "9de608f Merge hardening follow-up #3"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-domain-service-api",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-domain-service-api",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-domain-service-api",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1153,11 +1164,12 @@
         "584cb2c Add governance hardening workflow baseline",
         "5704317 Add template-domain-service-api wave-1 domain layer"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-domain-webapp",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-domain-webapp",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-domain-webapp",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1187,11 +1199,12 @@
         "3a08852 Add governance hardening workflow baseline",
         "7cae8fd Add template-domain-webapp wave-1 domain layer"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-elixir-hex",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-elixir-hex",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-elixir-hex",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1221,11 +1234,12 @@
         "58a1530 Add governance hardening workflow baseline",
         "e6bcd87 Initialize template-lang-elixir-hex layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-go",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-go",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-go",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1255,11 +1269,12 @@
         "210e777 Add governance hardening workflow baseline",
         "b375309 Initialize template-lang-go layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-kotlin",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-kotlin",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-kotlin",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1289,11 +1304,12 @@
         "be42808 Add governance hardening workflow baseline",
         "3d29e04 Initialize template-lang-kotlin layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-mojo",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-mojo",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-mojo",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1323,11 +1339,12 @@
         "67a6616 Add governance hardening workflow baseline",
         "7fc561f Initialize template-lang-mojo layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-python",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-python",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-python",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1357,11 +1374,12 @@
         "d9f03b3 Add governance hardening workflow baseline",
         "24705c5 Initialize template-lang-python layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-rust",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-rust",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-rust",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1391,11 +1409,12 @@
         "1b7c910 Add governance hardening workflow baseline",
         "5e0abd3 Initialize template-lang-rust layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-swift",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-swift",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-swift",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1425,11 +1444,12 @@
         "923e27e Add governance hardening workflow baseline",
         "ea82b7e Initialize template-lang-swift layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-typescript",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-typescript",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-typescript",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1459,11 +1479,12 @@
         "59e7e14 Add governance hardening workflow baseline",
         "7d5cf94 Initialize template-lang-typescript layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-lang-zig",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-lang-zig",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-zig",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1493,11 +1514,12 @@
         "56a5070 Add governance hardening workflow baseline",
         "2112d68 Initialize template-lang-zig layered baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "template-program-ops",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-program-ops",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-program-ops",
       "has_specs": true,
       "specs": [
         "layered-template-platform"
@@ -1534,11 +1556,12 @@
         "d860ce2 Address governance review feedback",
         "feea472 Add governance hardening workflow baseline"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "thegent",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/thegent",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/.archive/thegent-fresh-clone-backup_20260225_045623_MST",
       "has_specs": true,
       "specs": [
         "001-hexagonal-polyglot-repo-audit-plan"
@@ -1589,11 +1612,12 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "PATH_FIXED_20260328"
     },
     {
       "name": "tokenledger",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/tokenledger",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/tokenledger-wt",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -1636,7 +1660,8 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "RENAMED_WT"
     },
     {
       "name": "trace",
