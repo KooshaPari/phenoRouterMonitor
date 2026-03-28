@@ -45,7 +45,7 @@ mod tests {
     #[derive(Debug, Clone)]
     struct User {
         id: UserId,
-        name: String,
+        _name: String,
     }
 
     impl Entity for User {
@@ -60,17 +60,17 @@ mod tests {
     fn test_entity_identity() {
         let user1 = User {
             id: UserId("user-1".to_string()),
-            name: "Alice".to_string(),
+            _name: "Alice".to_string(),
         };
 
         let user2 = User {
             id: UserId("user-1".to_string()),
-            name: "Alice (updated)".to_string(),
+            _name: "Alice (updated)".to_string(),
         };
 
         let user3 = User {
             id: UserId("user-2".to_string()),
-            name: "Bob".to_string(),
+            _name: "Bob".to_string(),
         };
 
         // Same ID = same entity
@@ -84,7 +84,7 @@ mod tests {
     fn test_entity_ext() {
         let user = User {
             id: UserId("user-1".to_string()),
-            name: "Alice".to_string(),
+            _name: "Alice".to_string(),
         };
 
         let id_ref = user.id_ref();
