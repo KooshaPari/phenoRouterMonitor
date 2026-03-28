@@ -108,14 +108,14 @@ mod tests {
     #[derive(Debug, Clone)]
     struct TestDomainEvent {
         aggregate_id: String,
-        event_data: String,
+        _event_data: String,
     }
 
     impl TestDomainEvent {
         fn new(aggregate_id: &str, data: &str) -> Self {
             Self {
                 aggregate_id: aggregate_id.to_string(),
-                event_data: data.to_string(),
+                _event_data: data.to_string(),
             }
         }
     }
@@ -139,7 +139,7 @@ mod tests {
     struct TestAggregate {
         id: TestAggregateId,
         version: u64,
-        name: String,
+        _name: String,
     }
     // Note: pending_events removed for Clone derive - would need Box<dyn DomainEvent + Clone> in production
 
@@ -148,7 +148,7 @@ mod tests {
             Self {
                 id: TestAggregateId::new(id),
                 version: 0,
-                name: name.to_string(),
+                _name: name.to_string(),
             }
         }
     }

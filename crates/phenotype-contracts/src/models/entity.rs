@@ -93,7 +93,7 @@ mod tests {
     #[derive(Debug, Clone)]
     struct TestEntity {
         id: TestId,
-        name: String,
+        _name: String,
     }
 
     impl Entity for TestEntity {
@@ -108,7 +108,7 @@ mod tests {
     fn test_entity_id_access() {
         let entity = TestEntity {
             id: TestId::new("test-123"),
-            name: "Test".to_string(),
+            _name: "Test".to_string(),
         };
 
         assert_eq!(entity.id().0, "test-123");
@@ -118,15 +118,15 @@ mod tests {
     fn test_entity_is_same() {
         let entity1 = TestEntity {
             id: TestId::new("same-id"),
-            name: "Entity 1".to_string(),
+            _name: "Entity 1".to_string(),
         };
         let entity2 = TestEntity {
             id: TestId::new("same-id"),
-            name: "Entity 2".to_string(),
+            _name: "Entity 2".to_string(),
         };
         let entity3 = TestEntity {
             id: TestId::new("different-id"),
-            name: "Entity 1".to_string(),
+            _name: "Entity 1".to_string(),
         };
 
         assert!(entity1.is_same(&entity2));
@@ -137,7 +137,7 @@ mod tests {
     fn test_entity_ext_id_ref() {
         let entity = TestEntity {
             id: TestId::new("ref-test"),
-            name: "Test".to_string(),
+            _name: "Test".to_string(),
         };
 
         let id: TestId = entity.id_ref();
@@ -148,7 +148,7 @@ mod tests {
     fn test_entity_id_clone() {
         let entity = TestEntity {
             id: TestId::new("clone-test"),
-            name: "Test".to_string(),
+            _name: "Test".to_string(),
         };
 
         let cloned_id = entity.id().clone();
