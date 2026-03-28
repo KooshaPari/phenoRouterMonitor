@@ -152,7 +152,8 @@
       "current_branch": "unknown",
       "uncommitted_count": 0,
       "recent_commits": [],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "agentapi-plusplus",
@@ -213,7 +214,8 @@
       "current_branch": "unknown",
       "uncommitted_count": 0,
       "recent_commits": [],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "bifrost-extensions",
@@ -305,7 +307,8 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "cliproxyapi-plusplus",
@@ -812,7 +815,8 @@
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "phench",
@@ -915,7 +919,8 @@
         "1f86e90 feat: add stage management, transience classification, and promotion workflow",
         "fd6ad99 feat: add stage-gates CI, CodeRabbit, and gatekeeper templates"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "phenotype-design",
@@ -934,7 +939,8 @@
         "af2075b chore: remove tracked AI artifact files",
         "4f47577 feat: initial phenotype-design \u2014 keycap palette design system"
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "phenotypeActions",
