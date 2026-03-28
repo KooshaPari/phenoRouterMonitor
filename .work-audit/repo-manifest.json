@@ -2129,38 +2129,13 @@
     },
     {
       "name": "template-commons",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-commons",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-commons",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
-      "has_agents_md": false,
+      "has_agents_md": true,
       "branches": [
-        "agentops/policy-federation-onboard",
-        "chore/add-governance-files",
-        "chore/add-worktrees-gitignore",
-        "chore/claude-md-agileplus-governance",
-        "chore/contracts-reconcile-rules",
-        "chore/mass-governance-policy-sync",
-        "chore/policy-gate-reusable",
-        "chore/template-commons-skip-status-check",
-        "chore/vitepress-docs-1774437307",
-        "chore/vitepress-docs-1774437402",
-        "docs/comparison-matrix",
-        "feat/add-hexagonal-csharp-typescript-templates",
-        "feat/add-phenotype-toolkit-v2",
-        "feat/expand-contracts-v2",
-        "feat/phenotype-toolkit",
-        "feat/xdd-architecture-templates",
-        "fix/generate-go-sum",
-        "fix/skip-billable-runs",
-        "fix/stabilize",
-        "fix/stabilize-template-commons-main",
-        "hardening/workflow-governance-wave1",
-        "hardening/workflow-protection-wave2",
-        "hardening/workflow-protection-wave3",
         "main",
-        "pr-33",
-        "refactor/standalone-packages",
         "origin",
         "origin/agentops/policy-federation-onboard",
         "origin/chore/add-governance-files",
@@ -2175,15 +2150,11 @@
         "origin/chore/vitepress-docs-1774437307",
         "origin/chore/vitepress-docs-1774437402",
         "origin/docs/comparison-matrix",
-        "origin/feat/add-hexagonal-csharp-typescript-templates",
         "origin/feat/add-phenotype-toolkit-v2",
         "origin/feat/expand-contracts-v2",
         "origin/feat/phenotype-toolkit",
-        "origin/feat/xDD-methodologies-and-templates",
-        "origin/feat/xdd-architecture-templates",
-        "origin/feat/xdd-workflows-v2",
-        "origin/fix/branch-protection-audit-template-repo",
         "origin/fix/generate-go-sum",
+        "origin/fix/policy-gate-md",
         "origin/fix/skip-billable-runs",
         "origin/fix/stabilize",
         "origin/fix/stabilize-template-commons-main",
@@ -2191,13 +2162,45 @@
         "origin/hardening/workflow-protection-wave2",
         "origin/hardening/workflow-protection-wave3",
         "origin/main",
+        "origin/merge-fix",
         "origin/refactor/standalone-packages"
       ],
       "current_branch": "main",
       "uncommitted_count": 0,
-      "recent_commits": [],
+      "recent_commits": [
+        {
+          "sha": "32b31673fed0bbad96f338187797b63411c178a9",
+          "message": "docs: add ADR.md (#41)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:11:07"
+        },
+        {
+          "sha": "dece1fb0e0e02bdb177170034af337bb5079dd78",
+          "message": "feat: add hexagonal templates for C# and TypeScript (#38)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 09:17:16"
+        },
+        {
+          "sha": "101a313590ae28130056f2398b6c41fd0d2ec7b6",
+          "message": "feat(xDD): add E2E workflows and 6-language hexagonal templates (250+ methodologies) (#37)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 08:52:17"
+        },
+        {
+          "sha": "8f12815a9368ccbc232766d8ed576146ddc80587",
+          "message": "feat: comprehensive xDD methodologies and hexagonal architecture templates (#34)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:27:44"
+        },
+        {
+          "sha": "b7aca629d7180a7d4430f993dc7aad073938c60a",
+          "message": "fix(ci): skip status checks validation for template-commons repo (#33)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:59:36"
+        }
+      ],
       "tracking_files": [],
-      "status": "PATH_FIXED_20260328"
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "template-domain-service-api",
@@ -3006,7 +3009,7 @@
     },
     {
       "name": "tokenledger",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/tokenledger-wt",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/tokenledger",
       "has_specs": false,
       "specs": [],
       "spec_phases": {},
@@ -3047,7 +3050,7 @@
         "origin/sync-upstream"
       ],
       "current_branch": "main",
-      "uncommitted_count": 2,
+      "uncommitted_count": 0,
       "recent_commits": [
         {
           "sha": "2a2a9400c8f29873a795d9c085b333a75ae291b9",
@@ -3083,7 +3086,7 @@
       "tracking_files": [
         "CHANGELOG.md"
       ],
-      "status": "RENAMED_WT"
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "trace",
@@ -3246,16 +3249,18 @@
         "origin/master",
         "origin/mergein/coderabbit-policy",
         "origin/modernize",
-        "origin/unblock/pr7-coderabbit-policy-20260227"
+        "origin/unblock/pr7-coderabbit-policy-20260227",
+        "upstream",
+        "upstream/master"
       ],
       "current_branch": "master",
       "uncommitted_count": 0,
       "recent_commits": [
         {
-          "sha": "03f9234d06851e09ab6bcee8aaed6107a4c9b9c7",
-          "message": "chore: sync",
-          "author": "Claude Code",
-          "date": "2026-03-28 01:56:04"
+          "sha": "523d3fb0bd98fb63ebee4564cf4dc9a632fdbbfb",
+          "message": "chore: sync (#38)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 02:35:54"
         },
         {
           "sha": "c257b677a89ceb9ef0b2b72c075bbc6c762b53dd",
@@ -3282,7 +3287,8 @@
           "date": "2026-03-25 04:19:07"
         }
       ],
-      "tracking_files": []
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
     }
   ]
 }
