@@ -351,7 +351,7 @@
         }
       ],
       "tracking_files": [],
-      "status": "GHOST_SCANNED_20260328"
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "agentapi-plusplus",
@@ -1407,76 +1407,35 @@
       },
       "has_agents_md": true,
       "branches": [
-        "chore/migrate-kitty-specs-to-agileplus",
-        "chore/remove-duplicated-governance-blocks",
-        "chore/spec-docs",
-        "feat/thread-list-provider-filter-regression-test",
-        "fix/bench-deprecation-clean",
-        "fix/ci-failures",
-        "fix/deprecation-warnings",
-        "fix/rollout-limit-expect",
         "main",
-        "refactor/decompose-history",
-        "refactor/decompose-key-router",
-        "refactor/decompose-renderer",
-        "refactor/decompose-submitter",
-        "refactor/decompose-text-manipulation",
-        "refactor/phase5-renderer",
-        "wip/codex-rs-core",
         "origin",
-        "origin/cherry/ead38c3",
-        "origin/cherry/f5d7a74",
         "origin/chore/CLAUDE-md-v4",
         "origin/chore/add-agileplus-governance",
-        "origin/chore/add-spec-docs",
-        "origin/chore/coderabbit-config-fix",
-        "origin/chore/coderabbit-keys-fix-20260301",
         "origin/chore/coderabbit-keys-v2",
         "origin/chore/coderabbit-keys-v3",
         "origin/chore/coderabbit-v3",
-        "origin/chore/composite-actions",
         "origin/chore/composite-actions-v2",
         "origin/chore/docs-20260325",
         "origin/chore/dotagents-setup-fresh",
         "origin/chore/governance-20260325",
-        "origin/chore/governance-claude-md",
         "origin/chore/heliosCLI-20260325",
         "origin/chore/helioscli-final-sync",
         "origin/chore/helioscli-last-0740",
         "origin/chore/helioscli-v5-20260325",
         "origin/chore/integrate-phenotype-docs",
-        "origin/chore/migrate-kitty-specs-to-agileplus",
         "origin/chore/oxc-migration-v2",
-        "origin/chore/remove-duplicated-governance-blocks",
         "origin/chore/spec-docs",
         "origin/chore/stabilize-helioscli-20260324",
-        "origin/codex/bazel-llvm-modules-fix",
-        "origin/codex/pr346-ci-stabilize-20260303",
-        "origin/codex/review-orchestrator",
-        "origin/codex/tui-renderer-spec-docs-with-core",
-        "origin/composite-actions",
         "origin/feat/arch-test-20260325",
         "origin/feat/arch-test-crate",
-        "origin/feat/code-reduction-helioscli",
-        "origin/feat/phenotype-modular-arch",
-        "origin/feat/phenotypeactions-wave-a-v0pin",
         "origin/feature/modernize-tooling",
         "origin/fix/bench-deprecation-clean",
         "origin/fix/ci-failures",
         "origin/fix/deprecation-warnings",
-        "origin/fix/remove-pkg-lock",
         "origin/fix/rollout-limit-expect",
         "origin/fix/skip-billable-runs",
         "origin/koosha/stabilize-v1",
-        "origin/lane/l1-realtime-protocol",
-        "origin/lane/l2-memory-state",
-        "origin/lane/l3-audio-tui",
-        "origin/lane/l4-core-runtime",
-        "origin/lane/l5-tooling-bootstrap",
-        "origin/lane/l6-assets-docs",
-        "origin/lane/l7-local-artifacts",
         "origin/main",
-        "origin/oxc-migration",
         "origin/refactor/decompose-history",
         "origin/refactor/decompose-key-router",
         "origin/refactor/decompose-submitter",
@@ -1484,55 +1443,49 @@
         "origin/releases/alpha",
         "origin/releases/beta",
         "origin/releases/stable",
-        "origin/replay/release-framework",
-        "origin/sync/lane-a-protocol-20260301",
-        "origin/sync/lane-b-core-runtime-20260301",
-        "origin/sync/lane-c-core-tests-20260301",
-        "origin/sync/lane-d-ui-state-cli-20260301",
-        "origin/sync/lane-e-ci-docs-20260301",
         "origin/task/hardening/batch-2026-03-25",
         "origin/task/hardening/harness_checkpoint-2026-03-25",
         "origin/task/hardening/harness_elicitation-2026-03-25",
-        "origin/wave2-lane-a-docs-unification",
         "origin/wip/codex-rs-core"
       ],
       "current_branch": "main",
       "uncommitted_count": 0,
       "recent_commits": [
         {
-          "sha": "f1e2d8bbd2d13133ed9da03482aed22363e40f70",
-          "message": "chore: sync",
-          "author": "Claude Code",
-          "date": "2026-03-28 02:28:40"
-        },
-        {
-          "sha": "6fe919ae78400a74a5602d26d3a0cec436a38fac",
-          "message": "fix(rollout): replace unwrap with expect for file search limit",
-          "author": "Claude Code",
-          "date": "2026-03-27 21:28:13"
-        },
-        {
-          "sha": "a0ca7d297630d2c153882e786b066a129b524a76",
-          "message": "chore(artifacts): update heliosCLI-wtrees worktree pointer",
-          "author": "Claude Code",
-          "date": "2026-03-27 20:37:13"
-        },
-        {
-          "sha": "4510ad786c62c93263077e92602ba4dbb2e24602",
-          "message": "chore(wip): preserve codex-rs core modifications from prior session",
-          "author": "Claude Code",
-          "date": "2026-03-27 20:37:04"
-        },
-        {
           "sha": "6d3e8730c21c1f873c9ff413cef70c5bf3f6a918",
           "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#126)",
           "author": "KooshaPari",
           "date": "2026-03-27 20:24:11"
+        },
+        {
+          "sha": "41829b769742401ce47346e9107130005f0d4733",
+          "message": "chore: migrate kitty-specs to docs/specs (AgilePlus format) (#128)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:13:35"
+        },
+        {
+          "sha": "5ac442a7557b4a5a9e85d18a7fad159c73850a9c",
+          "message": "fix(ci): fix rust-ci, codespell, cargo-deny failures on main (#125)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:02:01"
+        },
+        {
+          "sha": "9319a132be7345b05050a0dd25dd3b07333ee763",
+          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#127)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:02:45"
+        },
+        {
+          "sha": "cff2402a744d7b588697586c2d9ebd523b4e37b9",
+          "message": "refactor: extract KeyEventRouter trait (Phase 6 of kitty-specs/002) (#124)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:00:27"
         }
       ],
       "tracking_files": [
         "CHANGELOG.md"
-      ]
+      ],
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "parpour",
@@ -3289,6 +3242,265 @@
       ],
       "tracking_files": [],
       "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "phenotype-gauge",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-gauge",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-vitepress",
+        "origin/chore/spec-docs",
+        "origin/docs/add-vitepress",
+        "origin/main",
+        "origin/test/integration-tests"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "ee2c687a05dc09bc324ff410f15b43c09ed1bddd",
+          "message": "test: add integration tests for xDD testing utilities (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:01:07"
+        },
+        {
+          "sha": "dea304f335259db23dc364e4edb4a8be219a5537",
+          "message": "ci: add CodeQL security scanning workflow",
+          "author": "Claude Code",
+          "date": "2026-03-27 05:08:35"
+        },
+        {
+          "sha": "02f52c3c8f10c096d693329006594989b58a1c2c",
+          "message": "docs: upgrade VitePress docsite with Mermaid support and dark theme (#6)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:31:25"
+        },
+        {
+          "sha": "1bdaa9eaaa10a46264a740957106414e4a8f0a46",
+          "message": "chore: add .pre-commit-config.yaml (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:24:27"
+        },
+        {
+          "sha": "ecb065d586af8e568a16812a054f23d8999ac7cf",
+          "message": "docs: scaffold VitePress docsite for gauge xDD testing framework (#3)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:59"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenotype-go-kit",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-go-kit",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/20260325-final",
+        "origin/chore/20260325-governance-sync",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-vitepress",
+        "origin/chore/add-vitepress-docsite",
+        "origin/chore/docs-20260325",
+        "origin/chore/gokit-20260325",
+        "origin/chore/gokit-final-0739",
+        "origin/chore/gokit-final-20260325",
+        "origin/chore/gokit-last-0740",
+        "origin/chore/gokit-v3-20260325",
+        "origin/chore/gokit-v6-20260325",
+        "origin/docs/hexagonal-clean-architecture-xdd",
+        "origin/docs/real-specs",
+        "origin/docs/xdd-methodologies",
+        "origin/feat/hexagonal-db-secrets-ports",
+        "origin/fix/ci-trigger",
+        "origin/fix/go124",
+        "origin/fix/golangci-goroutine-mode",
+        "origin/fix/golangci-v2-clean",
+        "origin/fix/golangci-v7-goroutine",
+        "origin/main",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/sync/main-ci-fix"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "bf6bc70ec4886c120f97530bde5a68b3c2dd668f",
+          "message": "Merge pull request #91 from KooshaPari/docs/add-spec-docs",
+          "author": "KooshaPari",
+          "date": "2026-03-28 00:52:36"
+        },
+        {
+          "sha": "f01435ab0a857952884e7785a7cebb1a530fbbed",
+          "message": "docs: align go-kit worklog with spec docs lane",
+          "author": "Claude Code",
+          "date": "2026-03-28 00:52:08"
+        },
+        {
+          "sha": "52a6594f9e95bdafac7d7625bfac4ffb8993b9e0",
+          "message": "Merge pull request #90 from KooshaPari/chore/add-vitepress",
+          "author": "KooshaPari",
+          "date": "2026-03-28 00:49:32"
+        },
+        {
+          "sha": "65496acc793518c5cda88fa39ac0e42530fe5946",
+          "message": "docs: consolidate docs site setup worklog",
+          "author": "Claude Code",
+          "date": "2026-03-27 23:07:03"
+        },
+        {
+          "sha": "2c0e74fb34199c6d2a28e7056aa3ad14627732ea",
+          "message": "docs: add go-kit worklog summary",
+          "author": "Claude Code",
+          "date": "2026-03-27 21:51:04"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenotype-nexus",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-nexus",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-docs",
+        "origin/chore/spec-docs",
+        "origin/docs-site-completion",
+        "origin/docs/add-vitepress",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "5a4e091bd99cd349e8a51308644958962760cda0",
+          "message": "test: add integration tests for service registry (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:57:29"
+        },
+        {
+          "sha": "9805ca585cd136f87ad237067c5c3d4283bee8cc",
+          "message": "docs: upgrade VitePress docsite with Mermaid support and dark theme (#6)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:31:19"
+        },
+        {
+          "sha": "e5b385298e3102f0dc32a9f11b69bc5c3ac4677a",
+          "message": "chore: add .pre-commit-config.yaml (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:24:23"
+        },
+        {
+          "sha": "8f2fcb3012d28eed39f6d564f4cda4991e3f55b3",
+          "message": "docs: add CLAUDE.md and VitePress docsite scaffold (#3)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:54"
+        },
+        {
+          "sha": "770be9ff2abc161695315b18c2b46abdff3db859",
+          "message": "chore: add Taskfile.yml with standard tasks (#2)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:58:03"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenotype-shared",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-shared",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/add-tests-ci",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/mass-governance-sync-and-rust-ci",
+        "origin/chore/migrate-kitty-specs-to-agileplus",
+        "origin/chore/phenotype-shared-20260325",
+        "origin/chore/shared-20260325",
+        "origin/chore/shared-final",
+        "origin/chore/shared-final-0739",
+        "origin/chore/shared-final-sync",
+        "origin/chore/shared-hex-arch-20260325",
+        "origin/chore/shared-last-0740",
+        "origin/chore/shared-v2-20260325",
+        "origin/chore/shared-v5-20260325",
+        "origin/chore/shared-v6-20260325",
+        "origin/chore/spec-docs",
+        "origin/chore/worklog-20260325",
+        "origin/ci/add-workflow",
+        "origin/ci/rust-workflow",
+        "origin/create-policy-engine",
+        "origin/docs/add-spec-docs",
+        "origin/docs/hexagonal-spec",
+        "origin/event-sourcing-init",
+        "origin/feat/create-state-machine-crate",
+        "origin/fix/add-tests-ci",
+        "origin/fix/stabilize",
+        "origin/fix/tdd-test-fixes",
+        "origin/fix/workspace-build",
+        "origin/main",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "86fc0c685bc66ec30adda10d1008113147c91269",
+          "message": "docs: finalize kitty-specs migration cleanup (#62)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 21:33:05"
+        },
+        {
+          "sha": "f3b6f226fef78fa8d06ba168bb77448b92452462",
+          "message": "chore: migrate kitty-specs to docs/specs (AgilePlus format) (#61)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:13:42"
+        },
+        {
+          "sha": "3e7d9f5729c1592b073f6020ac3c9af9ab106ced",
+          "message": "docs(spec): add USER_JOURNEYS.md and expand PRD/FR with E9 workspace ergonomics (#60)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 19:57:54"
+        },
+        {
+          "sha": "70bca8cdebce3e2a64a97ffa7e82d46a9568b475",
+          "message": "feat: initialize event sourcing crate (#57)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:14:18"
+        },
+        {
+          "sha": "5feb64342af4d11b02d62694cad100977c836776",
+          "message": "feat: add policy engine crate structure (#56)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:11:11"
+        }
+      ],
+      "tracking_files": []
     }
   ]
 }
