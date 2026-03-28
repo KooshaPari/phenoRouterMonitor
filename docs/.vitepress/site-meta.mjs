@@ -153,7 +153,7 @@ export function createSiteMeta({ base, repoName }) {
       },
       transformPageData(pageData) {
         if (pageData.frontmatter?.audience) {
-          ;(pageData as any).audience = pageData.frontmatter.audience
+          pageData.audience = pageData.frontmatter.audience
         }
       },
     },
