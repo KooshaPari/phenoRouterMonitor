@@ -1,10 +1,14 @@
-# AgilePlus — Architecture Decision Records
+# AgilePlus -- Architecture Decision Records
 
-## ADR-001: Rust Workspace Monorepo with 24 Crates
+**Version:** 1.2 | **Status:** Active | **Updated:** 2026-03-27
+
+---
+
+## ADR-001: Rust Workspace Monorepo with 22 Crates
 **Date**: 2026-03-25
 **Status**: Accepted
 **Context**: AgilePlus requires a spec-driven development engine with distinct subsystems (domain logic, CLI, API, gRPC, storage, git, telemetry, events, caching, graph, p2p, sync, dashboard, and more). Each subsystem has different dependency requirements, compilation profiles, and test isolation needs. A single-crate approach would create circular dependencies and prevent independent crate versioning. A polyrepo approach would fragment the tightly coupled domain model.
-**Decision**: Use a Rust Cargo workspace with `resolver = "3"` and 24 member crates, each scoped to a single architectural concern (e.g., `agileplus-domain`, `agileplus-cli`, `agileplus-api`, `agileplus-grpc`, `agileplus-sqlite`, `agileplus-git`, `agileplus-p2p`). Workspace-level `[workspace.dependencies]` pins all shared dependency versions.
+**Decision**: Use a Rust Cargo workspace with `resolver = "3"` and 22 member crates, each scoped to a single architectural concern (e.g., `agileplus-domain`, `agileplus-cli`, `agileplus-api`, `agileplus-grpc`, `agileplus-sqlite`, `agileplus-git`, `agileplus-p2p`). Workspace-level `[workspace.dependencies]` pins all shared dependency versions.
 **Consequences**: Independent crate compilation and caching; enforced module boundaries by Rust's visibility rules; workspace-wide dependency deduplication via shared lockfile; crate-level feature flags (e.g., `keychain`, `plugins` on `agileplus-domain`); longer cold build times on first compile; contributors must understand the crate graph before adding cross-crate dependencies.
 **Alternatives Considered**: Single-crate monolith (rejected: circular deps, no isolation); polyrepo per subsystem (rejected: excessive coordination overhead for a tightly-coupled domain model); feature-flag-gated modules inside one crate (rejected: no compilation isolation, no independent versioning).
 
@@ -34,7 +38,7 @@
 **Date**: 2026-03-25
 **Status**: Accepted
 **Context**: AgilePlus enforces governance contracts that require verifiable proof that evidence was collected, transitions were approved, and no records were tampered with after the fact. Without cryptographic integrity, audit trails are unreliable as governance artifacts.
-**Decision**: Every state mutation produces two records: a domain `Event` and an `AuditEntry`. Both are append-only and form independent SHA-256 hash chains — each entry stores the hash of the previous entry. Chain integrity can be verified by the `validate` command and the audit API route. Audit entries include actor, timestamp, transition description, evidence references, and the chain link hash. Events include typed payloads, sequence numbers, and actor attribution.
+**Decision**: Every state mutation produces two records: a domain `Event` and an `AuditEntry`. Both are append-only and form independent SHA-256 hash chains -- each entry stores the hash of the previous entry. Chain integrity can be verified by the `validate` command and the audit API route. Audit entries include actor, timestamp, transition description, evidence references, and the chain link hash. Events include typed payloads, sequence numbers, and actor attribution.
 **Consequences**: Tamper detection for any audit entry or event; full event-sourcing capability (current state can be reconstructed from event stream); append-only writes are fast and never block on updates; snapshots (`agileplus-events` snapshot materialization) prevent full-replay cost; storage grows monotonically and requires periodic archival to MinIO; hash verification is a sequential O(n) scan of the chain.
 **Alternatives Considered**: Mutable audit log with soft-delete (rejected: no tamper detection); external blockchain/ledger (rejected: operational complexity, latency, no offline support); append-only log without hashing (rejected: no integrity guarantee); Merkle tree per entity (considered for parallel verification, deferred to a future ADR).
 
@@ -66,7 +70,7 @@
 **Context**: Storage backends and VCS adapters need to be extensible without modifying the core workspace. Third parties or future platform engineers should be able to ship a plugin crate that satisfies a port trait and be registered at runtime without a full recompile of the monorepo.
 **Decision**: Define plugin trait contracts in three separate Git repositories (`agileplus-plugin-core`, `agileplus-plugin-git`, `agileplus-plugin-sqlite`) referenced in `[workspace.dependencies]` as Git sources. The `agileplus-domain` crate's `plugins` feature gate enables the `agileplus-plugin-core` dependency. A `PluginRegistry` in `agileplus-domain/src/plugins/` discovers and registers plugins at startup via trait objects.
 **Consequences**: Plugin trait contracts are versioned independently from the main workspace; breaking changes to plugin interfaces can be detected via semver without affecting core; plugins compile as regular Rust crates (no WASM required today); Git-sourced dependencies add a network fetch step to first-time builds and depend on remote availability; no ABI stability (plugins must be compiled with the same Rust toolchain).
-**Alternatives Considered**: Extism/WASM plugin system (considered for ABI stability; deferred — see ADR-010 in ecosystem ADRs for WASM plugin architecture); dlopen dynamic loading (rejected: unsound in Rust without significant unsafe code); feature-flagged modules in the workspace (rejected: couples plugin code to core workspace, prevents independent versioning).
+**Alternatives Considered**: Extism/WASM plugin system (considered for ABI stability; deferred -- WASM plugins are a post-MVP enhancement); dlopen dynamic loading (rejected: unsound in Rust without significant unsafe code); feature-flagged modules in the workspace (rejected: couples plugin code to core workspace, prevents independent versioning).
 
 ---
 
@@ -85,7 +89,7 @@
 **Status**: Accepted
 **Context**: AgilePlus dispatches AI agents across multiple worktrees and processes. Debugging failures, measuring command latency, and understanding agent lifecycle events requires distributed tracing and metrics. Vendor-specific SDKs would lock the platform to a single observability backend.
 **Decision**: Use the OpenTelemetry Rust SDK (`opentelemetry`, `opentelemetry-otlp`, `opentelemetry_sdk`) with OTLP export. The `agileplus-telemetry` crate implements the `ObservabilityPort` and provides trace propagation, span creation, and metric collection for all commands. Metrics record per-command execution data (duration_ms, agent_runs, review_cycles). `tracing-opentelemetry` bridges the `tracing` subscriber ecosystem to OTel spans.
-**Consequences**: Backend-agnostic observability — any OTLP-compatible collector (Jaeger, Grafana Tempo, Honeycomb) works; `tracing` macros throughout the codebase automatically produce structured logs and spans; OTLP export is optional (no-op if no collector is configured); adds ~5 transitive dependencies; the telemetry crate is a required workspace member even when observability is not actively used.
+**Consequences**: Backend-agnostic observability -- any OTLP-compatible collector (Jaeger, Grafana Tempo, Honeycomb) works; `tracing` macros throughout the codebase automatically produce structured logs and spans; OTLP export is optional (no-op if no collector is configured); adds ~5 transitive dependencies; the telemetry crate is a required workspace member even when observability is not actively used.
 **Alternatives Considered**: Prometheus-only metrics (rejected: no distributed tracing, no log correlation); Datadog agent SDK (rejected: vendor lock-in, not OSS); `log` crate without OTel (rejected: no trace propagation across async boundaries); custom structured logging only (rejected: no metrics, no trace correlation).
 
 ---
@@ -116,4 +120,24 @@
 **Context**: Solo developers who work across multiple machines (laptop, desktop, CI runner) need their AgilePlus state (features, work packages, audit trails) synchronized without a central server. A client-server sync architecture would require always-on infrastructure and break the local-first principle.
 **Decision**: Implement peer-to-peer replication in the `agileplus-p2p` crate. Device discovery uses mDNS or static configuration. State replication uses vector clocks (`vector_clock.rs`) to detect and merge concurrent edits. The crate includes `import.rs` and `export.rs` for portable state serialization and `git_merge.rs` for merging git-adjacent metadata. Replication is eventually consistent.
 **Consequences**: No central server required; multiple devices can work offline and sync when reconnected; vector clocks detect concurrent edits without requiring synchronized clocks; conflict resolution must be explicitly defined per entity type (last-write-wins, merge, or manual); P2P discovery via mDNS may not work across network segments; the crate is in an early state and not yet enabled in the default feature set.
-**Alternatives Considered**: Central sync server (rejected: breaks local-first principle, adds infrastructure dependency); Git-based state sync (considered as a simpler alternative; partially implemented in `git_merge.rs` for git-adjacent data, but insufficient for the full domain model); CRDTs (considered for convergent data structures; deferred — vector clocks are simpler and sufficient for the current conflict model); rsync-style file transfer (rejected: no semantic merge capability).
+**Alternatives Considered**: Central sync server (rejected: breaks local-first principle, adds infrastructure dependency); Git-based state sync (considered as a simpler alternative; partially implemented in `git_merge.rs` for git-adjacent data, but insufficient for the full domain model); CRDTs (considered for convergent data structures; deferred -- vector clocks are simpler and sufficient for the current conflict model); rsync-style file transfer (rejected: no semantic merge capability).
+
+---
+
+## ADR-013: Neo4j for Graph-Based Dependency and Relationship Queries
+**Date**: 2026-03-27
+**Status**: Accepted
+**Context**: Work package dependency relationships form a DAG that must be queried for topological ordering, cycle detection, blocked WP identification, and critical path analysis. SQLite can store edge records, but expressing recursive graph queries (e.g., all transitive dependencies of a WP) requires CTEs that are complex, slow, and hard to maintain. The system also needs to represent richer relationships (Module ownership trees, Cycle membership, feature-to-device replication topology).
+**Decision**: Add `agileplus-graph` as a Neo4j-backed graph adapter. The graph crate defines typed node and relationship structs and exposes Cypher-based query functions for the dependency and relationship use cases. Neo4j runs natively via `process-compose` in local dev. The domain model does not depend on the graph crate directly; the CLI and API layers inject the graph store alongside the SQLite store.
+**Consequences**: Rich graph queries are expressed naturally in Cypher; the graph layer is a read-optimized secondary store (SQLite is the system of record); Neo4j adds an operational process (like NATS); the graph must be kept in sync with SQLite state -- a sync event or hook writes to both on state mutations; graph crate is an optional feature for deployments that do not need complex dependency queries.
+**Alternatives Considered**: SQLite recursive CTEs only (rejected: complex, hard to maintain, limited expressiveness for multi-hop traversals); DGraph (rejected: smaller ecosystem, less mature Rust client); SurrealDB graph queries (considered: multi-model but Rust embedding story is immature); in-process petgraph (considered: suitable for small graphs, but no persistence and no cross-process query capability).
+
+---
+
+## ADR-014: Import Subsystem with Manifest-Driven, Idempotent Ingestion
+**Date**: 2026-03-27
+**Status**: Accepted
+**Context**: Users and agents need to bring existing work items (from Plane.so exports, GitHub issue lists, or JSON files) into AgilePlus without writing code. The import operation must be safe to re-run, must not silently drop errors, and must produce a machine-readable report for downstream automation.
+**Decision**: Implement a dedicated `agileplus-import` crate with three components: `ImportManifest` (the input schema), `Importer` (the stateful ingestion engine that validates and persists), and `ImportReport` (the structured outcome). The importer validates each entry against the domain model before persistence. Validation errors are collected per-entry; remaining valid entries are still imported (partial import semantics). Re-importing an existing entity by slug updates non-key fields and emits an audit entry.
+**Consequences**: Operators can safely run `agileplus import` repeatedly; a machine-readable JSON report enables automation pipelines to detect failures without screen-scraping; partial import means a malformed entry does not block other entries; the manifest schema is a stable, versioned contract that external tools can target; idempotency requires a slug-based upsert, which means slugs are a stable external identity.
+**Alternatives Considered**: Single API endpoint for import (rejected: no manifest schema, hard to batch, requires HTTP client for CLI use); raw SQL import scripts (rejected: bypasses domain model, no audit trail, no validation); full-replace semantics (rejected: destroys existing data for re-imports, not safe for partial updates).

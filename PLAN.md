@@ -298,7 +298,56 @@ Security hardening, performance optimization, documentation, deployment scripts.
 
 ---
 
-## Phase 12: Cross-Project Reuse & Platform Integration
+## Phase 12: Graph Layer & Import Subsystem
+
+**Status:** In Progress
+
+Neo4j-backed graph store for dependency queries and the manifest-driven import subsystem.
+
+| Task ID | Description | Depends On | Status |
+|---------|-------------|------------|--------|
+| P12G.1 | Graph node/relationship types: FeatureNode, WorkPackageNode, ModuleNode, CycleNode, DeviceNode; edge types DependsOn, BelongsTo, AssignedTo, PartOf | P1.1 | Done |
+| P12G.2 | GraphStore Neo4j adapter: Bolt connection, Cypher CRUD for nodes and edges | P12G.1 | Done |
+| P12G.3 | Dependency query engine: topological sort, cycle detection, blocked WP path, critical path (Cypher) | P12G.2 | Done |
+| P12G.4 | Graph health check: verify Neo4j connectivity, expose ServiceHealth result | P12G.2 | Done |
+| P12G.5 | Graph sync hook: write graph nodes/edges on every SQLite state mutation to keep graph consistent | P12G.2, P1.4 | Partial |
+| P12G.6 | ImportManifest schema: define JSON/YAML manifest format with field-mapping support | P1.1 | Done |
+| P12G.7 | Importer: validate each manifest entry, partial-import semantics, upsert by slug | P12G.6, P1.4 | Done |
+| P12G.8 | ImportReport: per-entry outcome tracking (imported/skipped/failed/total), JSON serialization | P12G.7 | Done |
+| P12G.9 | `agileplus import` CLI command wiring; idempotency test | P12G.8, P1.10 | Partial |
+
+**Deliverables:**
+- `agileplus-graph` crate functional with Neo4j
+- `agileplus-import` crate functional with manifest and report
+- `agileplus import` CLI command wired end-to-end
+
+---
+
+## Phase 13: P2P Replication
+
+**Status:** Planned
+
+Multi-device state sync via vector clocks, mDNS discovery, and state export/import.
+
+| Task ID | Description | Depends On | Status |
+|---------|-------------|------------|--------|
+| P13P.1 | VectorClock: assign, increment, merge (component-wise max); attach to all mutable entities | P1.1 | Partial |
+| P13P.2 | Device registry: unique device ID (UUID), hostname, address, last_seen; persist to SQLite | P1.4 | Partial |
+| P13P.3 | mDNS discovery: advertise `_agileplus._tcp`, discover peers, update device registry | P13P.2 | Planned |
+| P13P.4 | State export: portable JSON archive of features/WPs/audit entries/vector clocks; entity filter support | P13P.1 | Partial |
+| P13P.5 | State import: merge incoming archive using vector clock comparison; conflict report for concurrent edits | P13P.4 | Partial |
+| P13P.6 | Git-adjacent metadata merge: reconcile branch names, commit SHAs, worktree paths via git object model | P13P.5, P1.7 | Partial |
+| P13P.7 | Replication session: authenticated handshake (pre-shared key), delta exchange since last sync | P13P.3, P13P.5 | Planned |
+| P13P.8 | CLI: `agileplus sync --peer <address>` for manual point-to-point sync | P13P.7, P1.10 | Planned |
+
+**Deliverables:**
+- `agileplus-p2p` crate functional with vector clock and export/import
+- `agileplus sync --peer` CLI command working for point-to-point sync
+- Conflict report output when concurrent edits detected
+
+---
+
+## Phase 14: Cross-Project Reuse & Platform Integration
 
 **Status:** Planned
 
@@ -442,19 +491,35 @@ Phase 11 (Hardening):
   P2.1, P1.8 → P11.11
   P2.1, P1.2 → P11.12
 
-Phase 12 (Reuse):
-  P12.1 → P12.2, P12.3, P12.4, P12.5, P12.6
-  P1.6 → P12.7
+Phase 12 (Graph + Import):
+  P1.1 → P12G.1 → P12G.2 → P12G.3
+  P12G.2 → P12G.4
+  P12G.2, P1.4 → P12G.5
+  P1.1 → P12G.6 → P12G.7 → P12G.8
+  P12G.8, P1.10 → P12G.9
 
-Phase 13 (Future):
-  P2.6 → P13.1
-  P5.1 → P13.2
-  P3.2 → P13.3
-  P7.1, P7.5 → P13.4
-  P5.8 → P13.5
-  P4.5 → P13.6
-  P5.7 → P13.7
-  P9.1 → P13.8
+Phase 13 (P2P):
+  P1.1 → P13P.1
+  P1.4 → P13P.2
+  P13P.2 → P13P.3
+  P13P.1 → P13P.4 → P13P.5
+  P13P.5, P1.7 → P13P.6
+  P13P.3, P13P.5 → P13P.7
+  P13P.7, P1.10 → P13P.8
+
+Phase 14 (Reuse):
+  P14.1 → P14.2, P14.3, P14.4, P14.5, P14.6
+  P1.6 → P14.7
+
+Phase 15 (Future):
+  P2.6 → P15.1
+  P5.1 → P15.2
+  P3.2 → P15.3
+  P7.1, P7.5 → P15.4
+  P5.8 → P15.5
+  P4.5 → P15.6
+  P5.7 → P15.7
+  P9.1 → P15.8
 ```
 
 ---
@@ -475,8 +540,10 @@ Phase 13 (Future):
 ### Planned/In-Progress
 - **Phase 4:** Governance (policy rules, evidence evaluation) — 3/10 partial
 - **Phase 8:** MCP Server — 1/8 partial (gRPC client)
-- **Phase 12:** Cross-Project Reuse — 0/7 not started
-- **Phase 13:** Future Features — 0/8 not started
+- **Phase 12:** Graph Layer + Import — 7/9 partial (graph nodes/store/queries done; sync hook and CLI partial)
+- **Phase 13:** P2P Replication — 4/8 partial (vector clock, device registry, export/import partial; mDNS, session, CLI planned)
+- **Phase 14:** Cross-Project Reuse — 0/7 not started
+- **Phase 15:** Future Features — 0/8 not started
 
 ---
 
@@ -529,7 +596,7 @@ Phase 13 (Future):
 
 - All phases follow hexagonal architecture: domain model, ports/adapters, CLI/API/gRPC layers
 - Storage is SQLite-first (local), with optional external sync (Plane.so, GitHub)
-- All code is Rust (24 crates) except MCP server (Python)
+- All code is Rust (22 crates) except MCP server (Python)
 - Tests are mandatory: integration tests, contract tests (gRPC), BDD, property-based tests
 - Governance is the enforcement layer: evidence requirements block transitions
 - Agent dispatch is asynchronous with lifecycle tracking and review loops
