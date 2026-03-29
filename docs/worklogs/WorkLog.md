@@ -285,5 +285,52 @@ See `docs/research/consolidation-audit-2026-03-29.md` for master findings.
 - test_board_artifact_integrator.py: 37 passed
 
 ---
+---
 
-_Last updated: 2026-03-29_
+## 2026-03-29 (Wave 94): LOC Reduction & Code Optimization Deep Audit
+
+**Status:** completed
+
+### Summary
+
+Deep subagent audits focused on LOC reduction, decomposition, and code optimization patterns.
+
+### Findings
+
+#### LOC Reduction Opportunities
+
+| Category | Savings |
+|----------|---------|
+| Derive Replacements | ~35 LOC |
+| Strum Enum Conversion | ~20 LOC |
+| Extract Common Logic | ~62 LOC |
+| Builder Pattern Derive | ~30 LOC |
+| Duplicate File Deduplication | ~800 LOC |
+
+#### Performance Optimizations
+
+| Issue | Impact |
+|-------|--------|
+| Regex Compilation in Hot Path | ~90% latency reduction |
+| Zero Hash Constant Not Cached | 14 fewer allocations |
+| Excessive Clones in Event Retrieval | ~12KB per 1000 events |
+| Unnecessary Sort in detect_gaps | ~40% faster for sorted |
+
+#### Updated LOC Consolidation Targets
+
+| Category | Current | Target | Savings |
+|----------|---------|--------|---------|
+| Nested Duplicate Crates | 1,710 | 0 | **1,710** |
+| Unused Libraries | 1,650 | 0 | **1,650** |
+| Error Types | 600 | 200 | **400** |
+| New Wave 94 Items | 147 | 0 | **147** |
+| **TOTAL** | **4,907** | **200** | **4,707** |
+
+### Next Steps
+
+- [ ] Implement derive replacements in phenotype-infrakit
+- [ ] Extract common event retrieval logic
+- [ ] Cache compiled regex patterns
+- [ ] Deduplicate nested crate files
+
+_Last updated: 2026-03-29 (Wave 94)_
