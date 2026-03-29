@@ -22,22 +22,3 @@ pub fn derive_error(input: DeriveInput) -> TokenStream {
 
     expanded.into()
 }
-
-pub trait UserError: Send + Sync + std::error::Error {
-    fn error_code(&self) -> &'static str;
-    fn user_message(&self) -> String;
-}
-
-#[derive(Debug)]
-pub struct ErrorWithContext {
-    pub error: Box<dyn std::error::Error>,
-    pub context: Box<dyn std::fmt::Display>,
-}
-
-impl std::fmt::Display for ErrorWithContext {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.context, self.error)
-    }
-}
-
-impl std::error::Error for ErrorWithContext {}
