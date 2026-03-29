@@ -1,125 +1,170 @@
-# phenotype-infrakit
+# AgilePlus Workspace
 
-Rust infrastructure toolkit extracted from the Phenotype ecosystem. Generic, domain-agnostic crates for event sourcing, caching, policy evaluation, and state machine management.
+## Overview
 
-## Crates
+AgilePlus is a schema-driven project management platform built on Rust and gRPC. This repository is a **monorepo** containing the core domain logic, CLI, API server, and Protocol Buffer definitions for the entire ecosystem.
 
-| Crate | Description | Tests |
-|-------|-------------|-------|
-| [`phenotype-event-sourcing`](crates/phenotype-event-sourcing) | Append-only event store with SHA-256 hash chain verification, snapshot management, and pluggable storage backends | 15 |
-| [`phenotype-cache-adapter`](crates/phenotype-cache-adapter) | Two-tier cache (L1 LRU + L2 DashMap) with TTL expiration and pluggable `MetricsHook` for observability | 7 |
-| [`phenotype-policy-engine`](crates/phenotype-policy-engine) | Rule-based policy evaluation engine with allow/deny/require rules, TOML config loading, and severity levels | 43 |
-| [`phenotype-state-machine`](crates/phenotype-state-machine) | Generic finite state machine with transition guards, forward-only enforcement, skip-state config, and history tracking | 11 |
+## Repository Layout
 
-## Quick Start
+| Path | Description |
+|------|-------------|
+| `crates/agileplus-domain` | Core domain entities, business logic, and port abstractions |
+| `crates/agileplus-cli` | The `agileplus` command-line interface |
+| `crates/agileplus-api` | Axum-based HTTP API server |
+| `crates/agileplus-sqlite` | SQLite storage adapter implementation |
+| `crates/agileplus-git` | Git VCS adapter implementation |
+| `crates/agileplus-plane` | Plane.so integration adapter |
+| `crates/agileplus-events` | Event stream and audit log management |
+| `proto/agileplus/v1/` | Protocol Buffer definitions for inter-service gRPC contracts |
+| `rust/` | Rust crate (`agileplus-proto`) with tonic/prost codegen |
+| `python/` | Python package (`agileplus-proto`) with grpcio stubs |
 
-Add any crate as a git dependency:
+## Getting Started
 
-```toml
-[dependencies]
-phenotype-event-sourcing = { git = "https://github.com/KooshaPari/phenotype-infrakit" }
-phenotype-cache-adapter = { git = "https://github.com/KooshaPari/phenotype-infrakit" }
-phenotype-policy-engine = { git = "https://github.com/KooshaPari/phenotype-infrakit" }
-phenotype-state-machine = { git = "https://github.com/KooshaPari/phenotype-infrakit" }
-```
+### Prerequisites
 
-## Usage Examples
+- Rust toolchain (v1.86+)
+- [Task](https://taskfile.dev/installation/) (Taskfile.yml replaces Makefiles)
+- [buf](https://buf.build/docs/installation) v2+
+- Python 3.14+ with [uv](https://docs.astral.sh/uv/)
 
-### Event Sourcing
-
-```rust
-use phenotype_event_sourcing::{EventEnvelope, EventStore};
-use phenotype_event_sourcing::memory::InMemoryEventStore;
-use serde::{Serialize, Deserialize};
-
-#[derive(Serialize, Deserialize)]
-struct UserCreated { user_id: String, email: String }
-
-let store = InMemoryEventStore::new();
-let event = EventEnvelope::new(
-    UserCreated { user_id: "u-1".into(), email: "a@b.com".into() },
-    "system",
-);
-let seq = store.append(&event, "UserCreated").unwrap();
-```
-
-### Cache
-
-```rust
-use phenotype_cache_adapter::TieredCache;
-use std::time::Duration;
-
-let cache = TieredCache::new(100, Duration::from_secs(300), None);
-cache.insert("key".to_string(), "value".to_string());
-assert_eq!(cache.get(&"key".to_string()), Some("value".to_string()));
-```
-
-### Policy Engine
-
-```rust
-use phenotype_policy_engine::{PolicyEngine, PolicyContext};
-
-let engine = PolicyEngine::new();
-engine.load_toml_str(r#"
-[[rules]]
-name = "require-auth"
-action = "require"
-field = "auth_token"
-"#).unwrap();
-
-let mut ctx = PolicyContext::new();
-ctx.set("auth_token", "abc123");
-let result = engine.evaluate(&ctx).unwrap();
-assert!(result.passed());
-```
-
-### State Machine
-
-```rust
-use phenotype_state_machine::{State, StateMachine};
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
-enum Status { Draft, Review, Approved, Done }
-
-impl State for Status {
-    fn ordinal(&self) -> u32 {
-        match self { Self::Draft => 0, Self::Review => 1, Self::Approved => 2, Self::Done => 3 }
-    }
-}
-
-let mut sm = StateMachine::new(Status::Draft);
-sm.transition(Status::Review).unwrap();
-assert_eq!(sm.current(), &Status::Review);
-```
-
-## Development
+### Common Tasks
 
 ```bash
-cargo test --workspace      # Run all 76 tests
-cargo clippy --workspace    # Lint
-cargo fmt --check           # Format check
+# Lint the entire workspace
+task lint
+
+# Run all tests
+task test
+
+# Format all files
+task fmt
+
+# Build the CLI
+cargo build -p agileplus-cli
+```
+
+### Protos and Codegen
+
+```bash
+# Lint proto files
+task proto:lint
+
+# Generate gRPC stubs for Rust and Python
+task proto:gen
 ```
 
 ## Architecture
 
-Each crate is fully independent with no inter-crate dependencies. They share workspace-level dependency versions for consistency but can be consumed individually.
+AgilePlus follows **Hexagonal Architecture** (Ports and Adapters):
 
+1. **Domain**: Pure business logic and entity definitions in `crates/agileplus-domain`.
+2. **Ports**: Trait definitions in `crates/agileplus-domain/src/ports/` for storage, VCS, and observability.
+3. **Adapters**: Concrete implementations in `crates/agileplus-sqlite`, `crates/agileplus-git`, etc.
+4. **Primary Adapters**: The CLI and API server that drive the domain logic.
+
+## Breaking Change Policy (Protos)
+
+All proto changes are checked against `main` using `buf breaking`. Breaking changes require:
+
+1. A version bump in `buf.yaml` module path (e.g., `v1` → `v2`)
+2. Explicit documentation in the PR description
+3. Coordination with all downstream consumers
+
+## Running Plane.so + Dragonfly (OrbStack)
+
+AgilePlus ships two complementary approaches for running Plane.so and Dragonfly locally.
+Both require [OrbStack](https://orbstack.dev) as the container runtime (macOS).
+
+### Approach A — Native processes + OrbStack containers (default, recommended)
+
+This is the default `process-compose` stack. Dragonfly and PostgreSQL run as OrbStack
+containers; Plane.so API/worker/beat run as native Python processes; Plane web runs
+natively via Node. This gives fast file-watch reloads and easy breakpoint debugging.
+
+```bash
+# 1. One-time: bootstrap Plane sources and Python env
+bash scripts/setup-plane.sh
+
+# 2. Copy env template and fill in secrets
+cp .env.example .env
+# Set PLANE_SECRET_KEY to output of: openssl rand -hex 32
+
+# 3. Start full stack (OrbStack must be running)
+process-compose up
+
+# Services become available at:
+#   AgilePlus API  http://localhost:3000
+#   Plane.so web   http://localhost:3100
+#   Plane.so API   http://localhost:8000
+#   Dragonfly      redis://localhost:6379
+#   PostgreSQL     postgresql://agileplus:agileplus-dev@localhost:5432/plane
+#   NATS           nats://localhost:4222
+#   MinIO          http://localhost:9000 (console: :9001)
+#   Neo4j          bolt://localhost:7687 (browser: :7474)
 ```
-phenotype-infrakit/
-  Cargo.toml              # Workspace root
-  crates/
-    phenotype-event-sourcing/   # EventStore trait + InMemoryEventStore + hash chains
-    phenotype-cache-adapter/    # TieredCache<K,V> with L1/L2 + TTL + MetricsHook
-    phenotype-policy-engine/    # PolicyEngine + Rule + TOML loader + Context
-    phenotype-state-machine/    # StateMachine<S> + TransitionGuard + history
+
+The `orb-containers` process in `process-compose.yml` calls `scripts/orb-up.sh` which
+starts (or reuses) the `agileplus-dragonfly` and `agileplus-postgres` containers.
+All Plane processes depend on `orb-containers: process_healthy` before starting.
+
+### Approach B — Fully containerized (CI or no Python/Node runtime)
+
+Use `docker-compose.plane.yml` to run the entire Plane.so stack as OrbStack containers.
+This is useful for CI pipelines or environments where native Python/Node setup is not
+feasible.
+
+```bash
+# Start only the backing stores (Dragonfly + Postgres)
+docker compose -f docker-compose.plane.yml up dragonfly plane-db -d
+
+# Start the full containerized Plane stack
+docker compose -f docker-compose.plane.yml up -d
+
+# Health check
+redis-cli -p 6379 ping                              # expected: PONG
+pg_isready -h localhost -p 5432                     # expected: accepting connections
+curl -s http://localhost:8000/api/health | jq .     # expected: {"status":"ok"}
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3100/  # expected: 200
+
+# Tear down
+docker compose -f docker-compose.plane.yml down
 ```
 
-## x-DD Methodologies
+### Container names and ports
 
-Comprehensive documentation of 200+ software engineering methodologies:
+| Container | Image | Port |
+|-----------|-------|------|
+| `agileplus-dragonfly` | `dragonflydb/dragonfly:latest` | `6379` |
+| `agileplus-postgres` | `postgres:16-alpine` | `5432` |
+| `agileplus-plane-api` | `makeplane/plane-backend:stable` | `8000` |
+| `agileplus-plane-web` | `makeplane/plane-frontend:stable` | `3100` |
+| `agileplus-plane-worker` | `makeplane/plane-backend:stable` | — |
+| `agileplus-plane-beat` | `makeplane/plane-backend:stable` | — |
 
-- [XDD-METHODOLOGIES.md](./XDD-METHODOLOGIES.md) - Full reference
+### Troubleshooting
 
-## License
+```bash
+# Check OrbStack status
+orb status
 
-MIT
+# Inspect running containers
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Dragonfly memory/stats
+redis-cli -p 6379 info memory | grep used_memory_human
+
+# Follow process-compose logs for a specific service
+process-compose logs -f plane-api
+process-compose logs -f orb-containers
+
+# Restart a single container without disrupting the stack
+docker restart agileplus-dragonfly
+```
+
+## Contributing
+
+1. Edit code or proto files as needed.
+2. Run `task lint` to validate.
+3. Run `task test` to ensure no regressions.
+4. Submit a PR — CI will run full quality gates.
