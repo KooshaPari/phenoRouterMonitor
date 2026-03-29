@@ -4,6 +4,94 @@
 
 ---
 
+## 2026-03-29 - Full Git-State Audit of All Non-Canonical Dirs
+
+**Status:** Research complete — action items catalogued
+**Updated:** 2026-03-29
+
+### Temp Directories (`~/CodeProjects/Phenotype/*-temp`)
+
+| Dir | Remote | Branch | Dirty | Stashes | Unpushed | Action |
+|-----|--------|--------|-------|---------|----------|--------|
+| `agent-wave-monorepo-temp` | `KooshaPari/agent-wave` | `main` | 5 untracked docs/ | 0 | 0 | Commit or discard untracked docs files |
+| `heliosCLI-monorepo-temp` | — | — | — | — | — | **DELETE** — empty directory |
+| `phenotype-gauge-temp` | `KooshaPari/phenotype-gauge` | `chore/rescue-temp-dir-20260329` | 5 untracked docs/ | 1 | 1 commit | Push commit + pop stash + commit/discard untracked |
+| `phenotype-go-kit-temp` | `KooshaPari/phenotype-go-kit` | `chore/rescue-temp-dir-20260329` | clean | 1 | 2 commits | Push 2 commits + pop/drop stash → open PR |
+| `phenotype-nexus-temp` | `KooshaPari/phenotype-nexus` | `chore/rescue-temp-dir-20260329` | clean | 1 | 3 commits | Push 3 commits + pop/drop stash → open PR |
+| `phenotype-shared-temp` | `KooshaPari/phenotype-shared` | `chore/sync-test-artifacts-20260329` | clean | 0 | 0 | **SAFE** — no action needed |
+| `template-commons-temp` | `KooshaPari/template-commons` | `main` | `AGENTS.md`, `CLAUDE.md`, `worklog.md` | 0 | 0 | Commit or discard 3 tracked modified files |
+| `tokenledger-temp` | `KooshaPari/tokenledger` | `main` | clean | 0 | 0 | **SAFE** — no action needed |
+
+### Worktrees
+
+| Dir | Remote | Branch | Dirty | Unpushed | Action |
+|-----|--------|--------|-------|----------|--------|
+| `repos/.worktrees/gh-pages-deploy` | none | none | — | 0 | **DELETE** — empty/orphaned, not a git repo |
+| `repos/.worktrees/phench-fix` | none | none | — | 0 | **DELETE** — empty/orphaned, not a git repo |
+| `repos/.worktrees/thegent` | `KooshaPari/phenotype-infrakit` | `chore/cost-tracking-modules` | 1 modified + 1 untracked | 1 commit | Push commit → open PR → delete after merge |
+| `worktrees/phenotypeActions` | none | none | — | 0 | **DELETE** — empty/orphaned |
+| `worktrees/portage` | `KooshaPari/portage` | `main` | clean | 0 | **SAFE** — clean canonical worktree |
+
+### Isolated / Backups
+
+| Dir | Type | Status | Action |
+|-----|------|--------|--------|
+| `isolated/agentapi-plusplus-postmerge-303-20260303-083936` | Post-merge snapshot | 5,324 dirty files (all untracked) | **ARCHIVE** → review, then delete |
+| `isolated/agentapi-plusplus-postmerge-303-manual-20260303-084017` | Working copy snapshot | 29 dirty files, no commit history | **DELETE** — no history, snapshot only |
+| `backups/4sgm-2` | Non-git backup | Contains Brewfile, cleanup.sh, docker-compose, PRD, ADR | **REVIEW** — may be system backup; keep or archive |
+
+### `~/Repos` Spot-Check
+
+| Repo | Branch | Status | Action |
+|------|--------|--------|--------|
+| `heliosCLI` | `refactor/decompose-text-manipulation` | 1 uncommitted file, off main | Commit + PR or stash + checkout main |
+| `phenotype-shared` | `main` | 1 dirty file | Review + commit or discard |
+
+### Registered Git Worktrees (in `repos/`)
+
+```
+/Users/kooshapari/CodeProjects/Phenotype/repos              [main]
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/phenotype-infrakit/chore/merge-worklogs  [chore/merge-worklogs]
+```
+
+The `chore/merge-worklogs` worktree is registered but should be confirmed merged/deleted.
+
+---
+
+### Updated Cleanup Checklist (2026-03-29 v2)
+
+#### IMMEDIATE — Safe Deletes (no unpushed work)
+
+- [ ] DELETE `heliosCLI-monorepo-temp` (empty)
+- [ ] DELETE `repos/.worktrees/gh-pages-deploy` (orphaned, not a git repo)
+- [ ] DELETE `repos/.worktrees/phench-fix` (orphaned, not a git repo)
+- [ ] DELETE `worktrees/phenotypeActions` (empty/orphaned)
+- [ ] DELETE `isolated/agentapi-plusplus-postmerge-303-manual-20260303-084017` (no history)
+- [ ] DELETE `worktree/` (empty)
+- [ ] DELETE `add/` (empty)
+
+#### SHORT-TERM — Push + PR + Delete
+
+- [ ] `phenotype-go-kit-temp`: push 2 commits on `chore/rescue-temp-dir-20260329` → open PR → delete after merge
+- [ ] `phenotype-nexus-temp`: push 3 commits + pop stash → open PR → delete after merge
+- [ ] `phenotype-gauge-temp`: push 1 commit + pop stash + commit untracked docs → open PR → delete after merge
+- [ ] `repos/.worktrees/thegent`: push 1 commit on `chore/cost-tracking-modules` → open PR → delete after merge
+- [ ] `agent-wave-monorepo-temp`: commit or discard 5 untracked docs files → delete temp dir
+- [ ] `template-commons-temp`: commit or discard `AGENTS.md`, `CLAUDE.md`, `worklog.md` changes
+
+#### REVIEW NEEDED
+
+- [ ] `isolated/agentapi-plusplus-postmerge-303-20260303-083936`: verify 5,324 files are all safely in upstream → delete
+- [ ] `backups/4sgm-2`: determine if this is a system backup to preserve → move to archive or delete
+- [ ] `~/Repos/heliosCLI`: commit or stash 1 dirty file; return to `main` or continue work
+- [ ] `repos/worktrees/phenotype-infrakit/chore/merge-worklogs`: confirm merged → unregister worktree
+
+---
+
+_Last updated: 2026-03-29 (v2 git-state audit)_
+
+---
+
 ## 2026-03-29 - Fresh Audit Findings
 
 **Status:** Verified current state

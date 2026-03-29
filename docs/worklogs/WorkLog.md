@@ -4,10 +4,62 @@
 
 ---
 
+## Wave 93 - Ecosystem Cleanup + Worklogs Deepening (2026-03-29)
+
+**Status:** in_progress
+**Priority:** P0-P1
+**Agents:** Sonnet 4.6 + 5 parallel subagents
+
+### Original Prompt (preserved verbatim)
+
+```
+you need to merge into the actual canonical docs ## Final Worklogs Structure
+skip above instead focus on identifying inactive folders that are NOT the canonical
+shelf folder for that project (for those just ensure at latest local or origin main
+w/merged stashes) for others make sure finished + pushed to cloud -> open PR -> del
+after merge review done. What about usage of external 3rd party repos/pkgs as deps
+or wrapping/forking etc whitebox/blackbox usage/modification for similar benefits or
+gains given better developers working on that aspect (where known)? after reviewing
+current updated work/research etc artifacts so you do not overlap. use subagents
+liberally identify duplication among and inside individual projects/cross project.
+opportunity for libification/pattern generation/productization/consolidation/general
+(LOC-- Quality>=Same) use web search to identify repos or packages that can be
+forked/used/wrapped et cetera as well; focus on repo duplication too. look at both
+local states and remote. add even more research as of 2026
+```
+
+### Session Work Completed
+
+| Task | Status | Result |
+|------|--------|--------|
+| `platforms/thegent` audit | ✅ | 12G = .git(982M) + docs(219M) + target-maif(128M) |
+| `repos/target/` cleanup | ✅ | 298M freed |
+| thegent AI dump archive | ✅ | chatgpt3.md + cli_impl_full.xml → .archive/ai-dumps/ |
+| thegent spec dump archive | ✅ | merged.md(748K lines) + 3 others → .archive/spec-dumps/ |
+| ADR-001 package adoption | ✅ | docs/governance/ADR-001-external-package-adoption.md on main |
+| Inactive folder audit (current) | 🔄 | agent a614ac9 running |
+| Cross-repo duplication audit | 🔄 | agent ad80bc1 running |
+| 2026 web research (new packages) | 🔄 | agent a78817e running |
+
+### Key Findings This Session
+
+- `platforms/` = just `thegent/` canonical repo (12G, mostly .git history + docs)
+- `docs/specs/prds/fragemented/` was AI dump artifacts — merged.md alone was 748K lines
+- ADR-001: ~2,050–4,600 LOC reduction via 9 external package adoptions (Go + TS)
+- `target-maif/` (128M Cargo artifacts) still needs manual `rm -rf`
+
+### Related
+
+- `docs/governance/ADR-001-external-package-adoption.md`
+- `docs/worklogs/RESEARCH.md` - updated with 2026 findings (pending agent)
+- `docs/worklogs/INACTIVE_FOLDERS.md` - being updated (pending agent)
+
+---
+
 ## Wave 92 - Worklog path alignment (2026-03-29)
 
-**Status:** completed  
-**Priority:** P1  
+**Status:** completed
+**Priority:** P1
 
 ### Summary
 
