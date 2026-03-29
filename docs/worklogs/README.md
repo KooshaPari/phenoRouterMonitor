@@ -1,13 +1,101 @@
 # Worklogs
 
 > Canonical logging and audit documentation for the Phenotype ecosystem.
-> Last comprehensive audit: **2026-03-29** (Wave 90–91); canonical wave log: **`WorkLog.md`**
+> Last comprehensive audit: **2026-03-29** (Wave 90–92); canonical wave log: **`WorkLog.md`**
+
+---
+---
+
+## Wave 92 - FORGE Comprehensive Audit (2026-03-29)
+
+**Status:** completed
+**Priority:** P0-P1
+**Agents:** FORGE (3 subagents)
+
+### Summary
+
+Conducted deep research across three parallel tracks:
+
+| Track | Findings | Action Items |
+|-------|----------|--------------|
+| Non-Canonical Folders | 7 folders requiring action | 7 cleanup tasks |
+| 3rd Party Packages | BLACKBOX/GRAYBOX/WHITEBOX analyzed | 5 package tasks |
+| Repo Duplication | 622 LOC critical duplication | 5 deduplication tasks |
+
+**Estimated Impact:** ~1,400+ LOC across cleanup and consolidation
+
+### Key Findings
+
+#### 🔴 CRITICAL: phenotype-event-sourcing Duplication
+
+Identical files in two locations (~622 LOC):
+- `src/` vs `phenotype-event-sourcing/src/`
+- Root cause: Nested package structure confusion
+
+#### 🔴 HIGH: 7 Folders Need Cleanup
+
+| Folder | Action | Priority |
+|--------|--------|----------|
+| `.worktrees/phench-fix` | Archive | HIGH |
+| `.worktrees/gh-pages-deploy` | Archive | HIGH |
+| `worktrees/`, `worktree/`, `add/` | DELETE | HIGH |
+| `docs/node_modules/` | DELETE | HIGH |
+| `crates/phenotype-event-sourcing` | Archive | HIGH |
+| `src/thegent/` vs `platforms/thegent` | Investigate | MEDIUM |
+
+#### 🟡 HIGH: 3 Unused Dependencies
+
+| Package | Action | Priority |
+|---------|--------|----------|
+| `lru` | Remove or implement | MEDIUM |
+| `parking_lot` | Remove or implement | MEDIUM |
+| `moka` | Remove or implement | MEDIUM |
+
+### Action Items (Checkbox Format)
+
+- [ ] CLEAN-001: Delete `worktrees/`, `worktree/`, `add/`
+- [ ] CLEAN-002: Archive `.worktrees/phench-fix/`
+- [ ] CLEAN-003: Archive `.worktrees/gh-pages-deploy/`
+- [ ] CLEAN-004: Delete `docs/node_modules/`
+- [ ] CLEAN-005: Investigate thegent duplication
+- [ ] CLEAN-006: Archive `crates/phenotype-event-sourcing/`
+- [ ] CLEAN-007: Document platforms/thegent purpose
+- [ ] PKG-001: Remove unused `lru`, `parking_lot`, `moka`
+- [ ] PKG-002: Add Lazy<Regex> to Rule struct
+- [ ] PKG-003: Implement PolicyRegistry wrapper
+- [ ] PKG-004: Extract config parsers to crate
+- [ ] PKG-005: Implement phenotype-cache-adapter
+- [ ] DUP-001: Choose canonical phenotype-event-sourcing location
+- [ ] DUP-002: Remove duplicate files
+- [ ] DUP-003: Create phenotype-error-core (~150 LOC savings)
+- [ ] DUP-004: Implement/delete phenotype-cache-adapter
+- [ ] DUP-005: Implement/delete phenotype-state-machine
+
+### Related
+
+- `docs/worklogs/WORK_LOG.md` - Full Wave 92 entry
+- `docs/worklogs/DUPLICATION.md` - Extended duplication findings
 
 ---
 
-## File Index
+## Wave 91 - Session Hygiene (2026-03-29)
 
-### Core Worklogs
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Session hygiene and worklog reorganization:
+- Moved session artifacts to `docs/worklogs/data/`
+- Fixed broken links in DUPLICATION.md
+- Updated README indexes
+
+### Related
+
+- `docs/worklogs/SessionTranscriptAudit.md`
+- `docs/worklogs/SessionGaps20260329.md`
+
+---
 
 | File | Category | Status | Priority |
 |------|----------|--------|----------|
@@ -16,6 +104,7 @@
 | `AgentMasterAuditPrompt.md` | AUDIT | Active (local only) | P0 |
 | `ARCHITECTURE.md` | ARCHITECTURE | Active | P0-P2 |
 | `DEPENDENCIES.md` | DEPENDENCIES | Active | P0-P1 |
+| `EXTERNAL_DEPENDENCIES.md` | EXTERNAL_DEPS | Active | P1 |
 | `DUPLICATION.md` | DUPLICATION | Active | P0 |
 | `INACTIVE_FOLDERS.md` | INFRASTRUCTURE | Active | P0 |
 | `GOVERNANCE.md` | GOVERNANCE | Active | P0-P1 |
@@ -59,6 +148,29 @@ _Prefer these **PascalCase** paths; legacy `EDITION_MIGRATION.md`-style duplicat
 ---
 
 ## Critical Findings (P0-P1)
+
+### 🔴 CRITICAL (P0): Nested Duplicate Crates (~1,710 LOC WASTED)
+
+**Location:** Multiple crates in `crates/phenotype-*/`
+
+| Crate | Location | Waste |
+|-------|----------|-------|
+| phenotype-event-sourcing | Nested duplicate | ~800 LOC |
+| phenotype-contracts | Nested duplicate | ~300 LOC |
+| phenotype-policy-engine | Nested duplicate | ~600 LOC |
+| phenotype-cache-adapter | Empty stub | ~5 LOC |
+| phenotype-state-machine | Empty stub | ~5 LOC |
+
+**Total:** ~1,710 LOC wasted (52% reduction possible)
+
+### 🔬 External 3rd Party Crate Fork Candidates
+
+| Crate | Downloads | Purpose | Recommendation | LOC Savings |
+|-------|-----------|---------|---------------|-------------|
+| `health-check` | <1K | Health checks | **FORK** → `agileplus-health` | ~140 |
+| `figment` | 500K | Config loading | **FORK** → `phenotype-config` | ~150-200 |
+| `eventually` | 10K | Event sourcing | **FORK** → `phenotype-eventcore` | ~300-500 |
+| `command-group` | 500K | Process groups | **WRAP** | ~100-200 |
 
 ### 🔴 CRITICAL (P0): Orphaned Worktrees
 
@@ -247,4 +359,94 @@ Brief description of the work.
 
 ---
 
-_Last updated: 2026-03-29_
+## 2026-03-29 - Extended Research Summary
+
+### New Research Entries (in RESEARCH.md)
+
+| Entry | Priority | Focus |
+|-------|----------|-------|
+| Extended 2026 Crate Ecosystem | P1 | 50+ crates evaluated |
+| Fork Candidates Deep Dive | P0 | 7 major forks |
+| sglang vs vLLM | P1 | LLM inference comparison |
+| thegent Python Patterns | P1 | IPC, coordination, state machines |
+| phenotype-infrakit Analysis | P1 | Production-ready vs archive |
+
+### Cross-Repo Pattern Analysis (Subagent Research)
+
+| Pattern | thegent (Python) | AgilePlus (Rust) | Shared Crate |
+|---------|------------------|-----------------|--------------|
+| Git parallelism | `mesh/git.py` | `agileplus-git` | `phenotype-git` |
+| IPC primitives | `mesh/ipc.py` | Manual Command | `phenotype-ipc` |
+| Coordination | `mesh/coordination.py` | None | `phenotype-coord` |
+| State machines | `agents/state_machine.py` | `agileplus-domain` | `phenotype-state` |
+
+### Fork Candidates Summary
+
+| Source | Target | LOC Saved | Priority |
+|--------|--------|-----------|----------|
+| `utils/pty` (codex-rs) | `phenotype-process` | ~1,400 | 🔴 CRITICAL |
+| CodexErr (codex-rs) | `phenotype-error` | ~400 | 🔴 CRITICAL |
+| `mesh/git.py` (thegent) | `phenotype-git-async` | ~426 | 🟠 HIGH |
+| `mesh/ipc.py` (thegent) | `phenotype-ipc` | ~414 | 🟠 HIGH |
+| `utils/git` (codex-rs) | `phenotype-git` | ~300 | 🟠 HIGH |
+| `mesh/coordination.py` | `phenotype-coordination` | ~327 | 🟡 MEDIUM |
+
+### phenotype-infrakit Assessment
+
+| Crate | LOC | Status | Action |
+|-------|-----|--------|--------|
+| `phenotype-event-sourcing` | ~758 | Production | Keep, publish to crates.io |
+| `phenotype-policy-engine` | ~1,190 | Production | Keep, unique TOML loader |
+| `phenotype-contracts` | ~400 | Production | Keep as canonical ports |
+| `phenotype-state-machine` | 0 | Empty stub | **ARCHIVE** |
+| `phenotype-cache-adapter` | 0 | Empty stub | **ARCHIVE** |
+
+---
+
+## Consolidated Action Items (Wave 91)
+
+### 🔴 CRITICAL (Immediate - P0)
+
+- [ ] Remove nested duplicate `phenotype-event-sourcing/phenotype-event-sourcing/` (~800 LOC)
+- [ ] Remove nested duplicate `phenotype-contracts/phenotype-contracts/` (~300 LOC)
+- [ ] Remove nested duplicate `phenotype-policy-engine/phenotype-policy-engine/` (~600 LOC)
+- [ ] Remove empty stubs: phenotype-cache-adapter, phenotype-state-machine
+- [ ] Fork `health-check` → `agileplus-health` crate (~140 LOC savings)
+- [ ] Fork `figment` → `phenotype-config` crate (~150-200 LOC savings)
+- [ ] Fork `eventually` → `phenotype-eventcore` crate (~300-500 LOC savings)
+
+### 🟡 HIGH (Short-term - P1)
+
+- [ ] Extract `EnhancedError` to `thegent/errors.py` (~276 LOC)
+- [ ] Extract `ErrorBudgetTracker` to `thegent/resilience.py` (~99 LOC)
+- [ ] Create `phenotype-contracts/src/error.rs` with shared error types (~150 LOC)
+- [ ] Audit worktrees/heliosCLI/ for similar patterns
+- [ ] Integrate unused libraries: hexkit, cli-framework, metrics, tracing
+
+### 🟠 MEDIUM (Medium-term - P2)
+
+- [ ] Archive `template-commons-temp/`, `tokenledger-temp/`, `phenotype-go-kit-temp/`
+- [ ] Clean up `isolated/` directory (large duplicate worktrees)
+- [ ] Create `phenotype-error` crate (~400 LOC savings)
+- [ ] Create `phenotype-process` crate (~750 LOC savings)
+
+### 🟢 LOW (Long-term - P3)
+
+- [ ] Document hexagonal architecture patterns in `docs/architecture/ports.md`
+- [ ] Archive unused libraries: cipher, gauge, xdd-lib-rs
+- [ ] Standardize Result type aliases across crates
+
+### LOC Savings Summary
+
+| Category | Current | Target | Reduction |
+|----------|---------|--------|-----------|
+| Nested duplicate crates | ~1,710 | 0 | **100%** |
+| Error type duplication | ~150 | ~80 | **47%** |
+| Health check duplication | ~140 | 0 | **100%** |
+| Config loader duplication | ~500 | ~150 | **70%** |
+| External crate adoption | ~3,193 | ~770 | **76%** |
+| **TOTAL** | **~5,693** | **~1,000** | **~82%** |
+
+---
+
+_Last updated: 2026-03-29 (Wave 91 — subagent research consolidated)_

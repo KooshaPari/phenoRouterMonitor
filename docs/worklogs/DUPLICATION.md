@@ -1,6 +1,199 @@
 # Duplication Worklogs
 
-**Category:** DUPLICATION | **Updated:** 2026-03-29
+**Category:** DUPLICATION | **Updated:** 2026-03-29 | **Lines:** 2800+
+
+---
+
+## 2026-03-29 - Subagent Research Consolidation (Wave 91)
+
+**Status:** in_progress | **Priority:** P0
+
+### Research Summary
+
+Four parallel subagents completed comprehensive audits:
+1. **Inactive Folders Audit** - Identified stale temp directories
+2. **External 3rd Party Crates** - Web research for fork/wrap candidates
+3. **Cross-Project Duplication** - Compared repos vs worktrees
+4. **Libification Opportunities** - Pattern extraction recommendations
+
+---
+
+## 🔴 CRITICAL: Nested Duplicate Crate Structure (~1,710 LOC WASTED)
+
+**Location:** Multiple crates in `crates/phenotype-*/`
+
+| Crate | Location 1 (KEEP) | Location 2 (DELETE) | Waste |
+|-------|-------------------|---------------------|-------|
+| phenotype-event-sourcing | `crates/phenotype-event-sourcing/` | `crates/phenotype-event-sourcing/phenotype-event-sourcing/` | ~800 LOC |
+| phenotype-contracts | `crates/phenotype-contracts/` | `crates/phenotype-contracts/phenotype-contracts/` | ~300 LOC |
+| phenotype-cache-adapter | `crates/phenotype-cache-adapter/` | `crates/phenotype-cache-adapter/phenotype-cache-adapter/` | ~5 LOC |
+| phenotype-policy-engine | `crates/phenotype-policy-engine/` | `crates/phenotype-policy-engine/phenotype-policy-engine/` | ~600 LOC |
+| phenotype-state-machine | `crates/phenotype-state-machine/` | `crates/phenotype-state-machine/phenotype-state-machine/` | ~5 LOC |
+
+**Total Wasted: ~1,710 LOC**
+
+### Identical Files in phenotype-event-sourcing:
+
+| File | LOC (each) | Total |
+|------|-----------|-------|
+| `src/error.rs` | 46 | 92 |
+| `src/event.rs` | 99 | 198 |
+| `src/hash.rs` | 179 | 358 |
+| `src/memory.rs` | 284 | 568 |
+| `src/snapshot.rs` | 92 | 184 |
+| `src/store.rs` | 58 | 116 |
+| `src/lib.rs` | 15 | 30 |
+
+### Action Items
+
+- [ ] **🔴 CRITICAL:** Remove nested `phenotype-event-sourcing/phenotype-event-sourcing/` (~800 LOC)
+- [ ] **🔴 CRITICAL:** Remove nested `phenotype-contracts/phenotype-contracts/` (~300 LOC)
+- [ ] **🔴 CRITICAL:** Remove nested `phenotype-policy-engine/phenotype-policy-engine/` (~600 LOC)
+- [ ] **🟡 MEDIUM:** Remove empty stubs in phenotype-cache-adapter and phenotype-state-machine
+- [ ] **Savings: ~1,710 LOC** (52% reduction in phenotype-infrakit workspace)
+
+---
+
+## 📁 Inactive Folders Audit (Temp/Copy Directories)
+
+**Identified:** Temp working copies NOT canonical shelf/project folders
+
+| Directory | Purpose | Status | Action |
+|-----------|---------|--------|--------|
+| `template-commons-temp/` | Temp copy | **STALE** | Archive/Delete |
+| `tokenledger-temp/` | Temp copy | **STALE** | Archive/Delete |
+| `phenotype-go-kit-temp/` | Temp copy | **STALE** | Archive/Delete |
+| `agent-wave-monorepo-temp/` | Temp copy | **STALE** | Archive/Delete |
+| `isolated/` | Agent worktrees | **INACTIVE** | Evaluate cleanup |
+| `backups/4sgm-2/` | Old 4sgm backup | **INACTIVE** | Archive/Delete |
+
+### Action Items
+
+- [ ] **HIGH:** Evaluate `isolated/` for cleanup - contains large duplicate worktrees
+- [ ] **MEDIUM:** Review `*-temp/` directories for archival or deletion
+- [ ] **LOW:** Consolidate `docs/reports/` - many are one-time audit artifacts
+
+---
+
+## 🔬 External 3rd Party Crate Research (Web Search Results)
+
+### Fork/Wrap Candidates
+
+| Crate | Downloads | Purpose | Phenotype Fit | LOC Savings | Recommendation |
+|-------|-----------|---------|---------------|-------------|----------------|
+| `anyhow` | 60M+ | Error handling | **REPLACE** - Clean up `PolicyEngineError::Other` | ~15-20 | LOW priority |
+| `figment` | 500K | Config loading | **FORK** - Add phenotype providers | ~150-200 | HIGH priority |
+| `eventually` | 10K | Event sourcing | **FORK** - Add hash-chain verification | ~300-500 | MEDIUM priority |
+| `health-check` | <1K | Health checks | **FORK** - Add async_trait support | ~140 | CRITICAL |
+| `command-group` | 500K | Process groups | **WRAP** - Rust process control | ~100-200 | LOW priority |
+| `portable-pty` | 50K | PTY support | **EVALUATE** - Terminal features | ~100 | LOW priority |
+
+### Recommended External Crates
+
+1. **CRITICAL:** `health-check` fork → `agileplus-health`
+2. **HIGH:** `figment` fork → `phenotype-config`
+3. **MEDIUM:** `eventually` fork → `phenotype-eventcore`
+
+### Rust Crate Ecosystem Summary
+
+| Category | Best Option | Weekly Downloads | Notes |
+|----------|-------------|------------------|-------|
+| Error handling | `thiserror` | 50M+ | Already used ✓ |
+| Error context | `anyhow` | 60M+ | Consider for wrappers |
+| Config loading | `figment` | 500K | Best for multi-source |
+| Event sourcing | `eventually` | 10K | Good foundation |
+| Health checks | `health-check` | <1K | Needs async support |
+| Process groups | `command-group` | 500K | Cross-platform |
+
+---
+
+## 🔄 Cross-Project Duplication (repos vs worktrees)
+
+### Rust Crates Comparison
+
+| Pattern | repos/ | worktrees/heliosCLI/ | Status |
+|---------|--------|----------------------|--------|
+| Error types | 15+ enums | Not analyzed | 🔴 CRITICAL |
+| Config loaders | 4 impls | Not analyzed | 🟡 HIGH |
+| Event sourcing | 2 impls | Not analyzed | 🟠 MEDIUM |
+| Health checks | 3 enums | Not analyzed | 🟠 MEDIUM |
+
+### Python Codebase Comparison (thegent)
+
+| Pattern | Location | LOC | Status |
+|---------|----------|-----|--------|
+| Enhanced errors | `src/thegent/infra/enhanced_errors.py` | 276 | 🟡 HIGH |
+| Config manager | `src/thegent/config/manager.py` | 88 | 🟡 HIGH |
+| Runtime config | `src/thegent/config/runtime_config.py` | 163 | 🟡 HIGH |
+| Error budget | `src/thegent/integrations/error_budget.py` | 99 | 🟠 MEDIUM |
+
+### Cross-Project Action Items
+
+- [ ] **🟡 HIGH:** Extract `EnhancedError` to `thegent/errors.py`
+- [ ] **🟡 HIGH:** Extract `ErrorBudgetTracker` to `thegent/resilience.py`
+- [ ] **🟡 HIGH:** Audit worktrees/heliosCLI/ for similar patterns
+- [ ] **🟠 MEDIUM:** Create Python shared module for config patterns
+
+---
+
+## 📦 Libification Opportunities (Pattern Extraction)
+
+### Priority 1: Error Types (~150 LOC duplicate)
+
+| Location | Error Type | LOC | Variants |
+|----------|-----------|-----|----------|
+| `phenotype-event-sourcing/src/error.rs` | EventSourcingError | 46 | Store, Hash, Serialization |
+| `phenotype-policy-engine/src/error.rs` | PolicyEngineError | 65 | Regex, Evaluation, Serialization |
+| `phenotype-contracts/src/ports/inbound/mod.rs` | Error | 18 | NotFound, Validation, Conflict |
+| `phenotype-contracts/src/ports/outbound/mod.rs` | Error | 21 | NotFound, AlreadyExists, Connection |
+
+**Recommendation:** Create `phenotype-contracts/src/error.rs` with shared `AppError` enum
+
+### Priority 2: Ports/Traits (~190 LOC)
+
+| Port Type | Location | LOC | Purpose |
+|-----------|----------|-----|---------|
+| UseCase<I, O> | inbound/mod.rs | 4 | Generic use case |
+| CommandHandler<C> | inbound/mod.rs | 4 | CQRS commands |
+| QueryHandler<Q, R> | inbound/mod.rs | 4 | CQRS queries |
+| EventHandler<E> | inbound/mod.rs | 4 | Domain events |
+| CachePort | outbound/cache.rs | 28 | Caching operations |
+| Repository<E, I> | outbound/repository.rs | 23 | Persistence |
+| EventPublisher | outbound/event.rs | 14 | Event publish |
+| SecretPort | outbound/secret.rs | 13 | Secrets |
+
+**Status:** Well-designed, document only
+
+### Priority 3: Hash Functions (~43 LOC duplicate)
+
+| Function | Location 1 | Location 2 | LOC |
+|---------|-----------|-----------|-----|
+| compute_hash | `hash.rs:18-60` | `hash.rs:18-60` | 43 |
+| verify_chain | `hash.rs:65-88` | `hash.rs:62-87` | 24 |
+| detect_gaps | `hash.rs:93-108` | `hash.rs:90-108` | 16 |
+
+**Recommendation:** Consolidate after removing nested crate
+
+### Libification Action Items
+
+- [ ] **🔴 CRITICAL:** Remove nested duplicate crates (saves ~1,710 LOC)
+- [ ] **🟡 HIGH:** Create `phenotype-contracts/src/error.rs` (~150 LOC)
+- [ ] **🟡 HIGH:** Standardize Result type aliases across crates
+- [ ] **🟠 MEDIUM:** Audit DashMap usage - extract if needed
+- [ ] **🟢 LOW:** Document hexagonal architecture patterns
+
+---
+
+## 📊 LOC Savings Summary
+
+| Category | Current | After | Reduction |
+|----------|---------|-------|-----------|
+| Nested duplicate crates | ~1,710 | 0 | **100%** |
+| Error type duplication | ~150 | ~80 | **47%** |
+| Health check duplication | ~140 | 0 | **100%** |
+| Config loader duplication | ~500 | ~150 | **70%** |
+| External crate adoption | ~3,193 | ~770 | **76%** |
+| **TOTAL** | **~5,693** | **~1,000** | **~82%** |
 
 ---
 
