@@ -1,6 +1,7 @@
 # Worklogs
 
 > Canonical logging and audit documentation for the Phenotype ecosystem.
+> Last comprehensive audit: **2026-03-29** (Wave 90); session transcript + worklog hygiene **Wave 91** (in progress — see `WorkLog.md`)
 
 ---
 
@@ -12,23 +13,104 @@ This directory contains structured worklogs organized by category. Each worklog 
 
 ## File Index
 
-| File | Lines | Category | Last Updated | Notes |
-|------|-------|----------|--------------|-------|
-| `README.md` | 186 | INDEX | 2026-03-29 | This file |
-| `AGENT_ONBOARDING.md` | 200 | ONBOARDING | 2026-03-29 | — |
-| `ARCHITECTURE.md` | 1957 | ARCHITECTURE | 2026-03-29 | 2,100+ LOC analyzed |
-| `DEPENDENCIES.md` | 624 | DEPENDENCIES | 2026-03-29 | Fork candidates, security |
-| `DUPLICATION.md` | 1891 | DUPLICATION | 2026-03-29 | 🔴 CRITICAL - 11 libs unused |
-| `GOVERNANCE.md` | 364 | GOVERNANCE | 2026-03-29 | Quality gates, evidence |
-| `INTEGRATION.md` | 208 | INTEGRATION | 2026-03-29 | MCP, NATS, Plane.so |
-| `PERFORMANCE.md` | 288 | PERFORMANCE | 2026-03-29 | Async, memory, benchmarks |
-| `RESEARCH.md` | 484 | RESEARCH | 2026-03-29 | 30 starred repos analyzed |
-| `WORK_LOG.md` | 179 | WORK_LOG | 2026-03-29 | — |
-| `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | 2026-03-29 | libs/ 2021→2024 |
-| `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | 2026-03-29 | 12 error types consolidated |
-| `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
-| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
-| `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
+### Core Worklogs
+
+| File | Lines | Category | Status | Priority |
+|------|-------|----------|--------|----------|
+| `README.md` | 250+ | INDEX | Current | - |
+| `AGENT_ONBOARDING.md` | 200 | ONBOARDING | Active | P1 |
+| `AgentMasterAuditPrompt.md` | — | AUDIT | Active (canonical; `docs/AGENT_MASTER_AUDIT_PROMPT.md` gitignored, local only) | P0 |
+| `ARCHITECTURE.md` | 400+ | ARCHITECTURE | Active | P0-P2 |
+| `DEPENDENCIES.md` | 600+ | DEPENDENCIES | Active | P0-P1 |
+| `DUPLICATION.md` | 1900+ | DUPLICATION | Active | P0 |
+| `GOVERNANCE.md` | 360+ | GOVERNANCE | Active | P0-P1 |
+| `INTEGRATION.md` | 208 | INTEGRATION | Active | P1 |
+| `PERFORMANCE.md` | 288 | PERFORMANCE | Active | P1-P2 |
+| `RESEARCH.md` | 480+ | RESEARCH | Active | P1-P2 |
+| `WorkLog.md` | 200+ | WORKLOG | Current | - |
+| `AgentMasterAuditPrompt.md` | 400+ | AUDIT | Active | P0 |
+| `SessionTranscriptAudit.md` | — | SESSION | Active | P1 |
+| `SessionGaps20260329.md` | — | SESSION | Active | P1 |
+| `MasterDuplicationAudit20260329.md` | 290+ | DUPLICATION | Complete | P0 |
+| `WorklogsIndex.md` | — | INDEX | 2026-03-29 | - |
+| `WORK_LOG.md` | — | REDIRECT | Deprecated | — |
+| `WORKLOGS_INDEX.md` | — | REDIRECT | Deprecated | — |
+
+### Project-Specific Worklogs
+
+| File | Lines | Category | Status |
+|------|-------|----------|--------|
+| `PROJECTS.md` | — | PROJECTS | Summary |
+| `PROJECTS_agileplus.md` | — | PROJECTS | Active |
+| `PROJECTS_thegent.md` | — | PROJECTS | Active |
+| `PROJECTS_heliosCLI.md` | — | PROJECTS | Active |
+
+### Implementation Plans
+
+| File | Lines | Category | Priority |
+|------|-------|----------|----------|
+| `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | P0 |
+| `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | P0 |
+| `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | P1 |
+| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | P0 |
+| `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | P0 |
+
+---
+
+## 2026 Critical Findings Summary
+
+### 🔴 CRITICAL (P0): Unused Libraries - ~1,650 LOC Wasted
+
+**Root Cause:** All `libs/phenotype-shared/crates/` are not integrated into the main workspace despite having production-ready code.
+
+| Library | Path | LOC | Status | Action |
+|---------|------|-----|--------|--------|
+| `phenotype-port-interfaces` | `libs/phenotype-shared/crates/` | ~300 | UNUSED | Integrate traits |
+| `phenotype-http-adapter` | `libs/phenotype-shared/crates/` | ~200 | UNUSED | Integrate patterns |
+| `phenotype-postgres-adapter` | `libs/phenotype-shared/crates/` | ~150 | UNUSED | Integrate patterns |
+| `phenotype-redis-adapter` | `libs/phenotype-shared/crates/` | ~150 | UNUSED | Integrate patterns |
+| `phenotype-cache-adapter` | `libs/phenotype-shared/crates/` | ~100 | UNUSED | Integrate patterns |
+| `phenotype-state-machine` | `libs/phenotype-shared/crates/` | ~100 | UNUSED | Archive |
+
+### 🔴 CRITICAL (P0): Error Type Duplication - ~600 LOC
+
+| Error Type | Locations | LOC | Duplicated Variants |
+|------------|-----------|-----|---------------------|
+| `ApiError` | 1 | 14 | NotFound, Internal |
+| `DomainError` | 1 | 47 | NotFound, Conflict |
+| `SyncError` | 2 (sync, p2p) | 41 | Nats, Serialization |
+| `EventError` | 1 | 12 | Store, Hash |
+| `GraphError` | 1 | 12 | Store, Query |
+| `CacheError` | 1 | 10 | Store, Serialization |
+| `PortError` | 1 | 51 | NotFound, Validation |
+
+**Total: 12 error types, 68+ variants, ~189 LOC verified**
+
+### 🟡 HIGH (P1): Port/Trait Architecture Split - 2,106 LOC
+
+Two independent hexagonal ecosystems exist:
+
+**Ecosystem 1:** `libs/phenotype-shared/crates/phenotype-port-interfaces/`
+- `Repository` trait (78 LOC)
+- `Cache` trait
+- `Logger` trait (101 LOC)
+- `EventBus`, `Http`, `Filesystem`, `Config` traits
+
+**Ecosystem 2:** `crates/agileplus-domain/src/ports/`
+- `ObservabilityPort` (850 LOC)
+- `AgentPort`, `VcsPort`, `StoragePort`, `ReviewPort`
+
+### 🟠 MEDIUM (P2): External Package Opportunities
+
+| Crate | Downloads | Purpose | Recommendation |
+|-------|-----------|---------|----------------|
+| `eventually` | ~500 stars | Event sourcing | **WRAP** - standardized ES patterns |
+| `figment` | ~300 stars | Config management | **ADOPT** - multi-source config |
+| `casbin` | ~2k stars | RBAC/ABAC | **WRAP** - cross-language policy |
+| `command-group` | - | Process groups | **ADOPT** - signal propagation |
+| `indicatif` | - | Progress bars | **ADD** - CLI feedback |
+| `temporal-sdk` | ~500 stars | Workflow | **WRAP** - long-running workflows |
+
 ---
 
 ## Category Summaries
@@ -72,9 +154,9 @@ This directory contains structured worklogs organized by category. Each worklog 
 | git2 → gix | Security advisory | 🟡 HIGH |
 | Modern Tooling | uv, ruff, buf integrated | ✅ DONE |
 
-### RESEARCH.md
+### RESEARCH.md (480+ lines)
 
-**Focus**: Starred repo analysis, technology radar
+**Focus:** Starred repo analysis, technology radar, external packages
 
 | Sub-Category | Findings | Status |
 |--------------|----------|--------|
@@ -120,8 +202,10 @@ This directory contains structured worklogs organized by category. Each worklog 
 cat docs/worklogs/DUPLICATION.md
 ```
 
-### For Architecture Decisions
-```bash
+# View repo-root duplication audit (summary)
+cat DUPLICATION_AUDIT.md
+
+# View architecture analysis
 cat docs/worklogs/ARCHITECTURE.md
 ```
 
@@ -147,9 +231,22 @@ cat docs/worklogs/PERFORMANCE.md
 
 ---
 
-## Adding Entries
+## Master duplication audits
 
-### Entry Template
+**Sources:** `docs/worklogs/DUPLICATION.md` (detailed worklog) and repo-root `DUPLICATION_AUDIT.md` (audit summary). The following consolidation targets were identified:
+
+| Category | Current LOC | Target LOC | Savings |
+|----------|-------------|------------|---------|
+| Unused Libraries | 1,650 | 0 (archive) | **1,650** |
+| Error Types | 600 | 200 | **400** |
+| Config Loading | 500 | 150 | **350** |
+| Store Traits | 300 | 100 | **200** |
+| HTTP Clients | 300 | 100 | **200** |
+| **TOTAL** | **3,350** | **550** | **2,800** |
+
+---
+
+## Entry Template
 
 ```markdown
 ## YYYY-MM-DD - Entry Title
@@ -206,16 +303,17 @@ Use `aggregate.sh` to compile a master view:
 
 ---
 
-## Related Documentation
-
 | Document | Location | Purpose |
 |----------|----------|---------|
 | WORKLOG.md | `docs/WORKLOG.md` | Wave entries |
 | PLAN.md | `PLAN.md` | AgilePlus implementation |
 | PRD.md | `PRD.md` | Product requirements |
 | ADR.md | `ADR.md` | Architecture decisions |
-| MASTER_DUPLICATION_AUDIT | `docs/reports/MASTER_DUPLICATION_AUDIT.md` | Comprehensive audit |
-| Consolidation Audit | `docs/research/consolidation-audit-2026-03-29.md` | P1-P4 actions |
+| Master Audit Prompt | `docs/worklogs/AgentMasterAuditPrompt.md` | Agent audit directive (canonical) |
+| Master Audit Prompt (local) | `docs/AGENT_MASTER_AUDIT_PROMPT.md` | Optional local copy; gitignored, not tracked |
+| Quality Engineering | `worklogs/QUALITY.md` | Test coverage & metrics |
+| Tooling | `worklogs/TOOLING.md` | New tools & features |
+| UX/DX | `worklogs/UX_DX.md` | Developer experience |
 
 ---
 
@@ -243,3 +341,111 @@ Use `aggregate.sh` to compile a master view:
 ---
 
 _Last updated: 2026-03-29_
+### Rust Crates (crates.io)
+
+| Category | Recommended | Why |
+|----------|-------------|-----|
+| Event Sourcing | `eventually` | Standardized Aggregate/Repository traits |
+| Config | `figment` | Multi-source, provenance tracking |
+| Policy | `casbin` | Cross-language RBAC/ABAC |
+| Process | `command-group` | Signal propagation, group management |
+| CLI | `indicatif` | Progress bars, spinners |
+| Workflow | `temporal-sdk` | Long-running workflows |
+| Error | `miette` | Pretty diagnostic errors |
+| Config | `config-rs` | 40M+ downloads, mature |
+
+### npm Packages (Node.js)
+
+| Package | Recommendation | Why |
+|---------|----------------|-----|
+| `zod` | **ADD** | Schema validation, 20k stars |
+| `xstate` | **WRAP** | State machines, 15k stars |
+| `@temporalio/client` | **WRAP** | Workflow orchestration |
+| `casbin` | **WRAP** | Cross-runtime policy |
+| `ajv` | **WRAP** | JSON Schema validation |
+
+### PyPI Packages (Python)
+
+| Package | Recommendation | Why |
+|---------|----------------|-----|
+| `pydantic` | **ADD** | Data validation, 25k stars |
+| `eventsourcing` | **WRAP** | Python ES patterns |
+| `temporalio` | **WRAP** | Workflow orchestration |
+| `transitions` | **WRAP** | State machine patterns |
+
+---
+
+## 2026-03-29 - Extended Research Summary (New Entries)
+
+### New Research Entries Added (in RESEARCH.md)
+
+| Entry | Priority | Lines | Focus |
+|-------|----------|-------|-------|
+| Extended 2026 Crate Ecosystem | P1 | ~150 | 50+ crates evaluated |
+| Fork Candidates Deep Dive | P0 | ~120 | 4 major forks |
+| sglang vs vLLM | P1 | ~60 | LLM inference comparison |
+| Inactive Folders Audit | P1 | ~30 | Worktree verification |
+| Unwired Repos Assessment | P1 | ~80 | Archive/activate/delete |
+
+### 2026 Crate Categories Evaluated
+
+| Category | Crates | Recommendations |
+|----------|--------|------------------|
+| AI/LLM | 6 | ADOPT: anthropic, EVAL: llm-chain, tiktoken |
+| Agent Frameworks | 4 | EVAL: mcp-sdk, WATCH: smol-ai |
+| Observability | 5 | ADOPT: ratatui, tokio-console |
+| Performance | 5 | ADOPT: nextest, EVAL: sccache, mold |
+| Async/Concurrency | 5 | EVAL: parking_lot, dashmap, flume |
+| Database | 6 | EVAL: sqlx, sea-orm, sled |
+| Serialization | 5 | EVAL: rkyv, postcard, capnp |
+| CLI Tools | 6 | ADOPT: indicatif, dialoguer, console |
+
+### Fork Candidates Summary
+
+| Source | Target | LOC Saved | Priority |
+|--------|--------|-----------|----------|
+| `utils/pty` (codex-rs) | `phenotype-process` | ~1,400 | 🔴 CRITICAL |
+| CodexErr (codex-rs) | `phenotype-error` | ~400 | 🔴 CRITICAL |
+| `utils/git` (codex-rs) | `phenotype-git` | ~300 | 🟠 HIGH |
+| SpawnContext (vibe-kanban) | `phenotype-executor` | ~150 | 🟡 MEDIUM |
+
+---
+
+## 2026-03-29 - Consolidated Action Items
+
+### 🔴 CRITICAL (P0)
+
+| ID | Action | Status |
+|----|--------|--------|
+| CRIT-001 | FORK `utils/pty` → `phenotype-process` | TODO |
+| CRIT-002 | FORK CodexErr pattern → `phenotype-error` | TODO |
+| CRIT-003 | EVAL-001: Benchmark SGLANG vs vLLM | TODO |
+| CRIT-004 | ACT-001: Activate `libs/metrics-core` | TODO |
+| CRIT-005 | ACT-002: Activate `libs/tracing-core` | TODO |
+
+### 🟠 HIGH (P1)
+
+| ID | Action | Status |
+|----|--------|--------|
+| HIGH-001 | FORK `utils/git` → `phenotype-git` | TODO |
+| HIGH-002 | EVAL-010: Deep-dive `fix-dead-code/` | TODO |
+| HIGH-003 | EVAL-011: Audit `ccusage-wtrees/` | TODO |
+| HIGH-004 | EVAL-012: Audit `zen-wtrees/` | TODO |
+| HIGH-005 | ADOPT `command-group` | TODO |
+| HIGH-006 | ADOPT `figment` | TODO |
+
+### 🟡 MEDIUM (P2)
+
+| ID | Action | Status |
+|----|--------|--------|
+| MED-001 | FORK SpawnContext → `phenotype-executor` | TODO |
+| MED-002 | ADOPT `indicatif` | TODO |
+| MED-003 | ADOPT `ratatui` | TODO |
+| MED-004 | EVAL `anthropic` for Claude | TODO |
+| MED-005 | ARCH-001: Archive `libs/hexagonal-rs` | TODO |
+| MED-006 | DEL-001: Delete `libs/cipher` (if unused) | TODO |
+| MED-007 | DEL-002: Delete `libs/gauge` (if unused) | TODO |
+
+---
+
+_Last updated: 2026-03-29 (Wave 90 - Comprehensive Audit)_
