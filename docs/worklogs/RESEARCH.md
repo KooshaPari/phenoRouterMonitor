@@ -1,12 +1,6 @@
-# Research Worklogs
-
-**Category:** RESEARCH | **Updated:** 2026-03-29
-
----
----
 ---
 
-## 2026-03-29 - Extended 2026 Crate Ecosystem Research
+## 2026-03-29 - NEW 2026 Crate Discoveries (docs.rs feed)
 
 **Project:** [cross-repo]
 **Category:** research
@@ -15,249 +9,479 @@
 
 ### Summary
 
-Web research on emerging 2026 crates that could benefit the Phenotype ecosystem. Covers AI/LLM, observability, performance, and developer tooling.
+Discovered 6 high-value crates from 2026-03-29 docs.rs release feed relevant to agent systems and workflow orchestration.
+
+### 🔴 CRITICAL - Agent-to-Agent Protocols
+
+#### ra2a (A2A Protocol SDK)
+
+**Purpose:** Rust implementation of the Agent2Agent (A2A) Protocol v1.0
+
+**Key Features:**
+- Full A2A Protocol v1.0 compliance
+- Async/await built on tokio
+- Type-safe models with newtype IDs
+- Modular with optional features (gRPC, telemetry, SQL)
+
+**Relevance to Phenotype:**
+- Could standardize agent communication across heliosCLI, thegent, AgilePlus
+- Provides AgentCard, Task, Message types that overlap with existing patterns
+- MIT OR Apache-2.0 license
+
+**Decision:** **EVALUATE** - High value for agent interoperability
 
 ---
 
-### AI/LLM Integration (2026)
+#### mentisdb (Semantic Memory)
 
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `anthropic` | 0.3.0 | Claude SDK (official) | **ADOPT** - First-class async |
-| `anthropic-sdk-core` | 0.3.0 | Core types | **ADOPT** - Streaming, tools |
-| `llm-chain` | 0.5.0 | Multi-provider LLM | **EVALUATE** - Tool use, chains |
-| `tiktoken` | 0.5.0 | BPE tokenization | **EVALUATE** - Cost tracking |
-| `tokenizers` | 0.20.0 | HuggingFace tokenizer | **EVALUATE** - Full tokenizer |
-| `transformers` | 0.3.0 | HuggingFace models | **WATCH** - Rust ML |
+**Purpose:** Hash-chained semantic memory for long-running agents
 
-### Agent Frameworks (2026)
+**Key Features:**
+- Append-only, adapter-backed memory log
+- Thoughts timestamped and hash-chained
+- Typed, connectable to prior thoughts
+- Exportable as prompts or Markdown snapshots
+- Multiple storage backends (Binary, JSONL)
+- Skill registry with versioning
 
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `agent-P` | 0.2.0 | Agent primitives | **EVALUATE** - MCP integration |
-| `open-agent` | 0.1.0 | OpenAI agents | **EVALUATE** - Tool calling |
-| `mcp-sdk` | 0.1.0 | Model Context Protocol | **EVALUATE** - Standard tool protocol |
-| `smol-ai` | 0.2.0 | Agent framework | **WATCH** - Emerging |
+**Relevance to Phenotype:**
+- Directly addresses agent memory/persistence needs
+- Could replace custom event sourcing in some areas
+- Hash-chaining similar to existing event sourcing patterns
 
-### Observability & Tracing (2026)
-
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `ratatui` | 0.28.0 | Terminal UI | **ADOPT** - TUI dashboards |
-| `tokio-console` | 0.2.0 | Async debugging | **ADOPT** - Debugging |
-| `tracing-flame` | 0.2.0 | Flame graphs | **EVALUATE** - Performance |
-| `tracing-tracy` | 0.2.0 | Tracy profiler | **EVALUATE** - GPU profiling |
-| `perf-monitor` | 0.1.0 | Runtime metrics | **EVALUATE** - Simple monitoring |
-
-### Performance & Optimization (2026)
-
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `cargo-flamegraph` | 0.6.0 | Profiling | **ADOPT** - Already using |
-| `cargo-nextest` | 0.9.0 | Test runner | **ADOPT** - Parallel tests |
-| `cargo-hack` | 0.5.0 | Feature flags | **EVALUATE** - CI |
-| `sccache` | 0.8.0 | Shared cache | **EVALUATE** - CI caching |
-| `mold` | 1.0.0 | linker | **EVALUATE** - Faster builds |
-
-### Async & Concurrency (2026)
-
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `parking_lot` | 0.12.0 | Synchronization | **EVALUATE** - Faster than Mutex |
-| `dashmap` | 5.5.0 | Concurrent map | **EVALUATE** - Read-heavy |
-| `flume` | 0.11.0 | Channels | **EVALUATE** - Higher throughput |
-| `atomic-pool` | 0.2.0 | Object pooling | **EVALUATE** - Reduce allocations |
-| `pretrace` | 0.1.0 | Tracing allocator | **WATCH** - Memory profiling |
-
-### Database & Storage (2026)
-
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `sqlx` | 0.8.0 | Async SQL | **EVALUATE** - Migration from rusqlite |
-| `sea-orm` | 1.0.0 | Async ORM | **EVALUATE** - Complex queries |
-| `sled` | 0.34.0 | Embedded KV | **EVALUATE** - Local caching |
-| `rocksdb` | 0.22.0 | RocksDB bindings | **EVALUATE** - Performance |
-| `parquet` | 50.0.0 | Columnar storage | **EVALUATE** - Analytics |
-| `arrow` | 45.0.0 | Apache Arrow | **EVALUATE** - Data frames |
-
-### Serialization (2026)
-
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `rkyv` | 0.8.0 | Zero-copy | **EVALUATE** - Performance |
-| `postcard` | 1.0.0 | No-std | **EVALUATE** - Embedded |
-| `speedy` | 0.13.0 | Fast | **EVALUATE** - Cross-language |
-| `abstreet` | 0.1.0 | MessagePack | **WATCH** - Alternative |
-| `capnp` | 0.20.0 | Cap'n Proto | **EVALUATE** - RPC |
-
-### CLI & Developer Tools (2026)
-
-| Crate | Version | Purpose | Assessment |
-|-------|---------|---------|------------|
-| `clap_complete` | 5.0.0 | Shell completions | **ADOPT** - CLI UX |
-| `dialoguer` | 0.11.0 | Interactive prompts | **ADOPT** - CLI interactivity |
-| `console` | 0.16.0 | Terminal styling | **ADOPT** - Colors, etc. |
-| `colored` | 2.0.0 | Terminal colors | **EVALUATE** - Alternative |
-| `indicatif` | 0.18.0 | Progress bars | **ADOPT** - Progress |
-| `anyhow` | 1.0.0 | Error handling | ✅ Already using |
+**Decision:** **FORK CANDIDATE** - High alignment with phenotype-event-sourcing
 
 ---
 
-## 2026-03-29 - Fork Candidates Deep Dive
+### 🟠 HIGH - Workflow Orchestration
 
-**Project:** [cross-repo]
+#### forza-core (Workflow Orchestrator)
+
+**Purpose:** Core abstractions for forza workflow orchestrator for agent-driven development
+
+**Key Features:**
+- Subject → Route → Workflow → Stage → Run pipeline
+- GitHub as authoritative state machine
+- Pluggable backends via traits
+- Linear, no branching workflows
+
+**Decision:** **WRAP** - Valuable for workflow orchestration layer
+
+---
+
+### Comparison Matrix
+
+| Crate | Phenotype Alignment | LOC Savings | Priority | Decision |
+|-------|---------------------|-------------|----------|----------|
+| ra2a | Agent communication | ~200 | P1 | EVALUATE |
+| mentisdb | Memory/persistence | ~400 | P1 | FORK CANDIDATE |
+| forza-core | Workflow orchestration | ~300 | P2 | WRAP |
+
+---
+
+## 2026-03-29 - Original Root Prompt Discovery
+
+**Project:** [docs]
 **Category:** research
 **Status:** completed
-**Priority:** P0
+**Priority:** P2
 
-### Summary
+### Original Prompt Source
 
-Deep analysis of fork candidates from GitHub repositories that could benefit Phenotype.
+**Location:** `docs/worklogs/data/phenotype_session_extract_2026-03-26_2026-03-29.json`
+
+### Original Prompt Content
+
+```
+❯ you need to merge into the actual canonical docs ## Final Worklogs Structure
+::: worklogs/
+::: ├── README.md              (150 lines) - Index & aggregation guide
+::: ├── AGENT_ONBOARDING.md    (200 lines) - Agent onboarding
+::: ├── ARCHITECTURE.md        (253 lines) - Architecture & port/trait analysis
+::: ├── DEPENDENCIES.md        (364 lines) - External dependency audits
+::: ├── DUPLICATION.md         (338 lines) - Extended duplication audit
+::: └── WORK_LOG.md           (179 lines) - Work item tracking
+::: └── aggregate.sh           - Aggregation script
+use haiku agents and fd + other faster tools over find
+```
+
+### Execution Pattern
+
+| Attribute | Value |
+|-----------|-------|
+| **Sent to** | Multiple sequential haiku agents |
+| **Date** | 2026-03-27 to 2026-03-29 |
+| **Purpose** | Worklogs organization and consolidation |
 
 ---
 
-### 1. phenotype-process (FROM utils/pty)
+## 2026-03-29 - Inactive Repos/Worktrees Audit
 
-**Source:** `platforms/heliosCLI/codex-rs/utils/pty/`
+**Project:** [cross-repo]
+**Category:** governance
+**Status:** completed
+**Priority:** P1
 
-**Contents:**
+### Directory Status Matrix
+
+| Directory | Type | Canonical? | Status | Action |
+|-----------|------|-----------|--------|--------|
+| `.worktrees/gh-pages-deploy/` | Git worktree | No | Inactive | SYNC + PUSH |
+| `.worktrees/phench-fix/` | Git worktree | No | Inactive | SYNC + PUSH |
+| `.worktrees/thegent/` | Git worktree | No | Partial | EVALUATE |
+| `worktrees/heliosCLI/` | Worktree dir | No | Inactive | CLEANUP |
+| `worktrees/phenotypeActions/` | Worktree dir | No | EMPTY | DELETE |
+| `worktree/` | Worktree dir | No | EMPTY | DELETE |
+| `.archive/*/` | Archive | N/A | All EMPTY | DELETE ALL |
+
+### Empty Directories to Delete
+
+```bash
+# Identified empty dirs in .archive/
+.archive/audit/
+.archive/contracts/
+.archive/kitty-specs/
+.archive/plans/
+.archive/schemas/
+.archive/tests/
+
+# Empty worktree dirs
+worktrees/phenotypeActions/
+worktree/
 ```
-utils/pty/
-├── src/
-│   ├── lib.rs          (exports, 200 LOC)
-│   ├── pipe.rs         (non-interactive, 150 LOC)
-│   ├── pty.rs          (PTY spawning, 300 LOC)
-│   ├── process.rs      (ProcessHandle, 200 LOC)
-│   └── process_group.rs (group management, 150 LOC)
-└── tests/
-    └── integration.rs   (1000+ LOC tests)
-```
 
-**Why Fork:**
-- Cross-platform PTY (Unix + ConPTY)
-- Process group semantics (kill all children)
-- Built-in output streaming
-- Well-tested (~1000 LOC of tests)
+### Action Items
 
-**Estimated Savings:** ~1,400 LOC across repos
+- [ ] DELETE: `worktrees/phenotypeActions/` (empty)
+- [ ] DELETE: `worktree/` (empty)
+- [ ] DELETE: `.archive/*/` (all empty)
+- [ ] SYNC: `.worktrees/gh-pages-deploy/` with origin/main
+- [ ] SYNC: `.worktrees/phench-fix/` with origin/main
+- [ ] EVALUATE: `.worktrees/thegent/` - determine if cli/ should be extracted
 
 ---
 
-### 2. phenotype-error (FROM CodexErr pattern)
+# Research Worklogs
+# Research Worklogs
 
-**Source:** `platforms/heliosCLI/codex-rs/core/src/error.rs` (~1,148 LOC)
-
-**Key Patterns:**
-```rust
-pub enum CodexErr {
-    TurnAborted,
-    ContextWindowExceeded,
-    ThreadNotFound(ThreadId),
-    Stream(String, Option<Duration>),  // retryable
-    Io(#[from] io::Error),
-    Json(#[from] serde_json::Error),
-    // ...
-}
-
-impl CodexErr {
-    pub fn is_retryable(&self) -> bool { ... }
-    pub fn to_codex_protocol_error(&self) -> CodexErrorInfo { ... }
-}
-```
-
-**Why Fork:**
-- Single enum with From impls
-- Retryable trait for automatic retry
-- Protocol-aware error translation
-- Comprehensive test coverage
-
-**Estimated Savings:** ~400 LOC (75% reduction)
+**Category:** RESEARCH | **Updated:** 2026-03-29
 
 ---
 
-### 3. phenotype-git (FROM utils/git)
-
-**Source:** `platforms/heliosCLI/codex-rs/utils/git/`
-
-**Contents:**
-```
-utils/git/
-├── src/
-│   ├── apply.rs        (cherry-pick, patches)
-│   ├── branch.rs       (branch CRUD)
-│   ├── ghost_commits.rs (orphaned commits)
-│   ├── operations.rs   (clone, fetch, push)
-│   └── lib.rs
-```
-
-**Why Fork:**
-- Git operations already implemented
-- Pattern-based rather than full-featured
-- Could be enhanced with worktree support
-
-**Estimated Savings:** ~300 LOC
-
----
-
-### 4. phenotype-executor (FROM SpawnContext)
-
-**Source:** `vibe-kanban/backend/src/executor.rs:72-151`
-
-**Pattern:**
-```rust
-pub struct SpawnContext {
-    pub executor_type: ExecutorType,
-    pub task_id: Option<TaskId>,
-    pub working_dir: Option<PathBuf>,
-    pub env_vars: HashMap<String, String>,
-}
-
-impl From<&tokio::process::Command> for SpawnContext { ... }
-```
-
-**Why Fork:**
-- Rich context for process spawning
-- Builder pattern for configuration
-- Error context (executor type, task ID, working dir)
-
-**Estimated Savings:** ~150 LOC
-
----
-
-## 2026-03-29 - Inactive Folders Audit Summary
+## 2026-03-29 - Expanded External Package Research (2026)
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** in_progress
 **Priority:** P1
 
-### Worktrees to Verify
+### Summary
 
-| Worktree | Status | Action |
-|----------|--------|--------|
-| `ccusage-wtrees/` | Unknown | CHECK git state |
-| `zen-wtrees/` | Unknown | CHECK git state |
-| `fix-dead-code/` | Experimental | EVALUATE + ARCHIVE |
-
-### Cleanup Protocol
-
-1. **Verify on main**: `git checkout main && git pull`
-2. **Check stashes**: `git stash list`
-3. **Extract stashes**: `git stash pop` if valuable
-4. **Delete**: `git worktree remove <path>`
-
-### Non-Worktree Directories
-
-| Directory | Purpose | Action |
-|----------|---------|--------|
-| `worktree/` | Legacy overlay | CONFIRM status |
-| `platforms/thegent` | Project ref | CONFIRM status |
-| `docs/node_modules` | Generated | OK (gitignored) |
-| `.worktrees/*` | Local clones | CLEANUP if stale |
+Comprehensive research on external 3rd party packages and repos for integration opportunities. Focus on whitebox (fork+modify), blackbox (direct use), and wrap (custom impl) strategies.
 
 ---
 
-_Last updated: 2026-03-29_
+## GitHub Verified Research (2026-03-29)
+
+### Tauri Apps ✅ VERIFIED
+
+| Field | Value |
+|-------|-------|
+| GitHub | `tauri-apps/tauri` |
+| Stars | **105k** |
+| Forks | 3.5k |
+| Commits | 5,927 |
+| License | MIT/Apache 2.0 |
+| Status | Stable |
+| Platforms | Windows, macOS, Linux, iOS, Android |
+
+**Opportunity:** Desktop agent UI wrapper - ADOPT
+- Rust backend with web frontend
+- Small binary size, fast performance
+- Cross-platform desktop apps
+- System tray, notifications, native menus
+
+### Google Cloud Go ✅ VERIFIED
+
+| Field | Value |
+|-------|-------|
+| GitHub | `googleapis/google-cloud-go` |
+| Stars | **4.4k** |
+| Forks | 1.5k |
+| Commits | 10,206 |
+| APIs | 200+ Google Cloud services |
+| Status | Production |
+
+**Opportunity:** For specific services - WRAP
+- Secret Manager, Cloud Storage, Pub/Sub
+- IAM, Resource Manager
+- Vertex AI for ML inference
+
+---
+
+## External Package Integration Strategy
+
+### Integration Levels
+
+| Level | Description | Example | LOC Savings |
+|-------|-------------|---------|------------|
+| **BLACKBOX** | Direct dependency | `anyhow::Error` | 0 |
+| **WHITEBOX** | Fork + modify | Custom fork of `eventually` | High |
+| **WRAPPER** | Custom impl wrapping external | `phenotype-event-sourcing` wrapping `eventually` | Medium |
+| **INSPIRATION** | Study patterns, implement differently | Study `casbin`, implement `phenotype-policy-engine` | N/A |
+| **REPLACE** | Drop external for internal | Replace `serde_json` with `rmp` | Varies |
+
+### Developer Quality Assessment
+
+| Factor | Questions |
+|--------|-----------|
+| **Active Maintenance** | Last commit < 6 months? |
+| **Community Size** | Stars, contributors, issues? |
+| **Documentation** | Docs.rs, examples, guides? |
+| **Breaking Changes** | Version stability? |
+| **License** | Permissive for commercial use? |
+
+### Fork/Modify Decision Matrix
+
+```
+                    High Quality Dev                    Low Quality Dev
+                   /                    \              /                \
+              Large Gap                                              Small Gap
+             /        \                                          /            \
+        FORK+WRAP   WRAP+CONTRIB                           WRAP          BLACKBOX
+        (long-term) (medium-term)
+```
+
+---
+
+## Recommended External Package Actions
+
+### Immediate (This Week)
+
+- [ ] 🟡 HIGH: Evaluate `casbin` for cross-language policy engine (Apache 2.0, 1.1k stars) - **WRAP**
+- [ ] 🟡 HIGH: Evaluate `eventually` for standardized Aggregate/Repository traits (500 stars) - **WRAP**
+- [ ] 🟡 HIGH: Add `zod` for Node.js API validation (20k stars) - **ADD**
+
+### Short-term (This Month)
+
+- [ ] 🟡 HIGH: Create `phenotype-event-sourcing-wrapper` for `eventually` interop
+- [ ] 🟡 HIGH: Create `phenotype-policy-engine-wrapper` for `casbin` interop
+- [ ] 🟠 MEDIUM: Evaluate `temporal-sdk` for long-running workflows (440 stars, prerelease) - **WRAP**
+- [ ] 🟠 MEDIUM: Evaluate `tauri` for desktop agent UI (105k stars) - **ADOPT**
+
+### Medium-term (This Quarter)
+
+- [ ] 🟠 MEDIUM: Add `pydantic` patterns for Python interop (25k stars)
+- [ ] 🟠 MEDIUM: Wrap `xstate` for frontend FSM interop (15k stars)
+- [ ] 🟢 LOW: Evaluate `google-cloud-go` for specific GCP services (4.4k stars) - **WRAP**
+- [ ] 🟢 LOW: Evaluate `surrealdb` for embedded graph storage (30k stars)
+
+---
+
+## Related
+
+- Duplication: `worklogs/DUPLICATION.md`
+- Dependencies: `worklogs/DEPENDENCIES.md`
+- Architecture: `worklogs/ARCHITECTURE.md`
+## 2026-03-29 - Git State & Cleanup Findings
+
+**Project:** [phenotype-infrakit]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Git State Analysis
+
+**Critical Issues Found:**
+
+| Issue | Severity | Action Required |
+|-------|----------|-----------------|
+| Unresolved merge conflict in `.gitignore` | 🔴 CRITICAL | ✅ FIXED - Resolved conflict markers |
+| Staged `src/thegent/` code in Rust repo | 🔴 CRITICAL | ✅ FIXED - Unstaged with `git reset` |
+| Stash with worklog changes | 🟡 HIGH | Review `stash@{0}` |
+| Orphaned local branches | 🟠 MEDIUM | `fix/phench-tests-1`, `chore/*` |
+
+### Local Branches Requiring Review
+
+| Branch | Status | Action |
+|--------|--------|--------|
+| `fix/phench-tests-1` | Local only | Delete or push |
+| `chore/worklog-consolidation` | Has stash | Review stash@{0} |
+| `chore/cleanup-worklogs-20260329` | Pushed to origin | OK |
+
+### Remote Branches (origin) - Cleanup Candidates
+
+| Branch | Status | Action |
+|--------|--------|--------|
+| `origin/chore/spec-docs` | Merged | Delete |
+| `origin/chore/vitepress-docs*` | Likely merged | Delete |
+| `origin/chore/worklog*` | Likely merged | Delete |
+| `origin/docs/consolidate-worklog-notes` | Merged | Delete |
+
+### Stashed Changes
+
+```
+stash@{0}: On chore/worklog-consolidation: worklogs-unstaged-changes
+stash@{1}: WIP on main: 882391e23 chore: cleanup docs/worklogs
+stash@{2}: WIP on main: ce4f0c94c chore: ignore libs/ and platforms/
+```
+
+**Recommendation**: Review `stash@{0}` for any needed worklog changes.
+
+### Recommendations
+
+1. **Clean up merged remote branches:**
+   ```bash
+   git push origin --delete chore/spec-docs chore/vitepress-docs chore/worklog-*
+   ```
+
+2. **Delete orphaned local branches:**
+   ```bash
+   git branch -d fix/phench-tests-1 chore/worklog-consolidation
+   ```
+
+3. **Review stashed changes:**
+   ```bash
+   git stash show -p stash@{0}
+   ```
+
+### Related
+
+- `.gitignore` - Fixed merge conflict
+- `src/thegent/` - Unstaged, NOT part of phenotype-infrakit
+
+---
+
+## 2026-03-29 - 2026 Rust Crate Ecosystem Research
+
+**Project:** [phenotype-infrakit]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Event Sourcing Crates (crates.io)
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `eventually` | ~50k/mo | Aggregate/Repository traits | **WRAP** - Standardized ES patterns |
+| `cqrs-es` | ~10k/mo | CQRS + Event Sourcing | **EVALUATE** - CQRS focus |
+| `aggregate` | ~5k/mo | Aggregate root framework | **EVALUATE** - Complement to eventually |
+| `event-sourcing` | ~2k/mo | Simple event store | **HOLD** - Too basic |
+
+**Recommendation**: `eventually` is the community standard. Consider wrapping for phenotype-specific extensions.
+
+### State Machine Crates
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `xstate` (Rust) | ~5k | SCXML-based FSM | **WRAP** - Formal FSM, frontend interop |
+| `states` | ~20k | Simple state machine | **ADOPT** - Lightweight, ergonomic |
+| `stent` | ~3k | State machine | **HOLD** - Unmaintained |
+| `derive-state` | ~10k | Derive macro FSM | **EVALUATE** - Simple cases |
+
+**Recommendation**: Current `phenotype-state-machine` has unique features (guards, ordinal enforcement). Compare with `states` crate.
+
+### Policy/Access Control Crates
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `casbin` | ~100k | RBAC/ABAC engine | **WRAP** - Cross-language support |
+| `openacl` | ~1k | Zanzibar-like | **EVALUATE** - Complex permissions |
+| `ozauth` | ~500 | OAuth2/OIDC | **WRAP** - Auth flows |
+
+**Note**: Current `phenotype-policy-engine` is TOML-based rules. `casbin` offers richer policy expressions.
+
+### Cache Crates (Beyond moka)
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `moka` | ~500k | All platforms | **IN USE** ✅ |
+| `cache2` | ~50k | TTL cache | **HOLD** - Unmaintained |
+| `cached` | ~100k | Procedural macros | **HOLD** - Less ergonomic |
+| `dashcache` | ~10k | DashMap wrapper | **HOLD** - dashmap sufficient |
+
+**Recommendation**: moka is optimal. `phenotype-cache-adapter` provides two-tier with LRU + DashMap.
+
+### Config Crates
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `figment` | ~100k | Multi-source config | **ADOPT** - TOML/YAML/JSON/ENV |
+| `config-rs` | ~200k | Hierarchical config | **EVALUATE** - 40M+ total downloads |
+| `cosmiconfig` | ~50k | космонавт config | **EVALUATE** - No dependencies |
+| `dotenvy` | ~100k | .env files | **ADOPT** - Updated fork of dotenv |
+
+**Recommendation**: `figment` provides provenance tracking which `phenotype-infrakit` crates don't need (they're libraries).
+
+### Process Management Crates
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `command-group` | ~50k | Process groups | **ADOPT** - Signal propagation |
+| `tokio-command` | ~20k | Async wrapper | **EVALUATE** - Tokio integration |
+| `xshell` | ~50k | Shell utilities | **EVALUATE** - Cross-platform |
+
+**Recommendation**: For `thegent` CLI tool, not `phenotype-infrakit` libraries.
+
+### 2026 AI/LLM Integration Crates
+
+| Crate | Downloads | Purpose | Assessment |
+|-------|-----------|---------|------------|
+| `anthropic` | NEW | Claude SDK | **EVALUATE** - Official async support |
+| `anthropic-sdk-core` | NEW | Core types | **EVALUATE** - Streaming, tools |
+| `llm-chain` | ~5k | Multi-provider LLM | **EVALUATE** - Tool use, chains |
+| `tiktoken-rs` | ~10k | Token counting | **EVALUATE** - Cost tracking |
+
+**Note**: These are for `thegent` agent framework, not `phenotype-infrakit`.
+
+### Related
+
+- `crates/phenotype-cache-adapter/` - Uses moka + dashmap + lru
+- `crates/phenotype-policy-engine/` - Custom TOML rules
+- `crates/phenotype-state-machine/` - Custom FSM with guards
+
+---
+
+## 2026-03-29 - Fork/Wrap Decision Framework
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Fork Decision Matrix (2026 Updated)
+
+| Scenario | Decision | Example | Effort |
+|----------|----------|---------|--------|
+| Need significant modifications | **FORK** | Custom PTY handling | High |
+| Need features not in upstream | **FORK+EXTEND** | phenotype-error patterns | Medium |
+| Need thin phenotype layer | **WRAP** | Git worktree wrapper | Low |
+| Crate is perfect as-is | **DIRECT USE** | serde, tokio | None |
+| Internal is better | **KEEP INTERNAL** | phenotype-event-sourcing | N/A |
+
+### LOC Savings Analysis (phenotype-infrakit scope)
+
+| Pattern | Current | External | Savings | Decision |
+|---------|---------|----------|---------|----------|
+| Event sourcing | Custom | eventually | N/A | KEEP - Hash chain is unique |
+| Cache | Custom | moka | N/A | KEEP - Two-tier is unique |
+| Policy | Custom | casbin | N/A | KEEP - TOML simplicity |
+| FSM | Custom | states | ~100 LOC | EVALUATE - Guards are unique |
+
+### Cross-Repo Fork Candidates (AgilePlus/thegent/heliosCLI scope)
+
+| Source | Target | LOC | Priority | Rationale |
+|--------|--------|-----|----------|-----------|
+| `utils/pty` | `phenotype-process` | ~750 | 🔴 CRITICAL | PTY + process groups |
+| CodexErr | `phenotype-error` | ~400 | 🔴 CRITICAL | Unified error taxonomy |
+| `utils/git` | `phenotype-git` | ~300 | 🟠 HIGH | Git operations |
+| `SpawnContext` | `phenotype-executor` | ~150 | 🟡 MEDIUM | Execution context |
+
+### Related
+
+- `DUPLICATION.md` - Cross-repo duplication analysis
+- `DEPENDENCIES.md` - Current dependency status
+
 **Project:** [phenotype-infrakit]
 **Category:** research
 **Status:** in_progress
@@ -733,3 +957,285 @@ Quarterly technology radar update based on starred repo analysis.
 | Custom MCP implementations | Use Pathway patterns |
 
 ---
+
+---
+
+## 2026-03-29 - External Package Fork/Wrap Opportunities
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Web research on forkable packages, external libraries with fork potential, and 3rd party integrations relevant to the Phenotype ecosystem.
+
+---
+
+### 1. Git Operations: gix (gitoxide)
+
+**Source:** https://github.com/Byron/gitoxide
+**Stars:** 11.1K
+**Language:** Rust
+**License:** MIT/Apache-2.0
+
+**Fork Opportunity:** YES - Fork to add custom Git extensions for Phenotype workflow automation.
+
+**Key Subcrates:**
+
+| Subcrate | Lines | Purpose | Fork Value |
+|----------|-------|---------|------------|
+| `gix-lock` | ~500 | Cross-platform file locking | HIGH |
+| `gix-tempfile` | ~300 | Secure temp files | HIGH |
+| `gix-sec` | ~400 | Cryptographic operations | MEDIUM |
+| `gix-credentials` | ~200 | Git credential handling | MEDIUM |
+
+**Why Fork vs Use:**
+- Add custom Git hooks for governance
+- Integrate with AgilePlus workflow
+- Custom commit message validation
+
+---
+
+### 2. Model Context Protocol (MCP)
+
+**Source:** https://github.com/modelcontextprotocol/servers
+**Stars:** 82.4K
+**Language:** TypeScript/Python
+**License:** MIT
+
+**Official MCP Servers:**
+
+| Server | Language | Purpose | Fork Value |
+|--------|----------|---------|------------|
+| Git | TypeScript | Git repository tools | HIGH |
+| Filesystem | TypeScript | Secure file ops | HIGH |
+| Fetch | TypeScript | Web content fetching | MEDIUM |
+| Memory | TypeScript | Knowledge graph | MEDIUM |
+
+**Why Fork:**
+- Add AgilePlus-specific tools
+- Custom GitHub/GitLab integration
+- Governance policy enforcement
+
+---
+
+### 3. Agent Frameworks (Rust)
+
+| Framework | Stars | Language | Fork Value |
+|-----------|-------|----------|------------|
+| `candle` | 15K | Rust | LOW - too early |
+| `burn` | 8K | Rust | MEDIUM - for ML |
+| `llm` | 3K | Rust | HIGH - local inference |
+| `mistralrs` | 2K | Rust | MEDIUM - Mistral optimized |
+
+---
+
+### 4. CLI & Process Management
+
+| Crate | Downloads | Purpose | Fork Value |
+|-------|----------|---------|------------|
+| `command-group` | 500K | Process groups | HIGH |
+| `indicatif` | 3M | Progress bars | MEDIUM |
+| `clap_complete` | 3M | Shell completions | LOW |
+| `dialoguer` | 2M | Interactive prompts | MEDIUM |
+
+---
+
+### 5. Observability
+
+| Crate | Downloads | Purpose | Fork Value |
+|-------|----------|---------|------------|
+| `opentelemetry` | 5M | Distributed tracing | MEDIUM |
+| `prometheus` | 3M | Metrics export | MEDIUM |
+| `tracing-opentelemetry` | 2M | OTEL integration | MEDIUM |
+
+---
+
+### 6. Database & Caching
+
+| Crate | Downloads | Purpose | Fork Value |
+|-------|----------|---------|------------|
+| `deadpool` | 3M | Async pooling | MEDIUM |
+| `sqlx-cli` | 5M | SQLx tooling | LOW |
+| `rkyv` | 500K | Zero-copy serialization | HIGH |
+
+---
+
+### 7. Blackbox vs Whitebox Usage Analysis
+
+| Pattern | Usage Type | Recommendation |
+|---------|------------|----------------|
+| `serde` + `serde_json` | Blackbox | Continue as-is |
+| `tokio` | Blackbox | Continue as-is |
+| `thiserror` | Whitebox (derive macros) | Continue as-is |
+| `git2` | Blackbox | MIGRATE to `gix` |
+| Hash chain logic | Whitebox | Consider `blake3` alternative |
+
+---
+
+### 8. Recommended Fork Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FORK DECISION TREE                                          │
+├─────────────────────────────────────────────────────────────┤
+│  1. Is package well-maintained?                              │
+│     ├── YES → Use as blackbox dependency                    │
+│     └── NO → Continue to step 2                            │
+│                                                              │
+│  2. Is custom functionality needed?                          │
+│     ├── YES → FORK the repository                           │
+│     └── NO → Consider alternative maintained package         │
+│                                                              │
+│  3. Is fork effort < hand-roll effort?                      │
+│     ├── YES → FORK                                          │
+│     └── NO → Hand-roll or abandon feature                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Priority Fork Opportunities
+
+| Priority | Package | Rationale | Effort |
+|----------|---------|-----------|--------|
+| P0 | `gix` fork | Replace `git2` (security) | 2-4 weeks |
+| P1 | MCP Git server fork | AgilePlus tool integration | 1-2 weeks |
+| P2 | `gix-lock` fork | Cross-platform locking | 1 week |
+| P3 | `llm` fork | Local LLM inference | 2-3 weeks |
+
+---
+
+_Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - External Dependencies Deep Dive
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Research into GitHub starred repos and external packages for fork/wrap opportunities.
+
+### Blackbox vs Whitebox Analysis Framework
+
+| Mode | Description | When to Use |
+|------|-------------|-------------|
+| **Blackbox** | Use as-is, no modifications | Stable, well-maintained deps |
+| **Whitebox** | Fork and customize | Need modifications, better devs available |
+| **Wrap** | Create adapter/shim around library | Want to isolate from changes |
+| **Fork** | Full control, periodic sync | Heavy customization, internal release cycle |
+
+### GitHub Starred Repos (Developer Tooling)
+
+#### 1. `Data-Wise/craft` ⭐ 1
+
+Full-stack dev toolkit for Claude Code with 86 commands, 8 agents, 21 skills.
+
+| Property | Value |
+|----------|-------|
+| Type | Claude Code Plugin |
+| Language | Python |
+| LOC | ~500 |
+| Recommendation | **FORK** |
+| Benefit | 500+ LOC savings, proven patterns |
+
+#### 2. `newrelic/*` (multiple repos) ⭐ 400+
+
+Observability tooling suite with CLI, client, and codegen tools.
+
+| Property | Value |
+|----------|-------|
+| Type | Observability |
+| Language | Go |
+| Recommendation | **WRAP** |
+| Benefit | 200+ LOC savings |
+
+#### 3. `michen00/invisible-squiggles` ⭐ 3
+
+VSCode extension for distraction-free linter diagnostics.
+
+| Property | Value |
+|----------|-------|
+| Type | VSCode Extension |
+| Language | TypeScript |
+| Recommendation | **WRAP** |
+| Benefit | Clean UX patterns |
+
+### Fork/Wrap Decision Matrix
+
+```
+Need modifications? ──NO──▶ Blackbox (use as-is)
+        │
+       YES
+        │
+Better devs available? ──NO──▶ Wrap (create adapter)
+        │
+       YES
+        │
+Need full control? ──YES──▶ Fork (periodic sync)
+        │
+       NO
+        │
+Need fast iteration? ──YES──▶ Fork (tight sync)
+        │
+       NO
+        │
+Long-term maintenance? ──YES──▶ Fork (formal sync)
+        │
+       NO
+        │
+▶ Wrap (lightweight adapter)
+```
+
+### LOC Reduction Opportunities
+
+| Category | Current | Target | Savings |
+|----------|---------|--------|---------|
+| Fork health_check | 80 | 0 | **80** |
+| Create error-core | 150 | 0 | **150** |
+| Integrate config-core | 200 | 0 | **200** |
+| Wrap temporal-sdk | 500 | 0 | **500** |
+| Wrap casbin | 300 | 0 | **300** |
+| Wrap eventsourcing | 300 | 0 | **300** |
+| **TOTAL** | **1,530** | **0** | **1,530** |
+
+---
+
+## 2026-03-29 - A2A Protocol Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Agent2Agent (A2A) Protocol
+
+**Spec:** https://ajima.ai/A2A
+
+**Key Concepts:**
+- AgentCard: Self-describing agent metadata
+- Task: Unit of work with state transitions
+- Message: Communication between agents
+- Push notifications for async updates
+
+**Phenotype Alignment:**
+
+| A2A Concept | Phenotype Equivalent | Alignment |
+|-------------|---------------------|-----------|
+| AgentCard | Agent metadata in thegent | Medium |
+| Task | Work packages in AgilePlus | High |
+| Message | ACP protocol messages | High |
+| Push notifications | Webhook system | Medium |
+
+**Opportunity:** Integrate `ra2a` crate for standardized agent communication.
+
+---
+
+_Last updated: 2026-03-29_
