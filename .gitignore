@@ -193,12 +193,8 @@ SESSION_GAPS_2026_03_29.md
 audit_worktrees.sh
 Cargo.toml
 EXTRACTION_REPORT_CONFIG_CORE.md
-crates/phenotype-config-core/
 crates/phenotype-contracts/
-crates/phenotype-git-core/
-crates/phenotype-health/
 crates/phenotype-policy-engine/
-crates/phenotype-ports-canonical/
 crates/phenotype-state-machine/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md

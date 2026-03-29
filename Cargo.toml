@@ -22,20 +22,12 @@ members = [
   "crates/agileplus-integration-tests",
   "crates/agileplus-contract-tests",
   "crates/agileplus-benchmarks",
+  "crates/phenotype-error-core",
+  "crates/phenotype-git-core",
+  "crates/phenotype-health",
+  "crates/phenotype-config-core",
   "rust",
   "tests/bdd",
-  "libs/nexus",
-  "libs/hexagonal-rs",
-  "libs/hexkit",
-  "libs/cipher",
-  "libs/gauge",
-  "libs/logger",
-  "libs/metrics",
-  "libs/tracing",
-  "libs/cli-framework",
-  "libs/config-core",
-  "libs/xdd-lib-rs",
-  "tools/forge",
 ]
 
 [workspace.package]
@@ -71,6 +63,11 @@ criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
 time = ">=0.3.49"
 trait-variant = "0.1"
 async-trait = "0.1"
+toml = "0.8"
+serde_yaml = "0.9"
+figment = { version = "0.10", features = ["toml", "yaml", "json", "env"] }
+dirs = "6.0"
+tempfile = "3.15"
 
 # Plugin crates (external from separate repos)
 agileplus-plugin-core = { git = "https://github.com/KooshaPari/agileplus-plugin-core" }
