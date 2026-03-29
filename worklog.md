@@ -12,6 +12,31 @@
 | ECO-002 | Branch Consolidation | ✅ COMPLETE |
 | ECO-003 | Circular Dependency Resolution | ✅ SHIPPED (CI CONFIGURED) |
 | ECO-004 | Hexagonal Migration | ✅ NO WORK NEEDED |
+| ECO-006 | Final Merge Stabilization | ✅ COMPLETE (2026-03-29) |
+
+### Merge Stabilization Complete
+
+| Repo | PRs Merged | Status |
+|------|------------|--------|
+| thegent | pr-679, pr-680, pr-681, pr-682, pr-833 | ✅ |
+| AgilePlus | pr-208 | ✅ |
+| portage | phase2-decompose branches | ✅ |
+| template-commons | governance, policy, hardening | ✅ |
+| 4sgm | fix/stabilize branches | ✅ |
+| agentapi-plusplus | fix/pr16 | ✅ |
+| phenotype-config | stabilization | ✅ |
+| cliproxyapi | pr-928 closed (diverged) | ✅ |
+| trace | stabilization | ✅ |
+| tokenledger | stabilization | ✅ |
+
+### Quality Gate Results
+
+| Metric | Result |
+|--------|--------|
+| Python syntax errors | 0 (1 fixed) |
+| Ruff lint errors | 0 (21 fixed) |
+| Tests passed | 83/83 |
+| Non-canonical folders | Cleaned (tmp, hoohacks, 485, 20 empty packages) |
 
 ### Cleanup Actions Completed
 
