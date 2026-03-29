@@ -14,29 +14,26 @@ This directory contains structured worklogs organized by category. Each worklog 
 
 | File | Lines | Category | Last Updated | Notes |
 |------|-------|----------|--------------|-------|
-| `README.md` | 186 | INDEX | 2026-03-29 | This file |
+| `README.md` | 413 | INDEX | 2026-03-29 | Canonical structure |
 | `AGENT_ONBOARDING.md` | 200 | ONBOARDING | 2026-03-29 | — |
 | `ARCHITECTURE.md` | 1957 | ARCHITECTURE | 2026-03-29 | 2,100+ LOC analyzed |
 | `DEPENDENCIES.md` | 624 | DEPENDENCIES | 2026-03-29 | Fork candidates, security |
-| `DUPLICATION.md` | 1891 | DUPLICATION | 2026-03-29 | 🔴 CRITICAL - 11 libs unused |
+| `DUPLICATION.md` | 2408+ | DUPLICATION | 2026-03-29 | 🔴 CRITICAL - LOC audit |
 | `GOVERNANCE.md` | 364 | GOVERNANCE | 2026-03-29 | Quality gates, evidence |
 | `INTEGRATION.md` | 208 | INTEGRATION | 2026-03-29 | MCP, NATS, Plane.so |
 | `PERFORMANCE.md` | 288 | PERFORMANCE | 2026-03-29 | Async, memory, benchmarks |
-| `RESEARCH.md` | 484 | RESEARCH | 2026-03-29 | 30 starred repos analyzed |
-| `WORK_LOG.md` | 179 | WORK_LOG | 2026-03-29 | — |
+| `RESEARCH.md` | 565 | RESEARCH | 2026-03-29 | 30 starred repos analyzed |
+| `QUALITY.md` | 558 | QUALITY | 2026-03-29 | Testing, mutation |
+| `TOOLING.md` | 554 | TOOLING | 2026-03-29 | Build, release, CI/CD |
+| `UX_DX.md` | 450+ | UX_DX | 2026-03-29 | Developer experience |
+| `WORK_LOG.md` | 476 | WORK_LOG | 2026-03-29 | Wave index |
+| `INACTIVE_FOLDERS.md` | 656 | MAINTENANCE | 2026-03-29 | Worktree cleanup |
 | `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | 2026-03-29 | libs/ 2021→2024 |
 | `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | 2026-03-29 | 12 error types consolidated |
 | `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
 | `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
 | `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
-| `ERRORS.md` | 92 | ERRORS | 2026-03-29 | error schema unification |
-| `PLANS/CONSOLIDATION.md` | 210 | PLAN | 2026-03-29 | duplication consolidation roadmap |
-| `DUPLICATION_EXTENDED.md` | 800 | DUPLICATION | 2026-03-29 | expanded follow-up analysis |
-| `CROSSCUTTING.md` | 450 | GOVERNANCE | 2026-03-29 | policy + pipeline design |
-| `CONSOLIDATION.md` | 520 | ARCHITECTURE | 2026-03-29 | libification strategies |
-| `POLICY_ENGINE.md` | 320 | RESEARCH | 2026-03-29 | third-party wrapping audit |
-| `INACTIVE_FOLDERS.md` | 314 | MAINTENANCE | 2026-03-29 | orphaned worktrees and cleanup |
-| `WORKLOW.md` | 410 | PERFORMANCE | 2026-03-29 | optimization and benchmark tracking |
+| `PLANS/LocReductionDecomposition.md` | 388 | PLAN | 2026-03-29 | Phase 1-4 decomposition |
 ---
 
 ## Category Summaries
