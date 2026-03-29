@@ -2,9 +2,18 @@
 //!
 //! Provides branch create, checkout, delete, list, and sync operations.
 
-use anyhow::{Context, Result};
+use std::process::Command;
 
-use agileplus_domain::ports::{BranchInfo, VcsPort};
+use anyhow::{Context, Result};
+use serde::Serialize;
+
+use agileplus_domain::ports::VcsPort;
+
+#[derive(Debug, Clone, Serialize)]
+struct BranchInfo {
+    name: String,
+    is_remote: bool,
+}
 
 #[derive(Debug, clap::Args)]
 pub struct BranchArgs {
@@ -86,24 +95,58 @@ pub async fn run<V: VcsPort>(args: BranchArgs, vcs: &V) -> Result<()> {
             force,
             remote,
         } => {
-            vcs.delete_branch(&name, force, remote.as_deref())
-                .await
-                .with_context(|| format!("deleting branch '{name}'"))?;
-            if let Some(remote) = remote {
-                println!("Deleted remote branch {remote}/{name}");
-            } else {
-                println!("Deleted branch {name}");
+            let remote_str = remote.as_deref().unwrap_or("origin");
+            let flag = if force { "-D" } else { "-d" };
+            let output = Command::new("git")
+                .args(["push", remote_str, &format!(":{flag}"), &name])
+                .output()
+                .with_context(|| format!("pushing branch deletion to {remote_str}"))?;
+            if !output.status.success() {
+                anyhow::bail!(
+                    "git push {remote_str} :{flag} {name} failed: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
             }
+            let local_output = Command::new("git")
+                .args(["branch", flag, &name])
+                .output()
+                .with_context(|| format!("deleting local branch {name}"))?;
+            if !local_output.status.success() {
+                anyhow::bail!(
+                    "git branch {flag} {name} failed: {}",
+                    String::from_utf8_lossy(&local_output.stderr)
+                );
+            }
+            println!("Deleted branch {name} (force={force})");
         }
         BranchCommand::List {
             pattern,
             remote,
             output,
         } => {
-            let branches = vcs
-                .list_branches(pattern.as_deref(), remote)
-                .await
-                .context("listing branches")?;
+            let args = if remote {
+                vec!["branch", "-r"]
+            } else {
+                vec!["branch", "-l"]
+            };
+            let git_out = Command::new("git").args(&args).output()
+                .context("running git branch")?;
+            if !git_out.status.success() {
+                anyhow::bail!("git branch failed: {}", String::from_utf8_lossy(&git_out.stderr));
+            }
+            let raw = String::from_utf8_lossy(&git_out.stdout);
+            let branches: Vec<BranchInfo> = raw
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .map(|line| {
+                    let name = line
+                        .trim_start_matches('*')
+                        .trim()
+                        .to_string();
+                    BranchInfo { name, is_remote: remote }
+                })
+                .filter(|b| pattern.as_ref().map_or(true, |p| b.name.contains(p)))
+                .collect();
             print_branches(&branches, &output)?;
         }
         BranchCommand::Sync {

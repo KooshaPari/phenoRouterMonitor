@@ -63,6 +63,32 @@
 
 ---
 
+## Strategic Initiatives
+
+### G037 — Plane Fork / Shared PM Substrate
+
+**Decision:** Fork Plane (plane.so, Apache 2.0) as the shared PM substrate. Keep AgilePlus as the custom orchestration/control-plane layer. Keep TracerTM custom.
+
+**Spec:** `.agileplus/specs/008-plane-shared-pm-substrate/`
+**Session:** `docs/sessions/20260327-plane-fork-pm-substrate/`
+
+| WP | Description | Status |
+|----|-------------|--------|
+| G037-WP1 | Fork Plane repo into org GitHub | pending (gate: org approval + GitHub admin) |
+| G037-WP2 | Define AgilePlus → Plane API boundary adapter | pending |
+| G037-WP3 | Migrate or quarantine duplicate PM dashboard code | pending |
+| G037-WP4 | Wire existing controls into Plane | pending |
+| G037-WP5 | Validate co-existence with Plane | pending |
+| G037-WP6 | Archive TracerTM and TheGent from PM surface | pending |
+
+### Open Work Ledger
+
+**Session:** `docs/sessions/20260327-open-work-ledger/`
+
+Prioritized cross-repo backlog covering AgilePlus, portage, heliosApp, and heliosCLI. See session for full DAG/WBS.
+
+---
+
 ## AgilePlus Tracking
 
 All feature work is tracked in AgilePlus:
