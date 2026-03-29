@@ -16,3 +16,12 @@ docs/AGENT_MASTER_AUDIT_PROMPT.md
 libs/
 platforms/
 docs/research/
+.github/workflows/benchmark.yml
+.github/workflows/release.yml
+.github/workflows/security.yml
+docs/worklogs/LIBIFICATION_AUDIT_2026-03-29.md
+docs/worklogs/LIBIFICATION_HIGHLIGHTS.md
+docs/worklogs/LOC_REDUCTION.md
+docs/worklogs/MasterDuplicationAudit20260329.md
+docs/worklogs/TOOLING.md
+docs/worklogs/WorkLog.md
