@@ -6,12 +6,6 @@ license.workspace = true
 repository.workspace = true
 description = "Generic policy evaluation engine for Phenotype, supporting rule-based policy decision-making across all domains"
 
-[lib]
-path = "phenotype-policy-engine/src/lib.rs"
-
-[[test]]
-name = "policy_engine"
-path = "tests/policy_engine.rs"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }

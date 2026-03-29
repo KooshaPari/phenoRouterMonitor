@@ -6,14 +6,7 @@ license.workspace = true
 repository.workspace = true
 description = "Phenotype shared crate"
 
-[lib]
-path = "phenotype-cache-adapter/src/lib.rs"
-
-[[test]]
-name = "cache_adapter"
-path = "tests/cache_adapter.rs"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
-thiserror.workspace = true
