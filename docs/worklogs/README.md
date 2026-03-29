@@ -152,17 +152,14 @@ Comprehensive performance analysis of 66,746 lines of Rust, 4,792 lines of Pytho
 =======
 | File | Lines | Category | Priority |
 |------|-------|----------|----------|
-| `ARCHITECTURE.md` | ~2,050 | ARCHITECTURE | P0 |
-| `DEPENDENCIES.md` | ~2,750 | DEPENDENCIES | P0 |
-| `DUPLICATION.md` | ~4,050 | DUPLICATION | P0 |
-| `RESEARCH.md` | ~1,850 | RESEARCH | P1 |
-| `QUALITY.md` | ~760 | QUALITY | P1 |
-| `PERFORMANCE.md` | ~380 | PERFORMANCE | P1 |
-| `GOVERNANCE.md` | ~400 | GOVERNANCE | P1 |
-| `UX_DX.md` | ~900 | UX_DX | P2 |
-| `INTEGRATION.md` | ~210 | INTEGRATION | P2 |
+| `Plans/EditionMigration.md` | 163 | PLAN | P0 |
+| `Plans/ErrorCoreExtraction.md` | 180 | PLAN | P0 |
+| `Plans/ConfigCoreActivation.md` | 190 | PLAN | P1 |
+| `Plans/ImplementationPlanDuplication.md` | 367 | PLAN | P0 |
+| `Plans/MasterDuplicationAudit.md` | 292 | PLAN | P0 |
+| `Plans/LocReductionDecomposition.md` | — | PLAN | P1 |
 
-**Total: ~14,350 lines** (expanded ~2.2x from initial audit)
+_Legacy duplicate filenames (`EDITION_MIGRATION.md`, etc.) may still exist; prefer the **PascalCase** files above._
 
 ---
 
