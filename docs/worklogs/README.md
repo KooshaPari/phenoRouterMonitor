@@ -40,8 +40,8 @@ This directory contains structured worklogs organized by category. Each worklog 
 | `QUALITY.md` | 300+ | QUALITY | 2026-03-29 | gates, coverage, evidence |
 | `UX_DX.md` | 400+ | UX_DX | 2026-03-29 | developer experience |
 | `EXTERNAL_DEPENDENCIES.md` | — | DEPS | 2026-03-29 | fork/wrap/blackbox matrix |
-| `SessionTranscriptAudit.md` | — | SESSION | 2026-03-29 | transcript hygiene |
-| `SessionGaps20260329.md` | — | SESSION | 2026-03-29 | gap analysis |
+| `SessionTranscriptAudit.md` | — | SESSION | 2026-03-29 | transcripts; gaps **G1–G21**; tasks **T1–T21**; infrakit table |
+| `SessionGaps20260329.md` | — | SESSION | 2026-03-29 | P0–P2 tracks; **IK-*** infrakit; research queue **R1–R4** |
 | `../reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md` | — | DUPLICATION | 2026-03-29 | cross-repo overlap |
 | `../reports/DECOMPOSITION_AUDIT.md` | — | ARCHITECTURE | 2026-03-29 | decomposition targets |
 | `aggregate.sh` | — | TOOLING | 2026-03-29 | roll-up scripts |

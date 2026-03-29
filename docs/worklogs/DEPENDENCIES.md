@@ -1358,6 +1358,212 @@ Create a unified dependency version policy:
 
 ---
 
+## 2026-03-29 - Decomposition & Libification Opportunities
+
+**Project:** [heliosCLI/codex-rs]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Identified opportunities to extract code into reusable crates/libraries, reducing duplication and improving maintainability.
+
+### Cross-Crate Duplication
+
+| Pattern | Locations | Canonical Location | Savings |
+|---------|-----------|-------------------|---------|
+| Error types | 3+ crates | `phenotype-error-core` | 100+ LOC |
+| Config loading | 4+ crates | `phenotype-config` | 200+ LOC |
+| Async traits | 2+ crates | `phenotype-async` | 50+ LOC |
+| In-memory stores | 2+ crates | `phenotype-store` | 150+ LOC |
+
+### Module-Level Decomposition
+
+| Oversized Module | LOC | Target Crate | Notes |
+|-----------------|-----|--------------|-------|
+| `codex.rs` | 9572 | `codex-core` | Split by concern |
+| `exec_policy.rs` | 2346 | `codex-exec-policy` | Extract to own crate |
+| `protocol.rs` | 3548 | `codex-protocol` | Already a crate |
+| `config_requirements.rs` | 1188 | `codex-config-req` | Extract to own crate |
+
+### Libification Candidates
+
+| Candidate | Current Location | Target | LOC | Priority |
+|-----------|-----------------|--------|-----|----------|
+| `policy-engine` | phenotype crates | Already extracted | N/A | ✅ DONE |
+| `event-sourcing` | phenotype crates | Already extracted | N/A | ✅ DONE |
+| `async-utils` | codex-rs/utils | Standalone crate | 500 | 🟠 MEDIUM |
+| `stream-parser` | codex-rs/utils | Standalone crate | 300 | 🟠 MEDIUM |
+| `protocol-types` | codex-rs/protocol | Already extracted | N/A | ✅ DONE |
+
+### Internal Module Extraction Pattern
+
+```rust
+// BEFORE: nested module
+core/src/
+├── codex.rs              # 9572 LOC
+├── exec_policy.rs        # 2346 LOC
+
+// AFTER: extracted to submodules
+core/src/
+├── codex/
+│   ├── mod.rs            # Re-exports
+│   ├── session.rs        # ~1500 LOC
+│   ├── context.rs        # ~1500 LOC
+│   ├── memory.rs         # ~1500 LOC
+│   ├── compaction.rs     # ~1000 LOC
+│   └── tasks.rs          # ~1000 LOC
+├── exec_policy/
+│   ├── mod.rs            # Re-exports
+│   ├── core.rs           # ~800 LOC
+│   ├── rules.rs          # ~800 LOC
+│   └── validation.rs     # ~700 LOC
+```
+
+### Action Items
+
+- [ ] Evaluate `async-utils` for standalone crate extraction
+- [ ] Evaluate `stream-parser` for standalone crate extraction
+- [ ] Consider `codex-exec-policy` as separate crate
+- [ ] Create `codex-config-req` crate from `config/src/config_requirements.rs`
+
+---
+
+## 2026-03-29 - New Crate Opportunities (2026 Q1)
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### HIGH-VALUE NEW CRATES
+
+| Crate | Version | Category | DX Value | LOC Savings | Assessment |
+|-------|---------|----------|----------|-------------|------------|
+| **miette** | 7.6.0 | Errors | ⭐⭐⭐⭐⭐ | ~20 LOC | Fancy diagnostics, pairs with thiserror |
+| **derive_builder** | 0.20 | Macros | ⭐⭐⭐⭐ | ~50 LOC | Reduce builder boilerplate |
+| **derive_more** | 1.0 | Macros | ⭐⭐⭐⭐ | ~40 LOC | From, Display, etc derives |
+| **figment** | 0.10.19 | Config | ⭐⭐⭐⭐ | N/A | Superior error provenance |
+| **casbin-rs** | 2.8.0 | Auth | ⭐⭐⭐ | N/A | ACL/RBAC/ABAC via PERM model |
+| **cqrs-es** | 0.12 | Events | ⭐⭐⭐ | N/A | Production-ready event sourcing |
+| **statig** | 0.24 | State | ⭐⭐⭐ | N/A | Hierarchical state machines |
+| **ra2a** | - | Protocol | ⭐⭐⭐⭐⭐ | N/A | A2A Protocol SDK for agents |
+| **mentisdb** | - | Memory | ⭐⭐⭐⭐ | N/A | Hash-chained semantic memory |
+| **forza-core** | - | Workflow | ⭐⭐⭐ | N/A | GitHub-native workflow orchestrator |
+
+### DX-IMPROVING CRATES
+
+#### `miette` — Fancy Error Diagnostics
+
+```rust
+use miette::{Diagnostic, LabeledSpan};
+use thiserror::Error;
+
+#[derive(Error, Diagnostic)]
+#[error("configuration error")]
+#[diagnostic(code(myapp::config::invalid))]
+struct ConfigError {
+    #[source]
+    #[label("invalid value here")]
+    source: anyhow::Error,
+}
+```
+
+#### `derive_builder` — Builder Pattern Derive
+
+```rust
+#[derive(Default, Builder)]
+pub struct Config {
+    #[builder(default = "\"127.0.0.1\".into()")]
+    pub host: String,
+    #[builder(default = "8080")]
+    pub port: u16,
+}
+```
+
+#### `derive_more` — More Derive Macros
+
+```rust
+use derive_more::From;
+
+#[derive(From)]
+enum ConfigError {
+    ParseInt(#[from] ParseIntError),
+    ParseBool(#[from] ParseBoolError),
+}
+```
+
+### DECISION MATRIX
+
+| Crate | Decision | Rationale |
+|-------|----------|-----------|
+| `miette` | **ADOPT** | Pairs with thiserror, high DX value |
+| `derive_builder` | **ADOPT** | Reduces LOC, improves maintainability |
+| `derive_more` | **ADOPT** | Common derives, reduces boilerplate |
+| `figment` | **EVALUATE** | Complex migration, assess ROI |
+| `ra2a` | **MONITOR** | New, monitor for stability |
+| `mentisdb` | **FORK CANDIDATE** | Aligns with agent memory goals |
+| `forza-core` | **WRAP** | GitHub-native, wrap with phenotype API |
+
+---
+
+## 2026-03-29 - Blackbox/Whitebox/Graybox Deep Analysis
+
+**Project:** [heliosCLI/codex-rs]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Deep analysis of external dependency usage patterns with specific recommendations for improvement.
+
+### Usage Pattern Matrix
+
+| Crate | Pattern | Current State | Target State | Value Gain |
+|-------|---------|---------------|--------------|------------|
+| `serde` | Blackbox | ✅ Optimal | N/A | N/A |
+| `tokio` | Blackbox | ✅ Optimal | N/A | N/A |
+| `thiserror` | Blackbox | ✅ Optimal | N/A | N/A |
+| `gix` | Whitebox | ✅ Optimal | N/A | N/A |
+| `git2` | Graybox | ⚠️ Deprecated | `gix` | Security fix |
+| `reqwest` | Blackbox | ✅ Optimal | N/A | N/A |
+| `anyhow` | Blackbox | ✅ Optimal | N/A | N/A |
+| `clap` | Blackbox | ✅ Optimal | N/A | N/A |
+| `tracing` | Blackbox | ✅ Optimal | N/A | N/A |
+
+### Manual Error Types (Should Use thiserror)
+
+| Location | Current LOC | Thiserror After | Savings |
+|----------|-------------|-----------------|---------|
+| `keyring-store/src/lib.rs:31-39` | 32 | 8 | **24 LOC** |
+| `core/src/skills/loader.rs:131-147` | 26 | 10 | **16 LOC** |
+| `utils/stream-parser/src/utf8_stream.rs:21-38` | 32 | 12 | **20 LOC** |
+
+### Unused Dependencies (Remove)
+
+| Crate | Location | Reason |
+|-------|----------|--------|
+| `lru` | phenotype crates | Not imported |
+| `parking_lot` | phenotype crates | Not imported |
+| `moka` | phenotype crates | Not imported |
+
+### Dependencies to Add
+
+```toml
+[dependencies]
+miette = "7.6"                    # Fancy error diagnostics
+derive_builder = "0.20"           # Builder pattern derive
+derive_more = { version = "1.0", features = ["From", "Display", "AsRef"] }
+
+[dev-dependencies]
+proptest = "1.5"                 # Property-based testing
+criterion = "0.5"                # Benchmarking
+```
+
+---
+
 # 2026-03-29 - Remaining Questions & Follow-ups
 
 | Question | Impact | Owner |

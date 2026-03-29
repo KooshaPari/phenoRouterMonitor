@@ -311,7 +311,69 @@ git stash drop stash@{0}  # After review
 
 ---
 
-_Last updated: 2026-03-29_
+## 2026-03-30 — Wave 92: reconciliation, deep verification, automation hooks
+
+**Status:** methodology + re-verify  
+**Updated:** 2026-03-30
+
+### Conflicting prior notes (must re-verify on disk)
+
+Earlier sections disagree on whether `repos/.worktrees/thegent` (or repo-root `.worktrees/thegent`) is a **valid linked worktree** vs a **non-git folder**. Before any delete:
+
+1. `cd` to the directory and run `git rev-parse --is-inside-work-tree`.
+2. From the **main** checkout of that repository, run `git worktree list` and confirm the path appears.
+3. If Git reports `fatal: not a git repository: …/.git/worktrees/…`, treat as **stale registration** → remove empty dirs → `git worktree prune` → re-add only if still needed.
+
+### Expanded temp-clone matrix (lifecycle)
+
+| Stage | Check | Pass |
+|-------|--------|------|
+| Start | `git worktree add` or explicit temp clone path | Path under agreed hub (`worktrees/`, not random root) |
+| During | `git status`, `git log origin/main..HEAD` | No surprise large untracked trees |
+| Land | PR merged on GitHub | Required |
+| End | `git worktree remove <path>`; `git worktree prune` | No stale `.git/worktrees/*` gitdir targets |
+
+### Deeper codebase audit targets (monorepo)
+
+| Area | What to diff / consolidate | Worklog sink |
+|------|----------------------------|--------------|
+| `crates/*/src/**/error*.rs` | error enums and `thiserror` | `DUPLICATION.md`, `PLANS/ERROR_CORE_EXTRACTION.md` |
+| `crates/**/ports/**` | overlapping traits vs `libs/` | `ARCHITECTURE.md` |
+| `libs/phenotype-shared/crates/**` | edition + workspace membership | `DUPLICATION.md`, `PLANS/EDITION_MIGRATION.md` |
+| `python/**` | overlapping pydantic models / clients | `DEPENDENCIES.md` |
+| `docs/worklogs/**` | duplicate audit narratives | `README.md` index only |
+
+### Remote vs local parity (per clone)
+
+```bash
+git fetch origin
+git status -sb
+git branch -vv
+git stash list
+git remote -v
+git rev-list --left-right --count HEAD...@{upstream} 2>/dev/null || true
+```
+
+### Automation spec (implement at **repository root**, not in `docs/`)
+
+| Artifact | Purpose |
+|----------|---------|
+| `scripts/git-worktree-health.sh` | Parse porcelain; assert paths; shared `git-common-dir`; validate `.git/worktrees/*/gitdir`; optional `GIT_HYGIENE_ORPHAN_SCAN=1` |
+| `task git:hygiene` | Strict check |
+| `task git:hygiene:verbose` / `git:hygiene:dirty` | `-v` / `-w` |
+| CI step | `bash scripts/git-worktree-health.sh` after checkout |
+
+### Consolidated “done means” checklist
+
+- [ ] No broken `git worktree list` entries (health script green).
+- [ ] No long-lived `*-temp` with unpushed commits.
+- [ ] `isolated/*` either reset to `origin/main` or deleted after archive.
+- [ ] PRs closed for rescue branches; local temps removed.
+- [ ] This file’s tables updated in the same session as cleanup.
+
+---
+
+_Last updated: 2026-03-30 (Wave 92 appendix)_
 
 ---
 
