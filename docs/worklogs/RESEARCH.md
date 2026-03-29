@@ -559,7 +559,254 @@ Additional 2026 candidates to **wrap at the adapter boundary** or **trial** in p
 ### Research tasks (Wave 92)
 
 - [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
-- [ ] Prototype WIT surface for one sandboxed “tool” using `cargo-component`.
+- [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
+- [ ] Prototype WIT surface for one sandboxed "tool" using `cargo-component`.
 - [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
+---
+
+## 2026-03-29 - Wave 94: Code Quality LOC Reduction (Deep Subagent Audit)
+
+**Project:** [phenotype-infrakit]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+---
+
+### Functions Over 50 Lines - Split Opportunities
+
+| File | Function | Current | Split Into |
+|------|----------|---------|------------|
+| `memory.rs:63-104` | `append` | 41 lines | `calculate_sequence` + `calculate_prev_hash` + `append_impl` |
+| `memory.rs:136-166` | `get_events_since` | 30 lines | `lock_and_filter` + `map_to_envelope` |
+| `memory.rs:168-199` | `get_events_by_range` | 31 lines | Same pattern |
+
+**Refactoring Pattern:**
+```rust
+// BEFORE: 41-line monolithic function
+pub fn append<T: Serialize + DeserializeOwned>(
+    &self, event: &EventEnvelope<T>, entity_type: &str, entity_id: &str
+) -> Result<i64> {
+    let mut store = self.events.write()
+        .map_err(|_| ...)?;
+    // 35 more lines of logic...
+}
+
+// AFTER: Composable helpers
+fn calculate_sequence(&self, store: &BTreeMap<String, Vec<StoredEvent>>) -> i64 { ... }
+fn calculate_prev_hash(&self, store: &BTreeMap<String, Vec<StoredEvent>>) -> String { ... }
+fn store_event(store: &mut BTreeMap<...>, ...) -> Result<i64> { ... }
+```
+
+---
+
+### Nested Loops - Iterator Optimization Opportunities
+
+#### 2.1 event_count - Already Optimal
+```rust
+// CURRENT: Already uses flat_map (good)
+pub fn event_count(&self) -> usize {
+    self.events.read().unwrap()
+        .values()
+        .flat_map(|m| m.values())
+        .map(|v| v.len())
+        .sum()
+}
+// FIX: Remove unwrap()
+```
+
+#### 2.2 detect_gaps - Iterator Windows
+```rust
+// CURRENT: Manual index loop
+for i in 1..sorted.len() {
+    if sorted[i] != sorted[i - 1] + 1 {
+        return Some(sorted[i - 1] + 1);
+    }
+}
+
+// IMPROVED: Iterator windows
+sorted.windows(2)
+    .find_map(|w| (w[1] != w[0] + 1).then_some(w[0] + 1))
+```
+
+---
+
+### Match Arm Consolidation Opportunities
+
+#### 3.1 Error Enum - Use thiserror derive
+```rust
+// CURRENT: 18 lines of manual impl
+#[derive(Debug)]
+pub enum Error {
+    NotFound(String),
+    Validation(String),
+    Conflict(String),
+    // ...
+}
+impl Display for Error { ... }
+impl Error for Error { ... }
+
+// IMPROVED: 9 lines with thiserror
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("entity not found: {0}")]
+    NotFound(String),
+    #[error("validation error: {0}")]
+    Validation(String),
+    // ...
+}
+```
+
+---
+
+### Copy-Paste Elimination - Extract Helper Function
+
+```rust
+// CURRENT: 7 identical lines repeated 6 times
+fn stored_event_to_envelope<T: for<'de> Deserialize<'de>>(
+    se: &StoredEvent
+) -> Result<EventEnvelope<T>> {
+    let payload = serde_json::from_value(se.payload_json.clone())
+        .map_err(|e| EventStoreError::StorageError(e.to_string()))?;
+    Ok(EventEnvelope {
+        id: se.id,
+        timestamp: se.timestamp,
+        payload,
+        actor: se.actor.clone(),
+        prev_hash: se.prev_hash.clone(),
+        hash: se.hash.clone(),
+        sequence: se.sequence,
+    })
+}
+
+// USAGE: Now just one line per call site
+let events = store.get(entity_id)?
+    .iter()
+    .map(stored_event_to_envelope::<T>)
+    .collect::<Result<Vec<_>, _>>()?;
+```
+
+---
+
+### Magic Numbers - Define Constants
+
+```rust
+// CURRENT: Magic numbers scattered throughout
+pub struct SnapshotConfig {
+    pub event_threshold: i64,        // Magic: 100
+    pub time_threshold_secs: u64,    // Magic: 300
+}
+
+// FIX: Constants at module level
+const DEFAULT_EVENT_THRESHOLD: i64 = 100;
+const DEFAULT_TIME_THRESHOLD_SECS: u64 = 300;
+
+#[derive(Default)]
+pub struct SnapshotConfig {
+    #[builder(default = DEFAULT_EVENT_THRESHOLD)]
+    pub event_threshold: i64,
+    #[builder(default = DEFAULT_TIME_THRESHOLD_SECS)]
+    pub time_threshold_secs: u64,
+}
+```
+
+---
+
+### Unwrap Elimination - Proper Error Handling
+
+```rust
+// CURRENT: Panic on poison
+pub fn clear(&self) {
+    self.events.write().unwrap().clear();
+}
+
+// IMPROVED: Proper error propagation
+pub fn clear(&self) -> Result<(), EventStoreError> {
+    let mut guard = self.events.write()
+        .map_err(|_| EventStoreError::StorageError(
+            "Lock poisoned - writer panicked".into()
+        ))?;
+    guard.clear();
+    Ok(())
+}
+```
+
+---
+
+### Clone Reduction Strategies
+
+| Strategy | When to Use | Example |
+|----------|-------------|---------|
+| Return References | Read-only operations | `fn get(&self) -> Vec<&Event>` |
+| Use `Arc<T>` | Shared ownership | `Arc<str>` for hash fields |
+| Clone-on-Write | Modify-in-place | `Cow<str>` for optional clones |
+| Pin<&T> | Self-referential | Rare, complex |
+
+```rust
+// CURRENT: Clones on every call
+impl InMemoryEventStore {
+    pub fn get_events(&self, id: &str) -> Vec<EventEnvelope<T>> {
+        self.events.iter()
+            .filter(|(k, _)| k == id)
+            .map(|(k, v)| EventEnvelope {
+                actor: v.actor.clone(),  // Clone
+                prev_hash: v.prev_hash.clone(),  // Clone
+                hash: v.hash.clone(),  // Clone
+                // ...
+            })
+            .collect()
+    }
+}
+
+// OPTIMIZED: Use references where possible
+pub fn get_events(&self, id: &str) -> Vec<&EventEnvelope<T>> {
+    self.events.iter()
+        .filter(|(k, _)| k == id)
+        .collect()
+}
+```
+
+---
+
+### Zero-Copy String Handling
+
+```rust
+// CURRENT: Allocation on every empty hash
+let prev_hash = if events.is_empty() {
+    "0".repeat(64)  // Allocates!
+} else {
+    last_event.hash.clone()
+};
+
+// OPTIMIZED: Static constant
+const ZERO_HASH: &str = "0000000000000000000000000000000000000000000000000000000000000000";
+
+// OR: Use OnceLock for lazy initialization
+static ZERO_HASH: OnceLock<Arc<str>> = OnceLock::new();
+fn get_zero_hash() -> &'static str {
+    ZERO_HASH.get_or_init(|| "0".repeat(64).into_boxed_str().into()).as_ref()
+}
+```
+
+---
+
+### Async Trait Best Practices (for future async migration)
+
+```rust
+// CURRENT: Synchronous trait
+pub trait EventStore: Send + Sync {
+    fn append(&self, event: &EventEnvelope<T>, ...) -> Result<i64>;
+}
+
+// FUTURE: Async trait with async_trait
+#[async_trait]
+pub trait AsyncEventStore: Send + Sync {
+    async fn append(&self, event: &EventEnvelope<T>, ...) -> Result<i64>;
+}
+```
+
+---
+
+_Last updated: 2026-03-29 (Wave 94)_
 ---
