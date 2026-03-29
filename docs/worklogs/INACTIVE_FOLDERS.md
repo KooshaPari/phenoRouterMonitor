@@ -92,6 +92,60 @@ _Last updated: 2026-03-29 (v2 git-state audit)_
 
 ---
 
+## 2026-03-30 - Wave 94 Cleanup Execution
+
+**Status:** Cleanup actions executed
+**Updated:** 2026-03-30
+
+### Actions COMPLETED in Wave 94
+
+| Item | Action | Result |
+|------|--------|--------|
+| `.worktrees/thegent/` | DELETED | Contained only 1 file (23 LOC phench.py stub) - orphaned |
+| `.archive/audit/` | DELETED | Empty directory |
+| `.archive/libs-archived/` | DELETED | Empty directory |
+| `.archive/contracts/` | DELETED | 26 bytes (just a README) |
+| `.archive/schemas/` | DELETED | 24 bytes (just a README) |
+
+### Current .archive/ Contents
+
+| Directory | Size | Contents | Decision |
+|-----------|------|----------|----------|
+| `.archive/kitty-specs/` | 16KB | phenotype-infrakit-lockfile-repair spec | **KEEP** - contains actual spec docs |
+| `.archive/plans/` | 24KB | DUPLICATION_MERGED-v1.md | **KEEP** - reference document |
+| `.archive/tests/` | 84KB | test_phench_runtime.py (2120 LOC) | **REVIEW NEEDED** - exists in 3 other locations |
+| `.archive/temp-directories/` | 13MB | 4 temp clone dirs | **REVIEW NEEDED** - stashes/commits |
+| `.archive/orphaned-worktrees/` | 702MB | 2 old worktrees | **REVIEW NEEDED** - 299MB + 403MB |
+
+### .archive/orphaned-worktrees/ Analysis
+
+| Worktree | Size | Branch | Commits | Status |
+|----------|------|--------|---------|--------|
+| `consolidate-libraries` | 299MB | `chore/decomposition-audit-v2` | 4 | Commits already in current HEAD |
+| `expand-test-coverage` | 403MB | `chore/ci-cd-workflows-clean` | 1 | Different branch than active |
+
+### Remaining Action Items
+
+#### IMMEDIATE (Safe Deletes)
+- [ ] DELETE `.archive/orphaned-worktrees/consolidate-libraries` (commits already in HEAD, 299MB)
+
+#### SHORT-TERM (Review Required)
+- [ ] REVIEW `.archive/orphaned-worktrees/expand-test-coverage` (403MB, different branch)
+- [ ] REVIEW `.archive/tests/test_phench_runtime.py` (exists in 3 other locations)
+- [ ] REVIEW `.archive/temp-directories/` (13MB, contains stashes)
+
+#### P0 - CRITICAL
+- [ ] **REVIEW** `repos/worktrees/AgilePlus/phenotype-docs` - 1022 unpushed commits
+
+#### P1 - HIGH  
+- [ ] PUSH + PR each worktree with unpushed commits
+
+---
+
+_End of Wave 94_
+
+---
+
 ## 2026-03-29 - Fresh Audit Findings
 
 **Status:** Verified current state
