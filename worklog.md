@@ -95,3 +95,33 @@ Historical work is documented in:
 - AgilePlus worklog: /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus/.work-audit/worklog.md
 - Git history for merged work
 
+
+## Governance Implementation - 2026-03-29
+
+### Implementation Completed
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| worktree_governance_inventory.py | ✅ Implemented | thegent/scripts/ |
+| worktree_legacy_remediation_report.py | ✅ Implemented | thegent/scripts/ |
+| worktree_governance.sh | ✅ Implemented | thegent/scripts/ |
+| cli_git_worktree_governance.py | ✅ Implemented | thegent/src/thegent/cli/commands/ |
+| MCP server worktree export | ✅ Implemented | thegent/src/thegent/mcp/ |
+
+### Governance Tests
+- Unit tests: 10/10 passing
+- Location: thegent/tests/unit/governance/
+
+### Non-Canonical Cleanup
+- Removed orphaned phenotype-gauge-wtrees/ directory
+- Stashed WIP in thegent-wtrees/rebase-fix-cache-test-pyright
+- All legacy worktrees archived to archive/legacy-wtrees/2026-03-28/
+
+### AgilePlus Specs Updated
+- kitty-specs/eco-001-worktree-remediation/spec.md → completed
+- kitty-specs/eco-002-branch-consolidation/spec.md → completed
+
+### Remaining Non-Conformant Worktrees (by design)
+- thegent-wtrees/rebase-fix-cache-test-pyright (fix/cache-test-pyright)
+- thegent-wtrees/rescued-detached-head (feat/rescued-detached-head-work)
+
