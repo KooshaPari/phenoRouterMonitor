@@ -32,7 +32,6 @@ pub trait EventStore: Send + Sync {
         entity_id: &str,
     ) -> Result<i64>;
 
-    /// Get all events for a given entity type and ID, in ascending sequence order.
     fn get_events<T: Serialize + for<'de> Deserialize<'de>>(
         &self,
         entity_type: &str,

@@ -1323,8 +1323,7 @@ pb.finish_with_message("Done");
 
 ---
 
-_Last updated: 2026-03-29_
-# 2026-03-29 - Rust Workspace Dependency Audit: Unused & Version Drift
+## 2026-03-29 - Rust Workspace Dependency Audit: Unused & Version Drift
 
 **Project:** [AgilePlus, phenotype-infrakit]
 **Category:** dependencies
@@ -1417,7 +1416,7 @@ $ grep -r "use moka\|moka::\|Cache\|Moka" crates/phenotype-*/ --include="*.rs"
 
 ---
 
-# 2026-03-29 - TypeScript/Node Dependency Audit: Versions & Drift
+## 2026-03-29 - TypeScript/Node Dependency Audit: Versions & Drift
 
 **Project:** [thegent, heliosCLI]
 **Category:** dependencies
@@ -1500,7 +1499,7 @@ Scanned TypeScript/JavaScript package.json files across Phenotype workspace. Fou
 
 ---
 
-# 2026-03-29 - Python Dependency Audit: Modern Tooling & Version Drift
+## 2026-03-29 - Python Dependency Audit: Modern Tooling & Version Drift
 
 **Project:** [heliosCLI, thegent]
 **Category:** dependencies
@@ -1585,7 +1584,7 @@ Both projects use dependency overrides for security:
 
 ---
 
-# 2026-03-29 - Cross-Repo Dependency Consolidation Opportunities
+## 2026-03-29 - Cross-Repo Dependency Consolidation Opportunities
 
 **Project:** [cross-repo]
 **Category:** dependencies
@@ -1647,7 +1646,7 @@ Create a unified dependency version policy:
 
 ---
 
-# 2026-03-29 - Action Plan & Implementation Priority
+## 2026-03-29 - Action Plan & Implementation Priority
 
 ## P0 - CRITICAL (Remove/Fix Now)
 
@@ -1681,7 +1680,7 @@ Create a unified dependency version policy:
 
 ---
 
-# 2026-03-29 - Remaining Questions & Follow-ups
+## 2026-03-29 - Remaining Questions & Follow-ups
 
 | Question | Impact | Owner |
 |----------|--------|-------|
@@ -1693,3 +1692,55 @@ Create a unified dependency version policy:
 
 ---
 
+## 2026-03-29 - Wave 92: Supply chain, wrapping, expanded fork matrix
+
+**Project:** [cross-repo] | **Status:** in_progress | **Priority:** P1
+
+### Additional fork / extract candidates
+
+| ID | Source | Target | Est. LOC |
+|----|--------|--------|----------|
+| FORK-005 | `thegent-hooks` `*Error` enums | `thegent-hooks-error` | 180 |
+| FORK-006 | `heliosCLI` harness `*Error` | `harness-core-error` | 120 |
+| FORK-007 | Nested `crates/*/*/src` | Remove duplicate root | 400+ |
+| FORK-008 | PTY + process groups | `phenotype-process` | 750 |
+| FORK-009 | JSON Schema TS+Rust | `phenotype-jsonschema` | 200 |
+
+### Supply chain / provenance
+
+| Tool | Action |
+|------|--------|
+| `cargo-cyclonedx` | ADOPT for SBOM artifacts |
+| `syft` | WRAP in release pipeline |
+| OSV-Scanner | ADOPT for batch triage |
+| `cargo audit` + `cargo deny advisories` | Run both weekly |
+
+### Black-box wraps
+
+`tower`, `jsonwebtoken`, `argon2`, `opentelemetry`, `@modelcontextprotocol/sdk`, `zod` — use only at adapter boundaries; no domain imports.
+
+---
+
+## 2026-03-29 - Wave 93: Verified workspace `Cargo.toml` usage (`crates/*.rs` only)
+
+**Method:** `rg -l '<pattern>' repos/crates --glob '*.rs'` on 2026-03-29. Scoped to workspace member trees under `crates/` (excludes vendored `*-wtrees`).
+
+| Workspace dep | Pattern | Files hitting |
+|-----------------|---------|---------------|
+| (effective) `chrono` | `chrono::` | 6 |
+| `toml` | `toml::` | 2 |
+| `regex` | `regex::` | 2 |
+| `dashmap` | `dashmap::` | 1 |
+| `sha2` | `sha2::` | 1 |
+| `hex` | `hex::` | 1 |
+| `moka` | `moka::` | 0 |
+| `lru` | `lru::` | 0 |
+| `parking_lot` | `parking_lot::` | 0 |
+
+**Conclusion:** `moka`, `lru`, `parking_lot` have **no** Rust source references under `crates/` — safe candidates to drop from **workspace** `[workspace.dependencies]` after `cargo check` confirms no transitive need. `dashmap` is **narrow** (single file); confirm it is not only in a nested duplicate crate before removal.
+
+**Resolves follow-ups:** Rows in “Remaining Questions” for chrono/sha2/hex/regex/dashmap — **answered** for this repo slice; re-run after deleting nested `crates/<pkg>/<pkg>/` trees.
+
+---
+
+_Last updated: 2026-03-29_

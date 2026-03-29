@@ -1,6 +1,6 @@
 # Duplication Worklogs
 
-**Category:** DUPLICATION | **Updated:** 2026-03-29
+**Category:** DUPLICATION | **Updated:** 2026-03-30
 
 ---
 
@@ -2009,6 +2009,24 @@ pub async fn setup_auth_db() -> SqlitePool { /* 23 LOC */ }
 
 **Total Duplication:** 68 + 65 = ~133 LOC
 
+**Consolidation (builder pattern for auth fixtures):**
+
+```rust
+pub struct AuthFixtureBuilder {
+    user_id: String,
+    email: String,
+    token: Option<String>,
+}
+
+impl AuthFixtureBuilder {
+    pub fn new() -> Self { ... }
+    pub fn with_email(mut self, email: &str) -> Self { ... }
+    pub fn build(self) -> TestAuth { ... }
+}
+```
+
+**LOC Savings:** 68 + 65 = 133 LOC → 25 LOC (reuse) = **108 LOC savings**
+
 ---
 
 ## 2026-03-29 - Comprehensive LOC Analysis (Actual Codebase Scan)
@@ -2101,24 +2119,6 @@ pub async fn setup_auth_db() -> SqlitePool { /* 23 LOC */ }
 - [ ] 🟠 HIGH: Archive 500K+ LOC of generated code
 - [ ] 🟡 MEDIUM: Activate or archive thegent worktree (363K LOC)
 - [ ] 🟡 MEDIUM: Review chore worktree (8.8K LOC)
-
----
-
-_Last updated: 2026-03-29_
-pub struct AuthFixtureBuilder {
-    user_id: String,
-    email: String,
-    token: Option<String>,
-}
-
-impl AuthFixtureBuilder {
-    pub fn new() -> Self { ... }
-    pub fn with_email(mut self, email: &str) -> Self { ... }
-    pub fn build(self) -> TestAuth { ... }
-}
-```
-
-**LOC Savings:** 68 + 65 = 133 LOC → 25 LOC (reuse) = **108 LOC savings**
 
 ### Case Study 2: Mock Server Implementation (85 LOC + 70 Estimated)
 
