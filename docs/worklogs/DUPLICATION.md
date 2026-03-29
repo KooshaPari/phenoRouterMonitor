@@ -498,9 +498,426 @@ Comprehensive analysis identifying 1,800 LOC of duplication with 1,200 LOC savin
 
 - [ ] 🔴 CRITICAL: Create `libs/agileplus-error/` for error consolidation
 - [ ] 🟡 HIGH: Migrate `libs/config-core` to edition 2024
-- [ ] 🟡 HIGH: Integrate `libs/hexagonal-rs` Repository patterns
-- [ ] 🟠 MEDIUM: Create shared InMemory test implementations
-- [ ] 🟠 MEDIUM: Create `libs/http-client` for HTTP patterns
+
+---
+
+## 2026-03-29 - phenoinfrakit Deep Duplication Audit
+
+**Project:** phenotype-infrakit
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Deep analysis of duplication within phenotype-infrakit workspace - identified nested crate structure, internal duplication, and external overlap opportunities.
+
+### Critical Finding: Nested Crate Structure
+
+| Crate | Outer (crates/X/) | Inner (crates/X/X/) | Status |
+|-------|-------------------|---------------------|--------|
+| `phenotype-cache-adapter` | ✅ Has src/ | ✅ Has src/ | **100% IDENTICAL** |
+| `phenotype-contracts` | ✅ Has src/ | ✅ Has src/ | **100% IDENTICAL** |
+| `phenotype-event-sourcing` | ✅ Has src/ | ✅ Has src/ | Minor formatting |
+| `phenotype-policy-engine` | ✅ Has src/ | ✅ Has src/ | **100% IDENTICAL** |
+| `phenotype-state-machine` | ❌ NO src/ | ✅ Has src/ | **INCOMPLETE** |
+
+### Root Cause
+
+The nested crate structure is from **in-progress rebase**:
+1. Inner crates contain the actual implementation
+2. Outer crates were created as workspace entries
+3. After rebase completes, inner crates will become canonical
+
+### Internal Duplication Analysis
+
+#### phenotype-event-sourcing Internal Modules
+
+| Module | LOC | Duplication Risk | Status |
+|--------|-----|-----------------|--------|
+| error.rs | 46 | Low - domain-specific | ✅ Clean |
+| hash.rs | 195 | Medium - similar to sync hash | Consider lib |
+| event.rs | 98 | Low - domain-specific | ✅ Clean |
+| snapshot.rs | 92 | Low - domain-specific | ✅ Clean |
+| store.rs | 64 | Low - domain-specific | ✅ Clean |
+| memory.rs | 266 | Low - in-memory only | ✅ Clean |
+
+#### phenotype-policy-engine Internal Modules
+
+| Module | LOC | Duplication Risk | Status |
+|--------|-----|-----------------|--------|
+| error.rs | ? | Medium - similar to event-sourcing | Consider shared |
+| engine.rs | ~200 | Low - domain-specific | ✅ Clean |
+| loader.rs | ~100 | Medium - similar config patterns | Consider lib |
+| result.rs | ~50 | Low - domain-specific | ✅ Clean |
+| rule.rs | ~100 | Low - domain-specific | ✅ Clean |
+
+### Cross-Crate Duplication
+
+#### Error Type Patterns
+
+| Crate | Error Type | Variants | Similarity |
+|-------|-----------|----------|------------|
+| event-sourcing | `EventStoreError` | 4 | Similar to policy errors |
+| policy-engine | `PolicyError` | 4+ | Similar to event errors |
+| cache-adapter | `CacheError` | ? | Different domain |
+| evidence-ledger | `LedgerError` | ? | Not analyzed |
+
+**Opportunity:** Extract shared error core pattern
+
+#### Hash Chain Patterns
+
+| Crate | Hash Implementation | Purpose |
+|-------|-------------------|---------|
+| event-sourcing | SHA-256 chain | Event integrity |
+| evidence-ledger | SHA-256 chain | Evidence chain |
+
+**Opportunity:** Extract shared `ContentHash` library
+
+#### In-Memory Store Patterns
+
+| Crate | Implementation | Pattern |
+|-------|----------------|---------|
+| event-sourcing | `InMemoryEventStore<T>` | `RwLock<HashMap>` |
+| policy-engine | In-memory policy store | Similar pattern |
+| cache-adapter | `InMemoryCache` | `DashMap` variant |
+
+**Opportunity:** Extract shared in-memory trait
+
+### External Overlap
+
+#### Overlap with phenotype-shared
+
+| Crate | phenotype-infrakit | phenotype-shared | Action |
+|-------|-------------------|-----------------|--------|
+| `phenotype-event-sourcing` | ✅ Exists | ✅ Exists | Consolidate |
+| `phenotype-cache-adapter` | ✅ Exists | ✅ Exists | Consolidate |
+| `phenotype-policy-engine` | ✅ Exists | ✅ Exists | Consolidate |
+| `phenotype-state-machine` | ✅ Exists | ✅ Exists | Consolidate |
+
+**Action:** Merge phenotype-infrakit into phenotype-shared
+
+### LOC Savings Potential
+
+| Cleanup | Savings | Priority |
+|---------|---------|----------|
+| Remove nested duplicates | ~500 LOC | 🔴 CRITICAL |
+| Delete dead state-machine | ~50 LOC | 🟠 HIGH |
+| Extract shared error core | ~30 LOC | 🟡 MEDIUM |
+| Extract shared hash lib | ~20 LOC | 🟡 MEDIUM |
+| **Total** | **~600 LOC** | |
+
+---
+
+## 2026-03-29 - Cross-Repo Event Sourcing Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of event sourcing implementations across multiple repositories.
+
+### Event Sourcing Instances
+
+| Repo | Crate | LOC | Quality | Status |
+|------|-------|-----|---------|--------|
+| phenotype-infrakit | `phenotype-event-sourcing` | ~781 | High | Active |
+| phenotype-shared | `phenotype-event-sourcing` | ~500 | High | Active |
+| AgilePlus | `agileplus-events` | ~300 | Medium | Active |
+| thegent | Event patterns | ~200 | Medium | Active |
+
+### Architecture Comparison
+
+#### phenotype-infrakit (Best)
+
+```rust
+// Generic aggregate trait
+pub trait Aggregate: Send + Sync + 'static {
+    type Id: IdType;
+    type Event: EventType;
+    fn apply(&mut self, event: Self::Event);
+}
+
+// Event envelope with chain hash
+pub struct EventEnvelope<T: Aggregate> {
+    pub id: Uuid,
+    pub aggregate_id: T::Id,
+    pub sequence: u64,
+    pub timestamp: DateTime<Utc>,
+    pub payload: T::Event,
+    pub hash: ContentHash,
+}
+```
+
+#### phenotype-shared (Good)
+
+Similar architecture, slightly different implementation.
+
+#### AgilePlus (Basic)
+
+```rust
+// Basic event store
+pub trait EventStore: Send + Sync {
+    async fn append(&self, event: Event) -> Result<()>;
+    async fn get_events(&self, id: &Uuid) -> Result<Vec<Event>>;
+}
+```
+
+### Recommended Consolidation
+
+| Step | Action | Target |
+|------|--------|--------|
+| 1 | Adopt phenotype-infrakit as canonical | `phenotype-shared/crates/event-sourcing` |
+| 2 | Remove AgilePlus duplicate | Migrate to shared |
+| 3 | Archive phenotype-shared version | Delete after migration |
+| 4 | Consider cqrs-es | Fork or integrate |
+
+### LOC Savings
+
+| Consolidation | Savings |
+|---------------|---------|
+| Remove phenotype-shared event-sourcing | ~500 LOC |
+| Remove agileplus-events duplicate | ~300 LOC |
+| Use cqrs-es as foundation | ~200 LOC |
+| **Total** | **~1000 LOC** |
+
+---
+
+## 2026-03-29 - Cross-Repo Cache Adapter Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of cache adapter implementations across repositories.
+
+### Cache Adapter Instances
+
+| Repo | Crate | Backend | Quality |
+|------|-------|---------|---------|
+| phenotype-infrakit | `phenotype-cache-adapter` | DashMap, Moka | High |
+| phenotype-shared | `phenotype-cache-adapter` | Multiple | Medium |
+| thegent | `thegent-cache` | TTL cache | Medium |
+
+### Architecture Comparison
+
+#### phenotype-infrakit (Best)
+
+```rust
+pub trait CacheBackend: Send + Sync {
+    async fn get(&self, key: &str) -> Option<Vec<u8>>;
+    async fn set(&self, key: &str, value: Vec<u8>, ttl: Option<Duration>) -> Result<(), CacheError>;
+    async fn delete(&self, key: &str) -> Result<(), CacheError>;
+}
+
+// Implementations: DashMap, Moka
+```
+
+#### phenotype-shared (Good)
+
+Similar trait design, different implementations.
+
+### Recommended Consolidation
+
+| Step | Action | Target |
+|------|--------|--------|
+| 1 | Adopt phenotype-infrakit as canonical | `phenotype-shared/crates/cache` |
+| 2 | Add Redis adapter | Extend trait |
+| 3 | Remove duplicate implementations | Delete |
+
+---
+
+## 2026-03-29 - Cross-Repo Policy Engine Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of policy engine implementations across repositories.
+
+### Policy Engine Instances
+
+| Repo | Crate | LOC | Features |
+|------|-------|-----|----------|
+| phenotype-infrakit | `phenotype-policy-engine` | ~500 | Rules, engine, loader |
+| phenotype-shared | `phenotype-policy-engine` | ~300 | Basic rules |
+
+### Architecture Comparison
+
+#### phenotype-infrakit (Better)
+
+```rust
+// Rich policy structure
+pub struct Policy {
+    pub id: Uuid,
+    pub name: String,
+    pub rules: Vec<Rule>,
+    pub severity: Severity,
+    pub rule_type: RuleType,
+}
+
+pub struct Rule {
+    pub id: Uuid,
+    pub field: String,
+    pub operator: Operator,
+    pub value: serde_json::Value,
+}
+```
+
+#### phenotype-shared (Basic)
+
+Basic rule evaluation without complex structures.
+
+### Recommended Consolidation
+
+| Step | Action | Target |
+|------|--------|--------|
+| 1 | Adopt phenotype-infrakit as canonical | `phenotype-shared/crates/policy` |
+| 2 | Migrate rules from shared | Extend |
+| 3 | Consider reglang/OPA | Fork evaluation |
+
+---
+
+## 2026-03-29 - Pattern Generation: In-Memory Store
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Pattern analysis for generating reusable in-memory store implementations.
+
+### Current Implementations
+
+| Crate | Type | Implementation | LOC |
+|-------|------|----------------|-----|
+| event-sourcing | InMemoryEventStore | `RwLock<HashMap>` | ~266 |
+| policy-engine | InMemoryPolicyStore | Similar | ~100 |
+| cache-adapter | InMemoryCache | `DashMap` | ~50 |
+| agileplus-sync | InMemorySyncStore | `Mutex<HashMap>` | ~60 |
+
+### Common Pattern
+
+```rust
+// Common: Generic in-memory with sync
+pub struct InMemoryStore<K, V> {
+    data: RwLock<HashMap<K, V>>,
+}
+
+impl<K: Eq + Hash, V> InMemoryStore<K, V> {
+    pub async fn get(&self, key: &K) -> Option<V> {
+        self.data.read().get(key).cloned()
+    }
+    
+    pub async fn set(&self, key: K, value: V) {
+        self.data.write().insert(key, value);
+    }
+}
+```
+
+### Library Candidate
+
+```rust
+// libs/phenotype-in-memory/
+pub trait InMemoryStore<K, V>: Send + Sync {
+    async fn get(&self, key: &K) -> Option<V>;
+    async fn set(&self, key: K, value: V);
+    async fn delete(&self, key: &K) -> Option<V>;
+    async fn clear(&self);
+    async fn len(&self) -> usize;
+}
+
+pub struct HashMapStore<K, V> {
+    data: RwLock<HashMap<K, V>>,
+}
+
+impl<K: Eq + Hash + Clone, V: Clone> InMemoryStore<K, V> for HashMapStore<K, V> {}
+```
+
+### LOC Savings
+
+| Pattern | Current | After | Savings |
+|---------|---------|-------|---------|
+| In-memory stores | ~476 LOC | ~100 LOC | **376 LOC** |
+
+---
+
+## 2026-03-29 - Productization: Evidence Ledger
+
+**Project:** phenotype-infrakit
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of evidence ledger as a standalone productizable crate.
+
+### Current Structure
+
+```
+crates/evidence-ledger/
+├── src/
+│   ├── lib.rs      # 25 LOC
+│   ├── chain.rs    # Evidence chain
+│   ├── ledger.rs   # Ledger operations
+│   └── error.rs   # Error types
+├── Cargo.toml
+└── README.md
+```
+
+### Features
+
+| Feature | Status | Quality |
+|---------|--------|---------|
+| Evidence chain | ✅ | High |
+| Ledger operations | ✅ | High |
+| Hash verification | ✅ | High |
+| Query filtering | ✅ | Medium |
+| External config | ❌ | Missing |
+
+### Productization Opportunities
+
+| Feature | Current | Target | Priority |
+|---------|---------|--------|----------|
+| TOML config | ❌ | ✅ | 🟠 HIGH |
+| Multiple backends | Memory only | SQLite, Postgres | 🟠 HIGH |
+| gRPC API | ❌ | ✅ | 🟡 MEDIUM |
+| OpenTelemetry | ❌ | ✅ | 🟡 MEDIUM |
+
+### Standalone Product
+
+```toml
+# evidence-ledger = "1.0"  (publish to crates.io)
+[dependencies.evidence-ledger]
+version = "1.0"
+features = ["sqlite", "postgres", "grpc"]
+```
+
+### Recommended Actions
+
+1. Add figment-based configuration
+2. Add SQLite backend adapter
+3. Add gRPC service layer
+4. Publish to crates.io as standalone
+
+---
+
+_Last updated: 2026-03-29_
+---
+
+_Last updated: 2026-03-29_
 - [ ] 🟢 LOW: Delete `phenotype-state-machine` (dead code)
 
 ### Related
