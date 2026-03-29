@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from thegent.phench.service import (
+from phench.src.phench.service import (
     add_repo,
     audit_shared_modules,
     add_module_to_target,
@@ -34,8 +34,8 @@ from thegent.phench.service import (
     sync_target,
     sync_project_modules_from_repos,
 )
-from thegent.phench.models import RepoSelection, RunnerCatalog, RunnerCommand, TargetLock
-from thegent.phench.store import read_dual
+from phench.src.phench.models import RepoSelection, RunnerCatalog, RunnerCommand, TargetLock
+from phench.src.phench.store import read_dual
 
 
 def _run(cmd: list[str], cwd: Path) -> None:
