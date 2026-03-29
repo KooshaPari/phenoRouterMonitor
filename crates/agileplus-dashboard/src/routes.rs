@@ -2444,94 +2444,7 @@ mod tests {
     // ── JSON API Tests ────────────────────────────────────────────────────
 
     #[tokio::test]
-    async fn agents_json_returns_valid_json() {
-        let state = make_state();
-        let response = agents_json(State(state)).await;
-
-        // Extract JSON from response
-        let body = response.into_body();
-        let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
-        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
-        let json: serde_json::Value = serde_json::from_str(&json_str).expect("valid JSON");
-
-        // Verify structure
-        assert!(json.get("agents").is_some());
-        assert!(json.get("count").is_some());
-        assert!(json.get("timestamp").is_some());
-    }
-
-    #[tokio::test]
-    async fn agents_json_includes_agent_fields() {
-        let state = make_state();
-        let response = agents_json(State(state)).await;
-        let body = response.into_body();
-        let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
-        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
-        let json: serde_json::Value = serde_json::from_str(&json_str).expect("valid JSON");
-
-        let agents = json.get("agents").unwrap();
-        assert!(agents.is_array());
-        // Each agent should have these fields
-        if let Some(first_agent) = agents.as_array().and_then(|a| a.first()) {
-            assert!(first_agent.get("name").is_some());
-            assert!(first_agent.get("status").is_some());
-            assert!(first_agent.get("current_task").is_some());
-            assert!(first_agent.get("uptime").is_some());
-        }
-    }
-
-    #[tokio::test]
-    async fn health_json_returns_valid_json() {
-        let state = make_state();
-        let response = health_json(State(state)).await;
-
-        let body = response.into_body();
-        let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
-        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
-        let json: serde_json::Value = serde_json::from_str(&json_str).expect("valid JSON");
-
-        // Verify structure
-        assert!(json.get("services").is_some());
-        assert!(json.get("timestamp").is_some());
-        assert!(json.get("all_healthy").is_some());
-    }
-
-    #[tokio::test]
-    async fn health_json_includes_service_fields() {
-        let state = make_state();
-        let response = health_json(State(state)).await;
-        let body = response.into_body();
-        let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
-        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
-        let json: serde_json::Value = serde_json::from_str(&json_str).expect("valid JSON");
-
-        let services = json.get("services").unwrap();
-        assert!(services.is_array());
-        // Each service should have these fields
-        if let Some(first_service) = services.as_array().and_then(|a| a.first()) {
-            assert!(first_service.get("name").is_some());
-            assert!(first_service.get("healthy").is_some());
-            assert!(first_service.get("degraded").is_some());
-            assert!(first_service.get("last_check").is_some());
-        }
-    }
-
-    #[tokio::test]
-    async fn health_json_all_healthy_flag() {
-        let state = make_state();
-        let response = health_json(State(state)).await;
-        let body = response.into_body();
-        let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
-        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
-        let json: serde_json::Value = serde_json::from_str(&json_str).expect("valid JSON");
-
-        // With default seeded data, all services should be healthy
-        let all_healthy = json.get("all_healthy").unwrap().as_bool().unwrap();
-        assert!(all_healthy);
-    }
-
-    #[tokio::test]
-    async fn json_endpoints_integrated_in_router() {
+    async fn json_endpoints_integrated_agents_in_router() {
         let state = make_state();
         let app = router(state);
 
@@ -2545,17 +2458,49 @@ mod tests {
         let response = app.clone().oneshot(request).await.unwrap();
         assert_eq!(response.status(), axum::http::StatusCode::OK);
 
-        // Verify JSON content-type (implicit through JSON serialization)
         let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
             .await
             .unwrap();
         let body_text = String::from_utf8(body_bytes.to_vec()).unwrap();
-        assert!(body_text.contains("\"agents\""));
-        assert!(body_text.contains("\"count\""));
+
+        // Verify JSON structure
+        let json: serde_json::Value = serde_json::from_str(&body_text).expect("valid JSON");
+        assert!(json.get("agents").is_some());
+        assert!(json.get("count").is_some());
+        assert!(json.get("timestamp").is_some());
     }
 
     #[tokio::test]
-    async fn json_health_endpoint_integrated_in_router() {
+    async fn agents_json_response_structure() {
+        let state = make_state();
+        let app = router(state);
+
+        let request = axum::http::Request::builder()
+            .method("GET")
+            .uri("/api/dashboard/agents.json")
+            .body(axum::body::Body::empty())
+            .unwrap();
+
+        let response = app.oneshot(request).await.unwrap();
+        let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body_text = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_text).expect("valid JSON");
+
+        let agents = json.get("agents").unwrap();
+        assert!(agents.is_array());
+        // When no agents detected, agents array should be empty but structure valid
+        if let Some(first_agent) = agents.as_array().and_then(|a| a.first()) {
+            assert!(first_agent.get("name").is_some());
+            assert!(first_agent.get("status").is_some());
+            assert!(first_agent.get("current_task").is_some());
+            assert!(first_agent.get("uptime").is_some());
+        }
+    }
+
+    #[tokio::test]
+    async fn json_endpoints_integrated_health_in_router() {
         let state = make_state();
         let app = router(state);
 
@@ -2566,14 +2511,52 @@ mod tests {
             .body(axum::body::Body::empty())
             .unwrap();
 
-        let response = app.oneshot(request).await.unwrap();
+        let response = app.clone().oneshot(request).await.unwrap();
         assert_eq!(response.status(), axum::http::StatusCode::OK);
 
         let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
             .await
             .unwrap();
         let body_text = String::from_utf8(body_bytes.to_vec()).unwrap();
-        assert!(body_text.contains("\"services\""));
-        assert!(body_text.contains("\"all_healthy\""));
+
+        // Verify JSON structure
+        let json: serde_json::Value = serde_json::from_str(&body_text).expect("valid JSON");
+        assert!(json.get("services").is_some());
+        assert!(json.get("timestamp").is_some());
+        assert!(json.get("all_healthy").is_some());
     }
+
+    #[tokio::test]
+    async fn health_json_response_structure() {
+        let state = make_state();
+        let app = router(state);
+
+        let request = axum::http::Request::builder()
+            .method("GET")
+            .uri("/api/dashboard/health.json")
+            .body(axum::body::Body::empty())
+            .unwrap();
+
+        let response = app.oneshot(request).await.unwrap();
+        let body_bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body_text = String::from_utf8(body_bytes.to_vec()).unwrap();
+        let json: serde_json::Value = serde_json::from_str(&body_text).expect("valid JSON");
+
+        let services = json.get("services").unwrap();
+        assert!(services.is_array());
+        // With default seeded data, should have services
+        if let Some(first_service) = services.as_array().and_then(|a| a.first()) {
+            assert!(first_service.get("name").is_some());
+            assert!(first_service.get("healthy").is_some());
+            assert!(first_service.get("degraded").is_some());
+            assert!(first_service.get("last_check").is_some());
+        }
+
+        // Verify all_healthy flag (with seeded data, should be true)
+        let all_healthy = json.get("all_healthy").unwrap().as_bool().unwrap();
+        assert!(all_healthy);
+    }
+
 }
