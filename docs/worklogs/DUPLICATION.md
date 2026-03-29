@@ -2105,9 +2105,6 @@ pub async fn setup_auth_db() -> SqlitePool { /* 23 LOC */ }
 ---
 
 _Last updated: 2026-03-29_
-
-```rust
-// libs/test-fixtures/src/auth.rs
 pub struct AuthFixtureBuilder {
     user_id: String,
     email: String,
@@ -2349,4 +2346,63 @@ backoff::future::retry(backoff, operation).await?;
 
 ---
 
-_Last updated: 2026-03-29_
+## 2026-03-30 — Wave 93: intra-repo duplication deep playbook
+
+**Category:** duplication  
+**Status:** active methodology  
+**Priority:** P0–P1  
+**Cross-ref:** `docs/worklogs/README.md` (Deep audit playbook), `docs/worklogs/INACTIVE_FOLDERS.md`, `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md`
+
+### Playbook phases (code-only)
+
+| Phase | Goal | Primary paths | Output |
+|-------|------|---------------|--------|
+| **D1** | Error surface map | `crates/**/error*.rs`, `**/*error*.rs` | Table: enum name → crate → variant count |
+| **D2** | Port / trait overlap | `crates/**/ports/**`, `libs/**/ports/**` | Merge candidates vs `phenotype-port-interfaces` |
+| **D3** | Config ingress | `**/config*.rs`, `Settings`, `figment`, `toml::` | Single owner for “load + validate + provenance” |
+| **D4** | HTTP / retry / client | `reqwest`, `Client::new`, `retry`, `backoff` | One policy crate or `backoff`/`backon` adoption |
+| **D5** | Serde DTO sprawl | `Serialize` on `*Request`/`*Response` in multiple crates | `agileplus-api-types` or shared contracts |
+| **D6** | Tests & fixtures | `tests/`, `#[cfg(test)]` builders | `libs/test-fixtures` or workspace dev-dep |
+
+### High-yield `rg` recipes (run from monorepo root)
+
+```bash
+rg -n "thiserror::Error|derive\(.*Error" crates libs --type rust
+rg -n "enum \\w*Error" crates --type rust
+rg -n "trait (Repository|Storage|Cache|Logger|EventBus)" crates libs --type rust
+rg -n "reqwest::Client::new|Client::builder" crates --type rust
+rg -n "tokio::time::sleep|backoff|retry" crates --type rust
+rg -n "struct \\w*Config|fn load_config|Figment|config::" crates --type rust
+```
+
+### Additional consolidation clusters (beyond §Summary)
+
+| Cluster | Symptom | Canonical direction | Risk |
+|---------|---------|---------------------|------|
+| Metrics registry | Multiple `prometheus` / `metrics` wrappers | Single `agileplus-telemetry` facade | Breaking label names |
+| Feature flags | Duplicate `cfg(feature = …)` blocks | `agileplus-features` or compile-time macro | Build time |
+| UUID / ID types | Newtype wrappers per crate | Shared `ids` module in contracts | API churn |
+| DateTime handling | Mix of `chrono` vs `time` | Pick one for new code; migrate hot paths | Interop |
+| SQL / query builders | Ad-hoc string concat | `sea-query` or single DAO layer | Injection / review |
+| NATS subjects | String literals duplicated | `subjects.rs` per bounded context | Runtime typos |
+
+### Quality gate: “no new duplication”
+
+Before merge, for PRs touching the areas above:
+
+- [ ] If adding a new `*Error` enum, link a follow-up issue to `phenotype-error` / `agileplus-error-core`.
+- [ ] If adding a new port trait, document why existing `phenotype-port-interfaces` trait cannot extend.
+- [ ] If adding retry logic, use shared helper or `backoff` crate — no ad-hoc `sleep` loops.
+
+### Traceability
+
+| Plan file | Duplication theme |
+|-----------|-------------------|
+| `PLANS/ERROR_CORE_EXTRACTION.md` | Errors |
+| `PLANS/CONFIG_CORE_ACTIVATION.md` | Config |
+| `PLANS/EDITION_MIGRATION.md` | `libs/` activation |
+| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | Execution WBS |
+
+---
+
+_Last updated: 2026-03-30 (Wave 93 appendix)_
