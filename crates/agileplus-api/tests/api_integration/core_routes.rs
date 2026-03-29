@@ -4,6 +4,8 @@ use crate::support::{TEST_API_KEY, setup_test_server};
 
 #[tokio::test]
 async fn health_no_auth_required() {
+    // Traces to: FR-API-005, FR-DOMAIN-014
+    // Verify that /health endpoint returns service health without authentication
     let server = setup_test_server().await;
     let resp = server.get("/health").await;
     resp.assert_status_ok();
@@ -23,6 +25,8 @@ async fn health_no_auth_required() {
 
 #[tokio::test]
 async fn info_no_auth_required() {
+    // Traces to: FR-API-005
+    // Verify that /info endpoint is accessible without authentication
     let server = setup_test_server().await;
     let resp = server.get("/info").await;
     resp.assert_status_ok();
@@ -30,6 +34,8 @@ async fn info_no_auth_required() {
 
 #[tokio::test]
 async fn list_features_requires_auth() {
+    // Traces to: FR-API-007
+    // Verify that unauthenticated requests are rejected with 401
     let server = setup_test_server().await;
     let resp = server.get("/api/v1/features").await;
     resp.assert_status(StatusCode::UNAUTHORIZED);
@@ -37,6 +43,8 @@ async fn list_features_requires_auth() {
 
 #[tokio::test]
 async fn list_features_invalid_key_returns_401() {
+    // Traces to: FR-API-007
+    // Verify that invalid API key is rejected with 401
     let server = setup_test_server().await;
     let resp = server
         .get("/api/v1/features")
@@ -47,6 +55,8 @@ async fn list_features_invalid_key_returns_401() {
 
 #[tokio::test]
 async fn response_content_type_is_json() {
+    // Traces to: FR-API-001
+    // Verify that API responses include correct JSON content-type header
     let server = setup_test_server().await;
     let resp = server
         .get("/api/v1/features")

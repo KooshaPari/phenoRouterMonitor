@@ -269,6 +269,7 @@ pub struct AgentSettingsPage {
     pub agent_pool_size: usize,
     pub retry_budget: usize,
     pub dispatch_mode: String,
+    pub default_provider: String,
 }
 
 #[derive(Template)]

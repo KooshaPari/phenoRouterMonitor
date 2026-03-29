@@ -67,6 +67,24 @@ pub struct ServiceHealthJson {
     pub last_check: String,
 }
 
+/// JSON response for GET /api/dashboard/features/{id}/evidence
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvidenceGalleryJson {
+    pub feature_id: String,
+    pub artifacts: Vec<EvidenceArtifactJson>,
+    pub generated_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvidenceArtifactJson {
+    pub id: String,
+    pub type_: String,
+    pub title: String,
+    pub path: String,
+    pub url: String,
+    pub created_at: String,
+}
+
 // ── Configuration Types ────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1184,10 +1202,25 @@ pub async fn plane_settings_page(State(state): State<SharedState>) -> Response {
 }
 
 pub async fn agent_settings_page() -> Response {
-    render(AgentSettingsPage {
-        agent_pool_size: 6,
+    let config = Config::load().unwrap_or(Config {
+        plane: None,
+        agents: None,
+        services: None,
+        dashboard: None,
+    });
+
+    let agent_config = config.agents.unwrap_or_else(|| AgentConfig {
+        pool_size: 6,
         retry_budget: 3,
-        dispatch_mode: "balanced".into(),
+        dispatch_mode: "balanced".to_string(),
+        default_provider: "claude".to_string(),
+    });
+
+    render(AgentSettingsPage {
+        agent_pool_size: agent_config.pool_size,
+        retry_budget: agent_config.retry_budget,
+        dispatch_mode: agent_config.dispatch_mode,
+        default_provider: agent_config.default_provider,
     })
 }
 
@@ -1532,6 +1565,38 @@ pub async fn feature_evidence_generate(
         message: "Evidence generation started — poll GET /api/features/{id}/evidence for results".into(),
     })
     .into_response()
+}
+
+/// `GET /api/dashboard/features/{id}/evidence.json`
+/// Returns evidence gallery metadata as JSON for lightbox integration.
+pub async fn feature_evidence_json(
+    State(_state): State<SharedState>,
+    Path(feature_id): Path<String>,
+) -> impl IntoResponse {
+    let bundles = load_evidence_bundles_from_disk(&feature_id);
+
+    // Extract artifacts from bundles for gallery JSON response
+    let artifacts: Vec<EvidenceArtifactJson> = bundles
+        .iter()
+        .map(|bundle| EvidenceArtifactJson {
+            id: bundle.id.clone(),
+            type_: bundle.evidence_type.clone(),
+            title: bundle.wp_title.clone(),
+            path: bundle.artifact_path.clone(),
+            url: format!("/api/evidence/{}/{}/preview", feature_id, bundle.id),
+            created_at: bundle.created_at.clone(),
+        })
+        .collect();
+
+    let generated_at = bundles
+        .first()
+        .map(|b| b.created_at.clone());
+
+    axum::Json(EvidenceGalleryJson {
+        feature_id,
+        artifacts,
+        generated_at,
+    })
 }
 
 pub async fn stream_placeholder() -> StatusCode {
@@ -2033,6 +2098,10 @@ pub fn router(state: SharedState) -> Router {
         .route(
             "/api/features/{id}/evidence/generate",
             post(feature_evidence_generate),
+        )
+        .route(
+            "/api/dashboard/features/{id}/evidence.json",
+            get(feature_evidence_json),
         )
         .with_state(state)
 }
