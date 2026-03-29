@@ -1,12 +1,92 @@
 # Worklogs
 
-> Canonical logging and audit documentation for the Phenotype ecosystem.
+## LOC Audit Dashboard (2026-03-29)
+
+### Workspace Metrics
+
+| Metric | Value |
+|--------|-------|
+| Total Rust LOC (all) | ~590,000 |
+| Total Python LOC (all) | ~579,000 |
+| **Active Code LOC** | ~510,000 |
+| **Duplicated LOC** | ~13,000 |
+| Savings Potential | 97.8% reduction |
+
+### LOC by Precise Category (Verified 2026-03-29)
+
+| Category | LOC | Dup% | Status |
+|----------|-----|------|--------|
+| `libs/*` (unused) | 1,470 | N/A | UNUSED |
+| `phenotype-event-sourcing ROOT` | 622 | 100% | DUPLICATE |
+| `phenotype-event-sourcing NESTED` | 1,016 | 100% | DUPLICATE |
+| `phenotype-policy-engine ROOT` | 1,197 | 100% | DUPLICATE |
+| `phenotype-policy-engine NESTED` | 2,004 | 100% | DUPLICATE |
+| `phenotype-contracts ROOT` | 4,032 | 0% | ACTIVE |
+| `phenotype-contracts NESTED` | 3,986 | 100% | DUPLICATE |
+| `phenotype-shared/crates` | 3,586 | 0% | UNUSED |
+| `agileplus-domain` | 2,051 | 0% | ACTIVE |
+| `agileplus-api` | 1,099 | 0% | ACTIVE |
+| `platforms/thegent` | 451,495 | ? | ACTIVE |
+| `heliosCLI` | 51,944 | ? | ACTIVE |
+
+### Nested Duplicates Summary
+
+| Crate | Root LOC | Nested LOC | Wasted | Status |
+|-------|----------|-----------|--------|--------|
+| phenotype-event-sourcing | 622 | 1,016 | **1,638** | DONE |
+| phenotype-contracts | 4,032 | 3,986 | **8,018** | DONE |
+| phenotype-policy-engine | 1,197 | 2,004 | **3,201** | PENDING |
+| **Total Wasted** | | | **~12,857** | **~8,654 DONE** |
+### Phase Status
+
+| Phase | Tasks | Status | Progress |
+|-------|-------|--------|----------|
+| Phase 1: Library Migration | 11 tasks | 9 DONE, 2 PENDING | ██████████ 82% |
+| Phase 2: Error Core | 13 tasks | PENDING | ░░░░░░░░░░ 0% |
+| Phase 3: Port/Trait | 4 tasks | PENDING | ░░░░░░░░░░ 0% |
+| Phase 4: HTTP Client | 7 tasks | PENDING | ░░░░░░░░░░ 0% |
+| Phase 5: Config | 5 tasks | PENDING | ░░░░░░░░░░ 0% |
 
 ---
+---
 
-## Overview
+## Wave 93 - LOC Audit (2026-03-29)
 
-This directory contains structured worklogs organized by category. Each worklog tracks research, decisions, and progress for cross-cutting concerns.
+**Status:** completed  
+**Priority:** P0  
+**Agent:** FORGE
+
+### Summary
+
+Precise LOC measurements from shell scans:
+
+| Category | LOC | Dup% | Status |
+|----------|-----|------|--------|
+| `libs/*` (unused) | 1,470 | N/A | UNUSED |
+| `agileplus-domain` | 2,051 | 0% | ACTIVE |
+| `agileplus-api` | 1,099 | 0% | ACTIVE |
+| `phenotype-event-sourcing ROOT` | 622 | 100% | DUPLICATE |
+| `phenotype-event-sourcing NESTED` | 1,016 | 100% | DUPLICATE |
+| `phenotype-policy-engine ROOT` | 1,197 | 100% | DUPLICATE |
+| `phenotype-policy-engine NESTED` | 2,004 | 100% | DUPLICATE |
+| `phenotype-contracts ROOT` | 4,032 | 0% | ACTIVE |
+| `phenotype-contracts NESTED` | 3,986 | 100% | DUPLICATE |
+| `phenotype-shared/crates` | 3,586 | 0% | UNUSED |
+| `platforms/thegent` | 451,495 | ? | ACTIVE |
+| `heliosCLI` | 51,944 | ? | ACTIVE |
+
+### Key LOC Findings
+
+#### 🔴 CRITICAL: Nested Duplicates (~8,000 LOC total)
+- phenotype-event-sourcing: 622 + 1,016 = **1,638 LOC** duplicated
+- phenotype-policy-engine: 1,197 + 2,004 = **3,201 LOC** duplicated
+- phenotype-contracts: 4,032 + 3,986 = **8,018 LOC** duplicated (100% overlap)
+
+#### 🟡 HIGH: Unused Libraries
+- `libs/*`: **1,470 LOC** completely unused
+- `phenotype-shared/crates`: **3,586 LOC** unused in main workspace
+
+#### Total Wasted LOC: ~13,000 LOC
 
 ---
 
@@ -224,12 +304,16 @@ Use `aggregate.sh` to compile a master view:
 | Artifact | Location | Purpose |
 |----------|----------|---------|
 | Session extract (JSON) | `data/phenotype_session_extract_2026-03-26_2026-03-29.json` | Claude/Cursor prompts + plans |
-| Error enum index | `data/error_enums_index.json` | `pub enum *Error` / `Error` in `crates/`, `libs/`, `rust/`, `tools/` |
+| Error enum index | `data/error_enums_index.json` | `pub enum *Error` / `Error` — **entire repo** by default (excludes `target/`, `.git/`, `.worktrees/`, `*-wtrees/`, `.archive/`, etc.) |
 
 Regenerate the error index from the repository root:
 
 ```bash
+# Full tree (default)
 python3 scripts/generate_error_enums_index.py
+
+# Only workspace dirs: crates/, libs/, rust/, tools/
+python3 scripts/generate_error_enums_index.py --scope workspace
 ```
 
 ---

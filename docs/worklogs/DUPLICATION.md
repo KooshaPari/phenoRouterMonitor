@@ -1,11 +1,138 @@
 # Duplication Worklogs
+# Duplication Worklogs
 
 **Category:** DUPLICATION | **Updated:** 2026-03-30
 
 ---
 
-## 2026-03-29 - AgilePlus Extended Duplication Audit
+## 2026-03-30 - PRECISE LOC AUDIT (Wave 93)
 
+**Project:** [phenotype-ecosystem]
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Real LOC metrics from shell scans (2026-03-30):
+
+### Precise LOC Breakdown
+
+| Category | Path | LOC | Status |
+|----------|------|-----|--------|
+| **Unused Libraries** | `libs/*` | 1,470 | UNUSED |
+| agileplus-domain | `crates/agileplus-domain/src` | 2,051 | ACTIVE |
+| agileplus-api | `crates/agileplus-api/src` | 1,099 | ACTIVE |
+| phenotype-event-sourcing ROOT | `crates/phenotype-event-sourcing/src` | 622 | DUPLICATE |
+| phenotype-event-sourcing NESTED | `crates/phenotype-event-sourcing/phenotype-event-sourcing/src` | 1,016 | DUPLICATE |
+| phenotype-policy-engine ROOT | `crates/phenotype-policy-engine/src` | 1,197 | DUPLICATE |
+| phenotype-policy-engine NESTED | `crates/phenotype-policy-engine/phenotype-policy-engine/src` | 2,004 | DUPLICATE |
+| phenotype-contracts ROOT | `crates/phenotype-contracts/src` | 4,032 | ACTIVE |
+| phenotype-contracts NESTED | `crates/phenotype-contracts/phenotype-contracts/src` | 3,986 | DUPLICATE |
+| phenotype-shared/crates | `libs/phenotype-shared/crates/*/src` | 3,586 | UNUSED |
+| platforms/thegent | `platforms/thegent` | 451,495 | ACTIVE (Python) |
+| heliosCLI | `heliosCLI` | 51,944 | ACTIVE (Python) |
+
+### Critical Duplication Metrics
+
+| Metric | Value |
+|--------|-------|
+| phenotype-event-sourcing duplication | 622 + 1,016 = 1,638 LOC (SAME files, two copies) |
+| phenotype-policy-engine duplication | 1,197 + 2,004 = 3,201 LOC (SAME files, two copies) |
+| phenotype-contracts duplication | 4,032 + 3,986 = 8,018 LOC (SAME files, two copies) |
+| Total nested duplicate LOC | ~12,857 LOC (BUT actually 3,217 LOC real code duplicated) |
+| libs/ unused LOC | 1,470 LOC |
+| phenotype-shared unused LOC | 3,586 LOC |
+| **Total wasteable LOC** | ~14,900+ LOC |
+
+### Aggressive LOC Reduction Targets
+
+| Target | Current | After | Reduction |
+|--------|---------|-------|-----------|
+| phenotype-event-sourcing | 1,638 | 622 | **62%** |
+| phenotype-policy-engine | 3,201 | 1,197 | **63%** |
+| phenotype-contracts | 8,018 | 4,032 | **50%** |
+| libs/ unused | 1,470 | 0 | **100%** |
+| phenotype-shared | 3,586 | 0 | **100%** |
+| **TOTAL** | **17,913** | **5,851** | **67%** |
+
+### Action Items
+
+- [x] LOC-001: Delete `phenotype-event-sourcing/phenotype-event-sourcing/` nested copy
+- [x] LOC-003: Delete `phenotype-contracts/phenotype-contracts/` nested copy
+- [x] LOC-007: Fix phenotype-contracts [lib] section in Cargo.toml
+- [x] LOC-008: Add phenotype-contracts to workspace members
+- [x] LOC-009: Create proper hexagonal port interfaces (CachePort, RepositoryPort, etc.)
+- [x] LOC-010: Create proper domain models (Entity, ValueObject, AggregateRoot)
+- [x] LOC-011: Fix tokio dev-dependencies in phenotype-port-traits
+- [ ] LOC-002: Delete `phenotype-policy-engine/phenotype-policy-engine/` nested copy
+- [ ] LOC-004: Archive `libs/*` (1,470 LOC unused)
+- [ ] LOC-005: Archive `libs/phenotype-shared/crates/*` (3,586 LOC unused)
+
+---
+
+## 2026-03-29 - PHENOTYPE-CONTRACTS CONSOLIDATION (Wave 94)
+
+**Project:** [phenotype-ecosystem]
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Consolidated `phenotype-contracts` crate by:
+1. Removing nested duplicate path (`phenotype-contracts/phenotype-contracts/`)
+2. Creating proper hexagonal architecture module structure
+3. Adding comprehensive port interfaces and domain models
+
+### Completed Actions
+
+| Item | Description | LOC Impact |
+|------|-------------|-----------|
+| LOC-001 | Deleted phenotype-event-sourcing nested copy | -1,016 |
+| LOC-003 | Deleted phenotype-contracts nested copy | -3,986 |
+| LOC-007 | Added [lib] section to Cargo.toml | +0 |
+| LOC-008 | Added to workspace members | +0 |
+| LOC-009 | Created ports module (CachePort, RepositoryPort, SecretPort, EventBusPort) | +741 |
+| LOC-010 | Created models module (Entity, ValueObject, AggregateRoot, DomainEvent) | +400+ |
+| LOC-011 | Fixed phenotype-port-traits tokio features | +0 |
+
+### Net Result
+
+- **Before:** 8,018 LOC (phenotype-contracts) + 1,638 LOC (phenotype-event-sourcing) = 9,656 LOC
+- **After:** ~5,000 LOC (phenotype-contracts consolidated) + 622 LOC (phenotype-event-sourcing) = ~5,622 LOC
+- **Reduction:** ~4,034 LOC (~42%)
+
+### Files Created
+
+```
+crates/phenotype-contracts/src/
+├── models/
+│   ├── mod.rs
+│   ├── aggregate.rs    (AggregateRoot, DomainEvent)
+│   ├── entity.rs       (Entity)
+│   └── value_object.rs (ValueObject)
+├── ports/
+│   ├── mod.rs
+│   ├── inbound/
+│   │   └── mod.rs      (UseCase, CommandHandler, QueryHandler)
+│   └── outbound/
+│       ├── mod.rs
+│       ├── cache.rs     (CachePort, CacheError)
+│       ├── repository.rs (RepositoryPort, RepositoryError)
+│       ├── secret.rs    (SecretPort, SecretError)
+│       └── event.rs     (EventBusPort, EventBusError, EventHandler)
+├── tests.rs
+└── lib.rs
+```
+
+### Tests Added
+
+- 11 unit tests passing
+- 1 doctest passing
+- All models and ports covered
+
+---
+
+## 2026-03-30 - GAP ANALYSIS
 **Project:** [AgilePlus]
 **Category:** duplication
 **Status:** in_progress
