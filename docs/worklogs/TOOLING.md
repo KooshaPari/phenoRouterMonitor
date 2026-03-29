@@ -747,3 +747,196 @@ class AgilePlusMCPServer:
 - `thegent/src/thegent/mcp/`
 
 ---
+
+---
+
+## 2026-03-29 - Build & Release Tooling (Extended)
+
+**Project:** [cross-repo]
+**Category:** tooling
+**Status:** completed
+**Priority:** P1
+
+### 1. Cargo Dist (Distribution)
+
+```yaml
+# .github/workflows/release.yml
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Install cargo-dist
+        uses: taiki-e/create-rust-toolchain@v1
+        with:
+          toolchain: stable
+          
+      - name: Run cargo dist
+        run: cargo dist build --features release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: target/dist/
+```
+
+---
+
+### 2. Binary Size Optimization
+
+```bash
+# profile.release settings
+[profile.release]
+lto = "thin"           # Link-time optimization
+codegen-units = 1       # Better optimization
+panic = "abort"         # Smaller binary
+strip = true            # Remove debug info
+opt-level = "z"         # Optimize for size
+
+# Or for maximum speed
+[profile.release]
+lto = "fat"            # Maximum LTO
+codegen-units = 1       # Single codegen unit
+opt-level = 3           # Maximum optimization
+```
+
+---
+
+### 3. Caching Strategy
+
+```yaml
+# .github/workflows/ci.yml
+- name: Cache cargo registry
+  uses: actions/cache@v4
+  with:
+    path: |
+      ~/.cargo/registry
+      ~/.cargo/git
+    key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    
+- name: Cache sccache
+  uses: actions/cache@v4
+  with:
+    path: ~/.cache/sccache
+    key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+    
+- name: Run sccache
+  run: RUSTC_WRAPPER=sccache cargo build --release
+```
+
+---
+
+### 4. Cross-Compilation
+
+```yaml
+# .cargo/config.toml
+[build]
+target-dir = "target/cross"
+
+[target.x86_64-unknown-linux-musl]
+linker = "clang"
+rustflags = ["-Clinker=clang", "-Clinker-flavor=gnu"]
+
+[target.aarch64-unknown-linux-musl]
+linker = "aarch64-linux-gnu-gcc"
+```
+
+---
+
+### 5. Testing Matrix
+
+```yaml
+# .github/workflows/test.yml
+strategy:
+  matrix:
+    os: [ubuntu-latest, macos-latest, windows-latest]
+    toolchain: [stable, beta, nightly]
+    include:
+      - os: ubuntu-latest
+        toolchain: nightly
+        coverage: true
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+```
+
+---
+
+### 6. Semantic Versioning Automation
+
+```bash
+# Release script
+#!/bin/bash
+set -e
+
+# Get current version
+VERSION=$(cargo read-manifest | jq -r '.version')
+
+# Determine next version
+MAJOR=$(echo $VERSION | cut -d. -f1)
+MINOR=$(echo $VERSION | cut -d. -f2)
+PATCH=$(echo $VERSION | cut -d. -f3)
+
+case $1 in
+  major)
+    MAJOR=$((MAJOR + 1))
+    MINOR=0
+    PATCH=0
+    ;;
+  minor)
+    MINOR=$((MINOR + 1))
+    PATCH=0
+    ;;
+  patch)
+    PATCH=$((PATCH + 1))
+    ;;
+esac
+
+NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+echo "Next version: $NEW_VERSION"
+```
+
+---
+
+### 7. Git Hooks
+
+```bash
+#!/bin/sh
+# .git/hooks/commit-msg
+
+COMMIT_MSG=$(cat $1)
+BRANCH_NAME=$(git symbolic-ref --short HEAD)
+
+# Check branch naming convention
+case $BRANCH_NAME in
+  feature/*|fix/*|chore/*|docs/*)
+    ;;
+  *)
+    echo "Branch name must follow: feature/*, fix/*, chore/*, docs/*"
+    exit 1
+    ;;
+esac
+
+# Check commit message format
+if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|chore|test|style|refactor|perf|ci|build|revert)(\(.+\))?: .{1,50}"; then
+    echo "Commit message must follow conventional commits format"
+    exit 1
+fi
+```
+
+---
+
+_Last updated: 2026-03-29_

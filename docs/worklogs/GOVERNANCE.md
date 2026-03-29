@@ -234,3 +234,168 @@ Plan for tracking DORA (DevOps Research and Assessment) metrics.
 - Metrics: `crates/agileplus-telemetry/`
 
 ---
+
+## 2026-03-29 - Cross-Repo Governance Deep Audit (v2)
+
+**Project:** [cross-repo]
+**Category:** governance
+**Status:** completed
+**Priority:** P0
+
+### Executive Summary
+
+~70% governance maturity. Strong Rust/Python quality gates but weak cross-repo consistency. Critical gap: AgilePlus (core platform) has zero CI/CD.
+
+---
+
+### CLAUDE.md Coverage (18 files found)
+
+| Location | Status | Gap |
+|----------|--------|-----|
+| `/repos/CLAUDE.md` | ✅ Active | — |
+| `/repos/heliosCLI/CLAUDE.md` | ✅ Active | Missing vale/ruff refs |
+| `/platforms/thegent/CLAUDE.md` | ✅ Active | Most complete |
+| Worktree copies | ✅ 5 files | — |
+| Templates | ✅ scaffolding | — |
+
+**Rules enforced everywhere:** AgilePlus mandate, branch discipline, CI completeness, non-destructive protocol
+
+**Inconsistencies:**
+- `vale + ruff` enforcement: thegent only (not AgilePlus, heliosCLI)
+- `UTF-8 validation`: 2/3 primary projects
+- `impeccable CSS baseline`: thegent only
+- `gitleaks`: 2/3 projects
+- `type checking` (mypy/basedpyright): thegent only
+
+**Conflicts:**
+- heliosCLI CLAUDE.md references undefined "phenotype CLIProxy model-check" task
+- thegent pre-commit has 157 hooks not documented in CLAUDE.md
+
+---
+
+### CI/CD Inventory
+
+| Repo | Workflows | Format | Lint | Test | Audit | CodeQL | License |
+|------|-----------|--------|------|------|-------|--------|---------|
+| heliosCLI | 47 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| thegent | 14 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| phenotype-infrakit | 4 | — | — | — | — | ✅ | — |
+| **AgilePlus** | **0** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+**Critical:** AgilePlus (core platform) has ZERO CI/CD configured.
+
+---
+
+### License Compliance (deny.toml)
+
+**Allowed permissive:** MIT, Apache-2.0, BSD-*, CC0-1.0, ISC, Unlicense ✅
+
+**Allowed — POLICY CONCERN:**
+- `GPL-3.0-only` is PERMITTED in deny.toml but GOVERNANCE.md says "Avoid"
+- **Action:** Change to deny; audit current transitive deps
+
+**3 ignored RUSTSEC advisories:**
+- RUSTSEC-2025-0134 — rustls-pemfile deprecated (blocked by async-nats)
+- RUSTSEC-2025-0140 — gix 0.71 pinned old version
+- RUSTSEC-2026-0049 — rustls-webpki via async-nats
+
+**No SBOM generation** (CycloneDX/SPDX) anywhere.
+
+---
+
+### Secret Detection
+
+| Project | gitleaks CI | Custom Scripts | Status |
+|---------|------------|----------------|--------|
+| heliosCLI | ❌ | ✅ security-guard.sh | Partial |
+| thegent | ✅ pre-commit | ✅ security-guard.sh | Good |
+| AgilePlus | ❌ | ❌ | NONE |
+
+No `.gitleaks.toml` at repo root.
+
+---
+
+### Pre-commit Hook Coverage
+
+| Repo | Config | Lines | Key Hooks |
+|------|--------|-------|-----------|
+| thegent | `.pre-commit-config.yaml` | 157 | ruff, gitleaks, ty, basedpyright, VitePress build, DX audit |
+| heliosCLI | `.pre-commit-config.yaml` | 22 | base hooks, security-guard.sh |
+| AgilePlus | ❌ NONE | — | — |
+
+---
+
+### Security Policy
+
+| Repo | SECURITY.md | Reporting | SLA |
+|------|------------|-----------|-----|
+| heliosCLI | ✅ | Private email | 24h–30d by severity |
+| thegent | ❌ | — | — |
+| AgilePlus | ❌ | — | — |
+
+---
+
+### CODEOWNERS Coverage
+
+All major repos have CODEOWNERS. Single owner `@KooshaPari` for all paths.
+**Gap:** No granular path ownership, no fallback/escalation owners.
+
+---
+
+### ADR Status
+
+**1 ADR exists:** `docs/governance/ADR-001-external-package-adoption.md` (Accepted, 2026-03-29)
+
+**Gap:** Architectural decisions for hexagonal migration, event sourcing, plugin architecture not recorded.
+
+---
+
+### Compliance Matrix
+
+| Area | heliosCLI | thegent | AgilePlus |
+|------|-----------|---------|-----------|
+| CI/CD | ✅ | ✅ | ❌ |
+| License check | ✅ | ❌ | ❌ |
+| Secret detection | ⚠️ | ✅ | ❌ |
+| Pre-commit | ✅ | ✅ | ❌ |
+| Security policy | ✅ | ❌ | ❌ |
+| Type checking | — | ✅ | ❌ |
+| Coverage report | ❌ | ⚠️ | ❌ |
+| ADRs | ❌ | ❌ | ❌ |
+
+**Overall maturity: ~40%**
+
+---
+
+### Action Items (Prioritized)
+
+#### P0 — Critical
+- [ ] Create AgilePlus `.github/workflows/ci.yml` (fmt, clippy, test, audit)
+- [ ] Fix `GPL-3.0-only` in deny.toml → move to deny list
+- [ ] Add root `.gitleaks.toml` + CI integration for AgilePlus
+
+#### P1 — High
+- [ ] Add `pip-audit` to thegent Python CI
+- [ ] Fix undefined task/tool references in AgilePlus CLAUDE.md
+- [ ] Create incident runbooks: `docs/runbooks/db-outage.md`, `security-breach.md`
+
+#### P2 — Medium
+- [ ] Unify pre-commit config across all repos
+- [ ] Add tarpaulin (Rust) + coverage.py (Python) + Codecov upload
+- [ ] Expand CODEOWNERS with per-crate ownership + fallback team
+- [ ] Create `docs/governance/ADR-002` for hexagonal migration decision
+- [ ] Add `cargo deny` license check to thegent CI
+
+#### P3 — Low
+- [ ] Document ADR numbering scheme
+- [ ] Create cross-project governance charter
+- [ ] Set policy review cadence (quarterly)
+
+### Related
+
+- Compliance framework: `docs/worklogs/GOVERNANCE.md`
+- Security policies: `heliosCLI/SECURITY.md`
+- License config: `deny.toml`
+- ADRs: `docs/governance/`
+
+---
