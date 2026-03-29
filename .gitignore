@@ -31,3 +31,5 @@ crates/phenotype-contracts/src/
 crates/phenotype-policy-engine/src/
 crates/phenotype-state-machine/src/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
+PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
+docs/worklogs/INACTIVE_FOLDERS_AUDIT.md
