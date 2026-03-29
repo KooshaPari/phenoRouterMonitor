@@ -11,25 +11,10 @@ docs/reports/
 evidence_ledger.jsonl
 plans/
 tests/
-#worklogs/
-docs/AGENT_MASTER_AUDIT_PROMPT.md
-libs/
-platforms/
-docs/research/
-docs/worklogs/LIBIFICATION_AUDIT_2026-03-29.md
-docs/worklogs/LIBIFICATION_HIGHLIGHTS.md
-docs/worklogs/LOC_REDUCTION.md
-docs/worklogs/MasterDuplicationAudit20260329.md
-docs/worklogs/TOOLING.md
-docs/worklogs/WorkLog.md
-
 # New crates (not yet committed)
 .agileplus/specs/
 crates/phenotype-cache-adapter/src/
 crates/phenotype-config-core/
 crates/phenotype-contracts/src/
-crates/phenotype-policy-engine/src/
-crates/phenotype-state-machine/src/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
-docs/worklogs/INACTIVE_FOLDERS_AUDIT.md
