@@ -46,3 +46,10 @@ docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
 docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
 docs/worklogs/data/
 tools/
+crates/agileplus-api-types
+crates/phenotype-crypto
+crates/phenotype-iter
+crates/phenotype-logging
+crates/phenotype-port-traits
+crates/phenotype-string
+crates/phenotype-time
