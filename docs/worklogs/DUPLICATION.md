@@ -5,15 +5,38 @@
 ---
 
 ## 2026-03-29 - AgilePlus Extended Duplication Audit
+## 2026-03-29 - FORGE Extended Deep Research (Resumed Session)
 
 **Project:** [AgilePlus]
 **Category:** duplication
 **Status:** in_progress
-**Priority:** P1
+**Priority:** P0
 
 ### Summary
+Extended deep research analysis verified through code inspection. All 11 libraries in `libs/` are UNUSED due to edition 2021 vs workspace 2024 mismatch.
 
-Extended comprehensive audit of AgilePlus intra-repo duplication. Identified patterns across health checks, error types, config loaders, API responses, port/trait architecture, builder patterns, async traits, and connection pools.
+### External Package Cross-Reference Matrix
+
+| Internal Pattern | LOC | External Alternative | Recommendation | Savings |
+|-----------------|-----|-------------------|----------------|---------|
+| PTY/Process (3 repos) | ~1,433 | `command-group` | FORK → phenotype-process | 79% |
+| Error types (135 files) | ~400 | CodexErr pattern | FORK → phenotype-error | 75% |
+| Config loading (4 impls) | ~760 | `figment` | ADOPT | 80% |
+| CLI progress bars | ~100 | `indicatif` | ADOPT | 80% |
+| Git operations (3 repos) | ~500 | `gix` | MIGRATE | 60% |
+| Event sourcing | ~300 | `eventually` | EVALUATE | TBD |
+| Signal handling (5 daemons) | ~50 | `signal-hook` | EVALUATE | 30% |
+
+### Total LOC Impact from External Packages
+
+| Category | Current | External + Adoption | Reduction |
+|----------|---------|-------------------|-----------|
+| Process/PTY | ~1,433 | ~300 (command-group) | **79%** |
+| Config loading | ~760 | ~150 (figment) | **80%** |
+| Error handling | ~400 | ~100 (phenotype-error) | **75%** |
+| Git operations | ~500 | ~200 (gix migration) | **60%** |
+| CLI progress | ~100 | ~20 (indicatif) | **80%** |
+| **TOTAL** | **~3,193** | **~770** | **~76%** |
 
 ### Detailed Findings
 

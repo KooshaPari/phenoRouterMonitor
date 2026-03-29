@@ -234,3 +234,131 @@ Plan for tracking DORA (DevOps Research and Assessment) metrics.
 - Metrics: `crates/agileplus-telemetry/`
 
 ---
+
+---
+
+## 2026-03-29 SAGE Audit: Governance Infrastructure (Built But Not Used)
+
+**Session:** SAGE-audit-2026-03-29
+**Category:** governance
+**Status:** documented
+**Priority:** P0
+
+### Summary
+
+Conducted comprehensive audit of governance infrastructure. Found **significant built-but-not-used components** that should be consolidated into `phenotype-governance/` repository.
+
+### Built But Not Used Infrastructure
+
+| Component | Location | Status | Action Required |
+|-----------|----------|--------|----------------|
+| `security-guard.yml` | `infra/agentops-policy-federation/template-commons/security/` | Built, not used | Migrate to `phenotype-governance/.github/workflows/` |
+| Policy Federation Code | `infra/agentops-policy-federation/` | Built | Extract policy/ to governance |
+| OPA Policies | `infra/agent-devops-setups/policies/` | Built | Consolidate |
+| WP10 CI Workflows | `docs/specs/002-org-wide-release-governance-dx-automation/tasks/WP10-*.md` | Planned (651 lines spec) | Implement in `phenotypeActions` |
+
+### security-guard.yml Details
+
+```yaml
+# Location: infra/agentops-policy-federation/template-commons/security/security-guard.yml
+name: Security Guard
+on:
+  workflow_call:  # Reusable workflow!
+
+jobs:
+  ggshield-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+      - name: Install ggshield
+        run: pip install ggshield
+      - name: Scan repository workspace
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+        run: ggshield secret scan path . --recursive
+```
+
+### Current Root Config Duplication
+
+| Config | Location | Should Be |
+|--------|----------|-----------|
+| `_typos.toml` | Root | `phenotype-governance/configs/_typos.toml` |
+| `clippy.toml` | Root | `phenotype-governance/configs/clippy.toml` |
+| `deny.toml` | Root | `phenotype-governance/configs/deny.toml` |
+| `buf.yaml` | Root | `phenotype-governance/configs/buf.yaml` |
+| `oxlint.config.json` | Root | `phenotype-governance/configs/oxlint.config.json` |
+| `Taskfile.yml` | Root | `phenotype-governance/templates/Taskfile.yml` |
+
+### Missing: GitHub Actions CI/CD
+
+Currently **no `.github/workflows/`** directory exists in AgilePlus. All CI is local via `task quality`.
+
+### Proposed: phenotype-governance/ Structure
+
+```
+phenotype-governance/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml              # Main orchestrator
+│       ├── rust-quality.yml   # Rust checks
+│       ├── python-quality.yml # Python checks
+│       ├── proto-contract.yml # gRPC contract
+│       ├── docs-quality.yml  # Markdown linting
+│       ├── security-guard.yml # Secret scanning (MIGRATED)
+│       └── release.yml    # Publish workflow
+├── configs/           # Quality configs (MIGRATED)
+├── policy/           # OPA/Rego policies (MIGRATED)
+└── templates/        # Repo templates
+```
+
+### WP10 Workflow Spec (From docs/specs/)
+
+| Workflow | Purpose | Inputs | Outputs | Spec Location |
+|----------|---------|--------|---------|--------------|
+| `publish.yml` | Build & publish packages | language, registry, version | published | WP10 T057 |
+| `gate-check.yml` | Evaluate quality gates | language, channel, risk_profile | passed, results | WP10 T058 |
+| `promote.yml` | Gate → Publish chain | language, registry, from/to_channel | promotion_status | WP10 T059 |
+| `changelog.yml` | Generate CHANGELOG.md | version | release_created | WP10 T060 |
+| `audit.yml` | Scheduled audit | (scheduled) | audit_results | WP10 T061 |
+
+### Immediate Actions
+
+| # | Action | Source | Target | Effort | Status |
+|---|--------|--------|--------|--------|--------|
+| 1 | Create `phenotype-governance/` repo | - | New | 1hr | TODO |
+| 2 | Migrate `security-guard.yml` | `infra/.../template-commons/` | `.github/workflows/` | 15min | TODO |
+| 3 | Migrate quality configs | Root | `configs/` | 30min | TODO |
+| 4 | Migrate policy files | `infra/agentops-policy-federation/` | `policy/` | 30min | TODO |
+| 5 | Implement WP10 workflows | `docs/specs/WP10-*.md` | `.github/workflows/` | 8hr | TODO |
+| 6 | Add CI to AgilePlus | - | `.github/workflows/ci.yml` | 1hr | TODO |
+
+### Repo Consumption Pattern
+
+```yaml
+# agileplus/.github/workflows/ci.yml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  rust-quality:
+    uses: KooshaPari/phenotype-governance/.github/workflows/rust-quality.yml@v1
+
+  security:
+    uses: KooshaPari/phenotype-governance/.github/workflows/security-guard.yml@v1
+```
+
+### Evidence References
+
+- security-guard.yml: `infra/agentops-policy-federation/template-commons/security/security-guard.yml`
+- WP10 spec: `docs/specs/002-org-wide-release-governance-dx-automation/tasks/WP10-centralized-ci-workflows.md`
+- Quality configs: `_typos.toml`, `clippy.toml`, `deny.toml`, `buf.yaml`, `oxlint.config.json`
+- OPA policies: `infra/agent-devops-setups/policies/`
+
+### Related
+
+- DUPLICATION.md: Config loading duplication
+- DEPENDENCIES.md: External dependency governance
