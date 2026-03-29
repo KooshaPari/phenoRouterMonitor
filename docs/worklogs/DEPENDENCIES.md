@@ -1000,6 +1000,329 @@ anyhow = "1.0.93"    # Patch for bug fixes
 
 ---
 
+---
+
+## 2026-03-29 - Database & ORM Ecosystem Analysis
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### SQL Database Crates
+
+| Crate | Downloads | Purpose | phenoinfrakit | Recommendation |
+|-------|-----------|---------|---------------|----------------|
+| `sqlx` | 30M+ | Async SQL | 🔲 Not used | Consider for async DB |
+| `rusqlite` | 10M+ | SQLite | ✅ Used | Keep |
+| `tokio-postgres` | 5M+ | Postgres async | 🔲 Not used | Consider for prod |
+| `deadpool` | 2M+ | Connection pool | 🔲 Not used | Consider with sqlx |
+| `bb8` | 5M+ | Connection pool | 🔲 Not used | Alternative to deadpool |
+
+### ORM Assessment
+
+| Crate | Assessment | Use Case |
+|-------|------------|----------|
+| `diesel` | ⚠️ Sync only | Avoid for async |
+| `sea-orm` | 🟡 Good | Consider for complex models |
+| `sqlx` | ✅ Best | Direct queries, compile-time checks |
+| `rusqlite` | ✅ Best | SQLite, embedded |
+
+### NoSQL & Specialized
+
+| Crate | Purpose | phenoinfrakit | Recommendation |
+|-------|---------|---------------|----------------|
+| `redis` | Redis client | 🔲 Not used | Add for caching |
+| `mongodb` | MongoDB | 🔲 Not used | If document DB needed |
+| `cassandra-cpp` | Cassandra | 🔲 Not used | Avoid unless required |
+
+### Connection Pool Patterns
+
+```rust
+// Recommended: deadpool with rusqlite
+use deadpool::managed::{Pool, Manager, Runtime};
+
+pub type DbPool = Pool<Manager<rusqlite::Connection>>;
+
+let pool = Pool::builder(Manager::new(conn_params, Runtime::Tokio1))
+    .max_size(16)
+    .build()?;
+```
+
+### LOC Impact
+
+| Area | Current | Target | Savings |
+|------|---------|--------|---------|
+| Database code | ~200 | ~150 | 50 LOC |
+| Connection pools | ~100 | ~80 | 20 LOC |
+
+---
+
+## 2026-03-29 - Web Framework & HTTP Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P2
+
+### HTTP Frameworks Comparison
+
+| Framework | Downloads | Async | Assessment |
+|-----------|-----------|-------|------------|
+| `axum` | 20M+ | ✅ | ✅ STANDARD - Use for new APIs |
+| `actix-web` | 15M+ | ✅ | 🟡 Good but heavier |
+| `warp` | 5M+ | ✅ | ⚠️ Complex filters |
+| `poem` | 500K | ✅ | 🟡 Niche, good OpenAPI |
+
+### Middleware Ecosystem
+
+| Crate | Purpose | axum | Recommendation |
+|-------|---------|------|----------------|
+| `tower` | Base middleware | ✅ | Use for custom |
+| `tower-http` | HTTP utilities | ✅ | Add for CORS, compress |
+| `axum-extra` | Additional utilities | ✅ | Add for typed headers |
+| `tower-Layer` | Middleware trait | ✅ | Use for logging, metrics |
+
+### Serialization in HTTP
+
+| Crate | Purpose | Assessment |
+|-------|---------|------------|
+| `serde_json` | JSON | ✅ STANDARD |
+| `serde_yaml` | YAML | ✅ Good for config |
+| `serde_xml` | XML | ⚠️ Rarely needed |
+| `rmp-serde` | MessagePack | 🟡 For NATS |
+
+### Recommended Stack
+
+```toml
+# For HTTP APIs
+axum = "0.8"
+tower = "0.5"
+tower-http = { version = "0.12", features = ["cors", "compression"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+```
+
+---
+
+## 2026-03-29 - Testing Framework Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Testing Crates Matrix
+
+| Crate | Downloads | Purpose | phenoinfrakit | Status |
+|-------|-----------|---------|---------------|--------|
+| `tokio-test` | 20M+ | Async tests | ✅ Used | Keep |
+| `mockall` | 10M+ | Mock objects | 🔲 Not used | Add |
+| `rstest` | 1M+ | Parametric tests | 🔲 Not used | Add |
+| `proptest` | 2M+ | Property tests | 🔲 Not used | Consider |
+| `criterion` | 1M+ | Benchmarks | 🔲 Not used | Add |
+| `insta` | 500K+ | Snapshot tests | 🔲 Not used | Add |
+| `fake` | 200K+ | Test fixtures | 🔲 Not used | Consider |
+
+### Mock Patterns
+
+```rust
+// mockall example for trait mocking
+use mockall::{mock, context};
+
+#[mock]
+pub trait Repository {
+    async fn find(&self, id: &str) -> Option<Entity>;
+    async fn save(&self, entity: &Entity) -> Result<()>;
+}
+
+// In test:
+let mock = MockRepository::new();
+mock.expect_find()
+    .returning(|_| Some(Entity::default()));
+```
+
+### Snapshot Testing
+
+```rust
+// insta for regression testing
+use insta::{assert_yaml_snapshot!, with_settings];
+
+#[test]
+fn test_aggregate_serialization() {
+    let aggregate = FeatureAggregate::new();
+    with_settings! {
+        bindings => { "aggregate_id" => aggregate.id.to_string() }
+    }
+    assert_yaml_snapshot!(aggregate);
+}
+```
+
+### Recommended Testing Stack
+
+```toml
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.13"
+rstest = "0.23"
+proptest = "1.5"
+criterion = { version = "0.5", features = ["html_reports"] }
+insta = { version = "1.40", features = ["yaml"] }
+fake = "3.0"
+```
+
+---
+
+## 2026-03-29 - Observability & Tracing Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Tracing Stack
+
+| Crate | Downloads | Purpose | phenoinfrakit | Status |
+|-------|-----------|---------|---------------|--------|
+| `tracing` | 50M+ | Core | 🔲 Not used | **ADD** |
+| `tracing-subscriber` | 30M+ |_fmt, JSON | 🔲 Not used | Add with fmt |
+| `tracing-appender` | 5M+ | File logging | 🔲 Not used | Add |
+| `tracing-opentelemetry` | 2M+ | OTel export | 🔲 Not used | Consider |
+
+### Metrics Crates
+
+| Crate | Purpose | Assessment |
+|-------|---------|------------|
+| `metrics` | Prometheus metrics | ✅ Standard |
+| `metrics-exporter-prometheus` | Prometheus export | ✅ Good |
+| `opentelemetry` | Tracing API | ✅ Add for distributed |
+
+### Logging Configuration
+
+```rust
+// Recommended: tracing with fmt layer
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
+
+tracing_subscriber::registry()
+    .with(
+        fmt::layer()
+            .with_target(true)
+            .with_thread_ids(true)
+            .with_file(true)
+            .with_line_number(true)
+    )
+    .with(
+        // JSON for production
+        tracing_subscriber::fmt::layer()
+            .json()
+    )
+    .init();
+```
+
+### Metrics Pattern
+
+```rust
+use metrics::{describe_counter, describe_histogram, increment_counter};
+
+pub struct EventStore {
+    events_appended: Counter,
+    append_duration: Histogram,
+}
+
+impl EventStore {
+    pub fn new() -> Self {
+        describe_counter!("events_appended_total", "Total events appended");
+        describe_histogram!("event_append_duration_ms", "Event append duration");
+        Self {
+            events_appended: Counter::new("events_appended_total"),
+            append_duration: Histogram::new("event_append_duration_ms"),
+        }
+    }
+}
+```
+
+### OpenTelemetry Integration
+
+```rust
+// For distributed tracing
+use tracing_opentelemetry::OpenTelemetryLayer;
+use opentelemetry_sdk::{trace, runtime};
+
+let tracer = opentelemetry_sdk::trace::TracerProvider::builder()
+    .with_batch_exporter(opentelemetry_otlp::new_exporter(), runtime::Tokio)
+    .build();
+
+let telemetry = OpenTelemetryLayer::new(tracer);
+```
+
+### LOC Impact
+
+| Area | Current | With Additions | Impact |
+|------|---------|----------------|--------|
+| Logging | 0 LOC | +50 LOC | Better observability |
+| Metrics | 0 LOC | +30 LOC | Better monitoring |
+| Tracing | 0 LOC | +100 LOC | Debugging |
+
+---
+
+## 2026-03-29 - CLI & Terminal Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P2
+
+### CLI Parsing
+
+| Crate | Downloads | Assessment | heliosCLI |
+|-------|-----------|------------|-----------|
+| `clap` | 30M+ | ✅ STANDARD | ✅ Used |
+| `structopt` | 10M+ | ⚠️ Deprecated | ❌ Not used |
+| `gum` | 100K+ | 🟡 For scripts | 🔲 Not used |
+| `argh` | 50K+ | 🟡 Google style | 🔲 Not used |
+
+### Progress & Feedback
+
+| Crate | Purpose | Downloads | Status |
+|-------|---------|-----------|--------|
+| `indicatif` | Progress bars | 2M+ | 🔲 Not used |
+| `dialoguer` | Interactive prompts | 1M+ | 🔲 Not used |
+| `console` | Terminal styling | 500K+ | 🔲 Not used |
+| `colored` | Colors | 1M+ | 🔲 Not used |
+
+### Recommended CLI Stack
+
+```toml
+# For full CLI experience
+clap = { version = "4.5", features = ["derive", "help", "usage"] }
+indicatif = "0.17"
+dialoguer = "0.11"
+console = "0.15"
+anyhow = "1.0"
+```
+
+### Example: Progress Bar
+
+```rust
+use indicatif::{ProgressBar, ProgressStyle};
+
+let pb = ProgressBar::new(100);
+pb.set_style(
+    ProgressStyle::default_bar()
+        .template("[{bar:40}] {pos}/{len} {msg}")?
+        .progress_char("━"),
+);
+
+for i in 0..100 {
+    pb.set_message(format!("Processing item {}", i));
+    pb.inc(1);
+    tokio::time::sleep(Duration::from_millis(10)).await;
+}
+pb.finish_with_message("Done");
+```
+
+---
+
 _Last updated: 2026-03-29_
 # 2026-03-29 - Rust Workspace Dependency Audit: Unused & Version Drift
 

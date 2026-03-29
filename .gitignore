@@ -50,3 +50,5 @@ crates/phenotype-config-core/
 crates/phenotype-git-core/
 crates/phenotype-policy-engine/src/
 crates/phenotype-state-machine/src/
+crates/phenotype-contracts/src/
+docs/reports/

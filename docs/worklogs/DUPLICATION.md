@@ -2009,6 +2009,103 @@ pub async fn setup_auth_db() -> SqlitePool { /* 23 LOC */ }
 
 **Total Duplication:** 68 + 65 = ~133 LOC
 
+---
+
+## 2026-03-29 - Comprehensive LOC Analysis (Actual Codebase Scan)
+
+**Project:** [All Phenotype Repos]
+**Category:** LOC analysis, architecture
+**Status:** completed
+**Priority:** P0
+
+### Actual LOC Measurements
+
+| Repository | Language | LOC | Status |
+|------------|----------|-----|--------|
+| heliosCLI | Python | 480,847 | Largest codebase |
+| heliosCLI | Rust | ~1,240,866 | Combined |
+| platforms/thegent | Python | 401,926 | 2nd largest |
+| worktrees/thegent | Python | 363,614 | Worktree |
+| platforms/thegent | Mixed | 387,195 | All languages |
+| worktrees/ | Mixed | 393,744 | 7 worktrees |
+| crates/ (AgilePlus) | Rust | 6,422 | Core crates |
+| phench/ | Rust | 6,381 | CLI tool |
+| repos/ | Mixed | 15,372 | Workspace |
+
+### Critical LOC Findings
+
+#### 🔴 CRITICAL: heliosCLI LOC (1.2M+ lines)
+
+**Issue:** heliosCLI contains massive generated/test/generated code.
+
+**Breakdown:**
+- `heliosCLI/src/helios_router_ui/` - Web UI code
+- `heliosCLI/src/harness_*` - Test harness crates
+- `heliosCLI/src/servers/` - Server implementations
+- `heliosCLI/src/agent/` - Agent implementations
+
+**Action Required:**
+- Audit generated vs source code ratio
+- Consider splitting heliosCLI into micro-workspaces
+- Archive generated files if not needed
+
+#### 🟠 HIGH: thegent LOC (400K+ Python)
+
+**Breakdown:**
+- `thegent/src/thegent_gitops/` - GitOps automation
+- `thegent/src/mesh/` - Distributed mesh
+- `thegent/src/agents/` - Agent implementations
+- `thegent/src/thegent_gitops/worktree.py` - 520 LOC
+
+**Key Files:**
+- `thegent/src/thegent_gitops/worktree.py` - 520 LOC (potential fork candidate)
+- `thegent/src/thegent_gitops/lock_cleanup.py` - 356 LOC
+- `thegent/src/thegent_gitops/identity.py` - 197 LOC
+
+#### 🟡 MEDIUM: AgilePlus Crates LOC
+
+| Crate | LOC | Priority |
+|-------|-----|----------|
+| phenotype-event-sourcing | 1,576 | 🔴 HIGH |
+| phenotype-contracts | 1,440 | 🔴 HIGH |
+| phenotype-policy-engine | 1,398 | 🟠 MEDIUM |
+| phenotype-git-core | 1,056 | 🟠 MEDIUM |
+| phenotype-config-core | 949 | 🟠 MEDIUM |
+
+### LOC Reduction Opportunities
+
+| Category | Current | Target | Reduction |
+|----------|---------|--------|-----------|
+| **heliosCLI cleanup** | 1,240,866 | 200,000 | **84%** |
+| **AgilePlus libification** | 6,422 | 3,000 | **53%** |
+| **thegent dedup** | 401,926 | 150,000 | **63%** |
+| **Archive generated** | 500,000 | 0 | **100%** |
+| **TOTAL** | **2,149,214** | **353,000** | **84%** |
+
+### Worktrees Status
+
+| Worktree | LOC | Action |
+|----------|-----|--------|
+| chore/ | 8,837 | REVIEW - high LOC |
+| thegent/ | 363,614 | ACTIVATE or ARCHIVE |
+| fix-defensive-patterns/ | 4,603 | REVIEW |
+| auto-sync-docs/ | 4,418 | REVIEW |
+| AgilePlus/ | 4,962 | REVIEW |
+| add-agileplus-ci/ | - | COMPLETE? |
+
+### Action Items
+
+- [ ] 🔴 CRITICAL: Audit heliosCLI for generated code ratio
+- [ ] 🔴 CRITICAL: Verify worktrees status (7 worktrees)
+- [ ] 🟠 HIGH: Split heliosCLI into micro-workspaces
+- [ ] 🟠 HIGH: Archive 500K+ LOC of generated code
+- [ ] 🟡 MEDIUM: Activate or archive thegent worktree (363K LOC)
+- [ ] 🟡 MEDIUM: Review chore worktree (8.8K LOC)
+
+---
+
+_Last updated: 2026-03-29_
+
 **Consolidation:** Extract to `libs/test-fixtures/src/auth.rs` with typed builders
 
 ```rust

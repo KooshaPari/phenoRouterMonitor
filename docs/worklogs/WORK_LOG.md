@@ -303,4 +303,90 @@ Expanded worklog audit with comprehensive LOC reduction analysis, external packa
 
 ---
 
+---
+
+## Wave 93 - LOC Reduction Deep Dive (2026-03-29)
+
+**Status:** completed
+**Priority:** P0
+**Agents:** SAGE x2 (parallel analysis)
+
+### Summary
+
+Conducted deep parallel analysis using subagents:
+
+| Subagent | Focus | Findings |
+|----------|-------|----------|
+| SAGE-1 | General patterns | 6 new categories identified |
+| SAGE-2 | Async/concurrency | 6 new patterns found |
+
+### New Categories Discovered
+
+| Category | Instances | LOC Savings |
+|----------|-----------|-------------|
+| Nested Crate Duplication | 4 crates | **1,710** |
+| Mutex/RwLock Patterns | 57 | 100 |
+| Timeout Patterns | 29 | 80 |
+| Retry/Backoff Patterns | 25+ | 100 |
+| Hash/Crypto Patterns | 2 (dup) | 95 |
+| Once/OnceCell Patterns | 8 | 30 |
+| Time/Date Patterns | 10+ | 50 |
+
+### Critical Finding: Nested Crate Duplication
+
+```bash
+# 4 crates have 100% identical inner directories
+crates/phenotype-event-sourcing/phenotype-event-sourcing/src/  # DUP
+crates/phenotype-contracts/phenotype-contracts/src/          # DUP
+crates/phenotype-policy-engine/phenotype-policy-engine/src/   # DUP
+crates/phenotype-cache-adapter/phenotype-cache-adapter/src/ # DUP
+```
+
+**Impact:** ~1,710 LOC of pure duplication
+
+### Async/Concurrency Patterns Found
+
+| Pattern | thegent | phenotype | Total |
+|---------|---------|-----------|-------|
+| `std::sync::Mutex` | 45 | 4 | **49** |
+| `tokio::sync::Mutex` | 2 | 0 | **2** |
+| `parking_lot::Mutex` | 3 | 0 | **3** |
+| `tokio::time::timeout` | 15 | 0 | **15** |
+| Manual retry loops | 25+ | 0 | **25+** |
+
+### Libraries to Create
+
+| Library | Purpose | LOC Saved |
+|---------|---------|-----------|
+| `libs/sync-utils/` | Mutex/RwLock wrappers | 100 |
+| `libs/async-timeout/` | Timeout combinators | 80 |
+| `libs/retry/` | Retry with backoff | 100 |
+| `libs/hash-core/` | SHA-256 patterns | 95 |
+| `libs/lazy-utils/` | OnceCell helpers | 30 |
+| `libs/time-utils/` | chrono wrappers | 50 |
+
+### External Packages Identified
+
+| Package | Downloads | Purpose |
+|---------|-----------|---------|
+| `backoff` | 2M+ | Retry with exponential backoff |
+| `parking_lot` | Already used | Low-overhead mutex |
+
+### Tasks Completed
+
+- [x] Parallel subagent analysis (2 agents)
+- [x] Identified nested crate duplication
+- [x] Documented async/concurrency patterns
+- [x] Created 6 new library recommendations
+- [x] Updated DECOMPOSITION_AUDIT with new categories
+
+### Next Steps
+
+- [ ] Remove nested crate duplicates (1,710 LOC - immediate)
+- [ ] Create `libs/sync-utils/` crate
+- [ ] Create `libs/async-timeout/` crate
+- [ ] Create `libs/retry/` crate (evaluate `backoff`)
+
+---
+
 _Last updated: 2026-03-29 (Wave 93)_

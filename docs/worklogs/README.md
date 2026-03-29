@@ -29,6 +29,8 @@ This directory contains structured worklogs organized by category. Each worklog 
 | `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
 | `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
 | `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
+| `ERRORS.md` | 92 | ERRORS | 2026-03-29 | error schema unification |
+| `PLANS/CONSOLIDATION.md` | 210 | PLAN | 2026-03-29 | duplication consolidation roadmap |
 | `DUPLICATION_EXTENDED.md` | 800 | DUPLICATION | 2026-03-29 | expanded follow-up analysis |
 | `CROSSCUTTING.md` | 450 | GOVERNANCE | 2026-03-29 | policy + pipeline design |
 | `CONSOLIDATION.md` | 520 | ARCHITECTURE | 2026-03-29 | libification strategies |
@@ -46,6 +48,8 @@ This directory contains structured worklogs organized by category. Each worklog 
 | **Unused Libraries** | 11 libs (edition mismatch) | 🔴 CRITICAL |
 | Error Types | 12 types, 68+ variants (~189 LOC) | 🔴 CRITICAL |
 | Port/Trait Split | 2 ecosystems (2,106 LOC) | 🟡 HIGH |
+| Async Trait Duplication | 5+ crates, 40 functions | 🔴 CRITICAL |
+| Worktree Manager Duplication | 3 tools | 🟡 HIGH |
 | Config Loaders | 4 implementations | 🟡 HIGH |
 | Store Traits | 5 async traits | 🟠 MEDIUM |
 | Health Checks | 3-4 enums | 🟠 MEDIUM |
