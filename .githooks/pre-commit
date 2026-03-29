@@ -1,0 +1,29 @@
+#!/bin/bash
+# Pre-commit hook to scan for secrets before commit
+# Install: cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+echo "🔍 Running gitleaks scan..."
+
+if ! command -v gitleaks &>/dev/null; then
+    echo "⚠️  gitleaks not installed. Install: brew install gitleaks"
+    exit 0
+fi
+
+RESULT=$(gitleaks detect --redact --no-color -s . 2>&1)
+if echo "$RESULT" | grep -q "gitleaks:"; then
+    echo "⚠️  WARNING: gitleaks not configured, skipping scan"
+    exit 0
+fi
+
+if echo "$RESULT" | grep -qv "No leaks found"; then
+    echo "❌ SECRET DETECTED! Commit blocked."
+    echo "$RESULT"
+    echo ""
+    echo "To bypass for legitimate false positive, use --no-verify:"
+    echo "  git commit --no-verify -m 'message'"
+    exit 1
+fi
+
+echo "✅ No secrets detected"

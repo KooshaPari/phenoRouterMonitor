@@ -28,6 +28,12 @@ venv/
 env/
 ENV/
 
+# Environment secrets - NEVER commit
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # Python caches and compiled files
 __pycache__/
 *.py[cod]
