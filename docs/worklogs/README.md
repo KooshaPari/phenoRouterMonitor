@@ -197,6 +197,54 @@ cat docs/worklogs/GOVERNANCE.md
 cat docs/worklogs/PERFORMANCE.md
 ```
 
+### For disk / temp-clone / worktree hygiene
+```bash
+cat docs/worklogs/INACTIVE_FOLDERS.md
+cat docs/worklogs/TOOLING.md
+```
+
+### For tooling and CI references
+```bash
+cat docs/worklogs/TOOLING.md
+cat docs/worklogs/QUALITY.md
+```
+
+### Repo root — sync and worktree sanity (run outside `docs/` only)
+```bash
+cd /path/to/repo/root
+git fetch origin
+git status -sb
+git worktree list
+git worktree list --porcelain
+git stash list
+# after removing a linked worktree directory:
+git worktree prune
+```
+
+### Monorepo duplication audits (reports + worklogs)
+```bash
+cat docs/reports/MASTER_DUPLICATION_AUDIT.md
+cat docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md
+cat DUPLICATION_AUDIT.md
+```
+
+---
+
+## Deep audit playbook (2026)
+
+Use this when agents or humans need a **repeatable** pass (chunk work; do not boil the ocean in one prompt).
+
+| Phase | Scope | Primary artifacts | Exit criteria |
+|-------|--------|-------------------|---------------|
+| **A — Inventory** | List worktrees, `*-temp`, `isolated/*`, second clones | `INACTIVE_FOLDERS.md` | Every path has Remote / Branch / Dirty / Next action |
+| **B — Git truth** | `fetch`, `status`, `branch -vv`, `stash list` per clone | same | No unknown unpushed commits on rescue branches |
+| **C — Code duplication** | `crates/`, `libs/`, shared error/config/process patterns | `DUPLICATION.md`, `reports/*` | P0 clusters mapped to a plan row |
+| **D — Dependencies** | `Cargo.toml`, `pyproject.toml`, `package.json` | `DEPENDENCIES.md`, `EXTERNAL_DEPENDENCIES.md` | Each P0 fork/wrap has owner + target crate/repo |
+| **E — Automation** | CI jobs, scripts, Taskfile | `TOOLING.md`, `.github/workflows` | Health checks documented and runnable locally |
+| **F — Hygiene closeout** | PR merged → `git worktree remove`, `prune`, delete temp dirs | `INACTIVE_FOLDERS` checklist | No empty/broken `.worktrees` entries |
+
+**Code search hints (run from repo root):** parallel implementations of errors (`rg "thiserror|enum.*Error" crates/`), config loaders (`rg "figment|config::|Config::"`), duplicate HTTP clients (`rg "reqwest::Client::new"`).
+
 ---
 
 ## Adding Entries
@@ -245,6 +293,9 @@ Brief description of the work.
 | GOVERNANCE | Policy, compliance | P1-P2 |
 | INTEGRATION | Cross-repo sync | P1-P2 |
 | PERFORMANCE | Optimization | P2-P3 |
+| TOOLING | CI, scripts, developer automation | P1-P3 |
+| MAINTENANCE | Disk and worktree hygiene | P0-P1 |
+| SESSION | Transcripts, gaps, wave closure | P1-P2 |
 
 ---
 
@@ -267,7 +318,11 @@ Use `aggregate.sh` to compile a master view:
 | PRD.md | `PRD.md` | Product requirements |
 | ADR.md | `ADR.md` | Architecture decisions |
 | MASTER_DUPLICATION_AUDIT | `docs/reports/MASTER_DUPLICATION_AUDIT.md` | Comprehensive audit |
+| CROSS_PROJECT_DUPLICATION_ANALYSIS | `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md` | Cross-repo overlap |
+| DECOMPOSITION_AUDIT | `docs/reports/DECOMPOSITION_AUDIT.md` | Decomposition targets |
 | Consolidation Audit | `docs/research/consolidation-audit-2026-03-29.md` | P1-P4 actions |
+| Agent audit prompt | `docs/worklogs/AgentMasterAuditPrompt.md` | Canonical audit instructions |
+| Inactive folders | `docs/worklogs/INACTIVE_FOLDERS.md` | Temp clones and worktrees |
 
 ---
 
@@ -294,4 +349,4 @@ Use `aggregate.sh` to compile a master view:
 
 ---
 
-_Last updated: 2026-03-29_
+_Last updated: 2026-03-30 (expanded index, playbook, quick access)_
