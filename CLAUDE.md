@@ -48,6 +48,28 @@ rules for this shelf. Key points:
 
 See `projects/INDEX.md` for the full catalog of all projects in this shelf.
 
+## Phenotype Federated Hybrid Architecture
+
+This shelf is part of the **Phenotype Federated Hybrid Architecture**, which provides two complementary chassis systems:
+
+### Phenotype Docs Chassis
+
+Provides VitePress configuration, design tokens, and theme components for consistent documentation across the organization.
+
+**Location**: `@phenotype/docs` (GitHub Packages)
+**Documentation**: `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md`
+**Usage**: Add `@phenotype/docs` to `docs/package.json` in any project
+
+### AgilePlus Governance Chassis
+
+Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMENTS, PLAN, USER_JOURNEYS, with FR traceability and worklog integration.
+
+**Location**: AgilePlus project (this repo, crates/agileplus-*)
+**Documentation**: `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md`
+**Usage**: Create `/PRD.md`, `/FUNCTIONAL_REQUIREMENTS.md` at project root; tag tests with `@pytest.mark.requirement("FR-XXX-NNN")`
+
+**See Also**: `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` and `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` for integration points and code examples.
+
 ## Quick Reference
 
 | What you need | Where to look |
@@ -56,3 +78,5 @@ See `projects/INDEX.md` for the full catalog of all projects in this shelf.
 | Governance rules | `AGENTS.md` |
 | Architecture decisions | `docs/adr/` |
 | Cross-project scripts | `scripts/` |
+| Docs Chassis Interface | `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` |
+| Governance Chassis Interface | `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` |
