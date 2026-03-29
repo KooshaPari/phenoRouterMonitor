@@ -1,90 +1,33 @@
-//! # Phenotype Macros
-//!
-//! Procedural macros for domain-driven design patterns.
-//!
-//! # Features
-//!
-//! - `#[derive(Entity)]` - Domain entities with ID and timestamps
-//! - `#[derive(ValueObject)]` - Immutable value objects
-//! - `#[derive(Command)]` - CQRS commands
-//! - `#[derive(DomainEvent)]` - Event sourcing events
-//! - `#[derive(Aggregate)]` - Aggregate roots
-//! - `#[derive(Error)]` - User-facing errors
-//!
-//! # Example
-//!
-//! ```rust,ignore
-//! use phenotype_macros::{Entity, ValueObject, Command, DomainEvent};
-//!
-//! #[derive(Entity)]
-//! #[entity(name = "user")]
-//! struct User {
-//!     id: Uuid,
-//!     email: String,
-//!     created_at: DateTime<Utc>,
-//!     updated_at: DateTime<Utc>,
-//! }
-//!
-//! #[derive(ValueObject)]
-//! #[value_object(name = "email")]
-//! struct Email(String);
-//!
-//! #[derive(Command)]
-//! #[command(name = "create_user")]
-//! struct CreateUserCommand {
-//!     email: String,
-//! }
-//!
-//! #[derive(DomainEvent)]
-//! #[event(name = "user_created")]
-//! #[aggregate(name = "user")]
-//! struct UserCreated {
-//!     id: Uuid,
-//!     email: String,
-//!     occurred_at: DateTime<Utc>,
-//! }
-//! ```
+//! # phenotype-macros
+//! Procedural macros for the Phenotype ecosystem
 
-mod aggregate;
-mod command;
-mod entity;
-mod error;
-mod event;
-mod value_object;
+use proc_macro2::TokenStream;
+use quote::quote;
+use syn::{parse_macro_input, DeriveInput};
 
-// Export derive macros
-#[proc_macro_derive(Entity, attributes(entity))]
-pub fn derive_entity(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    entity::derive_entity(input).into()
+/// Derive macro for implementing error types
+#[proc_macro_derive(ErrorDerive, attributes(error_code, status_code))]
+pub fn error_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+    
+    quote! {
+        impl std::fmt::Display for #name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{:?}", self)
+            }
+        }
+        
+        impl std::error::Error for #name {}
+    }
+    .into()
 }
 
-#[proc_macro_derive(ValueObject, attributes(value_object))]
-pub fn derive_value_object(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    value_object::derive_value_object(input).into()
-}
-
-#[proc_macro_derive(Command, attributes(command))]
-pub fn derive_command(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    command::derive_command(input).into()
-}
-
-#[proc_macro_derive(DomainEvent, attributes(event, aggregate))]
-pub fn derive_event(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    event::derive_event(input).into()
-}
-
-#[proc_macro_derive(Aggregate, attributes(aggregate, state))]
-pub fn derive_aggregate(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    aggregate::derive_aggregate(input).into()
-}
-
-#[proc_macro_derive(Error)]
-pub fn derive_error(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    error::derive_error(input).into()
+/// Macro for defining result types
+#[proc_macro]
+pub fn define_result(input: TokenStream) -> TokenStream {
+    let ty = syn::parse_macro_input!(input as syn::Type);
+    quote! {
+        pub type Result<T = #ty> = std::result::Result<T, #ty>;
+    }.into()
 }

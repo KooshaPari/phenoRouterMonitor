@@ -4,10 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Canonical telemetry (tracing + metrics + logs) for Phenotype services"
 
 [dependencies]
-parking_lot.workspace = true
-chrono.workspace = true
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json"] }
 serde.workspace = true
 serde_json.workspace = true
-thiserror.workspace = true

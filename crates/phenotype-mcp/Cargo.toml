@@ -1,17 +1,12 @@
 [package]
 name = "phenotype-mcp"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "MCP protocol support for Phenotype"
+version = "0.2.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-fastmcp = "0.3"
-tokio.workspace = true
-tracing.workspace = true
-anyhow.workspace = true
-uuid.workspace = true
-chrono.workspace = true
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokio = { version = "1.41", features = ["full"] }
+tracing = "0.1"
