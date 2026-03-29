@@ -3,9 +3,660 @@
 **Category:** ARCHITECTURE | **Updated:** 2026-03-29
 
 ---
+---
 
-## 2026-03-29 - Port/Trait Architecture Split Analysis
+## 2026-03-29 - phenoinfrakit Architecture Deep Analysis
 
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Deep analysis of phenoinfrakit architecture - a Rust workspace containing 6 crates for governance, caching, event sourcing, policy engine, and state machine patterns.
+
+### Workspace Structure
+
+```
+phenoinfrakit/
+├── Cargo.toml              # Workspace root (edition 2024)
+├── Cargo.lock
+└── crates/
+    ├── evidence-ledger/      # Audit trail & governance
+    ├── phenotype-cache-adapter/    # Caching layer
+    ├── phenotype-contracts/         # Shared contracts
+    ├── phenotype-event-sourcing/   # Event sourcing patterns
+    ├── phenotype-policy-engine/    # Policy evaluation
+    └── phenotype-state-machine/    # State machine (incomplete)
+```
+
+### Architecture Principles Observed
+
+| Principle | Status | Implementation |
+|-----------|--------|----------------|
+| Hexagonal Architecture | ✅ Present | Ports/adapters separation |
+| Error propagation | ✅ Consistent | thiserror + anyhow |
+| Async-first | ✅ Present | tokio runtime |
+| Serialization | ✅ Unified | serde ecosystem |
+| Testing | ⚠️ Basic | Unit tests only |
+| Documentation | ⚠️ Minimal | Inline docs only |
+
+### Crate Dependency Graph
+
+```
+evidence-ledger
+    └── (standalone - no internal deps)
+           │
+phenotype-cache-adapter
+    ├── dashmap (concurrent maps)
+    ├── moka (TTL cache)
+    └── serde (serialization)
+           │
+phenotype-contracts
+    └── serde (serialization)
+           │
+phenotype-event-sourcing
+    ├── sha2 (chain hashing)
+    ├── chrono (timestamps)
+    ├── serde (serialization)
+    ├── parking_lot (sync primitives)
+    └── thiserror (errors)
+           │
+phenotype-policy-engine
+    ├── serde (serialization)
+    ├── thiserror (errors)
+    └── [inner crate - same functionality]
+           │
+phenotype-state-machine
+    └── (NO src/ in outer - only inner exists)
+```
+
+### Architecture Quality Assessment
+
+#### ✅ Strengths
+
+1. **Clean dependency graph** - No circular dependencies
+2. **Minimal dependencies** - Each crate has focused purpose
+3. **Consistent error handling** - thiserror + anyhow pattern
+4. **Modern Rust** - Edition 2024, tokio, parking_lot
+5. **Serialization-agnostic** - serde_json, serde_yaml, serde
+
+#### ⚠️ Concerns
+
+1. **Nested crate structure** - `crates/X/X/` pattern during rebase
+2. **Incomplete state-machine** - No outer src/ directory
+3. **Minimal testing** - No property-based or integration tests
+4. **Limited documentation** - No rustdoc on public APIs
+5. **Inner crate duplication** - phenotype-policy-engine has inner copy
+
+### Port/Trait Architecture
+
+#### phenotype-event-sourcing Ports
+
+```rust
+// phenotype-event-sourcing/src/store.rs
+#[async_trait]
+pub trait EventStore<T: Aggregate> {
+    async fn append(&mut self, event: EventEnvelope<T>) -> Result<(), EventStoreError>;
+    async fn get_events(&self, id: &T::Id) -> Result<Vec<EventEnvelope<T>>, EventStoreError>;
+    async fn get_snapshots(&self, id: &T::Id) -> Result<Vec<Snapshot<T>>, EventStoreError>;
+}
+```
+
+#### phenotype-cache-adapter Ports
+
+```rust
+// phenotype-cache-adapter/src/lib.rs
+pub trait CacheBackend: Send + Sync {
+    async fn get(&self, key: &str) -> Option<Vec<u8>>;
+    async fn set(&self, key: &str, value: Vec<u8>, ttl: Option<Duration>) -> Result<(), CacheError>;
+    async fn delete(&self, key: &str) -> Result<(), CacheError>;
+}
+```
+
+#### Evidence Ledger Ports
+
+```rust
+// evidence-ledger/src/lib.rs
+pub trait LedgerBackend: Send + Sync {
+    async fn append(&self, entry: EvidenceEntry) -> Result<Hash, LedgerError>;
+    async fn verify(&self, chain: &Chain) -> Result<bool, LedgerError>;
+    async fn query(&self, filter: &QueryFilter) -> Result<Vec<EvidenceEntry>, LedgerError>;
+}
+```
+
+### Recommended Architecture Improvements
+
+| Improvement | Priority | Effort | Impact |
+|-------------|----------|--------|--------|
+| Add rustdoc to public APIs | 🟡 MEDIUM | 1 day | Quality |
+| Add property-based tests | 🟡 MEDIUM | 3 days | Reliability |
+| Extract shared error types | 🟠 HIGH | 2 days | DRY |
+| Consolidate nested crates | 🔴 CRITICAL | 1 day | Cleanup |
+| Add integration tests | 🟡 MEDIUM | 2 days | Confidence |
+
+### Related
+
+- Dependencies: `worklogs/DEPENDENCIES.md`
+- Quality: `worklogs/QUALITY.md`
+
+---
+
+## 2026-03-29 - Event Sourcing Architecture Deep Dive
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Deep analysis of `phenotype-event-sourcing` crate architecture, patterns, and opportunities.
+
+### Module Structure
+
+```
+phenotype-event-sourcing/src/
+├── lib.rs          # 20 LOC - exports
+├── error.rs        # 46 LOC - domain errors
+├── hash.rs         # 195 LOC - SHA-256 chain
+├── event.rs        # 98 LOC - event envelope
+├── snapshot.rs     # 92 LOC - snapshot logic
+├── store.rs        # 64 LOC - event store trait
+└── memory.rs       # 266 LOC - in-memory implementation
+```
+
+### Total: ~781 LOC
+
+### Architecture Pattern: Aggregate Root
+
+```rust
+// Generic aggregate trait - core of event sourcing
+pub trait Aggregate: Send + Sync + 'static {
+    type Id: IdType;
+    type Event: EventType;
+    
+    fn aggregate_id(&self) -> &Self::Id;
+    fn apply(&mut self, event: Self::Event);
+}
+
+// Event envelope with metadata
+pub struct EventEnvelope<T: Aggregate> {
+    pub id: Uuid,
+    pub aggregate_id: T::Id,
+    pub sequence: u64,
+    pub timestamp: DateTime<Utc>,
+    pub payload: T::Event,
+    pub metadata: EventMetadata,
+}
+```
+
+### Chain Hashing Pattern
+
+```rust
+// SHA-256 chain for tamper detection
+pub struct ContentHash {
+    pub algorithm: HashAlgorithm,
+    pub previous_hash: Option<Vec<u8>>,
+    pub current_hash: Vec<u8>,
+    pub timestamp: DateTime<Utc>,
+}
+
+// Chain verification
+impl ContentHash {
+    pub fn verify_chain(&self, events: &[EventEnvelope]) -> bool {
+        // Verify each event's hash chains to previous
+    }
+}
+```
+
+### Snapshot Strategy
+
+```rust
+pub struct SnapshotConfig {
+    pub max_events: u64,           // Snapshot every N events
+    pub max_age: Duration,         // Or every N hours
+    pub compaction_threshold: u64, // Compaction point
+}
+```
+
+### In-Memory Implementation Quality
+
+```rust
+// crates/phenotype-event-sourcing/src/memory.rs:266 LOC
+// Uses parking_lot::RwLock for better performance
+// Implements: EventStore<TAggregate>
+
+// Key features:
+- Event sequence tracking
+- Snapshot creation/retrieval
+- Chain hash verification
+- Generic over aggregate type
+```
+
+### Assessment: Well-Architected
+
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Generic design | ✅ Excellent | Works with any aggregate |
+| Error handling | ✅ Good | Domain-specific errors |
+| Hash chaining | ✅ Excellent | SHA-256 chain integrity |
+| Snapshots | ✅ Good | Configurable thresholds |
+| Testing | ⚠️ Basic | Unit tests only |
+
+### Libification Opportunity
+
+| Component | Locations | Recommendation |
+|-----------|-----------|----------------|
+| `ContentHash` | hash.rs | Extract to `libs/content-hash` |
+| `EventEnvelope` | event.rs | Keep as domain-specific |
+| `EventStore` trait | store.rs | Keep as domain-specific |
+
+---
+
+## 2026-03-29 - Graph Architecture Analysis
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P2
+
+### Summary
+
+Analysis of graph-related patterns in phenoinfrakit ecosystem.
+
+### Graph Patterns Observed
+
+| Pattern | Crate | Purpose |
+|---------|-------|---------|
+| Evidence Chain | `evidence-ledger` | Audit trail graph |
+| Event Chain | `event-sourcing` | Aggregate event chain |
+| Policy Graph | `policy-engine` | Rule dependency graph |
+
+### Recommendation: Consider petgraph
+
+```rust
+// If graph operations expand, consider petgraph
+use petgraph::{Graph, DiGraph, graph::NodeIndex};
+
+// Benefits:
+- Battle-tested in Rust ecosystem
+- 10M+ weekly downloads
+- Optimal algorithms (DFS, BFS, Dijkstra)
+- DOT export for visualization
+```
+
+### Current: Custom Implementation
+
+The current approach uses custom implementations that are fit-for-purpose but not as feature-rich as petgraph.
+
+---
+
+## 2026-03-29 - Observability Architecture Analysis
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of observability patterns across phenoinfrakit crates.
+
+### Current State
+
+| Crate | Logging | Tracing | Metrics |
+|-------|---------|---------|---------|
+| evidence-ledger | ❌ None | ❌ None | ❌ None |
+| cache-adapter | ❌ None | ❌ None | ❌ None |
+| event-sourcing | ❌ None | ❌ None | ❌ None |
+| policy-engine | ❌ None | ❌ None | ❌ None |
+
+### Missing Observability
+
+**Issue:** No structured logging, tracing, or metrics integration.
+
+### Recommended: Add observability
+
+```rust
+// Recommended pattern for all crates
+use tracing::{info, warn, error};
+use metrics::{counter, histogram};
+
+pub struct EventStore<T: Aggregate> {
+    #[metric]
+    events_appended: Counter,
+    #[metric]
+    append_duration: Histogram,
+}
+
+// Usage
+info!(aggregate_id = %id, sequence = %seq, "Event appended");
+```
+
+### Integration Path
+
+1. Add `tracing` + `tracing-subscriber` to workspace deps
+2. Add `metrics` to workspace deps
+3. Instrument critical paths
+4. Add `tracing-fmt` layer for development
+
+---
+
+## 2026-03-29 - Error Propagation Architecture
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of error handling patterns across phenoinfrakit crates.
+
+### Current Error Types
+
+| Crate | Error Type | Variants |
+|-------|-----------|----------|
+| event-sourcing | `EventStoreError` | 4 variants |
+| policy-engine | `PolicyError` | 4+ variants |
+| evidence-ledger | `LedgerError` | Not analyzed |
+| cache-adapter | `CacheError` | Not analyzed |
+
+### Error Propagation Pattern
+
+```rust
+// Current: Domain-specific errors with thiserror
+#[derive(Error, Debug)]
+pub enum EventStoreError {
+    #[error("Event not found: {0}")]
+    NotFound(String),
+    
+    #[error("Concurrent modification detected")]
+    ConcurrentModification,
+    
+    #[error("Serialization error: {0}")]
+    Serialization(#[from] serde_json::Error),
+    
+    #[error("Chain integrity violation: {0}")]
+    ChainIntegrity(String),
+}
+```
+
+### Libification Opportunity: Extract Error Core
+
+```rust
+// Proposed: libs/phenotype-error-core
+pub trait DomainError: std::error::Error + Send + Sync + 'static {
+    fn error_code(&self) -> &'static str;
+    fn severity(&self) -> Severity;
+    fn source_error(&self) -> Option<&dyn DomainError>;
+}
+
+// Crates would implement this trait
+impl DomainError for EventStoreError { ... }
+impl DomainError for PolicyError { ... }
+```
+
+### Benefits of Error Core
+
+| Benefit | Impact |
+|---------|--------|
+| Consistent error codes | Better monitoring |
+| Severity classification | Better alerting |
+| Error chain tracing | Better debugging |
+| Structured errors | Better analytics |
+
+---
+
+## 2026-03-29 - Testing Architecture Analysis
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P2
+
+### Summary
+
+Analysis of testing patterns and opportunities in phenoinfrakit.
+
+### Current Testing State
+
+| Crate | Unit Tests | Integration Tests | Property Tests |
+|-------|------------|------------------|----------------|
+| event-sourcing | ⚠️ Basic | ❌ None | ❌ None |
+| cache-adapter | ⚠️ Basic | ❌ None | ❌ None |
+| policy-engine | ⚠️ Basic | ❌ None | ❌ None |
+| evidence-ledger | ⚠️ Basic | ❌ None | ❌ None |
+
+### Missing Testing Infrastructure
+
+| Pattern | Status | Recommendation |
+|---------|--------|----------------|
+| Property-based tests | ❌ None | Add `proptest` |
+| Mutation testing | ❌ None | Add `cargo-mutants` |
+| Fuzzing | ❌ None | Add `cargo-fuzz` |
+| Benchmark tests | ❌ None | Add `criterion` |
+| Integration tests | ❌ None | Add test crates |
+
+### Recommended Testing Stack
+
+```toml
+# Add to workspace dependencies
+proptest = "1.5"
+criterion = "0.5"
+# cargo-mutants = "24.11"  # Run in CI only
+# cargo-fuzz = "0.11"      # If fuzzing needed
+```
+
+### Example: Property-Based Event Ordering
+
+```rust
+// proptest example for event sourcing
+proptest! {
+    #[test]
+    fn test_event_sequence_always_increments(events in any::<Vec<Event>>()) {
+        let mut store = InMemoryEventStore::default();
+        for event in events {
+            store.append(event.clone());
+            let retrieved = store.get_events(&event.id);
+            prop_assert!(retrieved.last().sequence >= event.sequence - 1);
+        }
+    }
+}
+```
+
+---
+
+## 2026-03-29 - Cross-Crate Communication Patterns
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of how crates communicate with each other and external systems.
+
+### Communication Patterns Observed
+
+| Pattern | Usage | Assessment |
+|---------|-------|------------|
+| Direct function calls | Within crate | ✅ Optimal |
+| Trait objects | Cross-crate | ✅ Good |
+| Message passing | Async operations | ⚠️ Not used |
+| Event bus | Decoupled comms | ⚠️ Not used |
+
+### Current: Tight Coupling
+
+```
+phenotype-event-sourcing
+         │
+         └── (no dependencies on other phenoinfrakit crates)
+         
+policy-engine
+         │
+         └── (no dependencies on other phenoinfrakit crates)
+```
+
+**Issue:** Crates are isolated - no shared communication.
+
+### Alternative: Event Bus Pattern
+
+```rust
+// Proposed: Shared event bus
+pub trait EventBus: Send + Sync {
+    async fn publish(&self, event: DomainEvent) -> Result<(), BusError>;
+    async fn subscribe<E: DomainEvent>(&self, handler: EventHandler<E>);
+}
+
+// Benefits:
+- Loose coupling
+- Async-first
+- Traceable events
+- Extensible
+```
+
+### Recommendation
+
+1. **Near-term:** Keep current - crates are independently useful
+2. **Long-term:** Add event bus if crates need to coordinate
+
+---
+
+## 2026-03-29 - Configuration Architecture Analysis
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P2
+
+### Summary
+
+Analysis of configuration patterns across phenoinfrakit crates.
+
+### Current State
+
+| Crate | Config Source | Format | Assessment |
+|-------|---------------|--------|------------|
+| event-sourcing | Hardcoded | N/A | ⚠️ Limited |
+| cache-adapter | Builder pattern | Code | ✅ Flexible |
+| policy-engine | Builder pattern | Code | ✅ Flexible |
+| evidence-ledger | Hardcoded | N/A | ⚠️ Limited |
+
+### Missing: External Configuration
+
+**Issue:** No support for TOML/YAML/ENV configuration files.
+
+### Recommended: figment Integration
+
+```rust
+// Add figment for configuration
+use figment::{Figment, providers::{Toml, Env, Format}};
+
+#[derive(Deserialize)]
+pub struct EventStoreConfig {
+    pub max_events_per_snapshot: u64,
+    pub snapshot_interval_hours: u64,
+    pub chain_verification: bool,
+}
+
+impl Default for EventStoreConfig {
+    fn default() -> Self {
+        Self {
+            max_events_per_snapshot: 100,
+            snapshot_interval_hours: 24,
+            chain_verification: true,
+        }
+    }
+}
+
+// Load from TOML with ENV override
+let config: EventStoreConfig = Figment::new()
+    .merge(Toml::file("event-store.toml"))
+    .merge(Env::prefixed("EVENT_STORE_"))
+    .extract()?;
+```
+
+### Benefits
+
+| Benefit | Impact |
+|---------|--------|
+| TOML/YAML support | Flexibility |
+| ENV override | Production config |
+| Profiles | Dev/staging/prod |
+| Validation | Type-safe config |
+
+---
+
+## 2026-03-29 - Concurrency Architecture Analysis
+
+**Project:** phenotype-infrakit
+**Category:** architecture
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Analysis of concurrency patterns and synchronization primitives.
+
+### Current Usage
+
+| Primitive | Crate | Usage | Assessment |
+|-----------|-------|-------|------------|
+| `RwLock` (std) | event-sourcing | In-memory store | ⚠️ Consider parking_lot |
+| `Arc` | Multiple | Shared ownership | ✅ Good |
+| `Mutex` | Not used | State protection | 🔲 Consider |
+| `Atomic*` | Not used | Simple counters | 🔲 Consider |
+
+### Issue: std::sync::RwLock
+
+```rust
+// Current: std::sync::RwLock
+use std::sync::RwLock;
+
+pub struct EventStore<T: Aggregate> {
+    events: RwLock<Vec<EventEnvelope<T>>>,
+}
+
+// Issues:
+- Poisoning on panic
+- Slower than parking_lot
+- Verbose error handling
+```
+
+### Recommended: parking_lot
+
+```rust
+// Recommended: parking_lot::RwLock
+use parking_lot::RwLock;
+
+pub struct EventStore<T: Aggregate> {
+    events: RwLock<Vec<EventEnvelope<T>>>,
+}
+
+// Benefits:
+- No poisoning (always succeeds)
+- 25% faster
+- Simpler API (no .unwrap())
+```
+
+### Note: event-sourcing already uses parking_lot
+
+**Good!** The memory.rs implementation already uses `parking_lot::RwLock`.
+
+### Atomic Operations
+
+Consider `std::sync::atomic` for:
+- Sequence number counters
+- Simple flags
+- Reference counting
+
+---
+
+_Last updated: 2026-03-29_
 **Project:** [AgilePlus]
 **Category:** architecture
 **Status:** in_progress
