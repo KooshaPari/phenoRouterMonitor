@@ -29,6 +29,8 @@ This directory contains structured worklogs organized by category. Each worklog 
 | `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
 | `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
 | `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
+| `ERRORS.md` | 92 | ERRORS | 2026-03-29 | error schema unification |
+| `PLANS/CONSOLIDATION.md` | 210 | PLAN | 2026-03-29 | duplication consolidation roadmap |
 | `DUPLICATION_EXTENDED.md` | 800 | DUPLICATION | 2026-03-29 | expanded follow-up analysis |
 | `CROSSCUTTING.md` | 450 | GOVERNANCE | 2026-03-29 | policy + pipeline design |
 | `CONSOLIDATION.md` | 520 | ARCHITECTURE | 2026-03-29 | libification strategies |
@@ -46,6 +48,8 @@ This directory contains structured worklogs organized by category. Each worklog 
 | **Unused Libraries** | 11 libs (edition mismatch) | 🔴 CRITICAL |
 | Error Types | 12 types, 68+ variants (~189 LOC) | 🔴 CRITICAL |
 | Port/Trait Split | 2 ecosystems (2,106 LOC) | 🟡 HIGH |
+| Async Trait Duplication | 5+ crates, 40 functions | 🔴 CRITICAL |
+| Worktree Manager Duplication | 3 tools | 🟡 HIGH |
 | Config Loaders | 4 implementations | 🟡 HIGH |
 | Store Traits | 5 async traits | 🟠 MEDIUM |
 | Health Checks | 3-4 enums | 🟠 MEDIUM |
@@ -251,4 +255,102 @@ Use `aggregate.sh` to compile a master view:
 
 ---
 
-_Last updated: 2026-03-29_
+## Wave 94: LOC Reduction Audit Tripling + Deep Research
+
+**Date:** 2026-03-29 (Continuation)
+**Focus:** Heavy LOC reduction focus, code optimization, decomposition audits, third-party ecosystem research
+
+### Deliverables Completed (5 Parallel Agents)
+
+#### 1. **DUPLICATION.md Expansion**
+- **Original:** ~1,900 lines → **Expanded:** 2,767 lines across 4 coordinated documents
+- **New findings:** 1,228 LOC consolidation opportunity across 31 files
+- **Case studies:** Health check enums, event bus adapters, builders, serialization, test fixtures, retry/backoff logic
+- **Status:** ✅ 4 new files created with specific code references & measurements
+
+#### 2. **RESEARCH.md Expansion**
+- **Original:** 1,325 lines → **Expanded:** 2,236 lines (+911 lines, +68.7%)
+- **12 technology domains analyzed:** Async, error handling, config, DB/ORM, message queues, caching, testing, serialization, HTTP, CLI, logging, validation
+- **Impact:** ~2,000 LOC savings identified, 30-40 person-days effort
+- **Status:** ✅ Consolidated third-party ecosystem recommendations with consolidation paths
+
+#### 3. **ARCHITECTURE.md Expansion**
+- **New file:** ARCHITECTURE_EXPANSION_SUMMARY.md (321 lines)
+- **10 design patterns mapped:** Port/Adapter, Repository, DI, Strategy, Builder, Observer, Factory, Middleware, Command, State Machine
+- **18 libification candidates** across 3 priority tiers
+- **Potential savings:** 1,755-1,880 LOC across 8 repositories
+- **Status:** ✅ Complete library design with effort estimates
+
+#### 4. **INACTIVE_FOLDERS_AUDIT.md**
+- **New file:** 978 lines, 33 KB
+- **28 folders inventoried:** 8 temp dirs (189 MB), 10 worktrees (10 MB), 13 archives (39.4 MB)
+- **Three-phase cleanup plan** with 4 non-destructive scripts
+- **Freeable disk space:** 200+ MB
+- **Status:** ✅ Safe cleanup procedures documented, zero destructive operations
+
+#### 5. **Deep Codebase Scan Results**
+- **Coverage:** 1,936 Rust files + 6,668 TypeScript files across 143 crates
+- **12 pattern analyses:** Directory stubs (CRITICAL), trait duplication, errors, config, health checks, test fixtures, builders, response wrappers, monolithic files, event sourcing, middleware, dead code
+- **Total potential savings:** 3,500-4,500 LOC deduplication
+- **Status:** ✅ Measurable findings with specific file:line references
+
+#### 6. **Third-Party Libraries Research**
+- **18+ libraries analyzed** across 8 critical domains
+- **Consolidation roadmap:** Unified error handling, two-tier caching, tracing standard, figment config, standardized features
+- **Impact:** 620-880 LOC savings, 25-33 hours effort, high ROI
+- **Status:** ✅ Comprehensive ecosystem audit with fork/wrap/use recommendations
+
+### Aggregated LOC Reduction Opportunities
+
+| Consolidation | Current | Target | Savings | Difficulty |
+|---------------|---------|--------|---------|------------|
+| **CRITICAL (Phase 1)** |
+| Directory Stubs | ~1,200 LOC | 0 LOC | **1,200** | LOW |
+| Error Core Crate | ~600 LOC | ~200 LOC | **400** | MEDIUM |
+| Event Sourcing Cleanup | ~400 LOC | 0 LOC | **400** | MEDIUM |
+| **HIGH (Phase 2)** |
+| Trait Duplication | ~500-750 LOC | ~200 LOC | **300-550** | MEDIUM |
+| Config Consolidation | ~400-500 LOC | ~100 LOC | **300-400** | MEDIUM |
+| Ports Canonical | ~300 LOC | ~50 LOC | **250** | MEDIUM |
+| **MEDIUM (Phase 3)** |
+| Health Checks | ~150-200 LOC | ~50 LOC | **100-150** | LOW |
+| Response Wrappers | ~100-150 LOC | ~30 LOC | **70-120** | LOW |
+| Test Fixtures | ~300-400 LOC | ~100 LOC | **200-300** | MEDIUM |
+| Builder Patterns | ~200 LOC | ~50 LOC | **150** | LOW |
+| Middleware/Adapters | ~100 LOC | ~30 LOC | **70** | MEDIUM |
+| **Third-Party Integration** | — | — | **620-880** | MEDIUM |
+| **TOTAL IDENTIFIED** | **~5,050-5,450 LOC** | **~1,100-1,500 LOC** | **~3,500-4,500 LOC** | — |
+
+### Files Modified/Created This Wave
+
+**Modified:**
+- `DUPLICATION.md` (reference & case studies)
+- `RESEARCH.md` (+911 lines of third-party ecosystem analysis)
+- `README.md` (this section, Wave 94 summary)
+
+**Created (6 new files, ~3,500 lines):**
+- `DUPLICATION_EXPANSION_20260329.md` (797 lines)
+- `DUPLICATION_AUDIT_SUMMARY.md` (218 lines)
+- `EXPANSION_COMPLETION_REPORT.md` (290 lines)
+- `ARCHITECTURE_EXPANSION_SUMMARY.md` (321 lines)
+- `INACTIVE_FOLDERS_AUDIT.md` (978 lines)
+- `THIRD_PARTY_LIBRARIES_RESEARCH.md` (comprehensive)
+- `DEEP_CODEBASE_SCAN_FINDINGS.md` (comprehensive)
+
+### Recommended Execution Phases
+
+**Phase 1 (CRITICAL - This Week):** 2,000 LOC savings, 3-5 hours
+- Fix 4 crate directory stubs, create error-core, cleanup event sourcing
+
+**Phase 2 (HIGH - This Month):** 1,200+ LOC savings, 25-35 hours
+- Ports canonical, config consolidation, health checks, error handling unification
+
+**Phase 3 (MEDIUM - Next Quarter):** 800+ LOC savings, 40-60 hours
+- Test fixtures, response types, refactor monolithic files, builder migrations
+
+**Phase 4 (OPTIMIZATION):** Quality infrastructure, 15-20 hours
+- Dead code detection, duplication detection, mutation testing, library standards
+
+---
+
+_Last updated: 2026-03-29 (Wave 94 completion) | Total audit expansion: **+5,500 lines of documentation**, **3,500-4,500 LOC consolidation identified**_

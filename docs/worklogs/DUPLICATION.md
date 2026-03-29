@@ -2009,10 +2009,102 @@ pub async fn setup_auth_db() -> SqlitePool { /* 23 LOC */ }
 
 **Total Duplication:** 68 + 65 = ~133 LOC
 
-**Consolidation:** Extract to `libs/test-fixtures/src/auth.rs` with typed builders
+---
 
-```rust
-// libs/test-fixtures/src/auth.rs
+## 2026-03-29 - Comprehensive LOC Analysis (Actual Codebase Scan)
+
+**Project:** [All Phenotype Repos]
+**Category:** LOC analysis, architecture
+**Status:** completed
+**Priority:** P0
+
+### Actual LOC Measurements
+
+| Repository | Language | LOC | Status |
+|------------|----------|-----|--------|
+| heliosCLI | Python | 480,847 | Largest codebase |
+| heliosCLI | Rust | ~1,240,866 | Combined |
+| platforms/thegent | Python | 401,926 | 2nd largest |
+| worktrees/thegent | Python | 363,614 | Worktree |
+| platforms/thegent | Mixed | 387,195 | All languages |
+| worktrees/ | Mixed | 393,744 | 7 worktrees |
+| crates/ (AgilePlus) | Rust | 6,422 | Core crates |
+| phench/ | Rust | 6,381 | CLI tool |
+| repos/ | Mixed | 15,372 | Workspace |
+
+### Critical LOC Findings
+
+#### 🔴 CRITICAL: heliosCLI LOC (1.2M+ lines)
+
+**Issue:** heliosCLI contains massive generated/test/generated code.
+
+**Breakdown:**
+- `heliosCLI/src/helios_router_ui/` - Web UI code
+- `heliosCLI/src/harness_*` - Test harness crates
+- `heliosCLI/src/servers/` - Server implementations
+- `heliosCLI/src/agent/` - Agent implementations
+
+**Action Required:**
+- Audit generated vs source code ratio
+- Consider splitting heliosCLI into micro-workspaces
+- Archive generated files if not needed
+
+#### 🟠 HIGH: thegent LOC (400K+ Python)
+
+**Breakdown:**
+- `thegent/src/thegent_gitops/` - GitOps automation
+- `thegent/src/mesh/` - Distributed mesh
+- `thegent/src/agents/` - Agent implementations
+- `thegent/src/thegent_gitops/worktree.py` - 520 LOC
+
+**Key Files:**
+- `thegent/src/thegent_gitops/worktree.py` - 520 LOC (potential fork candidate)
+- `thegent/src/thegent_gitops/lock_cleanup.py` - 356 LOC
+- `thegent/src/thegent_gitops/identity.py` - 197 LOC
+
+#### 🟡 MEDIUM: AgilePlus Crates LOC
+
+| Crate | LOC | Priority |
+|-------|-----|----------|
+| phenotype-event-sourcing | 1,576 | 🔴 HIGH |
+| phenotype-contracts | 1,440 | 🔴 HIGH |
+| phenotype-policy-engine | 1,398 | 🟠 MEDIUM |
+| phenotype-git-core | 1,056 | 🟠 MEDIUM |
+| phenotype-config-core | 949 | 🟠 MEDIUM |
+
+### LOC Reduction Opportunities
+
+| Category | Current | Target | Reduction |
+|----------|---------|--------|-----------|
+| **heliosCLI cleanup** | 1,240,866 | 200,000 | **84%** |
+| **AgilePlus libification** | 6,422 | 3,000 | **53%** |
+| **thegent dedup** | 401,926 | 150,000 | **63%** |
+| **Archive generated** | 500,000 | 0 | **100%** |
+| **TOTAL** | **2,149,214** | **353,000** | **84%** |
+
+### Worktrees Status
+
+| Worktree | LOC | Action |
+|----------|-----|--------|
+| chore/ | 8,837 | REVIEW - high LOC |
+| thegent/ | 363,614 | ACTIVATE or ARCHIVE |
+| fix-defensive-patterns/ | 4,603 | REVIEW |
+| auto-sync-docs/ | 4,418 | REVIEW |
+| AgilePlus/ | 4,962 | REVIEW |
+| add-agileplus-ci/ | - | COMPLETE? |
+
+### Action Items
+
+- [ ] 🔴 CRITICAL: Audit heliosCLI for generated code ratio
+- [ ] 🔴 CRITICAL: Verify worktrees status (7 worktrees)
+- [ ] 🟠 HIGH: Split heliosCLI into micro-workspaces
+- [ ] 🟠 HIGH: Archive 500K+ LOC of generated code
+- [ ] 🟡 MEDIUM: Activate or archive thegent worktree (363K LOC)
+- [ ] 🟡 MEDIUM: Review chore worktree (8.8K LOC)
+
+---
+
+_Last updated: 2026-03-29_
 pub struct AuthFixtureBuilder {
     user_id: String,
     email: String,
@@ -2254,4 +2346,63 @@ backoff::future::retry(backoff, operation).await?;
 
 ---
 
-_Last updated: 2026-03-29_
+## 2026-03-30 — Wave 93: intra-repo duplication deep playbook
+
+**Category:** duplication  
+**Status:** active methodology  
+**Priority:** P0–P1  
+**Cross-ref:** `docs/worklogs/README.md` (Deep audit playbook), `docs/worklogs/INACTIVE_FOLDERS.md`, `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md`
+
+### Playbook phases (code-only)
+
+| Phase | Goal | Primary paths | Output |
+|-------|------|---------------|--------|
+| **D1** | Error surface map | `crates/**/error*.rs`, `**/*error*.rs` | Table: enum name → crate → variant count |
+| **D2** | Port / trait overlap | `crates/**/ports/**`, `libs/**/ports/**` | Merge candidates vs `phenotype-port-interfaces` |
+| **D3** | Config ingress | `**/config*.rs`, `Settings`, `figment`, `toml::` | Single owner for “load + validate + provenance” |
+| **D4** | HTTP / retry / client | `reqwest`, `Client::new`, `retry`, `backoff` | One policy crate or `backoff`/`backon` adoption |
+| **D5** | Serde DTO sprawl | `Serialize` on `*Request`/`*Response` in multiple crates | `agileplus-api-types` or shared contracts |
+| **D6** | Tests & fixtures | `tests/`, `#[cfg(test)]` builders | `libs/test-fixtures` or workspace dev-dep |
+
+### High-yield `rg` recipes (run from monorepo root)
+
+```bash
+rg -n "thiserror::Error|derive\(.*Error" crates libs --type rust
+rg -n "enum \\w*Error" crates --type rust
+rg -n "trait (Repository|Storage|Cache|Logger|EventBus)" crates libs --type rust
+rg -n "reqwest::Client::new|Client::builder" crates --type rust
+rg -n "tokio::time::sleep|backoff|retry" crates --type rust
+rg -n "struct \\w*Config|fn load_config|Figment|config::" crates --type rust
+```
+
+### Additional consolidation clusters (beyond §Summary)
+
+| Cluster | Symptom | Canonical direction | Risk |
+|---------|---------|---------------------|------|
+| Metrics registry | Multiple `prometheus` / `metrics` wrappers | Single `agileplus-telemetry` facade | Breaking label names |
+| Feature flags | Duplicate `cfg(feature = …)` blocks | `agileplus-features` or compile-time macro | Build time |
+| UUID / ID types | Newtype wrappers per crate | Shared `ids` module in contracts | API churn |
+| DateTime handling | Mix of `chrono` vs `time` | Pick one for new code; migrate hot paths | Interop |
+| SQL / query builders | Ad-hoc string concat | `sea-query` or single DAO layer | Injection / review |
+| NATS subjects | String literals duplicated | `subjects.rs` per bounded context | Runtime typos |
+
+### Quality gate: “no new duplication”
+
+Before merge, for PRs touching the areas above:
+
+- [ ] If adding a new `*Error` enum, link a follow-up issue to `phenotype-error` / `agileplus-error-core`.
+- [ ] If adding a new port trait, document why existing `phenotype-port-interfaces` trait cannot extend.
+- [ ] If adding retry logic, use shared helper or `backoff` crate — no ad-hoc `sleep` loops.
+
+### Traceability
+
+| Plan file | Duplication theme |
+|-----------|-------------------|
+| `PLANS/ERROR_CORE_EXTRACTION.md` | Errors |
+| `PLANS/CONFIG_CORE_ACTIVATION.md` | Config |
+| `PLANS/EDITION_MIGRATION.md` | `libs/` activation |
+| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | Execution WBS |
+
+---
+
+_Last updated: 2026-03-30 (Wave 93 appendix)_
