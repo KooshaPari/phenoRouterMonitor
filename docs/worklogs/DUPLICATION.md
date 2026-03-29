@@ -5,7 +5,6 @@
 ---
 
 ## 2026-03-29 - AgilePlus Extended Duplication Audit
-## 2026-03-29 - FORGE Extended Deep Research (Resumed Session)
 
 **Project:** [AgilePlus]
 **Category:** duplication
@@ -13,9 +12,32 @@
 **Priority:** P0
 
 ### Summary
-Extended deep research analysis verified through code inspection. All 11 libraries in `libs/` are UNUSED due to edition 2021 vs workspace 2024 mismatch.
 
-### External Package Cross-Reference Matrix
+Extended deep research analysis verified through code inspection. All 11 libraries in `libs/` are UNUSED due to edition 2021 vs workspace 2024 mismatch. **NEW:** Duplicate nested crate structure discovered in phenotype-infrakit workspace.
+
+---
+
+## 🔴 CRITICAL: Nested Duplicate Crate Structure (~1,400 LOC WASTED)
+
+**Location:** `crates/phenotype-event-sourcing/phenotype-event-sourcing/`
+
+| Crate | Location | Status |
+|-------|----------|--------|
+| Outer | `crates/phenotype-event-sourcing/` | KEEP |
+| Inner | `crates/phenotype-event-sourcing/phenotype-event-sourcing/` | **DELETE** |
+
+**Identical implementations:**
+- `src/error.rs` (46 LOC each - byte-for-byte identical)
+- `src/event.rs` (99 LOC each)
+- `src/hash.rs` (179 LOC each)
+- `src/memory.rs` (284 LOC each)
+- `src/snapshot.rs` (92 LOC each)
+- `src/store.rs` (58 LOC each)
+- `src/lib.rs` (15 LOC each)
+
+**Savings:** ~700 LOC × 2 = **~1,400 LOC wasted** (53% reduction possible)</---
+
+## External Package Cross-Reference Matrix
 
 | Internal Pattern | LOC | External Alternative | Recommendation | Savings |
 |-----------------|-----|-------------------|----------------|---------|
