@@ -106,3 +106,4 @@ tokenledger/
 scripts/*.py
 scripts/*.sh
 !scripts/path_utils.py
+template-commons/
