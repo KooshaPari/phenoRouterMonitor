@@ -1,0 +1,382 @@
+{
+  "_schema_version": "3.0",
+  "_description": "Model indices: context limits, speed, cost, benchmarks, and modalities",
+  "notes": {
+    "cost": "Cost is in dollars per million tokens (Mtok)",
+    "speed": "Speed is in tokens per second (tps) and first token latency in seconds",
+    "benchmarks": "pass@1 scores for code generation and reasoning",
+    "modalities": "Feature flags for model capabilities (true/false or custom value)",
+    "composite_score": "Weighted average of available benchmarks (missing = not penalized)"
+  },
+  "benchmark_weights": {
+    "swebench": 0.25,
+    "termbench": 0.25,
+    "humaneval": 0.20,
+    "mmlu": 0.15,
+    "reasoning": 0.15
+  },
+  "providers": {
+    "anthropic": {
+      "display_name": "Anthropic Claude",
+      "models": {
+        "claude-opus-4-6": {
+          "context_limit": 200000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 15.00,
+          "cost_per_1m_output": 75.00,
+          "tps": 80,
+          "latency_first_token": 0.5,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true,
+            "thinking": true
+          },
+          "benchmarks": {
+            "swebench": 0.45,
+            "termbench": 0.52,
+            "humaneval": 0.92,
+            "mmlu": 0.90
+          },
+          "notes": "Best for complex reasoning and high-quality code"
+        },
+        "claude-sonnet-4-5": {
+          "context_limit": 200000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 3.00,
+          "cost_per_1m_output": 15.00,
+          "tps": 120,
+          "latency_first_token": 0.3,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true,
+            "thinking": true
+          },
+          "benchmarks": {
+            "swebench": 0.38,
+            "termbench": 0.45,
+            "humaneval": 0.88,
+            "mmlu": 0.87
+          },
+          "notes": "Best balance of speed and quality"
+        },
+        "claude-haiku-4-5": {
+          "context_limit": 200000,
+          "output_limit": 4096,
+          "cost_per_1m_input": 0.25,
+          "cost_per_1m_output": 1.25,
+          "tps": 200,
+          "latency_first_token": 0.15,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": false,
+            "tool_use": false,
+            "structured_output": true
+          },
+          "benchmarks": {
+            "swebench": 0.22,
+            "termbench": 0.28,
+            "humaneval": 0.82,
+            "mmlu": 0.78
+          },
+          "notes": "Fast and cheap for simple tasks"
+        }
+      }
+    },
+    "openai": {
+      "display_name": "OpenAI",
+      "models": {
+        "gpt-4o": {
+          "context_limit": 128000,
+          "output_limit": 16384,
+          "cost_per_1m_input": 2.50,
+          "cost_per_1m_output": 10.00,
+          "tps": 100,
+          "latency_first_token": 0.4,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "audio": true,
+            "tool_use": true,
+            "structured_output": true
+          },
+          "benchmarks": {
+            "swebench": 0.42,
+            "termbench": 0.48,
+            "humaneval": 0.90,
+            "mmlu": 0.88
+          },
+          "notes": "OpenAI's flagship model"
+        },
+        "gpt-4o-mini": {
+          "context_limit": 128000,
+          "output_limit": 16384,
+          "cost_per_1m_input": 0.15,
+          "cost_per_1m_output": 0.60,
+          "tps": 300,
+          "latency_first_token": 0.1,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true
+          },
+          "benchmarks": {
+            "swebench": 0.28,
+            "termbench": 0.32,
+            "humaneval": 0.85,
+            "mmlu": 0.82
+          },
+          "notes": "Fast and cheap"
+        },
+        "gpt-5-codex": {
+          "context_limit": 200000,
+          "output_limit": 100000,
+          "cost_per_1m_input": 10.00,
+          "cost_per_1m_output": 30.00,
+          "tps": 80,
+          "latency_first_token": 0.6,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true,
+            "code_interpreter": "advanced"
+          },
+          "benchmarks": {
+            "swebench": 0.55,
+            "termbench": 0.62,
+            "humaneval": 0.95,
+            "mmlu": 0.91
+          },
+          "notes": "Codex model - best for coding"
+        },
+        "gpt-5-codex-spark": {
+          "context_limit": 200000,
+          "output_limit": 100000,
+          "cost_per_1m_input": 5.00,
+          "cost_per_1m_output": 15.00,
+          "tps": 150,
+          "latency_first_token": 0.25,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true
+          },
+          "benchmarks": {
+            "swebench": 0.48,
+            "termbench": 0.55,
+            "humaneval": 0.92,
+            "mmlu": 0.89
+          },
+          "notes": "Codex Spark - free tier"
+        }
+      }
+    },
+    "google": {
+      "display_name": "Google Gemini",
+      "models": {
+        "gemini-2-5-pro": {
+          "context_limit": 1000000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 1.25,
+          "cost_per_1m_output": 5.00,
+          "tps": 90,
+          "latency_first_token": 0.45,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "audio": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true
+          },
+          "benchmarks": {
+            "swebench": 0.40,
+            "termbench": 0.46,
+            "humaneval": 0.89,
+            "mmlu": 0.91
+          },
+          "notes": "1M context window"
+        },
+        "gemini-3-flash": {
+          "context_limit": 1000000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 0.075,
+          "cost_per_1m_output": 0.30,
+          "tps": 400,
+          "latency_first_token": 0.08,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true
+          },
+          "benchmarks": {
+            "swebench": 0.25,
+            "termbench": 0.30,
+            "humaneval": 0.80,
+            "mmlu": 0.85
+          },
+          "notes": "Fast and very cheap"
+        }
+      }
+    },
+    "minimax": {
+      "display_name": "MiniMax",
+      "models": {
+        "MiniMax-M2.5": {
+          "context_limit": 1048576,
+          "output_limit": 8192,
+          "cost_per_1m_input": 1.00,
+          "cost_per_1m_output": 5.00,
+          "tps": 250,
+          "latency_first_token": 0.12,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true
+          },
+          "benchmarks": {
+            "swebench": 0.30,
+            "termbench": 0.35,
+            "humaneval": 0.82,
+            "mmlu": 0.80
+          },
+          "notes": "1M context window, very cheap"
+        }
+      }
+    },
+    "moonshot": {
+      "display_name": "Moonshot AI",
+      "models": {
+        "kimi-k2": {
+          "context_limit": 200000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 2.00,
+          "cost_per_1m_output": 8.00,
+          "tps": 100,
+          "latency_first_token": 0.35,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true
+          },
+          "benchmarks": {
+            "swebench": 0.32,
+            "termbench": 0.38,
+            "humaneval": 0.83,
+            "mmlu": 0.81
+          },
+          "notes": "Good for long context"
+        }
+      }
+    },
+    "qwen": {
+      "display_name": "Alibaba Qwen",
+      "models": {
+        "qwen3-32b": {
+          "context_limit": 131072,
+          "output_limit": 8192,
+          "cost_per_1m_input": 0.00,
+          "cost_per_1m_output": 0.00,
+          "tps": 180,
+          "latency_first_token": 0.2,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "structured_output": true
+          },
+          "benchmarks": {
+            "swebench": 0.35,
+            "termbench": 0.40,
+            "humaneval": 0.85,
+            "mmlu": 0.84
+          },
+          "notes": "Open source option"
+        }
+      }
+    },
+    "iflow": {
+      "display_name": "iFlow",
+      "models": {
+        "deepseek-v3": {
+          "context_limit": 64000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 0.00,
+          "cost_per_1m_output": 0.00,
+          "tps": 200,
+          "latency_first_token": 0.18,
+          "modalities": {
+            "text": true,
+            "reasoning": true,
+            "tool_use": true
+          },
+          "benchmarks": {
+            "swebench": 0.38,
+            "termbench": 0.42,
+            "humaneval": 0.86,
+            "mmlu": 0.85
+          },
+          "notes": "Open source Mixture of Experts"
+        }
+      }
+    },
+    "antigravity": {
+      "display_name": "Antigravity",
+      "models": {
+        "claude-sonnet-4-5-thinking": {
+          "context_limit": 200000,
+          "output_limit": 8192,
+          "cost_per_1m_input": 3.00,
+          "cost_per_1m_output": 15.00,
+          "tps": 100,
+          "latency_first_token": 0.35,
+          "modalities": {
+            "text": true,
+            "vision": true,
+            "reasoning": true,
+            "tool_use": true,
+            "thinking": true
+          },
+          "benchmarks": {
+            "swebench": 0.38,
+            "termbench": 0.45,
+            "humaneval": 0.88,
+            "mmlu": 0.87
+          },
+          "notes": "Claude via Antigravity"
+        }
+      }
+    }
+  },
+  "custom_benchmarks": {},
+  "modalities_schema": {
+    "text": {"display": "Text", "weight": 1.0},
+    "vision": {"display": "Vision", "weight": 1.0},
+    "audio": {"display": "Audio", "weight": 0.8},
+    "video": {"display": "Video", "weight": 0.8},
+    "reasoning": {"display": "Reasoning", "weight": 1.2},
+    "tool_use": {"display": "Tool Use", "weight": 1.1},
+    "function_calling": {"display": "Function Calling", "weight": 1.0},
+    "structured_output": {"display": "Structured Output", "weight": 0.9},
+    "thinking": {"display": "Thinking/Chain-of-Thought", "weight": 1.3},
+    "json_mode": {"display": "JSON Mode", "weight": 0.7},
+    "code_interpreter": {"display": "Code Interpreter", "weight": 1.0}
+  }
+}

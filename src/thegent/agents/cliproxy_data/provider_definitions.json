@@ -1,0 +1,85 @@
+{
+  "minimax": {
+    "base_url": "https://api.minimax.io/v1",
+    "base_url_env": "THGENT_MINIMAX_BASE_URL",
+    "model": "MiniMax-M2.5",
+    "extra_aliases": ["minimax-m2.5"],
+    "login": {
+      "url": "https://platform.minimax.io/user-center/basic-information/interface-key",
+      "display_name": "MiniMax",
+      "instructions": [
+        "1. Sign in to MiniMax Platform.",
+        "2. Go to User Center → Interface Key.",
+        "3. Copy your API Key."
+      ]
+    }
+  },
+  "nim": {
+    "base_url": "https://integrate.api.nvidia.com/v1",
+    "base_url_env": "THGENT_NIM_BASE_URL",
+    "model": "z-ai/glm-5",
+    "extra_aliases": ["glm-5", "step-3.5-flash"],
+    "login": {
+      "url": "https://build.nvidia.com/settings/api-keys",
+      "display_name": "NVIDIA NIM",
+      "instructions": [
+        "1. Sign in to NVIDIA Build (build.nvidia.com).",
+        "2. Go to Settings -> API Keys.",
+        "3. Copy the key starting with 'nvapi-'."
+      ]
+    }
+  },
+  "openrouter": {
+    "base_url": "https://openrouter.ai/api/v1",
+    "base_url_env": "THGENT_OPENROUTER_BASE_URL",
+    "model": "google/gemini-2.0-flash-001",
+    "login": {
+      "url": "https://openrouter.ai/keys",
+      "display_name": "OpenRouter",
+      "instructions": [
+        "1. Sign in to OpenRouter.",
+        "2. Go to Keys.",
+        "3. Create a new key and copy it."
+      ]
+    }
+  },
+    "zen": {
+    "base_url": "https://opencode.ai/zen/v1",
+    "base_url_env": "THGENT_ZEN_BASE_URL",
+    "model": "glm-5",
+    "extra_aliases": ["z-ai/glm-5", "gpt-5-mini", "gemini-3-flash"],
+    "login": {
+      "url": "https://opencode.ai/docs/zen/",
+      "display_name": "OpenCode Zen",
+      "instructions": [
+        "1. Sign in to OpenCode.",
+        "2. Generate or copy your Zen API key.",
+        "3. Paste the key when prompted."
+      ]
+    }
+  },
+  "qwen": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "model": "qwen-turbo",
+    "login": {
+      "url": "https://dashscope.console.aliyun.com/apiKey",
+      "display_name": "Qwen",
+      "instructions": [
+        "1. Sign in to DashScope console.",
+        "2. Create or copy your API key."
+      ]
+    }
+  },
+  "roo": {
+    "base_url": "https://api.roo.ai/v1",
+    "model": "roo-default",
+    "login": {
+      "url": "https://roo.ai/settings/api-keys",
+      "display_name": "Roo",
+      "instructions": [
+        "1. Sign in to Roo.ai.",
+        "2. Copy your API key."
+      ]
+    }
+  }
+}
