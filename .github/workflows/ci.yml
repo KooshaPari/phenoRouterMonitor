@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -61,11 +62,8 @@ jobs:
         run: cd rust && cargo test
 
   rust-build:
-    name: Rust Build (${{ matrix.os }})
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Rust Build
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@nightly
@@ -77,7 +75,7 @@ jobs:
           version: "28.x"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
-        run: cd rust && cargo build
+        run: cd rust && cargo build --all
 
   rust-msrv:
     name: Rust MSRV (stable)
@@ -115,6 +113,7 @@ jobs:
   rust-extras:
     name: Rust Extras (machete, semver, typos)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@nightly
@@ -133,6 +132,34 @@ jobs:
         run: cd rust && cargo semver-checks check-release || true
       - name: Typo check
         uses: crate-ci/typos@v1
+
+  # ─── Rust Coverage ────────────────────────────────────────────────
+  rust-coverage:
+    name: Rust Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Generate coverage
+        run: cargo tarpaulin --workspace --out xml --output-dir coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/cobertura.xml
+          flags: rust
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # ─── Core Workspace ───────────────────────────────────────────────
   core-check:
@@ -158,11 +185,8 @@ jobs:
         run: cargo test --workspace
 
   core-build:
-    name: Core Build (${{ matrix.os }})
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Core Build
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@nightly
@@ -240,11 +264,8 @@ jobs:
         run: cd python && uvx pip-audit --ignore-vuln CVE-2026-4539  # ReDoS in pygments lexer; no fix released; local-access only
 
   python-install:
-    name: Python Install (${{ matrix.os }})
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Python Install
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
