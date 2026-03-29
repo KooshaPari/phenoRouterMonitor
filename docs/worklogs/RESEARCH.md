@@ -1,6 +1,6 @@
 # Research Worklogs
 
-**Category:** RESEARCH | **Updated:** 2026-03-29 (Wave 92 appended)
+**Category:** RESEARCH | **Updated:** 2026-03-30 (Wave 97 — non-helios audit queue)
 
 ---
 
@@ -559,7 +559,6 @@ Additional 2026 candidates to **wrap at the adapter boundary** or **trial** in p
 ### Research tasks (Wave 92)
 
 - [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
-- [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
 - [ ] Prototype WIT surface for one sandboxed "tool" using `cargo-component`.
 - [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
@@ -869,5 +868,259 @@ infrastructure/
 
 ---
 
-_Last updated: 2026-03-29 (Round 5)_
+## 2026-03-30 - Non-helios LOC, decomposition, optimization research (Wave 97)
+
+> **Naming:** This file already uses **Wave 96** for IaC research above. **Wave 97** is the paired research track for **non-helios** audits, aligned with `EXTERNAL_DEPENDENCIES.md` / `QUALITY.md` (Wave 96 LOC & gates).  
+> **Scope:** `crates/`, `libs/`, `python/`, `platforms/thegent/`, `phench/`, `scripts/` — exclude `*helios*` paths from *primary* metrics so signals are not drowned.
+
+**Project:** [cross-repo] | **Category:** research | **Status:** in_progress | **Priority:** P0–P1
+
+### Measurement & honesty (research rules)
+
+| Rule | Why |
+|------|-----|
+| Language-filter **`platforms/thegent`** (`tokei -t …`) | Raw tree includes massive INI/YAML/JSON; not “logic LOC” |
+| Split **generated** vs **hand-written** where tooling allows | Avoid optimizing vendored or codegen output |
+| Re-baseline after **nested crate** removal | Duplicate package roots inflate audits (`DUPLICATION.md`) |
+| Track **test** vs **src** separately | Decomposition targets differ |
+
+### Subagent swimlanes (parallel discovery)
+
+| Lane ID | Scope | Primary command / artifact | Output |
+|---------|--------|----------------------------|--------|
+| S1 | `crates/agileplus-*` largest `*.rs` | `find crates -name '*.rs' -print0 \| xargs -0 wc -l \| sort -n \| tail -40` | Top split candidates |
+| S2 | Retry / sleep duplication | `rg -n 'retry\|backoff\|sleep\(' crates libs python platforms/thegent phench` | Consolidation map → `libs/retry-core` |
+| S3 | Error type sprawl | `rg -l 'thiserror::Error' crates libs` + `DUPLICATION.md` Case Study 1 | `phenotype-errors` boundary |
+| S4 | Config load patterns | `rg -n 'figment\|config::\|BaseSettings\|dotenv' crates python platforms/thegent phench` | `config-core` activation path |
+| S5 | `unwrap` / `expect` clusters | `rg -c 'unwrap()\|expect\(' crates/**/*.rs` | Per-crate heatmap |
+| S6 | `platforms/thegent` import graph | `python -m pip install -q deptry` or `import-linter` config draft | Package seams |
+| S7 | TS/JS under thegent | `rg -n "^import " platforms/thegent -g "*.ts" -g "*.tsx"` (add `^export` pass separately) + lockfile age | Dedupe + upgrade queue |
+| S8 | Shell scripts | `shellcheck` + `rg '^source ' scripts` | Shared `lib.sh` extraction |
+| S9 | Supply-chain | `cargo tree -d -e normal` (workspace root) | Duplicate crate versions |
+| S10 | Python security | `uv run pip-audit` / `pip-audit -r` per `pyproject.toml` | Advisory backlog |
+| S11 | Protobuf / buf | `buf breaking` against last tag | API drift research |
+| S12 | WASM / component | `cargo-component` spike on one tool | Sandboxed tool boundary |
+
+### Experiments & spikes (backlog — run in order when unblocked)
+
+| ID | Experiment | Success criterion | Est. effort |
+|----|------------|-------------------|-------------|
+| E1 | `cargo llvm-lines` on `agileplus-sqlite` | Top 10 generics identified; issue filed | 2–4 h |
+| E2 | `rkyv` vs `serde_json` one hot read path | p50/p99 numbers in session doc | 1 d |
+| E3 | `figment` preset for one `agileplus-*` crate | Deletes manual merge loader | 2 d |
+| E4 | `miette` on one CLI binary | Human-readable errors; LOC neutral or ↓ | 1 d |
+| E5 | Import-linter on `platforms/thegent` subset | Config committed; 0 cycles on core pkg | 3 d |
+| E6 | `criterion` before/after one hot function | Saved baseline in repo or session | 4 h |
+| E7 | `cargo mutants` on smallest agileplus crate | Baseline kill rate recorded | 1 d |
+| E8 | OSV batch query script for `Cargo.lock` + `uv.lock` | JSON report artifact | 4 h |
+| E9 | `gix` read-only parity vs `git2` on one workflow | Correctness + perf note | 2 d |
+| E10 | `sqlx` compile-time check on one query surface | SQL moved out of stringly paths | 3 d |
+| E11 | Property tests (`proptest`/`quickcheck`) on ID/parser | Regression caught on fake bug | 1 d |
+| E12 | `indicatif` replacing custom spinner (thegent) | One command migrated | 4 h |
+| E13 | Dead code: `cargo +nightly rustc -Zunpretty=expanded` sample | No action; informs knip/twilight policy | 2 h |
+| E14 | Docs: VitePress vs Starlight feature matrix | ADR-ready one-pager | 4 h |
+| E15 | NATS vs Redis pub/sub for one internal event | Latency + ops cost note | 2 d |
+| E16 | Cedar vs OPA for one policy JSON fixture | Eval time + ergonomics | 2 d |
+
+### Technology radar — non-helios focus (additions)
+
+| Project / crate | Action | Tie-in |
+|-----------------|--------|--------|
+| `cargo-nextest` | ADOPT | Fast Rust feedback (`QUALITY.md` Wave 96) |
+| `sccache` | ADOPT | Local/CI compile cache |
+| `mold` / `lld` | EVALUATE | Link-time on Linux dev/CI |
+| `deptry` / `import-linter` | ADOPT | Python package hygiene |
+| `uv` workspaces | ADOPT | Lock + sync across `python/`, `phench`, thegent |
+| `pnpm` dedupe | ADOPT | TS graph under thegent |
+| `cargo-deny` | ADOPT | Licenses + advisories batch |
+| `cyclonedx-cargo` | ADOPT | SBOM for releases |
+| `wasmtime` component model | MONITOR | Future tool sandbox |
+| `burn` / `candle` | MONITOR | On-device inference only if product asks |
+| `async-openai` / official SDKs | EVALUATE | Version pinning policy |
+| `redis-rs` / `fred` | EVALUATE | Cache client consolidation |
+| `sqlx` vs `diesel` | EVALUATE | One ORM story per service |
+| `opentelemetry-appender-tracing` | ADOPT | Unified log/trace correlation |
+| `tower-http` trace layer | WRAP | HTTP edge only |
+| `schemars` + JSON Schema | ADOPT | DTO schema reuse TS↔Rust |
+| `utoipa` | EVALUATE | OpenAPI from types if API surface grows |
+
+### Research tasks (Wave 97)
+
+- [ ] Publish one `docs/sessions/YYYYMMDD-wave97-loc/` with raw `tokei` outputs (lang-filtered thegent).
+- [ ] File issues from S1–S4 lane outputs with **LOC estimate** and **canonical lib** target.
+- [ ] Cross-link `LOC_REDUCTION.md` Wave 96 table from session overview.
+- [ ] Add AgilePlus spec IDs when experiments E1–E4 graduate to implementation (per `AGENTS.md`).
+
+### Related
+
+- `worklogs/EXTERNAL_DEPENDENCIES.md` (Wave 96 — non-helios `tokei` + deps)
+- `worklogs/QUALITY.md` (Wave 96 — gates + fast feedback)
+- `worklogs/LOC_REDUCTION.md` (Wave 96 cross-check)
+- `worklogs/DUPLICATION.md`, `worklogs/DEPENDENCIES.md` (Wave 97 supply matrix)
+
+---
+
+_Last updated: 2026-03-30 (Wave 97 + prior waves through IaC Wave 96)_
+
+---
+
+## 2026-03-30 - Round 101: Security Audit Findings
+
+**Project:** phenotype-infrakit
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+---
+
+### Command Injection Vulnerabilities 🔴 HIGH
+
+| Location | Issue | Fix |
+|----------|-------|-----|
+| `routes.rs:1541-1545` | `feature_id` from HTTP passed to bash | Validate/sanitize input |
+| `routes.rs:1644-1693` | Command from env + user input | Use allowlist strictly |
+
+---
+
+### Path Traversal Vulnerabilities 🟡 MEDIUM
+
+| Location | Issue | Fix |
+|----------|-------|-----|
+| `routes.rs:1452-1473` | `artifact_id` not validated | Add path canonicalization |
+
+---
+
+### Secrets Handling Vulnerabilities 🔴 HIGH
+
+| Location | Issue | Fix |
+|----------|-------|-----|
+| `api_key.rs:88-91` | API key printed to stdout | Remove print |
+| `file.rs:29-33` | Plaintext credential storage | AES-256-GCM + Argon2id |
+
+---
+
+### Error Information Leakage 🟡 MEDIUM
+
+| Location | Issue | Fix |
+|----------|-------|-----|
+| `error.rs:170` | Raw I/O errors exposed | Sanitize messages |
+
+---
+
+### Cryptographic Practices ✅ GOOD
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| SHA-256 hash chain | ✅ Secure | `hash.rs:26` |
+| Constant-time comparison | ✅ Secure | `credentials/store.rs:43-51` |
+
+---
+
+### Rate Limiting
+
+| Component | Status | Evidence |
+|-----------|--------|----------|
+| TokenBucket (Plane) | ✅ Exists | `limiter.rs:1-43` |
+| HTTP endpoints | ❌ Missing | Not applied |
+
+---
+
+## 2026-03-30 - Round 102: API Design Audit
+
+**Project:** phenotype-infrakit
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+---
+
+### Missing Dependencies (Compile Errors)
+
+| Crate | Missing | Fix |
+|-------|---------|-----|
+| `phenotype-cache-adapter` | `thiserror` | Add to Cargo.toml |
+| `phenotype-state-machine` | `thiserror` | Add to Cargo.toml |
+| `phenotype-event-sourcing` | `tracing` | Add for debug! usage |
+
+---
+
+### Result Type Inconsistencies
+
+| Crate | Public Result | Location |
+|-------|--------------|----------|
+| event-sourcing | `pub type Result<T>` | `error.rs:4` |
+| cache-adapter | `pub type Result<T>` | `lib.rs:35` |
+| state-machine | `pub type Result<T>` | `lib.rs:30` |
+| policy-engine | **None** | Direct Result |
+
+---
+
+### Missing From Implementations
+
+| From | event-sourcing | cache-adapter | state-machine |
+|------|---------------|---------------|--------------|
+| `serde_json::Error` | ✅ | ❌ | ❌ |
+| `std::io::Error` | ❌ | ❌ | ❌ |
+
+---
+
+### Missing Async Versions
+
+| Trait | Current | Missing |
+|-------|---------|---------|
+| `EventStore` | Sync | `AsyncEventStore` |
+| `CacheAdapter` | Sync | Async `get()`, `set()` |
+
+---
+
+### 1.0 Breaking Changes Summary
+
+| Category | Count | Severity |
+|----------|-------|----------|
+| Missing dependencies | 4 | **Critical** |
+| Missing From impls | 6+ | High |
+| Missing async | 8+ | High |
+
+---
+
+## 2026-03-30 - Round 103: Cross-Project Libification
+
+**Project:** phenotype-infrakit
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+---
+
+### Library Extraction Status
+
+| Crate | Purpose | Status | Cross-Repo Need |
+|-------|---------|--------|-----------------|
+| `phenotype-errors` | Unified errors | **Use more widely** | HIGH |
+| `phenotype-port-traits` | Async traits | Consolidate | HIGH |
+| `phenotype-cache-adapter` | Two-tier cache | Extracted | LOW |
+| `phenotype-event-sourcing` | Event store | Extracted | LOW |
+| `phenotype-contracts` | Hexagonal arch | **Needs integration** | HIGH |
+
+---
+
+### Cross-Repo Duplication Evidence
+
+| Pattern | Evidence | LOC |
+|---------|----------|-----|
+| Error enums | 36+ across projects | ~189 |
+| Async traits | 5+ crates | ~500 |
+| In-memory stores | 4 duplicates | ~400 |
+
+---
+
+### Recommended Actions
+
+#### Immediate (P0)
+1. **Adopt `phenotype-errors`** - Replace duplicate error enums
+2. **Delete nested duplicates** - ~1,819 LOC wasted
+
+#### High Priority (P1)
+3. **Consolidate port traits** - Merge with `phenotype-contracts`
+4. **Create health-check crate** - Extract common HealthStatus enum
 ---

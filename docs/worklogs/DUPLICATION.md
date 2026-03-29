@@ -64,13 +64,13 @@ Real LOC metrics from shell scans (2026-03-30):
 - [x] LOC-009: Create proper hexagonal port interfaces (CachePort, RepositoryPort, etc.)
 - [x] LOC-010: Create proper domain models (Entity, ValueObject, AggregateRoot)
 - [x] LOC-011: Fix tokio dev-dependencies in phenotype-port-traits
-- [ ] LOC-002: Delete `phenotype-policy-engine/phenotype-policy-engine/` nested copy
+- [x] LOC-002: Delete `phenotype-policy-engine/phenotype-policy-engine/` nested copy
 - [ ] LOC-004: Archive `libs/*` (1,470 LOC unused)
 - [ ] LOC-005: Archive `libs/phenotype-shared/crates/*` (3,586 LOC unused)
 
 ---
 
-## 2026-03-29 - PHENOTYPE-CONTRACTS CONSOLIDATION (Wave 94)
+## 2026-03-29 - PHENOTYPE-POLICY-ENGINE CONSOLIDATION (Wave 95)
 
 **Project:** [phenotype-ecosystem]
 **Status:** completed
@@ -78,21 +78,30 @@ Real LOC metrics from shell scans (2026-03-30):
 
 ### Summary
 
-Consolidated `phenotype-contracts` crate by:
-1. Removing nested duplicate path (`phenotype-contracts/phenotype-contracts/`)
-2. Creating proper hexagonal architecture module structure
-3. Adding comprehensive port interfaces and domain models
+Consolidated `phenotype-policy-engine` crate by removing nested duplicate path.
 
 ### Completed Actions
 
-| Item | Description | LOC Impact |
-|------|-------------|-----------|
-| LOC-001 | Deleted phenotype-event-sourcing nested copy | -1,016 |
-| LOC-003 | Deleted phenotype-contracts nested copy | -3,986 |
-| LOC-007 | Added [lib] section to Cargo.toml | +0 |
-| LOC-008 | Added to workspace members | +0 |
-| LOC-009 | Created ports module (CachePort, RepositoryPort, SecretPort, EventBusPort) | +741 |
-| LOC-010 | Created models module (Entity, ValueObject, AggregateRoot, DomainEvent) | +400+ |
+| Item | Description | Impact |
+|------|-------------|--------|
+| LOC-002 | Deleted `phenotype-policy-engine/phenotype-policy-engine/` nested copy | -2,004 LOC |
+| LOC-002a | Copied improved lib.rs (with full docs) to canonical location | +42 LOC docs |
+
+### Test Results
+
+- 43 unit tests passing
+- 12 integration tests passing
+- Build successful
+
+### Files Affected
+
+- Removed: `crates/phenotype-policy-engine/phenotype-policy-engine/Cargo.toml`
+- Removed: `crates/phenotype-policy-engine/phenotype-policy-engine/src/*`
+- Updated: `crates/phenotype-policy-engine/src/lib.rs` (now has full documentation)
+
+---
+
+## 2026-03-29 - PHENOTYPE-CONTRACTS CONSOLIDATION (Wave 94)
 | LOC-011 | Fixed phenotype-port-traits tokio features | +0 |
 
 ### Net Result

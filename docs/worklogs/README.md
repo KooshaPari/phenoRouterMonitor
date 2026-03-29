@@ -35,13 +35,14 @@
 |-------|----------|-----------|--------|--------|
 | phenotype-event-sourcing | 622 | 1,016 | **1,638** | DONE |
 | phenotype-contracts | 4,032 | 3,986 | **8,018** | DONE |
-| phenotype-policy-engine | 1,197 | 2,004 | **3,201** | PENDING |
-| **Total Wasted** | | | **~12,857** | **~8,654 DONE** |
+| phenotype-policy-engine | 1,197 | 2,004 | **3,201** | DONE |
+| **Total Wasted** | | | **~12,857** | **~12,857 DONE** |
+
 ### Phase Status
 
 | Phase | Tasks | Status | Progress |
 |-------|-------|--------|----------|
-| Phase 1: Library Migration | 11 tasks | 9 DONE, 2 PENDING | ██████████ 82% |
+| Phase 1: Library Migration | 11 tasks | 11 DONE, 0 PENDING | ██████████ 100% |
 | Phase 2: Error Core | 13 tasks | PENDING | ░░░░░░░░░░ 0% |
 | Phase 3: Port/Trait | 4 tasks | PENDING | ░░░░░░░░░░ 0% |
 | Phase 4: HTTP Client | 7 tasks | PENDING | ░░░░░░░░░░ 0% |
