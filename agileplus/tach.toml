@@ -1,0 +1,32 @@
+# Tach — module boundaries
+# https://github.com/tach-org/tach
+#
+# The runtime tree under src/ is currently a single first-party package (`thegent`).
+# Finer-grained hex layers were modeled as separate tach modules, but the codebase
+# still contains import cycles across those conceptual layers. Splitting boundaries
+# again is deferred to the hex extraction program; see:
+#   docs/governance/TACH_MONOLITH_BOUNDARY.md
+
+source_roots = [ "src",]
+
+exclude = [
+  "**/__pycache__",
+  "**/.pytest_cache",
+  "**/.venv",
+  "**/tests",
+  "build",
+  "dist",
+  "docs",
+]
+
+exact = true
+forbid_circular_dependencies = true
+root_module = "ignore"
+
+[rules]
+unused_ignore_directives = "error"
+require_ignore_directive_reasons = "error"
+
+[[modules]]
+path = "thegent"
+depends_on = []
