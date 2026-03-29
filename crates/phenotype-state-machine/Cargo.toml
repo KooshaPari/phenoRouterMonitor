@@ -6,6 +6,14 @@ license.workspace = true
 repository.workspace = true
 description = "Phenotype shared crate"
 
+[lib]
+path = "phenotype-state-machine/src/lib.rs"
+
+[[test]]
+name = "state_machine"
+path = "tests/state_machine.rs"
+
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+thiserror.workspace = true
