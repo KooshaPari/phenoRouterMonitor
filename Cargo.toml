@@ -26,8 +26,6 @@ members = [
     "crates/phenotype-errors",
     "crates/phenotype-logging",
     "crates/phenotype-telemetry",
-    "crates/phenotype-config-core",
-    "crates/phenotype-macros",
 ]
 
 [workspace.dependencies]
@@ -38,7 +36,6 @@ chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 hex = "0.4"
 dashmap = "5"
-parking_lot = "0.12"
 toml = "0.8"
 regex = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
