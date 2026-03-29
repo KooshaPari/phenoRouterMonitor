@@ -4,24 +4,78 @@
 
 ---
 
+## Wave 93 - Ecosystem Cleanup + Worklogs Deepening (2026-03-29)
+
+**Status:** in_progress
+**Priority:** P0-P1
+**Agents:** Sonnet 4.6 + 5 parallel subagents
+
+### Original Prompt (preserved verbatim)
+
+```
+you need to merge into the actual canonical docs ## Final Worklogs Structure
+skip above instead focus on identifying inactive folders that are NOT the canonical
+shelf folder for that project (for those just ensure at latest local or origin main
+w/merged stashes) for others make sure finished + pushed to cloud -> open PR -> del
+after merge review done. What about usage of external 3rd party repos/pkgs as deps
+or wrapping/forking etc whitebox/blackbox usage/modification for similar benefits or
+gains given better developers working on that aspect (where known)? after reviewing
+current updated work/research etc artifacts so you do not overlap. use subagents
+liberally identify duplication among and inside individual projects/cross project.
+opportunity for libification/pattern generation/productization/consolidation/general
+(LOC-- Quality>=Same) use web search to identify repos or packages that can be
+forked/used/wrapped et cetera as well; focus on repo duplication too. look at both
+local states and remote. add even more research as of 2026
+```
+
+### Session Work Completed
+
+| Task | Status | Result |
+|------|--------|--------|
+| `platforms/thegent` audit | ✅ | 12G = .git(982M) + docs(219M) + target-maif(128M) |
+| `repos/target/` cleanup | ✅ | 298M freed |
+| thegent AI dump archive | ✅ | chatgpt3.md + cli_impl_full.xml → .archive/ai-dumps/ |
+| thegent spec dump archive | ✅ | merged.md(748K lines) + 3 others → .archive/spec-dumps/ |
+| ADR-001 package adoption | ✅ | docs/governance/ADR-001-external-package-adoption.md on main |
+| Inactive folder audit (current) | 🔄 | agent a614ac9 running |
+| Cross-repo duplication audit | 🔄 | agent ad80bc1 running |
+| 2026 web research (new packages) | 🔄 | agent a78817e running |
+
+### Key Findings This Session
+
+- `platforms/` = just `thegent/` canonical repo (12G, mostly .git history + docs)
+- `docs/specs/prds/fragemented/` was AI dump artifacts — merged.md alone was 748K lines
+- ADR-001: ~2,050–4,600 LOC reduction via 9 external package adoptions (Go + TS)
+- `target-maif/` (128M Cargo artifacts) still needs manual `rm -rf`
+
+### Related
+
+- `docs/governance/ADR-001-external-package-adoption.md`
+- `docs/worklogs/RESEARCH.md` - updated with 2026 findings (pending agent)
+- `docs/worklogs/INACTIVE_FOLDERS.md` - being updated (pending agent)
+
+---
+
 ## Wave 92 - Worklog path alignment (2026-03-29)
 
-**Status:** completed  
-**Priority:** P1  
+**Status:** completed
+**Priority:** P1
 
 ### Summary
 
-Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixed stale `DUPLICATION.md` links, added canonical **`WorkLog.md`** (full history) and **`WORK_LOG.md`** stub for case-sensitive links, copied **`MasterDuplicationAudit20260329.md`**, and added **`SessionTranscriptAudit.md`** + **`SessionGaps20260329.md`**.
+Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixed stale `DUPLICATION.md` links, added canonical **`WorkLog.md`** (full history) and **`WORK_LOG.md`** stub for case-sensitive links.
 
-### Tasks
+### Fresh Audit Findings (2026-03-29)
 
-| ID | Task | Status |
-|----|------|--------|
-| W92-1 | Create `WorkLog.md`, stub `WORK_LOG.md`, `MasterDuplicationAudit20260329.md` | completed |
-| W92-2 | Add session audit + gaps index docs; fix `DUPLICATION.md` / master report cross-links | completed |
-| W92-3 | Add `scripts/export_phenotype_session_artifacts.py` (reproducible extract) | pending |
-| W92-4 | Extend Cursor transcript ingest to all Phenotype Cursor project dirs | pending |
-| W92-5 | Map high-value prompts → AgilePlus specs / WPs | pending |
+| Finding | Action |
+|---------|--------|
+| `.worktrees/gh-pages-deploy/` | DELETE - 30 dirs, stale, NOT git repo |
+| `.worktrees/phench-fix/` | DELETE - 30 dirs, stale, NOT git repo |
+| `.worktrees/thegent/` | EVALUATE - contains docs/worklogs |
+| `worktree/` | DELETE - empty |
+| `add/` | DELETE - empty |
+| `repos/worktrees/` | DELETE - empty |
+| `.archive/*/` | REVIEW + DELETE - mostly empty |
 
 ### External Package Integration Findings
 
@@ -29,11 +83,11 @@ Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixe
 |---------|----------|-------------|----------|--------|
 | `casbin` | WRAP | 2-3k LOC | HIGH | Create `phenotype-policy-engine` wrapper |
 | `eventually` | WRAP | 1.5k LOC | HIGH | Create `phenotype-event-sourcing` traits |
+| `ra2a` | EVALUATE | ~200 LOC | P1 | A2A Protocol SDK |
+| `mentisdb` | FORK CANDIDATE | ~400 LOC | P1 | Semantic memory |
 | `temporal-sdk` | WRAP | 3k LOC | MEDIUM | Long-running workflows |
 | `tauri` | ADOPT | N/A | MEDIUM | Desktop agent UI |
 | `zod` | BLACKBOX | 0.5k LOC | HIGH | API validation |
-| `pydantic` | INSPIRE | N/A | MEDIUM | Study patterns |
-| `xstate` | WRAP | 1k LOC | MEDIUM | Frontend FSM interop |
 
 ### Related
 
@@ -41,7 +95,7 @@ Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixe
 - `docs/worklogs/SessionGaps20260329.md`  
 - `docs/worklogs/data/phenotype_session_extract_2026-03-26_2026-03-29.json`  
 - `docs/worklogs/RESEARCH.md` - External package research
-- `docs/worklogs/INACTIVE_FOLDERS.md` - Orphaned worktree tracking  
+- `docs/worklogs/INACTIVE_FOLDERS.md` - Fresh folder audit  
 
 ---
 
