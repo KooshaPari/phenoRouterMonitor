@@ -11,17 +11,19 @@
 
 ### Summary
 
-Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixed stale `DUPLICATION.md` links, added canonical **`WorkLog.md`** (full history) and **`WORK_LOG.md`** stub for case-sensitive links, copied **`MasterDuplicationAudit20260329.md`**, and added **`SessionTranscriptAudit.md`** + **`SessionGaps20260329.md`**.
+Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixed stale `DUPLICATION.md` links, added canonical **`WorkLog.md`** (full history) and **`WORK_LOG.md`** stub for case-sensitive links.
 
-### Tasks
+### Fresh Audit Findings (2026-03-29)
 
-| ID | Task | Status |
-|----|------|--------|
-| W92-1 | Create `WorkLog.md`, stub `WORK_LOG.md`, `MasterDuplicationAudit20260329.md` | completed |
-| W92-2 | Add session audit + gaps index docs; fix `DUPLICATION.md` / master report cross-links | completed |
-| W92-3 | Add `scripts/export_phenotype_session_artifacts.py` (reproducible extract) | pending |
-| W92-4 | Extend Cursor transcript ingest to all Phenotype Cursor project dirs | pending |
-| W92-5 | Map high-value prompts → AgilePlus specs / WPs | pending |
+| Finding | Action |
+|---------|--------|
+| `.worktrees/gh-pages-deploy/` | DELETE - 30 dirs, stale, NOT git repo |
+| `.worktrees/phench-fix/` | DELETE - 30 dirs, stale, NOT git repo |
+| `.worktrees/thegent/` | EVALUATE - contains docs/worklogs |
+| `worktree/` | DELETE - empty |
+| `add/` | DELETE - empty |
+| `repos/worktrees/` | DELETE - empty |
+| `.archive/*/` | REVIEW + DELETE - mostly empty |
 
 ### External Package Integration Findings
 
@@ -29,11 +31,11 @@ Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixe
 |---------|----------|-------------|----------|--------|
 | `casbin` | WRAP | 2-3k LOC | HIGH | Create `phenotype-policy-engine` wrapper |
 | `eventually` | WRAP | 1.5k LOC | HIGH | Create `phenotype-event-sourcing` traits |
+| `ra2a` | EVALUATE | ~200 LOC | P1 | A2A Protocol SDK |
+| `mentisdb` | FORK CANDIDATE | ~400 LOC | P1 | Semantic memory |
 | `temporal-sdk` | WRAP | 3k LOC | MEDIUM | Long-running workflows |
 | `tauri` | ADOPT | N/A | MEDIUM | Desktop agent UI |
 | `zod` | BLACKBOX | 0.5k LOC | HIGH | API validation |
-| `pydantic` | INSPIRE | N/A | MEDIUM | Study patterns |
-| `xstate` | WRAP | 1k LOC | MEDIUM | Frontend FSM interop |
 
 ### Related
 
@@ -41,7 +43,7 @@ Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixe
 - `docs/worklogs/SessionGaps20260329.md`  
 - `docs/worklogs/data/phenotype_session_extract_2026-03-26_2026-03-29.json`  
 - `docs/worklogs/RESEARCH.md` - External package research
-- `docs/worklogs/INACTIVE_FOLDERS.md` - Orphaned worktree tracking  
+- `docs/worklogs/INACTIVE_FOLDERS.md` - Fresh folder audit  
 
 ---
 

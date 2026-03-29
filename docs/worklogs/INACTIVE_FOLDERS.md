@@ -4,57 +4,104 @@
 
 ---
 
-## Orphaned Worktrees (`.worktrees/`)
+## 2026-03-29 - Fresh Audit Findings
 
-**Status:** Need cleanup
+**Status:** Verified current state
+**Updated:** 2026-03-29
 
-### `.worktrees/gh-pages-deploy`
+### Orphaned Worktrees (`.worktrees/`)
 
-| Property | Value |
-|----------|-------|
-| Status | ORPHANED - Not a git repository |
-| Git Worktree | No |
-| Last Activity | Unknown |
-| Action | **DELETE** |
+| Directory | Git Status | Contents | Action |
+|-----------|------------|----------|--------|
+| `.worktrees/gh-pages-deploy/` | NOT GIT REPO | 30 dirs, stale | **DELETE** |
+| `.worktrees/phench-fix/` | NOT GIT REPO | 30 dirs, stale | **DELETE** |
+| `.worktrees/thegent/` | NOT GIT REPO | 3 dirs | **EVALUATE - contains docs/worklogs** |
+
+### Empty Directories to Delete
+
+| Directory | Status | Action |
+|-----------|--------|--------|
+| `worktree/` | EMPTY | DELETE |
+| `add/` | EMPTY | DELETE |
+| `.archive/audit/` | EMPTY | DELETE |
+| `.archive/contracts/` | 1 file | REVIEW + DELETE |
+| `.archive/kitty-specs/` | 1 file | REVIEW + DELETE |
+| `.archive/plans/` | 1 file | REVIEW + DELETE |
+| `.archive/schemas/` | 1 file | REVIEW + DELETE |
+| `.archive/tests/` | 3 files | REVIEW + DELETE |
+
+### Worktrees Folder (Non-Canonical)
+
+| Directory | Status | Action |
+|-----------|--------|--------|
+| `worktrees/heliosCLI/` | Inactive | SYNC or DELETE |
+| `repos/worktrees/` | EMPTY | DELETE |
+
+---
+
+## Cleanup Checklist (2026-03-29)
+
+### IMMEDIATE (Execute Now)
+
+- [ ] DELETE `.worktrees/gh-pages-deploy/` (30 dirs, stale)
+- [ ] DELETE `.worktrees/phench-fix/` (30 dirs, stale)
+- [ ] DELETE `worktree/` (empty)
+- [ ] DELETE `add/` (empty)
+- [ ] DELETE `repos/worktrees/` (empty)
+
+### SHORT-TERM (This Week)
+
+- [ ] EVALUATE `.worktrees/thegent/` - contains worklog changes
+- [ ] REVIEW + DELETE `.archive/contracts/`
+- [ ] REVIEW + DELETE `.archive/kitty-specs/`
+- [ ] REVIEW + DELETE `.archive/plans/`
+- [ ] REVIEW + DELETE `.archive/schemas/`
+- [ ] REVIEW + DELETE `.archive/tests/`
+
+### Git Cleanup
 
 ```bash
-rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/gh-pages-deploy
+# phenotype-infrakit - CLEAN (no stash, clean working dir)
+git status  # clean
+
+# phenotype-docs - check for staged changes
+cd /Users/kooshapari/CodeProjects/Phenotype/repos/docs
+git status --short
 ```
 
-### `.worktrees/phench-fix`
+---
 
-| Property | Value |
-|----------|-------|
-| Status | ORPHANED - Not a git repository |
-| Git Worktree | No |
-| Last Activity | Unknown |
-| Action | **DELETE** |
+## External Package Research Findings
 
-```bash
-rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/phench-fix
-```
+**Status:** Research complete (2026-03-29)
 
-### `.worktrees/thegent`
+### Fork/Wrap Opportunities (External 3rd Party)
 
-| Property | Value |
-|----------|-------|
-| Status | ACTIVE - 1 commit ahead of origin |
-| Git Worktree | No (manual copy) |
-| Last Commit | 72418c5c9 |
-| Action | **PUSH + CREATE PR** |
+| Package | Strategy | LOC Savings | Priority | Action |
+|---------|----------|-------------|----------|--------|
+| `casbin` | WRAP | 2-3k LOC | HIGH | Create `phenotype-policy-engine` wrapper |
+| `eventually` | WRAP | 1.5k LOC | HIGH | Create `phenotype-event-sourcing` traits |
+| `temporal-sdk` | WRAP | 3k LOC | MEDIUM | Long-running workflows |
+| `tauri` | ADOPT | N/A | MEDIUM | Desktop agent UI |
+| `zod` | BLACKBOX | 0.5k LOC | HIGH | API validation |
+| `pydantic` | INSPIRE | N/A | MEDIUM | Study patterns |
+| `xstate` | WRAP | 1k LOC | MEDIUM | Frontend FSM interop |
+| `ra2a` | EVALUATE | ~200 LOC | P1 | A2A Protocol SDK |
+| `mentisdb` | FORK CANDIDATE | ~400 LOC | P1 | Semantic memory |
 
-```bash
-# From thegent worktree
-git status  # Shows 1 commit ahead
-git push origin main
-# Then create PR
-```
+### Integration Strategy Definitions
 
-**Changes staged:**
-- `docs/worklogs/DEPENDENCIES.md`
-- `src/thegent/__init__.py` (new)
-- `src/thegent/adapters/*` (new)
-- `src/thegent/agents/*` (new)
+| Level | Description | Example |
+|-------|-------------|---------|
+| **BLACKBOX** | Direct dependency | `anyhow::Error` |
+| **WHITEBOX** | Fork + modify | Custom fork of `eventually` |
+| **WRAPPER** | Custom impl wrapping external | `phenotype-event-sourcing` wrapping `eventually` |
+| **INSPIRATION** | Study patterns, implement differently | Study `casbin`, implement `phenotype-policy-engine` |
+| **ADOPT** | Full adoption | `tauri` for desktop UI |
+
+---
+
+_Last updated: 2026-03-29 (Fresh audit)_
 
 ---
 
