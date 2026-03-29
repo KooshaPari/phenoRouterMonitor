@@ -6,6 +6,7 @@ Cargo.lock
 worktrees/
 .worktrees/
 .archive/
+<<<<<<< HEAD
 docs/plans/
 docs/reports/
 evidence_ledger.jsonl
@@ -15,5 +16,5 @@ worklogs/
 docs/AGENT_MASTER_AUDIT_PROMPT.md
 libs/
 platforms/
-.agileplus/
-src/
+=======
+>>>>>>> 0789c8632 (chore: ignore .archive build artifacts)
