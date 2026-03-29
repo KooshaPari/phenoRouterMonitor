@@ -1,37 +1,58 @@
-# Project Instructions
+# CLAUDE.md — repos shelf root
 
-**This project IS AgilePlus - the core project management platform.**
+## Identity
 
-## Self-Reference
+This is the **repos shelf** for `CodeProjects/Phenotype/organizational-shelf/repos`.
+A shelf is a top-level organizational unit containing related but independent
+project repositories. Think of it like a `/opt` or `~/code` directory, but
+versioned and synced as a polyrepo (repo of repos).
 
-AgilePlus tracks its own work through its own system.
+**NOT AgilePlus.** AgilePlus is one of ~30 projects inside this shelf.
+See `projects/INDEX.md` for the full catalog.
 
-## Branch Discipline
+## Structure
 
-- Feature branches in `repos/worktrees/AgilePlus/<category>/<branch>`
-- Canonical repository tracks `main` only
-- Return to `main` for merge/integration checkpoints
+```
+repos/                          # ← YOU ARE HERE (shelf root)
+├── .worktrees/                 # Canonical worktree staging area
+├── .archive/                   # Archived/rejected items
+├── apps/                       # Application projects (user-facing)
+├── libs/                       # Shared libraries (internal packages)
+├── tooling/                    # Developer tools, CLIs, scripts
+├── infra/                      # Infrastructure, deployment, devops
+├── platforms/                  # Platform-as-product projects
+├── crates/                     # Rust workspace members
+├── packages/                   # JS/TS monorepo packages
+├── docs/                       # Cross-project documentation
+│   ├── adr/                   #   Architecture decision records
+│   └── guides/                #   How-to guides
+├── scripts/                    # Cross-project utility scripts
+├── governance/                 # Governance tooling (policy, scoring)
+├── projects/                   # Project catalog & metadata
+│   └── INDEX.md               #   Master project list
+├── WORKSTORES.md               # Worktree management guide
+└── REPOS_INDEX.md              # Detailed shelf index
+```
 
-## Work Requirements
+## Agent Rules
 
-1. **Check for AgilePlus spec before implementing**
-2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
-3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
-4. **No code without corresponding AgilePlus spec**
-5. **Verify dashboard runtime services behavior**:
-   - implement and test `restart_service` and `toggle_service` API endpoints
-   - update service state config and in-memory health status
-   - include regression tests for each handler under `crates/agileplus-dashboard/src/routes.rs`
+**READ `AGENTS.md` FIRST.** It contains the authoritative agent interaction
+rules for this shelf. Key points:
 
-## Spec Management
+- When working on a project, cd into its directory first (e.g., `cd heliosCLI`)
+- Never assume a project is at shelf root — always verify
+- Test commands must run inside the target project directory, not shelf root
+- File reads should specify the correct relative path from shelf root
 
-Use AgilePlus: `agileplus specify` and `agileplus status`
+## Project Index
 
-Specs are stored in `.agileplus/specs/<feature-id>/`:
-- `.agileplus/specs/<feature-id>/spec.md` - feature description
-- `.agileplus/specs/<feature-id>/meta.json` - id, title, status
-- `.agileplus/specs/<feature-id>/tasks.md` - work packages
+See `projects/INDEX.md` for the full catalog of all projects in this shelf.
 
-## Worklog
+## Quick Reference
 
-- AgilePlus/.work-audit/worklog.md
+| What you need | Where to look |
+|---------------|---------------|
+| Project list | `projects/INDEX.md` |
+| Governance rules | `AGENTS.md` |
+| Architecture decisions | `docs/adr/` |
+| Cross-project scripts | `scripts/` |
