@@ -1,0 +1,21 @@
+[package]
+name = "phenotype-errors"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde = { workspace = true, optional = true }
+serde_json.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+regex.workspace = true
+tokio = { version = "1.40", features = ["full"], optional = true }
+
+[dev-dependencies]
+
+[features]
+default = []
+tokio-support = ["tokio"]
+serde-support = ["serde"]
