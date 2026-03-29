@@ -5,3 +5,5 @@
 *.json
 !pyproject.toml
 !tach.toml
+!cliff.toml
+!CHANGELOG.md

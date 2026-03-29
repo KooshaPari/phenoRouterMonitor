@@ -28,6 +28,85 @@ Test infrastructure (stubs, conftest, pytest config) is ready for when modules a
 
 *Wave 79 complete*
 
+---
+
+## Wave 90 - AgilePlus Duplication Audit (2026-03-29)
+
+### Session Summary
+- **Agents**: SAGE (research), MUSE (analysis), FORGE (framework)
+- **Duration**: 33 minutes research + 15 minutes framework creation
+- **Scope**: 1,599 files across 27 Rust crates
+
+### Key Findings
+
+#### 🔴 CRITICAL: 8 Independent Error Types (~600 LOC)
+
+| Location | Type | Lines |
+|----------|------|-------|
+| `agileplus-api/src/error.rs` | ApiError | 67 |
+| `agileplus-p2p/src/error.rs` | SyncError, PeerDiscoveryError | 78 |
+| `agileplus-domain/src/error.rs` | DomainError | 50 |
+| `agileplus-graph/src/store.rs` | GraphError | 326 |
+
+**Action**: Create `libs/agileplus-error/` for consolidation
+
+#### 🟡 HIGH: 11 Unused Libraries (edition mismatch)
+
+All `libs/` use `edition = "2021"` while workspace uses `edition = "2024"`.
+
+| Library | Value | Recommendation |
+|---------|-------|----------------|
+| `hexagonal-rs` | HIGH - has exact Repository patterns | Migrate edition |
+| `config-core` | HIGH - config loading ready | Migrate edition |
+| `phenotype-state-machine` | LOW | DELETE (dead code) |
+
+#### 🟠 MEDIUM: 5+ Async Repository Traits
+
+`libs/hexagonal-rs/src/ports/repository.rs` has the patterns but unused.
+
+### Audit Framework Created
+
+**Location**: `docs/audit-framework/`
+
+| File | Purpose |
+|------|---------|
+| `AUDIT_FRAMEWORK.md` | Coordination protocol |
+| `PLAN_LOG.md` | Strategic roadmap (6 phases, 30 agents) |
+| `RESEARCH_LOG.md` | Evidence-based findings |
+| `AUDIT_LOG.md` | Real-time tracking |
+| `AGENT_REGISTRY.md` | Claim tracking |
+| `worklogs/` | Phase worklogs (6 files) |
+
+### Consolidation Opportunity
+
+| Category | Current | After | Savings |
+|----------|---------|-------|---------|
+| Error Types | 600 | 200 | 400 |
+| Config Loading | 500 | 150 | 350 |
+| In-Memory Impls | 400 | 150 | 250 |
+| Async Traits | 300 | 100 | 200 |
+| **TOTAL** | **1,800** | **600** | **1,200** |
+
+### Deliverables
+
+- ✅ Comprehensive duplication analysis
+- ✅ 30-agent coordination structure
+- ✅ Phase roadmap (6 weeks)
+- ✅ Audit framework published
+- ⏳ Phase 1 assignments pending
+
+### Next Steps
+
+1. Assign AGENT-01 through AGENT-08
+2. Begin duplication audit: 2026-03-30
+3. Phase 1 complete: 2026-04-05
+
+---
+
+*Wave 90 complete: 2026-03-29*
+
+---
+
 ### Session 2026-03-28/29: cliproxy PR audit + SDK auth fix
 - cliproxyapi-plusplus: all 4 PRs audited (#465, #466, #467, #11). PR #466 SDK auth import fix pushed (CI green). All PRs closed by upstream.
 - Cliproxy workspace: go build + go test (44 packages) pass.
