@@ -2,7 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::sync::RwLock;
+use parking_lot::RwLock;
 
 use crate::error::{EventStoreError, Result};
 use crate::event::EventEnvelope;
@@ -13,6 +13,11 @@ use crate::store::EventStore;
 ///
 /// Stores events in memory using a nested structure.
 /// This is NOT suitable for production use. Use for testing only.
+///
+/// # Synchronization
+///
+/// Uses `parking_lot::RwLock` which never poisons, ensuring no panics on lock acquisition.
+/// See `DEFENSIVE_PATTERNS.md` for justification of unwrap-free lock operations.
 pub struct InMemoryEventStore {
     // Map: entity_type -> (entity_id -> Vec<(sequence, hash, prev_hash, json)>)
     events: RwLock<std::collections::BTreeMap<String, std::collections::BTreeMap<String, Vec<StoredEvent>>>>,
@@ -40,14 +45,15 @@ impl InMemoryEventStore {
 
     /// Clear all events (for testing).
     pub fn clear(&self) {
-        self.events.write().unwrap().clear();
+        // SAFETY: parking_lot::RwLock never poisons; write() is infallible
+        self.events.write().clear();
     }
 
     /// Get the number of events stored (for testing).
     pub fn event_count(&self) -> usize {
+        // SAFETY: parking_lot::RwLock never poisons; read() is infallible
         self.events
             .read()
-            .unwrap()
             .values()
             .flat_map(|m| m.values())
             .map(|v| v.len())
@@ -67,7 +73,8 @@ impl EventStore for InMemoryEventStore {
         event: &EventEnvelope<T>,
         event_type: &str,
     ) -> Result<i64> {
-        let mut store = self.events.write().map_err(|_| EventStoreError::StorageError("Lock poisoned".into()))?;
+        // SAFETY: parking_lot::RwLock never poisons; write() is infallible
+        let mut store = self.events.write();
 
         // For simplicity, use the UUID string as entity_id if needed
         let entity_id = event.id.to_string();
@@ -78,10 +85,12 @@ impl EventStore for InMemoryEventStore {
         let events = entity_map.entry(entity_id.clone()).or_insert_with(Vec::new);
 
         // Compute sequence number and hash
+        // INVARIANT: events list is guaranteed non-empty after vector push logic below
         let sequence = if events.is_empty() { 1 } else { events.last().unwrap().sequence + 1 };
         let prev_hash = if events.is_empty() {
             "0".repeat(64)
         } else {
+            // SAFETY: Checked is_empty() above; vector is non-empty
             events.last().unwrap().hash.clone()
         };
 
@@ -119,7 +128,8 @@ impl EventStore for InMemoryEventStore {
         entity_type: &str,
         entity_id: &str,
     ) -> Result<Vec<EventEnvelope<T>>> {
-        let store = self.events.read().map_err(|_| EventStoreError::StorageError("Lock poisoned".into()))?;
+        // SAFETY: parking_lot::RwLock never poisons; read() is infallible
+        let store = self.events.read();
 
         let events = store
             .get(entity_type)
@@ -150,7 +160,8 @@ impl EventStore for InMemoryEventStore {
         entity_id: &str,
         sequence: i64,
     ) -> Result<Vec<EventEnvelope<T>>> {
-        let store = self.events.read().map_err(|_| EventStoreError::StorageError("Lock poisoned".into()))?;
+        // SAFETY: parking_lot::RwLock never poisons; read() is infallible
+        let store = self.events.read();
 
         let events = store
             .get(entity_type)
@@ -183,7 +194,8 @@ impl EventStore for InMemoryEventStore {
         from: DateTime<Utc>,
         to: DateTime<Utc>,
     ) -> Result<Vec<EventEnvelope<T>>> {
-        let store = self.events.read().map_err(|_| EventStoreError::StorageError("Lock poisoned".into()))?;
+        // SAFETY: parking_lot::RwLock never poisons; read() is infallible
+        let store = self.events.read();
 
         let events = store
             .get(entity_type)
@@ -210,7 +222,8 @@ impl EventStore for InMemoryEventStore {
     }
 
     fn get_latest_sequence(&self, entity_type: &str, entity_id: &str) -> Result<i64> {
-        let store = self.events.read().map_err(|_| EventStoreError::StorageError("Lock poisoned".into()))?;
+        // SAFETY: parking_lot::RwLock never poisons; read() is infallible
+        let store = self.events.read();
 
         Ok(store
             .get(entity_type)
@@ -220,7 +233,8 @@ impl EventStore for InMemoryEventStore {
     }
 
     fn verify_chain(&self, entity_type: &str, entity_id: &str) -> Result<()> {
-        let store = self.events.read().map_err(|_| EventStoreError::StorageError("Lock poisoned".into()))?;
+        // SAFETY: parking_lot::RwLock never poisons; read() is infallible
+        let store = self.events.read();
 
         let events = store
             .get(entity_type)
