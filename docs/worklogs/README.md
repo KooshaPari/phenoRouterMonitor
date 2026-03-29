@@ -28,7 +28,9 @@
 | `SessionTranscriptAudit.md` | SESSION | Active | P1 |
 | `SessionGaps20260329.md` | SESSION | Active | P1 |
 | `MasterDuplicationAudit20260329.md` | DUPLICATION | Complete | P0 |
+| `WorklogsIndex.md` | INDEX | Snapshot | - |
 | `WORK_LOG.md` | REDIRECT | Stub → `WorkLog.md` | - |
+| `WORKLOGS_INDEX.md` | REDIRECT | Stub → `WorklogsIndex.md` | - |
 
 ### Project-Specific Worklogs
 

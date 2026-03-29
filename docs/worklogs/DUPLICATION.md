@@ -502,7 +502,7 @@ Comprehensive analysis identifying 1,800 LOC of duplication with 1,200 LOC savin
 ### Related
 
 - `docs/research/consolidation-audit-2026-03-29.md` - Master findings
-- `worklogs/WORK_LOG.md` - Wave 90 entry
+- `worklogs/WorkLog.md` - Wave entries (e.g. 92, 91, 90)
 
 ---
 

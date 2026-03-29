@@ -140,9 +140,9 @@ This plan implements the decomposition audit findings to reduce LOC through libr
 
 | Document | Location |
 |----------|----------|
-| Decomposition Audit | `docs/reports/DECOMPOSITION_AUDIT.md` |
+| Consolidation audit | `docs/research/consolidation-audit-2026-03-29.md` |
 | Master Duplication Audit | `docs/worklogs/MasterDuplicationAudit20260329.md` |
-| Error Core Plan | `PLANS/ERROR_CORE_EXTRACTION.md` |
+| Error Core Plan | `Plans/ErrorCoreExtraction.md` |
 
 ---
 
