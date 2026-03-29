@@ -87,60 +87,8 @@ mcp_backup/
 .git-cache/
 .shadow-*/
 .worktrees/
-
-# OS files
-.DS_Store
-Thumbs.db
-*.tmp
-
-# Logs
-*.log
-logs/
-
-# Local GH Actions emulation artifacts
-.github/act-events/
-.worktrees/
-
-# Workspace noise and generated diagnostics
-wt/
-docs/dumps/
-hooks/zig/
-# Serena AI tool
-.serena/
-.factory/closure_pack_*.md
-
-# Agent/tool-generated artifacts and prompt bundles
-
-# Safari/ browser data
-data/safari/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-
-
-# AI tool artifacts
-.claude/
-.codex/
-.cursor/
-.gemini/
-.kittify/
-.kilocode/
-.github/prompts/
-.github/copilot-instructions.md
-.claudeignore
-.llmignore
-
-# Archives
 .archive/
-docs/plans/
-docs/reports/
-evidence_ledger.jsonl
 plans/
+docs/plans/
 tests/
 worklogs/
-docs/AGENT_MASTER_AUDIT_PROMPT.md
-libs/
-platforms/
