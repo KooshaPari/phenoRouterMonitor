@@ -1,6 +1,6 @@
 # Architecture Worklogs
 
-**Category:** ARCHITECTURE | **Updated:** 2026-03-29
+**Category:** ARCHITECTURE | **Updated:** 2026-03-29 (Wave 93)
 
 ---
 ---
@@ -1033,6 +1033,67 @@ Reviewed heliosCLI architecture patterns for consistency with AgilePlus.
 - [ ] Add progress feedback with indicatif
 
 ---
+
+## 2026-03-29 - Wave 93: Canonical `repos/` layout vs docs drift + scan boundaries
+
+**Project:** [phenotype-infrakit]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Reconciled **documented** workspace layout with **actual** root `Cargo.toml` and filesystem. Established rules for **what counts** in duplication and dependency audits when vendored trees exist.
+
+### Workspace truth (root `Cargo.toml`)
+
+| Fact | Detail |
+|------|--------|
+| Members | `phenotype-contracts`, `phenotype-event-sourcing`, `phenotype-cache-adapter`, `phenotype-policy-engine`, `phenotype-state-machine` |
+| `evidence-ledger` | **Not** a workspace member in current root manifest — treat earlier diagrams listing it as **stale** until re-added or doc updated |
+| Edition | Workspace `edition.workspace` still **2021** in `[workspace.package]` — align docs that claim 2024 until migration lands |
+
+### Nested package roots (structural debt)
+
+As of scan date, **four** crates still contain `crates/<name>/<name>/` alongside `crates/<name>/src/`:
+
+- `phenotype-policy-engine`
+- `phenotype-state-machine`
+- `phenotype-cache-adapter`
+- `phenotype-contracts`
+
+`phenotype-event-sourcing` has been **flattened** to `Cargo.toml` + `src/` only (inner duplicate directory **removed**). Any prior `diff -rq` showing differing twins is **historical** for that crate.
+
+**Rule:** Workspace `[members]` must point at exactly one package root per crate; nested same-name folders are **migration artifacts**, not optional adapters.
+
+### Vendored trees (exclude from “crate” metrics)
+
+| Path | Why exclude from default audits |
+|------|----------------------------------|
+| `phenotype-shared-wtrees/**` | Full alternate checkouts |
+| `thegent-work/**` | Embedded thegent workspace |
+| `heliosCLI-wtrees/**` | Embedded CLI / codex-rs |
+
+**Agent / CI convention:** When running `rg`, `jscpd`, or LOC dashboards, pass path filters **or** document inclusion explicitly. Otherwise duplication counts are **not comparable** across waves.
+
+### Port layering (enforcement target)
+
+| Layer | May depend on | Must not depend on |
+|-------|----------------|--------------------|
+| Domain / contracts | `serde`, `thiserror`, clock abstractions | `axum`, `redis`, `sqlx`, SDK clients |
+| Application / use-cases | Domain, port traits | Concrete adapter crates |
+| Adapters | Ports, IO crates, OTel | Sibling adapter-specific types leaking into domain |
+
+### Action items (Wave 93)
+
+- [ ] Update earlier ARCHITECTURE diagrams: remove `evidence-ledger` from member list **or** restore crate to workspace
+- [ ] Collapse remaining four nested `crates/<pkg>/<pkg>/` trees (PR per crate)
+- [ ] Add `docs/AGENTS.md` or `deny.toml` note: default audit scope = `crates/` + `tests/` only
+- [ ] Edition 2024 migration: single tracking PR once `libs/` and workspace agree
+
+---
+
+_Last updated: 2026-03-29 (Wave 93)_
 
 ## 2026-03-30 - Crate Decomposition Opportunities
 
