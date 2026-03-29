@@ -25,6 +25,7 @@ members = [
   "rust",
   "tests/bdd",
   "libs/nexus",
+  "tools/forge",
 ]
 
 [workspace.package]

@@ -52,7 +52,10 @@ async fn dashboard_service_control_integration() -> anyhow::Result<()> {
     assert_eq!(toggle_json["enabled"], false);
 
     // 2) Restart service via safe command registry
-    env::set_var("AGILEPLUS_SERVICE_RESTART_CMD", "echo restarted {}");
+    // SAFETY: set_var is unsafe in Rust due to potential undefined behavior when
+    // used from multiple threads without synchronization. This call is intentionally
+    // scoped to a single-threaded test context.
+    unsafe { env::set_var("AGILEPLUS_SERVICE_RESTART_CMD", "echo restarted {}") };
 
     let restart_resp = client
         .post(harness.url("/api/dashboard/services/NATS/restart"))
