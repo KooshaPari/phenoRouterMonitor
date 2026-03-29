@@ -29,6 +29,12 @@ This directory contains structured worklogs organized by category. Each worklog 
 | `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
 | `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
 | `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
+| `DUPLICATION_EXTENDED.md` | 800 | DUPLICATION | 2026-03-29 | expanded follow-up analysis |
+| `CROSSCUTTING.md` | 450 | GOVERNANCE | 2026-03-29 | policy + pipeline design |
+| `CONSOLIDATION.md` | 520 | ARCHITECTURE | 2026-03-29 | libification strategies |
+| `POLICY_ENGINE.md` | 320 | RESEARCH | 2026-03-29 | third-party wrapping audit |
+| `INACTIVE_FOLDERS.md` | 314 | MAINTENANCE | 2026-03-29 | orphaned worktrees and cleanup |
+| `WORKLOW.md` | 410 | PERFORMANCE | 2026-03-29 | optimization and benchmark tracking |
 ---
 
 ## Category Summaries
@@ -44,6 +50,9 @@ This directory contains structured worklogs organized by category. Each worklog 
 | Store Traits | 5 async traits | 🟠 MEDIUM |
 | Health Checks | 3-4 enums | 🟠 MEDIUM |
 | In-Memory Stores | 4 implementations | 🟠 MEDIUM |
+| Auth Strategy Variants | 3 implementations | 🟡 HIGH |
+| Serialization/Deserialization | 6 copies | 🟡 HIGH |
+| Event Bus Adapters | 5 adapters | 🟠 MEDIUM |
 
 **Key Plans**:
 - `PLANS/MASTER_DUPLICATION_AUDIT.md` - Complete findings

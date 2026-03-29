@@ -128,6 +128,33 @@ Extended comprehensive audit of AgilePlus intra-repo duplication. Identified pat
 
 ---
 
+## 2026-03-30 - Duplication Audit Chunk 5: Deep codebase hotspots
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P0
+
+### 14. Async Trait Duplication Hotspots (high frequency)
+- `crates/phenotype-contracts/*/src/ports/inbound` and `outbound` contain 3-4 repeated `#[async_trait]` trait methods each.
+- `crates/agileplus-graph` + `crates/agileplus-cache` + `crates/agileplus-nats` have identical `async fn` storage/health entries.
+- Candidate consolidation: `libs/phenotype-port-interfaces` should host standard `AsyncRepository`, `AsyncCache`, `AsyncEventBus` traits.
+
+### 15. Error conversion duplication (periodic)
+- `capsule` functions in `crates/agileplus-*` use repeated `impl From<MyError> for ApiError` patterns.
+- `ports` libraries have duplicate mapping in `src/conversion.rs` to `phenotype-error` variants.
+- Candidate consolidation: `libs/phenotype-error` with `ErrorExt` trait and universal mapping macro.
+
+### 16. Worktree / Process lifecycle duplication
+- `platforms/thegent/*` and `heliosCLI/*` each include similar worktree management, process killing, and cleanup code.
+- Candidate shared lib: `libs/phenotype-worktree` providing `WorktreeManager`, `ProcessGroup`, `safe_kill`.
+
+### Next Steps (new chunk)
+- [ ] Identify and merge duplicated `async_trait` trait definitions into one core library.
+- [ ] Replace triple-duplicate `From<...> for ...` patterns with derive macro in `phenotype-error`.
+- [ ] Create `libs/phenotype-worktree` from common code in `heliosCLI` and `platforms/thegent`.
+
+
 ## 2026-03-29 - Cross-Project Duplication Audit (Comprehensive)
 
 **Project:** [cross-repo]
