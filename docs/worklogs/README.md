@@ -219,6 +219,21 @@ Use `aggregate.sh` to compile a master view:
 
 ---
 
+## Worklog data + automation
+
+| Artifact | Location | Purpose |
+|----------|----------|---------|
+| Session extract (JSON) | `data/phenotype_session_extract_2026-03-26_2026-03-29.json` | Claude/Cursor prompts + plans |
+| Error enum index | `data/error_enums_index.json` | `pub enum *Error` / `Error` in `crates/`, `libs/`, `rust/`, `tools/` |
+
+Regenerate the error index from the repository root:
+
+```bash
+python3 scripts/generate_error_enums_index.py
+```
+
+---
+
 ## Related Documentation
 
 | Document | Location | Purpose |
