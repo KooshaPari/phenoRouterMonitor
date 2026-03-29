@@ -1,7 +1,7 @@
 # Worklogs
 
 > Canonical logging and audit documentation for the Phenotype ecosystem.
-> Last comprehensive audit: **2026-03-29** (Wave 90); session hygiene **Wave 91**
+> Last comprehensive audit: **2026-03-29** (Wave 90); session hygiene **Wave 91** (use `WORK_LOG.md` until `WorkLog.md` is added on this checkout)
 
 ---
 
@@ -30,6 +30,7 @@
 
 | File | Category | Status |
 |------|----------|--------|
+| `PROJECTS.md` | PROJECTS | Canonical (from agileplus/main) |
 | `Projects.md` | PROJECTS | Summary |
 | `PROJECTS_agileplus.md` | PROJECTS | Active |
 | `PROJECTS_thegent.md` | PROJECTS | Active |
@@ -39,18 +40,32 @@
 
 | File | Priority |
 |------|----------|
-| `Plans/EDITION_MIGRATION.md` | P0 |
-| `Plans/ERROR_CORE_EXTRACTION.md` | P0 |
-| `Plans/CONFIG_CORE_ACTIVATION.md` | P1 |
-| `Plans/IMPLEMENTATION_PLAN_DUPLICATION.md` | P0 |
+| `Plans/EditionMigration.md` | P0 |
+| `Plans/ErrorCoreExtraction.md` | P0 |
+| `Plans/ConfigCoreActivation.md` | P1 |
+| `Plans/ImplementationPlanDuplication.md` | P0 |
 | `Plans/LocReductionDecomposition.md` | P1 |
 | `Plans/MasterDuplicationAudit.md` | P0 |
+
+_Prefer these **PascalCase** paths; legacy `EDITION_MIGRATION.md`-style duplicates may still exist alongside them._
 
 ---
 
 ## Critical Findings (P0-P1)
 
-### CRITICAL (P0): Unused Libraries — ~1,650 LOC Wasted
+### 🔴 CRITICAL (P0): Orphaned Worktrees
+
+Three stale worktrees in `.worktrees/`:
+
+| Worktree | Status | Action |
+|----------|--------|--------|
+| `gh-pages-deploy` | ORPHANED (not git repo) | DELETE |
+| `phench-fix` | ORPHANED (not git repo) | DELETE |
+| `thegent` | 1 commit ahead of origin | PUSH + PR |
+
+See `INACTIVE_FOLDERS.md` for details.
+
+### 🔴 CRITICAL (P0): Unused Libraries — ~1,650 LOC Wasted
 
 `libs/phenotype-shared/crates/` contains 11 production-ready crates, **all UNUSED** in the main workspace:
 
@@ -129,6 +144,11 @@ Two independent hexagonal ecosystems:
 # View duplication issues
 cat docs/worklogs/DUPLICATION.md
 
+# Master report, session audit, wave log
+cat docs/worklogs/MasterDuplicationAudit20260329.md
+cat docs/worklogs/SessionTranscriptAudit.md
+cat docs/worklogs/WorkLog.md
+
 # View architecture analysis
 cat docs/worklogs/ARCHITECTURE.md
 
@@ -144,9 +164,8 @@ cat docs/worklogs/RESEARCH.md
 # Aggregate all worklogs by priority
 ./docs/worklogs/aggregate.sh priority
 
-# View project-specific items
+# View project-specific items (AgilePlus lives in Projects.md until a split file exists)
 cat docs/worklogs/Projects.md
-cat docs/worklogs/PROJECTS_agileplus.md
 cat docs/worklogs/PROJECTS_thegent.md
 cat docs/worklogs/PROJECTS_heliosCLI.md
 ```

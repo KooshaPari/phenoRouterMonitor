@@ -4,6 +4,76 @@
 
 ---
 
+## Wave 91 - Worklogs Deep Audit + External Dependencies (2026-03-29)
+
+**Status:** completed
+**Priority:** P0
+**Agents:** SAGE, FORGE (subagent-parallel)
+
+### Session Summary
+
+| Field | Value |
+|-------|-------|
+| Duration | 35 minutes |
+| Scope | Worklogs README audit, external deps, inactive folders |
+| Actions Taken | 5 new worklogs created, 3 updated |
+
+### Key Findings
+
+#### 🔴 CRITICAL: Orphaned Worktrees (`.worktrees/`)
+
+Three stale worktrees NOT managed by git worktree system:
+
+| Worktree | Status | Action |
+|----------|--------|--------|
+| `gh-pages-deploy` | Orphaned (not git repo) | DELETE |
+| `phench-fix` | Orphaned (not git repo) | DELETE |
+| `thegent` | Active but 1 commit ahead of origin | PUSH + PR |
+
+#### 🟡 HIGH: External Dependency Analysis (Blackbox/Whitebox)
+
+**GitHub Starred Repos (Developer Tooling):**
+
+| Repo | Stars | Fork/Wrap Opportunity | LOC Savings |
+|------|-------|---------------------|-------------|
+| `Data-Wise/craft` | 1 | **FORK** - 86 commands, 8 agents, 21 skills for Claude Code | 500+ |
+| `newrelic/*` | 400+ | **WRAP** - observability tooling | 200+ |
+| `michen00/invisible-squiggles` | 3 | **WRAP** - VSCode linter diagnostics | 100+ |
+
+**Cross-Repo Duplication (from DUPLICATION_AUDIT.md):**
+
+| Pattern | Repos | LOC | Canonical |
+|---------|-------|-----|-----------|
+| Health checks | `agileplus-*` x3 | ~80 | `agileplus-health` crate |
+| Error types | `agileplus-*` x4 | ~600 | `agileplus-error-core` |
+| Config loading | `agileplus-domain`, `agileplus-telemetry` | ~200 | `libs/config-core` |
+
+### Deliverables
+
+- ✅ `worklogs/INACTIVE_FOLDERS.md` - Orphaned worktree audit
+- ✅ `worklogs/EXTERNAL_DEPENDENCIES.md` - Fork/wrap candidates
+- ✅ Updated `WORK_LOG.md` with Wave 91
+- ✅ Updated `README.md` with inactive folder tracking
+- ✅ `DUPLICATION_AUDIT.md` (root) - Comprehensive cross-repo analysis
+
+### Consolidated Findings
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `DUPLICATION_AUDIT.md` | Root | Master cross-repo duplication audit |
+| `GOVERNANCE.md` | Root | Shelf governance policy |
+| `INACTIVE_FOLDERS.md` | worklogs/ | Orphaned worktree tracking |
+| `EXTERNAL_DEPENDENCIES.md` | worklogs/ | Fork/wrap candidates |
+
+### Immediate Actions
+
+1. DELETE `.worktrees/gh-pages-deploy` and `.worktrees/phench-fix`
+2. PUSH + PR from `.worktrees/thegent` (1 commit ahead)
+3. CREATE `agileplus-health` crate (saves ~80 LOC)
+4. CREATE `agileplus-error-core` crate (saves ~150 LOC)
+
+---
+
 ## Wave 90 - AgilePlus Duplication Audit (2026-03-29)
 
 **Status:** completed

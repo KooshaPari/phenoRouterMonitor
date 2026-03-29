@@ -1889,3 +1889,134 @@ impl Validator<Feature> for FeatureValidator {
 2. Add validation combinators
 3. Implement derive macro for simple cases
 4. Add cross-field validation support
+
+---
+
+## 2026-03-29 - Cross-Repo Duplication Analysis (Subagent Report)
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Comprehensive cross-repo analysis identified critical duplication patterns within the Phenotype Rust workspace at `/Users/kooshapari/CodeProjects/Phenotype/repos`.
+
+---
+
+### 1. CRITICAL: phenotype-event-sourcing Nested Duplication
+
+**Finding:** Two identical copies of source code exist in nested directories.
+
+| Location | Status | Lines |
+|----------|--------|-------|
+| `crates/phenotype-event-sourcing/src/` | **DUPLICATE - DELETE** | ~300 |
+| `crates/phenotype-event-sourcing/phenotype-event-sourcing/src/` | CANONICAL | ~300 |
+
+**Action:** Delete the entire `crates/phenotype-event-sourcing/src/` directory.
+
+---
+
+### 2. CRITICAL: Empty/Unimplemented Crates
+
+| Crate | Status | Required Action |
+|-------|--------|----------------|
+| `phenotype-state-machine` | STUB ONLY (1 line) | Implement |
+| `phenotype-cache-adapter` | STUB ONLY (1 line) | Implement |
+
+---
+
+### 3. Pattern Duplication: Error Types
+
+Multiple error enums use identical `thiserror` patterns:
+
+| Crate | Error Type | Lines |
+|-------|------------|-------|
+| `phenotype-event-sourcing` | `EventSourcingError` | 46 |
+| `phenotype-policy-engine` | `PolicyEngineError` | 65 |
+| `phenotype-contracts` | `Error` (ports) | ~80 |
+
+**Libification Opportunity:** Create `phenotype-errors` crate (~100 LOC saved)
+
+---
+
+### 4. Workspace Dependency Analysis (Unused)
+
+| Dependency | Defined | Used | Status |
+|------------|---------|------|--------|
+| `moka` | ✅ | ❌ | Remove |
+| `lru` | ✅ | ❌ | Remove |
+| `parking_lot` | ✅ | ❌ | Remove |
+
+---
+
+### 5. External Fork Opportunities (Web Research)
+
+| Package | Fork Source | Purpose | Recommendation |
+|---------|-------------|---------|----------------|
+| **gix** | Byrone/gitoxide | Git operations | **MIGRATE FROM git2** (RUSTSEC-2025-0140) |
+| **MCP SDKs** | modelcontextprotocol/servers | Tool registry | EVALUATE for thegent integration |
+| **gix-lock** | gitoxide subcrate | File locking | ADOPT for cross-platform locking |
+| **command-group** | crates.io | Process groups | ADOPT for signal handling |
+
+---
+
+### 6. Gix (gitoxide) Modules for Fork/Wrap
+
+The gitoxide monorepo contains modular subcrates that can be selectively used:
+
+| Subcrate | Purpose | Stability |
+|----------|---------|-----------|
+| `gix-lock` | File locking | Tier 1 (Production) |
+| `gix-tempfile` | Temp files | Tier 2 |
+| `gix-mailmap` | Mailmap parsing | Stabilization Candidate |
+| `gix-hash` | SHA-1/SHA-256 | Stable |
+| `gix-ref` | Reference management | Stable |
+| `gix-pack` | Pack file handling | Mature |
+
+---
+
+### 7. Inactive Folder Audit
+
+| Folder | Type | Status | Action |
+|--------|------|--------|--------|
+| `.worktrees/gh-pages-deploy` | Worktree | ✅ Active | Keep |
+| `.worktrees/phench-fix` | Worktree | ⚠️ Orphaned | Delete |
+| `.worktrees/thegent` | Worktree | ✅ Active | Keep |
+| `worktrees/heliosCLI` | Worktree | ✅ Active | Keep |
+| `.archive/contracts` | Archive | ✅ Archived | Keep |
+| `.archive/kitty-specs` | Archive | ✅ Archived | Keep |
+
+**Git Stashes (3):**
+- `stash@{0}`: worklogs-unstaged-changes (in-progress)
+- `stash@{1}`: WIP on main (abandoned)
+- `stash@{2}`: WIP on main (abandoned)
+
+---
+
+### 8. Fork Recommendations (3rd Party Whitebox/Blackbox)
+
+| Pattern | Current | External Alternative | Fork? |
+|---------|---------|---------------------|-------|
+| Hash chain logic | Hand-rolled | Could use `blake3` | Consider for performance |
+| EvaluationContext | Hand-rolled | `figment` | Not needed - domain-specific |
+| Git operations | `git2` | `gix` | **YES - fork for custom extensions** |
+
+---
+
+### Priority Action Items
+
+| Priority | Action | Effort |
+|----------|--------|--------|
+| P0 | Delete `crates/phenotype-event-sourcing/src/` | 5 min |
+| P0 | Migrate `git2` → `gix` | 2-4 weeks |
+| P1 | Create `phenotype-errors` crate | 1 week |
+| P1 | Remove unused deps (moka, lru, parking_lot) | 10 min |
+| P1 | Implement `phenotype-state-machine` | 2-4 hours |
+| P1 | Implement `phenotype-cache-adapter` | 2-4 hours |
+| P2 | Audit stashes and clean up | 30 min |
+
+---
+
+_Last updated: 2026-03-29_
