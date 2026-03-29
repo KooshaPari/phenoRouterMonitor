@@ -49,11 +49,14 @@ This directory contains structured worklogs organized by category. Each worklog 
 
 | File | Lines | Category | Priority |
 |------|-------|----------|----------|
-| `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | P0 |
-| `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | P0 |
-| `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | P1 |
-| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | P0 |
-| `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | P0 |
+| `Plans/EditionMigration.md` | 163 | PLAN | P0 |
+| `Plans/ErrorCoreExtraction.md` | 180 | PLAN | P0 |
+| `Plans/ConfigCoreActivation.md` | 190 | PLAN | P1 |
+| `Plans/ImplementationPlanDuplication.md` | 367 | PLAN | P0 |
+| `Plans/MasterDuplicationAudit.md` | 292 | PLAN | P0 |
+| `Plans/LocReductionDecomposition.md` | — | PLAN | P1 |
+
+_Legacy duplicate filenames (`EDITION_MIGRATION.md`, etc.) may still exist; prefer the **PascalCase** files above._
 
 ---
 
