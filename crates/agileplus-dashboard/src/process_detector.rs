@@ -107,7 +107,10 @@ fn extract_task_context(cmdline: &str) -> String {
     // Look for task identifiers like WP13, FR-XXX, etc. in command line
     if let Some(pos) = cmdline.find("WP") {
         let rest = &cmdline[pos..];
-        if let Some(end) = rest.find(|c: char| !c.is_alphanumeric()) {
+        // Find the end of the alphanumeric sequence (or end of string)
+        let end = rest.find(|c: char| !c.is_alphanumeric())
+            .unwrap_or(rest.len());
+        if end > 0 {
             return format!("Task: {}", &rest[..end]);
         }
     }
@@ -209,7 +212,7 @@ pub fn read_agent_state_files(base_path: &str) -> Vec<DetectedAgent> {
 /// Parse a single agent state file.
 fn parse_agent_state(json: &serde_json::Value) -> Option<DetectedAgent> {
     let name = json.get("name")?.as_str()?.to_string();
-    let status = json.get("status")?.as_str().unwrap_or("idle").to_string();
+    let status = json.get("status").and_then(|v| v.as_str()).unwrap_or("idle").to_string();
     let current_task = json.get("current_task")?.as_str().unwrap_or("").to_string();
     let worktree = json
         .get("worktree")

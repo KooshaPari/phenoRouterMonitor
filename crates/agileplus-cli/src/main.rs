@@ -10,7 +10,7 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use agileplus_cli::commands::{
-    cycle::CycleArgs, implement::ImplementArgs, module::ModuleArgs, plan::PlanArgs,
+    cycle::CycleArgs, implement::ImplementArgs, list::ListArgs, module::ModuleArgs, plan::PlanArgs,
     queue::QueueArgs, research::ResearchArgs, retrospective::RetrospectiveArgs, ship::ShipArgs,
     specify::SpecifyArgs, triage::TriageArgs, validate::ValidateArgs,
 };
@@ -45,6 +45,8 @@ struct Cli {
 enum Commands {
     /// Manage cycles (time-boxed delivery units).
     Cycle(CycleArgs),
+    /// List features in the database (optional filter by state).
+    List(ListArgs),
     /// Create or revise a feature specification.
     Specify(SpecifyArgs),
     /// Research a feature (pre-specify codebase scan or post-specify feasibility).
@@ -102,7 +104,7 @@ async fn run(cli: Cli) -> Result<()> {
         _ => {}
     }
 
-    // Module command only needs storage (no VCS)
+    // Module and list only need storage (no VCS)
     if let Commands::Module(args) = cli.command {
         // Initialise storage adapter early for module commands
         if let Some(parent) = cli.db.parent() {
@@ -114,6 +116,17 @@ async fn run(cli: Cli) -> Result<()> {
         let storage = SqliteStorageAdapter::new(&cli.db)
             .with_context(|| format!("opening database at {}", cli.db.display()))?;
         return agileplus_cli::commands::module::run(args, &storage).await;
+    }
+    if let Commands::List(args) = cli.command {
+        if let Some(parent) = cli.db.parent() {
+            if !parent.as_os_str().is_empty() && !parent.exists() {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("creating directory {}", parent.display()))?;
+            }
+        }
+        let storage = SqliteStorageAdapter::new(&cli.db)
+            .with_context(|| format!("opening database at {}", cli.db.display()))?;
+        return agileplus_cli::commands::list::run(args, &storage).await;
     }
 
     // Initialise storage adapter (create DB directory if needed)
@@ -143,6 +156,7 @@ async fn run(cli: Cli) -> Result<()> {
         Commands::Cycle(args) => {
             agileplus_cli::commands::cycle::run(args, &storage).await?;
         }
+        Commands::List(_) => unreachable!("handled above"),
         Commands::Queue(args) => {
             agileplus_cli::commands::queue::run_queue(args, &storage).await?;
         }
