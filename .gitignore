@@ -1,8 +1,7 @@
-/target
 Cargo.lock
-*.swp
-*.swo
-.DS_Store
+bun.lock
+.env
+.env.local
 worktrees/
 .worktrees/
 .archive/
