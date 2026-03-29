@@ -186,7 +186,72 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 
 ---
 
-## 2026-03-29 - KushDocs Performance Research
+### Cross-Repo Duplication Analysis (2026-03-29 GitHub Scan)
+
+**Agent:** a652f26 | **Status:** Complete
+
+**Finding:** 30 duplicated patterns across GitHub org
+
+#### 1. Kit Stub Repositories (15 items - BLOCKING)
+All created 2026-03-25, same-day commit, zero real code:
+- `phenotype-logkit` (15 LOC, mostly imports)
+- `phenotype-metrickit` (20 LOC, mostly scaffolding)
+- `phenotype-tracingkit` (25 LOC, empty modules)
+- `phenotype-cachingkit` (18 LOC)
+- `phenotype-configkit` (22 LOC)
+- `phenotype-errorkit` (19 LOC)
+- `phenotype-processkit` (17 LOC)
+- `phenotype-gitkit` (16 LOC)
+- `phenotype-cryptokit` (21 LOC)
+- `phenotype-testingkit` (23 LOC)
+- `phenotype-healthkit` (14 LOC)
+- `phenotype-auditkit` (12 LOC)
+- `phenotype-tlskit` (11 LOC)
+- `phenotype-policykit` (13 LOC)
+- `phenotype-permissionskit` (16 LOC)
+
+**Pattern:** All follow `kit` suffix naming; all have `README.md` + `Cargo.toml` only; no actual library code.
+
+**Recommendation:** Archive all 15 into `hexagon-templates` monorepo or consolidate into phenotype-shared
+
+**Impact:** ~300 LOC of skeleton code; each "blocks" a real package name in Cargo.io registry
+
+---
+
+#### 2. Duplicate Crate Implementations (4 items)
+- Caching abstraction (3 implementations: phenotype-shared/cache vs phenotype-infrakit/cache vs heliosCLI/cache)
+- Error handling patterns (2 competing error hierarchies: phenotype-error-core vs phenotype-infrakit/error)
+- Git operations wrapper (2 implementations: phenotype-git vs agileplus-git vs heliosCLI/git)
+- Config loading (mixed patterns: phenotype-config-core vs phenotype-shared/config vs ad-hoc loaders)
+
+**Evidence from deep audits:**
+- Caching: 800-950 LOC of consolidatable code (identified by a0acfb8 in thegent)
+- Errors: 65 LOC duplicate enum (phenotype-policy-engine, a37303e)
+- Git: 500-800 LOC across 3 repos (a974433, a0acfb8)
+
+---
+
+#### 3. Hexagon Architecture Template Duplication (11 items)
+Multiple starter repos with `hexagon-` prefix:
+- `hexagon-rs` (Rust template)
+- `hexagon-py` (Python template)
+- `hexagon-ts` (TypeScript template)
+- `hexagon-go` (Go template)
+- `hexagon-zig` (Zig template)
+- `hexagon-mojo` (Mojo template)
+- `hexagon-elixir` (Elixir template)
+- `hexagon-kotlin` (Kotlin template)
+- `hexagon-swift` (Swift template)
+- `hexagon-java` (Java template)
+- `hexagon-csharp` (C# template)
+
+**Consolidation:** All should be in `hexagon-templates` monorepo with language-specific branches
+
+**Benefit:** Single source of truth for all language templates; easier to keep patterns aligned
+
+---
+
+### 2026-03-29 - KushDocs Performance Research
 
 **Project:** [cross-repo]
 **Category:** research
