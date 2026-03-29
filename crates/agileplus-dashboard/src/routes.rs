@@ -170,6 +170,7 @@ fn html_escape(s: &str) -> String {
 }
 
 /// Classify a file extension into a broad artifact type for display purposes.
+#[allow(dead_code)]
 fn artifact_type_for_ext(ext: &str) -> &'static str {
     match ext {
         "lcov" | "coverage" | "cov" => "coverage",
@@ -185,6 +186,7 @@ fn artifact_type_for_ext(ext: &str) -> &'static str {
 ///
 /// Only encodes characters that are not allowed unencoded in URL path segments:
 /// spaces, `#`, `?`, `%`, and `+`.
+#[allow(dead_code)]
 fn percent_encode_path(path: &str) -> String {
     path.chars()
         .flat_map(|c| match c {

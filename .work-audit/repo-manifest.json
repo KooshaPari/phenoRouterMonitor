@@ -1052,7 +1052,7 @@
     },
     {
       "name": "heliosApp",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/apps/heliosApp",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/heliosApp",
       "has_specs": true,
       "specs": [
         "001-colab-agent-terminal-control-plane",
