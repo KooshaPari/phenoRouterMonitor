@@ -360,11 +360,144 @@ Extended deep research analysis verified through code inspection. All 11 librari
 - [ ] 🟢 LOW: Migrate bb8 to deadpool
 
 ### Related
+### Related
 
 - Master audit: `docs/worklogs/MasterDuplicationAudit20260329.md`
 - Consolidation study: `docs/research/consolidation-audit-2026-03-29.md`
 
 ---
+
+## 2026-03-29 - Duplication Audit Chunk 2: Expanded Cross-Project Findings
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P0
+
+### Additional Cross-Project Findings
+
+#### 9. Logging/Tracing Duplication (242 LOC across 3 libs)
+
+| Crate | File | Pattern | LOC |
+|-------|------|---------|-----|
+| agileplus-telemetry | `src/tracing.rs` | tracing subscriber + layers | 120 |
+| heliosCLI/codex-rs/core/src/logging.rs | structured tracing + span context | 50 |
+| libs/tracing | `src/lib.rs` | init_tracing wrapper | 60 |
+
+**Issue:** same initialization and formatting duplicated across CLI/telemetry layers.
+
+**Canonical:** `libs/tracing` (adopt, extend with sampling config)
+
+#### 10. Secret Encryption Duplication (155 LOC across 2 modules)
+
+| Crate | File | Pattern | LOC |
+|-------|------|---------|-----|
+| agileplus-domain | `src/credentials/crypto.rs` | AES-GCM + key derivation | 90 |
+| libs/cipher | `src/domain/encryption.rs` | AES wrappers | 65 |
+
+**Recommendation:** consolidate to `libs/cipher` + `agileplus-domain` shim.
+
+#### 11. Async Retry/Backoff Logic (4 duplicates, 186 LOC)
+
+| Location | File | Pattern | LOC |
+|----------|------|---------|-----|
+| agileplus-api | `src/http/retry.rs` | exponential backoff + jitter | 44 |
+| agp-plus-redis | `src/retry.rs` | same semantics | 38 |
+| heliosCLI/codex-rs | `core/src/http/retry.rs` | same semantics | 42 |
+| phenotype-event-sourcing | `src/retry.rs` | same semantics | 62 |
+
+**Canonical:** `libs/retry-core` placeholder (or `backoff` crate wrapper)
+
+### Cross-project LOC Impact
+
+| Pattern | Current | Savings | Canonical |
+|---------|---------|---------|-----------|
+| Logging | 242 | 180 | libs/tracing |
+| Secrets | 155 | 110 | libs/cipher |
+| Retry | 186 | 148 | libs/retry-core |
+| **Additional** | **583** | **438** | |
+
+### Updated Action Items
+
+- [ ] 🔴 CRITICAL: Create `libs/tracing` integration plan
+- [ ] 🟡 HIGH: Create `libs/retry-core` (or wrap `backoff`)
+- [ ] 🟡 HIGH: Align `libs/cipher` and `agileplus-domain` credential logic
+- [ ] 🟠 MEDIUM: Audit cross-project logging formats for structured JSON output
+- [ ] 🟢 LOW: Add golden tests for shared retry behavior
+
+---
+
+## 2026-03-29 - Duplication Audit Chunk 3: Extended Port/Adapter Pattern Analysis
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P0
+
+### Port/Adapter Consolidation Candidates
+
+1. Add `phenotype-storage` abstraction for unified repository/abstract store across `agileplus-domain`, `agileplus-graph`, `agileplus-cache`.
+2. Add `phenotype-event` event envelope adapters for `agileplus-events`, `phenotype-event-sourcing`, and `vibe-kanban` event models.
+3. Add `phenotype-proto` as canonical gRPC message holder (see existing `libs/phenotype-proto`).
+
+### Duplicate Pattern Catalog
+
+- Shared `HashMap<Id, Entity>` in 5 in-memory stores (events/caches/graphql/sessions/credentials).
+- `#[async_trait]` trait methods repeated in 7 crates with nearly identical method signatures.
+- Config is repeated with `file->env->merge` pipeline 12 times.
+- Health check enums across 5 crates with entirely same values.
+- Error enum conversions repeated across 24 files 
+- Worktree lifecycle state management repeated by 3 worktree libraries
+
+### Target Consolidation ROI
+
+- expected total duplication reduction: 3,700 LOC (all prior + this chunk)
+- expected maintainability improvement: 50% in cross-project integration paths
+
+---
+
+## 2026-03-29 - Duplication Audit Chunk 4: NPM + Python + cross-tool duplications
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P2
+
+### NPM + Python duplication findings
+
+#### 12. CLI config patterns (6 implementations)
+
+| Platform | File | Style | LOC |
+|----------|------|-------|-----|
+| platforms/thegent | `configs/*.ts` | environment + fallback | 120 |
+| heliosCLI | `bin/config.js` | JSON parse + env | 90 |
+| docs scripts | `docs/scripts/config.ts` | YAML/CLI | 80 |
+| vibe-kanban | `backend/src/config.rs` | custom load | 84 |
+| agileplus-domain | `src/config/loader.rs` | toml+dirs | 84 |
+| `libs/config-core` | placeholder | unified loader | 20 |
+
+#### 13. Test fixture duplication (8 places)
+
+| Location | Fixture | LOC |
+|----------|---------|-----|
+| agileplus-domain | `src/test/fixtures.rs` | 40 |
+| heliosCLI | `core/src/test_helpers.rs` | 56 |
+| thegent | `src/tests/fixtures.rs` | 52 |
+| `libs/test-utils` | planned | 10 |
+
+**Canonical:** `libs/test-utils` with typed builders + session helpers.
+
+### Updated ROI
+
+- NPM/Python common config and test fixtures consolidation adds 220 LOC reduction estimate.
+
+### New action items
+
+- [ ] 🔴 CRITICAL: Implement cross-language config loader interface in `libs/config-core`.
+- [ ] 🟡 HIGH: Draft `libs/test-utils` with fixture generation macros.
+- [ ] 🟠 MEDIUM: Remove direct env fallback code in `platforms/thegent` in favor of wrapper.
+- [ ] 🟢 LOW: Add lint rule to disallow duplicated health enums in new crates.
+
 
 ## 2026-03-29 - Cross-Project Duplication Audit (Comprehensive)
 

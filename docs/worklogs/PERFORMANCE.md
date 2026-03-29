@@ -1706,3 +1706,260 @@ impl<T: Send + 'static> AsyncLazy<T> {
     }
 }
 ```
+
+---
+
+## 2026-03-29 - Performance Optimization Deep Dive (Extended)
+
+**Project:** [cross-repo]
+**Category:** performance
+**Status:** completed
+**Priority:** P2
+
+### 1. Async Performance Patterns
+
+#### Sequential → Parallel Optimization
+
+```rust
+// BEFORE: Sequential (slow)
+async fn process_items(items: Vec<Item>) -> Vec<Result> {
+    let mut results = Vec::new();
+    for item in items {
+        results.push(process(item).await); // Sequential
+    }
+    results
+}
+
+// AFTER: Parallel (fast)
+async fn process_items(items: Vec<Item>) -> Vec<Result> {
+    futures::future::join_all(
+        items.into_iter().map(process)
+    ).await
+}
+```
+
+#### Batch Processing Pattern
+
+```rust
+async fn batch_process(
+    items: Vec<Item>,
+    batch_size: usize,
+) -> Vec<Result> {
+    let mut results = Vec::new();
+    
+    for chunk in items.chunks(batch_size) {
+        let batch_results = futures::future::join_all(
+            chunk.iter().map(process)
+        ).await;
+        results.extend(batch_results);
+    }
+    
+    results
+}
+```
+
+---
+
+### 2. Memory Optimization
+
+#### Arena Allocation Pattern
+
+```rust
+use typed_arena::Arena;
+
+struct Parser<'arena> {
+    arena: &'arena Arena<String>,
+}
+
+impl<'arena> Parser<'arena> {
+    fn parse(&self, input: &str) -> &'arena str {
+        let owned = input.to_string();
+        self.arena.alloc(owned)
+    }
+}
+```
+
+#### Object Pool Pattern
+
+```rust
+use object_pool::Pool;
+
+struct ExpensiveObject {
+    data: Vec<u8>,
+}
+
+let pool = Pool::new(100, || ExpensiveObject {
+    data: vec![0u8; 1024],
+});
+
+let obj = pool.take();
+// ... use obj ...
+pool.give(obj);
+```
+
+---
+
+### 3. Hash Chain Optimization
+
+#### Current Implementation Analysis
+
+| Aspect | Current | Optimization |
+|--------|---------|--------------|
+| Hash Function | SHA-256 | blake3 (3x faster) |
+| Encoding | Length-prefixed | Binary |
+| Verification | Sequential | Parallel |
+
+#### Blaze Hash Chain
+
+```rust
+use blake3::Hasher;
+
+pub struct HashChain {
+    hasher: Hasher,
+}
+
+impl HashChain {
+    pub fn update(&mut self, data: &[u8]) {
+        self.hasher.update(data);
+    }
+    
+    pub fn finalize(self) -> Hash {
+        Hash(self.hasher.finalize().into())
+    }
+}
+```
+
+---
+
+### 4. Database Performance
+
+#### Connection Pooling
+
+```rust
+// SQLx connection pool
+let pool = SqlxPool::connect(&database_url).await?;
+
+// Configure pool
+let pool = SqlxPoolOptions::new()
+    .max_connections(10)
+    .min_connections(2)
+    .acquire_timeout(Duration::from_secs(30))
+    .idle_timeout(Duration::from_secs(600))
+    .connect(&database_url)
+    .await?;
+```
+
+#### Query Optimization
+
+```rust
+// BEFORE: N+1 queries
+for user in users {
+    let posts = db.query("SELECT * FROM posts WHERE user_id = ?", user.id);
+}
+
+// AFTER: Batch query
+let user_ids: Vec<i64> = users.iter().map(|u| u.id).collect();
+let posts = db.query(
+    "SELECT * FROM posts WHERE user_id IN (?)",
+    user_ids
+);
+```
+
+---
+
+### 5. Caching Strategy
+
+#### Cache Hierarchy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CACHE HIERARCHY                            │
+│                                                              │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐     │
+│  │    L1      │   │    L2      │   │    L3      │     │
+│  │   In-Memory│──▶│   Redis    │──▶│   Database │     │
+│  │   (Hot)    │   │  (Warm)   │   │  (Cold)    │     │
+│  │  <1μs     │   │  <1ms     │   │  <100ms    │     │
+│  │   100MB    │   │   10GB    │   │    ∞       │     │
+│  └─────────────┘   └─────────────┘   └─────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Cache-Aside Pattern
+
+```rust
+async fn get_user(id: UserId) -> Result<User> {
+    // Try cache first
+    if let Some(user) = cache.get(&id).await? {
+        return Ok(user);
+    }
+    
+    // Fetch from DB
+    let user = db.find_user_by_id(id).await?;
+    
+    // Update cache
+    cache.set(&id, &user).await?;
+    
+    Ok(user)
+}
+```
+
+---
+
+### 6. Benchmark Framework
+
+```rust
+use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+
+fn bench_hash_chain(c: &mut Criterion) {
+    let mut group = c.benchmark_group("hash_chain");
+    
+    for size in [64, 256, 1024].iter() {
+        group.bench_with_input(
+            BenchmarkId::from_parameter(size),
+            size,
+            |b, &size| {
+                let data = vec![0u8; size];
+                b.iter(|| {
+                    let mut chain = HashChain::new();
+                    chain.update(black_box(&data));
+                    chain.finalize()
+                });
+            },
+        );
+    }
+    
+    group.finish();
+}
+
+criterion_group!(benches, bench_hash_chain);
+criterion_main!(benches);
+```
+
+---
+
+### 7. Profiling Tools
+
+| Tool | Purpose | Language |
+|------|---------|----------|
+| `perf` | CPU profiling | Rust/C |
+| `valgrind` | Memory analysis | Any |
+| `tokio-console` | Async debugging | Rust |
+| `cargo-flamegraph` | Flame graphs | Rust |
+| `pprof` | Go profiling | Any |
+
+---
+
+### 8. Performance Budget
+
+| Metric | Target | Current |
+|--------|--------|---------|
+| Build time | <5 min | TBD |
+| Test suite | <10 min | TBD |
+| Binary size | <10 MB | TBD |
+| Memory (idle) | <50 MB | TBD |
+| Latency (p99) | <100ms | TBD |
+
+---
+
+_Last updated: 2026-03-29_

@@ -11,7 +11,6 @@ docs/reports/
 evidence_ledger.jsonl
 plans/
 tests/
-worklogs/
 docs/AGENT_MASTER_AUDIT_PROMPT.md
 libs/
 platforms/

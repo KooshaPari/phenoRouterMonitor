@@ -1,6 +1,7 @@
 # Cross-Project Duplication & Fork Strategy Analysis
 
 **Generated:** 2026-03-29
+**Updated:** 2026-03-29 (Expanded)
 **Priority:** P0-P1
 **Status:** in_progress
 
@@ -13,16 +14,19 @@ This document consolidates findings from subagent analysis on:
 2. External fork/wrap decisions (third-party integration strategy)
 3. Inactive/non-canonical folder audit
 4. Whitebox vs blackbox usage patterns
+5. Cross-project architecture analysis
+6. Test infrastructure patterns
 
 ### Key Metrics
 
 | Metric | Value |
 |--------|-------|
-| Cross-project duplication | ~2,100 LOC |
-| Savings potential (consolidation) | ~800 LOC |
+| Cross-project duplication | ~3,630 LOC |
+| Savings potential (consolidation) | ~2,600 LOC |
 | Inactive folders identified | 6 |
 | Fork candidates | 4 |
 | Wrap candidates | 8 |
+| New libraries to create | 10 |
 
 ---
 
@@ -132,6 +136,37 @@ impl std::fmt::Display for RuleType {
 ```
 
 **Action:** Create macro for reusable implementations
+
+---
+
+### 1.6 UUID/ID Generation Patterns (~150 LOC)
+
+**Finding:** 15+ instances of inline UUID generation across projects.
+
+| Location | Usage | Count |
+|----------|-------|-------|
+| `thegent-work/crates/thegent-maif/src/lib.rs:57` | `Uuid::new_v4().to_string()` | 1 |
+| `thegent-work/crates/thegent-router/src/audit.rs:49` | `Uuid::new_v4().to_string()` | 1 |
+| `thegent-work/crates/thegent-memory/src/types.rs:58,74` | `Uuid::new_v4().to_string()` | 2 |
+| `thegent-work/crates/thegent-memory/src/client.rs:226,327` | `uuid::Uuid::new_v4()` | 2 |
+| `phenotype-shared-wtrees/*/event.rs:46` | `Uuid::new_v4()` | 1 |
+| `phenotype-shared-wtrees/*/hash.rs:116,132` | `uuid::Uuid::nil()` | 2 |
+
+**Action:** Create `libs/id-gen/` with `uuid()` and `nanoid()` convenience functions
+
+---
+
+### 1.7 Async Spawn/Execution Patterns (~200 LOC)
+
+**Finding:** 20+ instances of manual tokio::spawn across projects.
+
+| Location | Pattern | Count |
+|----------|---------|-------|
+| `thegent-work/crates/thegent-hooks/src/main.rs` | `futures.push(tokio::spawn(...))` | 6 |
+| `heliosCLI-wtrees/codex-rs/network-proxy/src/proxy.rs` | `tokio::spawn(async move {...})` | 8 |
+| `heliosCLI-wtrees/codex-rs/rmcp-client/src/` | `tokio::spawn(async move {...})` | 3 |
+
+**Action:** Create `libs/async-exec/` with TaskManager and spawn_bg utilities
 
 ---
 
