@@ -50,3 +50,59 @@ references/
 # Worktrees
 worktrees/
 .worktrees/
+
+# Large repos and modules
+apps/
+libs/
+packages/
+services/
+src/
+thegent/
+governance/
+styles/
+tools/
+tooling/
+sub-projects/
+plans/
+templates/
+
+# Worktrees and derivatives
+archive/
+.archive/
+*/-wtrees/
+*-wt/
+colab-wtrees/
+colab-temp/
+bloom-wt/
+craft-wt/
+devenv-abstraction/
+forgecode-wtrees/
+heliosCLI-wtrees/
+thegent-wtrees/
+trace-wtrees/
+vibe-kanban-wtrees/
+phenotype-gauge-wtrees/
+
+# Development artifacts
+artifacts/
+opened_prs.log
+pr_creation.log
+
+# Docs
+docs/archive/
+docs/public/
+docs/sessions/
+
+# Temp and cache
+.hypothesis/
+.llms/
+*.log
+
+# Demos and temp
+aml-demo/
+tokenledger/
+
+# Scripts
+scripts/*.py
+scripts/*.sh
+!scripts/path_utils.py
