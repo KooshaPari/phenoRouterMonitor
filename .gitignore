@@ -53,3 +53,29 @@ crates/phenotype-logging
 crates/phenotype-port-traits
 crates/phenotype-string
 crates/phenotype-time
+
+# Session/agent artifacts
+.github/QUICK_REFERENCE.md
+.github/README_CONSOLIDATION.md
+FIXTURE_CONSOLIDATION_CODE_EXAMPLES.md
+FIXTURE_CONSOLIDATION_INDEX.md
+phase2_federation_spec.md
+
+# Build artifacts
+.sccache/
+
+# Uncommitted crate stubs
+crates/phenotype-error-core.ARCHIVED/
+crates/phenotype-event-sourcing/src/async_store.rs
+crates/phenotype-macros/
+crates/phenotype-mcp/
+crates/phenotype-process/
+
+# CI/DevOps
+nextest.toml
+
+# Scripts
+scripts/audit_scope.sh
+scripts/clone-devenv-abstraction-worktree.sh
+scripts/export_phenotype_session_artifacts.py
+scripts/git-worktree-health.sh

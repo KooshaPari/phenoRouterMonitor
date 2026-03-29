@@ -55,26 +55,6 @@ pub fn derive_event(input: DeriveInput) -> TokenStream {
     expanded.into()
 }
 
-pub trait DomainEvent: Send + Sync + Clone + serde::Serialize + for<'de> serde::Deserialize<'de> {
-    const EVENT_TYPE: &'static str;
-    const AGGREGATE: &'static str;
-
-    fn id(&self) -> uuid::Uuid;
-    fn occurred_at(&self) -> chrono::DateTime<chrono::Utc>;
-    fn event_type() -> &'static str { Self::EVENT_TYPE }
-    fn aggregate() -> &'static str { Self::AGGREGATE }
-}
-
-#[derive(Debug, Clone, thiserror::Error)]
-pub enum EventError {
-    #[error("Deserialization failed: {0}")]
-    Deserialization(String),
-    #[error("Invalid event type: {expected}")]
-    InvalidType { expected: String },
-    #[error("Event version mismatch: expected {expected}, got {actual}")]
-    VersionMismatch { expected: String, actual: String },
-}
-
 fn get_event_name(attrs: &[syn::Attribute]) -> String {
     for attr in attrs {
         if attr.path().is_ident("event") {
