@@ -12,12 +12,9 @@ if ! command -v gitleaks &>/dev/null; then
 fi
 
 RESULT=$(gitleaks detect --redact --no-color -s . 2>&1)
-if echo "$RESULT" | grep -q "gitleaks:"; then
-    echo "⚠️  WARNING: gitleaks not configured, skipping scan"
-    exit 0
-fi
 
-if echo "$RESULT" | grep -qv "No leaks found"; then
+# Check for actual leaks (case-insensitive "no leaks found")
+if echo "$RESULT" | grep -qvi "no leaks found"; then
     echo "❌ SECRET DETECTED! Commit blocked."
     echo "$RESULT"
     echo ""
