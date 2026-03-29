@@ -6,6 +6,7 @@ Cargo.lock
 worktrees/
 .worktrees/
 .archive/
+<<<<<<< HEAD
 docs/plans/
 docs/reports/
 evidence_ledger.jsonl
@@ -17,3 +18,5 @@ docs/AGENT_MASTER_AUDIT_PROMPT.md
 cliff.toml
 libs/
 platforms/
+=======
+>>>>>>> 0789c8632 (chore: ignore .archive build artifacts)
