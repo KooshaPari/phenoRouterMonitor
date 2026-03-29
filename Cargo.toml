@@ -24,6 +24,7 @@ members = [
   "crates/agileplus-benchmarks",
   "rust",
   "tests/bdd",
+  "libs/nexus",
 ]
 
 [workspace.package]
