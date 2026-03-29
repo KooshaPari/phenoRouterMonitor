@@ -25,6 +25,16 @@ members = [
   "rust",
   "tests/bdd",
   "libs/nexus",
+  "libs/hexagonal-rs",
+  "libs/hexkit",
+  "libs/cipher",
+  "libs/gauge",
+  "libs/logger",
+  "libs/metrics",
+  "libs/tracing",
+  "libs/cli-framework",
+  "libs/config-core",
+  "libs/xdd-lib-rs",
   "tools/forge",
 ]
 
