@@ -6,3 +6,9 @@ Cargo.lock
 worktrees/
 .worktrees/
 .archive/
+docs/plans/
+docs/reports/
+evidence_ledger.jsonl
+plans/
+tests/
+worklogs/
