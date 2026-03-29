@@ -10,7 +10,7 @@
 |----|-------------|--------|
 | ECO-001 | Worktree Remediation | ✅ COMPLETE |
 | ECO-002 | Branch Consolidation | ✅ COMPLETE |
-| ECO-003 | Circular Dependency Resolution | ✅ SHIPPED (CI pending) |
+| ECO-003 | Circular Dependency Resolution | ✅ SHIPPED (CI CONFIGURED) |
 | ECO-004 | Hexagonal Migration | ✅ NO WORK NEEDED |
 
 ### Cleanup Actions Completed

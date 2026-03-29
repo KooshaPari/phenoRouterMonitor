@@ -2887,7 +2887,7 @@
     },
     {
       "name": "thegent",
-      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/.archive/thegent-fresh-clone-backup_20260225_045623_MST",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/thegent",
       "has_specs": true,
       "specs": [
         "001-hexagonal-polyglot-repo-audit-plan"
@@ -2903,62 +2903,85 @@
       "branches": [
         "main",
         "origin",
-        "origin/ctf-24827",
-        "origin/lane/rebuild-pr529-v1",
+        "origin/chore/add-codeowners",
+        "origin/chore/archive-deprecated-lib-stubs",
+        "origin/chore/cleanup-20260328",
+        "origin/chore/dotfiles-consolidation",
+        "origin/chore/final-update",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/remove-gitmodules",
+        "origin/chore/sync-20260328",
+        "origin/chore/sync-docs-security-2026",
+        "origin/chore/sync-gitmodules",
+        "origin/chore/sync-submodules-2026-03-28",
+        "origin/chore/sync-submodules-v2",
+        "origin/chore/sync-v3-pr",
+        "origin/chore/work-audit-20260328",
+        "origin/docs/adr-0008-release-channels",
+        "origin/docs/canonical-terms-20260327",
+        "origin/docs/hierarchical-dispatcher",
+        "origin/docs/hub-fixes-v2",
+        "origin/docs/xdd-practices",
+        "origin/feat/dotfiles-manager",
+        "origin/feat/dotfiles-manager-clean",
+        "origin/feat/dotfiles-manager-v2",
+        "origin/feat/governance-dedup",
+        "origin/feat/infrakit-migration",
+        "origin/feat/infrakit-migration2",
+        "origin/feat/perf-monitoring",
+        "origin/feat/worker-pool-enhancements-20260326",
+        "origin/feat/zsh-bench-ci",
+        "origin/fix/cache-test-pyright",
+        "origin/fix/ci-workflows",
+        "origin/fix/phenotype-naming-migration",
+        "origin/fix/runtime-watchdog-audit-performance",
+        "origin/fix/vitepress-syntax-error",
+        "origin/int/mod-split-stage-1",
         "origin/main",
-        "origin/rbd-68",
-        "origin/recon-fix/cli-test-fixes",
-        "origin/recon-merge/fixes",
-        "origin/recon-merge/more-fixes",
-        "origin/recon/fix/more-tests",
-        "origin/recon/fix/tests-v4",
-        "origin/recon/fixes",
-        "origin/recon/main",
-        "origin/recon/merge/fixes",
-        "origin/recon/merge/more-fixes",
-        "origin/recon/no-litellm",
-        "origin/thegent_stabilize_merge2",
-        "origin/wf-9325",
-        "origin/wm-14132"
+        "origin/pr-619-merge",
+        "origin/pr-682",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
       ],
       "current_branch": "main",
-      "uncommitted_count": 329,
+      "uncommitted_count": 0,
       "recent_commits": [
         {
-          "sha": "7ce89537ecbd0541b6b170e81345d37f746ef723",
-          "message": "Merge fix/cli-tests-skips-v2 into main",
-          "author": "Koosha Paridehpour",
-          "date": "2026-02-25 02:13:11"
-        },
-        {
-          "sha": "ed6360ccf463173902e050f3c0d2d5abcbd8784f",
-          "message": "Merge pull request #477 from KooshaPari/rb-merge-wave82-layer1",
+          "sha": "d4494dbf03946fbad4a752f81c453c27df5e8196",
+          "message": "chore: record full repo audit and cliproxy PR status (#840)",
           "author": "KooshaPari",
-          "date": "2026-02-25 01:40:27"
+          "date": "2026-03-28 20:39:13"
         },
         {
-          "sha": "d57dc6d0f0dcc6b950ad65a61a426e1f0393e228",
-          "message": "Merge wave82 follow-up into main (layered)",
-          "author": "Koosha Paridehpour",
-          "date": "2026-02-25 01:39:53"
+          "sha": "28864bfcb926e34ba84a0f9d89cf0d998c17728a",
+          "message": "fix(tests): resolve Pyright diagnostics in response cache tests (#837)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:27:10"
         },
         {
-          "sha": "7c07d4dfb85219bd1d5034c42e486ea3f02f10cd",
-          "message": "Merge merge/more-fixes into main (layered, pycache cleaned)",
-          "author": "Koosha Paridehpour",
-          "date": "2026-02-25 01:39:32"
+          "sha": "20cd471fdb83045674b6f6c78c6865348feea38a",
+          "message": "chore: record cliproxy auth/SDK cleanup in governance artifacts (#839)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:21:54"
         },
         {
-          "sha": "4b1a1017496273f07873897bb17f06884b1bbebb",
-          "message": "Merge fix/command-test-fixes into main (layered, merged by head-side conflict cleanup)",
-          "author": "Koosha Paridehpour",
-          "date": "2026-02-25 01:38:48"
+          "sha": "07d3598c88d53731ebbe1ec517b7d6bd43eb031f",
+          "message": "docs: finalize ecosystem consolidation",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:15:17"
+        },
+        {
+          "sha": "1a9485cc5d5d81c1265989f83f32b85ca85a44fa",
+          "message": "chore: archive kitty-specs (#836)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 19:45:16"
         }
       ],
       "tracking_files": [
         "CHANGELOG.md"
       ],
-      "status": "PATH_FIXED_20260328"
+      "status": "GHOST_CLONED_20260328"
     },
     {
       "name": "tokenledger",
