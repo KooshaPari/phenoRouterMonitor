@@ -4,15 +4,16 @@
 > Last comprehensive audit: **2026-03-29** (Wave 90–92); canonical wave log: **`WorkLog.md`**
 
 ---
----
 
-## Wave 92 - FORGE Comprehensive Audit (2026-03-29)
+## Wave Entries
+
+### Wave 92 - FORGE Comprehensive Audit (2026-03-29)
 
 **Status:** completed
 **Priority:** P0-P1
 **Agents:** FORGE (3 subagents)
 
-### Summary
+#### Summary
 
 Conducted deep research across three parallel tracks:
 
@@ -24,15 +25,15 @@ Conducted deep research across three parallel tracks:
 
 **Estimated Impact:** ~1,400+ LOC across cleanup and consolidation
 
-### Key Findings
+#### Key Findings
 
-#### 🔴 CRITICAL: phenotype-event-sourcing Duplication
+##### 🔴 CRITICAL: phenotype-event-sourcing Duplication
 
 Identical files in two locations (~622 LOC):
 - `src/` vs `phenotype-event-sourcing/src/`
 - Root cause: Nested package structure confusion
 
-#### 🔴 HIGH: 7 Folders Need Cleanup
+##### 🔴 HIGH: 7 Folders Need Cleanup
 
 | Folder | Action | Priority |
 |--------|--------|----------|
@@ -43,7 +44,7 @@ Identical files in two locations (~622 LOC):
 | `crates/phenotype-event-sourcing` | Archive | HIGH |
 | `src/thegent/` vs `platforms/thegent` | Investigate | MEDIUM |
 
-#### 🟡 HIGH: 3 Unused Dependencies
+##### 🟡 HIGH: 3 Unused Dependencies
 
 | Package | Action | Priority |
 |---------|--------|----------|
@@ -51,7 +52,7 @@ Identical files in two locations (~622 LOC):
 | `parking_lot` | Remove or implement | MEDIUM |
 | `moka` | Remove or implement | MEDIUM |
 
-### Action Items (Checkbox Format)
+#### Action Items (Checkbox Format)
 
 - [ ] CLEAN-001: Delete `worktrees/`, `worktree/`, `add/`
 - [ ] CLEAN-002: Archive `.worktrees/phench-fix/`
@@ -71,42 +72,55 @@ Identical files in two locations (~622 LOC):
 - [ ] DUP-004: Implement/delete phenotype-cache-adapter
 - [ ] DUP-005: Implement/delete phenotype-state-machine
 
-### Related
+#### Related
 
 - `docs/worklogs/WORK_LOG.md` - Full Wave 92 entry
 - `docs/worklogs/DUPLICATION.md` - Extended duplication findings
 
 ---
 
-## Wave 91 - Session Hygiene (2026-03-29)
+### Wave 91 - Session Hygiene (2026-03-29)
 
 **Status:** completed
 **Priority:** P1
-
-### Summary
 
 Session hygiene and worklog reorganization:
 - Moved session artifacts to `docs/worklogs/data/`
 - Fixed broken links in DUPLICATION.md
 - Updated README indexes
 
-### Related
-
+**Related:**
 - `docs/worklogs/SessionTranscriptAudit.md`
 - `docs/worklogs/SessionGaps20260329.md`
 
 ---
 
+### Wave 90 - AgilePlus Duplication Audit (2026-03-29)
+
+**Status:** completed
+**Priority:** P0
+
+| Metric | Value |
+|--------|-------|
+| Duration | 48 minutes |
+| Scope | 1,599 files across 27 Rust crates |
+| LOC Identified | 1,800 lines of duplication |
+| Savings Potential | 1,200 lines through consolidation |
+
+---
+
+## File Index
+
+### Core Worklogs
+
 | File | Category | Status | Priority |
 |------|----------|--------|----------|
 | `README.md` | INDEX | Current | - |
+| `WorkLog.md` | WORKLOG | Current | - |
 | `AGENT_ONBOARDING.md` | ONBOARDING | Active | P1 |
-| `AgentMasterAuditPrompt.md` | AUDIT | Active (local only) | P0 |
 | `ARCHITECTURE.md` | ARCHITECTURE | Active | P0-P2 |
 | `DEPENDENCIES.md` | DEPENDENCIES | Active | P0-P1 |
-| `EXTERNAL_DEPENDENCIES.md` | EXTERNAL_DEPS | Active | P1 |
 | `DUPLICATION.md` | DUPLICATION | Active | P0 |
-| `INACTIVE_FOLDERS.md` | INFRASTRUCTURE | Active | P0 |
 | `GOVERNANCE.md` | GOVERNANCE | Active | P0-P1 |
 | `INTEGRATION.md` | INTEGRATION | Active | P1 |
 | `PERFORMANCE.md` | PERFORMANCE | Active | P1-P2 |
@@ -114,23 +128,7 @@ Session hygiene and worklog reorganization:
 | `QUALITY.md` | QUALITY | Active | P1-P2 |
 | `TOOLING.md` | TOOLING | Active | P1-P3 |
 | `UX_DX.md` | UX_DX | Active | P2-P3 |
-| `WorkLog.md` | WORKLOG | Current | - |
-| `SessionTranscriptAudit.md` | SESSION | Active | P1 |
-| `SessionGaps20260329.md` | SESSION | Active | P1 |
-| `MasterDuplicationAudit20260329.md` | DUPLICATION | Complete | P0 |
-| `WorklogsIndex.md` | INDEX | Snapshot | - |
-| `WORK_LOG.md` | REDIRECT | Stub → `WorkLog.md` | - |
-| `WORKLOGS_INDEX.md` | REDIRECT | Stub → `WorklogsIndex.md` | - |
-
-### Project-Specific Worklogs
-
-| File | Category | Status |
-|------|----------|--------|
-| `PROJECTS.md` | PROJECTS | Canonical (from agileplus/main) |
-| `Projects.md` | PROJECTS | Summary |
-| `PROJECTS_agileplus.md` | PROJECTS | Active |
-| `PROJECTS_thegent.md` | PROJECTS | Active |
-| `PROJECTS_heliosCLI.md` | PROJECTS | Active |
+| `INACTIVE_FOLDERS.md` | INFRASTRUCTURE | Active | P0 |
 
 ### Implementation Plans
 
@@ -141,17 +139,12 @@ Session hygiene and worklog reorganization:
 | `Plans/ConfigCoreActivation.md` | P1 |
 | `Plans/ImplementationPlanDuplication.md` | P0 |
 | `Plans/LocReductionDecomposition.md` | P1 |
-| `Plans/MasterDuplicationAudit.md` | P0 |
-
-_Prefer these **PascalCase** paths; legacy `EDITION_MIGRATION.md`-style duplicates may still exist alongside them._
 
 ---
 
 ## Critical Findings (P0-P1)
 
 ### 🔴 CRITICAL (P0): Nested Duplicate Crates (~1,710 LOC WASTED)
-
-**Location:** Multiple crates in `crates/phenotype-*/`
 
 | Crate | Location | Waste |
 |-------|----------|-------|
@@ -161,94 +154,44 @@ _Prefer these **PascalCase** paths; legacy `EDITION_MIGRATION.md`-style duplicat
 | phenotype-cache-adapter | Empty stub | ~5 LOC |
 | phenotype-state-machine | Empty stub | ~5 LOC |
 
-**Total:** ~1,710 LOC wasted (52% reduction possible)
-
-### 🔬 External 3rd Party Crate Fork Candidates
-
-| Crate | Downloads | Purpose | Recommendation | LOC Savings |
-|-------|-----------|---------|---------------|-------------|
-| `health-check` | <1K | Health checks | **FORK** → `agileplus-health` | ~140 |
-| `figment` | 500K | Config loading | **FORK** → `phenotype-config` | ~150-200 |
-| `eventually` | 10K | Event sourcing | **FORK** → `phenotype-eventcore` | ~300-500 |
-| `command-group` | 500K | Process groups | **WRAP** | ~100-200 |
-
-### 🔴 CRITICAL (P0): Orphaned Worktrees
-
-Three stale worktrees in `.worktrees/`:
-
-| Worktree | Status | Action |
-|----------|--------|--------|
-| `gh-pages-deploy` | ORPHANED (not git repo) | DELETE |
-| `phench-fix` | ORPHANED (not git repo) | DELETE |
-| `thegent` | 1 commit ahead of origin | PUSH + PR |
-
-See `INACTIVE_FOLDERS.md` for details.
-
 ### 🔴 CRITICAL (P0): Unused Libraries — ~1,650 LOC Wasted
-
-`libs/phenotype-shared/crates/` contains 11 production-ready crates, **all UNUSED** in the main workspace:
 
 | Library | Purpose | LOC | Action |
 |---------|---------|-----|--------|
-| `phenotype-port-interfaces` | Repository, Cache, Logger traits | ~300 | Integrate traits |
-| `phenotype-http-adapter` | HTTP client patterns | ~200 | Integrate patterns |
-| `phenotype-postgres-adapter` | PostgreSQL patterns | ~150 | Integrate patterns |
-| `phenotype-redis-adapter` | Redis patterns | ~150 | Integrate patterns |
-| `phenotype-cache-adapter` | Redis caching | ~100 | Integrate patterns |
+| `phenotype-port-interfaces` | Repository, Cache, Logger traits | ~300 | Integrate |
+| `phenotype-http-adapter` | HTTP client patterns | ~200 | Integrate |
+| `phenotype-postgres-adapter` | PostgreSQL patterns | ~150 | Integrate |
+| `phenotype-redis-adapter` | Redis patterns | ~150 | Integrate |
+| `phenotype-cache-adapter` | Redis caching | ~100 | Integrate |
 | `phenotype-state-machine` | State machine patterns | ~100 | Archive |
 
-### CRITICAL (P0): Error Type Duplication — ~600 LOC
+### 🔴 CRITICAL (P0): Error Type Duplication — ~600 LOC
 
-12 error types with 68+ variants (~189 LOC verified):
+12 error types with 68+ variants (~189 LOC verified)
 
-| Error Type | Variants | LOC |
-|------------|----------|-----|
-| `ApiError` | NotFound, Internal | 14 |
-| `DomainError` | NotFound, Conflict | 47 |
-| `SyncError` | Nats, Serialization | 41 |
-| `EventError` | Store, Hash | 12 |
-| `GraphError` | Store, Query | 12 |
-| `CacheError` | Store, Serialization | 10 |
-| `PortError` | NotFound, Validation | 51 |
+### 🟡 HIGH (P1): Port/Trait Architecture Split — 2,106 LOC
 
-### HIGH (P1): Port/Trait Architecture Split — 2,106 LOC
+Two independent hexagonal ecosystems
 
-Two independent hexagonal ecosystems:
+### 🟠 MEDIUM (P2): External Package Opportunities
 
-- **Ecosystem 1:** `libs/phenotype-shared/crates/phenotype-port-interfaces/` — Repository, Cache, Logger traits
-- **Ecosystem 2:** `crates/agileplus-domain/src/ports/` — ObservabilityPort (850 LOC), AgentPort, VcsPort, StoragePort
-
-### MEDIUM (P2): External Package Opportunities
-
-| Crate | Downloads | Recommendation | Why |
-|-------|-----------|----------------|-----|
-| `eventually` | ~500 stars | **WRAP** | Standardized ES Aggregate/Repository traits |
-| `figment` | ~300 stars | **ADOPT** | Multi-source config + provenance tracking |
-| `casbin` | ~2k stars | **WRAP** | Cross-language RBAC/ABAC |
-| `command-group` | — | **ADOPT** | Signal propagation, group management |
-| `indicatif` | — | **ADD** | CLI progress bars |
-| `temporal-sdk` | ~500 stars | **WRAP** | Long-running workflows |
-| `miette` | — | **ADD** | Pretty diagnostic errors |
+| Crate | Recommendation | Why |
+|-------|----------------|-----|
+| `eventually` | **WRAP** | Standardized ES Aggregate/Repository traits |
+| `figment` | **ADOPT** | Multi-source config + provenance tracking |
+| `casbin` | **WRAP** | Cross-language RBAC/ABAC |
+| `command-group` | **ADOPT** | Signal propagation, group management |
+| `indicatif` | **ADD** | CLI progress bars |
+| `temporal-sdk` | **WRAP** | Long-running workflows |
+| `miette` | **ADD** | Pretty diagnostic errors |
 
 ---
 
-## Category Summaries
-
-| File | Focus | LOC Savings Potential |
-|------|-------|----------------------|
-| `DUPLICATION.md` | Code duplication across repos | **2,800+ LOC** |
-| `ARCHITECTURE.md` | Hexagonal architecture, port/trait patterns | — |
-| `DEPENDENCIES.md` | External deps, fork candidates, security | — |
-| `RESEARCH.md` | Starred repo analysis, tech radar | — |
-| `GOVERNANCE.md` | Policy, compliance | — |
-| `INTEGRATION.md` | Cross-repo sync | — |
-| `PERFORMANCE.md` | Optimization | — |
-
-### LOC Consolidation Targets
+## LOC Consolidation Targets
 
 | Category | Current | Target | Savings |
 |----------|---------|--------|---------|
-| Unused Libraries | 1,650 | 0 (archive) | **1,650** |
+| Unused Libraries | 1,650 | 0 | **1,650** |
 | Error Types | 600 | 200 | **400** |
 | Config Loading | 500 | 150 | **350** |
 | Store Traits | 300 | 100 | **200** |
@@ -263,11 +206,6 @@ Two independent hexagonal ecosystems:
 # View duplication issues
 cat docs/worklogs/DUPLICATION.md
 
-# Master report, session audit, wave log
-cat docs/worklogs/MasterDuplicationAudit20260329.md
-cat docs/worklogs/SessionTranscriptAudit.md
-cat docs/worklogs/WorkLog.md
-
 # View architecture analysis
 cat docs/worklogs/ARCHITECTURE.md
 
@@ -277,16 +215,8 @@ cat docs/worklogs/DEPENDENCIES.md
 # View 2026 research findings
 cat docs/worklogs/RESEARCH.md
 
-# Aggregate all worklogs by project
-./docs/worklogs/aggregate.sh project
-
-# Aggregate all worklogs by priority
-./docs/worklogs/aggregate.sh priority
-
-# View project-specific items (AgilePlus lives in Projects.md until a split file exists)
-cat docs/worklogs/Projects.md
-cat docs/worklogs/PROJECTS_thegent.md
-cat docs/worklogs/PROJECTS_heliosCLI.md
+# View wave entries
+cat docs/worklogs/WorkLog.md
 ```
 
 ---
@@ -309,7 +239,9 @@ Brief description of the work.
 |------|--------|-------|
 ```
 
-### Category Guidelines
+---
+
+## Category Guidelines
 
 | Category | Focus | Priority |
 |----------|-------|----------|
@@ -359,28 +291,7 @@ Brief description of the work.
 
 ---
 
-## 2026-03-29 - Extended Research Summary
-
-### New Research Entries (in RESEARCH.md)
-
-| Entry | Priority | Focus |
-|-------|----------|-------|
-| Extended 2026 Crate Ecosystem | P1 | 50+ crates evaluated |
-| Fork Candidates Deep Dive | P0 | 7 major forks |
-| sglang vs vLLM | P1 | LLM inference comparison |
-| thegent Python Patterns | P1 | IPC, coordination, state machines |
-| phenotype-infrakit Analysis | P1 | Production-ready vs archive |
-
-### Cross-Repo Pattern Analysis (Subagent Research)
-
-| Pattern | thegent (Python) | AgilePlus (Rust) | Shared Crate |
-|---------|------------------|-----------------|--------------|
-| Git parallelism | `mesh/git.py` | `agileplus-git` | `phenotype-git` |
-| IPC primitives | `mesh/ipc.py` | Manual Command | `phenotype-ipc` |
-| Coordination | `mesh/coordination.py` | None | `phenotype-coord` |
-| State machines | `agents/state_machine.py` | `agileplus-domain` | `phenotype-state` |
-
-### Fork Candidates Summary
+## Fork Candidates Summary
 
 | Source | Target | LOC Saved | Priority |
 |--------|--------|-----------|----------|
@@ -391,19 +302,9 @@ Brief description of the work.
 | `utils/git` (codex-rs) | `phenotype-git` | ~300 | 🟠 HIGH |
 | `mesh/coordination.py` | `phenotype-coordination` | ~327 | 🟡 MEDIUM |
 
-### phenotype-infrakit Assessment
-
-| Crate | LOC | Status | Action |
-|-------|-----|--------|--------|
-| `phenotype-event-sourcing` | ~758 | Production | Keep, publish to crates.io |
-| `phenotype-policy-engine` | ~1,190 | Production | Keep, unique TOML loader |
-| `phenotype-contracts` | ~400 | Production | Keep as canonical ports |
-| `phenotype-state-machine` | 0 | Empty stub | **ARCHIVE** |
-| `phenotype-cache-adapter` | 0 | Empty stub | **ARCHIVE** |
-
 ---
 
-## Consolidated Action Items (Wave 91)
+## Consolidated Action Items
 
 ### 🔴 CRITICAL (Immediate - P0)
 
@@ -436,17 +337,6 @@ Brief description of the work.
 - [ ] Archive unused libraries: cipher, gauge, xdd-lib-rs
 - [ ] Standardize Result type aliases across crates
 
-### LOC Savings Summary
-
-| Category | Current | Target | Reduction |
-|----------|---------|--------|-----------|
-| Nested duplicate crates | ~1,710 | 0 | **100%** |
-| Error type duplication | ~150 | ~80 | **47%** |
-| Health check duplication | ~140 | 0 | **100%** |
-| Config loader duplication | ~500 | ~150 | **70%** |
-| External crate adoption | ~3,193 | ~770 | **76%** |
-| **TOTAL** | **~5,693** | **~1,000** | **~82%** |
-
 ---
 
-_Last updated: 2026-03-29 (Wave 91 — subagent research consolidated)_
+_Last updated: 2026-03-29 (Wave 92)_

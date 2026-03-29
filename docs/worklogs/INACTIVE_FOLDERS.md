@@ -89,21 +89,90 @@ git push origin main
 
 Projects moved to archive:
 
-| Project | Date | Can Restore? |
-|---------|------|--------------|
-| (Empty/Check contents) | - | - |
+| Subdirectory | Files | Status | Action |
+|--------------|-------|--------|--------|
+| `audit/` | 0 | EMPTY | DELETE |
+| `contracts/` | 1 | Minimal | REVIEW + DELETE |
+| `kitty-specs/` | 1 | Minimal | REVIEW + DELETE |
+| `plans/` | 1 | Minimal | REVIEW + DELETE |
+| `schemas/` | 1 | Minimal | REVIEW + DELETE |
+| `tests/` | 3 | Minimal | REVIEW + DELETE |
+
+### `.worktrees/` Contents
+
+| Directory | Git Status | Files | Action |
+|-----------|------------|-------|--------|
+| `gh-pages-deploy/` | NOT A GIT REPO | 30 dirs | DELETE |
+| `phench-fix/` | Unknown | 30 dirs | DELETE |
+| `thegent/` | NOT A GIT REPO | 3 dirs | PUSH + PR |
+
+### `worktrees/` Contents
+
+| Directory | Status | Files | Action |
+|-----------|--------|-------|--------|
+| `heliosCLI/` | Inactive worktree | 3 dirs | SYNC or DELETE |
+
+### `worktree/` Contents
+
+| Directory | Status | Action |
+|-----------|--------|--------|
+| `worktree/` | EMPTY | DELETE |
 
 ---
 
-## Cleanup Checklist
+## 2026-03-29 Updated Cleanup Checklist
 
-- [ ] DELETE `.worktrees/gh-pages-deploy`
-- [ ] DELETE `.worktrees/phench-fix`
-- [ ] PUSH `.worktrees/thegent` to origin
-- [ ] CREATE PR for thegent pending changes
-- [ ] DELETE after PR merge + review
+### IMMEDIATE (This Session)
+
+- [ ] DELETE `.worktrees/gh-pages-deploy` (NOT a git repo - 30 dirs of stale content)
+- [ ] DELETE `.worktrees/phench-fix` (NOT a git repo - 30 dirs of stale content)
+- [ ] DELETE `worktree/` (empty)
 - [ ] DELETE `add/` (empty)
-- [ ] MERGE `worktree/` into `.worktrees/` if needed
+
+### SHORT-TERM (This Week)
+
+- [ ] PUSH `.worktrees/thegent` to origin/main
+- [ ] CREATE PR for thegent pending changes
+- [ ] REVIEW `worktrees/heliosCLI/` - determine canonical location
+- [ ] REVIEW + DELETE `.archive/contracts/`
+- [ ] REVIEW + DELETE `.archive/kitty-specs/`
+- [ ] REVIEW + DELETE `.archive/plans/`
+- [ ] REVIEW + DELETE `.archive/schemas/`
+- [ ] REVIEW + DELETE `.archive/tests/`
+
+### MEDIUM-TERM (This Month)
+
+- [ ] Verify deleted items don't break any references
+- [ ] Update `.gitignore` if needed
+- [ ] Clean up merged git branches
+
+---
+
+## Git Branch Cleanup
+
+### Local Branches to Delete
+
+```bash
+git branch -d fix/phench-tests-1
+git branch -d chore/worklog-consolidation
+```
+
+### Remote Branches to Delete
+
+```bash
+git push origin --delete chore/spec-docs
+git push origin --delete chore/vitepress-docs
+git push origin --delete chore/worklog-*
+git push origin --delete docs/consolidate-worklog-notes
+```
+
+### Stashed Changes to Review
+
+```bash
+# Review before dropping
+git stash show -p stash@{0}
+git stash drop stash@{0}  # After review
+```
 
 ---
 
