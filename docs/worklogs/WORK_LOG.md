@@ -607,3 +607,77 @@ cargo build --workspace  # ✅ Success
 3. Add more conversion traits as needed
 
 _
+
+---
+
+## Wave 97 - Final Consolidation (2026-03-29)
+
+> **Agent:** FORGE  
+> **Date:** 2026-03-29  
+> **Session:** Final Worklogs Audit & Decomposition  
+> **Priority:** P0
+
+### Summary
+
+Completed final worklogs consolidation and decomposition audit. All planned crates created and worklogs organized.
+
+### Actions Completed
+
+| Action | Status | Details |
+|--------|--------|---------|
+| Canonical worklogs structure | ✅ | 14 core files + .archive/ |
+| phenotype-retry crate | ✅ | 329 LOC with builder pattern |
+| phenotype-mcp crate | ✅ | MCP protocol implementation |
+| phenotype-health crate | ✅ | HealthChecker implementation |
+| phenotype-errors crate | ✅ | Unified error hierarchy |
+| phenotype-error-core crate | ✅ | Error core types |
+| phenotype-config-core crate | ✅ | ConfigLoader |
+| libs/ cleanup | ✅ | Archived 9 empty crates |
+| Nested duplicates cleanup | ✅ | Archived phenotype-*/phenotype-* |
+| PR created | ✅ | chore/decomposition-audit-v2 |
+
+### LOC Savings (Cumulative)
+
+| Crate | LOC | Category |
+|-------|-----|----------|
+| phenotype-port-traits | 180 | Async traits |
+| phenotype-logging | 1 | Logging |
+| phenotype-time | 68 | Duration |
+| phenotype-string | 800 | String utilities |
+| phenotype-iter | 820 | Iterator |
+| phenotype-crypto | 100 | Crypto |
+| phenotype-retry | 329 | Retry pattern |
+| agileplus-api-types | 224 | API types |
+| **TOTAL** | **~2,522** | |
+
+### Canonical Structure
+
+```
+docs/worklogs/
+├── README.md              - Index
+├── WORK_LOG.md           - Wave history
+├── ARCHITECTURE.md       - Port/trait analysis
+├── DEPENDENCIES.md       - External deps
+├── DUPLICATION.md        - Duplication audit
+├── GOVERNANCE.md         - Policy
+├── INACTIVE_FOLDERS.md   - Cleanup checklist
+├── INTEGRATION.md        - MCP/NATS
+├── PERFORMANCE.md        - Optimization
+├── QUALITY.md           - Testing
+├── RESEARCH.md           - Tech radar
+├── TOOLING.md           - Dev tools
+├── UX_DX.md             - DX
+└── .archive/            - Consolidated docs
+```
+
+### Next Actions
+
+| ID | Task | Priority |
+|----|------|----------|
+| WRK-001 | Clean up prunable worktrees | P1 |
+| WRK-002 | Wire phenotype-errors into consumers | P1 |
+| WRK-003 | Integrate phenotype-mcp with agents | P2 |
+
+---
+
+_Last updated: 2026-03-29 (Wave 97 complete)_
