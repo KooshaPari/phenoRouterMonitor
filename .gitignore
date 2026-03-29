@@ -147,3 +147,18 @@ thegent-wtrees/
 phenotype-gauge-wtrees/
 template-commons/
 vibe-kanban-wtrees/
+
+# Ghost files (exist on disk but not in git)
+pyproject.toml
+uv.lock
+
+# Worktree clones and research artifacts
+colab-wtrees/
+devenv-abstraction/
+forgecode-wtrees/
+heliosCLI-wtrees/
+trace-wtrees/
+governance/
+docs/research/seeds.jsonl
+tests/infra/
+tokenledger/
