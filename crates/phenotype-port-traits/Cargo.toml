@@ -1,0 +1,17 @@
+[package]
+name = "phenotype-port-traits"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Canonical async trait definitions for Phenotype ports (hexagonal architecture)"
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "sync"] }
