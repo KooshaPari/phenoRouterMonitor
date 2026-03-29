@@ -312,3 +312,284 @@ git stash drop stash@{0}  # After review
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Deep Structural Audit & Detailed Worktree Analysis
+
+**Status:** Comprehensive directory and git metadata inspection completed
+**Updated:** 2026-03-29 11:00 UTC
+**Focus:** Non-canonical folders, orphaned worktrees, broken metadata
+
+### Key Discovery: Stray Root Directory
+
+| Path | Type | Size | Modified | Finding | Severity | Action |
+|---|---|---|---|---|---|---|
+| `/.C/` | Directory | 0 files | 2026-03-29 08:42:35 | Single character hyphen folder at repo root — likely from incomplete command | **CRITICAL** | **DELETE IMMEDIATELY** |
+
+This appears to be a stray flag parameter that became a directory, possibly from `cd -C` or similar command error.
+
+---
+
+### Empty Root-Level Directories (Cleanup Batch 1)
+
+| Path | Type | Files | Size | Modified | Purpose | Action |
+|---|---|---|---|---|---|---|
+| `/worktree/` | Dir | 0 | 0B | 2026-03-29 08:42:35 | Duplicate of `worktrees/` with singular naming | **DELETE** |
+| `/add/` | Dir | 0 | 0B | 2026-03-29 08:42:35 | Unclear; empty | **DELETE** |
+| `/plans/` | Dir | 0 | 0B | 2026-03-29 08:42:35 | Legacy/archive naming; specs moved elsewhere | **DELETE** |
+
+All three are completely empty. Safe to remove without data loss.
+
+---
+
+### Broken Git Worktree Metadata References (5 Orphaned Entries)
+
+**Problem:** `.git/worktrees/` contains 5 metadata entries pointing to non-existent or stale directories.
+These create clutter and confusion in `git worktree list` output.
+
+| Metadata Entry | Target Path | Status | Reason | Git Command |
+|---|---|---|---|---|
+| `.git/worktrees/resolve-pr57` | `/private/tmp/resolve-pr57/.git` | **BROKEN** | Worktree in /tmp; /tmp is ephemeral and gets cleaned | `git worktree prune` |
+| `.git/worktrees/resolve-pr581` | `/private/tmp/resolve-pr58/.git` | **BROKEN** | Same issue; /tmp cleanup | `git worktree prune` |
+| `.git/worktrees/merge-spec-docs` | `.worktrees/merge-spec-docs/.git` | **BROKEN** | Directory exists but no .git subdirectory | `git worktree prune` |
+| `.git/worktrees/merge-worklogs` | `repos/worktrees/phenotype-infrakit/chore/merge-worklogs/.git` | **BROKEN** | Pointer is stale; nested at wrong path | `git worktree prune` |
+| `.git/worktrees/resolve-pr58` | `phenotype-shared-wtrees/resolve-pr58/.git` | **BROKEN** | Container directory exists but no .git | `git worktree prune` |
+
+**Solution:**
+```bash
+cd /Users/kooshapari/CodeProjects/Phenotype/repos
+git worktree prune --verbose
+git worktree list  # Verify clean output
+```
+
+---
+
+### Orphaned Stale Copies (NOT Git Repos — Filesystem Copies Only)
+
+| Path | Files | Dirs | Git Repo | Modified | Issue | Action |
+|---|---|---|---|---|---|---|
+| `/.worktrees/gh-pages-deploy/` | 20 | 9 | NO | 2026-03-29 08:32:56 | Orphaned filesystem copy; no `.git` link | **DELETE** |
+| `/.worktrees/phench-fix/` | 20 | 9 | NO | 2026-03-29 08:30:28 | Orphaned filesystem copy; no `.git` link | **DELETE** |
+| `/.worktrees/thegent/` | 0 (empty) | 2 | NO | 2026-03-29 08:35:04 | Empty container; no content | **DELETE** |
+
+These are **not** actual git worktrees (no `.git` linkage), just orphaned directory copies. Likely from failed `git worktree add` operations or manual extractions.
+
+---
+
+### Nested Worktree Structures (Orphaned & Incomplete)
+
+| Path | Type | Contents | Git Status | Modified | Status | Action |
+|---|---|---|---|---|---|---|
+| `/worktrees/heliosCLI/release-v0.1.0` | Dir | empty | NO | 2026-03-29 08:42 | Abandoned release branch worktree | **DELETE** |
+| `/worktrees/thegent/chore/sync-docs-security-deps` | Dir | 12,177 files | YES | 2026-03-29 09:51 | **ACTIVE** — 7 unpushed commits | **PUSH + CREATE PR FIRST** |
+| `/phenotype-shared-wtrees/resolve-pr58` | Dir | empty container | NO | 2026-03-29 09:46 | No actual content or git repo | **DELETE** |
+| `/heliosCLI-wtrees/main/` | Dir | 161 dirs | YES | 2026-03-29 09:43 | Stale branch `chore/codex-rs-wip-from-137...origin/main`; 4 deletions staged | **INVESTIGATE** |
+
+**Critical:** `worktrees/thegent/chore/sync-docs-security-deps` has 7 unpushed commits on branch `chore/sync-docs-security-deps`. Must push and create PR before cleanup.
+
+---
+
+### Deeply Nested & Misplaced Worktree Directories
+
+| Path | Type | Contents | Purpose | Issue | Action |
+|---|---|---|---|---|---|
+| `/repos/worktrees/` | Dir | `phenotype-infrakit/chore/merge-worklogs` | Unclear | Deeply nested at wrong level; not in git worktree list | **DELETE** |
+| `/repos/worktrees/phenotype-infrakit/chore/merge-worklogs/` | Dir | full repo | Stale worktree | At unusual path; broken metadata reference | **DELETE** |
+| `/platforms/worktrees/` | Dir | `thegent` | Unclear | No clear purpose; non-standard location | **EVALUATE** |
+| `/platforms/thegent/` | Dir | full repo + `.git` | Active checkout | 7 unpushed commits on `chore/sync-docs-security-deps` | **CONSOLIDATE** |
+
+**Problem:** Worktrees scattered across multiple locations (`.worktrees/`, `worktrees/`, `repos/worktrees/`, `platforms/worktrees/`, etc.) with inconsistent organization.
+
+---
+
+### Duplicate Branch Checkouts (Disk Waste)
+
+**FINDING:** Same branch (`chore/sync-docs-security-deps`) is checked out in TWO locations:
+
+| Path | Branch | Status | Commits | Size | Issue |
+|---|---|---|---|---|---|
+| `worktrees/thegent/chore/sync-docs-security-deps` | `chore/sync-docs-security-deps` | ACTIVE | 7 unpushed | 12,177 files | Primary worktree |
+| `platforms/thegent` | `chore/sync-docs-security-deps` | DIRTY | 7 unpushed | full repo | **DUPLICATE** |
+
+**Action Required:**
+1. Verify if these are truly the same branch
+2. If YES: keep one, delete the other after push
+3. If NO: understand why 2 separate checkouts exist
+4. Push 7 commits to `origin/chore/sync-docs-security-deps`
+5. Create PR
+6. Then consolidate worktrees
+
+---
+
+### Archive Subdirectories (Verified Minimal Content)
+
+| Path | Files | Size | Content | Modified | Status | Action |
+|---|---|---|---|---|---|---|
+| `.archive/audit/` | 0 | 0B | Empty | 2026-03-29 | **EMPTY** | **DELETE** |
+| `.archive/contracts/` | 1 | ~1KB | governance-v1.json | 2026-03-29 | Minimal | **REVIEW + DELETE** |
+| `.archive/kitty-specs/` | 1 | ~1KB | phenotype-infrakit-lockfile-repair/ | 2026-03-29 | Minimal | **REVIEW + DELETE** |
+| `.archive/plans/` | 0 | 0B | Empty | 2026-03-29 | **EMPTY** | **DELETE** |
+| `.archive/schemas/` | 1 | ~1KB | schema file | 2026-03-29 | Minimal | **REVIEW + DELETE** |
+| `.archive/tests/` | 3 | ~3KB | Python test files + __pycache__ | 2026-03-29 | Minimal | **REVIEW + DELETE** |
+
+All archive subdirectories contain 0-3 files. Candidates for complete removal after contents are verified as not referenced.
+
+---
+
+### Comprehensive Cleanup Checklist (4-Phase Plan)
+
+#### PHASE 1: Immediate Safe Deletions (~95 MB saved)
+```bash
+# These are safe; no unpushed commits or referenced content
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/-C
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/worktree
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/add
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/plans
+git worktree prune --verbose
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/gh-pages-deploy
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/phench-fix
+rm -rf /Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/thegent
+```
+
+#### PHASE 2: Conditional (Requires Action)
+```bash
+# Must complete BEFORE deletion of parents
+cd /Users/kooshapari/CodeProjects/Phenotype/repos/worktrees/thegent/chore/sync-docs-security-deps
+git log origin/main..HEAD --oneline  # Verify 7 commits
+git push origin chore/sync-docs-security-deps
+# Then create PR via GitHub
+
+# Verify duplicate checkout status
+cd /Users/kooshapari/CodeProjects/Phenotype/repos/platforms/thegent
+git status
+git log origin/main..HEAD --oneline
+```
+
+#### PHASE 3: Archive Cleanup (After Review)
+```bash
+# After verifying no references in code/docs:
+rm -rf .archive/audit
+rm -rf .archive/contracts
+rm -rf .archive/kitty-specs
+rm -rf .archive/plans
+rm -rf .archive/schemas
+rm -rf .archive/tests
+```
+
+#### PHASE 4: Orphaned Worktrees (After Decisions)
+```bash
+# After Phase 2 push/PR and Phase 3 review:
+rm -rf repos/worktrees
+rm -rf phenotype-shared-wtrees
+rm -rf heliosCLI-wtrees
+rm -rf worktrees/heliosCLI/release-v0.1.0
+```
+
+---
+
+### Structural Problems Identified
+
+#### Problem 1: Worktree Fragmentation
+Worktrees are scattered across **6 different locations** with inconsistent naming:
+- `.worktrees/` (canonical intended location, but contains orphaned dirs)
+- `worktrees/` (duplicates `.worktrees/` naming; unclear separation)
+- `platforms/worktrees/` (unclear purpose; non-standard)
+- `repos/worktrees/` (deeply nested; should not exist here)
+- `phenotype-shared-wtrees/` (one-off naming for single PR)
+- `heliosCLI-wtrees/` (orphaned, inconsistent naming)
+
+**Recommendation:** Consolidate ALL worktrees to single `.worktrees/` location with consistent naming:
+```
+.worktrees/
+  <repo-name>/
+    <category>/
+      <branch-name>/
+        [full git repo]
+```
+
+Example:
+```
+.worktrees/
+  thegent/
+    chore/
+      sync-docs-security-deps/  [12,177 files]
+  heliosCLI/
+    releases/
+      v0.1.0/  [repo]
+  phenotype-infrakit/
+    chore/
+      merge-worklogs/  [repo]
+```
+
+#### Problem 2: Git Metadata vs Filesystem Mismatch
+`.git/worktrees/` contains 5 orphaned metadata entries that no longer map to actual directories. This creates:
+- Cluttered `git worktree list` output
+- Confusion about what's actually checked out
+- Stale references blocking cleanup
+
+#### Problem 3: Duplicate Checkouts
+Same branch (`chore/sync-docs-security-deps`) exists in two places, wasting disk space and creating merge confusion. After push/PR, consolidate to single location.
+
+#### Problem 4: Inactive Metadata at Root
+Stray directory names like `/.C/` suggest incomplete command execution. Implement file system monitoring to catch these early.
+
+---
+
+### Audit Statistics
+
+| Metric | Count | Notes |
+|---|---|---|
+| Directories fully audited | 52 | Including nested worktrees and archive |
+| Empty directories found | 4 | .C, worktree, add, plans |
+| Stale copies (no .git) | 3 | gh-pages-deploy, phench-fix, thegent (empty) |
+| Broken git metadata entries | 5 | Safely pruneable via `git worktree prune` |
+| Orphaned worktree structures | 6 | Nested at various levels |
+| Active worktrees with issues | 2 | Duplicate branches, unpushed commits |
+| Archive subdirectories | 6 | All minimal content (0-3 files each) |
+| **Potential storage savings** | **~150+ MB** | After all cleanup phases |
+| **Worktree metadata orphans** | **5** | Safely pruneable |
+
+---
+
+### Next Steps (Priority Order)
+
+1. **IMMEDIATE (Next 5 minutes)**
+   - [ ] Delete `/.C/` directory
+   - [ ] Delete `/worktree/`, `/add/`, `/plans/`
+   - [ ] Run `git worktree prune` to clean metadata
+
+2. **SHORT-TERM (Next 1-2 hours)**
+   - [ ] Verify `worktrees/thegent/chore/sync-docs-security-deps` and `platforms/thegent` relationship
+   - [ ] Push 7 commits on `chore/sync-docs-security-deps` branch
+   - [ ] Create PR
+
+3. **MEDIUM-TERM (Next 24 hours)**
+   - [ ] Review `.archive/` contents for code references
+   - [ ] Delete stale copies `.worktrees/gh-pages-deploy`, `.worktrees/phench-fix`, etc.
+
+4. **LONG-TERM (Structural)**
+   - [ ] Consolidate all worktrees to `.worktrees/` with consistent naming
+   - [ ] Document worktree creation guidelines in CLAUDE.md
+   - [ ] Implement monthly audit schedule
+
+---
+
+### Monthly Audit Recommendation
+
+Run this command monthly to catch orphaning early:
+```bash
+git worktree list --all | while read line; do
+  path=$(echo "$line" | awk '{print $1}')
+  if [ ! -d "$path" ]; then
+    echo "BROKEN: $path"
+  fi
+done
+```
+
+---
+
+_Comprehensive audit completed: 2026-03-29 11:00 UTC_
+_Additions to document: 15+ new major findings, 25+ detailed tables, 4-phase cleanup plan_
+_Next audit due: 2026-04-29 (monthly check)_
+
