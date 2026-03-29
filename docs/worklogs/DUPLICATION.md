@@ -2106,8 +2106,6 @@ pub async fn setup_auth_db() -> SqlitePool { /* 23 LOC */ }
 
 _Last updated: 2026-03-29_
 
-**Consolidation:** Extract to `libs/test-fixtures/src/auth.rs` with typed builders
-
 ```rust
 // libs/test-fixtures/src/auth.rs
 pub struct AuthFixtureBuilder {
