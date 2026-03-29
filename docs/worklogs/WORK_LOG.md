@@ -390,3 +390,102 @@ crates/phenotype-cache-adapter/phenotype-cache-adapter/src/ # DUP
 ---
 
 _Last updated: 2026-03-29 (Wave 93)_
+
+---
+
+## Wave 93 - LOC Reduction & External Package Strategy (2026-03-29)
+
+**Status:** completed  
+**Priority:** P0-P1  
+**Agent:** FORGE
+
+### Summary
+
+Created comprehensive LOC reduction analysis and external package fork/wrap strategy for Phenotype ecosystem.
+
+### Files Created/Enhanced
+
+| File | Action | Lines | Key Content |
+|------|--------|-------|-------------|
+| `LOC_REDUCTION.md` | CREATED | 779 | LOC savings matrix, fork/wrap opportunities, implementation examples |
+| `RESEARCH.md` | ENHANCED | +330 | External package strategy, package health matrix, implementation schedule |
+| `README.md` | UPDATED | +2 | Added LOC_REDUCTION.md entry |
+
+### LOC Reduction Matrix (3,190 LOC Savings Potential)
+
+| Category | Current | Target | Savings | Priority |
+|----------|---------|--------|---------|----------|
+| Nested duplicate crates | ~1,710 | 0 | **1,710** | P0 |
+| Error types | ~600 | ~200 | **400** | P0 |
+| Config loading | ~500 | ~150 | **350** | P1 |
+| In-memory stores | ~400 | ~150 | **250** | P1 |
+| Async traits | ~500 | ~200 | **300** | P1 |
+| Health checks | ~140 | ~60 | **80** | P1 |
+| State machines | ~300 | ~50 | **250** | P1 |
+| Retry logic | ~100 | ~10 | **90** | P2 |
+| Serialization | ~150 | ~50 | **100** | P2 |
+| **TOTAL** | **4,400** | **~870** | **~3,530** | |
+
+### External Package Fork/Wrap Strategy
+
+#### FORK Candidates (Whitebox - Requires Modification)
+
+| Package | Current | Target | Savings | Effort | Risk |
+|---------|---------|--------|---------|--------|------|
+| `casbin-rs` | 2,004 LOC | 500 LOC | 1,500 LOC | 2-3 weeks | MEDIUM |
+| `cqrs-es` | 1,638 LOC | 400 LOC | 1,200 LOC | 4-6 weeks | MEDIUM |
+| `health-check` | 140 LOC | 60 LOC | 80 LOC | 1 week | LOW |
+
+#### WRAP Candidates (Blackbox - No Modification)
+
+| Package | LOC Savings | Effort | Implementation |
+|---------|------------|--------|----------------|
+| `figment` | 400 LOC | 1 week | Replace all TOML loaders |
+| `statig` | 220 LOC | 2 days | Replace custom state machines |
+| `backon` | 80 LOC | 1 day | Standardize retry logic |
+| `miette` | N/A | 2 days | Rich error diagnostics |
+
+#### ADOPT Candidates (Drop-in Replacement)
+
+| Package | LOC Potential | Implementation |
+|---------|---------------|----------------|
+| `rkyv` | 200 LOC | Zero-copy hot paths |
+| `postcard` | 50 LOC | `no_std` serialization |
+| `minicbor` | 30 LOC | CBOR for constrained |
+
+### Implementation Priority Schedule
+
+#### Week 1 (Quick Wins - 0 Risk)
+
+| Package | LOC Savings | Implementation |
+|---------|-------------|----------------|
+| `figment` | 400 LOC | Replace all TOML loaders |
+| `miette` | N/A | Add diagnostics to ApiError |
+| `statig` | 220 LOC | Replace custom state machines |
+| `backon` | 80 LOC | Standardize retry logic |
+
+#### Week 2 (Medium Effort - Low Risk)
+
+| Package | LOC Savings | Implementation |
+|---------|-------------|----------------|
+| `health-check` fork | 80 LOC | Create agileplus-health |
+| `cqrs-es` fork | 1,200 LOC | Create agileplus-events |
+
+#### Week 3-4 (Major Refactors - Medium Risk)
+
+| Package | LOC Savings | Implementation |
+|---------|-------------|----------------|
+| `casbin-rs` fork | 1,500 LOC | Create agileplus-policy |
+| `rkyv` evaluation | 200 LOC | Benchmark for hot paths |
+
+### Next Steps
+
+- [ ] Remove nested duplicate crates (Phase 1 - 1,710 LOC)
+- [ ] Integrate `figment` for config loading
+- [ ] Add `miette` diagnostics to ApiError
+- [ ] Evaluate `statig` for state machines
+- [ ] Create `agileplus-error-core` crate
+- [ ] Fork `health-check` to `agileplus-health`
+- [ ] Evaluate `casbin-rs` fork for policy engine
+
+_Last updated: 2026-03-29 (Wave 93 Complete)_

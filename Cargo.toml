@@ -1,37 +1,77 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/phenotype-contracts",
-    "crates/phenotype-event-sourcing",
     "crates/phenotype-cache-adapter",
-    "crates/phenotype-policy-engine",
-    "crates/phenotype-state-machine",
-    "crates/phenotype-git-core",
+    "crates/phenotype-contracts",
+    "crates/phenotype-crypto",
     "crates/phenotype-errors",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-iter",
+    "crates/phenotype-mcp",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-git-core",
+    "crates/phenotype-state-machine",
+    "crates/phenotype-string",
     "crates/phenotype-telemetry",
     "crates/phenotype-test-infra",
+    "crates/phenotype-time",
+    "crates/agileplus-api-types",
 ]
 
 [workspace.package]
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
+rust-version = "1.75"
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
 [workspace.dependencies]
+# Core
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
 thiserror = "2.0"
+anyhow = "1.0"
+futures = "0.3"
+
+# Serialization
+blake3 = "1.5"
+rkyv = { version = "0.8", features = ["validate"] }
+
+# Async
+async-trait = "0.1"
+
+# Time and IDs
 chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Crypto and hashing
 sha2 = "0.10"
 hex = "0.4"
-dashmap = "6.1"
+gix = "0.79"
+
+# Collections
+dashmap = "5"
 lru = "0.12"
 parking_lot = "0.12"
 moka = { version = "0.12", features = ["sync", "future"] }
+
+# Parsing
 toml = "0.8"
-regex = "1.11"
-uuid = { version = "1.11", features = ["v4", "serde"] }
+regex = "1"
+
+# HTTP
+reqwest = { version = "0.12", features = ["json"] }
+
+# Tracing
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Macros
+syn = "2"
+quote = "1"
+proc-macro2 = "1"
 
 [profile.dev]
 opt-level = 0
