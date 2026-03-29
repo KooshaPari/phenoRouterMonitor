@@ -35,34 +35,18 @@ jobs:
             os: ubuntu-latest
             use_cross: true
     steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: arduino/setup-protoc@v3
+      - uses: ./.github/actions/setup-env
         with:
-          version: "28.x"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install cross
-        if: matrix.use_cross
-        run: cargo install cross
-      - name: Build release binary
-        run: |
-          if [ "${{ matrix.use_cross }}" = "true" ]; then
-            cross build --release --target ${{ matrix.target }}
-          else
-            cargo build --release --target ${{ matrix.target }}
-          fi
-      - name: Strip binary
-        run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            strip target/${{ matrix.target }}/release/agileplus || true
-          fi
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+          rust-version: stable
+          setup-protoc: 'true'
+
+      - uses: ./.github/actions/build-rust-binary
         with:
-          name: agileplus-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/agileplus
-          retention-days: 5
+          target: ${{ matrix.target }}
+          use-cross: ${{ matrix.use_cross }}
+          binary-name: agileplus
+          artifact-name: agileplus-${{ matrix.target }}
+          strip-binary: 'true'
 
   # ─── Create GitHub Release ────────────────────────────────────────────
   create-release:
@@ -72,9 +56,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
         with:
-          fetch-depth: 0
+          checkout-depth: '0'
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:

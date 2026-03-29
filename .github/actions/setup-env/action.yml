@@ -1,0 +1,37 @@
+name: Setup Environment
+description: Setup common build environment (checkout, Rust toolchain, caches, protoc)
+
+inputs:
+  rust-version:
+    description: Rust toolchain version (e.g., stable, nightly)
+    required: false
+    default: stable
+  setup-protoc:
+    description: Setup Protocol Buffers compiler
+    required: false
+    default: 'false'
+  checkout-depth:
+    description: Depth of git checkout (0 = full history)
+    required: false
+    default: '1'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: ${{ inputs.checkout-depth }}
+
+    - name: Setup Rust toolchain
+      uses: dtolnay/rust-toolchain@${{ inputs.rust-version }}
+
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@v2
+
+    - name: Setup Protocol Buffers
+      if: inputs.setup-protoc == 'true'
+      uses: arduino/setup-protoc@v3
+      with:
+        version: '28.x'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}

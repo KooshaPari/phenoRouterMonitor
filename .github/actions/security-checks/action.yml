@@ -1,0 +1,58 @@
+name: Security Checks
+description: Run security checks (cargo-audit, cargo-deny, gitleaks, bandit)
+
+inputs:
+  cargo-audit:
+    description: Run cargo-audit
+    required: false
+    default: 'true'
+  cargo-deny:
+    description: Run cargo-deny
+    required: false
+    default: 'true'
+  cargo-deny-config:
+    description: Path to cargo-deny config
+    required: false
+    default: 'rust/deny.toml'
+  gitleaks:
+    description: Run gitleaks secret detection
+    required: false
+    default: 'true'
+  python-bandit:
+    description: Run Python bandit security scanner
+    required: false
+    default: 'false'
+  bandit-path:
+    description: Path to scan with bandit
+    required: false
+    default: 'python/src'
+
+runs:
+  using: composite
+  steps:
+    - name: Cargo Audit
+      if: inputs.cargo-audit == 'true'
+      uses: rustsec/audit-check@v2.0.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cargo Deny
+      if: inputs.cargo-deny == 'true'
+      run: |
+        cargo install cargo-deny
+        cargo deny check -c ${{ inputs.cargo-deny-config }}
+      shell: bash
+
+    - name: Gitleaks Secret Detection
+      if: inputs.gitleaks == 'true'
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Python Bandit Security Check
+      if: inputs.python-bandit == 'true'
+      run: |
+        pip install bandit[toml]
+        bandit -r ${{ inputs.bandit-path }} -ll
+      shell: bash
+      continue-on-error: true

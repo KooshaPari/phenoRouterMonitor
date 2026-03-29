@@ -22,33 +22,13 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@nightly
-      - uses: Swatinem/rust-cache@v2
+      - uses: ./.github/actions/setup-env
         with:
-          workspaces: rust
-      - uses: arduino/setup-protoc@v3
+          rust-version: nightly
+          setup-protoc: 'true'
+
+      - uses: ./.github/actions/run-benchmarks
         with:
-          version: "28.x"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Check for benches directory
-        id: check-benches
-        run: |
-          if [ -d "rust/benches" ] || [ -d "benches" ]; then
-            echo "has-benches=true" >> $GITHUB_OUTPUT
-          else
-            echo "has-benches=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Run benchmarks
-        if: steps.check-benches.outputs.has-benches == 'true'
-        run: cargo bench --all --no-run
-        continue-on-error: true
-      - name: Store benchmark results
-        if: steps.check-benches.outputs.has-benches == 'true'
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          tool: 'cargo'
-          output-file-path: target/criterion/output.txt
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
-        continue-on-error: true
+          benchmark-dir: rust/benches
+          tool: cargo
+          output-file: target/criterion/output.txt

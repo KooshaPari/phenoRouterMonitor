@@ -7,8 +7,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test --all
-      - run: cargo clippy -- -D warnings
+      - uses: ./.github/actions/setup-env
+        with:
+          rust-version: stable
+
+      - uses: ./.github/actions/run-tests
+        with:
+          test-command: cargo test --all
+          lint-command: cargo clippy -- -D warnings

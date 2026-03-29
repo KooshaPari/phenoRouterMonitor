@@ -1,0 +1,52 @@
+name: Build Rust Binary
+description: Build optimized Rust release binary with optional cross-compilation
+
+inputs:
+  target:
+    description: Rust target triple (e.g., x86_64-unknown-linux-gnu)
+    required: true
+  use-cross:
+    description: Use cross-compilation tool
+    required: false
+    default: 'false'
+  binary-name:
+    description: Name of the output binary (without path)
+    required: false
+    default: 'agileplus'
+  artifact-name:
+    description: GitHub artifact name (defaults to binary-name-target)
+    required: false
+    default: ''
+  strip-binary:
+    description: Strip binary after build
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Install cross (if needed)
+      if: inputs.use-cross == 'true'
+      run: cargo install cross
+      shell: bash
+
+    - name: Build release binary
+      run: |
+        if [ "${{ inputs.use-cross }}" = "true" ]; then
+          cross build --release --target ${{ inputs.target }}
+        else
+          cargo build --release --target ${{ inputs.target }}
+        fi
+      shell: bash
+
+    - name: Strip binary
+      if: inputs.strip-binary == 'true'
+      run: strip target/${{ inputs.target }}/release/${{ inputs.binary-name }} || true
+      shell: bash
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name || format('{0}-{1}', inputs.binary-name, inputs.target) }}
+        path: target/${{ inputs.target }}/release/${{ inputs.binary-name }}
+        retention-days: 5

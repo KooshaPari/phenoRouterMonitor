@@ -1,0 +1,45 @@
+name: Run Benchmarks
+description: Run Rust benchmarks and store results
+
+inputs:
+  benchmark-dir:
+    description: Path to benchmarks directory
+    required: false
+    default: 'rust/benches'
+  tool:
+    description: Benchmark tool (e.g., cargo)
+    required: false
+    default: 'cargo'
+  output-file:
+    description: Benchmark output file path
+    required: false
+    default: 'target/criterion/output.txt'
+
+runs:
+  using: composite
+  steps:
+    - name: Check for benchmarks
+      id: check-benches
+      run: |
+        if [ -d "${{ inputs.benchmark-dir }}" ] || [ -d "benches" ]; then
+          echo "has-benches=true" >> $GITHUB_OUTPUT
+        else
+          echo "has-benches=false" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Run benchmarks
+      if: steps.check-benches.outputs.has-benches == 'true'
+      run: cargo bench --all --no-run
+      shell: bash
+      continue-on-error: true
+
+    - name: Store benchmark results
+      if: steps.check-benches.outputs.has-benches == 'true'
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: ${{ inputs.tool }}
+        output-file-path: ${{ inputs.output-file }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+      continue-on-error: true

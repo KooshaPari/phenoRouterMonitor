@@ -1975,3 +1975,331 @@ tower = { version = "0.5", features = ["limit"] }
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - API Gateway & Reverse Proxy Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P1
+
+### Current API Architecture
+
+| Service | Port | Protocol | Purpose |
+|---------|------|----------|---------|
+| `agileplus-api` | 8080 | HTTP | REST API |
+| `agileplus-websocket` | 8081 | WS | Real-time |
+| `thegent` | 9090 | HTTP | Agent control |
+| `helios-server` | 3000 | HTTP | UI backend |
+
+### Gateway Requirements
+
+| Requirement | Current State | Target |
+|-------------|---------------|--------|
+| Single entry point | ❌ Multiple ports | ✅ Single :443 |
+| Auth aggregation | ❌ Per-service | ✅ Centralized |
+| Rate limiting | ❌ Per-service | ✅ Global |
+| Request routing | ❌ None | ✅ Path-based |
+| SSL termination | ❌ None | ✅ Auto |
+
+### Proposed Gateway Layer
+
+```
+                    ┌─────────────────────────────────────┐
+                    │           API Gateway                │
+                    │   (axum + tower + tower-http)       │
+                    └──────────┬───────────┬──────────────┘
+                               │           │
+           ┌───────────────────┼───────────┼────────────────┐
+           │                   │           │                │
+    ┌──────▼──────┐    ┌──────▼──────┐   │   ┌────────────▼───────┐
+    │ /api/*      │    │ /ws/*       │   │   │ /agent/*           │
+    │ agileplus-api│    │ agileplus-ws│   │   │ thegent            │
+    └──────────────┘    └─────────────┘   │   └────────────────────┘
+                                          │
+                                 ┌────────▼─────────┐
+                                 │ /ui/*            │
+                                 │ helios-server    │
+                                 └──────────────────┘
+```
+
+### Gateway Crate: `phenotype-gateway`
+
+```rust
+// crates/phenotype-gateway/src/lib.rs
+use axum::{
+    Router,
+    routing::get,
+    middleware::{from_fn, Next},
+};
+
+pub async fn gateway_router() -> Router {
+    Router::new()
+        .route("/api/*path", proxy_to("agileplus-api:8080"))
+        .route("/ws/*path", proxy_to("agileplus-ws:8081"))
+        .route("/agent/*path", proxy_to("thegent:9090"))
+        .route("/ui/*path", proxy_to("helios-server:3000"))
+        .layer(from_fn(auth_middleware))
+        .layer(from_fn(rate_limit_middleware))
+}
+```
+
+### Tasks
+
+- [ ] GW-001: Create `phenotype-gateway` crate
+- [ ] GW-002: Implement path-based routing
+- [ ] GW-003: Add JWT validation middleware
+- [ ] GW-004: Add rate limiting per client
+
+---
+
+## 2026-03-29 - Workflow Engine Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P1
+
+### Workflow Use Cases
+
+| Use Case | Current | Target |
+|----------|---------|--------|
+| CI/CD pipelines | GitHub Actions | Native workflow |
+| Agent orchestration | thegent-hooks | Workflow DSL |
+| Data processing | Custom scripts | Workflow engine |
+| Batch jobs | Cron + scripts | Workflow scheduler |
+
+### Workflow Engine Design
+
+```rust
+// crates/phenotype-workflow/src/lib.rs
+
+pub struct Workflow {
+    pub id: WorkflowId,
+    pub name: String,
+    pub steps: Vec<WorkflowStep>,
+    pub triggers: Vec<Trigger>,
+}
+
+pub enum WorkflowStep {
+    Task(TaskDefinition),
+    Parallel(Vec<WorkflowStep>),
+    Sequence(Vec<WorkflowStep>),
+    Conditional {
+        condition: Condition,
+        then_branch: Vec<WorkflowStep>,
+        else_branch: Vec<WorkflowStep>,
+    },
+    Await(AwaitDefinition),
+}
+
+pub trait WorkflowExecutor: Send + Sync {
+    async fn execute(&self, workflow: &Workflow, ctx: &WorkflowContext) -> Result<ExecutionResult>;
+    async fn cancel(&self, execution_id: ExecutionId) -> Result<()>;
+}
+```
+
+### Integration Candidates
+
+| Engine | Type | Integration |
+|--------|------|-------------|
+| Temporal | Cloud | Too heavy |
+| Prefekt | Open source | EVALUATE |
+| forza-core | Rust-native | EVALUATE |
+| Custom | Phenotype | BUILD |
+
+### Tasks
+
+- [ ] WF-001: Design workflow DSL
+- [ ] WF-002: Implement workflow executor
+- [ ] WF-003: Add persistence layer
+- [ ] WF-004: Integrate with agent system
+
+---
+
+## 2026-03-29 - Data Pipeline Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P2
+
+### Current Data Flow
+
+```
+User Input → API → Event Bus → Event Store
+                              ↓
+                         Projections
+                              ↓
+                         Read Models
+```
+
+### Pipeline Requirements
+
+| Stage | Components | Purpose |
+|-------|------------|---------|
+| Ingest | HTTP, WebSocket, gRPC | Data collection |
+| Transform | ETL, mapping, validation | Data processing |
+| Store | Event store, projections | Data persistence |
+| Serve | GraphQL, REST, SSE | Data access |
+
+### Data Pipeline Crate: `phenotype-pipeline`
+
+```rust
+// crates/phenotype-pipeline/src/lib.rs
+
+pub trait PipelineStage<I, O>: Send + Sync {
+    async fn process(&self, input: I) -> Result<O>;
+}
+
+pub struct Pipeline<I, O> {
+    stages: Vec<Box<dyn PipelineStage<I, O>>>,
+}
+
+impl<I, O> Pipeline<I, O> {
+    pub fn new() -> Self { ... }
+    
+    pub fn add_stage<S>(&mut self, stage: S) 
+    where
+        S: PipelineStage<I, O> + 'static { ... }
+        
+    pub async fn run(&self, input: I) -> Result<O> { ... }
+}
+```
+
+### Tasks
+
+- [ ] PIP-001: Create `phenotype-pipeline` crate
+- [ ] PIP-002: Implement stage traits
+- [ ] PIP-003: Add backpressure handling
+- [ ] PIP-004: Add error recovery
+
+---
+
+## 2026-03-29 - Multi-Tenant Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** pending
+**Priority:** P2
+
+### Tenant Isolation Options
+
+| Strategy | Pros | Cons | Use Case |
+|----------|------|------|----------|
+| Database per tenant | Complete isolation | Resource overhead | Enterprise |
+| Schema per tenant | Good isolation | Migration complexity | SaaS |
+| Row-level security | Efficient | Query overhead | Shared |
+| Token-based | Simple | Security risk | Internal |
+
+### Proposed Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Tenant Router                      │
+│         (Extract tenant from JWT/session)           │
+└────────────────────────┬────────────────────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
+    │ Tenant A│    │ Tenant B│    │Tenant C │
+    │ Schema  │    │ Schema  │    │ Schema  │
+    └─────────┘    └─────────┘    └─────────┘
+```
+
+### Tenant Context
+
+```rust
+// crates/phenotype-tenant/src/context.rs
+
+#[derive(Clone)]
+pub struct TenantContext {
+    pub tenant_id: TenantId,
+    pub plan: TenantPlan,
+    pub limits: TenantLimits,
+    pub metadata: HashMap<String, String>,
+}
+
+impl TenantContext {
+    pub fn current() -> Option<Arc<TenantContext>> { ... }
+    
+    pub fn require() -> Result<Arc<TenantContext>> { ... }
+}
+
+pub fn with_tenant<T>(ctx: TenantContext, f: impl FnOnce() -> T) -> T {
+    CONTEXT.scope(ctx, f)
+}
+```
+
+### Tasks
+
+- [ ] TENANT-001: Create `phenotype-tenant` crate
+- [ ] TENANT-002: Implement tenant context propagation
+- [ ] TENANT-003: Add row-level security policies
+- [ ] TENANT-004: Add tenant-specific resource limits
+
+---
+
+## 2026-03-29 - Observability Stack Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** pending
+**Priority:** P2
+
+### Current Observability
+
+| Pillar | Tool | Coverage |
+|--------|------|----------|
+| Logs | tracing-subscriber | Partial |
+| Metrics | prometheus | Partial |
+| Traces | OpenTelemetry | None |
+| Profiles | None | None |
+
+### Target Observability Stack
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   Phenotype Apps                    │
+├─────────────────────────────────────────────────────┤
+│  Logs (structured)  │  Metrics   │  Traces (OTLP)  │
+└──────────┬───────────┴─────┬──────┴────────┬────────┘
+           │                 │              │
+    ┌──────▼──────┐    ┌─────▼─────┐  ┌────▼────┐
+    │ Loki/Prometheus│   │ Prometheus│  │ Jaeger  │
+    └──────────────┘    └───────────┘  └─────────┘
+```
+
+### Observability Crate: `phenotype-observability`
+
+```rust
+// crates/phenotype-observability/src/lib.rs
+
+pub fn init(service_name: &str, config: &ObsConfig) -> Result<()> {
+    // 1. Initialize tracing with OTLP exporter
+    init_tracing(config.tracing_endpoint)?;
+    
+    // 2. Initialize metrics registry
+    init_metrics(config.metrics_port)?;
+    
+    // 3. Initialize structured logging
+    init_logging(config.log_format)?;
+    
+    Ok(())
+}
+
+pub fn metrics() -> &'static MetricsRegistry { ... }
+pub fn tracer() -> &'static Tracer { ... }
+```
+
+### Tasks
+
+- [ ] OBS-001: Create `phenotype-observability` crate
+- [ ] OBS-002: Add OTLP trace export
+- [ ] OBS-003: Add Prometheus scrape endpoint
+- [ ] OBS-004: Add correlation ID propagation
+
+_Last updated: 2026-03-29 (Round 5)_

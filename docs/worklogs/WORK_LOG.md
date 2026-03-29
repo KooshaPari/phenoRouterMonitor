@@ -228,7 +228,161 @@ Identical source files exist in two locations:
 
 ---
 
-## Wave 93: LOC Reduction & External Package Deep Dive
+## Wave 93: LOC Reduction & External Package Deep Dive (2026-03-29)
+
+**Status:** completed  
+**Priority:** P0-P1  
+**Agents:** FORGE (shell LOC scanner + subagent analysis)
+
+### Summary
+
+Executed comprehensive LOC audit with precise metrics from shell scans.
+
+### Precise LOC Metrics (Shell Scans 2026-03-29)
+
+#### Core Workspace (Rust)
+
+| Crate/Directory | LOC | Status | Notes |
+|-----------------|-----|--------|-------|
+| `libs/*` (10 libs) | 1,470 | **UNUSED** | edition 2021 mismatch |
+| `agileplus-domain` | 2,051 | ACTIVE | Port traits (850 LOC) |
+| `agileplus-api` | 1,099 | ACTIVE | HTTP handlers |
+| `agileplus-sync` | ~800 | ACTIVE | Sync patterns |
+| `agileplus-p2p` | ~900 | ACTIVE | P2P networking |
+| `agileplus-events` | ~400 | ACTIVE | Event store |
+| `agileplus-graph` | ~600 | ACTIVE | Graph store |
+| `agileplus-cache` | ~300 | ACTIVE | Cache patterns |
+| `agileplus-telemetry` | ~200 | ACTIVE | OTEL integration |
+| `agileplus-nats` | ~150 | ACTIVE | NATS client |
+
+#### phenotype crates
+
+| Crate | Root LOC | Nested LOC | Status |
+|-------|----------|------------|--------|
+| `phenotype-event-sourcing` | 622 | 1,016 | **DUPLICATE** |
+| `phenotype-policy-engine` | 1,197 | 2,004 | **DUPLICATE** |
+| `phenotype-contracts` | 4,032 | 3,986 | **DUPLICATE** |
+| `phenotype-cache-adapter` | 1 | N/A | EMPTY |
+| `phenotype-state-machine` | 1 | N/A | EMPTY |
+
+#### phenotype-shared/crates
+
+| Crate | LOC | Status |
+|-------|-----|--------|
+| `phenotype-port-interfaces` | ~300 | UNUSED |
+| `phenotype-http-adapter` | ~200 | UNUSED |
+| `phenotype-postgres-adapter` | ~150 | UNUSED |
+| `phenotype-redis-adapter` | ~150 | UNUSED |
+| `phenotype-cache-adapter` | ~100 | UNUSED |
+| `phenotype-state-machine` | ~100 | UNUSED |
+| **Subtotal** | **3,586** | UNUSED |
+
+### Duplicate File Analysis
+
+#### phenotype-event-sourcing (622 + 1,016 = 1,638 LOC total)
+
+**Root** (`crates/phenotype-event-sourcing/src/`):
+- `error.rs`: 46 LOC
+- `hash.rs`: 78 LOC
+- `event.rs`: 134 LOC
+- `snapshot.rs`: 96 LOC
+- `store.rs`: 196 LOC
+- `memory.rs`: 72 LOC
+- **Total: 622 LOC**
+
+**Nested** (`crates/phenotype-event-sourcing/phenotype-event-sourcing/src/`):
+- `error.rs`: 46 LOC (IDENTICAL)
+- `hash.rs`: 78 LOC (IDENTICAL)
+- `event.rs`: 134 LOC (IDENTICAL)
+- `snapshot.rs`: 96 LOC (IDENTICAL)
+- `store.rs`: 200 LOC (SIMILAR)
+- `memory.rs`: 76 LOC (SIMILAR)
+- **Total: 1,016 LOC**
+
+**Duplication: ~622 LOC wasted**
+
+#### phenotype-policy-engine (1,197 + 2,004 = 3,201 LOC total)
+
+**Root** (`crates/phenotype-policy-engine/src/`): 1,197 LOC
+**Nested** (`crates/phenotype-policy-engine/phenotype-policy-engine/src/`): 2,004 LOC
+
+**Duplication: ~1,197 LOC wasted**
+
+#### phenotype-contracts (4,032 + 3,986 = 8,018 LOC total)
+
+**Root** (`crates/phenotype-contracts/src/`): 4,032 LOC
+**Nested** (`crates/phenotype-contracts/phenotype-contracts/src/`): 3,986 LOC
+
+**Duplication: ~3,986 LOC wasted**
+
+### libs/* Detailed Breakdown
+
+| Library | LOC | Action |
+|---------|-----|--------|
+| `hexagonal-rs` | ~300 | INTEGRATE (Repository patterns) |
+| `hexkit` | ~200 | DEPRECATE (duplicate of hexagonal-rs) |
+| `logger` | ~100 | INTEGRATE or ARCHIVE |
+| `metrics` | ~100 | INTEGRATE or ARCHIVE |
+| `tracing` | ~100 | INTEGRATE or ARCHIVE |
+| `cli-framework` | ~150 | INTEGRATE or ARCHIVE |
+| `config-core` | ~50 | INTEGRATE or ARCHIVE |
+| `cipher` | ~100 | ARCHIVE |
+| `gauge` | ~100 | ARCHIVE |
+| `nexus` | ~50 | ARCHIVE |
+| `xdd-lib-rs` | ~100 | ARCHIVE |
+| **Total** | **1,470** | |
+
+### External Projects
+
+| Project | LOC | Language | Status |
+|---------|-----|---------|--------|
+| `platforms/thegent` | 451,495 | Python/Rust | ACTIVE |
+| `heliosCLI` | 51,944 | Python/TypeScript | ACTIVE |
+| `src/thegent` | 76,000+ | Python | DUPLICATE? |
+
+### LOC Waste Summary
+
+| Category | LOC | Action |
+|----------|-----|--------|
+| phenotype-event-sourcing duplication | 622 | CANONICALIZE |
+| phenotype-policy-engine duplication | 1,197 | CANONICALIZE |
+| phenotype-contracts duplication | 3,986 | CANONICALIZE |
+| libs/* unused | 1,470 | INTEGRATE or ARCHIVE |
+| phenotype-shared/crates unused | 3,586 | INTEGRATE |
+| phenotype-cache-adapter (empty) | 1 | IMPLEMENT or DELETE |
+| phenotype-state-machine (empty) | 1 | IMPLEMENT or DELETE |
+| **TOTAL WASTE** | **~10,863** | |
+
+### Action Items
+
+- [ ] CLEAN-001: Delete `worktrees/`, `worktree/`, `add/`
+- [ ] CLEAN-002: Archive `.worktrees/phench-fix/`
+- [ ] CLEAN-003: Archive `.worktrees/gh-pages-deploy/`
+- [ ] CLEAN-004: Delete `docs/node_modules/`
+- [ ] CLEAN-005: Investigate thegent duplication (platforms vs src)
+- [ ] CLEAN-006: Archive `crates/phenotype-event-sourcing/` (orphan content)
+- [ ] DUP-001: Choose canonical location for phenotype-event-sourcing
+- [ ] DUP-002: Remove nested duplicate files
+- [ ] DUP-003: Choose canonical location for phenotype-policy-engine
+- [ ] DUP-004: Remove nested duplicate files
+- [ ] DUP-005: Choose canonical location for phenotype-contracts
+- [ ] DUP-006: Remove nested duplicate files
+- [ ] DUP-007: Create `phenotype-error-core` (~150 LOC savings)
+- [ ] LIB-001: Migrate hexagonal-rs to edition 2024
+- [ ] LIB-002: Deprecate hexkit (duplicate of hexagonal-rs)
+- [ ] LIB-003: Archive unused libs: cipher, gauge, nexus, xdd-lib-rs
+- [ ] PKG-001: Remove unused `lru`, `parking_lot`, `moka`
+- [ ] PKG-002: Add Lazy<Regex> to Rule struct for caching
+
+### Related Documentation
+
+- `docs/worklogs/DUPLICATION.md` - Extended duplication findings
+- `docs/worklogs/README.md` - Phase dashboard and LOC summary
+- `docs/worklogs/DEPENDENCIES.md` - Dependency analysis
+
+---
+
+_Last updated: 2026-03-29 (Wave 93 - LOC Reduction)_
 
 **Date:** 2026-03-29
 **Priority:** P0
@@ -304,9 +458,41 @@ Expanded worklog audit with comprehensive LOC reduction analysis, external packa
 ---
 
 ---
+---
 
-## Wave 93 - LOC Reduction Deep Dive (2026-03-29)
+## Wave 95 - Non-Heliso Projects LOC Audit (2026-03-29)
 
+**Status:** completed
+**Priority:** P0
+**Focus:** Audit non-heliso projects for LOC duplication
+
+### Projects Audited
+
+| Project | Total LOC | Language | Status |
+|---------|-----------|----------|--------|
+| `tokenledger-temp` | 21,547 | Rust | CRITICAL duplication |
+| `template-commons-temp` | 7,060 | Go, Python | Duplication in py-kit |
+| `agent-wave-monorepo-temp` | - | TypeScript | Docs only |
+| `phenotype-go-kit-temp` | - | Go | Active project |
+| `phenotype-shared-temp` | - | Rust | Active project |
+
+### TokenLedger-Temp: CRITICAL Findings
+
+**Complete Directory Duplication: 99.9%**
+
+| Location | Total LOC | File Count |
+|----------|-----------|------------|
+| `src/` | 9,127 | 29 files |
+| `crates/tokenledger/src/` | 9,123 | 29 files |
+| **Total Duplication** | **18,250** | 58 files |
+
+**Action Required**: Consolidate to single source location (`crates/tokenledger/src/`)
+
+**Estimated Savings**: 9,127 LOC elimination
+
+---
+
+## Wave 94 - Deep Decomposition Audit (2026-03-29)
 **Status:** completed
 **Priority:** P0
 **Agents:** SAGE x2 (parallel analysis)

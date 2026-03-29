@@ -559,7 +559,315 @@ Additional 2026 candidates to **wrap at the adapter boundary** or **trial** in p
 ### Research tasks (Wave 92)
 
 - [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
-- [ ] Prototype WIT surface for one sandboxed “tool” using `cargo-component`.
+- [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
+- [ ] Prototype WIT surface for one sandboxed "tool" using `cargo-component`.
 - [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
+---
+
+## 2026-03-29 - Agent Protocol Landscape Research (Wave 93)
+
+### Agent Communication Protocols Comparison
+
+| Protocol | Organization | Purpose | Status | Phenotype Fit |
+|----------|-------------|---------|--------|---------------|
+| **MCP** | Anthropic | Model Context Protocol | Stable | ✅ HIGH |
+| **A2A** | Agent Protocol | Agent-to-Agent | Draft | 🟡 MEDIUM |
+| **ACP** | ACP | Agent Communication | Active | 🟡 MEDIUM |
+| **ANP** | Neural | Agent Network | Research | ❌ LOW |
+
+### MCP (Model Context Protocol) Analysis
+
+```json
+// MCP Transport
+{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "params": {},
+  "id": 1
+}
+
+// MCP Tool Definition
+{
+  "name": "github_create_issue",
+  "description": "Create a GitHub issue",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "owner": { "type": "string" },
+      "repo": { "type": "string" },
+      "title": { "type": "string" }
+    }
+  }
+}
+```
+
+### A2A (Agent-to-Agent Protocol) Analysis
+
+```json
+// A2A Message
+{
+  "protocol": "a2a",
+  "version": "1.0",
+  "type": "request",
+  "method": "tasks/send",
+  "params": {
+    "task": {
+      "id": "task-123",
+      "prompt": "Analyze this codebase",
+      "context": {}
+    }
+  }
+}
+```
+
+### Recommendation
+
+| Protocol | Action | Rationale |
+|----------|--------|-----------|
+| MCP | **ADOPT** | Industry standard, Anthropic backing, tool ecosystem |
+| A2A | **EVALUATE** | Inter-agent communication |
+| ACP | **MONITOR** | Alternative, smaller ecosystem |
+
+### Integration with Phenotype
+
+```rust
+// crates/phenotype-agent-mcp/src/lib.rs
+
+pub struct PhenotypeMcpServer {
+    tools: HashMap<String, ToolHandler>,
+    context: Arc<AgentContext>,
+}
+
+impl mcp_sdk::Server for PhenotypeMcpServer {
+    async fn handle_tool_call(&self, tool: &str, args: Value) -> Result<Value> {
+        let handler = self.tools.get(tool)
+            .ok_or_else(|| Error::ToolNotFound(tool))?;
+        handler(self.context.clone(), args).await
+    }
+}
+```
+
+---
+
+## 2026-03-29 - Semantic Memory & Knowledge Systems Research (Wave 94)
+
+### Knowledge Graph Options
+
+| System | Type | Rust Support | Use Case | Recommendation |
+|--------|------|-------------|----------|----------------|
+| Neo4j | Graph DB | Driver only | Complex relations | EVALUATE |
+| Age | Graph extension | PostgreSQL | Relational+graph | ADOPT |
+| SurrealDB | Multi-model | Native | Document+graph | EVALUATE |
+| vectordb | Vector | pgvector | Semantic search | ADOPT |
+
+### Semantic Memory Systems
+
+| System | Purpose | Architecture | Phenotype Fit |
+|--------|---------|--------------|---------------|
+| `mentisdb` | Agent memory | Vector + graph | ✅ HIGH |
+| `memory-alpha` | Context management | Hierarchical | 🟡 MEDIUM |
+| `khoj` | Personal knowledge | Local-first | 🟡 MEDIUM |
+
+### mentisdb Analysis
+
+```rust
+// crates/phenotype-memory/src/lib.rs
+
+pub struct SemanticMemory {
+    embeddings: VectorStore,
+    graph: GraphStore,
+    index: InvertedIndex,
+}
+
+impl SemanticMemory {
+    pub async fn store(&self, entity: &MemoryEntity) -> Result<MemoryId> {
+        let embedding = self.embeddings.embed(&entity.content).await?;
+        let graph_id = self.graph.insert(&entity.concepts).await?;
+        self.index.add(&entity.keywords, graph_id).await?;
+        Ok(MemoryId::new())
+    }
+    
+    pub async fn recall(&self, query: &str, context: &Context) -> Vec<MemoryEntry> {
+        let query_embedding = self.embeddings.embed(query).await?;
+        let candidates = self.embeddings.search(query_embedding, 10).await?;
+        self.graph.expand(candidates, context.depth).await
+    }
+}
+```
+
+### Integration with Phenotype
+
+```rust
+// Phenotype integration
+pub struct AgentMemory {
+    semantic: SemanticMemory,
+    episodic: EventStore,
+    procedural: WorkflowStore,
+}
+
+impl AgentMemory {
+    pub async fn remember(&self, query: &str) -> Result<AgentContext> {
+        let memories = self.semantic.recall(query, &Context::default()).await?;
+        let recent_events = self.episodic.recent(10).await?;
+        Ok(AgentContext { memories, recent_events })
+    }
+}
+```
+
+---
+
+## 2026-03-29 - Workflow Orchestration Research (Wave 95)
+
+### Workflow Engine Comparison
+
+| Engine | Language | Durability | Use Case | Phenotype Fit |
+|--------|----------|-----------|----------|---------------|
+| Temporal | Go | Strong | Microservices | ❌ Heavy |
+| Prefekt | Kotlin | Strong | Cloud-native | 🟡 Heavy |
+| forza-core | Rust | Medium | General | ✅ HIGH |
+| Conductor | Java | Strong | Netflix-style | ❌ Heavy |
+| Custom | Rust | TBD | Phenotype | BUILD |
+
+### forza-core Analysis
+
+```rust
+// forza-core patterns
+pub struct WorkflowDefinition {
+    pub id: WorkflowId,
+    pub steps: Vec<Step>,
+    pub retry_policy: RetryPolicy,
+    pub timeout: Duration,
+}
+
+pub enum Step {
+    Task(TaskStep),
+    Parallel(Vec<Step>),
+    Wait(WaitStep),
+    SideEffect(SideEffectStep),
+}
+```
+
+### Phenotype Workflow Design
+
+```rust
+// crates/phenotype-workflow/src/dsl.rs
+
+#[derive(Debug, Clone)]
+pub struct WorkflowDsl {
+    pub name: String,
+    pub triggers: Vec<Trigger>,
+    pub steps: Vec<DslStep>,
+}
+
+#[derive(Debug, Clone)]
+pub enum DslStep {
+    Task {
+        name: String,
+        handler: String,
+        input: Value,
+        retry: Option<RetryPolicy>,
+    },
+    Parallel {
+        branches: Vec<Vec<DslStep>>,
+    },
+    Sequential {
+        steps: Vec<DslStep>,
+    },
+    Conditional {
+        condition: String,
+        then_branch: Vec<DslStep>,
+        else_branch: Vec<DslStep>,
+    },
+}
+
+// Example DSL
+let workflow = WorkflowDsl {
+    name: "code_review".to_string(),
+    triggers: vec![Trigger::OnPush { branch: "main" }],
+    steps: vec![
+        DslStep::Task {
+            name: "lint".to_string(),
+            handler: "rust_ci::lint".to_string(),
+            input: json!({}),
+            retry: Some(RetryPolicy::default()),
+        },
+        DslStep::Task {
+            name: "test".to_string(),
+            handler: "rust_ci::test".to_string(),
+            input: json!({}),
+            retry: None,
+        },
+        DslStep::Conditional {
+            condition: "context.changes.test".to_string(),
+            then_branch: vec![DslStep::Task { ... }],
+            else_branch: vec![],
+        },
+    ],
+};
+```
+
+### Recommendation
+
+| Option | Action | Rationale |
+|--------|--------|-----------|
+| Temporal | REJECT | Too heavy for internal use |
+| forza-core | EVALUATE | Rust-native, moderate complexity |
+| Custom | BUILD | Aligns with phenotype patterns |
+
+---
+
+## 2026-03-29 - Infrastructure as Code Research (Wave 96)
+
+### IaC Tool Comparison
+
+| Tool | Language | State | Use Case | Recommendation |
+|------|----------|-------|----------|----------------|
+| Terraform | HCL | Stateful | Multi-cloud | ADOPT |
+| Pulumi | TypeScript/Python | Stateful | Kubernetes | EVALUATE |
+| Crossplane | CRD | Kubernetes | Cloud resources | ADOPT |
+| CDK8s | TypeScript | Stateless | Kubernetes | MONITOR |
+
+### Pulumi vs Terraform for Phenotype
+
+| Aspect | Pulumi | Terraform |
+|--------|--------|-----------|
+| Language | TypeScript/Python/Go | HCL |
+| Testability | ✅ Native | ⚠️ Limited |
+| IDE Support | ✅ Full | ⚠️ Basic |
+| Phenotype Fit | 🟡 | 🟡 |
+
+### Recommendation
+
+| Use Case | Tool | Rationale |
+|----------|------|-----------|
+| Cloud resources | Terraform | Industry standard, provider ecosystem |
+| Kubernetes | Crossplane | Native CRD integration |
+| Local dev | Docker Compose | Simplicity |
+
+### Phenotype IaC Structure
+
+```
+infrastructure/
+├── terraform/
+│   ├── modules/
+│   │   ├── phenocluster/
+│   │   ├── databases/
+│   │   └── networking/
+│   ├── environments/
+│   │   ├── dev/
+│   │   ├── staging/
+│   │   └── prod/
+│   └── main.tf
+├── kubernetes/
+│   ├── base/
+│   ├── overlays/
+│   └── kustomization.yaml
+└── docker/
+    └── compose.yaml
+```
+
+---
+
+_Last updated: 2026-03-29 (Round 5)_
 ---
