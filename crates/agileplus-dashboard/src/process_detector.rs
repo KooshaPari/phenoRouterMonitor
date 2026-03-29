@@ -231,3 +231,129 @@ fn parse_agent_state(json: &serde_json::Value) -> Option<DetectedAgent> {
         current_task,
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ── format_elapsed ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_format_elapsed_seconds() {
+        assert_eq!(format_elapsed(0), "0s");
+        assert_eq!(format_elapsed(45), "45s");
+        assert_eq!(format_elapsed(59), "59s");
+    }
+
+    #[test]
+    fn test_format_elapsed_minutes() {
+        assert_eq!(format_elapsed(60), "1m");
+        assert_eq!(format_elapsed(90), "1m");
+        assert_eq!(format_elapsed(3599), "59m");
+    }
+
+    #[test]
+    fn test_format_elapsed_hours() {
+        assert_eq!(format_elapsed(3600), "1h 0m");
+        assert_eq!(format_elapsed(3661), "1h 1m");
+        assert_eq!(format_elapsed(7322), "2h 2m");
+    }
+
+    // ── extract_worktree_from_cmdline ─────────────────────────────────────
+
+    #[test]
+    fn test_extract_worktree_cwd_flag() {
+        let result = extract_worktree_from_cmdline("claude --cwd /repos/AgilePlus");
+        assert_eq!(result, Some("/repos/AgilePlus".to_string()));
+    }
+
+    #[test]
+    fn test_extract_worktree_capital_c_flag() {
+        let result = extract_worktree_from_cmdline("git -C /some/path status");
+        assert_eq!(result, Some("/some/path".to_string()));
+    }
+
+    #[test]
+    fn test_extract_worktree_absent() {
+        let result = extract_worktree_from_cmdline("claude --some-flag value");
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn test_extract_worktree_empty_cmdline() {
+        let result = extract_worktree_from_cmdline("");
+        assert_eq!(result, None);
+    }
+
+    // ── extract_task_context ──────────────────────────────────────────────
+
+    #[test]
+    fn test_extract_task_context_wp_reference() {
+        let result = extract_task_context("claude --task WP13");
+        assert!(result.contains("WP13"), "expected WP13 in: {result}");
+    }
+
+    #[test]
+    fn test_extract_task_context_no_reference() {
+        let result = extract_task_context("claude --some-other-arg");
+        assert_eq!(result, String::new());
+    }
+
+    // ── format_agent_name ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_format_agent_name_claude_no_worktree() {
+        let result = format_agent_name("claude", &None);
+        assert_eq!(result, "claude");
+    }
+
+    #[test]
+    fn test_format_agent_name_claude_with_worktree() {
+        let wt = Some("/repos/AgilePlus-wtrees/my-feature".to_string());
+        let result = format_agent_name("claude", &wt);
+        assert_eq!(result, "claude-my-feature");
+    }
+
+    #[test]
+    fn test_format_agent_name_unknown_process() {
+        let result = format_agent_name("someotheragent", &None);
+        assert_eq!(result, "someotheragent");
+    }
+
+    #[test]
+    fn test_format_agent_name_gemini() {
+        let result = format_agent_name("gemini-cli", &None);
+        assert_eq!(result, "gemini");
+    }
+
+    // ── parse_agent_state ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_parse_agent_state_valid() {
+        let json = serde_json::json!({
+            "name": "planner-agent",
+            "status": "running",
+            "current_task": "WP13",
+            "worktree": "/repos/AgilePlus",
+            "started_at": "2026-03-28T10:00:00Z"
+        });
+        let agent = parse_agent_state(&json).expect("should parse");
+        assert_eq!(agent.name, "planner-agent");
+        assert_eq!(agent.status, "running");
+        assert_eq!(agent.current_task, "WP13");
+        assert_eq!(agent.worktree, Some("/repos/AgilePlus".to_string()));
+    }
+
+    #[test]
+    fn test_parse_agent_state_missing_name_returns_none() {
+        let json = serde_json::json!({ "status": "idle" });
+        assert!(parse_agent_state(&json).is_none());
+    }
+
+    #[test]
+    fn test_parse_agent_state_defaults_status_idle() {
+        let json = serde_json::json!({ "name": "test-agent", "current_task": "nothing" });
+        let agent = parse_agent_state(&json).expect("should parse");
+        assert_eq!(agent.status, "idle");
+    }
+}

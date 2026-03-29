@@ -35,7 +35,6 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use tower::util::ServiceExt;
 
 // ── Configuration Types ────────────────────────────────────────────────────
 
@@ -168,6 +167,35 @@ fn html_escape(s: &str) -> String {
         .replace('>', "&gt;")
         .replace('"', "&quot;")
         .replace('\'', "&#39;")
+}
+
+/// Classify a file extension into a broad artifact type for display purposes.
+fn artifact_type_for_ext(ext: &str) -> &'static str {
+    match ext {
+        "lcov" | "coverage" | "cov" => "coverage",
+        "xml" | "junit" | "tap" => "test-results",
+        "json" | "sarif" => "report",
+        "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" => "image",
+        "md" | "txt" | "log" => "text",
+        _ => "artifact",
+    }
+}
+
+/// Percent-encode path segments so they are safe to embed in URLs.
+///
+/// Only encodes characters that are not allowed unencoded in URL path segments:
+/// spaces, `#`, `?`, `%`, and `+`.
+fn percent_encode_path(path: &str) -> String {
+    path.chars()
+        .flat_map(|c| match c {
+            ' ' => vec!['%', '2', '0'],
+            '#' => vec!['%', '2', '3'],
+            '?' => vec!['%', '3', 'F'],
+            '%' => vec!['%', '2', '5'],
+            '+' => vec!['%', '2', 'B'],
+            other => vec![other],
+        })
+        .collect()
 }
 
 fn render<T: Template>(tpl: T) -> Response {
@@ -804,6 +832,70 @@ pub async fn event_timeline(State(state): State<SharedState>) -> Response {
         feature_id: 0,
         events: vec![],
     })
+}
+
+// ── /api/dashboard/features/{id}/events ──────────────────────────────────
+
+pub async fn feature_events(
+    State(state): State<SharedState>,
+    Path(feature_id): Path<i64>,
+) -> Response {
+    let store = state.read().await;
+    let feature = match store.features.iter().find(|f| f.id == feature_id) {
+        Some(f) => FeatureView::from_feature(f),
+        None => return (StatusCode::NOT_FOUND, "Feature not found").into_response(),
+    };
+    let wps: Vec<WpView> = store
+        .work_packages
+        .get(&feature_id)
+        .map(|v| v.iter().map(WpView::from_wp).collect())
+        .unwrap_or_default();
+    let events = build_feature_events(&feature, &wps);
+
+    render(EventTimelinePartial {
+        feature_id,
+        events,
+    })
+}
+
+// ── /api/dashboard/features/{id}/media ───────────────────────────────────
+
+pub async fn feature_media(
+    State(state): State<SharedState>,
+    Path(feature_id): Path<i64>,
+) -> Response {
+    let store = state.read().await;
+    let feature = match store.features.iter().find(|f| f.id == feature_id) {
+        Some(f) => FeatureView::from_feature(f),
+        None => return (StatusCode::NOT_FOUND, "Feature not found").into_response(),
+    };
+    let wps: Vec<WpView> = store
+        .work_packages
+        .get(&feature_id)
+        .map(|v| v.iter().map(WpView::from_wp).collect())
+        .unwrap_or_default();
+    let media = build_feature_media_assets(&feature, &wps);
+
+    // Return media assets as a simple HTML partial
+    let html = media
+        .iter()
+        .map(|m| {
+            format!(
+                r#"<div class="media-asset border rounded p-3 bg-zinc-800">
+                <img src="{}" alt="{}" class="w-full rounded"/>
+                <p class="text-xs text-zinc-400 mt-2">{}</p>
+              </div>"#,
+                m.url_or_path, m.name, m.name
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    Html(format!(
+        r#"<div class="grid grid-cols-2 gap-3 media-gallery">{}</div>"#,
+        html
+    ))
+    .into_response()
 }
 
 // ── /api/dashboard/agents ────────────────────────────────────────────────
@@ -1817,6 +1909,8 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/dashboard/kanban", get(kanban_board))
         .route("/api/dashboard/features/{id}", get(feature_detail))
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
+        .route("/api/dashboard/features/{id}/events", get(feature_events))
+        .route("/api/dashboard/features/{id}/media", get(feature_media))
         .route("/api/dashboard/health", get(health_panel))
         .route("/api/dashboard/events", get(event_timeline))
         .route("/api/dashboard/agents", get(agent_activity))
@@ -2008,5 +2102,245 @@ mod tests {
         assert!(body_text.contains("\"status\":\"ok\""));
         assert!(body_text.contains("\"service\":\"NATS\""));
         assert!(body_text.contains("restarted NATS"));
+    }
+
+    // ── Pure-function unit tests ──────────────────────────────────────────
+
+    #[test]
+    fn test_artifact_type_for_ext_coverage_variants() {
+        assert_eq!(artifact_type_for_ext("lcov"), "coverage");
+        assert_eq!(artifact_type_for_ext("coverage"), "coverage");
+        assert_eq!(artifact_type_for_ext("cov"), "coverage");
+    }
+
+    #[test]
+    fn test_artifact_type_for_ext_test_results() {
+        assert_eq!(artifact_type_for_ext("xml"), "test-results");
+        assert_eq!(artifact_type_for_ext("junit"), "test-results");
+        assert_eq!(artifact_type_for_ext("tap"), "test-results");
+    }
+
+    #[test]
+    fn test_artifact_type_for_ext_report() {
+        assert_eq!(artifact_type_for_ext("json"), "report");
+        assert_eq!(artifact_type_for_ext("sarif"), "report");
+    }
+
+    #[test]
+    fn test_artifact_type_for_ext_image() {
+        assert_eq!(artifact_type_for_ext("png"), "image");
+        assert_eq!(artifact_type_for_ext("jpg"), "image");
+        assert_eq!(artifact_type_for_ext("svg"), "image");
+    }
+
+    #[test]
+    fn test_artifact_type_for_ext_text() {
+        assert_eq!(artifact_type_for_ext("md"), "text");
+        assert_eq!(artifact_type_for_ext("log"), "text");
+        assert_eq!(artifact_type_for_ext("txt"), "text");
+    }
+
+    #[test]
+    fn test_artifact_type_for_ext_unknown_falls_back() {
+        assert_eq!(artifact_type_for_ext("unknown"), "artifact");
+        assert_eq!(artifact_type_for_ext(""), "artifact");
+        assert_eq!(artifact_type_for_ext("xyz"), "artifact");
+    }
+
+    #[test]
+    fn test_percent_encode_path_spaces() {
+        let encoded = percent_encode_path("/path/with spaces/file.txt");
+        assert!(encoded.contains("%20"));
+        assert!(!encoded.contains(' '));
+    }
+
+    #[test]
+    fn test_percent_encode_path_no_change_for_clean_path() {
+        let path = "/artifacts/features/my-feature.md";
+        assert_eq!(percent_encode_path(path), path);
+    }
+
+    #[test]
+    fn test_percent_encode_path_hash_and_question() {
+        let encoded = percent_encode_path("/path/file#section?query=1");
+        assert!(encoded.contains("%23"));
+        assert!(encoded.contains("%3F"));
+    }
+
+    #[test]
+    fn test_percent_encode_path_percent_and_plus() {
+        let encoded = percent_encode_path("/path/100%done+extra");
+        assert!(encoded.contains("%25"));
+        assert!(encoded.contains("%2B"));
+    }
+
+    #[test]
+    fn test_html_escape_ampersand() {
+        assert_eq!(html_escape("a & b"), "a &amp; b");
+    }
+
+    #[test]
+    fn test_html_escape_angle_brackets() {
+        assert_eq!(html_escape("<script>"), "&lt;script&gt;");
+    }
+
+    #[test]
+    fn test_html_escape_quotes() {
+        assert_eq!(html_escape("say \"hello\""), "say &quot;hello&quot;");
+        assert_eq!(html_escape("it's"), "it&#39;s");
+    }
+
+    #[test]
+    fn test_html_escape_no_op_on_plain_text() {
+        let plain = "Hello, world!";
+        assert_eq!(html_escape(plain), plain);
+    }
+
+    #[test]
+    fn test_is_htmx_true() {
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert("HX-Request", "true".parse().unwrap());
+        assert!(is_htmx(&headers));
+    }
+
+    #[test]
+    fn test_is_htmx_false_absent() {
+        let headers = axum::http::HeaderMap::new();
+        assert!(!is_htmx(&headers));
+    }
+
+    #[test]
+    fn test_is_htmx_false_wrong_value() {
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert("HX-Request", "1".parse().unwrap());
+        assert!(!is_htmx(&headers));
+    }
+
+    #[test]
+    fn test_percentage_coverage_normal() {
+        assert_eq!(percentage_coverage(3, 10), "3/10 (30%)");
+    }
+
+    #[test]
+    fn test_percentage_coverage_zero_total() {
+        assert_eq!(percentage_coverage(0, 0), "0/0 (0%)");
+    }
+
+    #[test]
+    fn test_percentage_coverage_full() {
+        assert_eq!(percentage_coverage(5, 5), "5/5 (100%)");
+    }
+
+    #[test]
+    fn test_dashboard_filter_from_query_active() {
+        let mut q = std::collections::HashMap::new();
+        q.insert("filter".to_string(), "active".to_string());
+        assert_eq!(dashboard_filter_from_query(&q), DashboardFilter::Active);
+    }
+
+    #[test]
+    fn test_dashboard_filter_from_query_blocked() {
+        let mut q = std::collections::HashMap::new();
+        q.insert("filter".to_string(), "blocked".to_string());
+        assert_eq!(dashboard_filter_from_query(&q), DashboardFilter::Blocked);
+    }
+
+    #[test]
+    fn test_dashboard_filter_from_query_shipped() {
+        let mut q = std::collections::HashMap::new();
+        q.insert("filter".to_string(), "shipped".to_string());
+        assert_eq!(dashboard_filter_from_query(&q), DashboardFilter::Shipped);
+    }
+
+    #[test]
+    fn test_dashboard_filter_from_query_default_all() {
+        let q = std::collections::HashMap::new();
+        assert_eq!(dashboard_filter_from_query(&q), DashboardFilter::All);
+    }
+
+    #[test]
+    fn test_dashboard_filter_from_query_unknown_maps_to_all() {
+        let mut q = std::collections::HashMap::new();
+        q.insert("filter".to_string(), "unknown-value".to_string());
+        assert_eq!(dashboard_filter_from_query(&q), DashboardFilter::All);
+    }
+
+    #[test]
+    fn test_plane_api_key_hint_none() {
+        assert_eq!(plane_api_key_hint(&None), "Not configured");
+    }
+
+    #[test]
+    fn test_plane_api_key_hint_some_key() {
+        let key = Some("abc123xyz".to_string());
+        let hint = plane_api_key_hint(&key);
+        assert!(hint.starts_with('a'));
+        assert!(hint.ends_with('z'));
+        assert!(hint.contains('•'));
+    }
+
+    #[test]
+    fn test_plane_connection_checks_both_present() {
+        let (ok, status, warnings) = plane_connection_checks(
+            &Some("mykey".to_string()),
+            &Some("myworkspace".to_string()),
+        );
+        assert!(ok);
+        assert!(status.contains("Connected"));
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_plane_connection_checks_missing_key() {
+        let (ok, _status, warnings) =
+            plane_connection_checks(&None, &Some("myworkspace".to_string()));
+        assert!(!ok);
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("PLANE_API_KEY"));
+    }
+
+    #[test]
+    fn test_plane_connection_checks_both_missing() {
+        let (ok, status, warnings) = plane_connection_checks(&None, &None);
+        assert!(!ok);
+        assert_eq!(warnings.len(), 2);
+        assert!(status.contains("incomplete"));
+    }
+
+    #[test]
+    fn test_validate_restart_command_allowed() {
+        assert!(validate_restart_command("echo hello").is_ok());
+        assert!(validate_restart_command("systemctl restart foo").is_ok());
+    }
+
+    #[test]
+    fn test_validate_restart_command_denied() {
+        let result = validate_restart_command("rm -rf /");
+        assert!(result.is_err());
+        let msg = result.unwrap_err();
+        assert!(msg.contains("not in approved"));
+    }
+
+    #[test]
+    fn test_validate_restart_command_empty() {
+        let result = validate_restart_command("");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("empty"));
+    }
+
+    #[test]
+    fn test_is_restart_command_allowed_known_programs() {
+        assert!(is_restart_command_allowed("echo"));
+        assert!(is_restart_command_allowed("systemctl"));
+        assert!(is_restart_command_allowed("docker"));
+        assert!(is_restart_command_allowed("process-compose"));
+    }
+
+    #[test]
+    fn test_is_restart_command_allowed_unknown() {
+        assert!(!is_restart_command_allowed("curl"));
+        assert!(!is_restart_command_allowed("bash"));
+        assert!(!is_restart_command_allowed("sh"));
+        assert!(!is_restart_command_allowed("rm"));
     }
 }
