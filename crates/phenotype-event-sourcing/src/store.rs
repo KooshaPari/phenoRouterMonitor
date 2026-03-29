@@ -16,6 +16,11 @@ use crate::event::EventEnvelope;
 pub trait EventStore: Send + Sync {
     /// Append a new event; returns the assigned sequence number.
     ///
+    /// # Arguments
+    /// * `event` - The event envelope to append
+    /// * `entity_type` - The type of entity (e.g., "Order", "User")
+    /// * `entity_id` - The unique identifier of the entity
+    ///
     /// The implementation should:
     /// 1. Compute the hash for this event based on the previous event's hash
     /// 2. Assign the next sequence number
@@ -23,7 +28,8 @@ pub trait EventStore: Send + Sync {
     fn append<T: Serialize + for<'de> Deserialize<'de>>(
         &self,
         event: &EventEnvelope<T>,
-        event_type: &str,
+        entity_type: &str,
+        entity_id: &str,
     ) -> Result<i64>;
 
     /// Get all events for a given entity type and ID, in ascending sequence order.
