@@ -34,6 +34,19 @@ This directory contains structured worklogs organized by category. Each worklog 
 | `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
 | `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
 | `PLANS/LocReductionDecomposition.md` | 388 | PLAN | 2026-03-29 | Phase 1-4 decomposition |
+
+---
+
+## Consolidated LOC Savings (All Sources)
+
+| Source | Savings | Status |
+|--------|---------|--------|
+| **repos (this repo)** | **4,865 LOC** | In progress |
+| **tokenledger-temp** | **9,127 LOC** | ✅ Consolidated |
+| **template-commons-temp** | **324 LOC** | Documented |
+| **Additional patterns** | **104 LOC** | Identified |
+| **Total** | **14,420 LOC** | |
+
 ---
 
 ## Category Summaries
