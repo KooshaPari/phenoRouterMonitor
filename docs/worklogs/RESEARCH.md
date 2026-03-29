@@ -1239,3 +1239,86 @@ Long-term maintenance? ──YES──▶ Fork (formal sync)
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Repo Audit & Consolidation Findings
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive audit of phenotype-infrakit, phenotype-shared, and related repos. Identified cross-repo duplication, inactive directories, and external fork/wrap opportunities.
+
+### Cross-Repo Crate Duplication
+
+**phenotype-event-sourcing** exists in both phenotype-infrakit and phenotype-shared:
+
+| Location | Size | Status |
+|---------|------|--------|
+| `phenotype-infrakit/crates/phenotype-event-sourcing/` | ~1500 LOC | Active (in workspace) |
+| `phenotype-shared/crates/phenotype-event-sourcing/` | ~1500 LOC | Identical (fork) |
+| `heliosApp/apps/runtime/src/audit/` | ~2000 LOC | Substantially different (audit-specific) |
+
+**Decision:** Keep phenotype-infrakit version as canonical. phenotype-shared is an abandoned fork.
+
+### Workspace Members (phenotype-infrakit)
+
+```
+crates/phenotype-cache-adapter/
+crates/phenotype-contracts/
+crates/phenotype-event-sourcing/   ← canonical
+crates/phenotype-executor/
+crates/phenotype-observability/
+crates/phenotype-policy-engine/
+crates/phenotype-state-machine/
+```
+
+### External Fork Candidates (High Priority)
+
+| Source (thegent) | Target Crate | LOC | Priority | Rationale |
+|-------------------|-------------|-----|----------|-----------|
+| `utils/pty` | `phenotype-process` | ~750 | CRITICAL | PTY + process groups |
+| `CodexErr` | `phenotype-error` | ~400 | CRITICAL | Unified error taxonomy |
+| `utils/git` | `phenotype-git` | ~300 | HIGH | Git operations |
+| `SpawnContext` | `phenotype-executor` | ~150 | MEDIUM | Execution context |
+
+### External Crate Adoption Candidates (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `ra2a` | latest | A2A (Agent-to-Agent) Protocol SDK | **ADOPT** - RFC-like spec, MIT license, thin wrapper |
+| `mentisdb` | latest | Embedded graph DB | **ADOPT** - ~3k LOC, Rust-first, Apache 2.0 |
+| `forza-core` | latest | Workflow orchestration primitives | **EVALUATE** - Lightweight, composable |
+| `anthropic` | 0.3.0 | Claude SDK (official) | **ADOPT** - First-class async |
+| `llm-chain` | 0.5.0 | Multi-provider LLM | **EVALUATE** - Tool use, chains |
+| `tiktoken` | 0.5.0 | BPE tokenization | **EVALUATE** - Cost tracking |
+| `mcp-sdk` | 0.1.0 | Model Context Protocol | **EVALUATE** - Standard tool protocol |
+
+### Local-Only / Orphaned Repos
+
+| Repo | Canonical Location | Status |
+|------|------------------|--------|
+| `heliosApp` | `platforms/heliosApp/` | Archived (.archive/); KooshaPari/heliosApp pushed |
+| `heliosCLI` | N/A (deleted) | Not found locally |
+| `vibe-kanban` | N/A | Archived, read-only (1581 commits behind upstream) |
+| `phenotype-shared` | `phenotype-shared-temp/` | Fork of abandoned repo; reset to origin/main |
+
+### Inactive Directories (phenotype-infrakit)
+
+All workspace members are active. No inactive directories found in `crates/`.
+
+### Next Actions
+
+1. **ra2a**: Fork and wrap for A2A protocol support in agent system
+2. **mentisdb**: Evaluate for graph-based correlation traversal (replaces custom correlation chain logic)
+3. **Cross-repo**: Archive phenotype-shared-temp (abandoned fork)
+4. **Cross-repo**: Archive heliosApp in .archive/ (already pushed to remote)
+5. **Documentation**: Merge TECHNOLOGY_RADAR.md into this file
+
+---
+
+_Last updated: 2026-03-29 (Repo Audit Session)_
