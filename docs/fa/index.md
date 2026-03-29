@@ -1,3 +1,3 @@
-# AgilePlus
+# نمای کلی
 
-Docs site locale stub for `fa`.
+`apps/AgilePlus` درگاه مستندات است.

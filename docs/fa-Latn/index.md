@@ -1,3 +1,3 @@
-# AgilePlus
+# Namay-e Koli
 
-Docs site locale stub for `fa-Latn`.
+`apps/AgilePlus` darvaze-ye mostanadat ast.
