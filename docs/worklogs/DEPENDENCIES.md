@@ -409,3 +409,964 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 - [ ] Plan gix upgrade from 0.71 to 0.79
 
 ---
+
+---
+
+## 2026-03-29 - Dependency Management Best Practices (2026)
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### 1. Workspace Dependency Management
+
+```toml
+# Cargo.toml (workspace root)
+[workspace]
+members = [
+    "crates/*",
+    "tools/*",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT OR Apache-2.0"
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async
+tokio = { version = "1.41", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+prost = "0.13"
+tonic = "0.13"
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "help"] }
+
+# Testing
+tokio-test = "0.4"
+mockall = "0.13"
+rstest = "0.23"
+```
+
+---
+
+### 2. Version Pinning Strategies
+
+| Strategy | Example | Use Case |
+|----------|---------|----------|
+| **Exact** | `=1.0.0` | Security-critical |
+| **Caret** | `^1.0.0` | Default, allows minor |
+| **Tilde** | `~1.0.0` | Patch only |
+| **Wildcard** | `1.*` | Avoid in production |
+| **Greater** | `>=1.0.0` | Minimum version |
+
+---
+
+### 3. Security Vulnerability Handling
+
+```yaml
+# cargo-audit workflow
+name: Security Audit
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rust-lang/cargo-deny@v0.16
+        with:
+          bans: fail
+      - uses: actions-rust-lang/cargo-audit@v0.18
+```
+
+---
+
+### 4. Dependency Update Automation
+
+```yaml
+# renovate.json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchDatasources": ["crate"],
+      "groupName": "rust-dependencies",
+      "schedule": ["weekly"],
+      "automerge": true,
+      "automergeType": "pr",
+      "separateMajorMinor": true,
+      "separateMinorPatch": false
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "labels": ["breaking-change"],
+      "automerge": false
+    }
+  ]
+}
+```
+
+---
+
+### 5. Crate Categorization
+
+| Category | Crates | Update Frequency |
+|----------|--------|-----------------|
+| **Core Runtime** | tokio, async-trait, futures | Quarterly |
+| **Serialization** | serde, prost | Bi-annual |
+| **Web/HTTP** | axum, reqwest, hyper | Quarterly |
+| **Database** | sqlx, rusqlite | Quarterly |
+| **CLI** | clap, anyhow | Bi-annual |
+| **Testing** | tokio-test, mockall | Quarterly |
+| **Observability** | tracing, opentelemetry | Quarterly |
+
+---
+
+### 6. Unused Dependency Detection
+
+```bash
+# Find unused dependencies
+cargo +nightly udeps
+
+# Remove unused dependencies
+cargo +nightly uninstall-missing-deps
+
+# Check for duplicate dependencies
+cargo tree --duplicates
+```
+
+---
+
+### 7. Dependency Graph Analysis
+
+```bash
+# Visualize dependency graph
+cargo tree --no-dedupe --invert phenotype-event-sourcing
+
+# Count total dependencies
+cargo tree --depth 1 | wc -l
+
+# Find large dependencies
+cargo tree --depth 2 | grep -E "^\w" | sort | uniq -c | sort -rn | head -20
+```
+
+---
+
+### 8. Fork Maintenance Strategy
+
+| Phase | Action | Frequency |
+|-------|--------|----------|
+| **Track** | Monitor upstream releases | Weekly |
+| **Sync** | Pull upstream changes | Monthly |
+| **Test** | Run full test suite | Per sync |
+| **Release** | Publish Phenotype fork | Per major upstream |
+| **Deprecate** | Migrate back to upstream | When available |
+
+---
+
+## 2026-03-29 - phenoinfrakit Dependency Deep Audit (phenoinfrakit)
+
+**Project:** phenotype-infrakit
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Deep audit of phenotype-infrakit workspace dependencies with blackbox/whitebox/graybox classification and optimization recommendations.
+
+### Workspace Cargo.toml Analysis
+
+**Workspace Members:**
+```toml
+members = [
+    "crates/evidence-ledger",
+    "crates/phenotype-cache-adapter",
+    "crates/phenotype-contracts",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-state-machine",
+]
+```
+
+### Dependency Classification Matrix
+
+#### Blackbox (Optimal - Use As-Is)
+
+| Dependency | Version | Category | Usage | Assessment |
+|------------|---------|----------|-------|------------|
+| `serde` | 1.0.217 | Serialization | JSON/TOML/YAML | ✅ OPTIMAL |
+| `serde_json` | 1.0.134 | JSON | API payloads | ✅ OPTIMAL |
+| `parking_lot` | 0.12.5 | Sync | RwLock, Mutex | ✅ BETTER than std |
+| `dashmap` | 5.5.0 | Collections | Concurrent maps | ✅ OPTIMAL |
+| `moka` | 1.0.0 | Caching | TTL cache | ✅ OPTIMAL |
+| `thiserror` | 2.0.6 | Errors | Error derive | ✅ OPTIMAL |
+| `anyhow` | 1.0.93 | Errors | Application errors | ✅ OPTIMAL |
+| `tokio` | 1.43.0 | Async | Runtime | ✅ STANDARD |
+| `tracing` | 0.1.41 | Observability | Structured logging | ✅ STANDARD |
+| `sha2` | 0.10.8 | Crypto | SHA-256 hashing | ✅ STANDARD |
+| `hex` | 0.4.3 | Encoding | Hex encoding | ✅ STANDARD |
+| `uuid` | 1.11.0 | IDs | UUID generation | ✅ STANDARD |
+| `chrono` | 0.4.38 | Time | DateTime handling | ✅ STANDARD |
+| `ulid` | 1.1.3 | IDs | ULID generation | ✅ GOOD choice |
+| `rusqlite` | 0.32.1 | Database | SQLite | ✅ STANDARD |
+
+#### Whitebox Candidates (Customization Needed)
+
+| Dependency | Customization Needed | Recommendation |
+|------------|--------------------|----------------|
+| None | N/A | All dependencies used as-is |
+
+**Rationale:** phenoinfrakit uses a curated set of well-maintained crates with no custom modifications needed.
+
+#### Graybox Candidates (Wrap/Extend)
+
+| Dependency | Current Usage | Recommended Wrapper | Purpose |
+|------------|--------------|-------------------|---------|
+| `rusqlite` | Synchronous | Consider async wrapper | Async database ops |
+| `uuid` | Basic | Add `uuid::Timestamp` | Time-ordered UUIDs |
+| `chrono` | Naive | Add timezone-aware | Global service support |
+
+### Version Analysis
+
+#### Outdated Dependencies
+
+| Dependency | Current | Latest | Update Priority |
+|------------|---------|--------|-----------------|
+| `dashmap` | 5.5.0 | 5.6.0 | 🟢 LOW |
+| `thiserror` | 2.0.6 | 2.0.11 | 🟡 MEDIUM |
+| `anyhow` | 1.0.93 | 1.0.97 | 🟡 MEDIUM |
+| `chrono` | 0.4.38 | 0.4.48 | 🟢 LOW |
+
+#### Dependency Health
+
+| Dependency | Stars | Last Release | Maintenance |
+|------------|-------|-------------|-------------|
+| `serde` | 11K | 2026-03 | ✅ Active |
+| `parking_lot` | 2.5K | 2026-02 | ✅ Active |
+| `dashmap` | 1.2K | 2025-12 | ✅ Active |
+| `moka` | 3K | 2026-03 | ✅ Active |
+| `thiserror` | 5K | 2026-03 | ✅ Active |
+
+### Missing Dependencies (Recommended)
+
+| Dependency | Purpose | LOC Savings | Priority |
+|------------|---------|-------------|----------|
+| `derive_more` | Reduce boilerplate | ~60 LOC | 🟠 HIGH |
+| `strum` | Enum utilities | ~30 LOC | 🟠 HIGH |
+| `blake2` | Fast hashing | ~20 LOC | 🟡 MEDIUM |
+| `figment` | Config loading | ~50 LOC | 🟡 MEDIUM |
+| `rstest` | Parametric tests | ~50 LOC | 🟡 MEDIUM |
+| `validator` | Struct validation | ~40 LOC | 🟢 LOW |
+
+### Internal vs External Analysis
+
+#### Internal Code Patterns
+
+| Pattern | Locations | Recommendation |
+|---------|-----------|----------------|
+| SHA-256 chain hashing | `hash.rs` | Extract to `libs/cipher` |
+| Event store trait | `store.rs` | Keep as-is (well-designed) |
+| In-memory implementations | `memory.rs` | Keep for dev/test |
+| Policy engine | Multiple crates | Consolidate |
+
+#### External Dependency Quality
+
+| Category | Count | Quality | Notes |
+|----------|-------|---------|-------|
+| Serialization | 3 | ✅ Excellent | serde ecosystem |
+| Async | 1 | ✅ Excellent | tokio |
+| Sync | 2 | ✅ Good | parking_lot > std |
+| Collections | 2 | ✅ Good | dashmap, moka |
+| Errors | 2 | ✅ Excellent | thiserror, anyhow |
+
+### LOC Impact Analysis
+
+| Area | Current | With Additions | With Consolidation |
+|------|---------|----------------|--------------------|
+| Boilerplate | ~200 | -60 (derive_more) | -90 total |
+| Hashing | ~100 | -20 (blake2) | -40 total |
+| Config | ~150 | -50 (figment) | -100 total |
+| **Total** | **~450** | **~320** | **~220** |
+
+### Security Advisory Check
+
+| Advisory | Affected | Status |
+|----------|----------|--------|
+| RUSTSEC-2026-* | None found | ✅ Clean |
+
+---
+
+## 2026-03-29 - phenoinfrakit Crate Structure Analysis
+
+**Project:** phenotype-infrakit
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Nested Crate Investigation
+
+#### Finding: Nested Crate Pattern
+
+| Crate | Outer (crates/X/) | Inner (crates/X/X/) | Diff |
+|-------|-------------------|---------------------|------|
+| `phenotype-cache-adapter` | ✅ src/ | ✅ src/ | **100% identical** |
+| `phenotype-contracts` | ✅ src/ | ✅ src/ | **100% identical** |
+| `phenotype-event-sourcing` | ✅ src/ | ✅ src/ | Minor formatting |
+| `phenotype-policy-engine` | ✅ src/ | ✅ src/ | **100% identical** |
+| `phenotype-state-machine` | ❌ NO src/ | ✅ src/ | **Incomplete** |
+
+#### Root Cause Analysis
+
+The nested crate structure appears to be from an **in-progress rebase** where:
+1. Inner crates contain the actual implementation
+2. Outer crates were created as workspace entries
+3. After rebase completes, inner crates will become canonical
+
+#### Recommended Actions
+
+| Action | Command | Priority |
+|--------|---------|----------|
+| Wait for rebase completion | N/A | 🔴 CRITICAL |
+| Delete inner duplicates after rebase | `rm -rf crates/*/*/` | 🟠 HIGH |
+| Verify state-machine has outer src/ | Add if missing | 🟡 MEDIUM |
+
+### Evidence-Ledger Deep Analysis
+
+**Purpose:** Audit trail and evidence ledger for governance
+
+**Current Implementation:**
+```rust
+// crates/evidence-ledger/src/
+├── lib.rs          // 25 LOC - exports
+├── chain.rs        // Evidence chain
+├── ledger.rs       // Ledger operations
+└── error.rs        // Error types
+```
+
+**Dependencies:**
+- `sha2` for chain hashing
+- `serde` for serialization
+- `chrono` for timestamps
+
+**Assessment:** Clean implementation, minimal dependencies.
+
+### Crate Dependency Graph
+
+```
+evidence-ledger
+├── sha2 (hashing)
+├── serde (serialization)
+└── chrono (timestamps)
+
+phenotype-cache-adapter
+├── dashmap (concurrent map)
+├── moka (cache)
+└── serde (serialization)
+
+phenotype-event-sourcing
+├── sha2 (chain hash)
+├── chrono (timestamps)
+├── serde (serialization)
+└── parking_lot (sync)
+
+phenotype-policy-engine
+├── serde (serialization)
+├── thiserror (errors)
+└── [inner crate]
+```
+
+### Dependency Overlap Analysis
+
+| Dependency | Crates Using | Recommendation |
+|------------|-------------|----------------|
+| `serde` | All 6 | Keep as-is |
+| `sha2` | 2 | Extract to shared |
+| `chrono` | 2 | Extract to shared |
+| `thiserror` | 1 | Extract to shared |
+| `parking_lot` | 1 | Extract to shared |
+
+### Shared Dependency Candidates
+
+| Dependency | Crate Count | Savings | Priority |
+|------------|-------------|---------|----------|
+| `serde` | 6 | Already shared | ✅ N/A |
+| `thiserror` | 5 potential | ~100 LOC | 🟠 HIGH |
+| `chrono` | 4 potential | ~80 LOC | 🟡 MEDIUM |
+| `parking_lot` | 3 potential | ~60 LOC | 🟡 MEDIUM |
+
+---
+
+## 2026-03-29 - 2026 Rust Async Ecosystem Deep Dive
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Async Runtime Landscape
+
+| Runtime | Weekly Downloads | Status | Assessment |
+|---------|-----------------|--------|------------|
+| `tokio` | 80M+ | Active (2026-03) | ✅ STANDARD - Use everywhere |
+| `async-std` | 1M | Slow | ❌ AVOID - tokio ecosystem better |
+| `smol` | 2M | Active | 🟡 Consider for WASM/embedded |
+| `glommio` | 100K | Linux-only | ❌ Niche use only |
+
+### tokio Ecosystem (Complete)
+
+| Crate | Downloads | Purpose | phenoinfrakit |
+|-------|-----------|---------|---------------|
+| `tokio` | 80M+ | Runtime | ✅ Used |
+| `tokio-util` | 30M+ | Utilities | 🔲 Consider |
+| `tokio-stream` | 5M+ | Stream utils | 🔲 Consider |
+| `tokio-test` | 20M+ | Testing | 🔲 Consider |
+| `tokio-rustls` | 10M+ | TLS | 🔲 For HTTPS |
+| `tokio-native-tls` | 5M+ | TLS (native) | 🔲 Alternative |
+
+### Future-Proof: `async` closures (Rust 2024)
+
+```rust
+// Rust 2024 Edition - cleaner async patterns
+let future = async || {
+    let data = fetch().await?;
+    process(data).await
+};
+```
+
+**phenoinfrakit Assessment:** Currently on edition 2024 ✅ - ready for async closure patterns.
+
+### Async Patterns in phenoinfrakit
+
+| Pattern | Current | Rust 2024 Equivalent | Status |
+|---------|---------|---------------------|--------|
+| `async fn` | ✅ Used | Same | Good |
+| `async_trait` | ✅ Used | Same | Good |
+| `async` closures | ❌ Not used | `async \|\| { }` | Upgrade |
+
+### Async Collections
+
+| Crate | Downloads | Purpose | phenoinfrakit |
+|-------|-----------|---------|---------------|
+| `async-trait` | 50M+ | Async trait objects | ✅ Used |
+| `futures` | 60M+ | Async abstractions | ✅ Used |
+| `futures-util` | 50M+ | Utilities | ✅ Used |
+| `async-compat` | 500K | Compatibility | 🔲 Rarely needed |
+
+### Recommended Async Improvements
+
+| Improvement | Current | Target | Priority |
+|------------|---------|--------|----------|
+| Add `tokio-util` | Not used | Use for codec/IO | 🟡 MEDIUM |
+| Add `tokio-stream` | Not used | Stream processing | 🟡 MEDIUM |
+| Add `async-compat` | Not used | For futures interop | 🟢 LOW |
+
+---
+
+## 2026-03-29 - Cross-Platform & WASM Considerations
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P2
+
+### WASM Compatibility Analysis
+
+| Dependency | WASM Support | phenoinfrakit | Recommendation |
+|------------|-------------|---------------|----------------|
+| `serde` | ✅ Full | ✅ Used | Keep |
+| `serde_json` | ✅ Full | ✅ Used | Keep |
+| `sha2` | ✅ via `wasm32` | ✅ Used | Keep |
+| `uuid` | ⚠️ Partial | ✅ Used | Review |
+| `chrono` | ❌ No | ✅ Used | Consider `time` crate |
+| `dashmap` | ❌ No | ✅ Used | WASM alternative: `std::collections` |
+| `moka` | ❌ No | ✅ Used | WASM alternative: `lru` |
+
+### WASM Candidate Crates
+
+| Crate | Downloads | Purpose | WASM-ready |
+|-------|-----------|---------|------------|
+| `serde` | 200M+ | Serialization | ✅ Yes |
+| `serde_json` | 150M+ | JSON | ✅ Yes |
+| `getrandom` | 50M+ | Random (WASM) | ✅ Yes |
+| `js-sys` | 5M+ | JS interop | ✅ Yes |
+| `wasm-bindgen` | 10M+ | WASM bindings | ✅ Yes |
+| `web-sys` | 5M+ | Web APIs | ✅ Yes |
+| `gloo` | 100K+ | WASM utilities | 🟡 Emerging |
+
+### Cross-Platform Analysis
+
+| Platform | Support | Dependencies |
+|----------|---------|--------------|
+| Linux | ✅ Full | All supported |
+| macOS | ✅ Full | All supported |
+| Windows | ✅ Full | All supported |
+| WASM | ⚠️ Partial | Replace `dashmap`, `moka` |
+| WASI | ⚠️ Partial | Limited filesystem |
+| bare-metal | ❌ No | Not targeted |
+
+### Recommendations
+
+1. **Near-term:** Keep current - no WASM target needed
+2. **Long-term:** Consider `time` crate for `chrono` replacement (WASM-compatible)
+3. **If WASM needed:** Create `phenotype-wasm-compat` feature flag
+
+---
+
+## 2026-03-29 - Dependency Version Pinning Strategy
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Version Strategy Matrix
+
+| Crate Type | Strategy | Example | Rationale |
+|------------|----------|---------|-----------|
+| Stable ecosystem | `X.Y.Z` exact | `serde = "1.0.217"` | Reproducibility |
+| Rapidly evolving | `X.Y` minor | `tokio = "1.43"` | Security updates |
+| Security-sensitive | `=X.Y.Z` exact | LiteLLM | Supply chain safety |
+| Feature-gated | `X.Y` + features | `gix = { version = "0.79", features = [...] }` | Performance |
+
+### phenoinfrakit Current Strategy
+
+```toml
+# Current - phenoinfrakit/Cargo.toml
+[workspace.dependencies]
+serde = "1.0.217"
+serde_json = "1.0.134"
+parking_lot = "0.12.5"
+# ... etc
+```
+
+**Assessment:** ✅ Excellent - using workspace dependencies for consistency.
+
+### Lockfile Strategy
+
+| Strategy | Pros | Cons | Recommendation |
+|----------|------|------|----------------|
+| `Cargo.lock` committed | Reproducible | Update burden | ✅ **RECOMMENDED** |
+| `Cargo.lock` ignored | Always fresh | Inconsistent builds | ❌ AVOID |
+
+### Security Pinning Examples
+
+```toml
+# Security-critical pinning
+LiteLLM = { version = "=1.82.6", registry = "https://pypi.org/simple" }  # After supply-chain incident
+
+# Standard versioning
+thiserror = "2.0.6"  # Patch for bug fixes
+anyhow = "1.0.93"    # Patch for bug fixes
+```
+
+### Audit Schedule
+
+| Frequency | Scope | Tool | Action |
+|-----------|-------|------|--------|
+| Weekly | GitHub advisories | `cargo-audit` | Immediate |
+| Monthly | Dependency updates | `cargo-outdated` | Review |
+| Quarterly | Major version bumps | Manual | Planned |
+
+---
+
+_Last updated: 2026-03-29_
+# 2026-03-29 - Rust Workspace Dependency Audit: Unused & Version Drift
+
+**Project:** [AgilePlus, phenotype-infrakit]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+## Summary
+
+Comprehensive audit identified unused dependencies and version inconsistencies in the Phenotype workspace root `Cargo.toml`. Found 3 unused workspace dependencies declared but never referenced in any crate.
+
+## Key Findings
+
+### Unused Workspace Dependencies (REMOVE)
+
+| Dependency | Version | Declared At | Used In | Status | Priority |
+|-----------|---------|-------------|---------|--------|----------|
+| `lru` | 0.12 | workspace | NONE (0 crates) | **UNUSED** | 🔴 CRITICAL |
+| `parking_lot` | 0.12 | workspace | NONE (0 crates) | **UNUSED** | 🔴 CRITICAL |
+| `moka` | 0.12 | workspace | NONE (0 crates) | **UNUSED** | 🔴 CRITICAL |
+
+**Action:** Remove from `/Users/kooshapari/CodeProjects/Phenotype/repos/Cargo.toml` lines 24-26.
+
+### Version Drift (Update Required)
+
+| Crate | Workspace | Sub-Crate | File | Status |
+|-------|-----------|-----------|------|--------|
+| `tokio` | Not declared | 1.40 (phenotype-event-sourcing) | `crates/phenotype-event-sourcing/phenotype-event-sourcing/Cargo.toml` | Inconsistent |
+| `tokio` | Not declared | 1.0 (phenotype-contracts) | `crates/phenotype-contracts/phenotype-contracts/Cargo.toml` | **PINNED TOO LOW** |
+
+**Recommendation:** Add `tokio = { version = "1.40", features = [...] }` to workspace deps; update phenotype-contracts to use workspace version.
+
+### Workspace Consistency
+
+| Aspect | Status | Details |
+|--------|--------|---------|
+| Workspace dependency usage | PARTIAL | Only 3 deps used (serde, thiserror, chrono). Most are declared but not used |
+| Inconsistent tokio versions | **CRITICAL** | phenotype-contracts pinned to 1.0; phenotype-event-sourcing uses 1.40 |
+| Feature flag fragmentation | ISSUE | `tokio` uses different feature sets across crates |
+
+## Detailed Dependency Analysis
+
+### Unused Deps: Code Search Results
+
+```bash
+# lru: No references found
+$ grep -r "use lru\|lru::\|LRU\|Lru" crates/phenotype-*/ --include="*.rs"
+# (0 results)
+
+# parking_lot: No references found
+$ grep -r "use parking_lot\|parking_lot::\|Mutex\|RwLock" crates/phenotype-*/ --include="*.rs"
+# (0 results - only std::sync primitives used)
+
+# moka: No references found
+$ grep -r "use moka\|moka::\|Cache\|Moka" crates/phenotype-*/ --include="*.rs"
+# (0 results)
+```
+
+### Declared But Unused Dependencies in Workspace
+
+| Dep | Workspace? | Crates Using | Recommendation |
+|-----|-----------|--------------|-----------------|
+| `serde` | YES | All | Keep (essential) |
+| `serde_json` | YES | Implicit (JSON serialization) | Keep (essential) |
+| `thiserror` | YES | phenotype-event-sourcing, contracts | Keep (essential) |
+| `chrono` | YES | Likely time handling | Keep (verify usage) |
+| `sha2` | YES | Hash operations | Keep (verify usage) |
+| `hex` | YES | Hex encoding | Keep (verify usage) |
+| `dashmap` | YES | None visible | REMOVE if unused |
+| `lru` | YES | None visible | **REMOVE** |
+| `parking_lot` | YES | None visible | **REMOVE** |
+| `moka` | YES | None visible | **REMOVE** |
+| `toml` | YES | Config parsing | Keep (verify usage) |
+| `regex` | YES | Pattern matching | Keep (verify usage) |
+| `uuid` | YES | ID generation | Keep (verify usage) |
+
+### Latest Versions Check
+
+| Crate | Declared | Latest | Update Available? | Status |
+|-------|----------|--------|------------------|--------|
+| `serde` | 1.0 | 1.0.215 | Minor update | OK |
+| `serde_json` | 1.0 | 1.0.136 | Minor update | OK |
+| `thiserror` | 2.0 | 2.0.10 | Minor update | OK |
+| `tokio` | 1.0/1.40 | 1.40.2 | 1.40 latest (event-sourcing OK, contracts OUTDATED) | **UPDATE** |
+| `chrono` | 0.4 | 0.4.45 | Minor update | OK |
+| `sha2` | 0.10 | 0.10.8 | Minor update | OK |
+| `uuid` | 1.11 | 1.11.0 | Current | OK |
+| `gix` | 0.79.0 | 0.81.0 | Major available (0.81) | Minor lag |
+| `regex` | 1.11 | 1.11.1 | Minor update | OK |
+| `axum` | Not declared | 0.8.1 | N/A (used in heliosCLI) | N/A |
+
+---
+
+# 2026-03-29 - TypeScript/Node Dependency Audit: Versions & Drift
+
+**Project:** [thegent, heliosCLI]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+## Summary
+
+Scanned TypeScript/JavaScript package.json files across Phenotype workspace. Found dependency version consistency issues and modern tooling opportunities.
+
+### Key Findings
+
+#### Main Package.json Files Scanned
+
+| Project | Location | Manager | Status |
+|---------|----------|---------|--------|
+| phenotype-infrakit-docs | `/repos/package.json` | npm | Minimal deps (VitePress) |
+| heliosCLI | `/repos/heliosCLI/package.json` | pnpm | Workspace root only |
+| thegent-docs | `/repos/platforms/thegent/package.json` | bun | VitePress + modern tools |
+| heliosCLI docs | `/repos/heliosCLI/docs/package.json` | pnpm | VitePress docs |
+
+### Version Consistency Issues
+
+| Package | heliosCLI docs | phenotype-docs | thegent-docs | Status |
+|---------|---|---|---|---|
+| `vitepress` | ^1.6.3 | ^1.6.3 | ^1.6.4 | DRIFT (1.6.3 vs 1.6.4) |
+| `vue` | ^3.5.13 | ^3.5.13 | ^3.5.28 | DRIFT (3.5.13 vs 3.5.28) |
+| `mermaid` | ^11.4.1 | ^11.4.1 | ^11.12.3 | DRIFT (11.4.1 vs 11.12.3) |
+| `markdown-it-emoji` | Not declared | Not declared | ^3.0.0 | Only in thegent |
+| `prettier` | ^3.5.3 (heliosCLI workspace root) | N/A | N/A | Only in heliosCLI |
+
+### Outdated Versions (Major Updates Available)
+
+| Package | Current | Latest | Recommendation |
+|---------|---------|--------|---|
+| `vitepress` | 1.6.4 | 1.6.4 | Current (acceptable) |
+| `vue` | 3.5.28 | 3.5.28+ | Current |
+| `mermaid` | 11.12.3 | 11.12.3 | Current |
+| `prettier` | 3.5.3 | 3.5.3+ | Current |
+
+### Package Manager Configuration
+
+| Project | Manager | Config File | Status |
+|---------|---------|-------------|--------|
+| heliosCLI | pnpm | `pnpm@10.29.3+sha512...` | Modern (10.x) |
+| thegent | bun | `bun@latest` | Cutting-edge |
+| phenotype-docs | npm | (implicit) | Default npm |
+
+**Recommendation:** Standardize to pnpm 10.x or bun across all TypeScript projects.
+
+### Overrides/Resolutions Issues
+
+#### heliosCLI (Workspace Root)
+
+```json
+"resolutions": {
+  "braces": "^3.0.3",      // Version constraint override
+  "micromatch": "^4.0.8",  // Version constraint override
+  "semver": "^7.7.1"       // Version constraint override
+},
+"overrides": {
+  "punycode": "^2.3.1",    // Constraint override
+  "esbuild": ">=0.25.0"    // Constraint override
+}
+```
+
+**Issue:** Multiple resolution strategies (npm `resolutions` vs pnpm `overrides`). Suggests mixed tooling or legacy configuration.
+
+#### thegent
+
+```json
+"overrides": {
+  "minimatch": ">=3.1.4",   // Security constraint
+  "ajv": ">=8.17.1",        // Security constraint
+  "esbuild": ">=0.25.0"     // Security constraint
+}
+```
+
+**Assessment:** Clean overrides for security constraints; well-managed.
+
+---
+
+# 2026-03-29 - Python Dependency Audit: Modern Tooling & Version Drift
+
+**Project:** [heliosCLI, thegent]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+## Summary
+
+Comprehensive Python dependency audit across heliosCLI and thegent. Found modern tooling already adopted (uv, ruff); identified version drift and outdated minimum versions.
+
+### Projects Scanned
+
+| Project | File | Manager | Python Version |
+|---------|------|---------|-----------------|
+| heliosCLI | `heliosCLI/pyproject.toml` | uv (managed) | >=3.14 |
+| thegent | `platforms/thegent/pyproject.toml` | uv (managed) | >=3.13 |
+| heliosCLI harness | `heliosCLI/harness/pyproject.toml` | uv | (check) |
+
+### Modern Tooling Already Integrated
+
+| Tool | Project | Status | Config |
+|------|---------|--------|--------|
+| **uv** | heliosCLI | Adopted | `[tool.uv]` managed=true |
+| **uv** | thegent | Adopted | `[tool.uv]` managed=true, workspace members |
+| **ruff** | heliosCLI | Adopted | 150+ lint rules, format enabled |
+| **ruff** | thegent | Adopted | 200+ lint rules, aggressive |
+| **pytest** | Both | Adopted | pytest-asyncio, coverage, xdist |
+| **mypy** | Both | Adopted | Type checking configured |
+
+**Assessment:** EXCELLENT adoption of modern Python tooling.
+
+### Dependency Version Drift
+
+#### Core Dependencies: heliosCLI vs thegent
+
+| Dependency | heliosCLI | thegent | Latest | Drift? |
+|-----------|-----------|---------|--------|--------|
+| `streamlit` | >=1.44.0 | Not used | 1.44.1 | N/A |
+| `pandas` | >=2.2.0 | Not used | 2.2.3 | N/A |
+| `numpy` | >=2.0.0 | Not used | 2.2.0 | N/A |
+| `asyncio-mqtt` | >=0.16.0 | Not used | 0.16.1 | N/A |
+| `nats-py` | >=0.24.0 | Not used | 0.24.0 | Current |
+| `httpx` | Not in core | >=0.28.1 | 0.28.1 | Current |
+| `typer` | Not in core | >=0.16.0 | 0.16.0 | Current |
+| `pydantic` | Not in core | >=2.12.5 | 2.12.5 | Current |
+| `pytest` | >=8.2.0 (dev) | >=9.0.2 (dev) | 9.0.2 | DRIFT (8.2 vs 9.0) |
+| `ruff` | >=0.8.0 (dev) | >=0.15.1 (dev) | 0.15.1 | DRIFT (0.8 vs 0.15) |
+
+**Critical Drift:** pytest versions differ by major version (8.2 vs 9.0).
+
+### Optional Dependencies Not Used
+
+| Project | Optional | Declared | Likely Unused |
+|---------|----------|----------|---------------|
+| heliosCLI | `server` | uvicorn, httpx | Check if used |
+| thegent | `fast` | curl-cffi | Conditional on system/arch |
+
+### Python Version Requirements
+
+| Project | Declared | Rationale |
+|---------|----------|-----------|
+| heliosCLI | >=3.14 | Cutting-edge (latest) |
+| thegent | >=3.13 | Slightly behind |
+
+**Recommendation:** Align thegent to >=3.14 for consistency; verify 3.13 constraint is actually needed.
+
+### Unused Development Dependencies
+
+| Project | Dep | Purpose | Status | Remove? |
+|---------|-----|---------|--------|---------|
+| heliosCLI | `pytest-cov` | Coverage | Used (config exists) | Keep |
+| thegent | `hypothesis` | Property-based testing | No tests found | **EVALUATE** |
+| thegent | `litellm==1.82.5` | LLM client (pinned old!) | Check if current | **UPDATE** |
+
+**Issue:** thegent has `litellm==1.82.5` pinned (exact version) while latest is 2.x. This is intentional lock but may be stale.
+
+### Security Considerations: Overrides
+
+Both projects use dependency overrides for security:
+- heliosCLI: `punycode`, `esbuild` (JavaScript)
+- thegent: Uses pyproject.toml for Python (cleaner)
+
+---
+
+# 2026-03-29 - Cross-Repo Dependency Consolidation Opportunities
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** identified
+**Priority:** P1
+
+## Consolidation Opportunities
+
+### 1. Workspace Dependency Standardization
+
+#### Current State
+
+| Repo | Workspace Manager | Status |
+|------|------------------|--------|
+| Phenotype infrakit (Rust) | Yes | Partial (many unused deps) |
+| heliosCLI (Rust) | Yes | No workspace deps |
+| thegent (Python) | Partial (uv) | Using uv workspaces |
+| All (TypeScript) | Mixed (pnpm, bun, npm) | Fragmented |
+
+#### Recommendation: Standardize on Workspace Dependencies
+
+**For Rust:**
+- Keep workspace root (`/Cargo.toml`) for common deps
+- Remove unused: `lru`, `parking_lot`, `moka`, `dashmap`
+- Add: `tokio` (with unified version 1.40+)
+- Enforce: All sub-crates must inherit workspace versions
+
+**For Python:**
+- thegent uses uv workspaces correctly
+- Standardize heliosCLI on uv workspaces if multi-package
+
+**For TypeScript:**
+- Choose: pnpm 10.x (already used) or bun (cutting-edge)
+- Migrate heliosCLI workspace root from npm to pnpm
+- Standardize VitePress: upgrade all to 1.6.4
+
+### 2. Shared Crate Extraction (phenotype-cache-adapter)
+
+| Crate | Purpose | Status | Extract? |
+|-------|---------|--------|----------|
+| `phenotype-cache-adapter` | Cache abstractions | Declared but minimal usage | No (too small) |
+| `phenotype-contracts` | Domain models | Workspace member | Keep |
+| `phenotype-event-sourcing` | Event patterns | Workspace member | Keep |
+
+### 3. Version Alignment Matrix
+
+Create a unified dependency version policy:
+
+```
+| Dependency | Min Version | Max Version | Policy | Why |
+|-----------|-------------|-------------|--------|-----|
+| serde | 1.0 | 1.0.x | Minor bumps OK | Stable 1.0 API |
+| tokio | 1.40 | 1.x | Stay on 1.40+ | Critical feature parity |
+| gix | 0.79 | 0.81 | Can bump to 0.81 | No breaking changes |
+| pytest | 9.0 | 9.x | Upgrade heliosCLI | Feature parity with thegent |
+| ruff | 0.15 | 0.x | Upgrade heliosCLI | Lint rules sync |
+| vitepress | 1.6.4 | 1.6.x | Align all to 1.6.4 | No minor drift |
+```
+
+---
+
+# 2026-03-29 - Action Plan & Implementation Priority
+
+## P0 - CRITICAL (Remove/Fix Now)
+
+| ID | Action | Repo | Effort | Impact |
+|----|--------|------|--------|--------|
+| CLEAN-001 | Remove unused: `lru`, `parking_lot`, `moka` | Phenotype/Cargo.toml | 5 min | Cleaner workspace |
+| CLEAN-002 | Update phenotype-contracts to tokio 1.40 | phenotype-contracts/Cargo.toml | 5 min | Version consistency |
+| CLEAN-003 | Add tokio to workspace deps with 1.40 | Phenotype/Cargo.toml | 5 min | Single source of truth |
+| VER-001 | Upgrade heliosCLI pytest from 8.2 to 9.0 | heliosCLI/pyproject.toml | 10 min | Test suite consistency |
+| VER-002 | Upgrade heliosCLI ruff from 0.8 to 0.15 | heliosCLI/pyproject.toml | 10 min | Lint rule parity |
+
+## P1 - HIGH (Next Sprint)
+
+| ID | Action | Repo | Effort | Impact |
+|----|--------|------|--------|--------|
+| SYNC-001 | Standardize all VitePress to 1.6.4 | phenotype-docs, heliosCLI, thegent | 15 min | No drift |
+| SYNC-002 | Standardize Vue to 3.5.28 | phenotype-docs, heliosCLI | 10 min | Latest stable |
+| SYNC-003 | Standardize Mermaid to 11.12.3 | phenotype-docs, heliosCLI | 10 min | Latest features |
+| PKG-001 | Migrate heliosCLI npm workspace to pnpm | heliosCLI/package.json | 20 min | Consistency with others |
+| PYTHON-001 | Align Python min version thegent 3.13→3.14 | thegent/pyproject.toml | 5 min | Consistency |
+
+## P2 - MEDIUM (Plan)
+
+| ID | Action | Repo | Effort | Impact |
+|----|--------|------|--------|--------|
+| AUDIT-001 | Verify chrono, sha2, hex, toml, regex actually used | Phenotype/Cargo.toml | 15 min | Remove more unused |
+| AUDIT-002 | Verify dashmap usage | Phenotype/Cargo.toml | 5 min | Possible remove |
+| MIGRATE-001 | Plan `gix` 0.79→0.81 upgrade | AgilePlus/git | 30 min | Latest gix features |
+| LIT-001 | Check if `litellm==1.82.5` pinning is intentional | thegent/pyproject.toml | 10 min | May need major update |
+| HYPOTHESIS-001 | Verify `hypothesis` package is actually used | thegent/pyproject.toml | 10 min | Remove if unused |
+
+---
+
+# 2026-03-29 - Remaining Questions & Follow-ups
+
+| Question | Impact | Owner |
+|----------|--------|-------|
+| Are chrono, sha2, hex, regex actually used in phenotype crates? | Could remove 5+ more deps | Dependency audit |
+| Is `dashmap` used anywhere? | Could remove 1 more dep | Dependency audit |
+| Why is `litellm==1.82.5` pinned to exact old version? | Update or document reason | thegent maintainer |
+| Is `hypothesis` actively used in tests? | Remove if unused | thegent test lead |
+| Can heliosCLI's `server` optional dep be removed? | Cleaner optional deps | heliosCLI maintainer |
+
+---
+

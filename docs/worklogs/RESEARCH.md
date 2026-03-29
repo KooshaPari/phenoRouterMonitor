@@ -462,3 +462,104 @@ Quarterly technology radar update based on starred repo analysis.
 | Custom MCP implementations | Use Pathway patterns |
 
 ---
+
+## 2026-03-29 - Wave 92: Ecosystem radar (serialization, OTel, WASM, data)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Additional 2026 candidates to **wrap at the adapter boundary** or **trial** in pilots. Avoid reimplementing these cross-cutting concerns in `libs/` when mature OSS exists.
+
+### Rust: serialization and zero-copy
+
+| Crate / project | Action | Notes |
+|-----------------|--------|-------|
+| `rkyv` 0.8+ | EVALUATE | Zero-copy archives for hot read paths; schema evolution needs discipline |
+| `flatbuffers` / `capnp` | WRAP | RPC + stable schemas vs hand-rolled JSON for internal services |
+| `minicbor` | ADOPT | Small CBOR for constrained agents / WASM |
+| `postcard` 1.x | ADOPT | `no_std`-friendly binary serde for device edges |
+
+### Rust: async runtime adjacent
+
+| Crate | Action | Notes |
+|-------|--------|-------|
+| `tokio-util` `CancellationToken` | ADOPT | Replace ad-hoc `watch` channels for shutdown |
+| `async-stream` | WRAP | Ergonomic streaming iterators into axum bodies |
+| `backon` | EVALUATE | Retry policies; compare with custom retry in NATS clients |
+
+### Rust: WASM / components
+
+| Tooling | Action | Notes |
+|---------|--------|-------|
+| `cargo-component` | TRIAL | WIT-first components vs raw `wasm-bindgen` sprawl |
+| `wit-bindgen` 0.35+ | ADOPT | Generated bindings for plugin boundaries (aligns with Extism direction) |
+| `wasmtime` 24+ | ADOPT | Host runtime for policy / sandboxed plugins |
+
+### TypeScript / Node
+
+| Package | Action | Notes |
+|---------|--------|-------|
+| `effect` / `@effect/schema` | EVALUATE | Typed errors + schema; heavy bundle; use in services not browser |
+| `arktype` | TRIAL | Faster TS-first validation vs zod in hot paths |
+| `pino` + `pino-pretty` | ADOPT | JSON logs for Node services; pair with OTel trace context fields |
+| `bullmq` | WRAP | Redis queues for async agent jobs; avoid custom Redis Lua |
+| `ioredis` | ADOPT | Cluster + sentinel; standardize on one Redis client per repo |
+
+### Go (for services still on Go)
+
+| Module | Action | Notes |
+|--------|--------|-------|
+| `github.com/bytedance/sonic` | EVALUATE | Fast JSON; CGO-free config matters for static builds |
+| `github.com/rs/zerolog` | ADOPT | Structured logs; bridge to OTel via hooks |
+| `go.uber.org/fx` | EVALUATE | DI graph vs manual wiring in large cmds |
+| `connectrpc.com/connect` | WRAP | gRPC-compatible without full protobuf weight where acceptable |
+
+### Python: agents and data
+
+| Package | Action | Notes |
+|---------|--------|-------|
+| `opentelemetry-sdk` + `opentelemetry-exporter-otlp` | ADOPT | Match Rust/TS trace IDs across MCP + FastAPI |
+| `limits` (Flask-starlette pattern) | WRAP | Rate limits for public HTTP adapters |
+| `faker` + `polyfactory` | ADOPT | Factory fixtures instead of duplicated JSON blobs in tests |
+| `hypothesis` | ADOPT | Property tests for spec parsers and merge logic |
+
+### Observability backends (hosted or self)
+
+| System | Action | Notes |
+|--------|--------|-------|
+| Grafana Tempo | ADOPT | Trace backend; works with OTLP from all stacks |
+| Pyroscope / Grafana profiles | TRIAL | Continuous profiling for Rust/Go CPU hot spots |
+| Loki | ADOPT | Log aggregation matching label conventions in `phenotype-*` |
+
+### Security / policy engines (reuse)
+
+| Project | Action | Notes |
+|---------|--------|-------|
+| Open Policy Agent (Wasm bundle) | WRAP | Same policy bundle in Rust host + CI `conftest` |
+| Cedar (AWS) | EVALUATE | Alternative to hand-rolled RBAC in multi-tenant APIs |
+| `zxcvbn-rs` | ADOPT | Password strength in CLI onboarding; do not invent heuristics |
+
+### Additional starred / ecosystem repos to track
+
+| Repo | Why watch |
+|------|-----------|
+| `open-telemetry/opentelemetry-rust` | Exporter parity and MSRV policy |
+| `bytecodealliance/wasmtime` | Component model churn |
+| `tokio-rs/axum` | Middleware patterns for adapter layer |
+| `rust-lang/cargo` | `edition` / workspace features affecting `libs/` migration |
+| `withastro/starlight` | Docs sites if VitePress limits hit |
+| `bufbuild/buf` | Breaking change detection for protos already in CI |
+| `google/osv.dev` | OSV API for automated dep triage bots |
+| `rustsec/advisory-db` | Source of truth for `cargo deny` |
+
+### Research tasks (Wave 92)
+
+- [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
+- [ ] Prototype WIT surface for one sandboxed “tool” using `cargo-component`.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
+
+---

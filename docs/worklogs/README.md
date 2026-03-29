@@ -29,6 +29,23 @@ This directory contains structured worklogs organized by category. Each worklog 
 | `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
 | `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
 | `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
+| `DUPLICATION_EXTENDED.md` | 800 | DUPLICATION | 2026-03-29 | expanded follow-up analysis |
+| `CROSSCUTTING.md` | 450 | GOVERNANCE | 2026-03-29 | policy + pipeline design |
+| `CONSOLIDATION.md` | 520 | ARCHITECTURE | 2026-03-29 | libification strategies |
+| `POLICY_ENGINE.md` | 320 | RESEARCH | 2026-03-29 | third-party wrapping audit |
+| `INACTIVE_FOLDERS.md` | 314 | MAINTENANCE | 2026-03-29 | orphaned worktrees and cleanup |
+| `WORKLOW.md` | 410 | PERFORMANCE | 2026-03-29 | optimization and benchmark tracking |
+| `AgentMasterAuditPrompt.md` | 400+ | AUDIT | 2026-03-29 | multi-repo audit directive; optional `docs/AGENT_MASTER_AUDIT_PROMPT.md` gitignored |
+| `TOOLING.md` | 750+ | TOOLING | 2026-03-29 | CI, cargo ecosystem, git/worktree automation notes |
+| `QUALITY.md` | 300+ | QUALITY | 2026-03-29 | gates, coverage, evidence |
+| `UX_DX.md` | 400+ | UX_DX | 2026-03-29 | developer experience |
+| `EXTERNAL_DEPENDENCIES.md` | — | DEPS | 2026-03-29 | fork/wrap/blackbox matrix |
+| `SessionTranscriptAudit.md` | — | SESSION | 2026-03-29 | transcript hygiene |
+| `SessionGaps20260329.md` | — | SESSION | 2026-03-29 | gap analysis |
+| `../reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md` | — | DUPLICATION | 2026-03-29 | cross-repo overlap |
+| `../reports/DECOMPOSITION_AUDIT.md` | — | ARCHITECTURE | 2026-03-29 | decomposition targets |
+| `aggregate.sh` | — | TOOLING | 2026-03-29 | roll-up scripts |
+
 ---
 
 ## Category Summaries
@@ -44,6 +61,9 @@ This directory contains structured worklogs organized by category. Each worklog 
 | Store Traits | 5 async traits | 🟠 MEDIUM |
 | Health Checks | 3-4 enums | 🟠 MEDIUM |
 | In-Memory Stores | 4 implementations | 🟠 MEDIUM |
+| Auth Strategy Variants | 3 implementations | 🟡 HIGH |
+| Serialization/Deserialization | 6 copies | 🟡 HIGH |
+| Event Bus Adapters | 5 adapters | 🟠 MEDIUM |
 
 **Key Plans**:
 - `PLANS/MASTER_DUPLICATION_AUDIT.md` - Complete findings
@@ -110,6 +130,38 @@ This directory contains structured worklogs organized by category. Each worklog 
 | Async Patterns | Sequential ops need parallelization | 🟡 HIGH |
 | Memory Allocations | Hash chain hotspots | 🟠 MEDIUM |
 | TokenLedger Benches | Comprehensive, shareable | ✅ DONE |
+
+### TOOLING.md
+
+**Focus**: Automation, CI, reproducibility
+
+| Sub-Category | Findings | Status |
+|--------------|----------|--------|
+| Rust extras | machete, semver, typos in CI | ✅ in workflow |
+| Release | cargo-dist not wired | 🟡 HIGH |
+| Git worktrees | health script / `task git:*` (repo root) | 🟡 document in TOOLING |
+| Docs | VitePress + bun in `docs/` | ✅ active |
+
+### INACTIVE_FOLDERS.md
+
+**Focus**: Non-canonical disk state, temp clones, broken worktrees
+
+| Sub-Category | Findings | Status |
+|--------------|----------|--------|
+| `*-temp` under Phenotype/ | Push/PR/delete lifecycle | 🟡 open |
+| `repos/.worktrees/*` | stale admin / empty dirs | 🔴 prune |
+| `isolated/*` | snapshot clones (huge dirty trees) | 🔴 triage |
+| `~/Repos` spot-checks | drift off `main` | 🟡 periodic |
+
+### QUALITY.md
+
+**Focus**: Evidence, traceability, test maturity
+
+| Sub-Category | Findings | Status |
+|--------------|----------|--------|
+| FR traceability | Partial across crates | 🟡 HIGH |
+| Coverage targets | Rust + Python gates | 🟡 HIGH |
+| Security scans | cargo-deny, pip-audit | ✅ wired |
 
 ---
 

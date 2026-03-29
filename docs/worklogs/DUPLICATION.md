@@ -128,6 +128,33 @@ Extended comprehensive audit of AgilePlus intra-repo duplication. Identified pat
 
 ---
 
+## 2026-03-30 - Duplication Audit Chunk 5: Deep codebase hotspots
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P0
+
+### 14. Async Trait Duplication Hotspots (high frequency)
+- `crates/phenotype-contracts/*/src/ports/inbound` and `outbound` contain 3-4 repeated `#[async_trait]` trait methods each.
+- `crates/agileplus-graph` + `crates/agileplus-cache` + `crates/agileplus-nats` have identical `async fn` storage/health entries.
+- Candidate consolidation: `libs/phenotype-port-interfaces` should host standard `AsyncRepository`, `AsyncCache`, `AsyncEventBus` traits.
+
+### 15. Error conversion duplication (periodic)
+- `capsule` functions in `crates/agileplus-*` use repeated `impl From<MyError> for ApiError` patterns.
+- `ports` libraries have duplicate mapping in `src/conversion.rs` to `phenotype-error` variants.
+- Candidate consolidation: `libs/phenotype-error` with `ErrorExt` trait and universal mapping macro.
+
+### 16. Worktree / Process lifecycle duplication
+- `platforms/thegent/*` and `heliosCLI/*` each include similar worktree management, process killing, and cleanup code.
+- Candidate shared lib: `libs/phenotype-worktree` providing `WorktreeManager`, `ProcessGroup`, `safe_kill`.
+
+### Next Steps (new chunk)
+- [ ] Identify and merge duplicated `async_trait` trait definitions into one core library.
+- [ ] Replace triple-duplicate `From<...> for ...` patterns with derive macro in `phenotype-error`.
+- [ ] Create `libs/phenotype-worktree` from common code in `heliosCLI` and `platforms/thegent`.
+
+
 ## 2026-03-29 - Cross-Project Duplication Audit (Comprehensive)
 
 **Project:** [cross-repo]
@@ -480,5 +507,104 @@ Comprehensive analysis identifying 1,800 LOC of duplication with 1,200 LOC savin
 
 - `docs/research/consolidation-audit-2026-03-29.md` - Master findings
 - `worklogs/WORK_LOG.md` - Wave 90 entry
+
+---
+
+## 2026-03-29 - Wave 92: `repos/` monorepo deep duplication (verified scan)
+
+**Project:** [phenotype-infrakit / repos workspace]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Filesystem-level audit of `Phenotype/repos` to separate **real code duplication** from **accidental directory cloning**. Several patterns multiply LOC and confuse `rg` / `cargo` metadata.
+
+### 1. Double package roots per workspace member (P0 structural)
+
+Each workspace member under `crates/` shows **two** package roots with the **same** `name` in `Cargo.toml`:
+
+| Crate | Outer manifest | Inner manifest | Notable drift |
+|-------|----------------|----------------|---------------|
+| `phenotype-event-sourcing` | `crates/phenotype-event-sourcing/Cargo.toml` | `crates/phenotype-event-sourcing/phenotype-event-sourcing/Cargo.toml` | Inner adds `tokio` dev-dependency; dependency feature lines differ |
+| `phenotype-policy-engine` | outer + inner | same pattern | Naming collision / drift risk |
+| `phenotype-state-machine` | outer + inner | same pattern | Naming collision / drift risk |
+| `phenotype-cache-adapter` | outer + inner | same pattern | Naming collision / drift risk |
+| `phenotype-contracts` | outer + inner | same pattern | Inner `tokio = "1.0"` vs inner event-sourcing `1.40` |
+
+**Verification (read-only):**
+
+```bash
+diff -rq crates/phenotype-event-sourcing/src \
+  crates/phenotype-event-sourcing/phenotype-event-sourcing/src || true
+```
+
+**Canonical rule:** One package root per crate. Keep the workspace-linked root, merge any unique files, delete the redundant tree in a dedicated PR.
+
+### 2. Vendored full repositories inside `repos/` (P0 hygiene)
+
+`rg 'pub enum \\w+Error'` hits paths under trees that are **not** the five workspace members—treating them as first-class duplication inflates audits.
+
+| Path | Role | Recommendation |
+|------|------|----------------|
+| `phenotype-shared-wtrees/resolve-pr58/` | Nested copy of another workspace | **git worktree** outside repo or **submodule** pin |
+| `thegent-work/crates/*` | Many standalone crates | Track **canonical** `thegent`; delete or submodule |
+| `heliosCLI-wtrees/main/codex-rs/` | Large Rust workspace | Same; never duplicate `origin/main` tarballs in-tree |
+
+**Impact:** Duplication metrics and security scans should **exclude** these paths until ownership is explicit (document in `AGENTS.md` / `deny.toml` excludes for agents).
+
+### 3. thegent-hooks: error enum sprawl (P1 libification)
+
+| File (under `thegent-work/`) | Type |
+|-------------------------------|------|
+| `thegent-hooks/src/git_ops.rs` | `GitOpsError` |
+| `thegent-hooks/src/git_cache.rs` | `GitCacheError` |
+| `thegent-hooks/src/file_discovery.rs` | `FileDiscoveryError` |
+| `thegent-hooks/src/changed_files.rs` | `ChangedFilesError` |
+| `thegent-hooks/src/affected_tests.rs` | `AffectedTestsError` |
+| `thegent-hooks/src/prewarm.rs` | `PrewarmError` |
+| `thegent-hooks/src/report.rs` | `ReportError` |
+| `thegent-hooks/src/types.rs` | `HookError` |
+
+**Consolidation:** Single `HooksError` with `#[from]` / `miette` context—target **~120 LOC** savings and uniform CLI output.
+
+### 4. heliosCLI harness stack: parallel error types (P1)
+
+Under `heliosCLI-wtrees/main/crates/harness_*`:
+
+| Crate | Error type |
+|-------|------------|
+| `harness_verify` | `VerifyError` |
+| `harness_spec` | `SpecError` |
+| `harness_runner` | `RunError` |
+| `harness_queue` | `QueueError` |
+| `harness_orchestrator` | `OrchestratorError` |
+| `harness_elicitation` | `ElicitationError` |
+| `harness_checkpoint` | `CheckpointError` |
+| `harness_cache` | `CacheError` |
+
+**Opportunity:** `harness-core::Error` with stage + `#[source]` to collapse Display boilerplate.
+
+### 5. codex-rs: vendor boundary (P2)
+
+Many fine-grained errors under `codex-rs/**/error.rs` are **upstream-shaped**. Avoid mass merges; only extract cross-cutting helpers if the fork is long-lived.
+
+### 6. Duplicate `EventSourcingError` definitions (same repo)
+
+- `crates/phenotype-event-sourcing/src/error.rs`
+- `crates/phenotype-event-sourcing/phenotype-event-sourcing/src/error.rs`
+
+Resolving the double-root issue removes **phantom** duplication in static analysis.
+
+### Wave 92 action items
+
+| Priority | Action |
+|----------|--------|
+| P0 | Single root per `crates/*`; remove nested duplicate |
+| P0 | Policy: no full-repo vendoring under `repos/` (worktree/submodule) |
+| P1 | Unified `thegent-hooks` error design |
+| P1 | `harness-core` error design |
+| P2 | Document `codex-rs` vendor rules |
 
 ---
