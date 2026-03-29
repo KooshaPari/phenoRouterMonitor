@@ -203,3 +203,14 @@ platforms/heliosApp/
 platforms/heliosCLI/
 platforms/thegent/
 platforms/vibe-kanban/
+
+# Audit and session artifacts
+auditlog/
+planlog/
+researchlog/
+worklogs/
+opened_prs.log
+pr_creation.log
+audit_worktrees.sh
+SESSION_GAPS_2026_03_29.md
+REPOS_INDEX.md
