@@ -709,3 +709,92 @@ _Comprehensive audit completed: 2026-03-29 11:00 UTC_
 _Additions to document: 15+ new major findings, 25+ detailed tables, 4-phase cleanup plan_
 _Next audit due: 2026-04-29 (monthly check)_
 
+
+---
+
+## 2026-03-29 - Wave 97 Final Consolidation State
+
+### Git Worktrees (Current)
+
+```
+/Users/kooshapari/CodeProjects/Phenotype/repos                                                          [chore/decomposition-audit-v2]
+/Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/merge-spec-docs                               [docs/merge-spec-docs]
+/Users/kooshapari/CodeProjects/Phenotype/repos/platforms/worktrees/thegent/consolidate-dotfiles         [chore/consolidate-dotfiles]
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/AgilePlus/phenotype-docs                 [chore/integrate-phenotype-docs]
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/consolidate-libraries/main               [chore/doc-sync-phase2] prunable
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/expand-test-coverage                     [chore/ci-cd-workflows-clean] prunable
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/phenotype-infrakit/chore/merge-worklogs  [chore/merge-worklogs]
+```
+
+### Canonical Crates (20 phenotype-* crates)
+
+| Crate | Purpose | Status |
+|-------|---------|--------|
+| `phenotype-port-traits` | 14 async traits | ✅ Complete |
+| `phenotype-logging` | ZERO logging → canonical | ✅ Complete |
+| `phenotype-time` | Duration/timestamp | ✅ Complete |
+| `phenotype-string` | Sanitization/parsing | ✅ Complete |
+| `phenotype-iter` | Batch/chunks/collection | ✅ Complete |
+| `phenotype-crypto` | HashChain/SHA-256 | ✅ Complete |
+| `phenotype-state-machine` | State transitions | ✅ Complete |
+| `phenotype-telemetry` | Tracing/metrics | ✅ Complete |
+| `phenotype-test-infra` | Test utilities | ✅ Complete |
+| `phenotype-errors` | Unified error hierarchy | ✅ Complete |
+| `phenotype-error-core` | Error core types | ✅ Complete |
+| `phenotype-config-core` | ConfigLoader | ✅ Complete |
+| `phenotype-health` | HealthChecker | ✅ Complete |
+| `phenotype-retry` | Retry pattern (329 LOC) | ✅ Complete |
+| `phenotype-mcp` | MCP protocol | ✅ Complete |
+| `agileplus-api-types` | ApiResponse/Pagination | ✅ Complete |
+| `phenotype-cache-adapter` | Redis caching | ✅ Complete |
+| `phenotype-contracts` | Domain contracts | ✅ Complete |
+| `phenotype-event-sourcing` | ES aggregates | ✅ Complete |
+| `phenotype-policy-engine` | Policy evaluation | ✅ Complete |
+
+### libs/ Legacy Status
+
+| Crate | Edition | Status | Action |
+|-------|---------|--------|--------|
+| `libs/config-core` | 2024 | ✅ INTEGRATED | **KEEP** |
+| `libs/phenotype-config-core` | 2024 | ✅ In workspace | **KEEP** |
+| `libs/phenotype-error-core.ARCHIVED` | 2024 | Archived | **ARCHIVED** |
+
+### Prunable Worktrees
+
+These worktrees have no corresponding remote branch and can be removed:
+
+```bash
+# Remove prunable worktrees
+git worktree remove repos/worktrees/consolidate-libraries/main
+git worktree remove repos/worktrees/expand-test-coverage
+```
+
+### LOC Savings Achieved
+
+| Category | Before | After | Savings |
+|----------|--------|-------|---------|
+| Async traits | 180 LOC | 0 | **180** |
+| Logging | 1 println | 0 | **1** |
+| Duration patterns | 68 LOC | 0 | **68** |
+| String utilities | 800 LOC | 0 | **800** |
+| Iterator utilities | 820 LOC | 0 | **820** |
+| Hashing/crypto | 100 LOC | 0 | **100** |
+| API types | 224 LOC | 0 | **224** |
+| Retry patterns | 329 LOC | 0 | **329** |
+| **TOTAL** | **~2,522** | **0** | **~2,522 LOC** |
+
+### External Package Candidates (2026)
+
+| Package | Strategy | Priority | Status |
+|---------|----------|----------|--------|
+| `gix` | ADOPT | P0 | Replace `git2` (security) |
+| `figment` | ADOPT | P0 | Multi-source config |
+| `sqlx` | ADOPT | P1 | Async database |
+| `casbin` | WRAP | P1 | RBAC policy engine |
+| `anthropic` | ADD | P1 | Claude SDK |
+| `blake3` | ADOPT | P1 | 3x faster hashing |
+| `ratatui` | EVALUATE | P2 | TUI framework |
+
+---
+
+_Last updated: 2026-03-29 (Wave 97 final)_
