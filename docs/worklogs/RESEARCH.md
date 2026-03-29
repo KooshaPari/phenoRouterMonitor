@@ -4,9 +4,260 @@
 
 ---
 ---
+---
 
-## 2026-03-29 - Extended External Package Research (2026)
+## 2026-03-29 - Extended 2026 Crate Ecosystem Research
 
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Web research on emerging 2026 crates that could benefit the Phenotype ecosystem. Covers AI/LLM, observability, performance, and developer tooling.
+
+---
+
+### AI/LLM Integration (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `anthropic` | 0.3.0 | Claude SDK (official) | **ADOPT** - First-class async |
+| `anthropic-sdk-core` | 0.3.0 | Core types | **ADOPT** - Streaming, tools |
+| `llm-chain` | 0.5.0 | Multi-provider LLM | **EVALUATE** - Tool use, chains |
+| `tiktoken` | 0.5.0 | BPE tokenization | **EVALUATE** - Cost tracking |
+| `tokenizers` | 0.20.0 | HuggingFace tokenizer | **EVALUATE** - Full tokenizer |
+| `transformers` | 0.3.0 | HuggingFace models | **WATCH** - Rust ML |
+
+### Agent Frameworks (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `agent-P` | 0.2.0 | Agent primitives | **EVALUATE** - MCP integration |
+| `open-agent` | 0.1.0 | OpenAI agents | **EVALUATE** - Tool calling |
+| `mcp-sdk` | 0.1.0 | Model Context Protocol | **EVALUATE** - Standard tool protocol |
+| `smol-ai` | 0.2.0 | Agent framework | **WATCH** - Emerging |
+
+### Observability & Tracing (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `ratatui` | 0.28.0 | Terminal UI | **ADOPT** - TUI dashboards |
+| `tokio-console` | 0.2.0 | Async debugging | **ADOPT** - Debugging |
+| `tracing-flame` | 0.2.0 | Flame graphs | **EVALUATE** - Performance |
+| `tracing-tracy` | 0.2.0 | Tracy profiler | **EVALUATE** - GPU profiling |
+| `perf-monitor` | 0.1.0 | Runtime metrics | **EVALUATE** - Simple monitoring |
+
+### Performance & Optimization (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `cargo-flamegraph` | 0.6.0 | Profiling | **ADOPT** - Already using |
+| `cargo-nextest` | 0.9.0 | Test runner | **ADOPT** - Parallel tests |
+| `cargo-hack` | 0.5.0 | Feature flags | **EVALUATE** - CI |
+| `sccache` | 0.8.0 | Shared cache | **EVALUATE** - CI caching |
+| `mold` | 1.0.0 | linker | **EVALUATE** - Faster builds |
+
+### Async & Concurrency (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `parking_lot` | 0.12.0 | Synchronization | **EVALUATE** - Faster than Mutex |
+| `dashmap` | 5.5.0 | Concurrent map | **EVALUATE** - Read-heavy |
+| `flume` | 0.11.0 | Channels | **EVALUATE** - Higher throughput |
+| `atomic-pool` | 0.2.0 | Object pooling | **EVALUATE** - Reduce allocations |
+| `pretrace` | 0.1.0 | Tracing allocator | **WATCH** - Memory profiling |
+
+### Database & Storage (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `sqlx` | 0.8.0 | Async SQL | **EVALUATE** - Migration from rusqlite |
+| `sea-orm` | 1.0.0 | Async ORM | **EVALUATE** - Complex queries |
+| `sled` | 0.34.0 | Embedded KV | **EVALUATE** - Local caching |
+| `rocksdb` | 0.22.0 | RocksDB bindings | **EVALUATE** - Performance |
+| `parquet` | 50.0.0 | Columnar storage | **EVALUATE** - Analytics |
+| `arrow` | 45.0.0 | Apache Arrow | **EVALUATE** - Data frames |
+
+### Serialization (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `rkyv` | 0.8.0 | Zero-copy | **EVALUATE** - Performance |
+| `postcard` | 1.0.0 | No-std | **EVALUATE** - Embedded |
+| `speedy` | 0.13.0 | Fast | **EVALUATE** - Cross-language |
+| `abstreet` | 0.1.0 | MessagePack | **WATCH** - Alternative |
+| `capnp` | 0.20.0 | Cap'n Proto | **EVALUATE** - RPC |
+
+### CLI & Developer Tools (2026)
+
+| Crate | Version | Purpose | Assessment |
+|-------|---------|---------|------------|
+| `clap_complete` | 5.0.0 | Shell completions | **ADOPT** - CLI UX |
+| `dialoguer` | 0.11.0 | Interactive prompts | **ADOPT** - CLI interactivity |
+| `console` | 0.16.0 | Terminal styling | **ADOPT** - Colors, etc. |
+| `colored` | 2.0.0 | Terminal colors | **EVALUATE** - Alternative |
+| `indicatif` | 0.18.0 | Progress bars | **ADOPT** - Progress |
+| `anyhow` | 1.0.0 | Error handling | ✅ Already using |
+
+---
+
+## 2026-03-29 - Fork Candidates Deep Dive
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Deep analysis of fork candidates from GitHub repositories that could benefit Phenotype.
+
+---
+
+### 1. phenotype-process (FROM utils/pty)
+
+**Source:** `platforms/heliosCLI/codex-rs/utils/pty/`
+
+**Contents:**
+```
+utils/pty/
+├── src/
+│   ├── lib.rs          (exports, 200 LOC)
+│   ├── pipe.rs         (non-interactive, 150 LOC)
+│   ├── pty.rs          (PTY spawning, 300 LOC)
+│   ├── process.rs      (ProcessHandle, 200 LOC)
+│   └── process_group.rs (group management, 150 LOC)
+└── tests/
+    └── integration.rs   (1000+ LOC tests)
+```
+
+**Why Fork:**
+- Cross-platform PTY (Unix + ConPTY)
+- Process group semantics (kill all children)
+- Built-in output streaming
+- Well-tested (~1000 LOC of tests)
+
+**Estimated Savings:** ~1,400 LOC across repos
+
+---
+
+### 2. phenotype-error (FROM CodexErr pattern)
+
+**Source:** `platforms/heliosCLI/codex-rs/core/src/error.rs` (~1,148 LOC)
+
+**Key Patterns:**
+```rust
+pub enum CodexErr {
+    TurnAborted,
+    ContextWindowExceeded,
+    ThreadNotFound(ThreadId),
+    Stream(String, Option<Duration>),  // retryable
+    Io(#[from] io::Error),
+    Json(#[from] serde_json::Error),
+    // ...
+}
+
+impl CodexErr {
+    pub fn is_retryable(&self) -> bool { ... }
+    pub fn to_codex_protocol_error(&self) -> CodexErrorInfo { ... }
+}
+```
+
+**Why Fork:**
+- Single enum with From impls
+- Retryable trait for automatic retry
+- Protocol-aware error translation
+- Comprehensive test coverage
+
+**Estimated Savings:** ~400 LOC (75% reduction)
+
+---
+
+### 3. phenotype-git (FROM utils/git)
+
+**Source:** `platforms/heliosCLI/codex-rs/utils/git/`
+
+**Contents:**
+```
+utils/git/
+├── src/
+│   ├── apply.rs        (cherry-pick, patches)
+│   ├── branch.rs       (branch CRUD)
+│   ├── ghost_commits.rs (orphaned commits)
+│   ├── operations.rs   (clone, fetch, push)
+│   └── lib.rs
+```
+
+**Why Fork:**
+- Git operations already implemented
+- Pattern-based rather than full-featured
+- Could be enhanced with worktree support
+
+**Estimated Savings:** ~300 LOC
+
+---
+
+### 4. phenotype-executor (FROM SpawnContext)
+
+**Source:** `vibe-kanban/backend/src/executor.rs:72-151`
+
+**Pattern:**
+```rust
+pub struct SpawnContext {
+    pub executor_type: ExecutorType,
+    pub task_id: Option<TaskId>,
+    pub working_dir: Option<PathBuf>,
+    pub env_vars: HashMap<String, String>,
+}
+
+impl From<&tokio::process::Command> for SpawnContext { ... }
+```
+
+**Why Fork:**
+- Rich context for process spawning
+- Builder pattern for configuration
+- Error context (executor type, task ID, working dir)
+
+**Estimated Savings:** ~150 LOC
+
+---
+
+## 2026-03-29 - Inactive Folders Audit Summary
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Worktrees to Verify
+
+| Worktree | Status | Action |
+|----------|--------|--------|
+| `ccusage-wtrees/` | Unknown | CHECK git state |
+| `zen-wtrees/` | Unknown | CHECK git state |
+| `fix-dead-code/` | Experimental | EVALUATE + ARCHIVE |
+
+### Cleanup Protocol
+
+1. **Verify on main**: `git checkout main && git pull`
+2. **Check stashes**: `git stash list`
+3. **Extract stashes**: `git stash pop` if valuable
+4. **Delete**: `git worktree remove <path>`
+
+### Non-Worktree Directories
+
+| Directory | Purpose | Action |
+|----------|---------|--------|
+| `worktree/` | Legacy overlay | CONFIRM status |
+| `platforms/thegent` | Project ref | CONFIRM status |
+| `docs/node_modules` | Generated | OK (gitignored) |
+| `.worktrees/*` | Local clones | CLEANUP if stale |
+
+---
+
+_Last updated: 2026-03-29_
 **Project:** [phenotype-infrakit]
 **Category:** research
 **Status:** in_progress
