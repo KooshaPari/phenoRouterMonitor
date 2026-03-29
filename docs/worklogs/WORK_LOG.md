@@ -228,4 +228,79 @@ Identical source files exist in two locations:
 
 ---
 
-_Last updated: 2026-03-29 (Wave 92)_
+## Wave 93: LOC Reduction & External Package Deep Dive
+
+**Date:** 2026-03-29
+**Priority:** P0
+
+### Summary
+
+Expanded worklog audit with comprehensive LOC reduction analysis, external package fork/wrap strategies, and cross-repo duplication patterns.
+
+### Key Accomplishments
+
+1. **Created `LOC_REDUCTION.md`** (336 lines)
+   - Comprehensive LOC reduction matrix (~3,190 LOC savings potential)
+   - Phase 1-3 implementation plan
+   - Dead code elimination targets
+   - Boilerplate reduction opportunities
+   - Test reduction strategies
+
+2. **Enhanced `RESEARCH.md`** (219 new lines)
+   - External package fork/wrap opportunities (casbin, cqrs-es, temporal-sdk, figment)
+   - Package health indicators for 2026
+   - Whitebox vs Blackbox strategy matrix
+   - Implementation priority schedule (Week 1-4)
+
+3. **Updated `README.md`**
+   - Added LOC_REDUCTION.md entry
+   - Added category summary for LOC_REDUCTION
+   - Updated line counts for all files
+
+### External Package Integration Matrix
+
+| Package | Strategy | LOC Savings | Priority | Implementation |
+|---------|----------|-------------|----------|----------------|
+| `casbin-rs` | WRAP | 2-3k LOC | P0 | `agileplus-policy` |
+| `cqrs-es` | WRAP | 3k LOC | P0 | Replace `eventually-rs` |
+| `figment` | ADOPT | 500 LOC | P0 | Replace `config-rs` |
+| `health-check` | FORK | 140 LOC | P1 | `agileplus-health` |
+| `statig` | ADOPT | 300 LOC | P1 | Replace custom SM |
+| `temporal-sdk` | WRAP | 4k LOC | P1 | Workflow engine |
+
+### Cross-Repo Duplication Summary
+
+| Pattern | Repos | LOC | Canonical |
+|---------|-------|-----|-----------|
+| phenotype-event-sourcing | x2 | ~1,400 | phenotype-infrakit |
+| Error types | `agileplus-*` x8 | ~600 | `agileplus-error-core` |
+| Health checks | `agileplus-*` x3 | ~80 | `agileplus-health` |
+| Config loading | `agileplus-*` x4 | ~500 | `libs/config-core` |
+
+### LOC Savings by Phase
+
+| Phase | Focus | Savings | Priority |
+|-------|-------|---------|----------|
+| Phase 1 | Quick wins (derive macros, remove duplicates) | ~2,000 LOC | P0 |
+| Phase 2 | Medium refactors (error-core, health-core) | ~800 LOC | P1 |
+| Phase 3 | Major refactors (port traits, external adoption) | ~1,500 LOC | P2 |
+
+### Files Created/Modified
+
+| File | Action | Lines Added |
+|------|--------|-------------|
+| `LOC_REDUCTION.md` | Created | +336 |
+| `RESEARCH.md` | Enhanced | +219 |
+| `README.md` | Updated | +20 |
+
+### Next Steps
+
+- [ ] Evaluate casbin-rs for policy enforcement
+- [ ] Create `agileplus-error-core` crate
+- [ ] Integrate figment for config loading
+- [ ] Fork health-check for unified health status
+- [ ] Remove nested duplicate crates (Phase 1)
+
+---
+
+_Last updated: 2026-03-29 (Wave 93)_
