@@ -2004,9 +2004,13 @@ pub fn router(state: SharedState) -> Router {
         .route("/api/dashboard/features/{id}/work-packages", get(wp_list))
         .route("/api/dashboard/features/{id}/events", get(feature_events))
         .route("/api/dashboard/features/{id}/media", get(feature_media))
+        // HTML partial endpoints (HTMX-compatible)
         .route("/api/dashboard/health", get(health_panel))
         .route("/api/dashboard/events", get(event_timeline))
         .route("/api/dashboard/agents", get(agent_activity))
+        // JSON API endpoints (for polling from JavaScript templates)
+        .route("/api/dashboard/agents.json", get(agents_json))
+        .route("/api/dashboard/health.json", get(health_json))
         .route("/api/dashboard/projects", get(project_switcher))
         .route(
             "/api/dashboard/projects/{id}/activate",
