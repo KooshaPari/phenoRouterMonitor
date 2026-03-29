@@ -489,3 +489,73 @@ Created comprehensive LOC reduction analysis and external package fork/wrap stra
 - [ ] Evaluate `casbin-rs` fork for policy engine
 
 _Last updated: 2026-03-29 (Wave 93 Complete)_
+
+---
+
+## Wave 94: Implementation - Workspace Cleanup & phenotype-error-core (2026-03-29)
+
+**Status:** ✅ completed
+**Priority:** P0
+**Agent:** FORGE
+
+### Summary
+
+Implemented critical workspace cleanup and created `phenotype-error-core` shared error crate.
+
+### Changes Made
+
+| File | Change | Purpose |
+|------|--------|---------|
+| `Cargo.toml` | Updated | Workspace structure, removed `lru`, `moka` (unused) |
+| `crates/phenotype-error-core/Cargo.toml` | Created | Error core crate manifest |
+| `crates/phenotype-error-core/src/lib.rs` | Created | Shared error types (ErrorVariant, conversions) |
+| `crates/phenotype-macros/Cargo.toml` | Fixed | Added proc-macro2 dependency |
+| `crates/phenotype-macros/src/lib.rs` | Fixed | Use proc_macro2 for proc-macro |
+| `crates/phenotype-telemetry/Cargo.toml` | Fixed | Removed phenotype-errors dep |
+
+### phenotype-error-core Crate (NEW)
+
+**Location:** `crates/phenotype-error-core/`
+
+**Components:**
+- `ErrorVariant` enum with 14 common error types (NotFound, Conflict, Serialization, Storage, etc.)
+- Conversion traits: `From<std::io::Error>`, `From<serde_json::Error>`, `From<toml::Error>`
+- Helper constructors: `not_found()`, `conflict()`, `serialization()`, etc.
+
+**Usage:**
+```rust
+use phenotype_error_core::{ErrorVariant, Result};
+
+fn example() -> Result<(), ErrorVariant> {
+    Err(ErrorVariant::not_found("resource not found"))
+}
+```
+
+### Build Status
+
+```bash
+cargo build --workspace  # ✅ Success
+   Compiling phenotype-error-core v0.1.0
+   Compiling phenotype-errors v0.2.0
+   Compiling phenotype-macros v0.2.0
+   Compiling phenotype-telemetry v0.2.0
+   ...
+   Finished dev [unoptimized + debuginfo]
+```
+
+### Remaining Work
+
+| ID | Task | Priority |
+|----|------|----------|
+| DUP-003 | Wire `phenotype-error-core` into consuming crates | P1 |
+| PKG-002 | Add regex compilation caching | P2 |
+| PKG-003 | Implement PolicyRegistry wrapper | P2 |
+| DUP-004 | Implement/delete `phenotype-cache-adapter` | P2 |
+
+### Next Steps
+
+1. Wire `phenotype-error-core` into `phenotype-event-sourcing`, `phenotype-policy-engine`
+2. Replace local error types with shared ErrorVariant
+3. Add more conversion traits as needed
+
+_

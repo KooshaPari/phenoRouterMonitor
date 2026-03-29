@@ -22,7 +22,6 @@ members = [
     "crates/phenotype-cache-adapter",
     "crates/phenotype-policy-engine",
     "crates/phenotype-state-machine",
-    "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-logging",
     "crates/phenotype-telemetry",
