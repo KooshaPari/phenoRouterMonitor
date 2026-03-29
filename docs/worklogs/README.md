@@ -18,32 +18,60 @@ Comprehensive performance analysis of 66,746 lines of Rust, 4,792 lines of Pytho
 - Implementation roadmap (4-week phased approach)
 - Quick wins (< 2 hours each)
 
-**Main Findings**:
-- **CRITICAL**: Sync mutex on every database call blocks async thread
-- **CRITICAL**: Config file I/O on every route (10-50ms per request)
-- **HIGH**: N+1 query pattern (4x database roundtrips on feature views)
-- **HIGH**: No pagination on list queries (loads entire tables)
-- **HIGH**: String formatting anti-patterns (20% extra allocations)
+### Decomposition Audit (2026-03-29)
+**File**: `docs/reports/DECOMPOSITION_AUDIT.md`
 
-**Estimated Impact**:
-- Latency: -40-60% (P95 response time)
-- Throughput: +2-3x concurrent requests
-- Memory: -20-30% heap allocations
-- Timeline: 30-40 developer hours (4 weeks)
+**Total LOC Savings: 4,865 lines across 19 categories**
 
-**Quick Access Subsections**:
-1. Executive Summary (overview)
-2. Hot Path Analysis (5 critical areas)
-3. Memory Allocation Opportunities (6 sections)
-4. Performance Anti-Patterns (5 sections)
-5. Caching Opportunities (5 sections)
-6. Async/Concurrency Optimization (4 sections)
-7. Prioritized List (22 opportunities)
-8. Quick Wins (< 2 hours each)
-9. Implementation Roadmap (4 phases)
-10. Measurement Strategy
-11. Risk Assessment
-12. Appendices (call graphs, memory hotspots, SQL optimization)
+| Priority | Category | Savings |
+|----------|----------|---------|
+| P0 | Error Types | 450 LOC |
+| P0 | Config Loading | 600 LOC |
+| P0 | Nested Crate Duplication | 1,710 LOC |
+| P1 | Builder Patterns | 300 LOC |
+| P1 | Repository Traits | 350 LOC |
+| P2 | Tracing/Logging | 180 LOC |
+| P2 | Chrono/DateTime | 150 LOC |
+| P2 | UUID/ID Generation | 150 LOC |
+| P2 | Async Execution | 200 LOC |
+| P2 | HashMap/DashMap | 100 LOC |
+| P2 | HTTP Client | 120 LOC |
+| P2 | Mutex/RwLock | 100 LOC |
+| P2 | Retry/Backoff | 100 LOC |
+| P2 | Timeout/Duration | 80 LOC |
+| P3 | Time/Date Patterns | 50 LOC |
+| P3 | Display/AsStr Derive | 20 LOC |
+| P3 | Once/OnceCell | 30 LOC |
+
+### Cross-Project Duplication Analysis (2026-03-29)
+**File**: `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md`
+
+**Key Findings**:
+- 5 error type definitions across crates
+- 4 config loading patterns
+- 3 builder pattern implementations
+- 2 UUID generation utilities
+- 2 async execution patterns
+
+### Implementation Plans
+
+| Plan | Status | Focus |
+|------|--------|-------|
+| `LOC_REDUCTION_DECOMPOSITION.md` | Ready | 4,865 LOC savings |
+| `ErrorCoreExtraction.md` | Ready | P0 error consolidation |
+| `ConfigCoreActivation.md` | Ready | Config lib activation |
+| `EditionMigration.md` | Ready | Edition 2024 migration |
+
+### External Package Recommendations (2026)
+
+| Package | Downloads | Purpose |
+|---------|-----------|---------|
+| `figment` | 50M+ | Config management (TOML/JSON/YAML/ENV) |
+| `derive_builder` | 100M+ | Builder pattern derivation |
+| `dashmap` | 40M+ | Concurrent HashMap |
+| `parking_lot` | 100M+ | Faster locking |
+| `eventually` | Active | Event sourcing patterns |
+| `casbin` | 10M+ | Authorization policies |
 
 ---
 

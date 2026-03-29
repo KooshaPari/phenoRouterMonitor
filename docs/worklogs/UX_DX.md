@@ -904,3 +904,608 @@ impl Onboarding {
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-30 - Modern TUI Frameworks Comparison
+
+**Project:** [cross-repo]
+**Category:** ux
+**Status:** completed
+**Priority:** P2
+
+### Summary
+
+Comparison of modern TUI frameworks for building rich terminal user interfaces in Rust.
+
+### Framework Comparison
+
+| Framework | Language | Status | Async | Widgets | Assessment |
+|-----------|----------|--------|-------|---------|------------|
+| **ratatui** | Rust | Active (2026) | Yes | 20+ | ✅ RECOMMENDED |
+| **cursive** | Rust | Active | No | 15+ | 🟡 Alternative |
+| **textual** | Python | Active | Yes | 50+ | 🟡 Alternative |
+| **bubbletea** | Go | Active | Yes | 30+ | 🟡 Alternative |
+| **chafa** | C | Active | No | Low | ❌ Avoid |
+
+### ratatui Deep Dive (Recommended)
+
+**What:** Declarative TUI framework (successor to tui-rs)
+
+**Key Features:**
+- 100% thread-safe
+- Layout engine (block, flex, grid)
+- Widget library (paragraph, table, chart, gauge)
+- Cross-platform (Windows, macOS, Linux)
+- 60fps rendering
+- Multiple backends (crossterm, termion, ncurses)
+
+**Hello World:**
+```rust
+use ratatui::{
+    Terminal,
+    backend::CrosstermBackend,
+    widgets::{Block, Borders, Paragraph},
+    layout::{Layout, Direction, Constraint},
+};
+use std::io::stdout;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend)?;
+    
+    terminal.draw(|f| {
+        let size = f.size();
+        let block = Block::default()
+            .title("Hello")
+            .borders(Borders::ALL);
+        f.render_widget(block, size);
+    })?;
+    
+    Ok(())
+}
+```
+
+**Async Integration:**
+```rust
+use ratatui::async_pipe::{Receiver, Sender};
+
+async fn async_render(rx: Receiver<AppEvent>) {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend).unwrap();
+    
+    loop {
+        tokio::select! {
+            Some(event) = rx.recv() => {
+                terminal.draw(|f| ui(f, &event))?;
+            }
+            _ = tokio::time::sleep(Duration::from_millis(16)) => {
+                // 60fps render loop
+            }
+        }
+    }
+}
+```
+
+### Cursive Deep Dive
+
+**What:** Simple TUI framework for Rust
+
+**Key Features:**
+- Simple API
+- Good documentation
+- Synchronous only
+- Event handling
+
+**Hello World:**
+```rust
+use cursive::{Cursive, views::TextView};
+
+fn main() {
+    let mut siv = Cursive::new();
+    siv.add_layer(TextView::new("Hello World!"));
+    siv.run();
+}
+```
+
+### textual (Python)
+
+**What:** Rich TUI framework in Python
+
+**Key Features:**
+- CSS-like styling
+- React-like reactivity
+- Built-in widgets
+- Async support
+
+**Hello World:**
+```python
+from textual.app import App
+from textual.widgets import Static
+
+class HelloApp(App):
+    def compose(self):
+        yield Static("Hello, World!")
+
+if __name__ == "__main__":
+    app = HelloApp()
+    app.run()
+```
+
+### Phenotype TUI Opportunities
+
+| Command | TUI Benefit | ratatui Effort | Status |
+|---------|-------------|----------------|--------|
+| `agileplus validate` | Live progress | Low | TODO |
+| `agileplus specify` | Interactive form | Medium | TODO |
+| `agileplus plan` | Visual board | High | TODO |
+| `agileplus queue` | Kanban view | High | TODO |
+
+### Migration Plan
+
+1. **Phase 1:** Add ratatui for validation progress (P2)
+2. **Phase 2:** Add TUI for specify command (P2)
+3. **Phase 3:** Add Kanban board for queue (P3)
+
+### Action Items
+
+- [ ] Add ratatui to Cargo.toml
+- [ ] Create validation progress TUI
+- [ ] Add interactive form for specify
+- [ ] Implement Kanban board for queue
+
+---
+
+## 2026-03-30 - Agent Experience (AX) 2026 Patterns
+
+**Project:** [cross-repo]
+**Category:** ax
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+2026 patterns for building excellent agent experiences - how AI agents interact with software systems.
+
+### Agent Interaction Patterns
+
+#### 1. Structured Output
+
+**Current:** Natural language responses
+```json
+{
+  "message": "The feature was created successfully. The ID is abc123."
+}
+```
+
+**Better:** Structured JSON with schema
+```json
+{
+  "status": "success",
+  "data": {
+    "feature_id": "abc123",
+    "title": "User authentication",
+    "created_at": "2026-03-30T10:00:00Z"
+  },
+  "meta": {
+    "request_id": "req_xyz789",
+    "duration_ms": 45
+  }
+}
+```
+
+#### 2. Error Codes for Agents
+
+**Current:** Human-readable
+```
+Error: governance check failed
+Rule GOV-001 not met: code coverage 45% < 80%
+```
+
+**Better:** Machine-readable with fix hints
+```json
+{
+  "error": {
+    "code": "GOV_001",
+    "message": "Governance check failed",
+    "details": {
+      "rule": "code-coverage",
+      "actual": 45,
+      "required": 80,
+      "delta": -35
+    },
+    "fix": {
+      "suggestion": "Add 35% more test coverage",
+      "command": "agileplus validate --fix --rule code-coverage",
+      "estimated_effort": "2 hours"
+    }
+  }
+}
+```
+
+#### 3. Streaming Responses
+
+**Current:** Batch response
+```json
+{
+  "results": ["item1", "item2", "item3"]
+}
+```
+
+**Better:** Server-Sent Events (SSE)
+```
+event: progress
+data: {"current": 1, "total": 10, "message": "Processing item 1"}
+
+event: progress
+data: {"current": 2, "total": 10, "message": "Processing item 2"}
+
+event: result
+data: {"item": "item2", "status": "success"}
+
+event: complete
+data: {"total": 10, "successful": 9, "failed": 1}
+```
+
+#### 4. Tool Calling Protocol
+
+**Standard:** OpenAI function calling format
+```json
+{
+  "tool_calls": [
+    {
+      "id": "call_abc123",
+      "type": "function",
+      "function": {
+        "name": "create_feature",
+        "arguments": {
+          "title": "User authentication",
+          "description": "Add OAuth2 support",
+          "priority": "high"
+        }
+      }
+    }
+  ]
+}
+```
+
+### MCP (Model Context Protocol)
+
+**What:** Standard protocol for AI tool integration
+
+**Benefits:**
+- 70%+ of AI applications use MCP
+- Vendor-neutral tool definitions
+- Streaming support built-in
+- Tool versioning
+
+**Phenotype MCP Integration:**
+```rust
+// phenotype-mcp-server/src/lib.rs
+
+use model_context_protocol::{
+    Server, Tool, Resource, Prompt,
+};
+
+pub struct PhenotypeMcpServer {
+    server: Server,
+}
+
+impl PhenotypeMcpServer {
+    pub fn new() -> Self {
+        let server = Server::new("phenotype");
+        
+        // Register tools
+        server.add_tool(Tool::new(
+            "create_feature",
+            "Create a new feature specification",
+            input_schema: json!({
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "description": {"type": "string"},
+                    "priority": {"type": "string", "enum": ["low", "medium", "high"]}
+                },
+                "required": ["title"]
+            }),
+            handler: create_feature_handler,
+        ));
+        
+        Self { server }
+    }
+    
+    pub async fn run(self) {
+        self.server.run().await;
+    }
+}
+```
+
+### Batch Operations
+
+**Single:**
+```rust
+POST /api/features
+{"title": "Feature A"}
+```
+
+**Batch:**
+```rust
+POST /api/features/batch
+{
+  "operations": [
+    {"op": "create", "data": {"title": "Feature A"}},
+    {"op": "create", "data": {"title": "Feature B"}},
+    {"op": "update", "id": "feat_123", "data": {"priority": "high"}},
+    {"op": "delete", "id": "feat_456"}
+  ]
+}
+
+// Response
+{
+  "results": [
+    {"op": 0, "status": "created", "id": "feat_789"},
+    {"op": 1, "status": "created", "id": "feat_790"},
+    {"op": 2, "status": "updated"},
+    {"op": 3, "status": "deleted"}
+  ]
+}
+```
+
+### Progress Webhooks
+
+```rust
+// Agent registers for progress updates
+POST /api/webhooks
+{
+  "url": "https://agent.example.com/webhook",
+  "events": ["feature.created", "validation.progress", "validation.complete"],
+  "secret": "agent_secret_xyz"
+}
+
+// Server sends progress
+POST https://agent.example.com/webhook
+{
+  "event": "validation.progress",
+  "data": {
+    "feature_id": "feat_123",
+    "progress": 45,
+    "total_checks": 20,
+    "completed_checks": 9,
+    "current_check": "code-coverage"
+  }
+}
+```
+
+### Action Items
+
+- [ ] Add structured error codes to API
+- [ ] Implement SSE for long-running operations
+- [ ] Add batch operation endpoints
+- [ ] Create MCP server for agent tools
+- [ ] Add webhook support for progress
+
+---
+
+## 2026-03-30 - Developer Onboarding Experience
+
+**Project:** [cross-repo]
+**Category:** dx
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Best practices for developer onboarding - getting new developers productive quickly.
+
+### Onboarding Metrics
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Time to first build | < 5 min | From clone to `cargo build` |
+| Time to first test | < 10 min | First `cargo test` |
+| Time to first contribution | < 1 hour | First PR merged |
+| Documentation coverage | > 80% | `cargo doc --document-private-items` |
+
+### Onboarding Checklist
+
+#### Day 1 Setup
+
+- [ ] Clone repository
+- [ ] Install Rust (via rustup)
+- [ ] Configure git (name, email, signing)
+- [ ] Install recommended tools
+- [ ] Run initial build
+- [ ] Run tests
+- [ ] Read architecture overview
+- [ ] Make first trivial change
+- [ ] Submit first PR
+
+#### Tool Installation
+
+```bash
+# Core tools
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Recommended tools
+cargo install cargo-nextest cargo-watch cargo-dist sccache
+
+# IDE
+code --install-extension rust-lang.rust-analyzer
+
+# Pre-commit
+pip install pre-commit
+pre-commit install
+```
+
+### Onboarding Automation
+
+#### Setup Script
+
+```bash
+#!/bin/bash
+# scripts/onboard.sh
+
+set -e
+
+echo "🚀 Starting Phenotype onboarding..."
+
+# Check prerequisites
+command -v rustc >/dev/null 2>&1 || { echo "Rust not found"; exit 1; }
+
+# Clone
+git clone https://github.com/phenotype/phenotype.git
+cd phenotype
+
+# Install tools
+cargo install cargo-nextest cargo-watch sccache
+
+# Setup pre-commit
+pip install pre-commit
+pre-commit install
+
+# Build
+cargo build
+
+# Test
+cargo nextest run --workspace
+
+# Setup git hooks
+cp .githooks/* .git/hooks/
+
+echo "✅ Onboarding complete!"
+echo "Next: cargo doc --serve"
+```
+
+#### Dev Container
+
+```dockerfile
+# .devcontainer/Dockerfile
+FROM rust:1.76
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust tools
+RUN cargo install cargo-nextest cargo-watch sccache
+
+# Install CLI tools
+RUN curl -fsSL https://bun.sh/install | bash
+RUN npm install -g pnpm
+
+# Configure
+RUN rustup default stable
+RUN rustup component add rustfmt clippy rust-src
+
+# VSCode extensions
+COPY .devcontainer extensions.json /workspace/.vscode/
+
+WORKDIR /workspace
+```
+
+#### VSCode Tasks
+
+```json
+// .vscode/tasks.json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "cargo build",
+      "group": "build"
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "cargo nextest run",
+      "group": "test"
+    },
+    {
+      "label": "Watch",
+      "type": "shell",
+      "command": "cargo watch -x build -x test",
+      "group": "none",
+      "isBackground": true
+    },
+    {
+      "label": "Doc",
+      "type": "shell",
+      "command": "cargo doc --open",
+      "group": "none"
+    }
+  ]
+}
+```
+
+### Documentation Structure
+
+```
+docs/
+├── README.md                 # Quick start
+├── ARCHITECTURE.md          # System overview
+├── CONTRIBUTING.md           # How to contribute
+├── ONBOARDING.md            # Day 1 guide
+├── TROUBLESHOOTING.md       # Common issues
+├── CLI.md                   # Command reference
+├── API.md                   # API reference
+└── adr/                    # Architecture decisions
+```
+
+### First Contribution Guide
+
+```markdown
+# Your First Contribution
+
+## Finding Issues
+
+Look for issues labeled:
+- `good first issue`
+- `help wanted`
+- `documentation`
+
+## Workflow
+
+1. Fork the repository
+2. Create a branch: `git checkout -b feat/my-feature`
+3. Make your changes
+4. Test: `cargo nextest run`
+5. Format: `cargo fmt`
+6. Lint: `cargo clippy`
+7. Commit: `git commit -am 'feat: add my feature'`
+8. Push: `git push origin feat/my-feature`
+9. Open PR
+
+## PR Template
+
+```markdown
+## Summary
+Brief description of the change
+
+## Motivation
+Why is this change needed?
+
+## Testing
+How was this tested?
+
+## Checklist
+- [ ] Tests added
+- [ ] Documentation updated
+- [ ] No clippy warnings
+```
+```
+
+### Action Items
+
+- [ ] Create `.devcontainer/` for onboarding
+- [ ] Add `scripts/onboard.sh`
+- [ ] Create ONBOARDING.md
+- [ ] Add first-contribution guide
+- [ ] Set up automated setup verification
+
+---
+
+_Last updated: 2026-03-30_

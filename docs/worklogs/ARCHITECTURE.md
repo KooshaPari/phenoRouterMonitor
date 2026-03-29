@@ -382,3 +382,326 @@ Reviewed heliosCLI architecture patterns for consistency with AgilePlus.
 - [ ] Add progress feedback with indicatif
 
 ---
+
+---
+
+## 2026-03-29 - ARCHITECTURE DECOMPOSITION (Non-Heliso)
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** completed
+**Priority:** P0
+
+### Architecture Overview
+
+```
+phenotype/
+├── crates/                    # Core libraries (73,444 LOC)
+│   ├── phenotype-contracts/  # Port/trait definitions
+│   ├── phenotype-event-sourcing/
+│   ├── phenotype-policy-engine/
+│   └── ...
+├── libs/                      # Shared utilities (1,470 LOC)
+│   ├── cli-framework/
+│   ├── logger/
+│   └── ...
+├── repos/worktrees/
+│   ├── AgilePlus/            # Main application (80,191 LOC)
+│   ├── consolidate-libraries/ # ORPHANED - to be deleted
+│   └── expand-test-coverage/ # ORPHANED - to be deleted
+└── platforms/
+    ├── thegent/              # Agent runtime
+    ├── heliosCLI/            # CLI tool
+    └── phenotype-infrakit/   # Infrastructure kit
+```
+
+---
+
+### 1. Crate Architecture Issues
+
+#### Problem: Monolithic Crates
+
+| Crate | LOC | Issue | Solution |
+|-------|-----|-------|----------|
+| `agileplus-api` | 6,739 | All-in-one | Split by route |
+| `agileplus-cli` | 8,884 | All-in-one | Split by command |
+| `agileplus-dashboard` | 5,669 | Mixed concerns | Separate UI/backend |
+
+#### Solution: Layered Architecture
+
+```
+phenotype-api/
+├── phenotype-api-core/       # 2,000 LOC - Shared logic
+│   ├── src/
+│   │   ├── error.rs         # Error types
+│   │   ├── config.rs        # Configuration
+│   │   └── auth.rs          # Auth middleware
+│   └── Cargo.toml
+├── phenotype-api-routes/     # 2,500 LOC - Route handlers
+│   ├── src/
+│   │   ├── projects.rs      # Project routes
+│   │   ├── tasks.rs         # Task routes
+│   │   └── users.rs         # User routes
+│   └── Cargo.toml
+├── phenotype-api-middleware/  # 1,000 LOC - Middleware
+│   └── src/
+│       ├── tracing.rs
+│       ├── rate_limit.rs
+│       └── cors.rs
+└── phenotype-api-models/     # 1,239 LOC - DTOs
+    └── src/
+        ├── project.rs
+        └── task.rs
+```
+
+---
+
+### 2. Port/Trait Consolidation
+
+#### Current: Scattered Ports
+
+| Location | Port Trait | Status |
+|----------|-----------|--------|
+| `phenotype-contracts` | `Repository` | ✅ Defined |
+| `phenotype-contracts` | `EventStore` | ✅ Defined |
+| `agileplus-domain` | `MetricsHook` | ❌ Duplicate |
+| `agileplus-domain` | `Logger` | ❌ Duplicate |
+| `agileplus-domain` | `ConfigPort` | ❌ Duplicate |
+
+#### Solution: Unified Port Traits
+
+```rust
+// phenotype-contracts/src/ports.rs
+
+// === Storage Ports ===
+pub trait Repository<E: Entity>: Send + Sync {
+    async fn save(&self, entity: E) -> Result<(), RepositoryError>;
+    async fn find_by_id(&self, id: &E::Id) -> Result<Option<E>, RepositoryError>;
+    async fn delete(&self, id: &E::Id) -> Result<(), RepositoryError>;
+}
+
+pub trait EventStore: Send + Sync {
+    async fn append(&self, events: Vec<Event>) -> Result<(), EventStoreError>;
+    async fn get_events(&self, aggregate_id: &str) -> Result<Vec<Event>, EventStoreError>;
+}
+
+// === Observability Ports ===
+pub trait MetricsPort: Send + Sync {
+    fn increment(&self, name: &str, value: f64);
+    fn gauge(&self, name: &str, value: f64);
+    fn histogram(&self, name: &str, value: f64);
+}
+
+pub trait TracingPort: Send + Sync {
+    fn span(&self, name: &str) -> Span;
+    fn event(&self, name: &str, attrs: SpanAttributes);
+}
+
+// === Configuration Ports ===
+pub trait ConfigPort: Send + Sync {
+    fn get(&self, key: &str) -> Result<ConfigValue, ConfigError>;
+    fn get_optional(&self, key: &str) -> Result<Option<ConfigValue>, ConfigError>;
+}
+```
+
+---
+
+### 3. Event Sourcing Architecture
+
+#### Current: Simple Implementation
+
+```
+phenotype-event-sourcing/
+├── src/
+│   ├── lib.rs
+│   ├── event.rs
+│   ├── aggregate.rs
+│   └── hash.rs
+└── tests/
+    └── basic.rs
+```
+
+#### Proposed: Production-Ready Architecture
+
+```
+phenotype-event-sourcing/
+├── phenotype-event-sourcing-core/      # Core abstractions
+│   ├── src/
+│   │   ├── event.rs                   # Event traits
+│   │   ├── aggregate.rs               # Aggregate root
+│   │   ├── snapshot.rs               # Snapshotting
+│   │   └── projector.rs              # Projection traits
+│   └── Cargo.toml
+├── phenotype-event-sourcing-hash/       # Hash chain
+│   ├── src/
+│   │   ├── blake3_chain.rs           # blake3 implementation
+│   │   ├── sha256_chain.rs           # SHA-256 legacy
+│   │   └── chain_builder.rs          # Builder pattern
+│   └── Cargo.toml
+├── phenotype-event-sourcing-store/     # Event storage
+│   ├── phenotype-event-sourcing-sqlite/ # SQLite adapter
+│   ├── phenotype-event-sourcing-sqlx/   # SQLx adapter
+│   └── phenotype-event-sourcing-memory/ # In-memory (tests)
+├── phenotype-event-sourcing-derive/     # Macros
+│   └── src/
+│       ├── aggregate_derive.rs
+│       └── event_derive.rs
+└── Cargo.toml (workspace)
+```
+
+---
+
+### 4. Policy Engine Architecture
+
+#### Current: Regex-Based
+
+```rust
+pub struct PolicyEngine {
+    rules: Vec<PolicyRule>,
+}
+
+impl PolicyEngine {
+    pub fn evaluate(&self, ctx: &Context) -> Result<bool> {
+        for rule in &self.rules {
+            if rule.regex.is_match(&ctx.action)? {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
+}
+```
+
+#### Proposed: RBAC with Casbin
+
+```
+phenotype-policy/
+├── phenotype-policy-core/              # Core policy logic
+│   └── src/
+│       ├── engine.rs                   # Policy engine
+│       ├── context.rs                  # Evaluation context
+│       └── decision.rs                 # Decision types
+├── phenotype-policy-casbin/            # Casbin adapter
+│   └── src/
+│       ├── model.rs                    # Casbin model
+│       └── adapter.rs                  # Storage adapter
+├── phenotype-policy-rules/             # Built-in rules
+│   └── src/
+│       ├── rbac.rs                     # RBAC rules
+│       └── abac.rs                     # ABAC rules
+└── phenotype-policy-cli/               # CLI tools
+    └── src/
+        └── test_policy.rs
+```
+
+---
+
+### 5. CLI Architecture
+
+#### Current: Monolithic
+
+```
+agileplus-cli/
+├── src/
+│   ├── main.rs                        # 2,000 LOC
+│   ├── commands/                      # 3,000 LOC
+│   ├── config/                        # 1,500 LOC
+│   └── utils/                         # 2,384 LOC
+└── Cargo.toml
+```
+
+#### Proposed: Modular
+
+```
+phenotype-cli/
+├── phenotype-cli-core/                 # 2,000 LOC - Core
+│   └── src/
+│       ├── app.rs                     # CLI app
+│       ├── output.rs                  # Output formatting
+│       └── errors.rs                  # CLI errors
+├── phenotype-cli-commands/            # 2,500 LOC - Commands
+│   └── src/
+│       ├── project.rs                 # Project subcommands
+│       ├── task.rs                    # Task subcommands
+│       └── user.rs                    # User subcommands
+├── phenotype-cli-config/               # 1,000 LOC - Config
+│   └── src/
+│       ├── loader.rs                  # Config loading
+│       └── validation.rs              # Config validation
+├── phenotype-cli-display/              # 1,000 LOC - Display
+│   └── src/
+│       ├── table.rs                  # Table formatting
+│       └── tree.rs                   # Tree view
+└── phenotype-cli-main/                # 884 LOC - Entry
+    └── src/
+        └── main.rs
+```
+
+---
+
+### 6. Dependency Inversion
+
+#### Current: Direct Dependencies
+
+```
+agileplus-api → agileplus-sqlite → rusqlite
+agileplus-api → agileplus-git → git2
+agileplus-api → agileplus-cache → moka
+```
+
+#### Proposed: Ports/Adapters
+
+```
+agileplus-api → phenotype-contracts (ports)
+                          ↓
+          ┌──────────────┼──────────────┐
+          ↓              ↓              ↓
+phenotype-sqlite  phenotype-git   phenotype-moka
+     ↓                 ↓               ↓
+   rusqlite           git2           moka
+```
+
+---
+
+### 7. Workspace Structure
+
+```toml
+# phenotype/Cargo.toml
+[workspace]
+members = [
+    # Core
+    "crates/phenotype-contracts",
+    "crates/phenotype-errors",
+    "crates/phenotype-config",
+    
+    # Domain
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-policy",
+    "crates/phenotype-state-machine",
+    
+    # Infrastructure
+    "crates/phenotype-sqlite",
+    "crates/phenotype-git",
+    "crates/phenotype-cache",
+    "crates/phenotype-telemetry",
+    
+    # CLI
+    "crates/phenotype-cli-core",
+    "crates/phenotype-cli-commands",
+    "crates/phenotype-cli-display",
+    
+    # API
+    "crates/phenotype-api-core",
+    "crates/phenotype-api-routes",
+    "crates/phenotype-api-models",
+    
+    # Apps
+    "apps/phenotype-server",
+    "apps/phenotype-client",
+]
+resolver = "2"
+```
+
+---
+
+_Last updated: 2026-03-29_

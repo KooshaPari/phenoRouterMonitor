@@ -433,4 +433,377 @@ pub use builders::*;
 
 ---
 
+## 🟠 P2: Tracing/Logging Decomposition (180 LOC Savings)
+
+### Current State: Duplicate tracing_subscriber Setup
+
+| Location | Pattern | LOC |
+|----------|---------|-----|
+| `agileplus-cli/main.rs` | Basic fmt().init() | ~5 |
+| `agileplus-dashboard/main.rs` | Basic fmt().init() | ~5 |
+| `agileplus-agent-service/main.rs` | fmt() with EnvFilter | ~15 |
+| Integration tests (5 files) | Duplicate fmt() | ~100 |
+| `agileplus-telemetry/traces/mod.rs` | Full registry setup | ~50 |
+
+### Duplicated Patterns
+
+```rust
+// Pattern: Basic subscriber initialization
+// Appears in 5+ places
+let _ = tracing_subscriber::fmt()
+    .with_target(false)
+    .compact()
+    .init();
+
+// Pattern: Subscriber with EnvFilter
+// Appears in 3 places
+tracing_subscriber::fmt()
+    .with_env_filter(EnvFilter::from_default_env())
+    .init();
+```
+
+### Recommended Architecture: `libs/tracing-core/`
+
+```rust
+// libs/tracing-core/src/lib.rs (~80 LOC)
+pub fn init_subscriber() {
+    tracing_subscriber::fmt()
+        .with_target(false)
+        .compact()
+        .init();
+}
+
+pub fn init_with_env_filter(prefix: &str) {
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(prefix));
+    tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .init();
+}
+```
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Create `libs/tracing-core/` | +80 |
+| 2 | Update all init sites | -180 |
+
+---
+
+## 🟠 P2: Chrono/DateTime Decomposition (150 LOC Savings)
+
+### Current State: Chrono Usage Patterns
+
+| Location | Usage | LOC |
+|----------|-------|-----|
+| `phenotype-event-sourcing/memory.rs` | DateTime<Utc>, timestamp | ~40 |
+| `phenotype-event-sourcing/store.rs` | DateTime<Utc>, range filters | ~35 |
+| `phenotype-event-sourcing/event.rs` | Event timestamp field | ~15 |
+| `phenotype-event-sourcing/snapshot.rs` | TimeDelta, elapsed calc | ~25 |
+| `phenotype-event-sourcing/hash.rs` | RFC3339 formatting | ~15 |
+
+### Duplicated Patterns
+
+```rust
+// Pattern: Event timestamp field
+// Appears in 4+ structs
+pub struct Event {
+    pub timestamp: DateTime<Utc>,
+}
+
+// Pattern: Now timestamp
+// Appears in 5+ places
+Utc::now()
+
+// Pattern: Duration calculation
+// Appears in 2+ places
+Utc::now().signed_duration_since(last_time)
+```
+
+### Recommended Architecture: `libs/time-utils/`
+
+```rust
+// libs/time-utils/src/lib.rs (~60 LOC)
+pub fn now_utc() -> DateTime<Utc> { Utc::now() }
+
+pub fn elapsed_ms(start: DateTime<Utc>) -> i64 {
+    Utc::now().signed_duration_since(start).num_milliseconds()
+}
+
+pub fn rfc3339(dt: DateTime<Utc>) -> String { dt.to_rfc3339() }
+```
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Create `libs/time-utils/` | +60 |
+| 2 | Migrate chrono patterns | -150 |
+
+---
+
+## 🟠 P2: HashMap/DashMap Decomposition (100 LOC Savings)
+
+### Current State: HashMap Usage Patterns
+
+| Location | Pattern | LOC |
+|----------|---------|-----|
+| `agileplus-nats/bus.rs` | 4 HashMap fields | ~30 |
+| `agileplus-p2p/vector_clock.rs` | HashMap<(String, String), u64> | ~20 |
+| `agileplus-p2p/git_merge.rs` | 2 HashMap fields | ~15 |
+| `agileplus-api/router.rs` | services HashMap | ~10 |
+| `phenotype-config-core/unified.rs` | overrides HashMap | ~10 |
+
+### Duplicated Patterns
+
+```rust
+// Pattern: Mutex-wrapped HashMap
+// Appears in 3+ places
+subscriptions: Mutex<HashMap<String, Subscription>>,
+
+// Pattern: In-mut access pattern
+// Appears in 5+ places
+let mut map = self.map.lock().await;
+map.insert(key, value);
+```
+
+### Recommended Architecture: Use `DashMap` or `RwLock<HashMap>`
+
+```rust
+// Pattern: Shared state with DashMap
+use dashmap::DashMap;
+let map = DashMap::new(); // No Mutex needed
+```
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Add `dashmap` dependency | 0 |
+| 2 | Refactor `agileplus-nats/bus.rs` | -30 |
+| 3 | Refactor `agileplus-p2p` | -35 |
+| 4 | Refactor other locations | -35 |
+
+---
+
+## 🟠 P2: reqwest HTTP Client Decomposition (120 LOC Savings)
+
+### Current State: Multiple reqwest Instantiations
+
+| Location | Pattern | LOC |
+|----------|---------|-----|
+| `agileplus-plane/client/mod.rs` | Client::new() | ~5 |
+| `agileplus-github/client.rs` | Client::new() | ~5 |
+| Integration tests (5 files) | Client::builder() with timeout | ~100 |
+
+### Duplicated Patterns
+
+```rust
+// Pattern: Client builder in tests
+// Appears in 5+ test files
+let client = reqwest::Client::builder()
+    .timeout(Duration::from_secs(30))
+    .build()
+    .unwrap();
+
+// Pattern: Simple client creation
+// Appears in 2 places
+reqwest::Client::new()
+```
+
+### Recommended Architecture: `libs/http-client/`
+
+```rust
+// libs/http-client/src/lib.rs (~80 LOC)
+pub fn test_client() -> Client {
+    Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .unwrap()
+}
+
+pub fn production_client() -> Client {
+    Client::new()
+}
+```
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Create `libs/http-client/` | +80 |
+| 2 | Update test files | -120 |
+
+---
+
+## 🟢 P3: OnceLock/OnceCell Decomposition (30 LOC Savings)
+
+### Current State: Single OnceLock Usage
+
+| Location | Pattern | LOC |
+|----------|---------|-----|
+| `agileplus-agent-dispatch/claude_code.rs` | OnceLock | ~10 |
+
+### Recommended Architecture
+
+```rust
+// Use std::sync::OnceLock (already used)
+// Pattern: Singleton initialization
+static INSTANCE: OnceLock<Client> = OnceLock::new();
+```
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Document pattern in README | 0 |
+| 2 | Promote to shared location | -30 |
+
+---
+
+## 🟢 P3: Mutex/RwLock Patterns (100 LOC Savings)
+
+### Current State: Extensive Lock Usage
+
+| Location | Pattern | LOC |
+|----------|---------|-----|
+| `phenotype-event-sourcing/memory.rs` | RwLock<BTreeMap> | ~15 |
+| `agileplus-api/router.rs` | RwLock state | ~20 |
+| `agileplus-nats/bus.rs` | Multiple Mutex fields | ~50 |
+| Test files | Arc<Mutex<Vec>> | ~15 |
+
+### Duplicated Patterns
+
+```rust
+// Pattern: Read-heavy RwLock
+// Appears in 2+ places
+RwLock::new(BTreeMap::new())
+
+// Pattern: Mutex for single writer
+// Appears in 3+ places
+Mutex::new(Vec::new())
+```
+
+### Recommended Architecture
+
+Standard library patterns are fine, but consider `parking_lot` for performance.
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Add `parking_lot` to dependencies | 0 |
+| 2 | Migrate locking patterns | -100 |
+
+---
+
+## 🟢 P3: Timeout/Duration Patterns (80 LOC Savings)
+
+### Current State: Duration Instantiation
+
+| Location | Pattern | Count |
+|----------|---------|-------|
+| Integration tests | Duration::from_secs(2/10/30) | 15+ |
+| NATS bus | Duration::from_millis(50) | 2 |
+| P2P replication | Duration::from_secs(1/2/4) | 3 |
+| Agent dispatch | Duration::from_secs(timeout) | 5 |
+
+### Duplicated Patterns
+
+```rust
+// Pattern: Standard timeouts
+Duration::from_secs(30)  // API timeout
+Duration::from_secs(2)   // Test timeout
+Duration::from_millis(500) // Retry delay
+
+// Pattern: Exponential backoff
+Duration::from_secs(1),
+Duration::from_secs(2),
+Duration::from_secs(4),
+```
+
+### Recommended Architecture: `libs/async-utils/`
+
+```rust
+// libs/async-utils/src/time.rs (~50 LOC)
+pub const API_TIMEOUT: Duration = Duration::from_secs(30);
+pub const TEST_TIMEOUT: Duration = Duration::from_secs(2);
+pub const RETRY_DELAY: Duration = Duration::from_millis(500);
+
+pub fn exponential_backoff(base: u64, max: u64) -> impl Iterator<Item = Duration> {
+    (0..).map(move |i| Duration::from_secs(base * 2_u64.pow(i))).take_while(|d| *d <= max)
+}
+```
+
+### Implementation Steps
+
+| Step | Action | LOC Saved |
+|------|--------|-----------|
+| 1 | Create `libs/async-utils/` | +50 |
+| 2 | Migrate duration constants | -80 |
+
+---
+
+## Updated LOC Savings Summary
+
+| Category | Current LOC | Target LOC | Savings | Priority |
+|----------|-------------|------------|---------|----------|
+| Error Types | 600 | 150 | **450** | P0 |
+| Config Loading | 800 | 200 | **600** | P0 |
+| Nested Crate Duplication | 2,200 | 490 | **1,710** | P0 |
+| Builder Patterns | 400 | 100 | **300** | P1 |
+| Repository Traits | 500 | 150 | **350** | P1 |
+| UUID/ID Generation | 200 | 50 | **150** | P2 |
+| Async Execution | 250 | 50 | **200** | P2 |
+| Mutex/RwLock | 150 | 50 | **100** | P2 |
+| Retry/Backoff | 120 | 20 | **100** | P2 |
+| Hash/Crypto | 100 | 5 | **95** | P2 |
+| Timeout Patterns | 100 | 20 | **80** | P2 |
+| Serialization Utils | 100 | 20 | **80** | P2 |
+| Tracing/Logging | 180 | 0 | **180** | P2 |
+| Chrono/DateTime | 150 | 0 | **150** | P2 |
+| HashMap/DashMap | 100 | 0 | **100** | P2 |
+| HTTP Client | 120 | 0 | **120** | P2 |
+| Time/Date Patterns | 60 | 10 | **50** | P3 |
+| Display/AsStr Derive | 28 | 8 | **20** | P3 |
+| Once/OnceCell | 30 | 0 | **30** | P3 |
+| **TOTAL** | **6,188** | **1,323** | **4,865** | - |
+
+---
+
+## Implementation Roadmap
+
+### Phase 1: Immediate (Week 1)
+- [ ] Create `libs/error-core/` with canonical error types
+- [ ] Migrate `libs/config-core/` to edition 2024
+- [ ] Add `derive_builder` to policy-engine
+
+### Phase 2: Short-term (Weeks 2-3)
+- [ ] Migrate `libs/hexagonal-rs/` to edition 2024
+- [ ] Create `libs/http-client/` crate
+- [ ] Refactor builder patterns across codebase
+
+### Phase 3: Medium-term (Month 2)
+- [ ] Create `libs/test-utils/` crate
+- [ ] Deprecate redundant store traits
+- [ ] Update all consumers of consolidated libraries
+
+### Phase 4: Performance (Month 3)
+- [ ] Create `libs/async-utils/` with timeout constants
+- [ ] Create `libs/tracing-core/` for logging setup
+- [ ] Add `parking_lot` for lock optimization
+
+---
+
+## Cross-Reference
+
+| Document | Location |
+|----------|----------|
+| Master Duplication Audit | `docs/reports/MASTER_DUPLICATION_AUDIT.md` |
+| Dependencies Analysis | `docs/worklogs/DEPENDENCIES.md` |
+| Architecture Notes | `docs/worklogs/ARCHITECTURE.md` |
+
+---
+
 *Report generated by FORGE (2026-03-29)*

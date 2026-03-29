@@ -296,3 +296,280 @@ Quarterly technology radar update based on starred repo analysis.
 | Custom MCP implementations | Use Pathway patterns |
 
 ---
+
+## 2026-03-29 - Graph Database Alternatives Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P2
+
+### Graph DB Landscape
+
+| System | Language | Architecture | Assessment |
+|--------|----------|-------------|------------|
+| **Neo4j** | Java | Single-node | ✅ Standard |
+| **ArangoDB** | C++ | Distributed | 🔲 EVALUATE |
+| **Dgraph** | Go | Distributed | 🔲 EVALUATE |
+| **TigerGraph** | C++ | Distributed | 🔲 WATCH |
+| **Memgraph** | C++ | In-memory | 🔲 WATCH |
+| **petgraph** | Rust | In-memory | ✅ ADOPT |
+
+### Neo4j (Reference)
+
+**What:** The standard graph database with Cypher query language.
+
+**Key Features:**
+- ACID transactions
+- Cypher query language
+- Graph algorithms
+- Visualization tools
+
+**Status:** Use as reference for query patterns
+
+### Dgraph (Distributed)
+
+**What:** Distributed graph database with GraphQL-like query language (DQL).
+
+**Key Features:**
+- Horizontal scaling
+- Low-latency queries
+- Distributed transactions
+- GraphQL-like API
+
+**Status:** 🔲 EVALUATE - For production at scale
+
+### petgraph (In-Memory)
+
+**What:** Rust-native in-memory graph library.
+
+**Key Features:**
+- No external dependency
+- Optimal for small-medium graphs
+- Graph algorithms built-in
+- DOT export
+
+**Status:** ✅ ADOPT - For internal phenoinfrakit graphs
+
+---
+
+## 2026-03-29 - Zero-Copy Serialization Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Zero-Copy Options
+
+| System | Language | Schema | Assessment |
+|--------|----------|--------|------------|
+| **rkyv** | Rust | Static | ✅ ADOPT |
+| **flatbuffers** | Multiple | Schema | 🔲 WRAP |
+| **capnproto** | Multiple | Schema | 🔲 WRAP |
+| **abomonation** | Rust | Dynamic | 🔲 EVALUATE |
+
+### rkyv (Rust)
+
+**What:** Zero-copy deserialization for Rust with zero allocation reads.
+
+**Key Features:**
+- Zero allocation on deserialization
+- 10-100x faster than JSON
+- Mature ecosystem
+- Schema evolution support
+
+**Benchmark:**
+```
+JSON serialize:   1.2 µs
+JSON deserialize:   2.1 µs
+rkyv serialize:    0.3 µs
+rkyv deserialize:   0.1 µs (zero-copy)
+```
+
+**Status:** ✅ ADOPT - For hot read paths in phenoinfrakit
+
+### flatbuffers (Multi-language)
+
+**What:** Efficient cross-platform serialization by Google.
+
+**Key Features:**
+- Multiple language support
+- Schema evolution
+- Direct memory access
+- Game-ready performance
+
+**Status:** 🔲 WRAP - For cross-language serialization
+
+---
+
+## 2026-03-29 - Supply Chain Security Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P0
+
+### Security Tools
+
+| Tool | Purpose | Language | Assessment |
+|------|---------|----------|------------|
+| **cargo-audit** | Vulnerability scanning | Rust | ✅ ADOPT |
+| **cargo-deny** | License/banned deps | Rust | ✅ ADOPT |
+| **OSV** | Vulnerability database | Any | ✅ ADOPT |
+| **Syft** | SBOM generation | Go | 🔲 TRIAL |
+| **Grype** | Vulnerability scanning | Go | 🔲 TRIAL |
+
+### Cargo Audit Integration
+
+```yaml
+# .github/workflows/security.yml
+name: Security Audit
+on: [push, pull_request]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rust-lang/cargo-deny@v0.16
+        with:
+          bans: fail
+      - uses: actions-rust-lang/cargo-audit@v0.18
+```
+
+### SBOM Generation
+
+```bash
+# Generate SPDX SBOM
+syft packages . -o spdx-json > sbom.spdx.json
+
+# Upload to OSV
+osv-scanner -r -L ./sbom.spdx.json
+```
+
+### Supply Chain Attacks
+
+**Known incidents (2026):**
+- LiteLLM v1.82.7-1.82.8 (supply chain, 2026-03-25)
+- Multiple PyPI typosquatting campaigns
+
+**Mitigation:**
+1. Pin exact versions with hash verification
+2. Use OSV for vulnerability monitoring
+3. Generate and publish SBOMs
+4. Use only official registries
+
+---
+
+## 2026-03-29 - Edge Computing Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P2
+
+### Edge Platforms
+
+| Platform | Runtime | Assessment | Use Case |
+|----------|---------|------------|----------|
+| **Cloudflare Workers** | V8 Isolates | ✅ ADOPT | Global edge |
+| **Fastly Compute** | Wasm | 🔲 EVALUATE | Fast edge |
+| **AWS Lambda@Edge** | Node.js | 🟡 Good | AWS-specific |
+| **Fly.io** | Firecracker | 🔲 EVALUATE | Distributed |
+
+### Cloudflare Workers
+
+**What:** Global edge computing with V8 isolates.
+
+**Key Features:**
+- 200+ data centers
+- <5ms cold start
+- TypeScript/JavaScript
+- Durable Objects
+
+**Status:** ✅ ADOPT - For global agent deployment
+
+### Fastly Compute
+
+**What:** WebAssembly-based edge computing.
+
+**Key Features:**
+- WASM runtime
+- Rust support
+- TypeScript SDK
+- Instant purge
+
+**Status:** 🔲 EVALUATE - For WASM-first edge
+
+### Firecracker (Fly.io)
+
+**What:** MicroVM-based distributed computing.
+
+**Key Features:**
+- Lightweight VMs
+- Strong isolation
+- Fast cold starts
+- SSH access
+
+**Status:** 🔲 EVALUATE - For full OS at edge
+
+---
+
+## 2026-03-29 - Observability Stack Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Observability Stack
+
+| Component | Option | Assessment | Use Case |
+|-----------|--------|------------|----------|
+| **Tracing** | Jaeger | 🟡 Good | Distributed |
+| **Tracing** | Zipkin | 🟡 Good | Simple |
+| **Metrics** | Prometheus | ✅ STANDARD | Metrics |
+| **Logs** | Loki | ✅ ADOPT | Log aggregation |
+| **Profiles** | Pyroscope | 🔲 TRIAL | CPU profiling |
+| **Dashboards** | Grafana | ✅ STANDARD | Visualization |
+
+### OpenTelemetry
+
+**What:** Vendor-neutral observability standard.
+
+**Key Features:**
+- Traces, metrics, logs
+- Language-agnostic
+- Backends: Jaeger, Tempo, etc.
+- Auto-instrumentation
+
+**Status:** ✅ ADOPT - For distributed phenoinfrakit
+
+### Grafana Stack
+
+**What:** Complete observability platform.
+
+**Key Features:**
+- Dashboards
+- Alerting
+- Multi-data source
+- Explore UI
+
+**Status:** ✅ STANDARD - For all Phenotype projects
+
+### Recommended Stack
+
+```
+┌─────────────────────────────────────────────────┐
+│              Observability Stack                   │
+├─────────────────────────────────────────────────┤
+│  Traces: OpenTelemetry → Jaeger/Tempo            │
+│  Metrics: Prometheus → Grafana                    │
+│  Logs: Loki → Grafana                            │
+│  Profiles: Pyroscope → Grafana                    │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+_Last updated: 2026-03-29_
