@@ -5,3 +5,8 @@ Cargo.lock
 .DS_Store
 worktrees/
 .worktrees/
+.archive/
+plans/
+docs/plans/
+tests/
+worklogs/
