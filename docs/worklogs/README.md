@@ -1,7 +1,7 @@
 # Worklogs
 
 > Canonical logging and audit documentation for the Phenotype ecosystem.
-> Last comprehensive audit: **2026-03-29** (Wave 90); session hygiene **Wave 91** (use `WORK_LOG.md` until `WorkLog.md` is added on this checkout)
+> Last comprehensive audit: **2026-03-29** (Wave 90–91); canonical wave log: **`WorkLog.md`**
 
 ---
 
@@ -24,7 +24,11 @@
 | `QUALITY.md` | QUALITY | Active | P1-P2 |
 | `TOOLING.md` | TOOLING | Active | P1-P3 |
 | `UX_DX.md` | UX_DX | Active | P2-P3 |
-| `WORK_LOG.md` | WORK_LOG | Current | - |
+| `WorkLog.md` | WORKLOG | Current | - |
+| `SessionTranscriptAudit.md` | SESSION | Active | P1 |
+| `SessionGaps20260329.md` | SESSION | Active | P1 |
+| `MasterDuplicationAudit20260329.md` | DUPLICATION | Complete | P0 |
+| `WORK_LOG.md` | REDIRECT | Stub → `WorkLog.md` | - |
 
 ### Project-Specific Worklogs
 

@@ -146,8 +146,8 @@ Extended deep research analysis verified through code inspection. All 11 librari
 
 ### Related
 
-- Audit: `docs/reports/AGILEPLUS_DUPLICATION_AUDIT_20260329.md`
-- Decomposition: `docs/reports/AGILEPLUS_DECOMPOSITION_AUDIT.md`
+- Master audit: `docs/worklogs/MasterDuplicationAudit20260329.md`
+- Consolidation study: `docs/research/consolidation-audit-2026-03-29.md`
 
 ---
 

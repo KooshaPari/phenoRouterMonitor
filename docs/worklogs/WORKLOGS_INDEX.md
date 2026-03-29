@@ -12,7 +12,7 @@
 | `DUPLICATION.md` | 2026-03-29 | TokenBucket, HTTP transport, error types, hash chain, 9 unused libs |
 | `GOVERNANCE.md` | 2026-03-29 | security-guard.yml built-not-used, WP10 workflows, quality configs |
 | `DEPENDENCIES.md` | 2026-03-29 | gix unused, vulnerabilities tracked, fork candidates |
-| `WORK_LOG.md` | 2026-03-29 | Consolidated action plan Phases 1-3 |
+| `WorkLog.md` | 2026-03-29 | Waves 89–92 + session/worklog hygiene |
 
 ### Evidence Ledger
 

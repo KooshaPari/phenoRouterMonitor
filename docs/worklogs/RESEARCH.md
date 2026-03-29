@@ -162,12 +162,127 @@ worktree/
 ---
 
 # Research Worklogs
+# Research Worklogs
 
 **Category:** RESEARCH | **Updated:** 2026-03-29
 
 ---
+
+## 2026-03-29 - Expanded External Package Research (2026)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Comprehensive research on external 3rd party packages and repos for integration opportunities. Focus on whitebox (fork+modify), blackbox (direct use), and wrap (custom impl) strategies.
+
 ---
 
+## GitHub Verified Research (2026-03-29)
+
+### Tauri Apps ✅ VERIFIED
+
+| Field | Value |
+|-------|-------|
+| GitHub | `tauri-apps/tauri` |
+| Stars | **105k** |
+| Forks | 3.5k |
+| Commits | 5,927 |
+| License | MIT/Apache 2.0 |
+| Status | Stable |
+| Platforms | Windows, macOS, Linux, iOS, Android |
+
+**Opportunity:** Desktop agent UI wrapper - ADOPT
+- Rust backend with web frontend
+- Small binary size, fast performance
+- Cross-platform desktop apps
+- System tray, notifications, native menus
+
+### Google Cloud Go ✅ VERIFIED
+
+| Field | Value |
+|-------|-------|
+| GitHub | `googleapis/google-cloud-go` |
+| Stars | **4.4k** |
+| Forks | 1.5k |
+| Commits | 10,206 |
+| APIs | 200+ Google Cloud services |
+| Status | Production |
+
+**Opportunity:** For specific services - WRAP
+- Secret Manager, Cloud Storage, Pub/Sub
+- IAM, Resource Manager
+- Vertex AI for ML inference
+
+---
+
+## External Package Integration Strategy
+
+### Integration Levels
+
+| Level | Description | Example | LOC Savings |
+|-------|-------------|---------|------------|
+| **BLACKBOX** | Direct dependency | `anyhow::Error` | 0 |
+| **WHITEBOX** | Fork + modify | Custom fork of `eventually` | High |
+| **WRAPPER** | Custom impl wrapping external | `phenotype-event-sourcing` wrapping `eventually` | Medium |
+| **INSPIRATION** | Study patterns, implement differently | Study `casbin`, implement `phenotype-policy-engine` | N/A |
+| **REPLACE** | Drop external for internal | Replace `serde_json` with `rmp` | Varies |
+
+### Developer Quality Assessment
+
+| Factor | Questions |
+|--------|-----------|
+| **Active Maintenance** | Last commit < 6 months? |
+| **Community Size** | Stars, contributors, issues? |
+| **Documentation** | Docs.rs, examples, guides? |
+| **Breaking Changes** | Version stability? |
+| **License** | Permissive for commercial use? |
+
+### Fork/Modify Decision Matrix
+
+```
+                    High Quality Dev                    Low Quality Dev
+                   /                    \              /                \
+              Large Gap                                              Small Gap
+             /        \                                          /            \
+        FORK+WRAP   WRAP+CONTRIB                           WRAP          BLACKBOX
+        (long-term) (medium-term)
+```
+
+---
+
+## Recommended External Package Actions
+
+### Immediate (This Week)
+
+- [ ] 🟡 HIGH: Evaluate `casbin` for cross-language policy engine (Apache 2.0, 1.1k stars) - **WRAP**
+- [ ] 🟡 HIGH: Evaluate `eventually` for standardized Aggregate/Repository traits (500 stars) - **WRAP**
+- [ ] 🟡 HIGH: Add `zod` for Node.js API validation (20k stars) - **ADD**
+
+### Short-term (This Month)
+
+- [ ] 🟡 HIGH: Create `phenotype-event-sourcing-wrapper` for `eventually` interop
+- [ ] 🟡 HIGH: Create `phenotype-policy-engine-wrapper` for `casbin` interop
+- [ ] 🟠 MEDIUM: Evaluate `temporal-sdk` for long-running workflows (440 stars, prerelease) - **WRAP**
+- [ ] 🟠 MEDIUM: Evaluate `tauri` for desktop agent UI (105k stars) - **ADOPT**
+
+### Medium-term (This Quarter)
+
+- [ ] 🟠 MEDIUM: Add `pydantic` patterns for Python interop (25k stars)
+- [ ] 🟠 MEDIUM: Wrap `xstate` for frontend FSM interop (15k stars)
+- [ ] 🟢 LOW: Evaluate `google-cloud-go` for specific GCP services (4.4k stars) - **WRAP**
+- [ ] 🟢 LOW: Evaluate `surrealdb` for embedded graph storage (30k stars)
+
+---
+
+## Related
+
+- Duplication: `worklogs/DUPLICATION.md`
+- Dependencies: `worklogs/DEPENDENCIES.md`
+- Architecture: `worklogs/ARCHITECTURE.md`
 ## 2026-03-29 - Git State & Cleanup Findings
 
 **Project:** [phenotype-infrakit]
@@ -990,6 +1105,136 @@ Web research on forkable packages, external libraries with fork potential, and 3
 | P1 | MCP Git server fork | AgilePlus tool integration | 1-2 weeks |
 | P2 | `gix-lock` fork | Cross-platform locking | 1 week |
 | P3 | `llm` fork | Local LLM inference | 2-3 weeks |
+
+---
+
+_Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - External Dependencies Deep Dive
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Research into GitHub starred repos and external packages for fork/wrap opportunities.
+
+### Blackbox vs Whitebox Analysis Framework
+
+| Mode | Description | When to Use |
+|------|-------------|-------------|
+| **Blackbox** | Use as-is, no modifications | Stable, well-maintained deps |
+| **Whitebox** | Fork and customize | Need modifications, better devs available |
+| **Wrap** | Create adapter/shim around library | Want to isolate from changes |
+| **Fork** | Full control, periodic sync | Heavy customization, internal release cycle |
+
+### GitHub Starred Repos (Developer Tooling)
+
+#### 1. `Data-Wise/craft` ⭐ 1
+
+Full-stack dev toolkit for Claude Code with 86 commands, 8 agents, 21 skills.
+
+| Property | Value |
+|----------|-------|
+| Type | Claude Code Plugin |
+| Language | Python |
+| LOC | ~500 |
+| Recommendation | **FORK** |
+| Benefit | 500+ LOC savings, proven patterns |
+
+#### 2. `newrelic/*` (multiple repos) ⭐ 400+
+
+Observability tooling suite with CLI, client, and codegen tools.
+
+| Property | Value |
+|----------|-------|
+| Type | Observability |
+| Language | Go |
+| Recommendation | **WRAP** |
+| Benefit | 200+ LOC savings |
+
+#### 3. `michen00/invisible-squiggles` ⭐ 3
+
+VSCode extension for distraction-free linter diagnostics.
+
+| Property | Value |
+|----------|-------|
+| Type | VSCode Extension |
+| Language | TypeScript |
+| Recommendation | **WRAP** |
+| Benefit | Clean UX patterns |
+
+### Fork/Wrap Decision Matrix
+
+```
+Need modifications? ──NO──▶ Blackbox (use as-is)
+        │
+       YES
+        │
+Better devs available? ──NO──▶ Wrap (create adapter)
+        │
+       YES
+        │
+Need full control? ──YES──▶ Fork (periodic sync)
+        │
+       NO
+        │
+Need fast iteration? ──YES──▶ Fork (tight sync)
+        │
+       NO
+        │
+Long-term maintenance? ──YES──▶ Fork (formal sync)
+        │
+       NO
+        │
+▶ Wrap (lightweight adapter)
+```
+
+### LOC Reduction Opportunities
+
+| Category | Current | Target | Savings |
+|----------|---------|--------|---------|
+| Fork health_check | 80 | 0 | **80** |
+| Create error-core | 150 | 0 | **150** |
+| Integrate config-core | 200 | 0 | **200** |
+| Wrap temporal-sdk | 500 | 0 | **500** |
+| Wrap casbin | 300 | 0 | **300** |
+| Wrap eventsourcing | 300 | 0 | **300** |
+| **TOTAL** | **1,530** | **0** | **1,530** |
+
+---
+
+## 2026-03-29 - A2A Protocol Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Agent2Agent (A2A) Protocol
+
+**Spec:** https://ajima.ai/A2A
+
+**Key Concepts:**
+- AgentCard: Self-describing agent metadata
+- Task: Unit of work with state transitions
+- Message: Communication between agents
+- Push notifications for async updates
+
+**Phenotype Alignment:**
+
+| A2A Concept | Phenotype Equivalent | Alignment |
+|-------------|---------------------|-----------|
+| AgentCard | Agent metadata in thegent | Medium |
+| Task | Work packages in AgilePlus | High |
+| Message | ACP protocol messages | High |
+| Push notifications | Webhook system | Medium |
+
+**Opportunity:** Integrate `ra2a` crate for standardized agent communication.
 
 ---
 
