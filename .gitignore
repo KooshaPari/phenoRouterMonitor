@@ -170,3 +170,19 @@ docs/research/seeds.jsonl
 tests/infra/
 tokenledger/
 phenotype-config-wtrees/
+
+# Forked repositories (for reference/research only)
+ccusage/
+vibe-kanban/
+zen-wtrees/
+
+# Research artifacts and guides
+docs/guides/FORGE_ANTINOMY_AND_FOUNDRY.md
+
+# Worktree clones for forked repos
+ccusage-wtrees/
+phenotype-shared-wtrees/
+
+# Test scaffolding
+tests/__init__.py
+tests/conftest.py
