@@ -14,3 +14,4 @@ tests/
 worklogs/
 .archive/
 docs/AGENT_MASTER_AUDIT_PROMPT.md
+cliff.toml
