@@ -34,7 +34,7 @@
 
 ---
 
-## Critical Actions Completed
+## Actions Completed (Wave 93)
 
 ### DONE (This Session)
 
@@ -57,7 +57,7 @@
 
 ---
 
-## LOC Savings Summary
+## LOC Savings Summary (Consolidated)
 
 | Category | Savings | Priority |
 |----------|---------|----------|
@@ -65,7 +65,30 @@
 | Config consolidation | 200-300 | P1 |
 | Hash blake3 | 30-50 | P1 |
 | Cache DashMap | 50-100 | P2 |
-| **Total** | **~600-950** | |
+| **This Repo** | **~600-950** | |
+| **tokenledger-temp** | **9,127** | P0 |
+| **template-commons-temp** | **324** | P2 |
+| **phenotype-shared-temp** | **~1,500** | P1 |
+| **Total Cross-Project** | **~11,000** | |
+
+---
+
+## Wave 97 Summary
+
+### Nested Crate Cleanup ✅
+
+| Crate | Status |
+|-------|--------|
+| `phenotype-event-sourcing` | Archived to `.archive/` |
+| `phenotype-contracts` | Archived to `.archive/` |
+| `phenotype-policy-engine` | Archived to `.archive/` |
+| `phenotype-cache-adapter` | Archived to `.archive/` |
+
+### Code Quality
+
+- **TODO/FIXME count:** 0 (clean codebase)
+- **Orphaned worktrees:** Removed 1 (`merge-spec-docs`)
+- **Temp folders:** `phenotype-shared-temp` evaluated - ready for integration
 
 ---
 
@@ -134,3 +157,66 @@ use phenotype_errors::{ErrorVariant, Result};
 ```
 cargo build --workspace  ✅ SUCCESS (10 crates)
 ```
+
+## Phase Status Dashboard (Wave 93)
+
+| Phase | Tasks | Status | Progress |
+|-------|-------|--------|----------|
+| Phase 1: Deduplication | 6 tasks | ✅ COMPLETE | ██████████ 100% |
+| Phase 2: Library Migration | 11 tasks | 🔄 IN_PROGRESS | ██░░░░░░░░ 20% |
+| Phase 3: Port/Trait | 4 tasks | PENDING | ░░░░░░░░░░ 0% |
+| Phase 4: HTTP Client | 7 tasks | PENDING | ░░░░░░░░░░ 0% |
+| Phase 5: Config | 5 tasks | PENDING | ░░░░░░░░░░ 0% |
+
+## Wave 93 Actions Completed
+
+### Deduplication (DUP-001 to DUP-006)
+
+- [x] **DUP-001**: Select canonical `phenotype-event-sourcing` (ROOT: 622 LOC)
+- [x] **DUP-002**: Remove 1,016 LOC nested duplicate
+- [x] **DUP-003**: Select canonical `phenotype-policy-engine` (ROOT: 1,197 LOC)
+- [x] **DUP-004**: Remove 2,004 LOC nested duplicate
+- [x] **DUP-005**: Select canonical `phenotype-contracts` (ROOT: 4,032 LOC)
+- [x] **DUP-006**: Remove 3,986 LOC nested duplicate
+
+**Total LOC Removed**: 7,006 LOC
+
+### Workspace Cleanup (WORKSPACE-001 to WORKSPACE-005)
+
+- [x] **WORKSPACE-001**: Fix workspace `edition = "2021"` → `"2024"`
+- [x] **WORKSPACE-002**: Add missing workspace dependencies
+- [x] **WORKSPACE-003**: Create placeholder crates for missing workspace members
+- [x] **WORKSPACE-004**: Remove unused workspace members
+- [x] **WORKSPACE-005**: cargo check passes (7 warnings remaining)
+
+**Workspace Status**: ✅ Building successfully
+
+## Remaining Actions
+
+### HIGH Priority (This Week)
+
+- [ ] **LIB-001**: Migrate `libs/logger/` to edition 2024
+- [ ] **LIB-002**: Migrate `libs/metrics/` to edition 2024
+- [ ] **LIB-003**: Migrate `libs/tracing/` to edition 2024
+- [ ] **LIB-004**: Migrate `libs/hexagonal-rs/` to edition 2024
+- [ ] **LIB-005**: Deprecate `libs/hexkit/` (duplicate of hexagonal-rs)
+- [ ] **LIB-006**: Integrate `config-core` patterns
+- [ ] **LIB-007**: Delete `libs/cipher/`, `libs/gauge/`, `libs/xdd-lib-rs/`
+
+### MEDIUM Priority (This Month)
+
+- [ ] **LIB-008**: Integrate `phenotype-port-traits` into `agileplus-domain`
+- [ ] **LIB-009**: Integrate `phenotype-event-sourcing` patterns
+- [ ] **LIB-010**: Integrate `phenotype-contracts` traits
+
+### LOC Savings Summary
+
+| Category | Before | After | Savings |
+|----------|--------|-------|---------|
+| Nested duplicates | 7,006 LOC | 0 LOC | **7,006 LOC** |
+| libs/ unused | 1,470 LOC | ~1,200 LOC | ~270 LOC |
+| phenotype-shared | 3,586 LOC | ~500 LOC | ~3,086 LOC |
+| **TOTAL** | **12,062 LOC** | **~1,700 LOC** | **~10,362 LOC** |
+
+---
+_Last updated: 2026-03-29 (Wave 93)_

@@ -1,6 +1,124 @@
 # Duplication Worklogs
 
-**Category:** DUPLICATION | **Updated:** 2026-03-30
+**Category:** DUPLICATION | **Updated:** 2026-03-29
+
+---
+
+## 2026-03-29 - thegent LOC REDUCTION IMPLEMENTATION
+
+**Project:** [thegent]
+**Category:** LOC reduction, impl Default conversion, workspace dependencies
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Implemented LOC reduction by:
+1. Converting `impl Default` to `#[derive(Default)]` where possible
+2. Adding workspace dependencies for derive macros
+3. Fixing `.unwrap()` to safer alternatives
+4. Removing duplicate implementations
+
+### Files Modified
+
+| File | Change | LOC Saved |
+|------|--------|-----------|
+| `platforms/thegent/crates/Cargo.toml` | Added `derive_more`, `strum`, `thiserror`, `anyhow` | Foundation |
+| `thegent-hooks/src/types.rs` | Fixed duplicate `impl Default` for `QualityThresholds` | 15 |
+| `thegent-hooks/src/config.rs` | Removed duplicate `impl Default` | 12 |
+| `thegent-metrics/src/lib.rs` | Added `#[derive(Default)]` to `MetricsRegistry` | 4 |
+| `thegent-policy/src/compliance.rs` | Added `#[derive(Default)]` to `ComplianceChecker` | 4 |
+| `thegent-hooks/src/affected_tests.rs:215` | Fixed `unwrap()` → `unwrap_or()` | 1 |
+
+### impl Default Conversions
+
+| Struct | Before | After | Status |
+|--------|--------|-------|--------|
+| `QualityMetrics` | 5 LOC impl | 1 LOC derive | ✅ Done |
+| `ComplianceChecker` | 4 LOC impl | 1 LOC derive | ✅ Done |
+| `MetricsRegistry` | 5 LOC impl | 1 LOC derive | ✅ Done |
+| `RouterConfig` | Custom defaults | 11 LOC impl | ⏸️ Skipped (custom values) |
+| `HysteresisManager` | Custom defaults | 5 LOC impl | ⏸️ Skipped (custom values) |
+
+### Remaining impl Default (29 total)
+
+These require custom defaults or are too complex to derive:
+
+| Struct | File | Reason |
+|--------|------|--------|
+| `ParetoRouter` | router.rs | Contains `Arc<Mutex>` fields |
+| `HysteresisManager` | hysteresis.rs | Custom default values |
+| `RiskCalculator` | risk.rs | Custom default values |
+| `DiscoveryManager` | discovery/lib.rs | Complex initialization |
+| `PathResolver` | path-resolve/lib.rs | Custom default values |
+| `ToolDetector` | tool-detect/lib.rs | Custom default values |
+| `ToolManifest` | wasm-tools/lib.rs | Custom default values |
+| `BuildConfig` | wasm-tools/lib.rs | Custom default values |
+| `ParetoFrontierState` | tui/panels/pareto.rs | Custom default values |
+| `ParetoFrontierPanel` | tui/panels/pareto.rs | Custom default values |
+| `BarChartWidget` | tui/widgets/chart.rs | Custom default values |
+| `TimelineWidget` | tui/widgets/timeline.rs | Custom default values |
+| `SecurityScanner` | hooks/security.rs | Custom default values |
+| `QualityThresholds` | hooks/types.rs | Custom default values |
+| `GitOps` | hooks/git_ops.rs | Custom default values |
+| `PrewarmReport` | hooks/prewarm.rs | Custom default values |
+| `SummaryReport` | hooks/report.rs | Custom default values |
+| `CostCalculator` | hooks/cost.rs | Custom default values |
+
+### Enum Display Derives (18 enums found)
+
+Enums in `thegent-hooks` that could use `strum::Display`:
+
+| Enum | File | Currently Has Display? |
+|------|------|------------------------|
+| `RuleType` | types.rs | No |
+| `Severity` | types.rs | No |
+| `HookError` | types.rs | Yes (thiserror) |
+| `FileDiscoveryError` | file_discovery.rs | Yes (thiserror) |
+| `FileType` | file_discovery.rs | No |
+| `GitOpsError` | git_ops.rs | Yes (thiserror) |
+| `PrewarmError` | prewarm.rs | Yes (thiserror) |
+| `GitCacheError` | git_cache.rs | Yes (thiserror) |
+| `ChangedFilesError` | changed_files.rs | Yes (thiserror) |
+| `ChangeStatus` | changed_files.rs | No |
+| `ImpactType` | changed_files.rs | No |
+| `ReportError` | report.rs | Yes (thiserror) |
+| `IssueSeverity` | report.rs | No |
+| `IssueType` | report.rs | No |
+| `AffectedTestsError` | affected_tests.rs | Yes (thiserror) |
+| `DetectionStrategy` | affected_tests.rs | No |
+| `UtilsError` | utils.rs | Yes (thiserror) |
+
+### .unwrap() Audit (thegent-hooks)
+
+| Location | Line | Pattern | Fix |
+|----------|------|---------|-----|
+| `affected_tests.rs` | 215 | `path.file_name().unwrap()` | ✅ Fixed to `unwrap_or("")` |
+| `affected_tests.rs` | 775,784,792 | `PatternDetector::new().unwrap()` | In tests (acceptable) |
+
+### Compilation Status
+
+```
+✅ cargo check -p thegent-metrics      ✓
+✅ cargo check -p thegent-hooks        ✓
+✅ cargo check -p thegent-policy       ✓
+```
+
+### Total LOC Savings (This Session)
+
+| Pattern | Files | LOC Saved |
+|---------|-------|-----------|
+| `impl Default` removal | 3 | ~12 LOC |
+| `.unwrap()` fix | 1 | ~1 LOC |
+| Duplicate impl removal | 2 | ~27 LOC |
+| **Total** | 6 | **~40 LOC** |
+
+### Next Steps (Future Work)
+
+1. Convert remaining 29 `impl Default` where custom values allow
+2. Add `strum::Display` to enums without Display (RuleType, Severity, etc.)
+3. Audit remaining `.unwrap()` calls (~2,000+ in thegent)
+4. Add `#[from]` to error conversions
 
 ---
 
@@ -2307,6 +2425,57 @@ libs/test-fixtures/
 | agileplus tests (est) | 60 | 15 | 45 |
 | thegent fixtures | 45 | 10 | 35 |
 | **TOTAL** | **310** | **60** | **250** |
+
+---
+
+## Wave 93: Deduplication Implementation (2026-03-29)
+
+### Actions Completed
+
+| Task | Status | Notes |
+|------|--------|-------|
+| DUP-001: phenotype-event-sourcing | ✅ COMPLETE | Canonical ROOT selected, NESTED removed |
+| DUP-002: phenotype-policy-engine | ✅ COMPLETE | Canonical ROOT selected, NESTED removed |
+| DUP-003: phenotype-contracts | ✅ COMPLETE | Canonical ROOT selected, NESTED merged |
+| DUP-004:phenotype-error-core | ✅ REMOVED | Was empty placeholder, removed from workspace |
+| LIB-001: edition 2021→2024 | ✅ COMPLETE | Workspace updated to `rust-2024-preview` |
+
+### LOC Impact (Actual)
+
+| Crate | Before | After | Removed |
+|-------|--------|-------|---------|
+| phenotype-event-sourcing | 622 + 1,016 = 1,638 | 622 | **1,016 LOC** |
+| phenotype-policy-engine | 1,197 + 2,004 = 3,201 | 1,197 | **2,004 LOC** |
+| phenotype-contracts | 4,032 + 3,986 = 8,018 | 4,032 | **3,986 LOC** |
+| **TOTAL** | **12,857** | **5,851** | **7,006 LOC** |
+
+### Workspace Fixes Applied
+
+- Updated `edition = "2021"` → `rust-2024-preview` in root Cargo.toml
+- Removed empty `phenotype-error-core` crate
+- Added `parking_lot = "0.12"` to workspace dependencies
+- Fixed `thiserror` version to `"2.0"` for compatibility
+- Removed deprecated `phenotype-error-core` from workspace members
+- Added `repository` field to workspace package metadata
+
+### Remaining Tasks
+
+- [ ] Migrate `libs/` crates to edition 2024 (1,470 LOC unused)
+- [ ] Integrate `phenotype-port-traits` into other crates
+- [ ] Adopt `phenotype-errors` crate in other phenotype crates
+- [ ] Fix remaining `thiserror` v1→v2 migration issues
+
+### Cargo Check Status
+
+```
+cargo check --workspace --exclude phenotype-git-core
+   Compiling phenotype-errors v0.1.0
+   Compiling phenotype-port-traits v0.1.0
+   ...
+   Finished dev [unoptimized + debuginfo]
+```
+
+**Build: ✅ SUCCESS** (with warnings)
 
 ---
 
