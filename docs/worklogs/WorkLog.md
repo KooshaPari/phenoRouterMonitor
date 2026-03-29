@@ -23,11 +23,25 @@ Aligned `docs/reports/README.md` targets with files under `docs/worklogs/`, fixe
 | W92-4 | Extend Cursor transcript ingest to all Phenotype Cursor project dirs | pending |
 | W92-5 | Map high-value prompts → AgilePlus specs / WPs | pending |
 
+### External Package Integration Findings
+
+| Package | Strategy | LOC Savings | Priority | Action |
+|---------|----------|-------------|----------|--------|
+| `casbin` | WRAP | 2-3k LOC | HIGH | Create `phenotype-policy-engine` wrapper |
+| `eventually` | WRAP | 1.5k LOC | HIGH | Create `phenotype-event-sourcing` traits |
+| `temporal-sdk` | WRAP | 3k LOC | MEDIUM | Long-running workflows |
+| `tauri` | ADOPT | N/A | MEDIUM | Desktop agent UI |
+| `zod` | BLACKBOX | 0.5k LOC | HIGH | API validation |
+| `pydantic` | INSPIRE | N/A | MEDIUM | Study patterns |
+| `xstate` | WRAP | 1k LOC | MEDIUM | Frontend FSM interop |
+
 ### Related
 
 - `docs/worklogs/SessionTranscriptAudit.md`  
 - `docs/worklogs/SessionGaps20260329.md`  
 - `docs/worklogs/data/phenotype_session_extract_2026-03-26_2026-03-29.json`  
+- `docs/worklogs/RESEARCH.md` - External package research
+- `docs/worklogs/INACTIVE_FOLDERS.md` - Orphaned worktree tracking  
 
 ---
 
