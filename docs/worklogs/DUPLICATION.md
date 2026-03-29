@@ -124,6 +124,133 @@ Extended comprehensive audit of AgilePlus intra-repo duplication. Identified pat
 ### Related
 
 - Audit: `docs/reports/AGILEPLUS_DUPLICATION_AUDIT_20260329.md`
+
+---
+
+## 2026-03-29 - PHASE 2: ERROR HANDLING AUDIT (Wave 98)
+
+**Project:** [phenotype-ecosystem]
+**Category:** duplication
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Deep audit of error handling patterns across `crates/` directory. Found 6 distinct error enums with significant duplication of common variants.
+
+### Error Enum Inventory
+
+| Crate | Error Type | Variants | Lines |
+|-------|------------|----------|-------|
+| `phenotype-errors` | `PhenotypeError` | Io, Config, Serialization, NotFound, Conflict, StorageFailure, Unauthorized, Forbidden, PolicyViolation, Internal, Unknown | 96 |
+| `phenotype-error-core` | `ErrorKind` | NotFound, Serialization, Validation, Timeout, Internal, Storage, Connection, Config, PermissionDenied, Conflict, AlreadyExists, ParseError, NetworkError, AuthError | 108 |
+| `phenotype-event-sourcing` | `EventStoreError` | NotFound, DuplicateSequence, StorageError, InvalidHash, SequenceGap | 15 |
+| `phenotype-event-sourcing` | `HashError` | ChainBroken, InvalidHashLength, HashMismatch | 9 |
+| `phenotype-port-traits` | `PortError` | Failed, NotFound, AlreadyExists | 8 |
+| `phenotype-crypto` | `CryptoError` | HashError, VerificationFailed | 6 |
+| `phenotype-policy-engine` | `PolicyEngineError` | RegexCompilationError, EvaluationError, InvalidConfiguration, PolicyNotFound, SerializationError, LoadError, Other | 38 |
+
+### Duplicated Variants (3+ crates)
+
+| Variant | Appears In |
+|---------|------------|
+| `NotFound(String)` | phenotype-errors, phenotype-error-core, phenotype-event-sourcing, phenotype-port-traits |
+| `Serialization(String)` | phenotype-errors, phenotype-error-core, phenotype-policy-engine |
+| `Conflict(String)` | phenotype-errors, phenotype-error-core |
+| `Internal(String)` | phenotype-errors, phenotype-error-core |
+
+### Error Handling Utility Functions Duplicated
+
+Both `phenotype-errors` and `phenotype-error-core` implement identical conversions:
+- `impl From<std::io::Error>`
+- `impl From<serde_json::Error>`
+- `impl From<regex::Error>`
+- `impl From<&str>`
+- `impl From<String>`
+
+### thiserror Usage (100%)
+
+All error enums use `thiserror` — no hand-rolled implementations found.
+
+### Critical Issue: Two Competing Error Crates
+
+| Problem | Evidence |
+|---------|----------|
+| **phenotype-errors used by** | phenotype-test-infra, phenotype-telemetry |
+| **phenotype-error-core unused** | In workspace but NO crate depends on it |
+| **Redundant variants** | `ErrorKind` (14) vs `PhenotypeError` (20) |
+
+### Recommendations
+
+1. **Consolidate error crates** - Deprecate `phenotype-error-core` or promote it
+2. **Create wrapper pattern** - Domain errors should wrap common `ErrorKind`
+3. **Adopt phenotype-errors workspace-wide** - Migrate patterns
+
+### Action Items
+
+- [ ] Evaluate phenotype-error-core vs phenotype-errors
+- [ ] Create shared error wrapper pattern
+- [ ] Document error hierarchy in ADR
+
+---
+
+## 2026-03-29 - PHASE 4: HTTP CLIENT AUDIT (Wave 99)
+
+**Project:** [phenotype-ecosystem]
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Audit of HTTP client patterns across heliosCLI, platforms/thegent, and crates/ directories.
+
+### HTTP Client Libraries
+
+| Library | Usage | Locations |
+|---------|-------|-----------|
+| **reqwest** | 25+ | heliosCLI (core, codex-api, codex-client, backend-client) |
+| `http` crate | 15+ | Type definitions |
+| **httpx** | 50+ | thegent (routing, memory, research, tests) |
+
+### Authentication Patterns (Duplicated)
+
+| Pattern | Locations | Assessment |
+|---------|-----------|------------|
+| Bearer Token | `backend-client`, `codex-client`, `thegent-memory` | Three different implementations |
+| API Key | `thegent-memory` | Manual header insertion |
+
+### Retry Logic
+
+| File | Lines | Description |
+|------|-------|-------------|
+| `codex-client/src/retry.rs:8-72` | 65 | Full retry policy with backoff |
+
+**Missing in thegent-memory:** No retry logic, only circuit breaker.
+
+### Opportunities for phenotype-http-client-core
+
+| Component | Currently In | LOC Savings |
+|-----------|--------------|-------------|
+| `HttpTransport` trait | `codex-client` | ~50 |
+| `RetryPolicy` | `codex-client` | ~65 |
+| `TransportError` | `codex-client` | ~30 |
+| **Total** | | **~145 LOC** |
+
+### Recommendations
+
+1. **Extract Core HTTP Patterns** - Create `phenotype-http-client-core`
+2. **Unify Auth Patterns** - Adopt `.bearer_auth()` across all clients
+3. **Add Missing Resilience** - Add retry to `thegent-memory`
+
+### Action Items
+
+- [ ] Create `phenotype-http-client-core` crate
+- [ ] Extract `HttpTransport`, `RetryPolicy`, `TransportError`
+- [ ] Standardize auth middleware across clients
+
+---
+
 - Decomposition: `docs/reports/AGILEPLUS_DECOMPOSITION_AUDIT.md`
 
 ---
