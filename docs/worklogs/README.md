@@ -1,6 +1,8 @@
 # Worklogs
+# Worklogs
 
 > Canonical logging and audit documentation for the Phenotype ecosystem.
+> Last comprehensive audit: **2026-03-29** (Wave 90)
 
 ---
 
@@ -12,144 +14,246 @@ This directory contains structured worklogs organized by category. Each worklog 
 
 ## File Index
 
-| File | Lines | Category | Last Updated | Notes |
-|------|-------|----------|--------------|-------|
-| `README.md` | 186 | INDEX | 2026-03-29 | This file |
-| `AGENT_ONBOARDING.md` | 200 | ONBOARDING | 2026-03-29 | — |
-| `ARCHITECTURE.md` | 1957 | ARCHITECTURE | 2026-03-29 | 2,100+ LOC analyzed |
-| `DEPENDENCIES.md` | 624 | DEPENDENCIES | 2026-03-29 | Fork candidates, security |
-| `DUPLICATION.md` | 1891 | DUPLICATION | 2026-03-29 | 🔴 CRITICAL - 11 libs unused |
-| `GOVERNANCE.md` | 364 | GOVERNANCE | 2026-03-29 | Quality gates, evidence |
-| `INTEGRATION.md` | 208 | INTEGRATION | 2026-03-29 | MCP, NATS, Plane.so |
-| `PERFORMANCE.md` | 288 | PERFORMANCE | 2026-03-29 | Async, memory, benchmarks |
-| `RESEARCH.md` | 484 | RESEARCH | 2026-03-29 | 30 starred repos analyzed |
-| `WORK_LOG.md` | 179 | WORK_LOG | 2026-03-29 | — |
-| `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | 2026-03-29 | libs/ 2021→2024 |
-| `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | 2026-03-29 | 12 error types consolidated |
-| `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
-| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
-| `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
+### Core Worklogs
+
+| File | Lines | Category | Status | Priority |
+|------|-------|----------|--------|----------|
+| `README.md` | 250+ | INDEX | Current | - |
+| `AGENT_ONBOARDING.md` | 200 | ONBOARDING | Active | P1 |
+| `ARCHITECTURE.md` | 400+ | ARCHITECTURE | Active | P0-P2 |
+| `DEPENDENCIES.md` | 600+ | DEPENDENCIES | Active | P0-P1 |
+| `DUPLICATION.md` | 1900+ | DUPLICATION | Active | P0 |
+| `GOVERNANCE.md` | 360+ | GOVERNANCE | Active | P0-P1 |
+| `INTEGRATION.md` | 208 | INTEGRATION | Active | P1 |
+| `PERFORMANCE.md` | 288 | PERFORMANCE | Active | P1-P2 |
+| `RESEARCH.md` | 480+ | RESEARCH | Active | P1-P2 |
+| `WORK_LOG.md` | 176 | WORK_LOG | Current | - |
+
+### Project-Specific Worklogs
+
+| File | Lines | Category | Status |
+|------|-------|----------|--------|
+| `PROJECTS.md` | — | PROJECTS | Summary |
+| `PROJECTS_agileplus.md` | — | PROJECTS | Active |
+| `PROJECTS_thegent.md` | — | PROJECTS | Active |
+| `PROJECTS_heliosCLI.md` | — | PROJECTS | Active |
+
+### Implementation Plans
+
+| File | Lines | Category | Priority |
+|------|-------|----------|----------|
+| `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | P0 |
+| `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | P0 |
+| `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | P1 |
+| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | P0 |
+| `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | P0 |
+
+---
+
+## 2026 Critical Findings Summary
+
+### 🔴 CRITICAL (P0): Unused Libraries - ~1,650 LOC Wasted
+
+**Root Cause:** All `libs/phenotype-shared/crates/` are not integrated into the main workspace despite having production-ready code.
+
+| Library | Path | LOC | Status | Action |
+|---------|------|-----|--------|--------|
+| `phenotype-port-interfaces` | `libs/phenotype-shared/crates/` | ~300 | UNUSED | Integrate traits |
+| `phenotype-http-adapter` | `libs/phenotype-shared/crates/` | ~200 | UNUSED | Integrate patterns |
+| `phenotype-postgres-adapter` | `libs/phenotype-shared/crates/` | ~150 | UNUSED | Integrate patterns |
+| `phenotype-redis-adapter` | `libs/phenotype-shared/crates/` | ~150 | UNUSED | Integrate patterns |
+| `phenotype-cache-adapter` | `libs/phenotype-shared/crates/` | ~100 | UNUSED | Integrate patterns |
+| `phenotype-state-machine` | `libs/phenotype-shared/crates/` | ~100 | UNUSED | Archive |
+
+### 🔴 CRITICAL (P0): Error Type Duplication - ~600 LOC
+
+| Error Type | Locations | LOC | Duplicated Variants |
+|------------|-----------|-----|---------------------|
+| `ApiError` | 1 | 14 | NotFound, Internal |
+| `DomainError` | 1 | 47 | NotFound, Conflict |
+| `SyncError` | 2 (sync, p2p) | 41 | Nats, Serialization |
+| `EventError` | 1 | 12 | Store, Hash |
+| `GraphError` | 1 | 12 | Store, Query |
+| `CacheError` | 1 | 10 | Store, Serialization |
+| `PortError` | 1 | 51 | NotFound, Validation |
+
+**Total: 12 error types, 68+ variants, ~189 LOC verified**
+
+### 🟡 HIGH (P1): Port/Trait Architecture Split - 2,106 LOC
+
+Two independent hexagonal ecosystems exist:
+
+**Ecosystem 1:** `libs/phenotype-shared/crates/phenotype-port-interfaces/`
+- `Repository` trait (78 LOC)
+- `Cache` trait
+- `Logger` trait (101 LOC)
+- `EventBus`, `Http`, `Filesystem`, `Config` traits
+
+**Ecosystem 2:** `crates/agileplus-domain/src/ports/`
+- `ObservabilityPort` (850 LOC)
+- `AgentPort`, `VcsPort`, `StoragePort`, `ReviewPort`
+
+### 🟠 MEDIUM (P2): External Package Opportunities
+
+| Crate | Downloads | Purpose | Recommendation |
+|-------|-----------|---------|----------------|
+| `eventually` | ~500 stars | Event sourcing | **WRAP** - standardized ES patterns |
+| `figment` | ~300 stars | Config management | **ADOPT** - multi-source config |
+| `casbin` | ~2k stars | RBAC/ABAC | **WRAP** - cross-language policy |
+| `command-group` | - | Process groups | **ADOPT** - signal propagation |
+| `indicatif` | - | Progress bars | **ADD** - CLI feedback |
+| `temporal-sdk` | ~500 stars | Workflow | **WRAP** - long-running workflows |
+
 ---
 
 ## Category Summaries
 
-### DUPLICATION.md
+### DUPLICATION.md (1,900+ lines)
+
+**Focus:** Code duplication across repos and within AgilePlus
 
 | Sub-Category | Findings | Status |
 |--------------|----------|--------|
-| **Unused Libraries** | 11 libs (edition mismatch) | 🔴 CRITICAL |
-| Error Types | 12 types, 68+ variants (~189 LOC) | 🔴 CRITICAL |
+| Error Types | 12 types, 68+ variants (~189 LOC verified) | 🔴 CRITICAL |
 | Port/Trait Split | 2 ecosystems (2,106 LOC) | 🟡 HIGH |
 | Config Loaders | 4 implementations | 🟡 HIGH |
 | Store Traits | 5 async traits | 🟠 MEDIUM |
 | Health Checks | 3-4 enums | 🟠 MEDIUM |
 | In-Memory Stores | 4 implementations | 🟠 MEDIUM |
+| External Packages | 50+ evaluated (crates.io, npm, PyPI, GitHub) | 🟡 HIGH |
+| Fork Candidates | 4 major forks | 🔴 CRITICAL |
 
-**Key Plans**:
-- `PLANS/MASTER_DUPLICATION_AUDIT.md` - Complete findings
-- `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` - 40-task execution plan
+**LOC Savings Potential:** 2,800+ lines through consolidation
 
-### ARCHITECTURE.md
+### ARCHITECTURE.md (400+ lines)
 
-**Focus**: Hexagonal architecture, port/trait patterns
+**Focus:** Hexagonal architecture, port/trait patterns
 
 | Sub-Category | Findings | Status |
 |--------------|----------|--------|
 | Port Split | 2 hexagonal ecosystems | 🟡 HIGH |
-| hexagonal-rs | Framework patterns | 🟡 HIGH |
+| hexagonal-rs patterns | Repository, Cache, Logger traits | 🟡 HIGH |
 | Port Consolidation | 8+ traits need audit | 🟠 MEDIUM |
-| phenotype-infrakit | 4 well-designed crates | ✅ ASSESSED |
+| phenotype-shared | 11 well-designed crates | ✅ ASSESSED |
+| Event Sourcing | aggregate, snapshot patterns | 🟠 MEDIUM |
+| Graph Architecture | Neo4j/Cypher patterns | 🟠 MEDIUM |
 
-**Note**: See `docs/AGENT_MASTER_AUDIT_PROMPT.md` for external package analysis framework.
+### DEPENDENCIES.md (600+ lines)
 
-### DEPENDENCIES.md
-
-**Focus**: External dependencies, fork candidates, security
+**Focus:** External dependencies, fork candidates, security
 
 | Sub-Category | Findings | Status |
 |--------------|----------|--------|
 | Fork Candidates | 4 major forks | 🔴 CRITICAL |
-| git2 → gix | Security advisory | 🟡 HIGH |
-| Modern Tooling | uv, ruff, buf integrated | ✅ DONE |
+| Security Advisories | RUSTSEC-2025-0134, RUSTSEC-2025-0140 | 🟡 HIGH |
+| Modern Tooling | uv, ruff, buf, gix integrated | ✅ DONE |
+| Blackbox/Whitebox | Categorized all deps | ✅ DONE |
 
+### RESEARCH.md (480+ lines)
 ### RESEARCH.md
 
-**Focus**: Starred repo analysis, technology radar
+**Focus**: Starred repo analysis, technology radar, external packages
 
 | Sub-Category | Findings | Status |
 |--------------|----------|--------|
 | Starred Repos | 30 repos analyzed | ✅ DONE |
+| External Packages | 50+ evaluated (crates/npm/PyPI/GitHub) | ✅ DONE |
 | Fork Recommendations | 6 opportunities | 🟡 HIGH |
 
-### GOVERNANCE.md
+### Additional Worklogs
 
-**Focus**: Policy, compliance, quality gates
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Quality Gates | P4.1-P4.10 partially complete | 🟡 HIGH |
-| Evidence Collection | Patterns defined | 🟡 HIGH |
-| phenotype-governance | Built but not used | 🟠 MEDIUM |
-
-### INTEGRATION.md
-
-**Focus**: Cross-repo sync, MCP, NATS
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| MCP Server | Partial (15+ tools) | 🟡 HIGH |
-| NATS Event Bus | Partial | 🟡 HIGH |
-| Plane.so | Paused (G037) | 🟠 MEDIUM |
-
-### PERFORMANCE.md
-
-**Focus**: Optimization, benchmarking
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Async Patterns | Sequential ops need parallelization | 🟡 HIGH |
-| Memory Allocations | Hash chain hotspots | 🟠 MEDIUM |
-| TokenLedger Benches | Comprehensive, shareable | ✅ DONE |
+| File | Focus | Status |
+|------|-------|--------|
+| `QUALITY.md` | Quality gates, evidence, compliance | ✅ DONE |
+| `TOOLING.md` | Development tooling, editor setup | ✅ DONE |
+| `UX_DX.md` | User experience, developer experience | ✅ DONE |
+| `WorkLog.md` | Wave entries, task tracking | ✅ DONE |
+| `ARCHITECTURE_INFRAKIT.md` | phenotype-infrakit architecture | ✅ DONE |
 
 ---
 
 ## Quick Access
 
-### For Finding Duplication Issues
+**Focus:** Policy, evidence collection, quality gates
+
+| Sub-Category | Findings | Status |
+|--------------|----------|--------|
+| Phase 4 Status | P4.1-P4.5 partial | 🟡 HIGH |
+| Evidence Collection | Based on great_expectations | 🟠 MEDIUM |
+| Quality Gates | Spec, Plan, Implement, Review, Ship | 🟠 MEDIUM |
+| DORA Metrics | Tracking implementation | 🟠 MEDIUM |
+| phenotype-governance | Built but not used | 🔴 CRITICAL |
+
+---
+
+## Phenotype Infrastructure (libs/phenotype-shared/crates/)
+
+The canonical library location contains 11 production-ready crates:
+
+| Crate | Purpose | Integration Status |
+|-------|---------|-------------------|
+| `ffi_utils` | FFI utilities | Not used |
+| `phenotype-application` | Application patterns | Partial |
+| `phenotype-cache-adapter` | Redis caching | UNUSED |
+| `phenotype-domain` | Domain entities | Partial |
+| `phenotype-event-sourcing` | ES aggregates, snapshots | UNUSED |
+| `phenotype-http-adapter` | HTTP client patterns | UNUSED |
+| `phenotype-policy-engine` | Policy evaluation | UNUSED |
+| `phenotype-port-interfaces` | Repository, Cache, Logger traits | UNUSED |
+| `phenotype-postgres-adapter` | PostgreSQL patterns | UNUSED |
+| `phenotype-redis-adapter` | Redis patterns | UNUSED |
+| `phenotype-state-machine` | State machine patterns | DEAD CODE |
+
+---
+
+## Quick Access Commands
+
 ```bash
+# View duplication issues (most critical)
 cat docs/worklogs/DUPLICATION.md
-```
 
-### For Architecture Decisions
-```bash
+# View master audit report
+cat docs/reports/MASTER_DUPLICATION_AUDIT.md
+
+# View architecture analysis
 cat docs/worklogs/ARCHITECTURE.md
-```
 
-### For Dependency Status
-```bash
+# View dependency analysis
 cat docs/worklogs/DEPENDENCIES.md
-```
 
-### For Research Context
-```bash
+# View 2026 research findings
 cat docs/worklogs/RESEARCH.md
-```
 
-### For Governance Tracking
-```bash
-cat docs/worklogs/GOVERNANCE.md
-```
+# Aggregate all worklogs by project
+./docs/worklogs/aggregate.sh project
 
-### For Performance Analysis
-```bash
-cat docs/worklogs/PERFORMANCE.md
+# Aggregate all worklogs by priority
+./docs/worklogs/aggregate.sh priority
+
+# View project-specific items
+cat docs/worklogs/PROJECTS_agileplus.md
+cat docs/worklogs/PROJECTS_thegent.md
+cat docs/worklogs/PROJECTS_heliosCLI.md
 ```
 
 ---
 
-## Adding Entries
+## Master Audit Report (docs/reports/MASTER_DUPLICATION_AUDIT.md)
 
-### Entry Template
+The comprehensive audit identified:
+
+| Category | Current LOC | Target LOC | Savings |
+|----------|-------------|------------|---------|
+| Unused Libraries | 1,650 | 0 (archive) | **1,650** |
+| Error Types | 600 | 200 | **400** |
+| Config Loading | 500 | 150 | **350** |
+| Store Traits | 300 | 100 | **200** |
+| HTTP Clients | 300 | 100 | **200** |
+| **TOTAL** | **3,350** | **550** | **2,800** |
+
+---
+
+## Entry Template
 
 ```markdown
 ## YYYY-MM-DD - Entry Title
@@ -196,16 +300,10 @@ Brief description of the work.
 
 ---
 
-## Aggregation
+## Related Documentation
 
-Use `aggregate.sh` to compile a master view:
-
-```bash
-./docs/worklogs/aggregate.sh
-```
-
----
-
+| Document | Location | Purpose |
+|----------|----------|---------|
 ## Related Documentation
 
 | Document | Location | Purpose |
@@ -214,32 +312,61 @@ Use `aggregate.sh` to compile a master view:
 | PLAN.md | `PLAN.md` | AgilePlus implementation |
 | PRD.md | `PRD.md` | Product requirements |
 | ADR.md | `ADR.md` | Architecture decisions |
-| MASTER_DUPLICATION_AUDIT | `docs/reports/MASTER_DUPLICATION_AUDIT.md` | Comprehensive audit |
-| Consolidation Audit | `docs/research/consolidation-audit-2026-03-29.md` | P1-P4 actions |
+| Master Audit Prompt | `worklogs/AGENT_MASTER_AUDIT_PROMPT.md` | Agent audit directive |
+| Quality Engineering | `worklogs/QUALITY.md` | Test coverage & metrics |
+| Tooling | `worklogs/TOOLING.md` | New tools & features |
+| UX/DX | `worklogs/UX_DX.md` | Developer experience |
 
 ---
 
-## Cross-Cutting Concerns
+## Audit Categories Reference
 
-### Critical Items Requiring Immediate Action
-
-| Item | Impact | Owner | Deadline |
-|------|--------|-------|----------|
-| Migrate 11 libs/ to edition 2024 | Unblock library integration | — | 2026-Q2 |
-| Create phenotype-error crate | Consolidate 12 error types | — | 2026-Q2 |
-| Integrate hexagonal-rs patterns | Replace 5 duplicated traits | — | 2026-Q2 |
-| Migrate git2 → gix | Security advisory RUSTSEC-2025-0140 | — | 2026-Q2 |
-
-### LOC Savings Potential
-
-| Category | Current | Target | Savings |
-|----------|---------|--------|---------|
-| Error Types | ~600 LOC | ~200 LOC | 400 |
-| Config Loading | ~500 LOC | ~150 LOC | 350 |
-| Store Traits | ~300 LOC | ~100 LOC | 200 |
-| In-Memory Tests | ~400 LOC | ~150 LOC | 250 |
-| **Total** | **1,800 LOC** | **600 LOC** | **1,200** |
+| Category | File | Priority | Focus |
+|----------|------|---------|-------|
+| DUPLICATION | `DUPLICATION.md` | P0-P2 | Code patterns, libification |
+| ARCHITECTURE | `ARCHITECTURE.md` | P0-P2 | Ports, adapters, structure |
+| DEPENDENCIES | `DEPENDENCIES.md` | P0-P1 | External deps, forks, security |
+| RESEARCH | `RESEARCH.md` | P1-P2 | Tech radar, starred repos |
+| QUALITY | `QUALITY.md` | P1-P2 | Test coverage, quality gates |
+| TOOLING | `TOOLING.md` | P1-P3 | New tooling opportunities |
+| GOVERNANCE | `GOVERNANCE.md` | P1-P2 | Policy, compliance |
+| UX_DX | `UX_DX.md` | P2-P3 | Developer experience |
 
 ---
 
 _Last updated: 2026-03-29_
+### Rust Crates (crates.io)
+
+| Category | Recommended | Why |
+|----------|-------------|-----|
+| Event Sourcing | `eventually` | Standardized Aggregate/Repository traits |
+| Config | `figment` | Multi-source, provenance tracking |
+| Policy | `casbin` | Cross-language RBAC/ABAC |
+| Process | `command-group` | Signal propagation, group management |
+| CLI | `indicatif` | Progress bars, spinners |
+| Workflow | `temporal-sdk` | Long-running workflows |
+| Error | `miette` | Pretty diagnostic errors |
+| Config | `config-rs` | 40M+ downloads, mature |
+
+### npm Packages (Node.js)
+
+| Package | Recommendation | Why |
+|---------|----------------|-----|
+| `zod` | **ADD** | Schema validation, 20k stars |
+| `xstate` | **WRAP** | State machines, 15k stars |
+| `@temporalio/client` | **WRAP** | Workflow orchestration |
+| `casbin` | **WRAP** | Cross-runtime policy |
+| `ajv` | **WRAP** | JSON Schema validation |
+
+### PyPI Packages (Python)
+
+| Package | Recommendation | Why |
+|---------|----------------|-----|
+| `pydantic` | **ADD** | Data validation, 25k stars |
+| `eventsourcing` | **WRAP** | Python ES patterns |
+| `temporalio` | **WRAP** | Workflow orchestration |
+| `transitions` | **WRAP** | State machine patterns |
+
+---
+
+_Last updated: 2026-03-29 (Wave 90 - Comprehensive Audit)_
