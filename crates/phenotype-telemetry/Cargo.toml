@@ -1,0 +1,22 @@
+[package]
+name = "phenotype-telemetry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+phenotype-errors = { path = "../phenotype-errors", version = "0.2" }
+tokio = { version = "1.40", features = ["time", "sync"], optional = true }
+parking_lot.workspace = true
+chrono.workspace = true
+serde = { workspace = true, optional = true }
+serde_json.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1.40", features = ["full"] }
+
+[features]
+default = []
+tokio-support = ["tokio"]
+serde-support = ["serde"]
