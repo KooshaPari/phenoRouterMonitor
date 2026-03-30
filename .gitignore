@@ -56,7 +56,6 @@ phase2_federation_spec.md
 # Uncommitted crate stubs
 crates/phenotype-error-core.ARCHIVED/
 crates/phenotype-event-sourcing/src/async_store.rs
-crates/phenotype-process/
 
 # CI/DevOps
 nextest.toml
