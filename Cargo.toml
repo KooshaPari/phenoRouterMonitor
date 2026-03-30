@@ -67,9 +67,13 @@ quote = "1"
 proc-macro2 = "1"
 dashmap = "6"
 parking_lot = "0.12"
+moka = { version = "0.12", features = ["sync", "future"] }
+lru = "0.12"
 axum = "0.7"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }
+tempfile = "3"
 dirs = "6.0"
 
 [profile.dev]

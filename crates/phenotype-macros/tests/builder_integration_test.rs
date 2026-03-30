@@ -38,7 +38,11 @@ fn test_all_derive_modules_present() {
         "derive_serde",
     ];
 
-    assert_eq!(modules.len(), 9, "All expected derive modules should be present");
+    assert_eq!(
+        modules.len(),
+        9,
+        "All expected derive modules should be present"
+    );
 }
 
 /// Documentation test for Builder macro pattern

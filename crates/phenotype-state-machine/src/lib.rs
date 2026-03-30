@@ -383,14 +383,15 @@ mod tests {
             notes: String::new(),
         };
         let sm = StateMachine::new(OrderState::Pending, ctx);
-        let mut sm = sm.with_skip_states(vec![
-            (OrderState::Pending, OrderState::Shipped),
-        ]);
+        let mut sm = sm.with_skip_states(vec![(OrderState::Pending, OrderState::Shipped)]);
         sm.add_transition(Transition::new(OrderState::Pending, OrderState::Shipped));
 
         // Pending→Shipped is ordinal jump 1→3 (skip 2), declared in skip_states → allowed
         let result = sm.transition_to(OrderState::Shipped);
-        assert!(result.is_ok(), "skip-state transition should be allowed when declared");
+        assert!(
+            result.is_ok(),
+            "skip-state transition should be allowed when declared"
+        );
         assert_eq!(sm.current().unwrap(), OrderState::Shipped);
     }
 
@@ -441,10 +442,11 @@ mod tests {
         };
         let sm = StateMachine::new(OrderState::Pending, ctx);
         let mut sm = sm.with_skip_states(vec![(OrderState::Pending, OrderState::Delivered)]);
-        let t = Transition::new(OrderState::Pending, OrderState::Delivered)
-            .with_action(|ctx: &mut OrderContext| {
+        let t = Transition::new(OrderState::Pending, OrderState::Delivered).with_action(
+            |ctx: &mut OrderContext| {
                 ctx.notes.push_str("Emergency delivery confirmed");
-            });
+            },
+        );
         sm.add_transition(t);
 
         sm.transition_to(OrderState::Delivered).unwrap();
