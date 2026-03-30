@@ -2,6 +2,7 @@
 //!
 //! Traces to: FR-PHENO-001
 
+extern crate phenotype_error_core;
 use phenotype_error_core::ErrorKind;
 use thiserror::Error;
 

@@ -2,18 +2,9 @@
 name = "phenotype-error-core"
 version = "0.2.0"
 edition = "2021"
-license = "MIT OR Apache-2.0"
-description = "Core error types and utilities for Phenotype"
-
-[features]
-default = []
-miette = ["dep:miette"]
+license = "MIT"
+description = "Error types for Phenotype"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace = true
-chrono.workspace = true
-uuid.workspace = true
-regex = "1"
-miette = { version = "7.2", features = ["serde"], optional = true }
+thiserror = "2.0"
