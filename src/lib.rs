@@ -1,9 +1,7 @@
 //! # Phenotype Infrakit
 //!
-//! Phenotype Infrastructure Kit - Event Sourcing Core
+//! Shared infrastructure crates for the Phenotype ecosystem.
 
 pub mod error;
-pub mod hash;
-pub mod memory;
-pub mod snapshot;
-pub mod store;
+
+pub use error::{Error, Result};

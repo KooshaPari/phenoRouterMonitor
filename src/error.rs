@@ -1,5 +1,4 @@
-//! Common error types for phenotype-infrakit.
+//! Error re-exports.
 
-pub use phenotype_error_core::Error;
-
-pub type Result<T> = std::result::Result<T, Error>;
+pub use phenotype_errors::Error;
+pub use phenotype_errors::Result;
