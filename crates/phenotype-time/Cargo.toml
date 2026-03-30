@@ -4,7 +4,15 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Phenotype Team"]
 license = "MIT"
-description = "Time for Phenotype"
+description = "Time utilities for the Phenotype ecosystem"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "2.0"
+
+[dev-dependencies]
+serde_json = "1.0"
