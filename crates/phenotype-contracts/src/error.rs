@@ -2,8 +2,7 @@
 //!
 //! Traces to: FR-PHENO-001
 
-extern crate phenotype_error_core;
-use phenotype_error_core::ErrorKind;
+use phenotype_errors::ErrorKind;
 use thiserror::Error;
 
 /// Errors that can occur when working with contracts.
