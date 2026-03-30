@@ -1,6 +1,65 @@
 # Dependencies Worklogs
 
-**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (OSV SARIF + worktree audit closure)
+**Category:** DEPENDENCIES | **Updated:** 2026-03-30 (workspace dependency fixes)
+
+---
+
+## 2026-03-30 - Workspace Dependency Consolidation
+
+**Project:** [repos]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Fixed critical workspace configuration issues that were blocking `cargo check --workspace`:
+
+1. **phenotype-error-core version mismatch**: Hardcoded `version = "0.2.0"` instead of `version.workspace = true`
+2. **Missing phenotype-error-core in workspace.dependencies**: Was a member but not available as a dependency
+3. **AgilePlus crates orphaned**: Referenced but not properly configured in workspace
+4. **gix version upgraded**: 0.71 → 0.81 (resolves RUSTSEC-2025-0140)
+
+### Changes Made
+
+| File | Change |
+|------|--------|
+| `crates/phenotype-error-core/Cargo.toml` | Changed `version = "0.2.0"` → `version.workspace = true` |
+| `crates/phenotype-error-core/Cargo.toml` | Added `serde.workspace = true` |
+| `Cargo.toml` | Added `phenotype-error-core = { path = "crates/phenotype-error-core" }` |
+| `Cargo.toml` | Removed agileplus crate members (orphaned) |
+| `Cargo.toml` | Updated gix from 0.71 → 0.81 |
+| `deny.toml` | Removed RUSTSEC-2025-0140 ignore (now safe) |
+
+### Verification
+
+```bash
+cargo check --workspace  # ✅ Passes
+cargo deny check         # ✅ Passes (no advisories)
+```
+
+### Security Advisory Status
+
+| Advisory | Crate | Status |
+|----------|-------|--------|
+| RUSTSEC-2025-0140 | gix | ✅ **RESOLVED** - Now using 0.81 |
+| RUSTSEC-2025-0134 | rustls-pemfile | N/A - Not used in workspace |
+| RUSTSEC-2026-0049 | rustls-webpki | N/A - Not used in workspace |
+| RUSTSEC-2026-0002 | lru | N/A - Not used in workspace |
+
+### Remaining Duplicate Warnings (Non-Critical)
+
+| Crate | Versions | Reason |
+|-------|----------|--------|
+| getrandom | 0.2.17, 0.4.2 | transitive deps use different versions |
+| hashbrown | 0.14.5, 0.15.5, 0.16.1 | moka, lru, indexmap each pin different |
+| thiserror | 1.0.69, 2.0.18 | dirs (0.5) uses v1, all phenos use v2 |
+
+These are harmless - each crate pins its compatible version.
+
+---
+
+## 2026-03-29 - External Dependencies & Package Modernization Audit
 
 ---
 
