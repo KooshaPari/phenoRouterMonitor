@@ -18,7 +18,9 @@
 //! - **Environment overrides**: Env vars take highest priority
 
 use serde::Deserialize;
+use serde::Serialize;
 use serde_json::Value;
+use schemars::JsonSchema;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
@@ -51,6 +53,9 @@ pub enum ConfigError {
 
     #[error("validation error: {0}")]
     Validation(String),
+
+    #[error("schema validation failed: {0}")]
+    SchemaValidation(String),
 }
 
 /// Result type for config operations.
@@ -370,6 +375,65 @@ impl ConfigLoader {
             map.insert(key.clone(), val.value.clone());
         }
         Value::Object(map)
+    }
+
+    /// Validate the config against a JSON schema.
+    ///
+    /// Returns Ok(()) if validation passes, or an error describing the failures.
+    ///
+    /// Traces to: FR-PHENO-CONFIG-009
+    pub fn validate_schema(&self, schema_json: &str) -> Result<()> {
+        let schema: serde_json::Value = serde_json::from_str(schema_json)
+            .map_err(|e| ConfigError::SchemaValidation(format!("invalid schema: {}", e)))?;
+
+        let compiled_schema = jsonschema::JSONSchema::compile(&schema)
+            .map_err(|e| ConfigError::SchemaValidation(format!("schema compilation failed: {}", e)))?;
+
+        let config_json = self.to_json();
+        let result = compiled_schema.validate(&config_json);
+
+        if let Err(errors) = result {
+            let error_messages: Vec<String> = errors
+                .map(|e| format!("{}: {}", e.instance_path, e))
+                .collect();
+            Err(ConfigError::SchemaValidation(error_messages.join("; ")))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Validate the config against a typed schema.
+    ///
+    /// This method generates a JSON schema from a Rust type and validates
+    /// the config against it.
+    ///
+    /// Traces to: FR-PHENO-CONFIG-010
+    pub fn validate_typed<T: JsonSchema + Serialize + for<'de> Deserialize<'de>>(
+        &self,
+    ) -> Result<T> {
+        // Generate schema from type
+        let schema = schemars::schema_for!(T);
+        let schema_json = serde_json::to_string_pretty(&schema)
+            .map_err(|e| ConfigError::SchemaValidation(format!("schema generation failed: {}", e)))?;
+
+        // Validate against the generated schema
+        self.validate_schema(&schema_json)?;
+
+        // Deserialize the config into the target type
+        let config_json = self.to_json();
+        serde_json::from_value(config_json)
+            .map_err(|e| ConfigError::Validation(format!("deserialization failed: {}", e)))
+    }
+
+    /// Get the JSON Schema for a type.
+    ///
+    /// Useful for generating documentation or for external validation tools.
+    ///
+    /// Traces to: FR-PHENO-CONFIG-011
+    pub fn generate_schema<T: JsonSchema>() -> Result<String> {
+        let schema = schemars::schema_for!(T);
+        serde_json::to_string_pretty(&schema)
+            .map_err(|e| ConfigError::SchemaValidation(format!("schema serialization failed: {}", e)))
     }
 }
 

@@ -18,10 +18,10 @@ Extends thegent governance base. See `platforms/thegent/governance/AGENTS.base.m
 ### AgilePlus Integration
 
 All work MUST be tracked in AgilePlus:
-- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
-- CLI: `cd AgilePlus && agileplus <command>`
-- Specs: `AgilePlus/kitty-specs/<feature-id>/`
-- Worklog: `AgilePlus/.work-audit/worklog.md`
+- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/.agileplus`
+- CLI: `agileplus <command>` (from .agileplus directory)
+- Specs: `.agileplus/specs/<feature-id>/`
+- Worklog: `.agileplus/worklog.md`
 
 **Requirements**:
 1. Check for AgilePlus spec before implementing
