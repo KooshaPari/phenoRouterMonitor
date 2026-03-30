@@ -56,12 +56,12 @@ python3 scripts/export_phenotype_session_artifacts.py \
 Scans Rust sources for public error-style enums (`*Error`, `*Errors`, or `Error` in error-oriented paths) and writes `docs/worklogs/data/error_enums_index.json`.
 
 ```bash
-python3 scripts/generate_error_enums_index.py [--root DIR]
+python3 scripts/generate_error_enums_index.py [--root DIR] [--scope workspace|all]
 ```
 
-- **Scan roots:** `crates/`, `libs/`, `rust/`, `tools/` under the repo root (first-party trees only).
-- Skips `target/`, `.git/`, `node_modules/`, `vendor/`, and worktree hub paths (`*-wtrees` / `*_wtrees`).
-- **Output JSON** uses schema `error_enums_index.v1` and lists matching enums with path, line, and name.
+- **`--scope workspace` (default):** `crates/`, `libs/`, `rust/`, `tools/` under the repo root.
+- **`--scope all`:** entire repo root, still skipping `target/`, `.git/`, `node_modules/`, `vendor/`, and worktree hub path segments (`*-wtrees` / `*_wtrees`).
+- **Output JSON** includes `scan_scope`, schema `error_enums_index.v1`, and matching enums with path, line, and name.
 
 ---
 
