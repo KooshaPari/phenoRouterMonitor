@@ -1,6 +1,69 @@
 name: Release
 
 on:
+<<<<<<< HEAD
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 0.1.0)'
+        required: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ─── Build Release Binaries ───────────────────────────────────────────
+  build-release:
+    name: Build Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            use_cross: false
+          - target: x86_64-apple-darwin
+            os: ubuntu-latest
+            use_cross: true
+          - target: aarch64-apple-darwin
+            os: ubuntu-latest
+            use_cross: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install cross
+        if: matrix.use_cross
+        run: cargo install cross
+      - name: Build release binary
+        run: |
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            cross build --release --target ${{ matrix.target }}
+          else
+            cargo build --release --target ${{ matrix.target }}
+          fi
+      - name: Strip binary
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            strip target/${{ matrix.target }}/release/agileplus || true
+          fi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agileplus-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/agileplus
+=======
   workflow_dispatch:
     inputs:
       version:
@@ -140,16 +203,21 @@ jobs:
           name: syft-spdx-workspace
           path: sbom-out/syft-spdx-workspace.json
           if-no-files-found: error
+>>>>>>> origin/main
           retention-days: 5
 
   # ─── Create GitHub Release ────────────────────────────────────────────
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+<<<<<<< HEAD
+    needs: build-release
+=======
     needs:
       - build-release
       - cyclonedx-sboms
       - syft-spdx
+>>>>>>> origin/main
     permissions:
       contents: write
     steps:
@@ -170,6 +238,8 @@ jobs:
               cp "$binary_path" "./release-assets/agileplus-${target_name}"
             fi
           done
+<<<<<<< HEAD
+=======
           sbom_dir="./binaries/cyclonedx-sbom-workspace"
           if [ -d "$sbom_dir" ]; then
             shopt -s nullglob
@@ -184,6 +254,7 @@ jobs:
               [ -f "$f" ] && cp "$f" ./release-assets/
             done
           fi
+>>>>>>> origin/main
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
@@ -192,9 +263,12 @@ jobs:
           draft: false
           prerelease: false
           generateReleaseNotes: true
+<<<<<<< HEAD
+=======
           # Re-runs / human-edited releases: keep title & body; still refresh assets list.
           allowUpdates: true
           omitBodyDuringUpdate: true
           omitNameDuringUpdate: true
+>>>>>>> origin/main
 >>>>>>> origin/main
 >>>>>>> origin/main
