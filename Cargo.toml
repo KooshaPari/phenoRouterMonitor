@@ -6,13 +6,15 @@ members = [
     "crates/phenotype-cache-adapter",
     "crates/phenotype-policy-engine",
     "crates/phenotype-state-machine",
-    "crates/phenotype-git-core",
+    "crates/phenotype-string",
 ]
 
 [workspace.package]
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
+rust-version = "1.75"
+authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
 [workspace.dependencies]
@@ -29,6 +31,8 @@ moka = { version = "0.12", features = ["sync", "future"] }
 toml = "0.8"
 regex = "1.11"
 uuid = { version = "1.11", features = ["v4", "serde"] }
+zstd = "0.13"
+unicode-normalization = "0.1"
 
 [profile.dev]
 opt-level = 0
