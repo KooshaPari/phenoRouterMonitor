@@ -323,7 +323,7 @@ derive_more = { workspace = true, features = ["display"] }
 
 ### Next Steps
 
-- [ ] FORK-001: Create `phenotype-process` from `utils/pty`
+- [x] FORK-001: Create `phenotype-process` from `utils/pty`
 - [ ] FORK-002: Create `phenotype-error` from error patterns
 - [ ] 3P-MIG-001: Plan `git2` → `gix` migration
 - [ ] Evaluate `command-group` for process management
@@ -599,7 +599,7 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 
 | Source | Target | LOC | Priority | Status |
 |--------|--------|-----|----------|--------|
-| `utils/pty` | `phenotype-process` | ~500 | 🔴 CRITICAL | TODO |
+| `utils/pty` | `phenotype-process` | ~283 | 🔴 CRITICAL | ✅ COMPLETE |
 | `utils/git` | `phenotype-git` | ~300 | 🟠 MEDIUM | EVALUATE |
 | `error.rs` | `phenotype-error` | ~1148 | 🔴 CRITICAL | TODO |
 
@@ -614,7 +614,7 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 
 ### Next Steps
 
-- [ ] Evaluate FORK-001: `utils/pty` → `phenotype-process`
+- [x] Evaluate FORK-001: `utils/pty` → `phenotype-process`
 - [ ] Evaluate FORK-002: `error.rs` → `phenotype-error`
 - [ ] Consider adding `indicatif` for progress feedback
 - [ ] Plan gix upgrade from 0.71 to 0.79

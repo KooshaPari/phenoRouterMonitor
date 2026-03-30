@@ -3,14 +3,26 @@ name = "phenotype-test-infra"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 repository.workspace = true
+<<<<<<< HEAD
+authors.workspace = true
+description = "TODO"
+=======
 description = "Test infrastructure for Phenotype"
+>>>>>>> origin/main
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
 phenotype-error-core.workspace = true
+<<<<<<< HEAD
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-test.workspace = true
+uuid.workspace = true
+=======
 phenotype-errors.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
@@ -18,3 +30,4 @@ serde.workspace = true
 serde_json.workspace = true
 uuid.workspace = true
 chrono.workspace = true
+>>>>>>> origin/main
