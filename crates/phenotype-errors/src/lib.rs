@@ -2,24 +2,57 @@
 //!
 //! Unified error types for the Phenotype ecosystem.
 
-pub use thiserror::Error;
+/// Result type alias
+pub type Result<T> = std::result::Result<T, Error>;
 
+/// Error enum for Phenotype operations.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Operation failed: {0}")]
-    Failed(String),
-
-    #[error("Not found: {0}")]
+    /// Not found error
+    #[error("not found: {0}")]
     NotFound(String),
 
-    #[error("Timeout: {0}")]
-    Timeout(String),
+    /// Validation error
+    #[error("validation failed: {0}")]
+    Validation(String),
 
-    #[error("Unauthorized: {0}")]
-    Unauthorized(String),
+    /// Conflict error
+    #[error("conflict: {0}")]
+    Conflict(String),
 
-    #[error("Internal error: {0}")]
+    /// IO error
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    /// Serialization error
+    #[error("serialization error: {0}")]
+    Serialization(String),
+
+    /// Internal error
+    #[error("internal error: {0}")]
     Internal(String),
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+impl Error {
+    pub fn not_found<S: Into<String>>(msg: S) -> Self {
+        Self::NotFound(msg.into())
+    }
+
+    pub fn validation<S: Into<String>>(msg: S) -> Self {
+        Self::Validation(msg.into())
+    }
+
+    pub fn conflict<S: Into<String>>(msg: S) -> Self {
+        Self::Conflict(msg.into())
+    }
+
+    pub fn internal<S: Into<String>>(msg: S) -> Self {
+        Self::Internal(msg.into())
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(e: serde_json::Error) -> Self {
+        Self::Serialization(e.to_string())
+    }
+}

@@ -5,31 +5,63 @@
 ---
 ---
 
-## 2026-03-29 - phenoinfrakit Architecture Deep Analysis
+## 2026-03-30 - Standardized Port & Adapter Architecture
 
-**Project:** phenotype-infrakit
+**Project:** [cross-repo]
+**Category:** architecture, standardization
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Established a canonical port hierarchy to resolve the split between `phenotype-port-interfaces` and `agileplus-domain/src/ports`. All new crates must use `phenotype-port-traits` for interface definitions to enable true plug-and-play adapter swapping across ecosystems.
+
+### Port Hierarchy
+
+| Layer | Responsibility | Example Trait |
+|-------|----------------|---------------|
+| **Core** | Fundamental IO | `AsyncReader`, `AsyncWriter` |
+| **Domain** | Business Logic Ports | `Repository<T>`, `EventBus<E>` |
+| **Infrastructure** | System Services | `SecretManager`, `ConfigLoader` |
+
+### Standard Trait: Repository<T, ID>
+
+```rust
+#[async_trait]
+pub trait Repository<T, ID>: Send + Sync 
+where 
+    T: Entity<ID>,
+    ID: Identifier
+{
+    async fn save(&self, entity: T) -> Result<(), PortError>;
+    async fn find_by_id(&self, id: &ID) -> Result<Option<T>, PortError>;
+    async fn delete(&self, id: &ID) -> Result<(), PortError>;
+    async fn list_all(&self) -> Result<Vec<T>, PortError>;
+}
+```
+
+### 2026-03-30 - Python phenoSDK Architecture Evolution
+
+**Project:** [python-sdk]
 **Category:** architecture
-**Status:** completed
+**Status:** proposed
 **Priority:** P1
 
 ### Summary
 
-Deep analysis of phenoinfrakit architecture - a Rust workspace containing 6 crates for governance, caching, event sourcing, policy engine, and state machine patterns.
+Proposed architectural shift for `phenosdk` to move from a monolithic package to a modular "plugin" architecture based on `FastMCP v3.5`.
 
-### Workspace Structure
+### Proposed Structure
 
 ```
-phenoinfrakit/
-├── Cargo.toml              # Workspace root (edition 2024)
-├── Cargo.lock
-└── crates/
-    ├── evidence-ledger/      # Audit trail & governance
-    ├── phenotype-cache-adapter/    # Caching layer
-    ├── phenotype-contracts/         # Shared contracts
-    ├── phenotype-event-sourcing/   # Event sourcing patterns
-    ├── phenotype-policy-engine/    # Policy evaluation
-    └── phenotype-state-machine/    # State machine (incomplete)
+python/phenosdk/
+├── pheno-core/          # Core abstractions & FastMCP wrapper
+├── pheno-mcp/           # MCP transport & tool registry
+├── pheno-shared/        # Shared Pydantic models (synced with Rust via buf)
+└── pheno-plugins/       # dynamic tool collections
 ```
+
+---
 
 ### Architecture Principles Observed
 

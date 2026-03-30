@@ -802,33 +802,95 @@ Comprehensive analysis identifying 1,800 LOC of duplication with 1,200 LOC savin
 
 ---
 
-## 2026-03-29 - phenoinfrakit Deep Duplication Audit
+## 2026-03-30 - Expanded Duplication Hotspots (CHUNK 6)
 
-**Project:** phenotype-infrakit
-**Category:** duplication
-**Status:** completed
-**Priority:** P1
+**Project:** [cross-repo]
+**Category:** duplication, libification
+**Status:** in_progress
+**Priority:** P0
 
 ### Summary
 
-Deep analysis of duplication within phenotype-infrakit workspace - identified nested crate structure, internal duplication, and external overlap opportunities.
+Deep codebase audit identified critical structural duplication between `phenotype-contracts` and domain ports in `agileplus-domain`, `thegent`, and `heliosCLI`. Found 12+ redundant Repository trait definitions and 8+ EventBus implementations.
 
-### Critical Finding: Nested Crate Structure
+### 17. Port Interface Proliferation (P0)
 
-| Crate | Outer (crates/X/) | Inner (crates/X/X/) | Status |
-|-------|-------------------|---------------------|--------|
-| `phenotype-cache-adapter` | ✅ Has src/ | ✅ Has src/ | **100% IDENTICAL** |
-| `phenotype-contracts` | ✅ Has src/ | ✅ Has src/ | **100% IDENTICAL** |
-| `phenotype-event-sourcing` | ✅ Has src/ | ✅ Has src/ | Minor formatting |
-| `phenotype-policy-engine` | ✅ Has src/ | ✅ Has src/ | **100% IDENTICAL** |
-| `phenotype-state-machine` | ❌ NO src/ | ✅ Has src/ | **INCOMPLETE** |
+Identified 12+ variations of Repository/Storage ports across the ecosystem.
 
-### Root Cause
+| Location | Trait Name | Methods | LOC |
+|----------|------------|---------|-----|
+| `crates/phenotype-contracts/src/outbound.rs` | `Repository` | save, get, delete, list | 15 |
+| `agileplus-domain/src/ports/storage.rs` | `StoragePort` | find, persist, remove | 45 |
+| `platforms/thegent/crates/thegent-git/src/lib.rs` | `GitRepository` | commit, push, pull | 709 |
+| `heliosCLI/codex-rs/core/src/state_db.rs` | `StateStore` | load, store, update | 120 |
 
-The nested crate structure is from **in-progress rebase**:
-1. Inner crates contain the actual implementation
-2. Outer crates were created as workspace entries
-3. After rebase completes, inner crates will become canonical
+**Strategy:** Consolidate to `phenotype-port-traits` crate using generic `<T, ID>` parameters.
+
+### 18. Python SDK vs MCP Structure Duplication (P1)
+
+`python/phenosdk` contains nested `mcp` and `shared` modules that duplicate logic found in `agileplus-mcp`.
+
+| Path | Purpose | Overlap |
+|------|---------|---------|
+| `python/phenosdk/src/pheno/mcp/` | MCP entry points | `agileplus-mcp` |
+| `python/phenosdk/src/pheno/shared/` | Shared utilities | `agileplus-shared` |
+
+**Action:** Extract core MCP logic to `pheno-mcp` base package; `phenosdk` should depend on it.
+
+### 19. Cross-Language Config Serialization (P2)
+
+Rust (`serde`), Python (`pydantic`), and Go (`json` tags) all manually define identical config structures for `EventEnvelope` and `AuditEntry`.
+
+| Structure | Languages | Total LOC | Savings |
+|-----------|-----------|-----------|---------|
+| `EventEnvelope` | Rust, Python, Go | ~450 | ~300 |
+| `AuditEntry` | Rust, Go | ~200 | ~100 |
+
+**Strategy:** Move canonical schema to `buf` (Protobuf) or JSON Schema; generate language-specific types.
+
+### 20. Git Helper Duplication (P1)
+
+Identified 6+ implementations of `git clone --depth 1` and `git diff` logic.
+
+| Location | implementation | LOC |
+|----------|----------------|-----|
+| `thegent-git` | git2-rs | 709 |
+| `agileplus-sync` | shell exec | 72 |
+| `heliosCLI` | git2-rs | 95 |
+
+**Strategy:** Adopt `gix` (gitoxide) in a shared `phenotype-git` crate to replace all 6 variants.
+
+---
+
+## 2026-03-30 - 3rd Party Replacement Candidates (Wave 106)
+
+**Project:** [cross-repo]
+**Category:** optimization, LOC reduction
+**Status:** identified
+**Priority:** P1
+
+### 1. Networking & Retries
+
+| Custom Code | Replacement | Savings | Benefit |
+|-------------|-------------|---------|---------|
+| `phenotype-retry` | `backon` or `stamina` | ~300 LOC | Jitter, backoff, OTel support |
+| `heliosCLI/retry.rs` | `tower-retry` | ~65 LOC | Standard tower middleware |
+
+### 2. Event Sourcing
+
+| Internal Crate | External Fork/Wrap | Savings |
+|----------------|--------------------|---------|
+| `phenotype-event-sourcing` | `cqrs-es` | ~1,200 LOC |
+| `agileplus-events` | `eventsourced` | ~300 LOC |
+
+### 3. Policy Engines
+
+| Internal Pattern | External Replacement | Savings |
+|------------------|----------------------|---------|
+| `thegent-policy` | `casbin-rs` | ~500 LOC |
+| `phenotype-policy-engine` | `Cedar` | ~800 LOC |
+
+---
 
 ### Internal Duplication Analysis
 
