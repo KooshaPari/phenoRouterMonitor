@@ -763,3 +763,54 @@ impl From<ServiceError> for jsonrpc::Error {
 - [ ] ERROR-002: Add error code documentation
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - LLM Infrastructure Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### LLM Provider Comparison
+
+| Provider | Latency | Cost | Complexity | Assessment |
+|---------|---------|------|-------------|------------|
+| **OpenAI** | Low | $$$ | Low | ✅ Use for prod |
+| **Anthropic** | Low | $$$ | Low | ✅ Use for prod |
+| **Ollama** | Medium | $ | Low | ✅ EVALUATE for local |
+| **vLLM** | Low | $ | High | 🔲 EVALUATE for scale |
+| **SGLang** | Low | $ | High | 🔲 EVALUATE for scale |
+
+### Ollama for Local Development
+
+**What:** Local LLM inference with simple API.
+
+**Key Features:**
+- Model management
+- OpenAI-compatible API
+- GPU support
+- Docker support
+
+**Status:** ✅ ADOPT - For development and testing
+
+**Opportunity:** Use Ollama in CI/CD for agent testing
+
+### vLLM/SGLang for Scale
+
+**What:** High-throughput LLM serving with PagedAttention.
+
+**Key Features:**
+- Continuous batching
+- PagedAttention
+- Tensor parallelism
+- Streaming
+
+**Status:** 🔲 EVALUATE - For production at scale
+
+**Opportunity:** Evaluate for high-volume agent workloads
+
+---
+
+_Last updated: 2026-03-30_
