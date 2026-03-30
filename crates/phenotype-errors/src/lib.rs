@@ -1,15 +1,60 @@
 //! # Phenotype Errors
 //!
-//! Re-exports error types from phenotype-error-core for backward compatibility.
-//!
-//! This crate provides a compatibility layer for crates that depend on `phenotype_errors`.
+//! Unified error types for the Phenotype ecosystem.
 
-// Re-export all error types from phenotype-error-core
-pub use phenotype_error_core::{ErrorContext, ErrorExt, ErrorKind, ErrorKindInner, ErrorTimestamp};
+use std::fmt;
 
-/// Convenience alias — the primary error type for the Phenotype ecosystem.
-pub type PhenotypeError = ErrorKind;
+/// Result type alias
+pub type Result<T> = std::result::Result<T, Error>;
 
-/// Convenience alias for backward compatibility.
-#[deprecated(since = "0.2.0", note = "Use PhenotypeError (ErrorKind) instead")]
-pub type PhenoError = ErrorKind;
+/// Error enum for Phenotype operations.
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    /// Not found error
+    #[error("not found: {0}")]
+    NotFound(String),
+
+    /// Validation error
+    #[error("validation failed: {0}")]
+    Validation(String),
+
+    /// Conflict error
+    #[error("conflict: {0}")]
+    Conflict(String),
+
+    /// IO error
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    /// Serialization error
+    #[error("serialization error: {0}")]
+    Serialization(String),
+
+    /// Internal error
+    #[error("internal error: {0}")]
+    Internal(String),
+}
+
+impl Error {
+    pub fn not_found<S: Into<String>>(msg: S) -> Self {
+        Self::NotFound(msg.into())
+    }
+
+    pub fn validation<S: Into<String>>(msg: S) -> Self {
+        Self::Validation(msg.into())
+    }
+
+    pub fn conflict<S: Into<String>>(msg: S) -> Self {
+        Self::Conflict(msg.into())
+    }
+
+    pub fn internal<S: Into<String>>(msg: S) -> Self {
+        Self::Internal(msg.into())
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(e: serde_json::Error) -> Self {
+        Self::Serialization(e.to_string())
+    }
+}

@@ -1,13 +1,10 @@
 [package]
 name = "phenotype-policy-engine"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
-repository.workspace = true
-description = "Policy engine for Phenotype"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Policy-engine"
 
-[dependencies]
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
+[lib]
+path = "src/lib.rs"

@@ -1,10 +1,10 @@
 [package]
 name = "phenotype-state-machine"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-
-[dependencies]
-phenotype-error-core = { path = "../phenotype-error-core" }
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype State-machine"
 
 [lib]
 path = "src/lib.rs"

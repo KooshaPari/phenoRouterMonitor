@@ -1,11 +1,10 @@
 [package]
 name = "phenotype-errors"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Error types for the Phenotype ecosystem"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Errors"
 
-[dependencies]
-phenotype-error-core = { path = "../phenotype-error-core" }
-serde = { workspace = true }
+[lib]
+path = "src/lib.rs"
