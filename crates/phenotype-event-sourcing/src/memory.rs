@@ -82,10 +82,7 @@ impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> EventStore
             None => return Ok(Vec::new()),
         };
         let entity_events = aggregate_store.read().await;
-        Ok(entity_events
-            .get(entity_id)
-            .cloned()
-            .unwrap_or_default())
+        Ok(entity_events.get(entity_id).cloned().unwrap_or_default())
     }
 
     async fn get_sequence(
