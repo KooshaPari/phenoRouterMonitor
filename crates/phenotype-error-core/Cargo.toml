@@ -1,0 +1,13 @@
+[package]
+name = "phenotype-error-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Re-export of phenotype-errors for backward compatibility"
+
+[dependencies]
+phenotype-errors = { path = "../phenotype-errors" }
+
+# Re-export all error types from phenotype-errors
