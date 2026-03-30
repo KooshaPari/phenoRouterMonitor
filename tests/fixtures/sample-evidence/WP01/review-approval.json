@@ -1,0 +1,10 @@
+{
+  "wp_sequence": 1,
+  "fr_id": "FR-001",
+  "evidence_type": "review_approval",
+  "reviewer": "coderabbit",
+  "approved": true,
+  "pr_url": "https://github.com/example/agileplus/pull/1",
+  "reviewed_at": "2026-01-15T14:00:00Z",
+  "comments_resolved": true
+}

@@ -1,0 +1,14 @@
+FROM python:3.14-slim
+
+RUN pip install uv
+
+WORKDIR /app
+
+COPY pyproject.toml ./
+RUN uv sync
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uv", "run", "python", "-m", "agileplus_mcp"]

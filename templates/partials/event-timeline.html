@@ -1,0 +1,130 @@
+<div id="event-timeline-{{ feature_id }}"
+     class="space-y-3"
+     x-data="{ expandedEvent: null }">
+  {% for event in events %}
+    <div class="timeline-event flex gap-3 items-start"
+         data-kind="{{ event.kind }}"
+         x-data="{ expanded: false }"
+         @click="expanded = !expanded">
+      <!-- Color-coded left indicator -->
+      <div class="flex-shrink-0 flex flex-col items-center pt-1">
+        <span class="timeline-dot timeline-dot-{{ event.kind }} w-2 h-2 rounded-full mt-1"></span>
+        <div class="timeline-line w-px flex-1 min-h-[1rem] bg-zinc-700 mt-1"></div>
+      </div>
+      <div class="flex-1 pb-3 cursor-pointer hover:bg-zinc-800/50 rounded p-2 transition-colors group">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="event-kind-badge event-kind-{{ event.kind }} text-xs px-1.5 py-0.5 rounded font-mono uppercase tracking-wider">
+            {{ event.kind }}
+          </span>
+          <span class="text-xs text-zinc-500 font-mono"
+                x-text="getRelativeTime('{{ event.timestamp }}')">{{ event.timestamp }}</span>
+          <!-- Expand chevron -->
+          <svg xmlns="http://www.w3.org/2000/svg"
+               class="w-3 h-3 text-zinc-600 group-hover:text-zinc-400 transition-all ml-auto"
+               :class="expanded ? 'rotate-180' : ''"
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+        <p class="text-sm text-zinc-200 mt-1">{{ event.description }}</p>
+
+        <!-- Clickable metadata links — pill-style badges with icons and external-link indicator -->
+        <div class="flex gap-2 mt-2 flex-wrap text-xs">
+          {% match event.agent_name %}
+            {% when Some with (agent_name) %}
+              {% match event.agent_link %}
+                {% when Some with (agent_link) %}
+                  <a href="{{ agent_link }}"
+                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-900/30 border border-blue-700/40 text-blue-300 hover:bg-blue-900/60 hover:border-blue-500 hover:text-blue-200 transition-colors"
+                     title="View agent: {{ agent_name }}"
+                     @click.stop>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    {{ agent_name }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+
+          {% match event.wp_id %}
+            {% when Some with (wp_id) %}
+              {% match event.wp_link %}
+                {% when Some with (wp_link) %}
+                  <a href="{{ wp_link }}"
+                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-green-900/30 border border-green-700/40 text-green-300 hover:bg-green-900/60 hover:border-green-500 hover:text-green-200 transition-colors"
+                     title="View work package #{{ wp_id }}"
+                     @click.stop>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    WP #{{ wp_id }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+
+          {% match event.commit_sha %}
+            {% when Some with (sha) %}
+              {% match event.commit_link %}
+                {% when Some with (link) %}
+                  <a href="{{ link }}"
+                     target="_blank" rel="noopener noreferrer"
+                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-900/30 border border-purple-700/40 text-purple-300 hover:bg-purple-900/60 hover:border-purple-500 hover:text-purple-200 transition-colors font-mono"
+                     title="View commit {{ sha }} on GitHub"
+                     @click.stop>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0 font-sans" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    {{ sha }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5 opacity-50 font-sans" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+
+          {% match event.ci_run_id %}
+            {% when Some with (run_id) %}
+              {% match event.ci_run_link %}
+                {% when Some with (link) %}
+                  <a href="{{ link }}"
+                     target="_blank" rel="noopener noreferrer"
+                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-orange-900/30 border border-orange-700/40 text-orange-300 hover:bg-orange-900/60 hover:border-orange-500 hover:text-orange-200 transition-colors"
+                     title="View CI run #{{ run_id }} on GitHub Actions"
+                     @click.stop>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    CI #{{ run_id }}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </a>
+                {% else %}
+                {% endmatch %}
+            {% else %}
+            {% endmatch %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  {% if events.is_empty() %}
+    <p class="text-zinc-500 text-sm text-center py-6">No events recorded yet.</p>
+  {% endif %}
+</div>
+
+<script>
+function getRelativeTime(isoString) {
+    if (!isoString || isoString === 'just now' || isoString.endsWith('ago')) return isoString;
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return isoString;
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSecs < 5) return 'just now';
+    if (diffSecs < 60) return `${diffSecs}s ago`;
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+}
+</script>

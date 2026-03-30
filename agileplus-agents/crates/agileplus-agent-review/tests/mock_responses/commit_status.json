@@ -1,0 +1,11 @@
+{
+  "state": "success",
+  "statuses": [
+    {
+      "context": "ci/travis",
+      "state": "success",
+      "target_url": "https://travis-ci.com/build/123"
+    }
+  ],
+  "commit": { "sha": "abc123" }
+}

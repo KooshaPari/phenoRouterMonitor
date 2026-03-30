@@ -1,36 +1,29 @@
-//! Policy abstraction and trait definitions.
+// Policy abstraction and trait definitions.
 
 use crate::context::EvaluationContext;
-use crate::result::PolicyResult;
+use crate::result::{PolicyResult, Violation};
 use crate::rule::Rule;
 use serde::{Deserialize, Serialize};
 
-/// Trait for evaluable policies.
-///
-/// Implementations should define how a policy is evaluated against a context.
+// Trait for evaluable policies.
 pub trait EvaluablePolicy: Send + Sync {
-    /// The name of the policy.
     fn name(&self) -> &str;
-
-    /// Evaluates this policy against the given context.
-    fn evaluate(&self, context: &EvaluationContext) -> Result<PolicyResult, crate::error::PolicyEngineError>;
+    fn evaluate(
+        &self,
+        context: &EvaluationContext,
+    ) -> Result<PolicyResult, crate::error::PolicyEngineError>;
 }
 
-/// A concrete policy implementation with rules.
+// A concrete policy implementation with rules.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Policy {
-    /// Name of the policy.
     pub name: String,
-    /// Human-readable description.
     pub description: Option<String>,
-    /// Set of rules to evaluate.
     pub rules: Vec<Rule>,
-    /// Whether this policy is enabled.
     pub enabled: bool,
 }
 
 impl Policy {
-    /// Creates a new policy.
     pub fn new(name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -40,48 +33,42 @@ impl Policy {
         }
     }
 
-    /// Sets the description.
     pub fn with_description(mut self, description: impl Into<String>) -> Self {
         self.description = Some(description.into());
         self
     }
 
-    /// Adds a rule to the policy.
     pub fn add_rule(mut self, rule: Rule) -> Self {
         self.rules.push(rule);
         self
     }
 
-    /// Sets whether this policy is enabled.
     pub fn set_enabled(mut self, enabled: bool) -> Self {
         self.enabled = enabled;
         self
     }
 
-    /// Gets the rules.
-    pub fn rules(&self) -> &[Rule] {
-        &self.rules
-    }
-}
-
-impl EvaluablePolicy for Policy {
-    fn name(&self) -> &str {
-        &self.name
+    pub fn rules_by_priority(&self) -> Vec<&Rule> {
+        let mut rules: Vec<&Rule> = self.rules.iter().collect();
+        rules.sort_by_key(|r| r.priority);
+        rules
     }
 
-    fn evaluate(&self, context: &EvaluationContext) -> Result<PolicyResult, crate::error::PolicyEngineError> {
+    pub fn evaluate_with_priority(
+        &self,
+        context: &EvaluationContext,
+    ) -> Result<PolicyResult, crate::error::PolicyEngineError> {
         if !self.enabled {
             return Ok(PolicyResult::passed());
         }
 
         let mut result = PolicyResult::passed();
+        let sorted_rules = self.rules_by_priority();
 
-        for rule in &self.rules {
+        for rule in sorted_rules {
             let satisfied = rule.evaluate(context)?;
 
             if !satisfied {
-                use crate::result::{Severity, Violation};
-
                 let message = format!(
                     "Policy '{}' rule {} violated: fact '{}' did not match pattern '{}'",
                     self.name, rule.rule_type, rule.fact, rule.pattern
@@ -91,7 +78,7 @@ impl EvaluablePolicy for Policy {
                     self.name.clone(),
                     rule.rule_type.to_string(),
                     &rule.pattern,
-                    Severity::Error,
+                    rule.severity,
                     message,
                 );
 
@@ -103,9 +90,23 @@ impl EvaluablePolicy for Policy {
     }
 }
 
+impl EvaluablePolicy for Policy {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn evaluate(
+        &self,
+        context: &EvaluationContext,
+    ) -> Result<PolicyResult, crate::error::PolicyEngineError> {
+        self.evaluate_with_priority(context)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::result::Severity;
     use crate::rule::RuleType;
 
     #[test]
@@ -167,5 +168,74 @@ mod tests {
         let result = policy.evaluate(&ctx).unwrap();
         assert!(!result.passed);
         assert_eq!(result.violations.len(), 1);
+    }
+
+    #[test]
+    fn test_rules_by_priority() {
+        let policy = Policy::new("test")
+            .add_rule(Rule::new(RuleType::Allow, "a", ".*").with_priority(100))
+            .add_rule(Rule::new(RuleType::Allow, "b", ".*").with_priority(1))
+            .add_rule(Rule::new(RuleType::Allow, "c", ".*").with_priority(50));
+
+        let sorted = policy.rules_by_priority();
+        assert_eq!(sorted[0].fact, "b"); // priority 1
+        assert_eq!(sorted[1].fact, "c"); // priority 50
+        assert_eq!(sorted[2].fact, "a"); // priority 100
+    }
+
+    #[test]
+    fn test_rules_same_priority_preserve_order() {
+        let policy = Policy::new("test")
+            .add_rule(Rule::new(RuleType::Allow, "first", ".*").with_priority(50))
+            .add_rule(Rule::new(RuleType::Allow, "second", ".*").with_priority(50))
+            .add_rule(Rule::new(RuleType::Allow, "third", ".*").with_priority(50));
+
+        let sorted = policy.rules_by_priority();
+        assert_eq!(sorted[0].fact, "first");
+        assert_eq!(sorted[1].fact, "second");
+        assert_eq!(sorted[2].fact, "third");
+    }
+
+    #[test]
+    fn test_evaluate_with_priority_early_deny() {
+        let policy = Policy::new("security")
+            .add_rule(
+                Rule::new(RuleType::Deny, "status", "^banned$")
+                    .with_priority(1)
+                    .with_description("Block banned users"),
+            )
+            .add_rule(
+                Rule::new(RuleType::Require, "email", "^admin@")
+                    .with_priority(10)
+                    .with_description("Require admin email"),
+            );
+
+        let mut ctx = EvaluationContext::new();
+        ctx.set_string("status", "banned");
+        ctx.set_string("email", "user@example.com");
+
+        let result = policy.evaluate(&ctx).unwrap();
+        assert!(!result.passed);
+
+        let deny_violation = result.violations.iter().find(|v| v.rule_type == "Deny");
+        assert!(deny_violation.is_some());
+    }
+
+    // Traces to: FR-POL-001, FR-POL-002
+    #[test]
+    fn test_policy_violation_uses_rule_severity() {
+        let policy = Policy::new("warning_policy").add_rule(
+            Rule::new(RuleType::Require, "status", "^active$").with_severity(Severity::Warning),
+        );
+
+        let ctx = EvaluationContext::new(); // status missing
+
+        let result = policy.evaluate(&ctx).unwrap();
+        assert!(
+            !result.passed,
+            "Policy should fail when required fact is missing"
+        );
+        assert_eq!(result.violations.len(), 1);
+        assert_eq!(result.violations[0].severity, Severity::Warning);
     }
 }

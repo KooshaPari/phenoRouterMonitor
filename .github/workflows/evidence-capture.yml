@@ -1,0 +1,127 @@
+name: Evidence Capture
+
+on:
+  push:
+    branches:
+      - "feat/**"
+      - "fix/**"
+      - "chore/**"
+
+permissions:
+  contents: read
+
+jobs:
+  capture-evidence:
+    name: Capture evidence bundle
+    runs-on: ubuntu-latest
+    env:
+      BRANCH: ${{ github.ref_name }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      COMMIT_SHA: ${{ github.sha }}
+      REPO: ${{ github.repository }}
+      RUN_NUMBER: ${{ github.run_number }}
+      RUN_ID: ${{ github.run_id }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache Cargo registry and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Run cargo test and capture results
+        id: cargo_test
+        run: |
+          mkdir -p .agileplus/evidence/ci-run
+          cargo test 2>&1 | tee .agileplus/evidence/ci-run/test-results.txt
+          PASSED=$(grep -c '^test .* \.\.\. ok$' .agileplus/evidence/ci-run/test-results.txt || echo "0")
+          FAILED=$(grep -c '^test .* \.\.\. FAILED$' .agileplus/evidence/ci-run/test-results.txt || echo "0")
+          echo "passed_count=$PASSED" >> "$GITHUB_OUTPUT"
+          echo "failed_count=$FAILED" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: Collect git log
+        run: |
+          git log --format="%H|%s|%ai|%an" -10 > .agileplus/evidence/ci-run/git-log.txt
+
+      - name: Write evidence bundle JSON
+        env:
+          PASSED_COUNT: ${{ steps.cargo_test.outputs.passed_count }}
+          FAILED_COUNT: ${{ steps.cargo_test.outputs.failed_count }}
+        run: |
+          TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # Limit test output to 4096 chars; escape for JSON embedding
+          TEST_OUTPUT="$(head -c 4096 .agileplus/evidence/ci-run/test-results.txt \
+            | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' \
+            | sed 's/^"//;s/"$//')"
+          if [ "${FAILED_COUNT}" = "0" ]; then
+            TEST_PASSED="true"
+            CONCLUSION="success"
+          else
+            TEST_PASSED="false"
+            CONCLUSION="failure"
+          fi
+          cat > .agileplus/evidence/ci-run/bundle.json <<BUNDLE_EOF
+          {
+            "feature_id": "ci-run",
+            "timestamp": "${TIMESTAMP}",
+            "branch": "${BRANCH}",
+            "commit": "${COMMIT_SHA}",
+            "test_results": {
+              "passed": ${TEST_PASSED},
+              "passed_count": ${PASSED_COUNT},
+              "failed_count": ${FAILED_COUNT},
+              "summary": "${PASSED_COUNT} passed, ${FAILED_COUNT} failed",
+              "output_snippet": "${TEST_OUTPUT}"
+            },
+            "git_log": [],
+            "prs": [],
+            "ci_links": [
+              {
+                "id": ${RUN_ID},
+                "title": "CI run #${RUN_NUMBER} on ${BRANCH}",
+                "status": "completed",
+                "conclusion": "${CONCLUSION}",
+                "url": "${RUN_URL}",
+                "created_at": "${TIMESTAMP}"
+              }
+            ],
+            "repo": "${REPO}"
+          }
+          BUNDLE_EOF
+
+      - name: Upload evidence bundle as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-bundle-${{ github.run_number }}
+          path: .agileplus/evidence/ci-run/
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Summary
+        env:
+          PASSED_COUNT: ${{ steps.cargo_test.outputs.passed_count }}
+          FAILED_COUNT: ${{ steps.cargo_test.outputs.failed_count }}
+        run: |
+          echo "## Evidence Bundle Captured" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${BRANCH}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${COMMIT_SHA}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tests passed | ${PASSED_COUNT} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tests failed | ${FAILED_COUNT} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Artifact | \`evidence-bundle-${RUN_NUMBER}\` |" >> "$GITHUB_STEP_SUMMARY"

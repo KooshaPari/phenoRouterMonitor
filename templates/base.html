@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgilePlus — {% block title %}Dashboard{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/htmx.min.js"></script>
+  <script src="/static/htmx-sse.js" defer></script>
+  <script src="/static/alpine.min.js" defer></script>
+</head>
+<body class="bg-zinc-900 text-zinc-100 font-mono min-h-screen flex flex-col"
+      x-data="toastManager()"
+      @htmx:after-swap.window="onHtmxSwap($event)"
+      @htmx:response-error.window="onHtmxError($event)">
+
+  <!-- Navigation -->
+  <nav class="sticky top-0 z-50 border-b border-zinc-700 px-4 md:px-6 py-3 flex items-center gap-4 md:gap-6 bg-zinc-950" x-data="{ navOpen: false }">
+    <a href="/dashboard" class="text-lg font-bold tracking-tight text-white hover:text-zinc-300 flex-shrink-0">
+      AgilePlus
+    </a>
+    <button @click="navOpen = !navOpen" class="md:hidden ml-auto text-zinc-400 hover:text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="hidden md:flex gap-4 ml-6 text-sm">
+      <a href="/home"      class="hover:text-white text-zinc-400 hover:underline">Home</a>
+      <a href="/dashboard"  class="hover:text-white text-zinc-400 hover:underline">Dashboard</a>
+      <a href="/features"   class="hover:text-white text-zinc-400 hover:underline">Features</a>
+      <a href="/events"     class="hover:text-white text-zinc-400 hover:underline">Events</a>
+      <a href="/hub"        class="hover:text-white text-zinc-400 hover:underline">Hub</a>
+      <a href="/settings/plane" class="hover:text-white text-zinc-400 hover:underline">Plane</a>
+      <a href="/settings"   class="hover:text-white text-zinc-400 hover:underline">Settings</a>
+    </div>
+    <div x-show="navOpen" @click.away="navOpen = false" class="md:hidden absolute top-full left-0 right-0 bg-zinc-950 border-b border-zinc-700 flex flex-col gap-2 px-4 py-3 text-sm z-50">
+      <a href="/home"      class="hover:text-white text-zinc-400">Home</a>
+      <a href="/dashboard"  class="hover:text-white text-zinc-400">Dashboard</a>
+      <a href="/features"   class="hover:text-white text-zinc-400">Features</a>
+      <a href="/events"     class="hover:text-white text-zinc-400">Events</a>
+      <a href="/hub"        class="hover:text-white text-zinc-400">Hub</a>
+      <a href="/settings/plane" class="hover:text-white text-zinc-400">Plane</a>
+      <a href="/settings"   class="hover:text-white text-zinc-400">Settings</a>
+    </div>
+  </nav>
+
+  <!-- Toast container -->
+  <div class="toast-container" aria-live="polite">
+    <template x-for="toast in toasts" :key="toast.id">
+      <div class="toast"
+           :class="'toast-' + toast.type"
+           x-text="toast.message"
+           x-transition:enter="toast-enter"
+           x-transition:enter-start="toast-enter-start"
+           x-transition:enter-end="toast-enter-end"
+           x-transition:leave="toast-leave"
+           x-transition:leave-start="toast-leave-start"
+           x-transition:leave-end="toast-leave-end">
+      </div>
+    </template>
+  </div>
+
+  <div class="flex flex-col md:flex-row flex-1 overflow-hidden" hx-ext="sse" sse-connect="/api/stream">
+
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 flex-shrink-0 border-b md:border-b-0 md:border-r border-zinc-700 bg-zinc-900 p-2 md:p-4 flex flex-col gap-3 overflow-y-auto max-h-48 md:max-h-none">
+      <div id="project-switcher-panel"
+           hx-get="/api/dashboard/projects"
+           hx-trigger="load"
+           hx-swap="innerHTML">
+        <span class="text-zinc-500 text-xs">Loading projects…</span>
+      </div>
+
+      <h2 class="text-xs uppercase tracking-widest text-zinc-500 pb-1 border-b border-zinc-700">
+        Quick Filters
+      </h2>
+      <ul class="space-y-1 text-sm">
+        <li><a href="/dashboard?filter=all"       class="text-zinc-300 hover:text-white">All Features</a></li>
+        <li><a href="/dashboard?filter=active"    class="text-zinc-300 hover:text-white">Active</a></li>
+        <li><a href="/dashboard?filter=blocked"   class="text-zinc-300 hover:text-white">Blocked</a></li>
+        <li><a href="/dashboard?filter=shipped"   class="text-zinc-300 hover:text-white">Shipped</a></li>
+      </ul>
+
+      <h2 class="text-xs uppercase tracking-widest text-zinc-500 pb-1 border-b border-zinc-700 mt-4">
+        Agent Activity
+      </h2>
+      <div id="agent-activity-panel"
+           hx-get="/api/dashboard/agents"
+           hx-trigger="load, every 5s"
+           hx-swap="innerHTML">
+        <span class="text-zinc-500 text-xs">Loading…</span>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-w-0 overflow-y-auto p-2 md:p-6">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div><!-- end hx-ext=sse wrapper -->
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-700 bg-zinc-950 px-6 py-2 text-xs text-zinc-500 flex justify-between">
+    <span>AgilePlus Platform</span>
+    <span id="footer-ts" hx-get="/api/time" hx-trigger="load" hx-swap="innerHTML"></span>
+  </footer>
+
+  {% include "partials/lightbox.html" %}
+
+
+<script>
+/* ── T083: Toast Manager Alpine component ─────────────────────── */
+function toastManager() {
+  return {
+    toasts: [],
+    _nextId: 1,
+    show(message, type = 'success') {
+      const id = this._nextId++;
+      this.toasts.push({ id, message, type });
+      setTimeout(() => this.dismiss(id), 4000);
+    },
+    dismiss(id) {
+      this.toasts = this.toasts.filter(t => t.id !== id);
+    },
+    onHtmxSwap(evt) {
+      const target = evt.detail && evt.detail.target;
+      if (target) {
+        this.show('Updated', 'success');
+      }
+    },
+    onHtmxError(evt) {
+      const status = evt.detail && evt.detail.xhr && evt.detail.xhr.status;
+      this.show('Request failed' + (status ? ' (' + status + ')' : ''), 'error');
+    },
+  };
+}
+
+/* ── T079: Kanban drag-drop Alpine component ──────────────────── */
+function kanbanBoard() {
+  return {
+    draggingId: null,
+    dragOverCol: null,
+    onDragStart(evt, featureId) {
+      this.draggingId = featureId;
+      evt.dataTransfer.effectAllowed = 'move';
+      evt.dataTransfer.setData('text/plain', String(featureId));
+    },
+    onDragOver(evt, state) {
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = 'move';
+      this.dragOverCol = state;
+    },
+    onDragLeave() {
+      this.dragOverCol = null;
+    },
+    onDrop(evt, targetState) {
+      evt.preventDefault();
+      const featureId = this.draggingId || evt.dataTransfer.getData('text/plain');
+      this.dragOverCol = null;
+      this.draggingId = null;
+      if (!featureId) return;
+      fetch('/api/features/' + featureId + '/transition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'HX-Request': 'true' },
+        body: JSON.stringify({ target_state: targetState }),
+      }).then(res => {
+        if (res.ok) {
+          htmx.trigger('#kanban-board', 'sse:feature_updated');
+        } else {
+          console.error('Transition failed', res.status);
+        }
+      }).catch(err => console.error('Transition error', err));
+    },
+  };
+}
+</script>
+
+</body>
+</html>

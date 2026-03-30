@@ -1,0 +1,55 @@
+[project]
+name = "agileplus-mcp"
+version = "0.1.0"
+description = "AgilePlus MCP Service - FastMCP 3.0 bridge to Rust core"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=3.0",
+    "grpcio>=1.68",
+    "grpcio-tools>=1.68",
+    "protobuf>=5.29",
+    "opentelemetry-sdk>=1.29",
+    "opentelemetry-exporter-otlp>=1.29",
+    "pydantic>=2.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "behave>=1.2",
+    "pact-python>=2.2",
+    "mypy>=1.13",
+    "sphinx>=8.0",
+    "sphinx-autodoc-typehints>=2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agileplus_mcp"]
+
+[tool.hatch.build]
+exclude = ["proto/"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "ANN", "S", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]  # assert is expected in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true

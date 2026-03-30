@@ -1,65 +1,96 @@
-//! Error types for the policy engine.
-
+// Error types for policy engine operations.
 use thiserror::Error;
 
-/// Errors that can occur during policy operations.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ErrorKind {
+    PolicyNotFound,
+    ConfigParseError,
+    RegexCompilationError,
+    SerializationError,
+    RuleValidationError,
+    IoError,
+    Unknown,
+}
+
 #[derive(Error, Debug)]
 pub enum PolicyEngineError {
-    /// Failed to compile a regex pattern.
-    #[error("Failed to compile regex pattern '{pattern}': {source}")]
+    #[error("Policy not found: {name}")]
+    PolicyNotFound { name: String },
+    #[error("Failed to parse TOML")]
+    ConfigParseError {
+        #[source]
+        source: toml::de::Error,
+    },
+    #[error("Failed to compile regex pattern '{pattern}'")]
     RegexCompilationError {
         pattern: String,
+        #[source]
         source: regex::Error,
     },
-
-    /// Policy evaluation encountered an error.
-    #[error("Policy evaluation error: {0}")]
-    EvaluationError(String),
-
-    /// Invalid policy configuration.
-    #[error("Invalid policy configuration: {0}")]
-    InvalidConfiguration(String),
-
-    /// Policy not found by name.
-    #[error("Policy '{name}' not found")]
-    PolicyNotFound { name: String },
-
-    /// Failed to serialize/deserialize policy data.
-    #[error("Serialization error: {0}")]
-    SerializationError(String),
-
-    /// Failed to load policy from file.
-    #[error("Failed to load policy from file: {0}")]
-    LoadError(String),
-
-    /// Generic error with message.
-    #[error("{0}")]
-    Other(String),
+    #[error("Serialization error")]
+    SerializationError {
+        #[source]
+        source: serde_json::Error,
+    },
+    #[error("Invalid rule configuration: {message}")]
+    RuleValidationError { message: String },
+    #[error("IO error")]
+    IoError {
+        #[source]
+        source: std::io::Error,
+    },
 }
 
-impl From<serde_json::Error> for PolicyEngineError {
-    fn from(err: serde_json::Error) -> Self {
-        PolicyEngineError::SerializationError(err.to_string())
-    }
-}
-
-impl From<toml::de::Error> for PolicyEngineError {
-    fn from(err: toml::de::Error) -> Self {
-        PolicyEngineError::SerializationError(err.to_string())
-    }
-}
-
-impl From<regex::Error> for PolicyEngineError {
-    fn from(err: regex::Error) -> Self {
-        PolicyEngineError::RegexCompilationError {
-            pattern: err.to_string(),
-            source: err,
+impl PolicyEngineError {
+    pub fn kind(&self) -> ErrorKind {
+        match self {
+            Self::PolicyNotFound { .. } => ErrorKind::PolicyNotFound,
+            Self::ConfigParseError { .. } => ErrorKind::ConfigParseError,
+            Self::RegexCompilationError { .. } => ErrorKind::RegexCompilationError,
+            Self::SerializationError { .. } => ErrorKind::SerializationError,
+            Self::RuleValidationError { .. } => ErrorKind::RuleValidationError,
+            Self::IoError { .. } => ErrorKind::IoError,
         }
     }
 }
 
+impl From<regex::Error> for PolicyEngineError {
+    fn from(source: regex::Error) -> Self {
+        Self::RegexCompilationError {
+            pattern: String::new(),
+            source,
+        }
+    }
+}
+
+impl From<toml::de::Error> for PolicyEngineError {
+    fn from(source: toml::de::Error) -> Self {
+        Self::ConfigParseError { source }
+    }
+}
+
 impl From<std::io::Error> for PolicyEngineError {
-    fn from(err: std::io::Error) -> Self {
-        PolicyEngineError::LoadError(err.to_string())
+    fn from(source: std::io::Error) -> Self {
+        Self::IoError { source }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn policy_not_found_error() {
+        let err = PolicyEngineError::PolicyNotFound {
+            name: "test".to_string(),
+        };
+        assert_eq!(err.kind(), ErrorKind::PolicyNotFound);
+    }
+
+    #[test]
+    fn serialization_error() {
+        let err = serde_json::from_str::<serde_json::Value>("invalid").unwrap_err();
+        let policy_err = PolicyEngineError::SerializationError { source: err };
+        assert_eq!(policy_err.kind(), ErrorKind::SerializationError);
     }
 }

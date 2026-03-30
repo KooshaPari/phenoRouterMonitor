@@ -1,0 +1,32 @@
+language: en-US
+tone_instructions: >
+  Be concise and actionable. Focus on correctness, security, and performance.
+  Reference constitution rules when flagging violations.
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  request_changes_workflow: true
+  high_level_summary: true
+  path_instructions:
+    - path: "proto/**"
+      instructions: >
+        Verify buf STANDARD compliance. Check that all RPCs have unique
+        request/response types named after the RPC. Ensure common.proto types
+        are used where appropriate. Flag any breaking changes.
+    - path: "rust/**"
+      instructions: >
+        Check for unwrap()/expect() in non-test code. Verify thiserror usage
+        for error types. Ensure #[must_use] on Result-returning functions.
+        No unsafe without // SAFETY: comment. Check for unused dependencies.
+    - path: "python/**"
+      instructions: >
+        Verify type hints on all public functions. Check for bare except clauses.
+        Ensure async code uses proper patterns. Verify grpcio usage follows
+        best practices.
+    - path: ".github/**"
+      instructions: >
+        Check for command injection risks. Verify all actions are pinned to
+        specific versions. Ensure secrets are not exposed in logs.
+chat:
+  auto_reply: true

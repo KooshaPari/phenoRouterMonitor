@@ -1,10 +1,10 @@
----
-layout: home
-hero:
-  name: phenotype-infrakit
-  text: Rust infrastructure toolkit for event sourcing, caching, policy, and state machines
-  actions:
-    - theme: brand
-      text: Get Started
-      link: /guide/
----
+# Docs
+
+Cross-repo documentation and architectural decisions.
+
+## Structure
+
+- `adr/` - Architecture Decision Records
+- `guides/` - How-to guides
+- `reference/` - Reference documentation
+
