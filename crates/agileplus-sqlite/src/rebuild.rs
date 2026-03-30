@@ -83,10 +83,7 @@ impl SqliteStorageAdapter {
 
         // Lock the connection and do everything in a single transaction.
         // The guard is explicitly dropped below before any `.await`.
-        let conn = self
-            .conn
-            .lock()
-            .map_err(|e| DomainError::Storage(e.to_string()))?;
+        let conn = self.lock()?;
 
         conn.execute_batch("BEGIN;")
             .map_err(|e| DomainError::Storage(e.to_string()))?;
@@ -115,10 +112,7 @@ impl SqliteStorageAdapter {
                 Ok(()) => {}
                 Err(e) => {
                     // Rollback the transaction
-                    let conn = self
-                        .conn
-                        .lock()
-                        .map_err(|e| DomainError::Storage(e.to_string()))?;
+                    let conn = self.lock()?;
                     let _ = conn.execute_batch("ROLLBACK;");
                     return Err(e);
                 }
@@ -126,10 +120,7 @@ impl SqliteStorageAdapter {
         }
 
         // Commit
-        let conn = self
-            .conn
-            .lock()
-            .map_err(|e| DomainError::Storage(e.to_string()))?;
+        let conn = self.lock()?;
         conn.execute_batch("COMMIT;")
             .map_err(|e| DomainError::Storage(format!("commit failed: {e}")))?;
 
@@ -184,10 +175,7 @@ impl SqliteStorageAdapter {
         };
 
         let feature_id = {
-            let conn = self
-                .conn
-                .lock()
-                .map_err(|e| DomainError::Storage(e.to_string()))?;
+            let conn = self.lock()?;
             crate::repository::features::create_feature(&conn, &feature)?
         };
         report.features_restored += 1;
@@ -242,10 +230,7 @@ impl SqliteStorageAdapter {
                 }
 
                 {
-                    let conn = self
-                        .conn
-                        .lock()
-                        .map_err(|e| DomainError::Storage(e.to_string()))?;
+                    let conn = self.lock()?;
                     // Insert directly (bypass chain check since we already verified above)
                     let evidence_refs_json = serde_json::to_string(&entry.evidence_refs)
                         .map_err(|e| DomainError::Storage(e.to_string()))?;
