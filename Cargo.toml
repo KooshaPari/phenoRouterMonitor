@@ -1,23 +1,16 @@
-# Phenotype Infrastructure Kit - Rust Workspace
-
-[workspace.package]
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-rust-version = "1.75"
-authors = ["Phenotype Team <KooshaPari@users.noreply.github.com>"]
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
-description = "Generic infrastructure crates for Phenotype ecosystem"
-
 [workspace]
 resolver = "2"
 members = [
+    "crates/phenotype-async-traits",
     "crates/phenotype-cache-adapter",
+    "crates/phenotype-config-core",
+    "crates/phenotype-config-loader",
     "crates/phenotype-contracts",
-    "crates/phenotype-crypto",
+    "crates/phenotype-cost-core",
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
     "crates/phenotype-health",
     "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
@@ -27,16 +20,24 @@ members = [
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
     "crates/phenotype-process",
+    "crates/phenotype-rate-limit",
     "crates/phenotype-retry",
     "crates/phenotype-state-machine",
+    "crates/phenotype-string",
     "crates/phenotype-telemetry",
     "crates/phenotype-test-infra",
     "crates/phenotype-time",
     "crates/phenotype-validation",
-    "crates/phenotype-cost-core",
-    "libs/phenotype-config-core",
-    "libs/phenotype-hash-chain",
 ]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.75"
+authors = ["Phenotype Team"]
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+homepage = "https://github.com/KooshaPari/phenotype-infrakit"
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -44,27 +45,32 @@ serde_json = "1.0"
 thiserror = "2.0"
 anyhow = "1.0"
 async-trait = "0.1"
-tokio = { version = "1", features = ["full"] }
-futures = "0.3"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 sha2 = "0.10"
 hex = "0.4"
-dashmap = "5"
-parking_lot = "0.12"
-lru = "0.16"
-moka = "0.12"
-regex = "1"
-toml = "0.8"
-reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
+futures = "0.3"
+regex = "1"
+git2 = "0.20"
+blake3 = "1.5"
 syn = "2"
 quote = "1"
 proc-macro2 = "1"
+dashmap = "5"
+parking_lot = "0.12"
+lru = "0.12"
+moka = "0.12"
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }
 tempfile = "3"
-backoff = { version = "0.4", features = ["tokio"] }
-base64 = "0.22"
+derive_more = "1.0"
+strum = { version = "0.26", features = ["derive"] }
+once_cell = "1.19"
+dirs = "6.0"
+phenotype-error-core = { path = "crates/phenotype-error-core" }
 
 [profile.dev]
 opt-level = 0
