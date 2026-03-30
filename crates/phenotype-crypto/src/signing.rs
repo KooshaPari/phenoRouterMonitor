@@ -130,6 +130,9 @@ impl Verifier for Ed25519Verifier {
     }
 }
 
+/// HMAC signature size in bytes (SHA-256 output).
+pub const HMAC_SIZE: usize = 32;
+
 /// Sign and verify using the same keypair (for testing).
 pub struct SignatureBundle {
     signer: Ed25519Signer,

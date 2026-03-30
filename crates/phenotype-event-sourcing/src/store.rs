@@ -7,7 +7,9 @@ use crate::error::EventSourcingError;
 use crate::event::EventEnvelope;
 
 #[async_trait]
-pub trait EventStore<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static>: Send + Sync {
+pub trait EventStore<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static>:
+    Send + Sync
+{
     async fn append(
         &self,
         entity_type: &str,
