@@ -3,12 +3,15 @@
 """Scan Rust sources for public error-style enums; write JSON for worklogs.
 
 Usage:
-  python3 scripts/generate_error_enums_index.py [--root DIR]
+  python3 scripts/generate_error_enums_index.py [--root DIR] [--scope workspace|all]
 
 Output:
   docs/worklogs/data/error_enums_index.json
 
-Skips: target/, .git/, node_modules/, vendor/
+Skips: target/, .git/, node_modules/, vendor/, *-wtrees path segments
+
+--scope workspace (default): crates/, libs/, rust/, tools/ under root.
+--scope all: entire repo root (same skips).
 """
 from __future__ import annotations
 
@@ -58,6 +61,30 @@ def include_enum(name: str, rel_path: str) -> bool:
     return False
 
 
+def collect_rs_paths(root: Path, scope: str) -> list[Path]:
+    rs_files: list[Path] = []
+    if scope == "workspace":
+        scan_roots = [
+            root / "crates",
+            root / "libs",
+            root / "rust",
+            root / "tools",
+        ]
+        for sub in scan_roots:
+            if sub.is_dir():
+                for path in sub.rglob("*.rs"):
+                    if not skip_path(path):
+                        rs_files.append(path)
+        return rs_files
+    if scope == "all":
+        for path in root.rglob("*.rs"):
+            if skip_path(path):
+                continue
+            rs_files.append(path)
+        return rs_files
+    raise ValueError(f"unknown scope: {scope!r}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -66,6 +93,12 @@ def main() -> int:
         default=Path(__file__).resolve().parents[1],
         help="Repository root (default: parent of scripts/)",
     )
+    parser.add_argument(
+        "--scope",
+        choices=("workspace", "all"),
+        default="workspace",
+        help="workspace: crates/libs/rust/tools; all: full tree under root (default: workspace)",
+    )
     args = parser.parse_args()
     root: Path = args.root.resolve()
 
@@ -73,19 +106,7 @@ def main() -> int:
         print(f"ERROR: root is not a directory: {root}", file=sys.stderr)
         return 1
 
-    # Limit to first-party Rust trees (avoid sibling checkouts under the same folder).
-    scan_roots = [
-        root / "crates",
-        root / "libs",
-        root / "rust",
-        root / "tools",
-    ]
-    rs_files: list[Path] = []
-    for sub in scan_roots:
-        if sub.is_dir():
-            for path in sub.rglob("*.rs"):
-                if not skip_path(path):
-                    rs_files.append(path)
+    rs_files = collect_rs_paths(root, args.scope)
 
     entries: list[dict[str, int | str]] = []
     for path in rs_files:
@@ -111,6 +132,7 @@ def main() -> int:
     payload = {
         "schema": "error_enums_index.v1",
         "repo_root": root.name,
+        "scan_scope": args.scope,
         "count": len(entries),
         "enums": entries,
     }
