@@ -16,6 +16,7 @@ uuid.workspace = true
 sha2.workspace = true
 hex.workspace = true
 phenotype-errors = { path = "../phenotype-errors" }
+phenotype-error-core = { path = "../phenotype-error-core" }
 
 [lib]
 path = "src/lib.rs"
