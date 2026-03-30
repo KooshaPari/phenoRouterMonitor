@@ -1,0 +1,173 @@
+# PHASE 2 MASTER ROADMAP SUMMARY
+
+This document provides the complete Phase 2 specification. Due to length constraints, the full version (650+ lines) is summarized below with key sections.
+
+## EXECUTIVE SUMMARY
+
+Phase 2: Library Consolidation & OSS Wrapping
+
+### Work Streams
+- WS4: Python HTTPX consolidation (180-240 LOC, 18-24 hours)
+- WS5: Python Pydantic settings documentation (45-90 LOC, 2.5 hours)
+- WS6: Rust TOML config consolidation (500+ LOC, 7.25 hours)
+
+### Total Impact
+- Combined LOC: ~1,230 reduction/documentation
+- Wall-clock: 23-30 hours (parallel)
+- Tool calls: ~55-60
+- Agents: 3-4 (parallel batches)
+
+## WS4: PYTHON HTTPX CONSOLIDATION
+
+### What
+- Consolidate 4 duplicate httpx wrapper functions into 1 canonical module
+- Standardize connection pooling (httpx.Limits enforced)
+- Migrate 2 non-compliant files (requests → httpx)
+- Repository: platforms/thegent
+- Effort: 18-24 hours
+
+### Tasks
+1. Wrapper consolidation (6-8h): Merge adapters/http.py, clients/http_wrapper.py, utils/http.py
+2. Pool standardization (4-6h): Apply httpx.Limits(max_connections=50) across 40 files
+3. Non-compliant files (4-6h): Migrate extended_benchmark.py, benchmark_alt.py
+4. Testing & docs (2-4h): Write HTTP_CLIENT_PATTERNS.md, POL-HTTP-001.md
+
+### Success Criteria
+- All 42 files use httpx exclusively
+- 4 wrappers → 1 canonical module
+- Connection pooling standardized
+- Tests passing (100%)
+- Linter clean (0 warnings)
+- LOC saved: 180-240
+
+## WS5: PYTHON PYDANTIC SETTINGS
+
+### What
+- Document Pydantic Settings patterns (100% compliant, no code changes)
+- Repository: phenotype ecosystem
+- Effort: 2.5 hours
+- Deliverable: PYDANTIC_SETTINGS_PATTERNS.md
+
+### Status
+- All audited projects already follow best practices
+- Create patterns documentation only
+- Provide migration guide for future upgrades
+
+### Success Criteria
+- Documentation created (150+ LOC)
+- No code changes (0 files modified)
+- Exemplar code documented (thegent)
+- Migration guide provided
+
+## WS6: RUST TOML CONFIG CONSOLIDATION
+
+### What
+- Create phenotype-config shared crate
+- Standardize TOML version to 0.9.5 across 10 projects
+- Migrate all projects to unified ConfigLoader
+- Repositories: phenotype-infrakit, AgilePlus
+- Effort: 7.25 hours
+
+### Tasks
+1. Create crate (2h): Implement phenotype-config with ConfigLoader
+2. Upgrade TOML (1.5h): Update workspace.dependencies, 6 projects
+3. Migrate projects 1-3 (1.5h)
+4. Migrate projects 4-7 (1.5h)
+5. Migrate projects 8-10 (1.5h)
+
+### Success Criteria
+- phenotype-config crate created
+- All 10 projects migrated to ConfigLoader
+- TOML 0.9.5 unified
+- Tests passing (cargo test --workspace)
+- No circular dependencies
+- Clippy clean (0 warnings)
+- LOC saved: 500+
+
+## EXECUTION PLAN
+
+### Parallel Batches (5 batches, A-E)
+
+**Batch A (2.5h)**: Foundation
+- WS5.1: Create documentation (Agent 3)
+- WS6.1: Create config crate (Agent 2)
+
+**Batch B (8h)**: Core migrations
+- WS4.1: Wrapper consolidation (Agent 1, 6-8h)
+- WS6.2: TOML upgrade (Agent 2, 1.5h)
+- WS4.2: Pool standardization (Agent 1, 4-6h, parallel with WS6)
+
+**Batch C (6h)**: Integration
+- WS4.3: Non-compliant files (Agent 1, 4-6h)
+- WS6.3-6.5: Project migrations (Agent 2, 4.5h total)
+
+**Batch D (4h)**: Testing & documentation
+- WS4.4: Full test suite + docs (Agent 1, 2-4h)
+- WS6 testing: Continuous during migrations
+
+**Batch E (2.5-3h)**: Integration & sign-off
+- Cross-repo validation (Agent 3, 1h)
+- Metrics verification (Agent 3, 1-2h)
+- Final sign-off (Agent 3, 30min)
+
+### Wall-Clock Timeline
+- With 3 agents: 23-30 hours
+- With 4 agents (optional accelerator): 18-22 hours
+
+## RISK MITIGATION
+
+### Key Risks
+1. httpx async behavior changes → test thoroughly, feature flags if needed
+2. TOML API incompatibility → static analysis, test after upgrade
+3. Connection pool performance regression → benchmark before/after
+4. Import cycles → architecture review, resolve early
+5. Incomplete migration → systematic find/replace with verification
+
+### Rollback Strategy
+- WS4: Revert commits in order, restore wrapper functions
+- WS5: Delete documentation (no code to revert)
+- WS6: Revert crate, restore manual parsing, downgrade TOML if needed
+- All reversible within <10 minutes if issues found
+
+## DELIVERABLES
+
+**WS4**:
+- HTTP_CLIENT_PATTERNS.md (200+ LOC)
+- POL-HTTP-001.md (100+ LOC)
+- Consolidated httpx module
+
+**WS5**:
+- PYDANTIC_SETTINGS_PATTERNS.md (150+ LOC)
+
+**WS6**:
+- phenotype-config crate
+- CONFIG_LOADER_PATTERNS.md (200+ LOC)
+
+**All**:
+- PHASE2_COMPLETION_REPORT.md
+- Updated docstrings and comments
+- Clean git history with clear commits
+
+## SUCCESS CRITERIA
+
+- ✅ All tests passing (pytest + cargo test)
+- ✅ 0 compiler warnings (Python + Rust)
+- ✅ LOC reduction verified (~1,230)
+- ✅ Performance baseline met or exceeded
+- ✅ Documentation comprehensive
+- ✅ No circular dependencies
+- ✅ PR created, reviewed, approved
+- ✅ Merged to main
+
+## NEXT PHASE
+
+Upon Phase 2 completion:
+- All consolidations merged to main
+- Metrics verified in production state
+- Phase 3 kicks off: AgilePlus file decomposition
+- Target: routes.rs + sqlite/lib.rs (2,750 LOC reduction)
+
+---
+
+FULL DETAILS: See PHASE2_MASTER_ROADMAP.md, PHASE2_EXECUTION_DAG.md, PHASE2_SUCCESS_CRITERIA.md
+STATUS: ✅ READY FOR EXECUTION
