@@ -1,0 +1,53 @@
+{
+  "name": "@phenotype/pheno-resilience",
+  "version": "0.1.0",
+  "description": "Event sourcing, caching, policies, and state machines for resilient distributed systems",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./event-sourcing": {
+      "import": "./dist/event-sourcing/index.js",
+      "types": "./dist/event-sourcing/index.d.ts"
+    },
+    "./cache": {
+      "import": "./dist/cache/index.js",
+      "types": "./dist/cache/index.d.ts"
+    },
+    "./policy": {
+      "import": "./dist/policy/index.js",
+      "types": "./dist/policy/index.d.ts"
+    },
+    "./state-machine": {
+      "import": "./dist/state-machine/index.js",
+      "types": "./dist/state-machine/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "lint": "oxlint ."
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KooshaPari/phenotype-infrakit"
+  },
+  "dependencies": {
+    "@phenotype/pheno-core": "workspace:*"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
