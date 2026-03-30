@@ -1,3 +1,3 @@
 # Namay-e Koli
 
-`phenotype-infrakit` darvaze-ye mostanadat ast.
+`apps/AgilePlus` darvaze-ye mostanadat ast.

@@ -1,13 +1,12 @@
 export function createSiteMeta({ base = '/' } = {}) {
   return {
     base,
-    title: 'phenotype-infrakit',
-    description: 'Infrastructure toolkit',
+    title: 'apps/AgilePlus',
+    description: 'Documentation',
     themeConfig: {
       nav: [
         { text: 'Home', link: base || '/' },
         { text: 'Guide', link: '/guide/' },
-        { text: 'Reference', link: '/reference/' },
       ],
     },
   }

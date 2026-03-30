@@ -1,0 +1,57 @@
+name: Promote Package
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        required: true
+        type: string
+        description: 'Programming language'
+      registry:
+        required: true
+        type: string
+        description: 'Package registry'
+      from_channel:
+        required: true
+        type: string
+        description: 'Source release channel'
+      to_channel:
+        required: true
+        type: string
+        description: 'Target release channel'
+      risk_profile:
+        required: true
+        type: string
+        description: 'Risk profile (low, medium, high)'
+      version:
+        required: true
+        type: string
+        description: 'Package version to promote'
+    secrets:
+      NPM_TOKEN:
+        required: false
+      PYPI_TOKEN:
+        required: false
+      CARGO_TOKEN:
+        required: false
+
+jobs:
+  gate-check:
+    uses: ./.github/workflows/gate-check.yml
+    with:
+      language: ${{ inputs.language }}
+      channel: ${{ inputs.to_channel }}
+      risk_profile: ${{ inputs.risk_profile }}
+
+  publish:
+    uses: ./.github/workflows/publish.yml
+    needs: gate-check
+    with:
+      language: ${{ inputs.language }}
+      registry: ${{ inputs.registry }}
+      version: ${{ inputs.version }}
+      dry_run: false
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}

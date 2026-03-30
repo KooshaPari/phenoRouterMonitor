@@ -39,7 +39,11 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check advisories, licenses, duplicates
+<<<<<<< HEAD
         run: cargo deny check -c rust/deny.toml
+=======
+        run: cargo deny check
+>>>>>>> origin/main
 
   # ─── Gitleaks Secret Detection ────────────────────────────────────────
   gitleaks:
@@ -84,3 +88,40 @@ jobs:
       - name: Run bandit
         run: bandit -r python/src -ll
         continue-on-error: true
+<<<<<<< HEAD
+=======
+
+  # ─── OSV-Scanner (Rust lockfile; repo does not commit Cargo.lock) ───────
+  osv-scanner:
+    name: OSV Scanner (Cargo.lock)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Generate Cargo.lock for scanning
+        run: cargo generate-lockfile
+      - name: Install OSV-Scanner
+        env:
+          OSV_VERSION: v2.3.5
+        run: |
+          curl -fsSL -o /tmp/osv-scanner \
+            "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64"
+          chmod +x /tmp/osv-scanner
+          sudo mv /tmp/osv-scanner /usr/local/bin/osv-scanner
+      - name: OSV-Scanner (SARIF for Code Scanning)
+        id: osv
+        run: osv-scanner scan -L Cargo.lock --format sarif --output-file osv-results.sarif
+      - name: Upload OSV SARIF to GitHub Code Scanning
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: osv-results.sarif
+          category: osv-cargo-lock
+      - name: OSV table (on vulnerability findings)
+        if: failure() && steps.osv.outcome == 'failure'
+        run: osv-scanner scan -L Cargo.lock --format table
+>>>>>>> origin/main

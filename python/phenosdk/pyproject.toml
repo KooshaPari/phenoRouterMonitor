@@ -1,0 +1,22 @@
+[project]
+name = "phenosdk"
+version = "0.1.0"
+description = "Phenotype SDK for infrastructure and operations"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "Phenotype Team", email = "info@phenotype.dev"}
+]
+license = {text = "MIT"}
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "black>=23.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

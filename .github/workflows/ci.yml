@@ -1,14 +1,303 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
 jobs:
-  test:
+  # ─── Proto Lint & Breaking ─────────────────────────────────────────
+  buf:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: Buf Lint & Breaking
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-action@v1
+        with:
+          lint: true
+          format: true
+          breaking: false
+          pr_comment: false
+
+  # ─── Rust Quality ──────────────────────────────────────────────────
+  rust-check:
+    name: Rust Quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Format check
+        run: cd rust && cargo fmt --check
+      - name: Clippy (warnings = errors)
+        run: cd rust && cargo clippy --all-targets -- -D warnings
+      - name: Build
+        run: cd rust && cargo build
+      - name: Test
+        run: cd rust && cargo test
+
+  rust-build:
+    name: Rust Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: cd rust && cargo build --all
+
+  rust-msrv:
+    name: Rust MSRV (stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --all
-      - run: cargo clippy -- -D warnings
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check MSRV compatibility
+        run: cd rust && cargo check
+
+  # ─── Rust Security & Dep Audit ─────────────────────────────────────
+  rust-audit:
+    name: Rust Security Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+      - name: Check licenses, advisories, duplicates
+        run: cargo deny check -c rust/deny.toml
+
+  rust-extras:
+    name: Rust Extras (machete, semver, typos)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install extras
+        run: cargo install cargo-machete cargo-semver-checks
+      - name: Detect unused deps
+        run: cd rust && cargo machete
+      - name: Semver compatibility check
+        run: cd rust && cargo semver-checks check-release || true
+      - name: Typo check
+        uses: crate-ci/typos@v1
+
+  # ─── Rust Coverage ────────────────────────────────────────────────
+  rust-coverage:
+    name: Rust Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Generate coverage
+        run: cargo tarpaulin --workspace --out xml --output-dir coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/cobertura.xml
+          flags: rust
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # ─── Core Workspace ───────────────────────────────────────────────
+  core-check:
+    name: Core Workspace Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy (warnings = errors)
+        run: cargo clippy --workspace -- -D warnings
+      - name: Build
+        run: cargo build --workspace
+      - name: Test
+        run: cargo test --workspace
+
+  core-build:
+    name: Core Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: cargo build --workspace
+
+  core-msrv:
+    name: Core MSRV (1.86)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@1.86.0
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check MSRV compatibility
+        run: cargo check --workspace
+
+  core-docs:
+    name: Core Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build docs
+        run: cargo doc --no-deps --workspace
+
+  domain-deps-lint:
+    name: Domain Zero-Dep Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate domain crate dependencies
+        run: |
+          ALLOWED="serde serde_json chrono sha2 thiserror toml dirs-next zeroize keyring agileplus-plugin-core"
+          DEPS=$(sed -n '/^\[dependencies\]/,/^\[/{/^\[/d;p}' crates/agileplus-domain/Cargo.toml | grep -E '^\w' | cut -d'.' -f1 | cut -d' ' -f1)
+          for dep in $DEPS; do
+            if ! echo "$ALLOWED" | grep -qw "$dep"; then
+              echo "ERROR: disallowed dependency '$dep' in agileplus-domain"
+              exit 1
+            fi
+          done
+          echo "Domain dependency check passed"
+
+  # ─── Python Quality ────────────────────────────────────────────────
+  python-check:
+    name: Python Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        run: pip install uv
+      - name: Install package
+        run: cd python && uv sync
+      - name: Ruff format check
+        run: cd python && uvx ruff format --check .
+      - name: Ruff lint
+        run: cd python && uvx ruff check .
+      - name: pip-audit
+        run: cd python && uvx pip-audit --ignore-vuln CVE-2026-4539  # ReDoS in pygments lexer; no fix released; local-access only
+
+  python-install:
+    name: Python Install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        run: pip install uv
+      - name: Install package
+        run: cd python && uv sync
+
+  # ─── Config Lint ───────────────────────────────────────────────────
+  config-lint:
+    name: Config Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install taplo
+        run: cargo install taplo-cli
+      - name: TOML format check
+        run: taplo format --check Cargo.toml rust/Cargo.toml python/pyproject.toml
+      - name: actionlint
+        uses: reviewdog/action-actionlint@v1
+
+  # ─── Commit Lint ───────────────────────────────────────────────────
+  commit-lint:
+    name: Conventional Commits
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.yml

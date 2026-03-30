@@ -1,0 +1,15 @@
+[package]
+name = "nexus"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.71"
+description = "Service registry and discovery"
+license = "MIT"
+repository = "https://github.com/KooshaPari/nexus"
+keywords = ["service-discovery", "registry", "microservices", "load-balancing"]
+categories = ["network", "config", "asynchronous"]
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"

@@ -1,0 +1,27 @@
+[package]
+name = "agileplus-bdd"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[test]]
+name = "bdd"
+harness = false
+path = "main.rs"
+
+[[test]]
+name = "fixtures"
+harness = true
+path = "fixtures_test.rs"
+
+[dependencies]
+agileplus-domain = { path = "../../crates/agileplus-domain" }
+cucumber = "0.21"
+tokio.workspace = true
+chrono.workspace = true
+sha2.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+futures = "0.3"
+tempfile = "3"

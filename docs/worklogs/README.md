@@ -1,371 +1,227 @@
-# Worklogs
+<<<<<<< HEAD
+# Phenotype Worklogs & Analysis Reports
 
-> Canonical logging and audit documentation for the Phenotype ecosystem.
+This directory contains detailed worklog reports, performance analysis, and implementation guides for the Phenotype ecosystem.
+=======
+# Phenotype Worklogs (2026)
 
----
+This directory contains detailed audit and research worklogs for the Phenotype ecosystem, focusing on duplication reduction, library extraction (libification), and modernization.
 
-## Overview
+## Core Worklogs
 
-This directory contains structured worklogs organized by category. Each worklog tracks research, decisions, and progress for cross-cutting concerns.
+| Log | Purpose | Last Updated | Status |
+|---|---|---|---|
+| [RESEARCH.md](./RESEARCH.md) | Ecosystem research, 3rd party repos, modernization targets | 2026-03-31 | Wave 118-120 appended |
+| [DEPENDENCIES.md](./DEPENDENCIES.md) | Package audit, fork candidates, security provenance | 2026-03-31 | Wave 131-133 appended |
+| [DUPLICATION.md](./DUPLICATION.md) | Code duplication hotspots, patterns, libification plans | 2026-03-31 | Wave 92 & 118 appended |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | System architecture, patterns, port hierarchy | 2026-03-30 | Wave 108-112 appended |
+| [QUALITY.md](./QUALITY.md) | Code quality, testing, review automation | 2026-03-30 | Wave 131-135 appended |
+| [PERFORMANCE.md](./PERFORMANCE.md) | Performance optimization, serialization, concurrency | 2026-03-30 | Wave 136-139 appended |
+| [WORK_LOG.md](./WORK_LOG.md) | Master session history and task execution log | 2026-03-30 | Active |
+>>>>>>> origin/main
 
----
+## Current Reports
 
-## File Index
+<<<<<<< HEAD
+### Code Optimization Deep-Dive (2026-03-29)
+**File**: `CODE_OPTIMIZATION_DEEP_DIVE_2026-03-29.md`
 
-| File | Lines | Category | Last Updated | Notes |
-|------|-------|----------|--------------|-------|
-| `README.md` | 186 | INDEX | 2026-03-29 | This file |
-| `AGENT_ONBOARDING.md` | 200 | ONBOARDING | 2026-03-29 | — |
-| `ARCHITECTURE.md` | 1957 | ARCHITECTURE | 2026-03-29 | 2,100+ LOC analyzed |
-| `DEPENDENCIES.md` | 624 | DEPENDENCIES | 2026-03-29 | Fork candidates, security |
-| `DUPLICATION.md` | 1891 | DUPLICATION | 2026-03-29 | 🔴 CRITICAL - 11 libs unused |
-| `GOVERNANCE.md` | 364 | GOVERNANCE | 2026-03-29 | Quality gates, evidence |
-| `INTEGRATION.md` | 208 | INTEGRATION | 2026-03-29 | MCP, NATS, Plane.so |
-| `PERFORMANCE.md` | 288 | PERFORMANCE | 2026-03-29 | Async, memory, benchmarks |
-| `RESEARCH.md` | 484 | RESEARCH | 2026-03-29 | 30 starred repos analyzed |
-| `WORK_LOG.md` | 179 | WORK_LOG | 2026-03-29 | — |
-| `PLANS/EDITION_MIGRATION.md` | 163 | PLAN | 2026-03-29 | libs/ 2021→2024 |
-| `PLANS/ERROR_CORE_EXTRACTION.md` | 180 | PLAN | 2026-03-29 | 12 error types consolidated |
-| `PLANS/CONFIG_CORE_ACTIVATION.md` | 190 | PLAN | 2026-03-29 | config-core integration |
-| `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` | 367 | PLAN | 2026-03-29 | 40-task execution plan |
-| `PLANS/MASTER_DUPLICATION_AUDIT.md` | 292 | PLAN | 2026-03-29 | Master audit report |
-| `ERRORS.md` | 92 | ERRORS | 2026-03-29 | error schema unification |
-| `PLANS/CONSOLIDATION.md` | 210 | PLAN | 2026-03-29 | duplication consolidation roadmap |
-| `DUPLICATION_EXTENDED.md` | 800 | DUPLICATION | 2026-03-29 | expanded follow-up analysis |
-| `CROSSCUTTING.md` | 450 | GOVERNANCE | 2026-03-29 | policy + pipeline design |
-| `CONSOLIDATION.md` | 520 | ARCHITECTURE | 2026-03-29 | libification strategies |
-| `POLICY_ENGINE.md` | 320 | RESEARCH | 2026-03-29 | third-party wrapping audit |
-| `INACTIVE_FOLDERS.md` | 314 | MAINTENANCE | 2026-03-29 | orphaned worktrees and cleanup |
-| `WORKLOW.md` | 410 | PERFORMANCE | 2026-03-29 | optimization and benchmark tracking |
----
+Comprehensive performance analysis of 66,746 lines of Rust, 4,792 lines of Python, and TypeScript components.
+=======
+## 2026 Modernization Roadmap Summary
 
-## Category Summaries
+### Phase 1: Critical Infrastructure (P0)
+- **`phenotype-error-core`**: Consolidate 15+ error enums (~850 LOC savings)
+- **`phenotype-config-core`**: Standardize on `figment` + JSON Schema (~650 LOC savings)
+- **`phenotype-port-traits`**: Extract traits from `agileplus-domain/src/ports/` (~1,000 LOC)
 
-### DUPLICATION.md
+### Phase 2: Performance & Quality (P1)
+- **Serialization**: Adopt `rkyv` for zero-copy event store (~2x perf)
+- **Testing**: Add `proptest` and `cargo-mutants` for comprehensive testing
+- **Build**: Enable `sccache` for 10x faster CI builds
 
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| **Unused Libraries** | 11 libs (edition mismatch) | 🔴 CRITICAL |
-| Error Types | 12 types, 68+ variants (~189 LOC) | 🔴 CRITICAL |
-| Port/Trait Split | 2 ecosystems (2,106 LOC) | 🟡 HIGH |
-| Async Trait Duplication | 5+ crates, 40 functions | 🔴 CRITICAL |
-| Worktree Manager Duplication | 3 tools | 🟡 HIGH |
-| Config Loaders | 4 implementations | 🟡 HIGH |
-| Store Traits | 5 async traits | 🟠 MEDIUM |
-| Health Checks | 3-4 enums | 🟠 MEDIUM |
-| In-Memory Stores | 4 implementations | 🟠 MEDIUM |
-| Auth Strategy Variants | 3 implementations | 🟡 HIGH |
-| Serialization/Deserialization | 6 copies | 🟡 HIGH |
-| Event Bus Adapters | 5 adapters | 🟠 MEDIUM |
+### Phase 3: Ecosystem Integration (P2)
+- **MCP**: Standardize on `mcp-sdk-rust` + `FastMCP v3.0`
+- **LLM Routing**: Adopt `LiteLLM` with `stamina` retry
+- **CLI**: Standardize on `clap` (Rust) + `typer` (Python)
+>>>>>>> origin/main
 
-**Key Plans**:
-- `PLANS/MASTER_DUPLICATION_AUDIT.md` - Complete findings
-- `PLANS/IMPLEMENTATION_PLAN_DUPLICATION.md` - 40-task execution plan
+**Key Sections**:
+- Hot path analysis (5 critical paths identified)
+- Memory allocation opportunities (40+ anti-patterns)
+- Performance anti-patterns (N+1 queries, sync locks in async, etc.)
+- Caching opportunities (5 major caches missing)
+- 22 prioritized optimization opportunities
+- Implementation roadmap (4-week phased approach)
+- Quick wins (< 2 hours each)
 
-### ARCHITECTURE.md
+### Decomposition Audit (2026-03-29)
+**File**: `docs/reports/DECOMPOSITION_AUDIT.md`
 
-**Focus**: Hexagonal architecture, port/trait patterns
+<<<<<<< HEAD
+**Total LOC Savings: 4,865 lines across 19 categories**
 
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Port Split | 2 hexagonal ecosystems | 🟡 HIGH |
-| hexagonal-rs | Framework patterns | 🟡 HIGH |
-| Port Consolidation | 8+ traits need audit | 🟠 MEDIUM |
-| phenotype-infrakit | 4 well-designed crates | ✅ ASSESSED |
-
-**Note**: See `docs/AGENT_MASTER_AUDIT_PROMPT.md` for external package analysis framework.
-
-### DEPENDENCIES.md
-
-**Focus**: External dependencies, fork candidates, security
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Fork Candidates | 4 major forks | 🔴 CRITICAL |
-| git2 → gix | Security advisory | 🟡 HIGH |
-| Modern Tooling | uv, ruff, buf integrated | ✅ DONE |
-
-### RESEARCH.md
-
-**Focus**: Starred repo analysis, technology radar
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Starred Repos | 30 repos analyzed | ✅ DONE |
-| Fork Recommendations | 6 opportunities | 🟡 HIGH |
-
-### GOVERNANCE.md
-
-**Focus**: Policy, compliance, quality gates
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Quality Gates | P4.1-P4.10 partially complete | 🟡 HIGH |
-| Evidence Collection | Patterns defined | 🟡 HIGH |
-| phenotype-governance | Built but not used | 🟠 MEDIUM |
-
-### INTEGRATION.md
-
-**Focus**: Cross-repo sync, MCP, NATS
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| MCP Server | Partial (15+ tools) | 🟡 HIGH |
-| NATS Event Bus | Partial | 🟡 HIGH |
-| Plane.so | Paused (G037) | 🟠 MEDIUM |
-
-### PERFORMANCE.md
-
-**Focus**: Optimization, benchmarking
-
-| Sub-Category | Findings | Status |
-|--------------|----------|--------|
-| Async Patterns | Sequential ops need parallelization | 🟡 HIGH |
-| Memory Allocations | Hash chain hotspots | 🟠 MEDIUM |
-| TokenLedger Benches | Comprehensive, shareable | ✅ DONE |
-
----
-
-## Quick Access
-
-### For Finding Duplication Issues
-```bash
-cat docs/worklogs/DUPLICATION.md
-```
-
-### For Architecture Decisions
-```bash
-cat docs/worklogs/ARCHITECTURE.md
-```
-
-### For Dependency Status
-```bash
-cat docs/worklogs/DEPENDENCIES.md
-```
-
-### For Research Context
-```bash
-cat docs/worklogs/RESEARCH.md
-```
-
-### For Governance Tracking
-```bash
-cat docs/worklogs/GOVERNANCE.md
-```
-
-### For Performance Analysis
-```bash
-cat docs/worklogs/PERFORMANCE.md
-```
-
----
-
-## Adding Entries
-
-### Entry Template
-
-```markdown
-## YYYY-MM-DD - Entry Title
-
-**Project:** [project-name]
-**Category:** [category]
-**Status:** [pending|in_progress|completed]
-**Priority:** P0|P1|P2|P3
-
-### Summary
-
-Brief description of the work.
-
-### Findings
-
-| Item | Status | Notes |
-|------|--------|-------|
-
-### Tasks Completed
-
-- [x] Task 1
-- [ ] Task 2
-
-### Next Steps
-
-- [ ] Action item 1
-
-### Related
-
-- [Link to related docs]
-```
-
-### Category Guidelines
-
-| Category | Focus | Priority Range |
-|----------|-------|----------------|
-| DUPLICATION | Code patterns, libification | P0-P2 |
-| ARCHITECTURE | Ports, adapters, structure | P0-P2 |
-| DEPENDENCIES | External deps, forks, security | P0-P1 |
-| RESEARCH | Tech radar, starred repos | P1-P2 |
-| GOVERNANCE | Policy, compliance | P1-P2 |
-| INTEGRATION | Cross-repo sync | P1-P2 |
-| PERFORMANCE | Optimization | P2-P3 |
-
----
-
-## Aggregation
-
-Use `aggregate.sh` to compile a master view:
-
-```bash
-./docs/worklogs/aggregate.sh
-```
-
----
-
-## Worklog data + automation
-
-| Artifact | Location | Purpose |
+| Priority | Category | Savings |
 |----------|----------|---------|
-| Session extract (JSON) | `data/phenotype_session_extract_2026-03-26_2026-03-29.json` | Claude/Cursor prompts + plans |
-| Error enum index | `data/error_enums_index.json` | `pub enum *Error` / `Error` in `crates/`, `libs/`, `rust/`, `tools/` |
+| P0 | Error Types | 450 LOC |
+| P0 | Config Loading | 600 LOC |
+| P0 | Nested Crate Duplication | 1,710 LOC |
+| P1 | Builder Patterns | 300 LOC |
+| P1 | Repository Traits | 350 LOC |
+| P2 | Tracing/Logging | 180 LOC |
+| P2 | Chrono/DateTime | 150 LOC |
+| P2 | UUID/ID Generation | 150 LOC |
+| P2 | Async Execution | 200 LOC |
+| P2 | HashMap/DashMap | 100 LOC |
+| P2 | HTTP Client | 120 LOC |
+| P2 | Mutex/RwLock | 100 LOC |
+| P2 | Retry/Backoff | 100 LOC |
+| P2 | Timeout/Duration | 80 LOC |
+| P3 | Time/Date Patterns | 50 LOC |
+| P3 | Display/AsStr Derive | 20 LOC |
+| P3 | Once/OnceCell | 30 LOC |
 
-Regenerate the error index from the repository root:
+### Cross-Project Duplication Analysis (2026-03-29)
+**File**: `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md`
 
-```bash
-python3 scripts/generate_error_enums_index.py
-```
+**Key Findings**:
+- 5 error type definitions across crates
+- 4 config loading patterns
+- 3 builder pattern implementations
+- 2 UUID generation utilities
+- 2 async execution patterns
+
+### Implementation Plans
+
+| Plan | Status | Focus |
+|------|--------|-------|
+| `LOC_REDUCTION_DECOMPOSITION.md` | Ready | 4,865 LOC savings |
+| `ErrorCoreExtraction.md` | Ready | P0 error consolidation |
+| `ConfigCoreActivation.md` | Ready | Config lib activation |
+| `EditionMigration.md` | Ready | Edition 2024 migration |
+
+### External Package Recommendations (2026)
+
+| Package | Downloads | Purpose |
+|---------|-----------|---------|
+| `figment` | 50M+ | Config management (TOML/JSON/YAML/ENV) |
+| `derive_builder` | 100M+ | Builder pattern derivation |
+| `dashmap` | 40M+ | Concurrent HashMap |
+| `parking_lot` | 100M+ | Faster locking |
+| `eventually` | Active | Event sourcing patterns |
+| `casbin` | 10M+ | Authorization policies |
 
 ---
+
+## Worklog Usage
+
+- All worklogs are UTF-8 encoded and follow Markdown syntax
+- Files are named with pattern: `{TOPIC}_{DATE}.md`
+- Each report includes:
+  - Executive summary
+  - Detailed analysis with LOC counts
+  - Impact estimates (% improvement)
+  - Effort estimates (hours)
+  - Priority levels (CRITICAL/HIGH/MEDIUM/LOW)
+  - Implementation recommendations
+  - Risk assessments
 
 ## Related Documentation
 
-| Document | Location | Purpose |
-|----------|----------|---------|
-| WORKLOG.md | `docs/WORKLOG.md` | Wave entries |
-| PLAN.md | `PLAN.md` | AgilePlus implementation |
-| PRD.md | `PRD.md` | Product requirements |
-| ADR.md | `ADR.md` | Architecture decisions |
-| MASTER_DUPLICATION_AUDIT | `docs/reports/MASTER_DUPLICATION_AUDIT.md` | Comprehensive audit |
-| Consolidation Audit | `docs/research/consolidation-audit-2026-03-29.md` | P1-P4 actions |
+- **Phenotype AgilePlus**: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
+- **Global CLAUDE Instructions**: `~/.claude/CLAUDE.md`
+- **Project Instructions**: `../CLAUDE.md`
 
 ---
 
-## Cross-Cutting Concerns
+**Last Updated**: 2026-03-29
+=======
+| File | Lines | Category | Priority |
+|------|-------|----------|----------|
+| `ARCHITECTURE.md` | ~2,050 | ARCHITECTURE | P0 |
+| `DEPENDENCIES.md` | ~2,750 | DEPENDENCIES | P0 |
+| `DUPLICATION.md` | ~4,050 | DUPLICATION | P0 |
+| `RESEARCH.md` | ~1,850 | RESEARCH | P1 |
+| `QUALITY.md` | ~760 | QUALITY | P1 |
+| `PERFORMANCE.md` | ~380 | PERFORMANCE | P1 |
+| `GOVERNANCE.md` | ~400 | GOVERNANCE | P1 |
+| `UX_DX.md` | ~900 | UX_DX | P2 |
+| `INTEGRATION.md` | ~210 | INTEGRATION | P2 |
 
-### Critical Items Requiring Immediate Action
-
-| Item | Impact | Owner | Deadline |
-|------|--------|-------|----------|
-| Migrate 11 libs/ to edition 2024 | Unblock library integration | — | 2026-Q2 |
-| Create phenotype-error crate | Consolidate 12 error types | — | 2026-Q2 |
-| Integrate hexagonal-rs patterns | Replace 5 duplicated traits | — | 2026-Q2 |
-| Migrate git2 → gix | Security advisory RUSTSEC-2025-0140 | — | 2026-Q2 |
-
-### LOC Savings Potential
-
-| Category | Current | Target | Savings |
-|----------|---------|--------|---------|
-| Error Types | ~600 LOC | ~200 LOC | 400 |
-| Config Loading | ~500 LOC | ~150 LOC | 350 |
-| Store Traits | ~300 LOC | ~100 LOC | 200 |
-| In-Memory Tests | ~400 LOC | ~150 LOC | 250 |
-| **Total** | **1,800 LOC** | **600 LOC** | **1,200** |
+**Total: ~14,350 lines** (expanded ~2.2x from initial audit)
 
 ---
 
-## Wave 94: LOC Reduction Audit Tripling + Deep Research
+## Resuming Work
 
-**Date:** 2026-03-29 (Continuation)
-**Focus:** Heavy LOC reduction focus, code optimization, decomposition audits, third-party ecosystem research
+To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md). SBOM / supply-chain: [`sessions/20260330-stacked-pr-sbom/`](../sessions/20260330-stacked-pr-sbom/) and **phenotype-infrakit** automation. Repo layout: [`reference/PLATFORMS_THEGENT.md`](../reference/PLATFORMS_THEGENT.md).
 
-### Deliverables Completed (5 Parallel Agents)
+## 2026-03-30 Wave 96 Summary
 
-#### 1. **DUPLICATION.md Expansion**
-- **Original:** ~1,900 lines → **Expanded:** 2,767 lines across 4 coordinated documents
-- **New findings:** 1,228 LOC consolidation opportunity across 31 files
-- **Case studies:** Health check enums, event bus adapters, builders, serialization, test fixtures, retry/backoff logic
-- **Status:** ✅ 4 new files created with specific code references & measurements
+### Completed Actions
+- ✅ `phenotype-http-client-core` crate added to workspace
+- ✅ Worktree audit completed (33 worktrees tracked)
+- ✅ Stale worktree `.worktrees/phench/` cleaned
+- ✅ Workspace compiles cleanly
+- ✅ Worklog updated with latest findings
 
-#### 2. **RESEARCH.md Expansion**
-- **Original:** 1,325 lines → **Expanded:** 2,236 lines (+911 lines, +68.7%)
-- **12 technology domains analyzed:** Async, error handling, config, DB/ORM, message queues, caching, testing, serialization, HTTP, CLI, logging, validation
-- **Impact:** ~2,000 LOC savings identified, 30-40 person-days effort
-- **Status:** ✅ Consolidated third-party ecosystem recommendations with consolidation paths
+### Pending PR Actions
+| PR | Status | Worktrees to Prune After Merge |
+|----|--------|-------------------------------|
+| #278 | Open | add-tests, cli-errors, fix-clippy, fix-event-sourcing, impl-* |
 
-#### 3. **ARCHITECTURE.md Expansion**
-- **New file:** ARCHITECTURE_EXPANSION_SUMMARY.md (321 lines)
-- **10 design patterns mapped:** Port/Adapter, Repository, DI, Strategy, Builder, Observer, Factory, Middleware, Command, State Machine
-- **18 libification candidates** across 3 priority tiers
-- **Potential savings:** 1,755-1,880 LOC across 8 repositories
-- **Status:** ✅ Complete library design with effort estimates
+### Next Priority Actions
+1. **Migrate git2 → gix** for RUSTSEC-2025-0140 fix
+2. **Deprecate phenotype-errors** → promote phenotype-error-core
+3. **Create phenotype-async-traits** for unified async patterns
+4. **Fork cqrs-es** for event sourcing foundation
 
-#### 4. **INACTIVE_FOLDERS_AUDIT.md**
-- **New file:** 978 lines, 33 KB
-- **28 folders inventoried:** 8 temp dirs (189 MB), 10 worktrees (10 MB), 13 archives (39.4 MB)
-- **Three-phase cleanup plan** with 4 non-destructive scripts
-- **Freeable disk space:** 200+ MB
-- **Status:** ✅ Safe cleanup procedures documented, zero destructive operations
-
-#### 5. **Deep Codebase Scan Results**
-- **Coverage:** 1,936 Rust files + 6,668 TypeScript files across 143 crates
-- **12 pattern analyses:** Directory stubs (CRITICAL), trait duplication, errors, config, health checks, test fixtures, builders, response wrappers, monolithic files, event sourcing, middleware, dead code
-- **Total potential savings:** 3,500-4,500 LOC deduplication
-- **Status:** ✅ Measurable findings with specific file:line references
-
-#### 6. **Third-Party Libraries Research**
-- **18+ libraries analyzed** across 8 critical domains
-- **Consolidation roadmap:** Unified error handling, two-tier caching, tracing standard, figment config, standardized features
-- **Impact:** 620-880 LOC savings, 25-33 hours effort, high ROI
-- **Status:** ✅ Comprehensive ecosystem audit with fork/wrap/use recommendations
-
-### Aggregated LOC Reduction Opportunities
-
-| Consolidation | Current | Target | Savings | Difficulty |
-|---------------|---------|--------|---------|------------|
-| **CRITICAL (Phase 1)** |
-| Directory Stubs | ~1,200 LOC | 0 LOC | **1,200** | LOW |
-| Error Core Crate | ~600 LOC | ~200 LOC | **400** | MEDIUM |
-| Event Sourcing Cleanup | ~400 LOC | 0 LOC | **400** | MEDIUM |
-| **HIGH (Phase 2)** |
-| Trait Duplication | ~500-750 LOC | ~200 LOC | **300-550** | MEDIUM |
-| Config Consolidation | ~400-500 LOC | ~100 LOC | **300-400** | MEDIUM |
-| Ports Canonical | ~300 LOC | ~50 LOC | **250** | MEDIUM |
-| **MEDIUM (Phase 3)** |
-| Health Checks | ~150-200 LOC | ~50 LOC | **100-150** | LOW |
-| Response Wrappers | ~100-150 LOC | ~30 LOC | **70-120** | LOW |
-| Test Fixtures | ~300-400 LOC | ~100 LOC | **200-300** | MEDIUM |
-| Builder Patterns | ~200 LOC | ~50 LOC | **150** | LOW |
-| Middleware/Adapters | ~100 LOC | ~30 LOC | **70** | MEDIUM |
-| **Third-Party Integration** | — | — | **620-880** | MEDIUM |
-| **TOTAL IDENTIFIED** | **~5,050-5,450 LOC** | **~1,100-1,500 LOC** | **~3,500-4,500 LOC** | — |
-
-### Files Modified/Created This Wave
-
-**Modified:**
-- `DUPLICATION.md` (reference & case studies)
-- `RESEARCH.md` (+911 lines of third-party ecosystem analysis)
-- `README.md` (this section, Wave 94 summary)
-
-**Created (6 new files, ~3,500 lines):**
-- `DUPLICATION_EXPANSION_20260329.md` (797 lines)
-- `DUPLICATION_AUDIT_SUMMARY.md` (218 lines)
-- `EXPANSION_COMPLETION_REPORT.md` (290 lines)
-- `ARCHITECTURE_EXPANSION_SUMMARY.md` (321 lines)
-- `INACTIVE_FOLDERS_AUDIT.md` (978 lines)
-- `THIRD_PARTY_LIBRARIES_RESEARCH.md` (comprehensive)
-- `DEEP_CODEBASE_SCAN_FINDINGS.md` (comprehensive)
-
-### Recommended Execution Phases
-
-**Phase 1 (CRITICAL - This Week):** 2,000 LOC savings, 3-5 hours
-- Fix 4 crate directory stubs, create error-core, cleanup event sourcing
-
-**Phase 2 (HIGH - This Month):** 1,200+ LOC savings, 25-35 hours
-- Ports canonical, config consolidation, health checks, error handling unification
-
-**Phase 3 (MEDIUM - Next Quarter):** 800+ LOC savings, 40-60 hours
-- Test fixtures, response types, refactor monolithic files, builder migrations
-
-**Phase 4 (OPTIMIZATION):** Quality infrastructure, 15-20 hours
-- Dead code detection, duplication detection, mutation testing, library standards
+1. **Start with P0 items** in `DUPLICATION.md` (Wave 92 & 118)
+2. **Research third-party candidates** in `DEPENDENCIES.md` (Wave 131-133)
+3. **Architecture patterns** in `ARCHITECTURE.md` (Wave 108-112)
+4. **Quality automation** in `QUALITY.md` (Wave 131-135)
+5. **Performance optimization** in `PERFORMANCE.md` (Wave 136-139)
+6. **External packages** in `RESEARCH.md` (Wave 118-120)
 
 ---
 
-_Last updated: 2026-03-29 (Wave 94 completion) | Total audit expansion: **+5,500 lines of documentation**, **3,500-4,500 LOC consolidation identified**_
+## Key Findings Summary (2026-03-31)
+
+### LOC Reduction Targets
+| Area | Current | Target | Savings |
+|------|---------|--------|---------|
+| Error handling | 15+ error enums | 1 canonical | ~850 LOC |
+| Config loading | 8 implementations | 1 canonical | ~800 LOC |
+| Git operations | 6 implementations | 1 canonical | ~600 LOC |
+| Duplicate state machines | 2 crates | 1 canonical | ~726 LOC |
+| Serialization | Manual (JSON) | buf/Protobuf | ~250 LOC |
+| **Total** | - | - | **~3,226 LOC** |
+
+### 3rd Party Candidates
+| Domain | Candidate | Strategy | Status |
+|--------|-----------|----------|--------|
+| Event Sourcing | `cqrs-es` | WRAP | Identified |
+| Policy Engine | `casbin-rs` / `cedar` | WRAP | Identified |
+| Git Ops | `gix` (gitoxide) | ADOPT | P0 (RUSTSEC) |
+| Serialization | `rkyv` | ADOPT | Proposed |
+| Retry Logic | `backon` / `stamina` | WRAP | Proposed |
+| Validation | `nutype` | ADOPT | Proposed |
+
+### Inactive Folder Audit
+| Category | Count | Action |
+|----------|-------|--------|
+| Worktrees to delete | 5+ | After merge review |
+| Stashed changes | 10 | Apply or drop |
+| Nested duplicate crates | 4 | Remove nested |
+
+### Next Priority Actions
+1. **IMMEDIATE**: Migrate `git2` → `gix` (RUSTSEC-2025-0140)
+2. **HIGH**: Remove nested duplicate state machine crates
+3. **HIGH**: Deprecate `phenotype-errors`, promote `phenotype-error-core`
+4. **MEDIUM**: Fork `cqrs-es` for event sourcing foundation
+5. **MEDIUM**: Create `phenotype-async-traits` crate
+
+---
+
+_Last updated: 2026-03-31 (Wave 118-134)_
+>>>>>>> origin/main
