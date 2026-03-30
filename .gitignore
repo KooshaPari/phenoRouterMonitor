@@ -87,3 +87,5 @@ crates/phenotype-contracts/tests/
 !docs/adoption/FEDERATED_HYBRID_ARCHITECTURE.md
 !docs/adoption/PHENOSDK_EXTRACTION_STRATEGY.md
 !docs/adoption/INDEX.md
+.hypothesis/
+.hypothesis/

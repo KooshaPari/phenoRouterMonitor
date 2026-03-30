@@ -1,4 +1,0 @@
-# file: /Users/kooshapari/CodeProjects/Phenotype/repos/phench/src/phench/env_doctor.py
-# hypothesis_version: 6.151.10
-
-['Makefile', 'Taskfile.yaml', 'Taskfile.yml', 'bun', 'fail', 'just', 'justfile', 'make', 'npm', 'package.json', 'pass', 'pnpm', 'task']

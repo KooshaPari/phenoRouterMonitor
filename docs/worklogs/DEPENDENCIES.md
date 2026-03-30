@@ -2902,3 +2902,134 @@ rg "phenotype.?error.?core|PhenotypeErrorCore" crates/ --type rust
 
 _Last updated: 2026-03-31 (Wave 161-164)_
 
+
+---
+
+## 2026-03-30 - External Package Modernization Research
+
+**Project:** phenotype-infrakit  
+**Category:** Dependency evolution, package modernization  
+**Status:** completed  
+**Priority:** P1  
+
+### Current Dependency Versions
+
+| Package | Current | Latest | Status | Recommendation |
+|---------|---------|--------|--------|----------------|
+| thiserror | 2.0 | 2.0+ | ✅ Current | Migrate to #[source] |
+| serde | 1.0 | 1.0 | ✅ Stable | Keep |
+| tokio | 1.x | 1.x | ✅ Current | Monitor 2.0 |
+| blake3 | 1.5 | 1.5+ | ✅ Current | Keep |
+| dashmap | 5 | 5 | ✅ Current | Keep |
+| strum | 0.26 | 0.26 | ✅ Current | Keep |
+| regex | 1 | 1.12+ | ⚠️ Minor | Update |
+| chrono | 0.4 | 0.4 | ⚠️ V4 coming | Plan migration |
+| uuid | 1 | 1.x | ✅ Current | Monitor 2.0 |
+| parking_lot | 0.12 | 0.12+ | ✅ Current | Keep |
+
+### thiserror 2.0 Migration Guide
+
+**Breaking Change:** `#[from]` replaced with `#[source]`
+
+```rust
+// Before (thiserror 1.x)
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("IO error: {source}")]
+    Io { #[from] source: std::io::Error },
+}
+
+// After (thiserror 2.0)
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("IO error")]
+    Io { #[source] source: std::io::Error },
+}
+```
+
+### Crate Compatibility Status
+
+| Crate | thiserror 2.0 | serde2 | chrono 0.5 | Notes |
+|-------|---------------|--------|------------|-------|
+| phenotype-error-core | ✅ Fixed | N/A | N/A | Ready |
+| phenotype-errors | ✅ Fixed | N/A | N/A | Ready |
+| phenotype-policy-engine | ✅ Fixed | N/A | N/A | Ready |
+| phenotype-event-sourcing | ✅ Fixed | N/A | ✅ Compatible | Ready |
+| phenotype-cache-adapter | ✅ Compatible | N/A | N/A | Ready |
+| phenotype-state-machine | ✅ Compatible | N/A | N/A | Ready |
+
+### External Replacement Candidates (2026)
+
+| Current | Candidate | Benefit | Complexity |
+|---------|-----------|---------|------------|
+| Custom retry | `retry` crate | Battle-tested | Low |
+| Custom caching | `moka` or `lru` | Optimized | Medium |
+| Custom FSM | `states` crate | Comprehensive | High |
+| Custom event sourcing | `cqrs-es` | Full CQRS | High |
+| Custom config | `figment` | Multi-source | Medium |
+
+### Recommended Additions
+
+```toml
+# Add to workspace.dependencies
+retry = "3"           # For retry logic
+figment = "0.10"      # For config loading
+miette = "7"          # For better error reporting
+```
+
+### Future Dependency Roadmap
+
+| Timeline | Package | Action |
+|----------|---------|--------|
+| Q2 2026 | chrono | Plan v0.5 migration |
+| Q3 2026 | uuid | Monitor v2.0 |
+| Q4 2026 | tokio | Plan 2.0 migration |
+| Ongoing | All | Keep minimal, use workspace deps |
+
+---
+
+## 2026-03-30 - Unused Dependencies Analysis
+
+**Project:** phenotype-infrakit  
+**Category:** Dependency cleanup, unused deps  
+**Status:** identified  
+**Priority:** P2  
+
+### Workspace Dependencies (declared but potentially unused)
+
+| Dependency | Declared In | Used In | Status |
+|------------|-------------|---------|--------|
+| lru | Cargo.toml | ? | Verify usage |
+| moka | Cargo.toml | phenotype-cache-adapter | ✅ Used |
+| parking_lot | Cargo.toml | phenotype-cache-adapter | ✅ Used |
+| regex | Cargo.toml | phenotype-policy-engine | ✅ Used |
+| git2 | Cargo.toml | - | ❌ Unused |
+| syn | Cargo.toml | - | ❌ Unused |
+| quote | Cargo.toml | - | ❌ Unused |
+| proc-macro2 | Cargo.toml | - | ❌ Unused |
+
+### Verification Commands
+
+```bash
+# Check if dependency is used
+grep -r "lru::" crates/ libs/
+grep -r "git2::" crates/ libs/
+grep -r "quote::" crates/ libs/
+```
+
+### Action Items
+
+1. Verify lru usage across all crates
+2. Remove unused git2, syn, quote, proc-macro2 if not needed
+3. Move unused deps to optional features
+4. Keep only necessary workspace deps
+
+### Workspace Dependencies Audit (2026-03-30)
+
+```bash
+# Current workspace.dependencies count: 28
+# Active crates: 10
+# Average deps per crate: ~5
+# Most common: serde, thiserror, tokio, async-trait
+```
+

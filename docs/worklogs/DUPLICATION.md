@@ -4269,3 +4269,171 @@ src/
 ---
 
 _Last updated: 2026-03-30 (Wave 4 entries appended)_
+
+---
+
+## 2026-03-30 - Workspace Cleanup & Dependency Consolidation
+
+**Project:** phenotype-infrakit  
+**Category:** Workspace cleanup, dependency standardization, crate organization  
+**Status:** completed  
+**Priority:** P0  
+
+### Summary
+
+Cleaned up workspace Cargo.toml by:
+1. Removing duplicate entries (strum appeared 3x)
+2. Moving incomplete crates to exclude list
+3. Standardizing crate dependencies
+4. Adding phenotype-event-sourcing back with proper deps
+5. Fixing thiserror 2.0 compatibility (#[source] vs #[from])
+
+### Crates in Workspace (10 members)
+
+| Crate | Status | Notes |
+|-------|--------|-------|
+| phenotype-error-core | ✅ Active | Core error types |
+| phenotype-errors | ✅ Active | Extended errors |
+| phenotype-contracts | ✅ Active | Shared traits |
+| phenotype-health | ✅ Active | Health checks |
+| phenotype-port-traits | ✅ Active | Port abstractions |
+| phenotype-policy-engine | ✅ Active | Policy evaluation |
+| phenotype-state-machine | ✅ Active | FSM implementation |
+| phenotype-telemetry | ✅ Active | Tracing/logging |
+| phenotype-cache-adapter | ✅ Active | Caching layer |
+| phenotype-event-sourcing | ✅ Active | Event sourcing |
+
+### Excluded Crates (16 excluded)
+
+| Crate | Reason |
+|-------|--------|
+| phenotype-string | Missing src/ |
+| phenotype-time | Missing src/ |
+| phenotype-retry | Missing src/ |
+| phenotype-validation | Missing src/ |
+| phenotype-rate-limit | Missing src/ |
+| phenotype-logging | Missing src/ |
+| phenotype-config-core | Excluded |
+| phenotype-config-loader | Excluded |
+| phenotype-git-core | Excluded |
+| phenotype-http-client-core | Excluded |
+| phenotype-macros | Excluded |
+| phenotype-mcp | Excluded |
+| phenotype-process | Excluded |
+| phenotype-test-infra | Excluded |
+| agileplus-* | External repos |
+
+### Key Fixes Applied
+
+| Issue | Fix | File |
+|-------|-----|------|
+| Duplicate strum entries | Removed duplicates, kept 1 | Cargo.toml |
+| Missing #[default] | Added to Severity enum | result.rs |
+| thiserror 2.0 compatibility | Changed #[from] to #[source] | error.rs |
+| clippy unnecessary_map_or | Changed to is_some_and() | rule.rs |
+| Phantom phenotype-iter | Removed from members | Cargo.toml |
+
+### LOC Reduction Results
+
+| File | Before | After | Savings |
+|------|--------|-------|---------|
+| crates/phenotype-policy-engine/src/error.rs | ~45 LOC | ~40 LOC | 5 LOC |
+| crates/phenotype-policy-engine/src/result.rs | ~71 LOC | ~71 LOC | 0 (added #[default]) |
+
+---
+
+## 2026-03-30 - Error Type Consolidation Opportunities
+
+**Project:** phenotype-infrakit  
+**Category:** Cross-crate duplication, error type analysis  
+**Status:** identified  
+**Priority:** P1  
+
+### Error Enum Overlap Analysis
+
+| Error Type | phenotype-errors | phenotype-error-core | phenotype-policy-engine | Recommendation |
+|------------|------------------|----------------------|------------------------|----------------|
+| NotFound | ✅ | ✅ | ✅ | Consolidate |
+| Serialization | ✅ | ❌ | ✅ | Standardize |
+| Validation | ✅ | ❌ | ✅ | Standardize |
+| IoError | ✅ | ✅ | ✅ | Consolidate |
+| ConfigParse | ❌ | ❌ | ✅ | Keep separate |
+
+### Unified Error Hierarchy Proposal
+
+```rust
+// phenotype-error-core should provide base errors
+pub enum CoreError {
+    NotFound { entity: String, id: String },
+    Serialization { #[source] source: serde_json::Error },
+    Io { #[source] source: std::io::Error },
+    InvalidInput { message: String },
+}
+
+// phenotype-errors extends with domain-specific
+pub enum Error {
+    #[from]
+    Core(CoreError),
+    PolicyViolation { policy: String, rule: String },
+    StateTransition { from: State, to: State },
+    // ...
+}
+```
+
+### Next Steps
+
+1. Create RFC for unified error strategy
+2. Implement CoreError in phenotype-error-core
+3. Update phenotype-errors to delegate to CoreError
+4. Update all crates to use unified errors
+5. Remove duplicate error variants
+
+---
+
+## 2026-03-30 - Caching Layer Duplication Analysis
+
+**Project:** phenotype-infrakit  
+**Category:** Cross-crate duplication, caching patterns  
+**Status:** identified  
+**Priority:** P2  
+
+### Current Caching Implementations
+
+| Crate | Implementation | Features |
+|-------|----------------|----------|
+| phenotype-cache-adapter | DashMap + TTL | LRU, TTL, async |
+| phenotype-event-sourcing | HashMap in-memory | Basic events |
+| phenotype-config-core | In-memory store | Config caching |
+
+### Consolidation Recommendation
+
+```rust
+// phenotype-cache-adapter as canonical
+pub trait Cache<K, V> {
+    async fn get(&self, key: &K) -> Option<V>;
+    async fn set(&self, key: K, value: V, ttl: Duration) -> bool;
+    async fn invalidate(&self, key: &K) -> bool;
+}
+
+// phenotype-config-core and others use trait
+impl<T: Cache<String, Config>> ConfigLoader<T> {
+    // ...
+}
+```
+
+### Dependency Usage
+
+| Dependency | phenotype-cache-adapter | phenotype-event-sourcing | phenotype-config-core |
+|------------|-------------------------|-------------------------|----------------------|
+| dashmap | ✅ (v5) | ❌ | ❌ |
+| lru | ❌ | ❌ | ❌ |
+| moka | ❌ | ❌ | ❌ |
+| parking_lot | ❌ | ✅ | ❌ |
+
+### Action Items
+
+1. phenotype-event-sourcing should use phenotype-cache-adapter
+2. phenotype-config-core should use phenotype-cache-adapter
+3. Remove local caching code from each crate
+4. Add moka/lru features to phenotype-cache-adapter as options
+

@@ -1,4 +1,0 @@
-# file: /Users/kooshapari/CodeProjects/Phenotype/repos/phench/src/phench/git_ops.py
-# hypothesis_version: 6.151.10
-
-['-', '--decorate', '--detach', '--force', '--oneline', '--show-current', '-C', 'HEAD', 'HEAD^{commit}', '[^A-Za-z0-9._-]+', 'add', 'branch', 'branch_exists', 'branches', 'for-each-ref', 'git', 'head_sha', 'log', 'recent', 'refs/heads', 'refs/tags', 'remove', 'repo', 'rev-parse', 'selected_ref', 'tags', 'worktree']
