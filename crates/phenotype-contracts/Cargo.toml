@@ -1,10 +1,23 @@
 [package]
 name = "phenotype-contracts"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Phenotype Contracts"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Hexagonal architecture ports and domain model contracts for Phenotype"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+chrono = { workspace = true }
+uuid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+phenotype-error-core = { path = "../phenotype-error-core" }
+
+[dev-dependencies]
+tokio = { workspace = true }
+serde_json = { workspace = true }
