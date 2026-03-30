@@ -53,7 +53,7 @@ cargo fmt --check
 All tests MUST reference a Functional Requirement (FR):
 
 ```rust
-// Traces to: FR-PHENO-NNN
+// Traces to: FR-XXX-NNN
 #[test]
 fn test_feature_name() {
     // Test body

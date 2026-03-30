@@ -138,7 +138,7 @@ mod tests {
             .set_enabled(false)
             .add_rule(Rule::new(RuleType::Require, "email", ".*"));
 
-        let mut ctx = EvaluationContext::new();
+        let ctx = EvaluationContext::new();
         let result = policy.evaluate(&ctx).unwrap();
 
         // Disabled policy always passes
@@ -163,7 +163,7 @@ mod tests {
         let rule = Rule::new(RuleType::Require, "email", "^[a-z]+@example\\.com$");
         let policy = Policy::new("test_policy").add_rule(rule);
 
-        let mut ctx = EvaluationContext::new(); // email missing
+        let ctx = EvaluationContext::new(); // email missing
 
         let result = policy.evaluate(&ctx).unwrap();
         assert!(!result.passed);
@@ -221,16 +221,20 @@ mod tests {
         assert!(deny_violation.is_some());
     }
 
+    // Traces to: FR-POL-001, FR-POL-002
     #[test]
     fn test_policy_violation_uses_rule_severity() {
         let policy = Policy::new("warning_policy").add_rule(
             Rule::new(RuleType::Require, "status", "^active$").with_severity(Severity::Warning),
         );
 
-        let mut ctx = EvaluationContext::new(); // status missing
+        let ctx = EvaluationContext::new(); // status missing
 
         let result = policy.evaluate(&ctx).unwrap();
-        assert!(!result.passed, "Policy should fail when required fact is missing");
+        assert!(
+            !result.passed,
+            "Policy should fail when required fact is missing"
+        );
         assert_eq!(result.violations.len(), 1);
         assert_eq!(result.violations[0].severity, Severity::Warning);
     }
