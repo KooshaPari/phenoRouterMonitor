@@ -55,7 +55,7 @@ tokio = { version = "1.41", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
 regex = "1"
-git2 = "0.20"
+git2 = "0.20"  # TODO(2026-Q2): Migrate to gix (RUSTSEC-2025-0140) - requires API rewrite
 syn = { version = "2", features = ["full", "parsing"] }
 quote = "1"
 proc-macro2 = "1"

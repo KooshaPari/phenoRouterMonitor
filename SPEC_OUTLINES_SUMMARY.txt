@@ -1,0 +1,281 @@
+================================================================================
+  AGILEPLUS SPECIFICATION OUTLINES — THREE NEW FORKS
+================================================================================
+
+DATE: 2026-03-30
+STATUS: Prepared (Not Yet Implemented)
+DELIVERABLE: Markdown spec outlines ready for AgilePlus entry creation
+
+================================================================================
+  EXECUTIVE SUMMARY
+================================================================================
+
+Three comprehensive AgilePlus spec outlines prepared for new forked projects:
+
+1. FORGECODE-FORK: Custom Providers + Subagents
+2. PHENOTYPE-ROUTER-MONITOR: Consolidated API Monitoring & Routing
+3. BIFROST-ROUTING: LLM Routing Infrastructure with Cost Optimization
+
+Each fork is a complete, self-contained epic with:
+- Full epic overview (vision, goals, success criteria, key deliverables)
+- 5-6 work packages (WP01-WP06) with detailed subtasks
+- 8-12 functional requirements (FRs) per epic
+- Effort estimates in tool calls and parallel subagents
+- Acceptance criteria for each WP and task
+- Integration/dependency graph across forks
+
+================================================================================
+  FORK 1: FORGECODE-FORK
+================================================================================
+
+EPIC ID: eco-fork-001
+TITLE: Custom Providers & Subagent Management Infrastructure
+TIMELINE: Weeks 1-6 (Phase 1: Weeks 1-3, Phase 2: Weeks 4-6)
+EFFORT: 18-24 parallel subagents, 6 work packages, 72-99 tool calls
+
+VISION:
+Transform AgilePlus from a spec-driven engine into a composable agent 
+orchestration platform where each provider (Claude, Grok, local models) 
+and each agent type can be independently registered, versioned, and routed.
+
+KEY DELIVERABLES:
+- forgecode-providers crate (Provider trait, registry, 3 implementations)
+- agileplus-provider-cli integration (provider + spawn-agent subcommands)
+- forgecode-agent-dispatch gRPC service
+- Provider audit trail with hash-chain verification
+- Provider development guide + example custom provider
+
+WORK PACKAGES:
+WP01: Provider Trait & Registry (400 LOC, 12-15 calls) — Foundation
+WP02: Claude Provider Implementation (350 LOC, 10-12 calls) — Multi-model routing
+WP03: Local Provider + Ollama (280 LOC, 8-10 calls) — Offline inference
+WP04: Provider-Aware Subagent Spawning (420 LOC, 14-16 calls) — Agent dispatch
+WP05: Capability Discovery & Routing (380 LOC, 11-13 calls) — Smart routing
+WP06: Provider Performance Metrics (340 LOC, 10-12 calls) — Feedback loop
+
+SUCCESS METRICS:
+✓ Provider registry with ≥3 implementations, thread-safe
+✓ Subagent spawning: agileplus spawn-agent WP01 --provider claude --model opus
+✓ Capability discovery: agileplus provider list/show
+✓ Audit trail: hash-chained provider calls with token counts
+✓ Automatic fallback on provider failure (Opus → Sonnet)
+✓ ≥90% test coverage; zero clippy warnings
+
+================================================================================
+  FORK 2: PHENOTYPE-ROUTER-MONITOR
+================================================================================
+
+EPIC ID: eco-fork-002
+TITLE: Consolidated API Monitoring, Routing & Load Balancing
+TIMELINE: Weeks 1-4 (Phase 1: Weeks 1-2, Phase 2: Weeks 3-4)
+EFFORT: 15-18 parallel subagents, 5 work packages, 54-66 tool calls
+
+VISION:
+Single entry point for all Phenotype services with transparent observability,
+failure recovery, and gradual rollout support.
+
+KEY DELIVERABLES:
+- phenotype-router-core (routing engine, path-based + load balancing)
+- phenotype-router-health (health checker aggregation)
+- phenotype-router-limiter (rate limiting + circuit breaker)
+- phenotype-router-metrics (Prometheus exporter)
+- phenotype-router-cli integration (route management + status)
+- Router setup guide, configuration reference, troubleshooting
+
+WORK PACKAGES:
+WP01: Router Core & Routing Engine (450 LOC, 13-15 calls) — Foundation
+WP02: Health Checking & Aggregation (380 LOC, 11-13 calls) — Health probes
+WP03: Rate Limiting & Circuit Breaker (360 LOC, 10-12 calls) — Failure handling
+WP04: Metrics Collection & Prometheus Export (340 LOC, 10-12 calls) — Observability
+WP05: Router CLI & Status Dashboard (320 LOC, 9-11 calls) — Management UI
+
+SUCCESS METRICS:
+✓ Path-based routing: curl http://router:8080/agileplus/spec → correct backend
+✓ Load balancing: requests distributed across ≥2 backend instances
+✓ Health aggregation: GET /health shows all backend states
+✓ Circuit breaker: 503 after 5 failures, auto-recovery after 30s
+✓ Rate limiting: 429 + Retry-After on capacity; 100 req/sec limit per endpoint
+✓ Prometheus metrics: latency p50/p95/p99, error rates, throughput
+✓ ≥85% test coverage
+
+================================================================================
+  FORK 3: BIFROST-ROUTING
+================================================================================
+
+EPIC ID: eco-fork-003
+TITLE: LLM Routing Infrastructure with Model Selection & Cost Optimization
+TIMELINE: Weeks 1-6 (Phase 1: Weeks 1-2, Phase 2: Weeks 3-4)
+EFFORT: 16-20 parallel subagents, 6 work packages, 72-90 tool calls
+
+VISION:
+Transform LLM selection from manual ("use Opus for everything") into 
+data-driven ("route to Haiku/Sonnet/Opus based on cost/latency/quality").
+
+KEY DELIVERABLES:
+- bifrost-routing-core (routing engine, request classifier, SLA enforcement)
+- bifrost-routing-models (LLM model definitions, cost/latency metadata)
+- bifrost-routing-analytics (cost tracking, A/B metrics, performance analysis)
+- bifrost-routing-cli integration (routing management, SLA tuning)
+- Model selection guide, cost optimization strategies, SLA tuning docs
+
+WORK PACKAGES:
+WP01: Request Classifier & Workload Inference (380 LOC, 11-13 calls) — Classification
+WP02: LLM Model Registry & Capability Metadata (300 LOC, 8-10 calls) — Model definitions
+WP03: Token-Aware & Workload-Based Selection (400 LOC, 12-14 calls) — Smart selection
+WP04: SLA Enforcement & Latency Timeout (320 LOC, 9-11 calls) — Performance SLAs
+WP05: Cost Tracking & Budget Enforcement (360 LOC, 10-12 calls) — Cost control
+WP06: A/B Testing & Shadow Routing (340 LOC, 10-12 calls) — Model evaluation
+
+SUCCESS METRICS:
+✓ Classifier: "write a function" → code, "analyze sales data" → analysis
+✓ Token-aware: <500 tokens → Haiku, 500-2K → Sonnet, >2K → Opus
+✓ Cost optimization: 30-40% cost reduction vs baseline (all Opus)
+✓ SLA enforcement: latency SLA per workload; failover if breached
+✓ Budget enforcement: 429 + clear error if user exceeds monthly cap
+✓ A/B testing: shadow route to new model; collect metrics without affecting traffic
+✓ ≥90% test coverage
+
+================================================================================
+  CROSS-FORK DEPENDENCY GRAPH
+================================================================================
+
+forgecode-fork (eco-fork-001) provides Provider abstraction
+         ↓
+bifrost-routing (eco-fork-003) routes to providers using Provider interface
+         ↓
+phenotype-router-monitor (eco-fork-002) monitors bifrost + other services
+         ↓
+AgilePlus integrates all three forks + core
+
+Phase 1A (Weeks 1-2): Foundational work across all forks
+  - forgecode-fork: WP01 (Provider trait)
+  - phenotype-router-monitor: WP01 (Routing engine)
+  - bifrost-routing: WP01-WP02 (Classification + model registry)
+
+Phase 1B (Weeks 2-3): Core implementations
+  - forgecode-fork: WP02-WP04 (Provider impls, spawning, discovery)
+  - phenotype-router-monitor: WP02-WP04 (Health, rate limiting, metrics)
+  - bifrost-routing: WP03-WP05 (Selection, SLA, cost tracking)
+
+Phase 2 (Weeks 4-6): Advanced features + integration
+  - forgecode-fork: WP05-WP06 (Routing + feedback loop)
+  - phenotype-router-monitor: WP05 (CLI + dashboard)
+  - bifrost-routing: WP06 (A/B testing + shadow routing)
+
+================================================================================
+  EFFORT SUMMARY
+================================================================================
+
+Total Parallel Subagents:
+  Phase 1A: 12-15 agents
+  Phase 1B: 18-20 agents
+  Phase 2: 15-18 agents
+
+Total Tool Calls:
+  forgecode-fork: 72-99 tool calls
+  phenotype-router-monitor: 54-66 tool calls
+  bifrost-routing: 72-90 tool calls
+  TOTAL: 198-255 tool calls
+
+Total Lines of Code (LOC):
+  forgecode-fork: ~2,170 LOC
+  phenotype-router-monitor: ~1,850 LOC
+  bifrost-routing: ~2,010 LOC
+  TOTAL: ~6,030 LOC (across all three forks)
+
+Wall-Clock Time: 4-6 weeks (v0.1.0 release)
+
+Quality Gates per Fork:
+  ✓ cargo build --release (zero warnings)
+  ✓ cargo test --workspace (≥85% coverage)
+  ✓ cargo clippy --workspace -- -D warnings (zero warnings)
+  ✓ All public APIs documented
+  ✓ All FRs traced to ≥1 test
+  ✓ All tests passing
+
+================================================================================
+  DELIVERABLE LOCATION
+================================================================================
+
+Full spec outlines saved to:
+  /Users/kooshapari/CodeProjects/Phenotype/repos/agileplus_spec_outlines.md
+
+File size: 786 lines, ~33 KB
+Format: Markdown with tables, code blocks, dependency graphs
+
+Contents:
+  - Section 1: forgecode-fork (185 lines, 9 KB)
+  - Section 2: phenotype-router-monitor (165 lines, 8 KB)
+  - Section 3: bifrost-routing (185 lines, 9 KB)
+  - Summary & execution strategy (250 lines, 7 KB)
+
+================================================================================
+  NEXT STEPS (When User Approves)
+================================================================================
+
+1. Create AgilePlus specs for each fork
+   - Run: agileplus specify --title "Custom Providers..." --epic eco-fork-001
+   - Create one spec per fork (3 total)
+
+2. Create work package directories with task templates
+   - Create WP01-WP06 directories for each fork
+   - Pre-populate subtask templates (T001-T048)
+
+3. Activate subagents for Phase 1A
+   - 12-15 parallel agents for Week 1-2 work
+   - Assign agents to forks: 4-5 per fork
+
+4. Track progress in AgilePlus dashboard
+   - Monitor burn-down charts
+   - Verify test coverage as commits land
+   - Update FR traceability
+
+5. Weekly rollup reports for user review
+   - Metrics: LOC added, tests passing, coverage %
+   - Risks/blockers
+   - Next phase readiness
+
+================================================================================
+  KEY DESIGN PATTERNS & CONSTRAINTS
+================================================================================
+
+FORGECODE-FORK:
+  ✓ Provider trait must be minimal (invoke, stream, capabilities)
+  ✓ Registry thread-safe (Arc + RwLock)
+  ✓ No inter-provider dependencies
+  ✓ All providers support fallback + error handling
+  ✓ Audit trail hash-chained for integrity
+
+PHENOTYPE-ROUTER-MONITOR:
+  ✓ Single-threaded router core (tokio async)
+  ✓ In-memory rate limiting (no distributed coordination Phase 1)
+  ✓ TOML configuration (schema validation at startup)
+  ✓ Health checks independent per backend
+  ✓ Prometheus metrics format (UTF-8, standard names)
+
+BIFROST-ROUTING:
+  ✓ Classifier heuristic-based (no ML Phase 1)
+  ✓ Token counting approximate (length-based)
+  ✓ Workload types fixed: code, analysis, writing, retrieval
+  ✓ SLA per workload (not per user Phase 1)
+  ✓ Cost tracking granular (per request, queryable)
+
+================================================================================
+  VALIDATION CRITERIA (Ready to Implement)
+================================================================================
+
+All spec outlines satisfy:
+  ✓ Epic overview complete (vision, goals, deliverables)
+  ✓ All WPs have dependencies (no cycles)
+  ✓ All WPs have subtasks (T001-T048+)
+  ✓ All WPs have acceptance criteria (specific, measurable)
+  ✓ All FRs traced to ≥1 WP
+  ✓ Effort estimates realistic (12-16 tool calls per WP)
+  ✓ No WP >500 LOC (chunked appropriately)
+  ✓ Test coverage built-in (integration tests in every WP)
+  ✓ Non-goals explicit (scope control)
+  ✓ Dependencies clear (execution order unambiguous)
+
+Ready for: agileplus specify --title ... --epic ... --wp ...
+
+================================================================================

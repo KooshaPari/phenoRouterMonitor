@@ -2586,4 +2586,887 @@ deadpool-runtime = "0.6"
 
 ---
 
-_Last updated: 2026-03-31 (Wave 131-133)_
+---
+
+## 2026-03-31 - tokio Version Upgrades and Futures (Wave 134)
+
+**Project:** [cross-repo]
+**Dependency:** tokio
+**Status:** research
+**Priority:** P0
+
+### Current State
+
+```toml
+# phenotype/Cargo.toml
+tokio = { version = "1.35", features = ["full"] }
+```
+
+### Latest Stable
+
+- **tokio 1.40+** - Faster task spawning, improved async iterators
+- **tokio-console** - Now stable for async debugging
+
+### Recommended Upgrade Path
+
+```toml
+# Update features to match actual usage
+tokio = { version = "1.40", features = [
+    "rt-multi-thread",      # Multi-threaded runtime
+    "macros",               # #[tokio::main], #[tokio::test]
+    "sync",                 # Channels, Mutex
+    "time",                 # Sleep, interval
+    "fs",                   # File system (if needed)
+    "io-util",              # Async I/O traits
+    "net",                  # TCP, UDP (if needed)
+] }
+```
+
+### Breaking Changes
+
+| Version | Breaking Change | Migration |
+|---------|-----------------|-----------|
+| 1.35→1.40 | None significant | Minor |
+| 1.40+ | `JoinError` changed | Update error handling |
+
+### Fork Candidate
+
+None - tokio is canonical and well-maintained.
+
+---
+
+## 2026-03-31 - tracing Ecosystem Consolidation (Wave 135)
+
+**Project:** [cross-repo]
+**Dependency:** tracing, tracing-subscriber
+**Status:** research
+**Priority:** P1
+
+### Current State
+
+```toml
+# phenotype/Cargo.toml
+tracing = "0.1"
+tracing-subscriber = "0.3"
+```
+
+### Latest Stable
+
+- **tracing 0.1.40+** - Better span attributes
+- **tracing-subscriber 0.3.18+** - Improved JSON formatting
+
+### Recommended Upgrade
+
+```toml
+tracing = { version = "0.1.40", features = [
+    "std",           # Standard library support
+    "attributes",     # #[instrument]
+    "log",           # Log compatibility
+] }
+
+tracing-subscriber = { version = "0.3.18", features = [
+    "env-filter",     # EnvFilter
+    "json",          # JSON formatting
+    "ansi",          # ANSI colors
+] }
+```
+
+### Phenotype Patterns
+
+```rust
+// phenotype-telemetry/src/tracing.rs
+use tracing::{info, error, instrument};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+pub fn init_tracing(service: &str) -> Result<()> {
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info"));
+
+    let json_layer = JsonCodec::default()
+        .with_target(true)
+        .with_thread_ids(true);
+
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with(json_layer)
+        .init();
+
+    Ok(())
+}
+
+#[instrument(skip(data), fields(data.len = data.len()))]
+pub fn process_event(data: &[u8]) -> Result<()> {
+    info!("Processing event");
+    // ...
+}
+```
+
+---
+
+## 2026-03-31 - serde Serialization Modernization (Wave 136)
+
+**Project:** [cross-repo]
+**Dependency:** serde, serde_json
+**Status:** research
+**Priority:** P1
+
+### Current State
+
+```toml
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+```
+
+### Latest Stable
+
+- **serde 1.0.200+** - Better derive macros
+- **serde_json 1.0.115+** - Faster parsing
+
+### Recommended Upgrade
+
+```toml
+serde = { version = "1.0.200", features = ["derive"] }
+serde_json = "1.0.115"
+serde_yaml = "0.9"  # For config files
+toml = "0.8"        # For TOML config
+```
+
+### Phenotype Serialization Patterns
+
+```rust
+// phenotype-serialization/src/lib.rs
+use serde::{Serialize, Deserialize};
+use serde_json::{json, Value};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EventEnvelope {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub event_type: String,
+    #[serde(with = "bytes")]
+    pub payload: Vec<u8>,
+}
+
+impl EventEnvelope {
+    pub fn to_json(&self) -> Result<String> {
+        serde_json::to_string(self)
+            .map_err(|e| Error::Serialization(e.to_string()))
+    }
+
+    pub fn from_json(s: &str) -> Result<Self> {
+        serde_json::from_str(s)
+            .map_err(|e| Error::Deserialization(e.to_string()))
+    }
+}
+```
+
+### Alternative Formats
+
+| Format | Speed | Size | Schema | Use Case |
+|--------|-------|------|--------|----------|
+| JSON | Medium | Large | None | APIs, Debug |
+| MessagePack | Fast | Small | None | Internal |
+| CBOR | Fast | Small | None | Constrained |
+| Protobuf | Very Fast | Small | Required | Cross-lang |
+
+---
+
+## 2026-03-31 - thiserror and anyhow Consolidation (Wave 137)
+
+**Project:** [cross-repo]
+**Dependency:** thiserror, anyhow
+**Status:** research
+**Priority:** P1
+
+### Current State
+
+```toml
+# phenotype-error-core/Cargo.toml
+thiserror = "1.0"
+anyhow = "1.0"
+```
+
+### Latest Stable
+
+- **thiserror 1.0.50+** - Better error codes
+- **anyhow 1.0.80+** - Context improvements
+
+### Phenotype Error Pattern
+
+```rust
+// phenotype-error-core/src/lib.rs
+use thiserror::Error;
+use anyhow::{Result, Context};
+
+#[derive(Debug, Error)]
+pub enum PhenotypeError {
+    #[error("Event store error: {0}")]
+    EventStore(#[from] std::io::Error),
+
+    #[error("Serialization error: {0}")]
+    Serialization(String),
+
+    #[error("Validation error: {0}")]
+    Validation(String),
+
+    #[error("Not found: {resource} {id}")]
+    NotFound { resource: String, id: String },
+}
+
+pub type Result<T> = std::result::Result<T, PhenotypeError>;
+
+// Usage with anyhow for ergonomic errors
+pub fn load_events(path: &Path) -> anyhow::Result<Vec<Event>> {
+    let file = File::open(path)
+        .with_context(|| format!("Failed to open {}", path.display()))?;
+
+    let events: Vec<Event> = serde_json::from_reader(file)
+        .context("Failed to deserialize events")?;
+
+    Ok(events)
+}
+```
+
+### Error Hierarchy
+
+```
+PhenotypeError (thiserror enum)
+├── EventStore (std::io::Error)
+├── Serialization (String)
+├── Validation (String)
+└── NotFound { resource, id }
+
+anyhow::Error (for library-agnostic contexts)
+```
+
+---
+
+## 2026-03-31 - uuid and chrono Modernization (Wave 138)
+
+**Project:** [cross-repo]
+**Dependency:** uuid, chrono
+**Status:** research
+**Priority:** P2
+
+### Current State
+
+```toml
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+```
+
+### Latest Stable
+
+- **uuid 1.8+** - Faster v4 generation
+- **chrono 0.4.35+** - Time zone improvements
+
+### Recommended Upgrade
+
+```toml
+uuid = { version = "1.8", features = [
+    "v4",           # Random UUIDs
+    "serde",        # Serialization
+    "js",           # WebAssembly support
+] }
+
+chrono = { version = "0.4.35", features = [
+    "serde",        # Serialization
+    "std",          # Standard library
+    "clock",        # System clock
+] }
+
+# Consider time 0.3 for new projects
+time = { version = "0.3", features = ["serde"] }
+```
+
+### Phenotype ID Pattern
+
+```rust
+// phenotype-id/src/lib.rs
+use uuid::Uuid;
+use chrono::{DateTime, Utc};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EntityId {
+    pub uuid: Uuid,
+    pub created_at: DateTime<Utc>,
+}
+
+impl EntityId {
+    pub fn new() -> Self {
+        Self {
+            uuid: Uuid::new_v4(),
+            created_at: Utc::now(),
+        }
+    }
+
+    pub fn from_uuid(uuid: Uuid) -> Self {
+        Self {
+            uuid,
+            created_at: Utc::now(),
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        self.uuid.to_string()
+    }
+}
+```
+
+---
+
+## 2026-03-31 - async-trait and Pin Project (Wave 139)
+
+**Project:** [cross-repo]
+**Dependency:** async-trait, pin-project
+**Status:** research
+**Priority:** P2
+
+### Current State
+
+```toml
+async-trait = "0.1"
+pin-project = "1.1"
+```
+
+### Latest Stable
+
+- **async-trait 0.1.77+** - Better async fn in traits
+- **pin-project 1.1.5+** - Safe pin projections
+
+### Recommended Upgrade
+
+```toml
+async-trait = "0.1.77"
+pin-project = "1.1.5"
+```
+
+### Phenotype Trait Patterns
+
+```rust
+// phenotype-contracts/src/event_store.rs
+use async_trait::async_trait;
+use pin_project::pin_project;
+
+#[async_trait]
+pub trait EventStore: Send + Sync {
+    async fn append(&mut self, event: Event) -> Result<EventId>;
+    async fn load(&self, aggregate_id: Uuid) -> Result<Vec<Event>>;
+    async fn save_snapshot(&self, snapshot: Snapshot) -> Result<()>;
+}
+
+#[pin_project]
+pub struct CachedEventStore<S: EventStore> {
+    #[pin]
+    inner: S,
+    cache: DashMap<Uuid, Vec<Event>>,
+}
+
+impl<S: EventStore> CachedEventStore<S> {
+    pub fn new(inner: S) -> Self {
+        Self {
+            inner,
+            cache: DashMap::new(),
+        }
+    }
+}
+```
+
+---
+
+## 2026-03-31 - url and reqwest HTTP Patterns (Wave 140)
+
+**Project:** [cross-repo]
+**Dependency:** url, reqwest
+**Status:** research
+**Priority:** P2
+
+### Current State
+
+```toml
+url = "2.5"
+reqwest = { version = "0.11", features = ["json"] }
+```
+
+### Latest Stable
+
+- **url 2.5.2+** - Better parsing
+- **reqwest 0.12+** - Improved HTTP/2, WebSocket
+
+### Recommended Upgrade
+
+```toml
+url = "2.5.2"
+reqwest = { version = "0.12", features = [
+    "json",         # JSON support
+    "gzip",         # Compression
+    "brotli",       # Compression
+    "cookies",      # Cookie jar
+] }
+```
+
+### Phenotype HTTP Client Pattern
+
+```rust
+// phenotype-http/src/client.rs
+use reqwest::{Client, ClientBuilder};
+use url::Url;
+
+pub struct HttpClient {
+    client: Client,
+    base_url: Url,
+}
+
+impl HttpClient {
+    pub fn new(base_url: &str) -> Result<Self> {
+        let client = ClientBuilder::new()
+            .timeout(Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(10))
+            .build()?;
+
+        Ok(Self {
+            client,
+            base_url: Url::parse(base_url)?,
+        })
+    }
+
+    pub async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T> {
+        let url = self.base_url.join(path)?;
+        let response = self.client.get(url).send().await?;
+        response.json().await.map_err(|e| e.into())
+    }
+
+    pub async fn post<T: Serialize, R: DeserializeOwned>(&self, path: &str, body: &T) -> Result<R> {
+        let url = self.base_url.join(path)?;
+        let response = self.client.post(url).json(body).send().await?;
+        response.json().await.map_err(|e| e.into())
+    }
+}
+```
+
+---
+
+## 2026-03-31 - rustls and native-tls Decision (Wave 141)
+
+**Project:** [cross-repo]
+**Dependency:** rustls, native-tls
+**Status:** research
+**Priority:** P2
+
+### Current State
+
+```toml
+rustls = "0.21"
+native-tls = "0.2"
+```
+
+### Latest Stable
+
+- **rustls 0.22+** - Much faster, safer crypto
+- **native-tls 0.2.12+** - OpenSSL fallback
+
+### Decision Matrix
+
+| Aspect | rustls | native-tls |
+|--------|--------|------------|
+| Performance | ✅ Faster | 🟡 Medium |
+| Certificate Management | ❌ Manual | ✅ System store |
+| Platform Support | ✅ Universal | ✅ Universal |
+| FIPS Compliance | 🟡 | ✅ |
+
+### Recommended Configuration
+
+```toml
+# Prefer rustls for new projects
+rustls = { version = "0.22", features = [
+    "ring",         # Fast crypto
+    "tls12",        # TLS 1.2
+    "tls13",        # TLS 1.3
+] }
+rustls-native-certs = "0.3"  # Load system certs
+
+# Keep native-tls only for reqwest compatibility
+native-tls = "0.2.12"
+```
+
+### Phenotype TLS Pattern
+
+```rust
+// phenotype-tls/src/lib.rs
+use rustls::{ServerConfig, ClientConfig};
+use rustls_pemfile::{certs, pkcs8_private_keys};
+use std::fs::File;
+
+pub fn load_server_config(cert_path: &Path, key_path: &Path) -> Result<ServerConfig> {
+    let cert_file = File::open(cert_path)?;
+    let key_file = File::open(key_path)?;
+
+    let cert_chain = certs(&mut BufReader::new(cert_file))?.into();
+    let mut keys = pkcs8_private_keys(&mut BufReader::new(key_file))?;
+
+    let config = ServerConfig::builder()
+        .with_no_client_auth()
+        .with_single_cert(cert_chain, keys.remove(0))?;
+
+    Ok(config)
+}
+```
+
+---
+
+## 2026-03-31 - bytes and smallvec Optimization (Wave 142)
+
+**Project:** [cross-repo]
+**Dependency:** bytes, smallvec
+**Status:** research
+**Priority:** P2
+
+### Current State
+
+```toml
+bytes = "1.5"
+smallvec = "1.13"
+```
+
+### Latest Stable
+
+- **bytes 1.6+** - Better BytesMut
+- **smallvec 1.14+** - InlineArray improvements
+
+### Recommended Upgrade
+
+```toml
+bytes = "1.6"
+smallvec = { version = "1.14", features = ["union"] }
+```
+
+### Phenotype Buffer Patterns
+
+```rust
+// phenotype-buffer/src/lib.rs
+use bytes::{Bytes, BytesMut, Buf, BufMut};
+use smallvec::SmallVec;
+
+pub type InlineVec<T, const N: usize> = SmallVec<[T; N]>;
+
+pub struct EventBuffer {
+    // Inline storage for small events
+    data: InlineVec<u8, 128>,
+    // Overflow storage
+    overflow: Option<BytesMut>,
+}
+
+impl EventBuffer {
+    pub fn with_capacity(capacity: usize) -> Self {
+        if capacity <= 128 {
+            Self {
+                data: SmallVec::from_iter(std::iter::repeat(0).take(capacity)),
+                overflow: None,
+            }
+        } else {
+            Self {
+                data: SmallVec::new(),
+                overflow: Some(BytesMut::with_capacity(capacity)),
+            }
+        }
+    }
+
+    pub fn write(&mut self, bytes: &[u8]) {
+        if let Some(ref mut overflow) = self.overflow {
+            overflow.put_slice(bytes);
+        } else if self.data.len() + bytes.len() <= 128 {
+            self.data.extend_from_slice(bytes);
+        } else {
+            let mut new_overflow = BytesMut::with_capacity(bytes.len() * 2);
+            new_overflow.extend_from_slice(&self.data);
+            new_overflow.put_slice(bytes);
+            self.data.clear();
+            self.overflow = Some(new_overflow);
+        }
+    }
+}
+```
+
+---
+
+## 2026-03-31 - tempfile and fs-err Ergonomics (Wave 143)
+
+**Project:** [cross-repo]
+**Dependency:** tempfile, fs-err
+**Status:** research
+**Priority:** P3
+
+### Current State
+
+```toml
+tempfile = "3.8"
+fs-err = "2.10"
+```
+
+### Latest Stable
+
+- **tempfile 3.10+** - Better cleanup
+- **fs-err 2.11+** - Improved errors
+
+### Recommended Upgrade
+
+```toml
+tempfile = "3.10"
+fs-err = "2.11"
+```
+
+### Phenotype File Pattern
+
+```rust
+// phenotype-fs/src/lib.rs
+use tempfile::{TempDir, TempPath};
+use fs_err::{File, OpenOptions};
+use std::io::{BufReader, BufWriter};
+
+pub struct TempEventStore {
+    temp_dir: TempDir,
+}
+
+impl TempEventStore {
+    pub fn new() -> Result<Self> {
+        let temp_dir = tempfile::tempdir()?;
+        Ok(Self { temp_dir })
+    }
+
+    pub fn write_event(&self, id: Uuid, event: &[u8]) -> Result<PathBuf> {
+        let path = self.temp_dir.path().join(format!("{}.evt", id));
+        let file = fs_err::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(&path)?;
+
+        let mut writer = BufWriter::new(file);
+        writer.write_all(event)?;
+        writer.flush()?;
+
+        Ok(path)
+    }
+}
+```
+
+---
+
+## 2026-03-31 - parking_lot vs std::sync (Wave 144)
+
+**Project:** [cross-repo]
+**Dependency:** parking_lot
+**Status:** research
+**Priority:** P2
+
+### Current State
+
+```toml
+parking_lot = "0.12"
+```
+
+### Latest Stable
+
+- **parking_lot 0.12.2+** - Faster than std
+- **parking_lot_core 0.12.2+** - Fair mutex
+
+### Recommended Configuration
+
+```toml
+parking_lot = { version = "0.12.2", features = [
+    "owning_ref",   # OwningRef compatibility
+    "serde",        # Serialization
+] }
+```
+
+### Decision Matrix
+
+| Mutex Type | Performance | Fairness | Use Case |
+|------------|-------------|----------|----------|
+| `parking_lot::Mutex` | ✅ Faster | ❌ No | Contention < 10% |
+| `std::sync::Mutex` | 🟡 Medium | ✅ Yes | Critical sections |
+| `tokio::sync::Mutex` | 🟡 Medium | ❌ No | Async code |
+| `spin::Mutex` | ✅ Fastest | ❌ No | No waiting |
+
+### Phenotype Sync Pattern
+
+```rust
+// phenotype-sync/src/lib.rs
+use parking_lot::{Mutex, RwLock, OnceLock};
+use std::sync::Arc;
+
+pub struct EventStoreState {
+    events: RwLock<Vec<Event>>,
+    config: OnceLock<StoreConfig>,
+    connections: Mutex<ConnectionPool>,
+}
+
+impl EventStoreState {
+    pub fn new() -> Self {
+        Self {
+            events: RwLock::new(Vec::new()),
+            config: OnceLock::new(),
+            connections: Mutex::new(ConnectionPool::new()),
+        }
+    }
+
+    // Read-heavy workload optimization
+    pub fn read_events(&self) -> Vec<Event> {
+        self.events.read().clone()
+    }
+
+    // Write operations
+    pub fn append(&self, event: Event) {
+        let mut events = self.events.write();
+        events.push(event);
+    }
+}
+```
+
+---
+
+## 2026-03-31 - hashbrown and AHash (Wave 145)
+
+**Project:** [cross-repo]
+**Dependency:** hashbrown, ahash
+**Status:** research
+**Priority:** P3
+
+### Current State
+
+```toml
+hashbrown = "0.14"
+ahash = "0.8"
+```
+
+### Latest Stable
+
+- **hashbrown 0.15+** - SIMD hashing
+- **ahash 0.8.10+** - Faster than default
+
+### Recommended Configuration
+
+```toml
+# hashbrown is re-exported by std::collections in newer Rust
+hashbrown = { version = "0.15", features = ["raw"] }
+
+# Use ahash for performance-critical HashMaps
+ahash = "0.8.10"
+```
+
+### Decision Matrix
+
+| Hasher | Speed | DoS Resistance | Use Case |
+|--------|-------|----------------|----------|
+| Default (SipHash) | 🟡 Medium | ✅ High | General |
+| AHash | ✅ Fast | ❌ Low | Trusted input |
+| FxHash | ✅ Fast | ❌ None | Integer keys |
+| noahash | ✅ Fast | ✅ High | Best of both |
+
+### Phenotype HashMap Pattern
+
+```rust
+// phenotype-hash/src/lib.rs
+use hashbrown::HashMap;
+use ahash::RandomState;
+use std::hash::{BuildHasher, Hash};
+
+pub type AHashMap<K, V> = HashMap<K, V, RandomState>;
+pub type AHashSet<T> = HashSet<T, RandomState>;
+
+pub struct InMemoryStore {
+    // Fast hasher for event lookup
+    by_id: AHashMap<Uuid, Event>,
+    // Default hasher for user lookups (trusted input)
+    by_user: HashMap<String, Vec<Uuid>>,
+}
+
+impl InMemoryStore {
+    pub fn new() -> Self {
+        Self {
+            by_id: AHashMap::with_hasher(RandomState::new()),
+            by_user: HashMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, event: Event) {
+        self.by_id.insert(event.id, event.clone());
+        self.by_user.entry(event.user_id.clone())
+            .or_default()
+            .push(event.id);
+    }
+}
+```
+
+---
+
+## 2026-03-31 - indexmap and SmallVec Stack (Wave 146)
+
+**Project:** [cross-repo]
+**Dependency:** indexmap, smallvec
+**Status:** research
+**Priority:** P3
+
+### Current State
+
+```toml
+indexmap = "2.2"
+smallvec = { version = "1.13", features = ["union"] }
+```
+
+### Latest Stable
+
+- **indexmap 2.5+** - Stable iteration order
+- **smallvec 1.14+** - InlineVec improvements
+
+### Recommended Upgrade
+
+```toml
+indexmap = { version = "2.5", features = ["serde-1"] }
+smallvec = { version = "1.14", features = ["union", "serde"] }
+```
+
+### Phenotype Data Structures
+
+```rust
+// phenotype-collections/src/lib.rs
+use indexmap::IndexMap;
+use smallvec::SmallVec;
+
+pub type InlineVec<T, const N: usize> = SmallVec<[T; N]>;
+
+/// Insertion-ordered map with small inline storage
+pub struct OrderedConfig {
+    // Inline storage for config keys
+    keys: InlineVec<String, 8>,
+    values: IndexMap<String, ConfigValue>,
+}
+
+impl OrderedConfig {
+    pub fn new() -> Self {
+        Self {
+            keys: SmallVec::new(),
+            values: IndexMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, key: String, value: ConfigValue) {
+        if self.keys.len() < 8 && !self.values.contains_key(&key) {
+            self.keys.push(key.clone());
+        }
+        self.values.insert(key, value);
+    }
+
+    pub fn keys(&self) -> impl Iterator<Item = &String> {
+        // Preserve insertion order
+        self.keys.iter().chain(
+            self.values.keys().filter(|k| !self.keys.contains(k))
+        )
+    }
+}
+```
+
+---
+
+_Last updated: 2026-03-31 (Wave 134-146)_
+
+_Last updated: 2026-03-31 (Round 8 - Expanded Dependencies)_
