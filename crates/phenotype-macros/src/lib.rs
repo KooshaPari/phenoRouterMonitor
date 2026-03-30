@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-//! phenotype-macros
-
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("{0}")]
-    Invalid(String),
-}
-
-pub type Result<T> = std::result::Result<T, Error>;
-=======
 //! Phenotype Macros
 //!
 //! This crate provides procedural macros for common Phenotype DDD patterns:
@@ -112,4 +99,3 @@ pub fn async_main(
     let input = syn::parse_macro_input!(item as syn::ItemFn);
     async_main::derive(input).into()
 }
->>>>>>> 3b64e29a1 (feat(phenotype-macros): implement Builder, FromStr, and #[async_main] macros)
