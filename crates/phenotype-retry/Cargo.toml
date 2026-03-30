@@ -1,5 +1,6 @@
 [package]
-backoff.workspace = true
+[package]
+name = "phenotype-retry"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,13 +8,10 @@ license.workspace = true
 repository.workspace = true
 description = "Retry patterns for Phenotype"
 
-[dependencies]
-tokio = { workspace = true, features = ["time", "macros", "rt-multi-thread"] }
+tokio.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
+backoff = { version = "0.4", features = ["tokio"] }
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["test-util", "macros", "rt-multi-thread"] }
-
-[lib]
-path = "src/lib.rs"
+tokio.workspace = true
