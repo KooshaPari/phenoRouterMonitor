@@ -5,8 +5,23 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
+<<<<<<< HEAD
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+chrono.workspace = true
+dashmap.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+lru.workspace = true
+moka.workspace = true
+phenotype-error-core.workspace = true
+=======
 authors.workspace = true
 description = "TODO"
+>>>>>>> origin/main
 
 [lib]
 path = "src/lib.rs"

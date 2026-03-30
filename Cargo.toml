@@ -9,6 +9,10 @@ repository = "https://github.com/KooshaPari/phenotype-infrakit"
 [workspace]
 resolver = "2"
 members = [
+    "crates/agileplus-error-core",
+    "crates/agileplus-domain",
+    "crates/agileplus-api-types",
+    "libs/phenotype-config-core",
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
     "crates/phenotype-error-core",
@@ -23,8 +27,6 @@ members = [
 ]
 
 exclude = [
-    "crates/agileplus-api-types",
-    "crates/agileplus-domain",
     "crates/phenotype-crypto",
     "crates/phenotype-git-core",
     "crates/phenotype-http-client-core",
@@ -37,7 +39,6 @@ exclude = [
     "crates/phenotype-string",
     "crates/phenotype-time",
     "crates/phenotype-validation",
-    "libs/phenotype-config-core",
 ]
 
 [workspace.dependencies]
@@ -54,8 +55,20 @@ async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 hex = "0.4"
+<<<<<<< HEAD
+blake3 = "1.0"
+tokio = { version = "1", features = ["full"] }
+dashmap = "5"
+parking_lot = "0.12"
+lru = "0.12"
+moka = { version = "0.12", features = ["sync"] }
+regex = "1"
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }
+=======
 uuid = { version = "1", features = ["v4", "serde"] }
 tokio = { version = "1.41", features = ["full"] }
+>>>>>>> origin/main
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
 regex = "1"
@@ -70,9 +83,15 @@ toml = "0.8"
 reqwest = { version = "0.12", features = ["json"] }
 proc-macro2 = "1"
 tempfile = "3"
+<<<<<<< HEAD
+dirs = "5"
+phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
+agileplus-error-core = { version = "0.2.0", path = "crates/agileplus-error-core" }
+=======
 blake3 = "1.3"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 phenotype-async-traits = { path = "crates/phenotype-async-traits" }
+>>>>>>> origin/main
 
 [profile.dev]
 opt-level = 0
