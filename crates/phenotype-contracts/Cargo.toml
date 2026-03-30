@@ -18,7 +18,6 @@ serde_json = { workspace = true }
 async-trait = { workspace = true }
 thiserror = { workspace = true }
 phenotype-error-core = { path = "../phenotype-error-core" }
-phenotype-config-core = { path = "../../libs/phenotype-config-core" }
 
 [dev-dependencies]
 tokio = { workspace = true }

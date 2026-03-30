@@ -1,17 +1,21 @@
 [package]
 name = "phenotype-crypto"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Cryptographic utilities for Phenotype — hashing, hex encoding, and content addressing"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+authors = ["Phenotype Team"]
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+description = "Cryptographic utilities for Phenotype — hashing, symmetric encryption, key derivation, and HMAC signatures"
 
 [dependencies]
-sha2.workspace = true
-hex.workspace = true
-blake3.workspace = true
-thiserror.workspace = true
+sha2 = "0.10"
+hex = "0.4"
+blake3 = "1.5"
+thiserror = "2.0"
+aes-gcm = "0.10"
+pbkdf2 = "0.12"
+rand = "0.8"
+hmac = "0.12"
 
 [lib]
 path = "src/lib.rs"

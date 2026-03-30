@@ -2,10 +2,11 @@
 name = "phenotype-telemetry"
 version.workspace = true
 edition.workspace = true
-authors.workspace = true
 license.workspace = true
+rust-version.workspace = true
 repository.workspace = true
-description = "Phenotype Telemetry"
+authors.workspace = true
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
@@ -13,10 +14,4 @@ path = "src/lib.rs"
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true
-dashmap.workspace = true
-tracing.workspace = true
-tokio.workspace = true
-phenotype-error-core.workspace = true
-
-[dev-dependencies]
-tokio.workspace = true
+thiserror.workspace = true
