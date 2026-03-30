@@ -27,6 +27,7 @@ pub enum Metric {
 /// Counter metric — incremental counter.
 #[derive(Debug, Clone)]
 pub struct Counter {
+    #[allow(dead_code)]
     name: String,
     value: Arc<std::sync::atomic::AtomicU64>,
 }
@@ -59,6 +60,7 @@ impl Counter {
 /// Gauge metric — point-in-time measurement.
 #[derive(Debug, Clone)]
 pub struct Gauge {
+    #[allow(dead_code)]
     name: String,
     value: Arc<std::sync::Mutex<f64>>,
 }
@@ -84,12 +86,13 @@ impl Gauge {
 /// Histogram metric — distribution of values.
 #[derive(Debug, Clone)]
 pub struct Histogram {
+    #[allow(dead_code)]
     name: String,
     values: Arc<std::sync::Mutex<Vec<f64>>>,
 }
 
 impl Histogram {
-    /// Metric name as registered in the registry.
+    /// Get the metric name.
     #[must_use]
     pub fn name(&self) -> &str {
         &self.name
@@ -109,6 +112,7 @@ impl Histogram {
 /// Metrics registry for centralized metric management.
 #[derive(Debug)]
 pub struct MetricsRegistry {
+    #[allow(dead_code)]
     config: TelemetryConfig,
     counters: DashMap<String, Counter>,
     gauges: DashMap<String, Gauge>,
@@ -191,11 +195,11 @@ impl MetricsRegistry {
         }
 
         for entry in self.histograms.iter() {
-            let h = entry.value();
-            let _name = h.name(); // Read the name field
             snapshot.insert(
                 entry.key().clone(),
-                Metric::Histogram { values: h.values() },
+                Metric::Histogram {
+                    values: entry.value().values(),
+                },
             );
         }
 
@@ -213,6 +217,7 @@ mod tests {
             name: "test".into(),
             value: Arc::new(std::sync::atomic::AtomicU64::new(0)),
         };
+        assert_eq!(counter.name(), "test");
         counter.inc();
         assert_eq!(counter.value(), 1);
         counter.add(5);
@@ -225,14 +230,11 @@ mod tests {
             name: "test".into(),
             value: Arc::new(std::sync::Mutex::new(0.0)),
         };
+        assert_eq!(gauge.name(), "test");
         gauge.set(42.5);
         assert_eq!(gauge.value(), 42.5);
     }
 
-    #[test]
-    #[test]
-    #[test]
-    #[test]
     #[test]
     fn histogram_observe() {
         let histogram = Histogram {
@@ -255,6 +257,7 @@ mod tests {
             environment: "test".into(),
         };
         let registry = MetricsRegistry::new(config);
+        assert_eq!(registry.config().service_name, "test-service");
 
         let counter = registry.counter("requests");
         counter.inc();

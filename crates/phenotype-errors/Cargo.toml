@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "DEPRECATED: Use phenotype-error-core instead. This crate is a compatibility shim."
 
 [dependencies]
 phenotype-error-core = { path = "../phenotype-error-core" }

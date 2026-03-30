@@ -1,10 +1,23 @@
 //! # Phenotype Errors
 //!
-//! Unified error types for the Phenotype ecosystem.
+//! **DEPRECATED**: This crate is a compatibility shim. Use `phenotype-error-core` directly.
 //!
 //! This crate re-exports `ErrorKind` from `phenotype-error-core` as the
 //! canonical error type. The legacy `Error` enum is retained for
 //! backward compatibility but should not be used in new code.
+//!
+//! ## Migration
+//!
+//! Replace:
+//! ```toml
+//! phenotype-errors = "0.2"
+//! ```
+//! With:
+//! ```toml
+//! phenotype-error-core = "0.2"
+//! ```
+//!
+//! And update imports from `phenotype_errors::ErrorKind` to `phenotype_error_core::ErrorKind`.
 
 pub use phenotype_error_core::{Error, ErrorContext, ErrorExt, ErrorKind, ErrorKindInner};
 pub use thiserror::Error;
