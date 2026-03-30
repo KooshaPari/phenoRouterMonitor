@@ -9,7 +9,7 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{extract::State, routing::get, routing::post, Json, Router};
 use phenotype_health::{HealthCheckResult, HealthResponse, HealthStatus};
-use serde_json::{json, Value};
+use serde_json::json;
 use std::sync::Arc;
 
 /// Create the main router with all endpoints.
@@ -211,7 +211,7 @@ mod tests {
     #[tokio::test]
     async fn test_health_response_structure() {
         let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
+        let _state = Arc::new(RouterState::new(config));
         // Health response is structured correctly
         assert!(true);
     }
@@ -219,7 +219,7 @@ mod tests {
     #[tokio::test]
     async fn test_readiness_response_structure() {
         let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
+        let _state = Arc::new(RouterState::new(config));
         // Readiness response is structured correctly
         assert!(true);
     }
@@ -227,7 +227,7 @@ mod tests {
     #[tokio::test]
     async fn test_metrics_prometheus_format() {
         let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
+        let _state = Arc::new(RouterState::new(config));
         // Prometheus format is correct
         assert!(true);
     }
@@ -235,7 +235,7 @@ mod tests {
     #[tokio::test]
     async fn test_router_info_response() {
         let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
+        let _state = Arc::new(RouterState::new(config));
         // Router info response is correct
         assert!(true);
     }

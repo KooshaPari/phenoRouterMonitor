@@ -1,0 +1,21 @@
+[package]
+name = "phenotype-router-monitor"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "HTTP router with monitoring, health checks, and decision tracking"
+
+[dependencies]
+phenotype-router-core = { path = "../phenotype-router-core" }
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, optional = true }
+thiserror.workspace = true
+log.workspace = true
+
+[features]
+default = ["async"]
+async = ["tokio"]
+
+[dev-dependencies]

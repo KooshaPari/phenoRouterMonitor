@@ -16,12 +16,22 @@
 //! ```rust
 //! use phenotype_router_config::ConfigLoader;
 //!
-//! # #[tokio::main]
-//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let config = ConfigLoader::load_from_file("config.toml").await?;
+//! let config_content = r#"
+//! name = "my-router"
+//! [server]
+//! host = "127.0.0.1"
+//! port = 8080
+//! timeout_secs = 30
+//! max_connections = 1000
+//! [[routes]]
+//! path = "/api/users"
+//! method = "GET"
+//! handler = "user_handler"
+//! "#;
+//!
+//! let config = ConfigLoader::load_from_str(config_content)?;
 //! println!("Router: {}", config.name);
-//! # Ok(())
-//! # }
+//! # Ok::<(), phenotype_router_config::RouterConfigError>(())
 //! ```
 //!
 //! ## TOML Format

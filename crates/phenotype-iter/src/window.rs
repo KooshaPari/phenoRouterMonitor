@@ -50,15 +50,19 @@ where
 
         // Slide the window: remove first, add new
         self.window.remove(0);
-        if let Some(item) = self.iter.next() {
-            self.window.push(item);
-            Some(result)
-        } else {
-            // Return the last full window if we've exhausted the iterator
-            if self.window.is_empty() {
-                None
-            } else {
+        match self.iter.next() {
+            Some(item) => {
+                self.window.push(item);
                 Some(result)
+            }
+            None => {
+                // No more items, return the last result and then stop
+                // The window is now incomplete, so next call will return None
+                if !result.is_empty() {
+                    Some(result)
+                } else {
+                    None
+                }
             }
         }
     }

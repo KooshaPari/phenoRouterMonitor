@@ -1,0 +1,38 @@
+# Code Analyzer Agent Configuration
+id: code-analyzer
+name: Code Analyzer Agent
+version: 1.0.0
+agent_type: analyzer
+description: |
+  Analyzes Rust code for patterns, complexity metrics, and architecture compliance.
+  Identifies code smells, performance bottlenecks, and potential refactoring opportunities.
+
+provider:
+  provider_type: openrouter
+  model: gpt-4
+  temperature: 0.3
+  max_tokens: 4096
+  top_p: 0.95
+
+parameters:
+  analysis_depth: comprehensive
+  report_format: markdown
+  include_metrics: true
+  include_recommendations: true
+  max_file_size_kb: 500
+
+tags:
+  - analysis
+  - rust
+  - code-quality
+  - critical
+
+enabled: true
+timeout_ms: 30000
+max_retries: 3
+
+metadata:
+  author: phenotype-team
+  maintainer: code-quality
+  category: static-analysis
+  priority: high

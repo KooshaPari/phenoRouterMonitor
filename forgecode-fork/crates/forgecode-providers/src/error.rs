@@ -33,7 +33,7 @@ pub enum Error {
     UnsupportedProvider { provider: String },
 
     /// Rate limit exceeded
-    #[error("Rate limit exceeded: {retry_after}")]
+    #[error("Rate limit exceeded: {retry_after:?}")]
     RateLimited { retry_after: Option<u64> },
 
     /// Serialization error

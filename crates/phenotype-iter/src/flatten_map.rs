@@ -79,7 +79,7 @@ mod tests {
         let items = vec![1, 2, 3];
         let result: Vec<i32> = items
             .into_iter()
-            .flat_map_custom(|x| vec![x, x * 2])
+            .flat_map(|x| vec![x, x * 2])
             .collect();
         assert_eq!(result, vec![1, 2, 2, 4, 3, 6]);
     }
@@ -89,7 +89,7 @@ mod tests {
         let items = vec!["a,b", "c,d,e"];
         let result: Vec<&str> = items
             .into_iter()
-            .flat_map_custom(|s| s.split(',').collect::<Vec<_>>())
+            .flat_map(|s| s.split(',').collect::<Vec<_>>())
             .collect();
         assert_eq!(result, vec!["a", "b", "c", "d", "e"]);
     }
@@ -99,7 +99,7 @@ mod tests {
         let items = vec![1, 2, 3];
         let result: Vec<i32> = items
             .into_iter()
-            .flat_map_custom(|x| {
+            .flat_map(|x| {
                 if x == 2 {
                     vec![]
                 } else {
@@ -115,7 +115,7 @@ mod tests {
         let items: Vec<i32> = vec![];
         let result: Vec<i32> = items
             .into_iter()
-            .flat_map_custom(|x| vec![x, x * 2])
+            .flat_map(|x| vec![x, x * 2])
             .collect();
         assert!(result.is_empty());
     }
@@ -125,7 +125,7 @@ mod tests {
         let items = vec![1, 2, 3];
         let result: Vec<i32> = items
             .into_iter()
-            .flat_map_custom(|x| (0..x).collect::<Vec<_>>())
+            .flat_map(|x| (0..x).collect::<Vec<_>>())
             .collect();
         assert_eq!(result, vec![0, 0, 1, 0, 1, 2]);
     }

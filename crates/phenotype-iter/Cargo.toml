@@ -1,11 +1,13 @@
 [package]
 name = "phenotype-iter"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Iterator extensions for Phenotype — batching, dedup, collect helpers"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]

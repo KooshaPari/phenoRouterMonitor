@@ -5,7 +5,7 @@ pub mod together;
 pub mod anthropic;
 
 use crate::config::ProviderType;
-use crate::error::{Error, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

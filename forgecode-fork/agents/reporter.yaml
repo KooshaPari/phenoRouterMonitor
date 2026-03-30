@@ -1,0 +1,43 @@
+# Report Generator Agent Configuration
+id: report-generator
+name: Report Generator Agent
+version: 1.0.0
+agent_type: reporter
+description: |
+  Generates comprehensive reports on code quality, test coverage, and architecture.
+  Creates executive summaries, detailed findings, and actionable recommendations.
+
+provider:
+  provider_type: openrouter
+  model: gpt-4-turbo
+  temperature: 0.5
+  max_tokens: 8192
+  top_p: 0.95
+
+parameters:
+  report_types:
+    - summary
+    - detailed
+    - metrics
+  include_visuals: true
+  include_charts: true
+  include_timeline: true
+  output_format: markdown
+  generate_pdf: false
+
+tags:
+  - reporting
+  - documentation
+  - insights
+  - metrics
+  - executive
+
+enabled: true
+timeout_ms: 60000
+max_retries: 1
+
+metadata:
+  author: phenotype-team
+  maintainer: reporting
+  category: documentation
+  priority: medium

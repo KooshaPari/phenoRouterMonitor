@@ -71,7 +71,6 @@ syn = { version = "2", features = ["full", "parsing"] }
 quote = "1"
 proc-macro2 = "1"
 dashmap = "6"
-parking_lot = "0.12"
 axum = "0.7"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 toml = "0.8"

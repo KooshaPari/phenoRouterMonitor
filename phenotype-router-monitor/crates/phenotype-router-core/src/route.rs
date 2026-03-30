@@ -25,17 +25,43 @@ pub struct RouteConfig {
 }
 
 /// A backend server configuration.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Backend {
     id: String,
     url: String,
-    #[serde(skip)]
     active_connections: Arc<AtomicUsize>,
-    #[serde(skip)]
     total_requests: Arc<AtomicUsize>,
-    #[serde(skip)]
     total_errors: Arc<AtomicUsize>,
     healthy: Arc<std::sync::Mutex<bool>>,
+}
+
+impl Serialize for Backend {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Backend", 2)?;
+        state.serialize_field("id", &self.id)?;
+        state.serialize_field("url", &self.url)?;
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for Backend {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct BackendData {
+            id: String,
+            url: String,
+        }
+
+        let data = BackendData::deserialize(deserializer)?;
+        Ok(Backend::new(data.id, data.url))
+    }
 }
 
 impl Backend {

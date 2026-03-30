@@ -114,6 +114,7 @@ impl RegexMatcher {
         &self.pattern
     }
 
+    #[allow(dead_code)]
     fn get_compiled(&mut self) -> RouterResult<&Regex> {
         if self.compiled.is_none() {
             self.compiled = Some(Regex::new(&self.pattern).map_err(|e| {
@@ -250,9 +251,16 @@ mod tests {
 
     #[test]
     fn test_wildcard_special_chars() {
-        let matcher = WildcardMatcher::new("/api/v1.?/users".to_string()).unwrap();
+        // Pattern with literal dot - dot is escaped in regex, so it only matches literal dot
+        let matcher = WildcardMatcher::new("/api/v1./users".to_string()).unwrap();
         assert!(matcher.matches("/api/v1./users"));
-        assert!(matcher.matches("/api/v1a/users"));
+        assert!(!matcher.matches("/api/v1a/users")); // dot doesn't match 'a'
+
+        // Pattern with question mark - matches any single char
+        let matcher2 = WildcardMatcher::new("/api/v1?/users".to_string()).unwrap();
+        assert!(matcher2.matches("/api/v1a/users"));
+        assert!(matcher2.matches("/api/v1./users"));
+        assert!(matcher2.matches("/api/v10/users")); // ? matches any single char, so 1 matches
     }
 
     #[test]

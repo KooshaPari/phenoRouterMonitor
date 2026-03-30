@@ -52,8 +52,8 @@ impl ConfigLoader {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
     use tempfile::NamedTempFile;
-    use tokio::io::AsyncWriteExt;
 
     #[tokio::test]
     async fn test_load_from_file() {

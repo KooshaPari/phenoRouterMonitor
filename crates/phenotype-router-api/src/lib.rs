@@ -14,12 +14,11 @@
 //! use std::net::SocketAddr;
 //!
 //! #[tokio::main]
-//! async fn main() -> anyhow::Result<()> {
+//! async fn main() {
 //!     let config = RouterConfig::default();
 //!     let server = RouterApiServer::new(config);
-//!     let addr: SocketAddr = "127.0.0.1:3000".parse()?;
-//!     server.run(addr).await?;
-//!     Ok(())
+//!     let addr: SocketAddr = "127.0.0.1:3000".parse().unwrap();
+//!     let _ = server.run(addr).await;
 //! }
 //! ```
 
@@ -82,71 +81,75 @@ impl RouterApiServer {
 #[cfg(test)]
 mod integration_tests {
     use super::*;
-    use axum::http::StatusCode;
-    use serde_json::{json, Value};
     use std::sync::Arc;
-    use tokio::net::TcpListener;
 
-    async fn setup_test_server() -> (RouterApiServer, SocketAddr) {
+    #[tokio::test]
+    async fn test_router_server_creation() {
+        let config = RouterConfig::default();
+        let server = RouterApiServer::new(config);
+        assert!(!server.config().id.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_router_server_has_state() {
+        let config = RouterConfig::default();
+        let server = RouterApiServer::new(config);
+        let state = server.state();
+        assert_eq!(state.agents().len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_router_creates_router_app() {
+        let config = RouterConfig::default();
+        let state = Arc::new(RouterState::new(config));
+        let _app = create_router(state);
+        // Router app created successfully
+        assert!(true);
+    }
+
+    #[tokio::test]
+    async fn test_server_uptime() {
+        let config = RouterConfig::default();
+        let server = RouterApiServer::new(config);
+        let uptime = server.state().uptime_secs();
+        assert_eq!(uptime, 0);
+    }
+
+    #[tokio::test]
+    async fn test_server_with_agents() {
         let config = RouterConfig::default();
         let server = RouterApiServer::new(config);
 
-        // Use a random free port
-        let listener = TcpListener::bind("127.0.0.1:0")
-            .await
-            .expect("failed to bind");
-        let addr = listener.local_addr().expect("failed to get local addr");
+        let agent = Agent::new("test-agent", "Test Agent");
+        let _ = server.state().add_agent(agent);
 
-        (server, addr)
+        assert_eq!(server.state().agents().len(), 1);
     }
 
     #[tokio::test]
-    async fn test_health_endpoint() {
+    async fn test_server_metrics_collection() {
         let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
-        let app = create_router(state);
+        let server = RouterApiServer::new(config);
 
-        let response = axum::http::Request::builder()
-            .method("GET")
-            .uri("/health")
-            .body(axum::body::Body::empty())
-            .unwrap();
+        server.state().record_request("/health", "GET", 200);
+        server.state().record_request("/health", "GET", 200);
+        server.state().record_error("test_error");
 
-        let client = axum::body::to_bytes(axum::body::Body::empty(), 1024)
-            .await
-            .unwrap();
-
-        // Verify the app was created successfully
-        assert!(true);
+        let metrics = server.state().metrics();
+        assert_eq!(metrics.total_requests, 2);
+        assert_eq!(metrics.total_errors, 1);
     }
 
     #[tokio::test]
-    async fn test_metrics_json_endpoint() {
-        let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
-        let app = create_router(state);
+    async fn test_server_config_builder() {
+        let config = RouterConfig::default()
+            .with_id("test-router")
+            .with_environment("test")
+            .with_max_agents(50);
 
-        // Verify the app was created successfully
-        assert!(true);
-    }
-
-    #[tokio::test]
-    async fn test_router_info_endpoint() {
-        let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
-        let app = create_router(state);
-
-        // Verify the app was created successfully
-        assert!(true);
-    }
-
-    #[tokio::test]
-    async fn test_agents_endpoint() {
-        let config = RouterConfig::default();
-        let state = Arc::new(RouterState::new(config));
-        let app = create_router(state);
-
-        // Verify the app was created successfully
-        assert!(true);
+        let server = RouterApiServer::new(config);
+        assert_eq!(server.config().id, "test-router");
+        assert_eq!(server.config().environment, "test");
+        assert_eq!(server.config().max_agents, 50);
     }
 }

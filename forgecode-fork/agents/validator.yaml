@@ -1,0 +1,40 @@
+# Code Validator Agent Configuration
+id: code-validator
+name: Code Validator Agent
+version: 1.0.0
+agent_type: validator
+description: |
+  Validates Rust code for correctness, safety, and compliance with coding standards.
+  Performs type checking, borrow checker analysis, and style validation.
+
+provider:
+  provider_type: openrouter
+  model: gpt-4
+  temperature: 0.2
+  max_tokens: 2048
+  top_p: 0.9
+
+parameters:
+  validation_level: strict
+  check_safety: true
+  check_types: true
+  check_ownership: true
+  check_style: true
+  auto_fix_suggestions: true
+
+tags:
+  - validation
+  - rust
+  - code-quality
+  - security
+  - compliance
+
+enabled: true
+timeout_ms: 20000
+max_retries: 2
+
+metadata:
+  author: phenotype-team
+  maintainer: code-validation
+  category: linting-security
+  priority: critical

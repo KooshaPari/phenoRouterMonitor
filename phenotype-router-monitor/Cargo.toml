@@ -4,7 +4,12 @@ members = [
     "crates/phenotype-router-core",
     "crates/phenotype-router-monitor",
 ]
-package.edition = "2021"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Phenotype Contributors"]
+license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -15,12 +20,6 @@ thiserror = "1.0"
 log = "0.4"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-
-[workspace.package]
-version = "0.1.0"
-edition = "2021"
-authors = ["Phenotype Contributors"]
-license = "MIT OR Apache-2.0"
 
 # Shared profile settings
 [profile.release]

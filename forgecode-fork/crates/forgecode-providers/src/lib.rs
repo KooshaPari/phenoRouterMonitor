@@ -8,10 +8,10 @@
 //! # Example
 //!
 //! ```ignore
-//! use forgecode_providers::{ProviderBuilder, Provider};
+//! use forgecode_providers::{ProviderBuilder, ProviderType};
 //!
 //! let provider = ProviderBuilder::new()
-//!     .provider(Provider::OpenRouter)
+//!     .provider(ProviderType::OpenRouter)
 //!     .api_key("sk-...")
 //!     .model("gpt-4")
 //!     .temperature(0.7)
@@ -24,11 +24,13 @@ pub mod error;
 pub mod providers;
 pub mod config;
 pub mod builder;
+pub mod subagent;
 
 pub use error::{Error, Result};
 pub use providers::{Provider, LlmProvider};
 pub use config::ProviderConfig;
 pub use builder::ProviderBuilder;
+pub use subagent::{SubagentConfig, Agent, AgentDiscovery, AgentProviderConfig};
 
 /// Current version of forgecode-providers
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -8,8 +8,10 @@ repository.workspace = true
 description = "Git operations for Phenotype — repository info, diff, log, and status via libgit2"
 
 [dependencies]
-gix.workspace = true
 thiserror.workspace = true
+git2.workspace = true
+
+[dev-dependencies]
 
 [lib]
 path = "src/lib.rs"

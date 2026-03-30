@@ -43,7 +43,6 @@ use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
 use std::time::Duration;
 
 /// Key for identifying a unique request route.
@@ -217,10 +216,7 @@ impl RouterMetrics {
             .entry(route)
             .and_modify(|metrics| {
                 metrics.total_requests += 1;
-                *metrics
-                    .status_code_counts
-                    .entry(status_code)
-                    .or_insert(0) += 1;
+                *metrics.status_code_counts.entry(status_code).or_insert(0) += 1;
                 metrics.latencies_ms.push(latency_ms);
                 metrics.total_latency_ms += latency_ms;
             })
@@ -362,12 +358,7 @@ mod tests {
         let metrics = RouterMetrics::new();
 
         for i in 0..100 {
-            metrics.record_request(
-                "GET",
-                "/users",
-                200,
-                Duration::from_millis(10 + i),
-            );
+            metrics.record_request("GET", "/users", 200, Duration::from_millis(10 + i));
         }
 
         assert_eq!(metrics.total_requests(), 100);
@@ -427,12 +418,7 @@ mod tests {
         let route = RouteKey::new("GET", "/search");
 
         for i in 1..=100 {
-            metrics.record_request(
-                "GET",
-                "/search",
-                200,
-                Duration::from_millis(i),
-            );
+            metrics.record_request("GET", "/search", 200, Duration::from_millis(i));
         }
 
         let route_metrics = metrics.get(&route).expect("route should exist");
@@ -447,12 +433,7 @@ mod tests {
         let route = RouteKey::new("GET", "/search");
 
         for i in 1..=100 {
-            metrics.record_request(
-                "GET",
-                "/search",
-                200,
-                Duration::from_millis(i),
-            );
+            metrics.record_request("GET", "/search", 200, Duration::from_millis(i));
         }
 
         let route_metrics = metrics.get(&route).expect("route should exist");
@@ -467,12 +448,7 @@ mod tests {
         let route = RouteKey::new("GET", "/search");
 
         for i in 1..=100 {
-            metrics.record_request(
-                "GET",
-                "/search",
-                200,
-                Duration::from_millis(i),
-            );
+            metrics.record_request("GET", "/search", 200, Duration::from_millis(i));
         }
 
         let route_metrics = metrics.get(&route).expect("route should exist");
@@ -527,12 +503,7 @@ mod tests {
         let metrics = RouterMetrics::new();
 
         for i in 1..=50 {
-            metrics.record_request(
-                "GET",
-                "/api",
-                200,
-                Duration::from_millis(i * 2),
-            );
+            metrics.record_request("GET", "/api", 200, Duration::from_millis(i * 2));
         }
 
         let output = metrics.prometheus_format();
@@ -548,7 +519,7 @@ mod tests {
         let metrics = Arc::new(RouterMetrics::new());
         let mut handles = vec![];
 
-        for thread_id in 0..10 {
+        for _thread_id in 0..10 {
             let metrics_clone = Arc::clone(&metrics);
             let handle = tokio::spawn(async move {
                 for i in 0..100 {
@@ -577,12 +548,7 @@ mod tests {
 
         // Populate metrics
         for i in 0..100 {
-            metrics.record_request(
-                "GET",
-                "/api",
-                200,
-                Duration::from_millis(i % 100 + 1),
-            );
+            metrics.record_request("GET", "/api", 200, Duration::from_millis(i % 100 + 1));
         }
 
         let mut handles = vec![];
@@ -642,7 +608,12 @@ mod tests {
     fn test_complex_path_tracking() {
         let metrics = RouterMetrics::new();
 
-        metrics.record_request("GET", "/api/v1/users/123/profile", 200, Duration::from_millis(50));
+        metrics.record_request(
+            "GET",
+            "/api/v1/users/123/profile",
+            200,
+            Duration::from_millis(50),
+        );
         metrics.record_request(
             "GET",
             "/api/v1/users/456/profile",
@@ -672,7 +643,8 @@ mod tests {
     fn test_route_key_serialization() {
         let route = RouteKey::new("GET", "/users");
         let json = serde_json::to_string(&route).expect("serialization should work");
-        let deserialized: RouteKey = serde_json::from_str(&json).expect("deserialization should work");
+        let deserialized: RouteKey =
+            serde_json::from_str(&json).expect("deserialization should work");
 
         assert_eq!(route, deserialized);
     }
@@ -680,16 +652,27 @@ mod tests {
     // Traces to: FR-METRICS-013 (Serialization - RouteMetrics)
     #[test]
     fn test_route_metrics_serialization() {
-        let metrics = RouterMetrics::new();
-        metrics.record_request("GET", "/api", 200, Duration::from_millis(50));
-        metrics.record_request("GET", "/api", 200, Duration::from_millis(100));
+        let route_metrics = RouteMetrics {
+            total_requests: 100,
+            status_code_counts: {
+                let mut map = std::collections::BTreeMap::new();
+                map.insert(200, 95);
+                map.insert(404, 5);
+                map
+            },
+            latencies_ms: vec![10, 20, 30, 40, 50],
+            total_latency_ms: 150,
+        };
 
-        let snapshot = metrics.snapshot();
-        let json = serde_json::to_string(&snapshot).expect("serialization should work");
-        let deserialized: MetricsSnapshot =
+        let json = serde_json::to_string(&route_metrics).expect("serialization should work");
+        let deserialized: RouteMetrics =
             serde_json::from_str(&json).expect("deserialization should work");
 
-        assert_eq!(snapshot.total_requests, deserialized.total_requests);
+        assert_eq!(route_metrics.total_requests, deserialized.total_requests);
+        assert_eq!(
+            route_metrics.status_code_counts,
+            deserialized.status_code_counts
+        );
     }
 
     // Traces to: FR-METRICS-014 (Empty metrics behavior)
@@ -721,12 +704,7 @@ mod tests {
         // Add varying latencies
         let latencies = vec![10, 20, 30, 40, 50, 100, 150, 200];
         for latency_ms in latencies {
-            metrics.record_request(
-                "GET",
-                "/api",
-                200,
-                Duration::from_millis(latency_ms),
-            );
+            metrics.record_request("GET", "/api", 200, Duration::from_millis(latency_ms));
         }
 
         let route_metrics = metrics.get(&RouteKey::new("GET", "/api")).unwrap();
@@ -755,12 +733,7 @@ mod tests {
         let metrics = RouterMetrics::new();
 
         for i in 0..10000 {
-            metrics.record_request(
-                "GET",
-                "/api",
-                200,
-                Duration::from_millis((i % 1000) as u64),
-            );
+            metrics.record_request("GET", "/api", 200, Duration::from_millis((i % 1000) as u64));
         }
 
         assert_eq!(metrics.total_requests(), 10000);

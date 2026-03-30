@@ -2,13 +2,11 @@
 
 use crate::config::RouterConfig;
 use crate::error::Result;
-use crate::loader::ConfigLoader;
 use async_trait::async_trait;
 use notify::{Watcher, RecursiveMode};
 use notify::recommended_watcher;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tokio::sync::mpsc;
 use tracing::{debug, info, warn};
 
 /// Callback for configuration changes
@@ -57,7 +55,7 @@ impl ConfigWatcher {
         let current_config = Arc::clone(&self.current_config);
         let callbacks = Arc::clone(&self.callbacks);
 
-        let handle = std::thread::spawn(move || {
+        let _handle = std::thread::spawn(move || {
             let (tx, rx) = std::sync::mpsc::channel();
 
             let mut watcher = match recommended_watcher(move |res| {
