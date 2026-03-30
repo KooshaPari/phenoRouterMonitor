@@ -1,13 +1,12 @@
-//! Error types for phenotype-policy-engine
+//! Error types for phenotype-port-traits
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-/// Result type for policy operations
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Error)]
 pub enum Error {
-    #[error("policy error: {0}")]
-    Policy(String),
+    #[error("port error: {0}")]
+    Port(String),
 }
