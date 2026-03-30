@@ -84,3 +84,25 @@ jobs:
       - name: Run bandit
         run: bandit -r python/src -ll
         continue-on-error: true
+
+  # ─── OSV-Scanner (Rust lockfile; repo does not commit Cargo.lock) ───────
+  osv-scanner:
+    name: OSV Scanner (Cargo.lock)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Generate Cargo.lock for scanning
+        run: cargo generate-lockfile
+      - name: Install OSV-Scanner
+        env:
+          OSV_VERSION: v2.3.5
+        run: |
+          curl -fsSL -o /tmp/osv-scanner \
+            "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64"
+          chmod +x /tmp/osv-scanner
+          sudo mv /tmp/osv-scanner /usr/local/bin/osv-scanner
+      - name: Scan with OSV.dev
+        run: osv-scanner scan -L Cargo.lock --format table

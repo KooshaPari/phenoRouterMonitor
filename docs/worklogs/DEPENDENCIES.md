@@ -1903,8 +1903,8 @@ Create a unified dependency version policy:
 | Tool | Action |
 |------|--------|
 | `cargo-cyclonedx` | **PILOT:** `scripts/ci/generate-workspace-sboms.sh` drives `.github/workflows/sbom.yml` (CI artifact `cyclonedx-sbom-workspace`) and `.github/workflows/release.yml` (same JSONs attached to **GitHub Releases** on `v*.*.*` tags alongside binaries) |
-| `syft` | WRAP in release pipeline |
-| OSV-Scanner | ADOPT for batch triage |
+| `syft` | **PILOT:** `.github/workflows/release.yml` → job `syft-spdx` → SPDX JSON `syft-spdx-workspace.json` on GitHub Releases (with CycloneDX crate SBOMs) |
+| OSV-Scanner | **ADOPT:** `.github/workflows/security.yml` → job `osv-scanner` (`cargo generate-lockfile` + `osv-scanner scan -L Cargo.lock`; same schedule as Security workflow) |
 | `cargo audit` + `cargo deny advisories` | Run both weekly |
 
 ### Black-box wraps
@@ -1949,8 +1949,10 @@ Create a unified dependency version policy:
 | Crate list | `cargo metadata --no-deps` (always matches `[workspace.members]`) |
 | Generator | `scripts/ci/generate-workspace-sboms.sh` → flat `cyclonedx-sbom-<crate>.json` files |
 | CI artifact | `cyclonedx-sbom-workspace` (all JSONs in one bundle) |
-| Releases | `release.yml` uploads the same files as release assets; `ncipollo/release-action` uses `allowUpdates` + `omitBodyDuringUpdate` / `omitNameDuringUpdate` so releases created by `tag-automation.yml` keep their body while assets are added |
+| Releases | `tag-automation.yml` **only** creates/pushes `v*` tags from `main`; `release.yml` **creates** the GitHub Release (binaries + per-crate CycloneDX JSON + SPDX from Syft). `ncipollo/release-action` keeps `allowUpdates` + `omitBodyDuringUpdate` / `omitNameDuringUpdate` for workflow re-runs and manual title/body edits |
 | Local | `task sbom` (requires `cargo-cyclonedx` + `jq`) |
+| OSV.dev | `security.yml` job `osv-scanner` — `cargo generate-lockfile` then `osv-scanner scan -L Cargo.lock` (pinned binary v2.3.5) |
+| SPDX (Syft) | `release.yml` job `syft-spdx` — Syft v1.42.3, `syft .` → `syft-spdx-workspace.json` (excludes `target`, `docs`, venvs, `node_modules`, `.git`) |
 
 ### Stacked delivery (historical)
 
@@ -1960,6 +1962,9 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 
 - [x] Add remaining workspace members to the matrix (full `[workspace.members]` coverage).
 - [x] Attach SBOM to GitHub Releases for tagged builds (`release.yml` + `cyclonedx-sboms` job).
+- [x] Single owner for GitHub Releases: `tag-automation.yml` pushes tags only; `release.yml` creates the release (no duplicate `softprops/action-gh-release`).
+- [x] **OSV-Scanner** on generated `Cargo.lock` in `security.yml` (alongside existing `cargo audit` / `cargo deny`).
+- [x] **Syft** SPDX JSON on tagged releases (`release.yml` `syft-spdx` job).
 
 ---
 
