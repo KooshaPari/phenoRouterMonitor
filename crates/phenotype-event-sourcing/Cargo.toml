@@ -15,5 +15,5 @@ tokio.workspace = true
 anyhow.workspace = true
 phenotype-errors = { path = "../phenotype-errors" }
 
-[dev-dependencies]
-tokio = { workspace = true, features = ["test-util", "macros"] }
+[lib]
+path = "src/lib.rs"

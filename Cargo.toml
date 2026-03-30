@@ -1,3 +1,23 @@
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+description = "Phenotype Infrastructure Kit"
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+
+[package]
+name = "phenotype-infrakit"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+phenotype-error-core = { path = "crates/phenotype-error-core" }
+
 [workspace]
 [workspace]
 resolver = "2"

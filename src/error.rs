@@ -1,4 +1,4 @@
-//! Placeholder for $crate
+//! Common error types for phenotype-infrakit.
 
 pub use phenotype_error_core::Error;
 
