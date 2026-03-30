@@ -114,7 +114,7 @@ A comprehensive 1,607-line supplementary document containing:
 #### 3. Quantified Impact Analysis
 
 **Code Quality Improvements**:
-- Duplication: 12-15% → <5% (Pattern extraction)
+- Duplication: 12-15% → &lt;5% (Pattern extraction)
 - Circular deps: 3 → 0 (Layering)
 - Crate dependencies: 8-10 → 4-6 avg (DI, abstraction)
 - Module size: 280 LOC → 150 LOC avg (Refactoring)
@@ -265,7 +265,7 @@ Extract sections into internal wiki:
 4. Create AgilePlus specs for Phase 1 libraries
 
 ### Short Term (Next 2 Weeks)
-1. Create `phenotype-contracts` enhancement spec (generic Repository<T>)
+1. Create `phenotype-contracts` enhancement spec (generic `Repository<T>`)
 2. Create `phenotype-adapters` spec (consolidate cache/secret/repo)
 3. Create `phenotype-event-bus` spec (unified event handling)
 4. Plan Phase 1 execution schedule

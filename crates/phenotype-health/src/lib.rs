@@ -2,7 +2,6 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -34,11 +33,12 @@ impl HealthStatus {
         matches!(self, HealthStatus::Healthy)
     }
     pub fn worst(self, other: HealthStatus) -> HealthStatus {
+        use HealthStatus::*;
         match (self, other) {
-            (HealthStatus::Unhealthy, _) | (_, HealthStatus::Unhealthy) => HealthStatus::Unhealthy,
-            (HealthStatus::Degraded, _) | (_, HealthStatus::Degraded) => HealthStatus::Degraded,
-            (HealthStatus::Unknown, other) | (other, HealthStatus::Unknown) => other,
-            (HealthStatus::Healthy, HealthStatus::Healthy) => HealthStatus::Healthy,
+            (Unhealthy, _) | (_, Unhealthy) => Unhealthy,
+            (Degraded, _) | (_, Degraded) => Degraded,
+            (Unknown, other) | (other, Unknown) => other,
+            (Healthy, Healthy) => Healthy,
         }
     }
 }
@@ -61,7 +61,6 @@ pub struct HealthCheckResult {
     pub message: Option<String>,
     pub checked_at: DateTime<Utc>,
     pub latency_ms: Option<u64>,
-    pub metadata: HashMap<String, serde_json::Value>,
 }
 
 impl HealthCheckResult {
@@ -72,7 +71,6 @@ impl HealthCheckResult {
             message: None,
             checked_at: Utc::now(),
             latency_ms: None,
-            metadata: HashMap::new(),
         }
     }
     pub fn unhealthy(component: impl Into<String>, message: impl Into<String>) -> Self {
@@ -82,15 +80,19 @@ impl HealthCheckResult {
             message: Some(message.into()),
             checked_at: Utc::now(),
             latency_ms: None,
-            metadata: HashMap::new(),
         }
     }
-    pub fn with_latency(mut self, ms: u64) -> Self {
-        self.latency_ms = Some(ms);
-        self
+    pub fn degraded(component: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            component: component.into(),
+            status: HealthStatus::Degraded,
+            message: Some(message.into()),
+            checked_at: Utc::now(),
+            latency_ms: None,
+        }
     }
-    pub fn with_metadata(mut self, key: impl Into<String>, value: serde_json::Value) -> Self {
-        self.metadata.insert(key.into(), value);
+    pub fn with_latency(mut self, latency_ms: u64) -> Self {
+        self.latency_ms = Some(latency_ms);
         self
     }
 }
@@ -105,32 +107,11 @@ pub struct HealthResponse {
 
 impl HealthResponse {
     pub fn new(results: Vec<HealthCheckResult>) -> Self {
-        let status = results
-            .iter()
-            .map(|r| r.status)
-            .fold(HealthStatus::Unknown, HealthStatus::worst);
-        Self {
-            status,
-            components: results,
-            timestamp: Utc::now(),
-            version: None,
-        }
+        let status = results.iter().map(|r| r.status).fold(HealthStatus::Unknown, HealthStatus::worst);
+        Self { status, components: results, timestamp: Utc::now(), version: None }
     }
     pub fn healthy() -> Self {
-        Self {
-            status: HealthStatus::Healthy,
-            components: Vec::new(),
-            timestamp: Utc::now(),
-            version: None,
-        }
-    }
-    pub fn unhealthy(msg: impl Into<String>) -> Self {
-        Self {
-            status: HealthStatus::Unhealthy,
-            components: vec![HealthCheckResult::unhealthy("system", msg)],
-            timestamp: Utc::now(),
-            version: None,
-        }
+        Self { status: HealthStatus::Healthy, components: Vec::new(), timestamp: Utc::now(), version: None }
     }
 }
 
@@ -138,45 +119,45 @@ pub trait HealthChecker: Send + Sync {
     fn check(&self) -> HealthResult<HealthCheckResult>;
 }
 
-#[async_trait::async_trait]
-pub trait AsyncHealthChecker: Send + Sync {
-    async fn check_async(&self) -> HealthResult<HealthCheckResult>;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn test_status_operational() {
+    fn test_health_status_operational() {
         assert!(HealthStatus::Healthy.is_operational());
         assert!(HealthStatus::Degraded.is_operational());
         assert!(!HealthStatus::Unhealthy.is_operational());
+        assert!(!HealthStatus::Unknown.is_operational());
     }
     #[test]
-    fn test_status_worst() {
-        assert_eq!(
-            HealthStatus::Healthy.worst(HealthStatus::Healthy),
-            HealthStatus::Healthy
-        );
-        assert_eq!(
-            HealthStatus::Healthy.worst(HealthStatus::Degraded),
-            HealthStatus::Degraded
-        );
-        assert_eq!(
-            HealthStatus::Degraded.worst(HealthStatus::Unhealthy),
-            HealthStatus::Unhealthy
-        );
+    fn test_health_status_worst() {
+        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Healthy), HealthStatus::Healthy);
+        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Degraded), HealthStatus::Degraded);
+        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Unhealthy), HealthStatus::Unhealthy);
     }
     #[test]
-    fn test_check_result() {
-        let r = HealthCheckResult::healthy("db").with_latency(10);
-        assert_eq!(r.component, "db");
-        assert_eq!(r.status, HealthStatus::Healthy);
-        assert_eq!(r.latency_ms, Some(10));
+    fn test_health_check_result() {
+        let result = HealthCheckResult::healthy("database").with_latency(10);
+        assert_eq!(result.component, "database");
+        assert_eq!(result.status, HealthStatus::Healthy);
+        assert_eq!(result.latency_ms, Some(10));
     }
     #[test]
-    fn test_response() {
-        let resp = HealthResponse::new(vec![HealthCheckResult::healthy("svc")]);
-        assert_eq!(resp.status, HealthStatus::Healthy);
+    fn test_health_response() {
+        let results = vec![
+            HealthCheckResult::healthy("database"),
+            HealthCheckResult::healthy("cache"),
+        ];
+        let response = HealthResponse::new(results);
+        assert_eq!(response.status, HealthStatus::Healthy);
+    }
+    #[test]
+    fn test_health_response_worst_case() {
+        let results = vec![
+            HealthCheckResult::healthy("database"),
+            HealthCheckResult::unhealthy("cache", "connection failed"),
+        ];
+        let response = HealthResponse::new(results);
+        assert_eq!(response.status, HealthStatus::Unhealthy);
     }
 }

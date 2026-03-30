@@ -2051,3 +2051,114 @@ Architecture for multi-agent and multi-user collaborative editing of shared stat
 - **Offline Support:** Agents can continue working during network outages and sync later.
 
 _Last updated: 2026-03-29 (Round 13)_
+
+---
+
+## 2026-03-30 - Message Queue Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P1
+
+### Message Queue Comparison
+
+| Queue | Type | Assessment | Best For |
+|-------|------|------------|----------|
+| **NATS** | Pub/Sub | ✅ Lightweight, fast | Event streaming |
+| **Kafka** | Distributed log | 🟡 Complex, powerful | High-volume |
+| **RabbitMQ** | Traditional | 🟡 Feature-rich | Task queues |
+| **Redis Streams** | In-memory | 🟡 Simple | Low-latency |
+
+### NATS JetStream Architecture
+
+```
+┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+│  Producer A  │      │  Producer B  │      │  Producer C  │
+└──────┬───────┘      └──────┬───────┘      └──────┬───────┘
+       │                     │                     │
+       ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    NATS JetStream Cluster                    │
+│  Stream: "phenotype.events" (Durable, File Storage)        │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         ▼                     ▼                     ▼
+    ┌─────────┐          ┌─────────┐          ┌─────────┐
+    │ Worker  │          │ Worker  │          │ Monitor │
+    └─────────┘          └─────────┘          └─────────┘
+```
+
+### Tasks
+
+- [ ] MQ-001: Implement NATS JetStream adapter
+- [ ] MQ-002: Add consumer groups
+- [ ] MQ-003: Add message replay support
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
+## 2026-03-30 - Semantic Memory Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P1
+
+### Knowledge Graph Options
+
+| System | Type | Rust Support | Use Case | Recommendation |
+|--------|------|-------------|----------|----------------|
+| Neo4j | Graph DB | Driver only | Complex relations | EVALUATE |
+| Age | Graph extension | PostgreSQL | Relational+graph | ADOPT |
+| SurrealDB | Multi-model | Native | Document+graph | EVALUATE |
+| vectordb | Vector | pgvector | Semantic search | ADOPT |
+
+### Semantic Memory Systems
+
+| System | Purpose | Architecture | Phenotype Fit |
+|--------|---------|--------------|---------------|
+| `mentisdb` | Agent memory | Vector + graph | ✅ HIGH |
+| `memory-alpha` | Context management | Hierarchical | 🟡 MEDIUM |
+| `khoj` | Personal knowledge | Local-first | 🟡 MEDIUM |
+
+### SemanticMemory Design
+
+```rust
+// crates/phenotype-memory/src/lib.rs
+
+pub struct SemanticMemory {
+    embeddings: VectorStore,
+    graph: GraphStore,
+    index: InvertedIndex,
+}
+
+impl SemanticMemory {
+    pub async fn store(&self, entity: &MemoryEntity) -> Result<MemoryId> {
+        let embedding = self.embeddings.embed(&entity.content).await?;
+        let graph_id = self.graph.insert(&entity.concepts).await?;
+        self.index.add(&entity.keywords, graph_id).await?;
+        Ok(MemoryId::new())
+    }
+
+    pub async fn recall(&self, query: &str, context: &Context) -> Vec<MemoryEntry> {
+        let query_embedding = self.embeddings.embed(query).await?;
+        let candidates = self.embeddings.search(query_embedding, 10).await?;
+        self.graph.expand(candidates, context.depth).await
+    }
+}
+```
+
+### Tasks
+
+- [ ] MEM-001: Create `phenotype-memory` crate
+- [ ] MEM-002: Implement vector embeddings
+- [ ] MEM-003: Add graph traversal
+
+---
+
+_Last updated: 2026-03-30_

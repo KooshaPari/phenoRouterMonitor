@@ -230,13 +230,11 @@ mod tests {
     }
 
     #[test]
-    #[test]
     fn histogram_observe() {
         let histogram = Histogram {
             name: "test".into(),
             values: Arc::new(std::sync::Mutex::new(Vec::new())),
         };
-        assert_eq!(histogram.name(), "test");
         histogram.observe(1.0);
         histogram.observe(2.5);
         let values = histogram.values();

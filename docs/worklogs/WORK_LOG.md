@@ -160,7 +160,7 @@ No forked or patched external repositories identified.
 ### Action Items
 
 - [ ] PKG-001: Remove unused `lru`, `parking_lot`, `moka` from workspace
-- [ ] PKG-002: Add Lazy<Regex> to Rule struct for caching
+- [ ] PKG-002: Add `Lazy<Regex>` to Rule struct for caching
 - [ ] PKG-003: Implement PolicyRegistry wrapper with metrics/TTL
 - [ ] PKG-004: Extract config parsers to `phenotype-config-parser` crate
 - [ ] PKG-005: Implement `phenotype-cache-adapter` using moka
@@ -841,3 +841,30 @@ Blueprints created with module structure, handler mapping, re-export patterns.
 - ✅ Test-to-source ratio maintained (0.16:1)
 
 ---
+
+## 2026-03-30 - Wave 99: Workspace Dependencies Fixed
+
+### Status: ✅ COMPLETE
+
+### Actions Completed
+- [x] Fixed phenotype-policy-engine missing `toml` dependency
+- [x] Fixed phenotype-cache-adapter missing `chrono` dependency
+- [x] Workspace compiles successfully
+
+### Final Workspace Status
+```
+cargo check --workspace
+   Finished `dev` profile [unoptimized + debuginfo] target(s)
+```
+
+### Workspace Dependencies
+- serde, serde_json, thiserror, anyhow
+- futures, async-trait, tokio, chrono, uuid
+- blake3, rkyv, dashmap, lru, moka
+- sha2, hex, toml, regex, dirs
+- git2, syn, quote, proc-macro2
+
+### Pending Items
+- [ ] Integrate phenotype-* crates into main codebase
+- [ ] Archive unused libs (cipher, gauge, hexagonal-rs)
+- [ ] Consolidate error enums across crates

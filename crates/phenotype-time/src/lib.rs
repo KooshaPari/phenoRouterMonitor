@@ -1,27 +1,10 @@
 //! Time utilities for the Phenotype ecosystem.
-//!
-//! This crate provides comprehensive time handling utilities including:
-//! - **Timestamps**: Millisecond-precision UTC timestamps with serialization
-//! - **Durations**: Human-readable duration parsing and manipulation
-//! - **Intervals**: Configurable intervals with fixed, exponential, and linear backoff strategies
-//! - **Scheduling**: Simple task scheduler for recurring work
-//! - **Clocks**: Testable clock abstraction (System and Mock implementations)
-
-pub mod clock;
-pub mod duration;
-pub mod interval;
-pub mod scheduler;
 
 use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::sync::atomic::{AtomicI64, Ordering};
 use thiserror::Error;
-
-// Re-export commonly used items
-pub use clock::{Clock, FlexClock, MockClock, SystemClock};
-pub use duration::DurationBuilder;
-pub use interval::Interval;
-pub use scheduler::Scheduler;
 
 #[derive(Debug, Error)]
 pub enum TimeError {
@@ -216,6 +199,43 @@ impl TimeRange {
 impl fmt::Display for TimeRange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "[{}, {})", self.start, self.end)
+    }
+}
+
+pub trait Clock: Send + Sync {
+    fn now(&self) -> Timestamp;
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct SystemClock;
+impl Clock for SystemClock {
+    fn now(&self) -> Timestamp {
+        Timestamp::now()
+    }
+}
+
+#[derive(Debug)]
+pub struct MockClock {
+    millis: AtomicI64,
+}
+impl MockClock {
+    #[must_use]
+    pub fn new(millis: i64) -> Self {
+        Self {
+            millis: AtomicI64::new(millis),
+        }
+    }
+    pub fn advance(&self, ms: i64) {
+        self.millis.fetch_add(ms, Ordering::Relaxed);
+    }
+    pub fn set(&self, millis: i64) {
+        self.millis.store(millis, Ordering::Relaxed);
+    }
+}
+impl Clock for MockClock {
+    fn now(&self) -> Timestamp {
+        Timestamp::from_millis(self.millis.load(Ordering::Relaxed))
+            .expect("MockClock millis out of range")
     }
 }
 

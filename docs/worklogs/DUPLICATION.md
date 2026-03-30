@@ -3846,3 +3846,135 @@ _Last updated: 2026-03-30 (Wave 117)_
 ---
 
 _Last updated: 2026-03-31 (Wave 118)_
+
+---
+
+## 2026-03-30 - Async Runtime Duplication Analysis
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Current Async Patterns
+
+| Pattern | Locations | LOC | Assessment |
+|---------|-----------|-----|------------|
+| Tokio setup | 5 | 150 | Duplicated |
+| Runtime config | 4 | 80 | Duplicated |
+| Blocking task | 3 | 60 | Slight variation |
+
+### Tokio Setup Duplication
+
+```rust
+// Pattern A: agileplus-api/src/lib.rs
+#[tokio::main]
+async fn main() -> Result<()> {
+    tracing_subscriber::fmt::init();
+    let rt = Runtime::new()?;
+    rt.block_on(async {
+        start_server().await
+    })
+}
+
+// Pattern B: thegent/src/main.rs
+#[tokio::main]
+async fn main() -> Result<()> {
+    env_logger::init();
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()?
+        .block_on(start_server())
+}
+```
+
+### Extraction Candidate: phenotype-async
+
+```rust
+// crates/phenotype-async/src/lib.rs
+
+pub fn init_async_runtime() -> Runtime {
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .thread_name("phenotype-worker")
+        .max_blocking_threads(512)
+        .build()
+        .expect("Failed to build runtime")
+}
+
+pub fn init_tracing() {
+    tracing_subscriber::fmt()
+        .with_target(true)
+        .with_thread_ids(true)
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
+}
+```
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
+## 2026-03-30 - Serialization Duplication Analysis
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P2
+
+### Current Serialization Patterns
+
+| Pattern | Locations | Format | Assessment |
+|---------|-----------|--------|------------|
+| JSON serialization | 12 | JSON | Mostly shared |
+| TOML config | 6 | TOML | Duplicated |
+| Proto buffers | 3 | Protobuf | Slight variation |
+
+### TOML Config Duplication
+
+```rust
+// Pattern A: agileplus-config/src/load.rs
+pub fn load_config() -> Result<Config> {
+    let config_path = dirs::config_dir()
+        .ok_or(ConfigError::HomeNotFound)?
+        .join("phenotype")
+        .join("config.toml");
+
+    let content = std::fs::read_to_string(&config_path)?;
+    toml::from_str(&content).map_err(ConfigError::Parse)
+}
+
+// Pattern B: thegent-config/src/config.rs
+pub fn load() -> Result<Config> {
+    let config_path = std::env::var("CONFIG_PATH")
+        .unwrap_or_else(|_| "~/.thegent/config.toml".into());
+
+    let expanded = shellexpand::full(&config_path)?;
+    let content = std::fs::read_to_string(expanded.as_ref())?;
+    toml::from_str(&content).map_err(ConfigError::Parse)
+}
+```
+
+### Extraction Candidate: phenotype-config-core
+
+```rust
+// crates/phenotype-config-core/src/lib.rs
+
+pub fn load_toml<T: de::DeserializeOwned>(path: &Path) -> Result<T> {
+    let content = std::fs::read_to_string(path)?;
+    toml::from_str(&content).map_err(ConfigError::Parse)
+}
+
+pub fn config_dir(app_name: &str) -> Result<PathBuf> {
+    dirs::config_dir()
+        .ok_or(ConfigError::HomeNotFound)?
+        .join(app_name)
+        .ok_or(ConfigError::PathCreation)
+}
+```
+
+---
+
+_Last updated: 2026-03-30_

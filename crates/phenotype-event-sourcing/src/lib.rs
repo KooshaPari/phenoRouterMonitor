@@ -1,16 +1,13 @@
-//! # Phenotype Event Sourcing
-//!
-//! Event sourcing primitives for phenotype-infrakit.
+//! Phenotype event sourcing with blake3 hash chains (3-5x faster than SHA-256).
 
 pub mod error;
 pub mod event;
 pub mod hash;
 pub mod memory;
 pub mod snapshot;
-pub mod store;
 
-pub use error::{EventSourcingError, EventStoreError, HashError, Result};
 pub use event::EventEnvelope;
-pub use hash::{compute_hash, verify_chain};
+pub use error::{EventSourcingError, HashError};
+pub use hash::{compute_hash, verify_chain, ZERO_HASH};
 pub use memory::InMemoryEventStore;
-pub use store::{EventStore, JsonEnvelope};
+pub use snapshot::{Snapshot, SnapshotConfig};

@@ -16,7 +16,7 @@
 //! assert_eq!(sm.current(), "running");
 //! ```
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::sync::{Arc, RwLock};
 use thiserror::Error;
@@ -29,6 +29,9 @@ pub enum StateMachineError {
 
     #[error("transition from '{from}' on '{event}' rejected by guard")]
     GuardRejected { from: String, event: String },
+
+    #[error("skip transition from '{from}' to '{to}' is not allowed (not in skip_states)")]
+    SkipTransitionRejected { from: String, to: String },
 
     #[error("unknown state: '{0}'")]
     UnknownState(String),
@@ -50,6 +53,15 @@ struct Transition {
     guard: Option<GuardFn>,
 }
 
+impl fmt::Debug for Transition {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Transition")
+            .field("to", &self.to)
+            .field("has_guard", &self.guard.is_some())
+            .finish()
+    }
+}
+
 /// A generic finite state machine.
 ///
 /// Thread-safe via internal `RwLock`. States and events are string-based
@@ -59,6 +71,13 @@ pub struct StateMachine {
     transitions: HashMap<(String, String), Transition>,
     on_enter: HashMap<String, StateCallbacks>,
     on_exit: HashMap<String, StateCallbacks>,
+    /// Map of state → its expected "next" state in the sequential chain.
+    /// Used to enforce forward-only transitions unless the (from, to) pair
+    /// is explicitly listed in `skip_states`.
+    sequential_next: HashMap<String, String>,
+    /// Explicitly allowed skip-state pairs: (from, to) that bypass the
+    /// sequential chain. Guards and action callbacks still run for these.
+    skip_states: HashSet<(String, String)>,
 }
 
 impl StateMachine {
@@ -68,6 +87,10 @@ impl StateMachine {
     }
 
     /// Send an event to the state machine, potentially triggering a transition.
+    ///
+    /// If `skip_states` is configured, any transition whose target is not the
+    /// expected `sequential_next` of the current state is rejected unless the
+    /// `(from, to)` pair is explicitly registered in `skip_states`.
     pub fn send(&self, event: &str) -> Result<String> {
         let mut current = self.current.write().unwrap();
         let key = (current.clone(), event.to_string());
@@ -89,14 +112,26 @@ impl StateMachine {
             }
         }
 
+        // E5.4: skip-state validation — if sequential_next is set, enforce it.
+        let new_state = transition.to.clone();
+        if let Some(expected_next) = self.sequential_next.get(current.as_str()) {
+            if &new_state != expected_next {
+                // Not the normal sequential step — check skip_states allowlist.
+                if !self.skip_states.contains(&(current.clone(), new_state.clone())) {
+                    return Err(StateMachineError::SkipTransitionRejected {
+                        from: current.clone(),
+                        to: new_state.clone(),
+                    });
+                }
+            }
+        }
+
         // Fire on_exit callbacks for current state.
         if let Some(cbs) = self.on_exit.get(current.as_str()) {
             for cb in cbs {
                 cb(&current);
             }
         }
-
-        let new_state = transition.to.clone();
 
         // Fire on_enter callbacks for new state.
         if let Some(cbs) = self.on_enter.get(&new_state) {
@@ -132,6 +167,8 @@ impl fmt::Debug for StateMachine {
         f.debug_struct("StateMachine")
             .field("current", &self.current())
             .field("transitions", &self.transitions.len())
+            .field("sequential_next", &self.sequential_next.len())
+            .field("skip_states", &self.skip_states.len())
             .finish()
     }
 }
@@ -149,6 +186,8 @@ pub struct StateMachineBuilder {
     transitions: HashMap<(String, String), Transition>,
     on_enter: HashMap<String, StateCallbacks>,
     on_exit: HashMap<String, StateCallbacks>,
+    sequential_next: HashMap<String, String>,
+    skip_states: HashSet<(String, String)>,
 }
 
 impl StateMachineBuilder {
@@ -159,6 +198,8 @@ impl StateMachineBuilder {
             transitions: HashMap::new(),
             on_enter: HashMap::new(),
             on_exit: HashMap::new(),
+            sequential_next: HashMap::new(),
+            skip_states: HashSet::new(),
         }
     }
 
@@ -215,6 +256,35 @@ impl StateMachineBuilder {
         self
     }
 
+    /// Declare the normal sequential next state for `from`.
+    ///
+    /// After calling this, any transition from `from` to a state other than
+    /// `next` will be rejected unless that `(from, to)` pair is registered via
+    /// [`skip_transition`](Self::skip_transition).
+    ///
+    /// Multiple calls for the same `from` replace the previous declaration.
+    pub fn sequential_transition(mut self, from: &str, next: &str) -> Self {
+        self.sequential_next
+            .insert(from.to_string(), next.to_string());
+        self
+    }
+
+    /// Register an allowed skip-state pair: `(from, to)` bypasses the
+    /// `sequential_transition` chain but still runs guards and action callbacks.
+    ///
+    /// A skip pair must be registered **before** calling [`build`](Self::build).
+    /// Returns `Err` if `from` has no `sequential_next` configured.
+    pub fn skip_transition(mut self, from: &str, to: &str) -> Result<Self> {
+        if !self.sequential_next.contains_key(from) {
+            return Err(StateMachineError::BuildError(format!(
+                "skip_transition: state '{from}' has no sequential_next configured"
+            )));
+        }
+        self.skip_states
+            .insert((from.to_string(), to.to_string()));
+        Ok(self)
+    }
+
     /// Build the state machine.
     pub fn build(self) -> Result<StateMachine> {
         if self.initial.is_empty() {
@@ -227,7 +297,21 @@ impl StateMachineBuilder {
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,
+            sequential_next: self.sequential_next,
+            skip_states: self.skip_states,
         })
+    }
+}
+
+impl fmt::Debug for StateMachineBuilder {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("StateMachineBuilder")
+            .field("initial", &self.initial)
+            .field("transitions", &self.transitions.len())
+            .field("sequential_next", &self.sequential_next)
+            .field("skip_states", &self.skip_states)
+            // on_enter / on_exit contain dyn Fn — skip them
+            .finish()
     }
 }
 
@@ -353,5 +437,188 @@ mod tests {
         // Should be in one of the 3 states
         let state = sm.current();
         assert!(["red", "green", "yellow"].contains(&state.as_str()));
+    }
+
+    // -------------------------------------------------------------------------
+    // E5.4 — Skip-State Configuration
+    // -------------------------------------------------------------------------
+
+    /// Traffic light with skip-state configuration:
+    ///   red → green (normal) or red → yellow (skip green)
+    ///   green → yellow (normal)
+    ///   yellow → red (normal)
+    fn skip_light() -> StateMachine {
+        StateMachineBuilder::new("red")
+            // Sequential chain:
+            .sequential_transition("red", "green")
+            .sequential_transition("green", "yellow")
+            .sequential_transition("yellow", "red")
+            // Normal transitions:
+            .transition("red", "next", "green")
+            .transition("green", "next", "yellow")
+            .transition("yellow", "next", "red")
+            // Skip: red → yellow (bypass green) via a different event
+            .transition("red", "skip_to_yellow", "yellow")
+            .skip_transition("red", "yellow")
+            .unwrap()
+            .build()
+            .unwrap()
+    }
+
+    #[test]
+    fn e5_4_sequential_transition_allowed() {
+        // Traces to: FR-E5.4-A1
+        let sm = skip_light();
+        assert_eq!(sm.current(), "red");
+        sm.send("next").unwrap(); // red → green (normal sequential)
+        assert_eq!(sm.current(), "green");
+    }
+
+    #[test]
+    fn e5_4_skip_transition_allowed_when_configured() {
+        // Traces to: FR-E5.4-A2
+        let sm = skip_light();
+        assert_eq!(sm.current(), "red");
+        sm.send("skip_to_yellow").unwrap(); // red → yellow (skip green)
+        assert_eq!(sm.current(), "yellow");
+    }
+
+    #[test]
+    fn e5_4_skip_transition_rejected_when_not_configured() {
+        // Traces to: FR-E5.4-A3
+        let sm = skip_light();
+        assert_eq!(sm.current(), "red");
+        sm.send("next").unwrap(); // red → green
+        assert_eq!(sm.current(), "green");
+        // green → red is not in skip_states, so it is rejected.
+        let err = sm.send("jump_to_red").unwrap_err();
+        let err_variant = matches!(
+            err,
+            StateMachineError::SkipTransitionRejected { .. }
+        );
+        assert!(err_variant, "expected SkipTransitionRejected, got {err:?}");
+        if let StateMachineError::SkipTransitionRejected { from, to } = &err {
+            assert_eq!(from, "green");
+            assert_eq!(to, "red");
+        }
+        assert_eq!(sm.current(), "green"); // state unchanged
+    }
+
+    #[test]
+    fn e5_4_skip_transition_with_guard() {
+        // Traces to: FR-E5.4-A4
+        let sm = StateMachineBuilder::new("red")
+            .sequential_transition("red", "green")
+            .sequential_transition("green", "yellow")
+            .transition("red", "skip", "yellow")
+            .guarded_transition("red", "skip", "yellow", |_, _| false) // guard blocks
+            .skip_transition("red", "yellow")
+            .unwrap()
+            .build()
+            .unwrap();
+        let err = sm.send("skip").unwrap_err();
+        assert!(matches!(err, StateMachineError::GuardRejected { .. }));
+        assert_eq!(sm.current(), "red");
+    }
+
+    #[test]
+    fn e5_4_skip_transition_callbacks_fire() {
+        // Traces to: FR-E5.4-A5
+        let enter_count = Arc::new(AtomicUsize::new(0));
+        let exit_count = Arc::new(AtomicUsize::new(0));
+        let ec = enter_count.clone();
+        let xc = exit_count.clone();
+
+        let sm = StateMachineBuilder::new("red")
+            .sequential_transition("red", "green")
+            .sequential_transition("green", "yellow")
+            .transition("red", "skip", "yellow")
+            .skip_transition("red", "yellow")
+            .unwrap()
+            .on_exit("red", move |_| {
+                xc.fetch_add(1, Ordering::SeqCst);
+            })
+            .on_enter("yellow", move |_| {
+                ec.fetch_add(1, Ordering::SeqCst);
+            })
+            .build()
+            .unwrap();
+
+        sm.send("skip").unwrap();
+        assert_eq!(sm.current(), "yellow");
+        assert_eq!(exit_count.load(Ordering::SeqCst), 1, "on_exit for red fired");
+        assert_eq!(enter_count.load(Ordering::SeqCst), 1, "on_enter for yellow fired");
+    }
+
+    #[test]
+    fn e5_4_skip_transition_requires_sequential_first() {
+        // Traces to: FR-E5.4-A6
+        let err = StateMachineBuilder::new("a")
+            .transition("a", "jump", "c")
+            .skip_transition("a", "c") // no sequential_transition for "a"
+            .unwrap_err();
+        assert!(matches!(err, StateMachineError::BuildError(_)));
+        let err_msg = match err {
+            StateMachineError::BuildError(s) => s,
+            _ => unreachable!(),
+        };
+        assert!(err_msg.contains("no sequential_next configured"));
+    }
+
+    #[test]
+    fn e5_4_no_skip_config_means_no_enforcement() {
+        // Without sequential_transition, skip_states has no effect (chain not active).
+        let sm = StateMachineBuilder::new("red")
+            .transition("red", "next", "green")
+            .transition("green", "next", "yellow")
+            .transition("yellow", "next", "red")
+            // No sequential_transition — no chain enforcement
+            .build()
+            .unwrap();
+        // All transitions should work freely
+        assert_eq!(sm.send("next").unwrap(), "green");
+        assert_eq!(sm.send("next").unwrap(), "yellow");
+    }
+
+    #[test]
+    fn e5_4_skip_pair_requires_event_with_skip_target() {
+        // Traces to: FR-E5.4-A7
+        // A skip pair (from, to) is registered. If no event leads from `from` to `to`,
+        // send() fails with InvalidTransition (not SkipTransitionRejected) because
+        // there is no transition to validate.
+        let sm = StateMachineBuilder::new("red")
+            .sequential_transition("red", "green")
+            .transition("red", "next", "green") // only this event from red
+            // skip pair for red→yellow registered but no event leads to yellow
+            .skip_transition("red", "yellow").unwrap()
+            .build()
+            .unwrap();
+
+        // Normal sequential works.
+        assert_eq!(sm.send("next").unwrap(), "green");
+        assert_eq!(sm.current(), "green");
+    }
+
+    #[test]
+    fn e5_4_skip_via_different_event() {
+        // The skip transition can use a different event from the normal transition.
+        let sm = StateMachineBuilder::new("idle")
+            .sequential_transition("idle", "step_a")
+            .sequential_transition("step_a", "step_b")
+            .sequential_transition("step_b", "done")
+            .transition("idle", "next", "step_a")
+            .transition("idle", "skip_to_b", "step_b") // skip step_a
+            .transition("step_a", "next", "step_b")
+            .transition("step_b", "next", "done")
+            .skip_transition("idle", "step_b")
+            .unwrap()
+            .build()
+            .unwrap();
+
+        assert_eq!(sm.current(), "idle");
+        sm.send("skip_to_b").unwrap(); // idle → step_b (skip step_a)
+        assert_eq!(sm.current(), "step_b");
+        sm.send("next").unwrap(); // step_b → done
+        assert_eq!(sm.current(), "done");
     }
 }

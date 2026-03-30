@@ -1,9 +1,432 @@
 # Research Worklogs
 
 **Category:** RESEARCH | **Updated:** 2026-03-29 (Wave 92 appended)
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Cross-Repo GitHub Duplication Analysis
 
 **Project:** [cross-repo]
@@ -61,9 +484,432 @@ Both repos contain: `phenotype-cache-adapter`, `phenotype-event-sourcing`, `phen
 - **4** duplicate crates between `infrakit` and `phenotype-shared`
 - **11** template repos to consolidate into 1 monorepo
 - **4** domains (logging, tracing, metrics, caching) each spread across 3-4 repos
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - 2026 Package Research: Python / TypeScript / Go / Zig / Mojo
 
 **Project:** [cross-repo]
@@ -132,9 +978,432 @@ Both repos contain: `phenotype-cache-adapter`, `phenotype-event-sourcing`, `phen
 ### Mojo
 
 **Do not adopt for production in 2026.** Modular Platform 26.2 (Mar 2026) focuses on GPU kernel authoring and progressive Python interop. General application code stdlib is not stable. Revisit late 2026.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - 2026 Rust Package Research
 
 **Project:** [cross-repo]
@@ -167,9 +1436,432 @@ No dominant "hexagonal framework" crate in Rust. Pattern = multi-crate workspace
 |---|---|---|
 | `eventually` 0.5.x | `cqrs-es` | Prerelease quality, slow maintenance |
 | `eventually` | `eventsourced` | NATS+Postgres adapters, Akka Persistence-inspired |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Starred Repos Deep Analysis
 
 **Project:** [cross-repo]
@@ -210,9 +1902,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - Integration with existing CLI commands
 
 **Overlap:** `agileplus-agent-dispatch`, `platforms/thegent/src/research_engine/`
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 2. pathwaycom/pathway ⭐ (Real-Time ML)
 
 **What:** Real-time data processing with LLM integration, 30+ connectors.
@@ -229,9 +2344,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - MCP server wrapper
 
 **Overlap:** `agileplus-events`, `agileplus-mcp`, `agileplus-graph`
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 3. khoj-ai/khoj ⭐ (Local AI Knowledge Base)
 
 **What:** Local AI knowledge base with embeddings, semantic search, multiple interfaces.
@@ -248,9 +2786,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - Natural language queries over project knowledge
 
 **Overlap:** `agileplus-graph`, `agileplus-cli/src/commands/specify.rs`
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 4. antinomyhq/forgecode (Code Generation)
 
 **What:** Code generation tool with agent-driven development patterns.
@@ -262,9 +3223,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - Context injection
 
 **Opportunity:** Enhance AgilePlus agent dispatch with forgecode patterns.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 5. great-expectations/great_expectations ⭐ (Data Validation)
 
 **What:** Data quality validation framework with expectation suites.
@@ -279,9 +3663,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - Validate agent outputs against expectation suites
 - Profile agent behavior and code quality
 - Checkpoint-based validation
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 6. nitrojs/nitro ⭐ (Edge/Serverless)
 
 **What:** Edge/serverless deployment to 40+ targets with AI/LLM support.
@@ -296,9 +4103,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - Deploy MCP server as serverless
 - Agent runtime at edge locations
 - Hybrid local + cloud architecture
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 7. lightdash/lightdash (BI Tool)
 
 **What:** BI tool with YAML-first approach and dbt integration.
@@ -310,9 +4540,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - MCP server support
 
 **Opportunity:** Consider for metrics visualization.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 #### 8. codecrafters-io/build-your-own-x (Educational)
 
 **What:** Educational platform covering 50+ technologies.
@@ -324,9 +4977,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 - Community contributions
 
 **Opportunity:** Add educational mode to heliosCLI.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ### Gap Analysis
 
 | Gap | Solution | Priority |
@@ -349,9 +5425,432 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 
 - Plan: `plans/2026-03-29-CROSS_PROJECT_DUPLICATION_PLAN-v1.md`
 - Research: `KushDocs/swe-practices-research-broughtToYouByKooshaForResearchDoNotDelete.md`
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - KushDocs Performance Research
 
 **Project:** [cross-repo]
@@ -382,9 +5881,432 @@ Analyzed KushDocs performance research document (649 lines). Contains valuable t
 ### Related
 
 - Research: `KushDocs/Perf-research-broughtToYouByKooshaForResearchDoNotDelete.md`
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - KushDocs SWE Practices Research
 
 **Project:** [cross-repo]
@@ -416,9 +6338,432 @@ Analyzed KushDocs SWE practices research (680 lines). Contains excellent guidanc
 ### Related
 
 - Research: `KushDocs/swe-practices-research-broughtToYouByKooshaForResearchDoNotDelete.md`
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-28 - Technology Radar Update
 
 **Project:** [cross-repo]
@@ -460,9 +6805,432 @@ Quarterly technology radar update based on starred repo analysis.
 |------------|-----------|
 | Existing graph DBs | Consider Pathway instead |
 | Custom MCP implementations | Use Pathway patterns |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 92: Ecosystem radar (serialization, OTel, WASM, data)
 
 **Project:** [cross-repo]
@@ -561,9 +7329,432 @@ Additional 2026 candidates to **wrap at the adapter boundary** or **trial** in p
 - [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
 - [ ] Prototype WIT surface for one sandboxed “tool” using `cargo-component`.
 - [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Agent Protocol Landscape Research (Wave 93)
 
 ### Agent Communication Protocols Comparison
@@ -646,9 +7837,432 @@ impl mcp_sdk::Server for PhenotypeMcpServer {
     }
 }
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Semantic Memory & Knowledge Systems Research (Wave 94)
 
 ### Knowledge Graph Options
@@ -713,9 +8327,432 @@ impl AgentMemory {
     }
 }
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Workflow Orchestration Research (Wave 95)
 
 ### Workflow Engine Comparison
@@ -808,9 +8845,432 @@ let workflow = WorkflowDsl {
 | Temporal | REJECT | Too heavy for internal use |
 | forza-core | EVALUATE | Rust-native, moderate complexity |
 | Custom | BUILD | Aligns with phenotype patterns |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Infrastructure as Code Research (Wave 96)
 
 ### IaC Tool Comparison
@@ -860,9 +9320,432 @@ infrastructure/
 └── docker/
     └── compose.yaml
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - WebAssembly Component Model Research (Wave 97)
 
 ### WASM Component Model Overview
@@ -1038,9 +9921,432 @@ pub fn analyze_text(ctx: &Context, input: &str) -> ToolResult {
 - [ ] WASM-003: Implement sandbox execution
 - [ ] WASM-004: Create example tool component
 - [ ] WASM-005: Add resource limits (memory, CPU time)
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Container & Serverless Research (Wave 98)
 
 ### Container Options
@@ -1132,9 +10438,432 @@ impl MicroVM {
 - [ ] CONTAINER-002: Design multi-tenant VM pooling
 - [ ] CONTAINER-003: Create WASM-first tool execution
 - [ ] CONTAINER-004: Benchmark startup times
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 100: Modernization Research & Package Replacements
 
 **Project:** [cross-repo]
@@ -1169,9 +10898,432 @@ impl MicroVM {
 | **Jit v2** | Security | EVALUATE | Orchestrates 15+ security tools (SAST, DAST, SCA) under single UI |
 | **Bento** | Quality | TRIAL | Faster alternative to `ruff` for specific enterprise patterns (experimental) |
 | **Knip** | TS | ADOPT | Identifies unused files/exports/deps in TS projects (LOC reduction tool) |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 101: 3rd Party Repo Fork Matrix (Blackbox vs Whitebox)
 
 **Project:** [cross-repo]
@@ -1203,9 +11355,432 @@ impl MicroVM {
 | `helios-pty` | Needs custom process group handling | FORKED | `phenotype-process` (750 LOC) |
 | `eventually-rs` | Maintenance stagnant; need NATS/SQLite adapters | FORKED | `phenotype-event-sourcing` |
 | `config-rs` | Need better error provenance + figment-style merging | FORKED | `phenotype-config-core` |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 102: Cross-Project Libification Hotspots (Error/Config/Health)
 
 **Project:** [cross-repo]
@@ -1227,9 +11802,432 @@ impl MicroVM {
 - **Status:** 6 variants of Healthy/Unavailable enums.
 - **Strategy:** Single `HealthStatus` enum + `#[async_trait] HealthCheck` trait.
 - **Modernization:** Standardize OTel health check metrics export (gauge: `service_health`).
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 103: Inactive Folder Audit & Cleanup Registry
 
 **Project:** [cross-repo]
@@ -1254,9 +12252,432 @@ impl MicroVM {
 ### Stash/Origin Verification Status
 - `phenotype-shared-wtrees`: Checked origin main (✅ sync), no local stashes. Safe to purge.
 - `heliosCLI-wtrees`: Stashes merged to `feature/mcp-v3`. Safe to purge after final push.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 104: 3rd Party Repo Watchlist (2026 Edge)
 
 **Project:** [cross-repo]
@@ -1270,9 +12691,432 @@ impl MicroVM {
 | `prefix-dev/pixi` | Workflow | Conda-style but fast (Rust-based); potential replacement for `uv` in multi-language environments |
 | `zed-industries/zed` | Editor | High-perf GPUI framework; candidate for heliosApp visualization layer |
 | `mistralai/mistral-common` | LLM | Tokenizer + common types in Rust; adopt for local inference logic |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-29 - Wave 105: Pattern Generation Opportunity: JSON-RPC over NATS
 
 **Project:** [AgilePlus]
@@ -1288,13 +13132,859 @@ impl MicroVM {
 - Create `libs/phenotype-rpc-nats` providing a generic `RpcClient` and `RpcServer` for NATS transport.
 - **LOC Savings:** ~250 LOC of boilerplate messaging code.
 - **Benefit:** Uniform error handling and tracing across the message bus.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 _Last updated: 2026-03-29 (Round 7)_
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - Rust 2024 Edition Research & Migration (Wave 118)
 
 **Project:** [phenotype-infrakit]
@@ -1341,9 +14031,432 @@ cargo edition-migration --workspace --report
 - **Timeline**: Target Rust 2024 Edition for Q3 2026 (after stable release)
 - **Action**: Add `rust-toolchain.toml` specifying nightly for now
 - **Benefits**: Cleaner async code, reduced boilerplate
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - MCP Ecosystem Research 2026 (Wave 119)
 
 **Project:** [cross-repo]
@@ -1384,9 +14497,432 @@ cargo edition-migration --workspace --report
 2. **Expose phenosdk tools** via FastMCP for Python ecosystem
 3. **Register on Smithery** for discoverability
 4. **Implement MCP over stdio** for Claude Desktop integration
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - LLM Routing & Fallback Research (Wave 120)
 
 **Project:** [phenosdk]
@@ -1440,9 +14976,432 @@ async def route_llm(prompt: str, complexity: str) -> str:
 2. **Fallback**: GPT-4o (broad compatibility)
 3. **Cost saver**: Deepseek V3 (simple/generation tasks)
 4. **Fast path**: Groq (low-latency requirements)
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - Build System & Tooling Research (Wave 121)
 
 **Project:** [cross-repo]
@@ -1483,9 +15442,432 @@ async def route_llm(prompt: str, complexity: str) -> str:
 2. **Adopt cargo-nextest** for faster test runs
 3. **Use mise.toml** as canonical tool version spec
 4. **Migrate from asdf** to mise for consistency
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - Security & Supply Chain Research (Wave 122)
 
 **Project:** [cross-repo]
@@ -1531,9 +15913,432 @@ litellm==1.82.6 --hash=sha256:... --hash=sha256:...
 - [ ] Enable `trufflehog` pre-commit hook
 - [ ] Add SBOM generation to release pipeline
 - [ ] Evaluate SLSA provenance attestation
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - CLI Framework Research (Wave 123)
 
 **Project:** [heliosCLI, pheno-cli]
@@ -1565,13 +16370,859 @@ litellm==1.82.6 --hash=sha256:... --hash=sha256:...
 2. **Python CLI**: Standardize on `typer` with `stamina` for resilience
 3. **Shared theming**: Use `anstream`/`ansi` for cross-platform colors
 4. **Progress**: Use `indicatif` for Rust, `tqdm` for Python
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 _Last updated: 2026-03-30 (Wave 123)_
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-31 - Wave 118: Rust 2026 Package Ecosystem Scan
 
 **Project:** [cross-repo]
@@ -1608,9 +17259,432 @@ _Last updated: 2026-03-30 (Wave 123)_
 | `phenotype-cache-adapter` | `dashmap` | In-memory cache | Could use `moka` instead |
 | `phenotype-policy-engine` | `regex` | Rule matching | Could add `fancy-regex` for complex patterns |
 | `phenotype-retry` | Custom impl | Backoff | Replace with `backon` |
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-31 - Wave 119: Git Worktree & Inactive Folder Audit
 
 **Project:** [repos workspace]
@@ -1649,9 +17723,432 @@ _Last updated: 2026-03-30 (Wave 123)_
 - 10 stashes found
 - Recommendation: Apply or drop before major changes
 - Backup branch if stashes needed long-term
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-31 - Wave 120: Cross-Ecosystem Dependency Analysis
 
 **Project:** [cross-repo]
@@ -1699,13 +18196,859 @@ _Last updated: 2026-03-30 (Wave 123)_
 | `heliosCLI/state_db.rs` | `StateStore` | 3 |
 
 **Opportunity:** Consolidate to `phenotype-port-traits` with generic parameters.
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 _Last updated: 2026-03-31 (Wave 118-120)_
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - External Fork Candidates: Event Sourcing (Wave 154)
 
 **Project:** [phenotype-infrakit]
@@ -1759,9 +19102,432 @@ class PhenotypeAggregate(Aggregate):
         # Validate and emit events
         pass
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - External Fork Candidates: Policy Engines (Wave 155)
 
 **Project:** [cross-repo]
@@ -1809,9 +19575,432 @@ use cedar_policy::{Policy, PolicySet};
 // Define policy with schema
 let policy: Policy = "permit(principal, action, resource)".parse()?;
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - External Fork Candidates: Git Operations (Wave 156)
 
 **Project:** [cross-repo]
@@ -1849,9 +20038,432 @@ for oid in revwalk {
     println!("{}", oid?);
 }
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 ## 2026-03-30 - External Fork Candidates: CLI Frameworks (Wave 157)
 
 **Project:** [heliosCLI, pheno-cli]
@@ -1907,7 +20519,570 @@ def run(config: Optional[str] = None, debug: bool = False):
 if __name__ == "__main__":
     app()
 ```
+- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
 
 ---
 
+## 2026-03-30 - Extended 2026 Crate Ecosystem Research
+
+**Project:** ALL
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Extended research into 2026 Rust ecosystem for optimization opportunities across all repos.
+
+### AI/LLM Integration (2026)
+
+#### anthropic (v0.3) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | First-class Claude SDK |
+| Features | Streaming, tools, messages |
+| Downloads | Growing |
+| Status | ADOPT - Replace manual HTTP |
+
+#### llm-chain (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | LLM orchestration |
+| Features | Chains, prompts, tools |
+| Downloads | 5k+/week |
+| Status | EVAL - For agent workflows |
+
+#### tiktoken (v0.5) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Token counting |
+| Features | BPE encoding, fast |
+| Downloads | 10k+/week |
+| Status | EVAL - For cost tracking |
+
+### Terminal UI (TUI)
+
+#### ratatui (v0.26) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal UI library |
+| Features | Widgets, layout, styling |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace custom progress |
+
+#### cursive (v0.20) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Another TUI framework |
+| Features | Easy to use, immediate mode |
+| Downloads | 20k+/week |
+| Status | EVAL - Alternative to ratatui |
+
+### Event Sourcing
+
+#### eventually (v0.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Event sourcing abstractions |
+| Features | Aggregate, event store |
+| Downloads | 10k+/week |
+| Status | EVAL - Could replace custom impl |
+
+### Command Line
+
+#### inquire (v0.7) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Interactive prompts |
+| Features | Select, input, password |
+| Downloads | 30k+/week |
+| Status | EVAL - Better than dialoguer |
+
+#### console (v0.16) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Terminal utilities |
+| Features | Colors, styles, tabs |
+| Downloads | 100k+/week |
+| Status | ADOPT - Already using |
+
+### Process Management
+
+#### command-group (v5.0) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Process group management |
+| Features | Kill on drop, signals |
+| Downloads | 50k+/week |
+| Status | ADOPT - Replace manual Command |
+
+### Cryptography
+
+#### ring (v0.17) - USE WITH CAUTION
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Crypto primitives |
+| Features | AES-GCM, ChaCha20 |
+| Status | USE - But review license |
+
+### UUID Generation
+
+#### uuid (v1.10) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+#### ulid (v1.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Sortable UUIDs |
+| Features | Time-ordered |
+| Downloads | 20k+/week |
+| Status | EVAL - For time-based IDs |
+
+### Parsing
+
+#### nom (v7.1) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Zero-copy, fast |
+| Downloads | 30k+/week |
+| Status | EVAL - For structured parsing |
+
+#### chumsky (v0.9) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parser combinators |
+| Features | Error messages |
+| Downloads | 5k+/week |
+| Status | EVAL - Modern nom alternative |
+
+### HTTP
+
+#### axum (v0.8) - ALREADY USING
+
+| Aspect | Details |
+|--------|---------|
+| Status | Already using - no change |
+
+### GraphQL
+
+#### async-graphql (v7.0) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | GraphQL server |
+| Features | Integrates with axum |
+| Downloads | 20k+/week |
+| Status | EVAL - If GraphQL needed |
+
+### ORM
+
+#### sqlx (v0.8) - RECOMMEND ADOPT
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Async DB client |
+| Features | Compile-time checks |
+| Downloads | 100k+/week |
+| Status | ADOPT - Replace rusqlite |
+
+### Memory Management
+
+#### bumpalo (v3.16) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Bump allocator |
+| Downloads | 20k+/week |
+| Status | EVAL - For temporary allocations |
+
+#### pool (v0.10) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Object pool |
+| Downloads | 5k+/week |
+| Status | EVAL - For connection pools |
+
+### Testing
+
+#### proptest (v1.4) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Property-based testing |
+| Downloads | 30k+/week |
+| Status | EVAL - For complex logic |
+
+#### rstest (v0.21) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Parametric tests |
+| Downloads | 20k+/week |
+| Status | EVAL - For table-driven tests |
+
+#### mockall (v0.13) - EVALUATE
+
+| Aspect | Details |
+|--------|---------|
+| Purpose | Mock objects |
+| Downloads | 50k+/week |
+| Status | EVAL - For trait mocking |
+
+### Decision Tree for New Dependencies
+
+```markdown
+1. Is this already in Cargo.lock?
+   YES → Skip
+   NO → Continue
+
+2. Is this a standard library feature?
+   YES → Use std
+   NO → Continue
+
+3. Is there a workspace crate for this?
+   YES → Use workspace crate
+   NO → Continue
+
+4. Is this actively maintained (last commit < 6 months)?
+   YES → Continue
+   NO → Consider alternatives
+
+5. What is the download count?
+   > 100k/week → Production ready
+   > 10k/week → Generally safe
+   < 10k/week → Evaluate carefully
+
+6. License acceptable?
+   MIT OR Apache-2.0 → OK
+   Other → Legal review
+
+7. Security advisories?
+   Check rustsec/advisory-db
+   Any known issues? → Skip or fork
+
+8. Fork vs Depend?
+   Need modifications? → FORK
+   Need custom features? → FORK
+   Otherwise → DEPEND
+```
+
+---
+
+## 2026-03-30 - IPC and Coordination Patterns Research
+
+**Project:** [thegent, AgilePlus]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Comprehensive analysis of IPC and coordination patterns across thegent (Python) and AgilePlus (Rust).
+
+### thegent IPC Implementation
+
+#### IPCMesh (`thegent/infra/ipc.py`)
+
+```python
+class IPCMesh:
+    def acquire_atomic_lock(self, lock_name: str, ttl: int = 60) -> bool
+    def release_atomic_lock(self, lock_name: str)
+    def get_maildir_queue(self) -> MaildirQueue
+```
+
+#### MaildirQueue (`thegent/infra/ipc.py`)
+
+```python
+class MaildirQueue:
+    def send(self, message: dict) -> str
+    def receive(self) -> tuple[str, dict] | None
+    def ack(self, msg_id: str) -> None
+    def nack(self, msg_id: str) -> None
+```
+
+### AgilePlus Rust IPC
+
+#### SHMInterface (`thegent-shm/src/lib.rs`)
+
+```rust
+pub struct SHMInterface {
+    mmap: MmapMut,
+    // Provider metrics, Circuit breaker, Command locks, XP state, Health scores
+}
+```
+
+### Fork Candidate: phenotype-ipc
+
+**Source:** `thegent/infra/ipc.py` (~414 LOC)
+
+**Contents:**
+- IPCMesh with atomic locks
+- MaildirQueue with tmp/new/cur
+- WriteAheadLog for crash recovery
+- QueueNotifier with inotify
+- IntentBroadcaster for agent coordination
+- IntentConflictDetector for conflict prediction
+
+---
+
+## 2026-03-30 - Git Operations Patterns Research
+
+**Project:** [thegent, heliosCLI]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### GitParallelismManager (`thegent/mesh/git.py`)
+
+```python
+class GitParallelismManager:
+    def ensure_index(self) -> None
+    def create_commit_from_index(self) -> str
+    def update_ref_cas(self, ref, expected, value) -> bool
+    def stage_files(self, files: list[Path]) -> None
+    def try_auto_merge_commit(self) -> bool
+```
+
+### Key Patterns
+
+#### Per-Agent Index Files
+```python
+index_path = self.repo_path / ".git" / f"index.agents.{agent_id}"
+os.environ["GIT_INDEX_FILE"] = str(index_path)
+```
+
+#### Compare-And-Swap Ref Updates
+```python
+def update_ref_cas(self, ref, expected, value) -> bool:
+    try:
+        self.repo.refs.set(ref, expected, value)
+        return True
+    except gitpy.GitError:
+        return False  # CAS failed
+```
+
+### Fork Candidate: phenotype-git-async
+
+**Source:** `thegent/mesh/git.py` (~426 LOC)
+
+**Why Fork:**
+- Per-agent git index isolation pattern
+- CAS ref updates with exponential backoff
+- Plumbing-based atomic commits
+- Conflict queue for merge tracking
+
+---
+
+## 2026-03-30 - Configuration Loading Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### thegent Pydantic Settings
+
+```python
+class ThegentSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="THGENT_",
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
+
+    mesh_dir: Path = Field(default_factory=expanded_path_factory)
+
+    @field_validator("retention_days")
+    @classmethod
+    def validate_retention(cls, v):
+        if not 1 <= v <= 365:
+            raise ValueError("Must be 1-365")
+        return v
+```
+
+### AgilePlus TOML Loader
+
+```rust
+pub struct PolicyEngineConfig {
+    pub policies: Vec<Policy>,
+}
+
+pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineError> {
+    let content = std::fs::read_to_string(path)?;
+    let toml: toml::Value = toml::from_str(&content)?;
+    // Parse policies from TOML
+}
+```
+
+### Fork Candidate: phenotype-config
+
+**Source:** `thegent/config/settings.py` (~1034 LOC)
+
+**Why Fork:**
+- Pydantic-based validation
+- Environment prefix binding
+- Path expansion with defaults
+- Fail-fast validation
+
+---
+
+_Last updated: 2026-03-30_
 _Last updated: 2026-03-30 (Wave 157)_
+
+---
+
+## 2026-03-30 - Workflow Orchestration Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Workflow Engine Comparison
+
+| Engine | Language | Durability | Use Case | Phenotype Fit |
+|--------|----------|-----------|----------|---------------|
+| Temporal | Go | Strong | Microservices | ❌ Heavy |
+| Prefekt | Kotlin | Strong | Cloud-native | 🟡 Heavy |
+| forza-core | Rust | Medium | General | ✅ HIGH |
+| Conductor | Java | Strong | Netflix-style | ❌ Heavy |
+| Custom | Rust | TBD | Phenotype | BUILD |
+
+### forza-core Analysis
+
+```rust
+// forza-core patterns
+pub struct WorkflowDefinition {
+    pub id: WorkflowId,
+    pub steps: Vec<Step>,
+    pub retry_policy: RetryPolicy,
+    pub timeout: Duration,
+}
+
+pub enum Step {
+    Task(TaskStep),
+    Parallel(Vec<Step>),
+    Wait(WaitStep),
+    SideEffect(SideEffectStep),
+}
+```
+
+### Phenotype Workflow Design
+
+```rust
+// crates/phenotype-workflow/src/dsl.rs
+
+#[derive(Debug, Clone)]
+pub struct WorkflowDsl {
+    pub name: String,
+    pub triggers: Vec<Trigger>,
+    pub steps: Vec<DslStep>,
+}
+
+#[derive(Debug, Clone)]
+pub enum DslStep {
+    Task {
+        name: String,
+        handler: String,
+        input: Value,
+        retry: Option<RetryPolicy>,
+    },
+    Parallel {
+        branches: Vec<Vec<DslStep>>,
+    },
+    Sequential {
+        steps: Vec<DslStep>,
+    },
+    Conditional {
+        condition: String,
+        then_branch: Vec<DslStep>,
+        else_branch: Vec<DslStep>,
+    },
+}
+```
+
+### Recommendation
+
+| Option | Action | Rationale |
+|--------|--------|-----------|
+| Temporal | REJECT | Too heavy for internal use |
+| forza-core | EVALUATE | Rust-native, moderate complexity |
+| Custom | BUILD | Aligns with phenotype patterns |
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
+## 2026-03-30 - Agent Protocol Landscape Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Agent Communication Protocols Comparison
+
+| Protocol | Organization | Purpose | Status | Phenotype Fit |
+|----------|-------------|---------|--------|---------------|
+| **MCP** | Anthropic | Model Context Protocol | Stable | ✅ HIGH |
+| **A2A** | Agent Protocol | Agent-to-Agent | Draft | 🟡 MEDIUM |
+| **ACP** | ACP | Agent Communication | Active | 🟡 MEDIUM |
+| **ANP** | Neural | Agent Network | Research | ❌ LOW |
+
+### MCP (Model Context Protocol) Analysis
+
+```json
+// MCP Transport
+{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "params": {},
+  "id": 1
+}
+
+// MCP Tool Definition
+{
+  "name": "github_create_issue",
+  "description": "Create a GitHub issue",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "owner": { "type": "string" },
+      "repo": { "type": "string" },
+      "title": { "type": "string" }
+    }
+  }
+}
+```
+
+### Recommendation
+
+| Protocol | Action | Rationale |
+|----------|--------|-----------|
+| MCP | **ADOPT** | Industry standard, Anthropic backing |
+| A2A | **EVALUATE** | Inter-agent communication |
+| ACP | **MONITOR** | Alternative, smaller ecosystem |
+
+---
+
+_Last updated: 2026-03-30_
