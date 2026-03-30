@@ -239,4 +239,41 @@ mod tests {
         std::env::remove_var("RUST_LOG");
         std::env::remove_var("LOG_FORMAT");
     }
+
+    #[test]
+    fn log_config_serialization() {
+        let cfg = LogConfig::builder()
+            .level("debug")
+            .format(LogFormat::Json)
+            .build();
+
+        let json = serde_json::to_string(&cfg).expect("serialize");
+        let cfg2: LogConfig = serde_json::from_str(&json).expect("deserialize");
+
+        assert_eq!(cfg.level, cfg2.level);
+        assert_eq!(cfg.format, cfg2.format);
+    }
+
+    #[test]
+    fn context_span_creates_span() {
+        let span = context_span("test_operation");
+        assert_eq!(span.name(), "context");
+    }
+
+    #[test]
+    fn context_span_with_context_creates_span() {
+        let ctx = RequestContext::new("service", "op");
+        let span = context_span_with_context("test", ctx);
+        assert_eq!(span.name(), "context");
+    }
+
+    #[test]
+    fn log_format_enum_serialization() {
+        let format = LogFormat::Json;
+        let json = serde_json::to_string(&format).expect("serialize");
+        assert_eq!(json, "\"json\"");
+
+        let format2: LogFormat = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(format, format2);
+    }
 }

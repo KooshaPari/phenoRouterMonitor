@@ -25,7 +25,7 @@ members = [
     "crates/phenotype-logging",
     "crates/phenotype-macros",
     "crates/phenotype-mcp",
-    "crates/phenotype-http-client-core",
+    "crates/phenotype-http-client-core", "bifrost-routing",
 ]
 
 [workspace.metadata.cargo-fuzz]
@@ -62,7 +62,7 @@ tokio = { version = "1.41", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
 regex = "1"
-gix = { version = "0.81", default-features = false, features = ["status", "revision", "parallel"] }
+gix = { version = "0.81", default-features = false, features = ["sha1", "status", "revision", "parallel"] }
 syn = { version = "2", features = ["full", "parsing"] }
 quote = "1"
 proc-macro2 = "1"

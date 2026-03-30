@@ -2,14 +2,14 @@
 
 use crate::commit::GitCommit;
 use crate::{GitError, Result};
-use git2::Repository as Git2Repository;
+use gix::Repository as GixRepository;
 use std::path::Path;
 
-/// Wrapper around libgit2 Repository.
+/// Wrapper around gix Repository.
 ///
 /// Provides a simplified interface for common git operations.
 pub struct GitRepository {
-    inner: Git2Repository,
+    inner: GixRepository,
 }
 
 impl std::fmt::Debug for GitRepository {
@@ -27,11 +27,11 @@ impl GitRepository {
     /// # Errors
     ///
     /// Returns `GitError::NotARepo` if the path is not a git repository,
-    /// or `GitError::Git` for other libgit2 errors.
+    /// or `GitError::Git` for other git errors.
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
         let path = path.as_ref();
-        let inner = Git2Repository::open(path)
-            .map_err(|_e| GitError::NotARepo(path.display().to_string()))?;
+        let inner =
+            GixRepository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
         Ok(Self { inner })
     }
 
@@ -43,16 +43,10 @@ impl GitRepository {
     /// Get the HEAD commit if it exists.
     pub fn head_commit(&self) -> Result<Option<GitCommit>> {
         match self.inner.head() {
-            Ok(head) => match head.peel_to_commit() {
+            Ok(head) => match head.peel_to_commit_in_os() {
                 Ok(commit) => {
-                    let id = commit.id().to_string()[..8].to_string();
-                    let message = commit
-                        .message()
-                        .unwrap_or("")
-                        .lines()
-                        .next()
-                        .unwrap_or("")
-                        .to_string();
+                    let id = commit.id.to_string()[..8].to_string();
+                    let message = commit.message.lines().next().unwrap_or("").to_string();
                     Ok(Some(GitCommit::new(id, message)))
                 }
                 Err(_) => Ok(None),

@@ -1,0 +1,66 @@
+[workspace]
+members = [
+    "crates/phenotype-router-core",
+    "crates/phenotype-router-metrics",
+    "crates/phenotype-router-api",
+    "crates/phenotype-router-config",
+]
+
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Phenotype Team"]
+license = "MIT"
+
+[workspace.dependencies]
+# Web framework
+axum = "0.7"
+tokio = { version = "1.35", features = ["full"] }
+hyper = "1.1"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["trace", "cors", "compression-gzip"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "cookies"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Async utilities
+futures = "0.3"
+parking_lot = "0.12"
+
+# Data structures
+dashmap = "5.5"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Configuration
+figment = { version = "0.13", features = ["toml"] }
+
+# Testing
+proptest = "1.4"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Metrics (Prometheus)
+prometheus = "0.13"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

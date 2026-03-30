@@ -251,6 +251,329 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 
 ---
 
+#### 4. zed-industries/zed ⭐ (Agentic Code Editor)
+
+**What:** AI-native code editor with Claude Code integration, multi-model support.
+
+**Key Features:**
+- Claude Code integration for autonomous coding
+- Context merging for agent sessions
+- Terminal, shell integration
+- Multi-cursor editing
+
+**Opportunity:** Fork `platforms/zed-skills`:
+- AgilePlus spec authoring skills
+- PR review skills
+- Code generation from specs
+
+**Overlap:** `agileplus-agent-dispatch`, `platforms/thegent/`
+
+---
+
+#### 5. tabularai/tabby ⭐ (Self-Hosted Code Completion)
+
+**What:** Self-hosted code completion engine with language model.
+
+**Key Features:**
+- Self-hosted deployment (privacy)
+- VS Code, JetBrains extensions
+- Language Server Protocol support
+- Code search
+
+**Opportunity:** Create `platforms/tabby-xpack`:
+- Internal code completion for AgilePlus
+- Domain-specific completions
+- Integration with editor plugins
+
+**Overlap:** `agileplus-agent-dispatch`, `platforms/thegent/`
+
+---
+
+#### 6. ast-grep/ast-grep ⭐ (AST-based Code Analysis)
+
+**What:** Structural code search and linting using AST patterns.
+
+**Key Features:**
+- Pattern-based code search
+- Automatic code transformation
+- Multi-language support
+- Linter rules
+
+**Opportunity:** Create `platforms/code-quality`:
+- Spec compliance checking (Rust lints for specs)
+- Duplicate code detection
+- Code modernization rules
+
+**Overlap:** `tools/lintspec`, `docs/linting-rules/`
+
+---
+
+#### 7. tree-sitter/tree-sitter ⭐ (Parsing Framework)
+
+**What:** Robust增量 parser framework for code analysis.
+
+**Key Features:**
+- Incremental parsing
+- Multi-language grammars
+- Query language for AST
+- Error recovery
+
+**Opportunity:** Create `platforms/tree-sitter-xpack`:
+- AgilePlus DSL parsing
+- Spec file parsing
+- Custom syntax highlighting
+
+**Overlap:** `tools/lintspec`, `platforms/dsl/`
+
+---
+
+#### 8. tonic-framework/tonic ⭐ (gRPC Framework)
+
+**What:** Rust-native gRPC implementation over Tokio.
+
+**Key Features:**
+- Async gRPC client/server
+- Code generation from proto
+- Websocket support
+- Interceptors
+
+**Opportunity:** Create `platforms/tonic-xpack`:
+- Internal microservices communication
+- API gateway for AgilePlus
+- Performance-critical paths
+
+**Overlap:** `agileplus-api`, `agileplus-sync`
+
+---
+
+#### 9. solana-labs/solana-program-library ⭐ (On-Chain Programs)
+
+**What:** Decentralized compute framework with token standards.
+
+**Key Features:**
+- Token2022 extensions
+- Token-swap AMM
+- Staking programs
+- Cross-chain bridges
+
+**Opportunity:** Fork `platforms/token-extensions`:
+- Custom token features for AgilePlus
+- Compliance token logic
+- Escrow mechanisms
+
+**Overlap:** `platforms/tokenization/`, `platforms/defi/`
+
+---
+
+#### 10. metership/metership ⭐ (Type-Safe API Migrations)
+
+**What:** Framework for breaking API changes with version routing.
+
+**Key Features:**
+- Version routing
+- Type transformations
+- Migration scripts
+- API evolution
+
+**Opportunity:** Create `platforms/api-evolution`:
+- AgilePlus API versioning
+- Backward compatibility
+- Migration automation
+
+**Overlap:** `agileplus-api`, `agileplus-cli/`
+
+---
+
+#### 11. langchain-ai/langchain ⭐ (LLM Application Framework)
+
+**What:** Composable components for LLM applications.
+
+**Key Features:**
+- Chains, agents, memory
+- Tool integration
+- Vector stores
+- Streaming support
+
+**Opportunity:** Fork `platforms/langchain-xpack`:
+- AgilePlus-specific tools
+- Spec generation agents
+- Review automation agents
+
+**Overlap:** `agileplus-agent-dispatch`, `platforms/thegent/`
+
+---
+
+#### 12. anthropics/anthropic-sdk-python ⭐ (Claude SDK)
+
+**What:** Official Python SDK for Claude API.
+
+**Key Features:**
+- Async support
+- Streaming responses
+- Tool use
+- Cost tracking
+
+**Opportunity:** Create `platforms/claude-sdk-xpack`:
+- Python CLI integration
+- Claude-assisted spec writing
+- Automated review workflows
+
+**Overlap:** `python/`, `agileplus-cli/`
+
+---
+
+#### 13. postgresml/postgresml ⭐ (In-Database ML)
+
+**What:** PostgreSQL extension for machine learning.
+
+**Key Features:**
+- SQL-based ML
+- Transformers support
+- Vector operations
+- Model serving
+
+**Opportunity:** Create `platforms/pgml-xpack`:
+- Spec similarity search
+- Predictive issue detection
+- Analytics queries
+
+**Overlap:** `agileplus-graph`, `agileplus-analytics/`
+
+---
+
+#### 14. litellm/litellm ⭐ (Unified LLM API)
+
+**What:** Unified interface for 100+ LLM providers.
+
+**Key Features:**
+- OpenAI-compatible API
+- Cost tracking
+- Rate limiting
+- Retry logic
+
+**Opportunity:** Create `platforms/litellm-xpack`:
+- Multi-provider LLM routing
+- Cost optimization
+- Fallback strategies
+
+**Overlap:** `agileplus-agent-dispatch`, `platforms/thegent/`
+
+---
+
+#### 15. continuedev/continue ⭐ (VS Code AI Extension)
+
+**What:** Open-source AI coding assistant for VS Code/JetBrains.
+
+**Key Features:**
+- Codebase embeddings
+- Custom prompts
+- Slash commands
+- Multi-model support
+
+**Opportunity:** Fork `platforms/continue-xpack`:
+- AgilePlus context provider
+- Spec-aware suggestions
+- Custom slash commands
+
+**Overlap:** `agileplus-cli/`, `platforms/thegent/`
+
+---
+
+#### 16. ragflow/ragflow ⭐ (Document RAG Framework)
+
+**What:** Deep document understanding for RAG pipelines.
+
+**Key Features:**
+- Document chunking
+- Knowledge graph extraction
+- Multi-modal support
+- Hybrid search
+
+**Opportunity:** Create `platforms/ragflow-xpack`:
+- Spec document understanding
+- Requirement extraction
+- Knowledge base indexing
+
+**Overlap:** `agileplus-graph`, `platforms/khoj/`
+
+---
+
+#### 17. infinity/infinity ⭐ (Vector Database)
+
+**What:** High-performance vector search engine.
+
+**Key Features:**
+- Embedding storage
+- ANN search
+- Filtering
+- Batch processing
+
+**Opportunity:** Create `platforms/infinity-xpack`:
+- Spec embedding storage
+- Semantic search
+- Recommendation engine
+
+**Overlap:** `agileplus-graph`, `platforms/vector/`
+
+---
+
+#### 18. embedchain/embedchain ⭐ (RAG as a Service)
+
+**What:** Framework to build RAG applications.
+
+**Key Features:**
+- Data source connectors
+- Chunking strategies
+- Embedding providers
+- Streaming responses
+
+**Opportunity:** Create `platforms/embedchain-xpack`:
+- AgilePlus data source connectors
+- Spec indexing
+- Q&A over project docs
+
+**Overlap:** `platforms/ragflow/`, `agileplus-graph/`
+
+---
+
+#### 19. dify/dify ⭐ (LLM App Platform)
+
+**What:** Open-source LLM app development platform.
+
+**Key Features:**
+- Visual workflow builder
+- Agentic pipelines
+- RAG pipeline
+- Enterprise SSO
+
+**Opportunity:** Fork `platforms/dify-xpack`:
+- AgilePlus workflow automation
+- Spec approval workflows
+- Integration pipelines
+
+**Overlap:** `platforms/n8n/`, `agileplus-workflow/`
+
+---
+
+#### 20. flowiseai/flowise ⭐ (Drag-Drop LLM Flows)
+
+**What:** Drag-and-drop UI for building LLM flows.
+
+**Key Features:**
+- Visual flow builder
+- LangChain integration
+- API deployment
+- Multi-tenant
+
+**Opportunity:** Create `platforms/flowise-xpack`:
+- Visual spec workflows
+- Approval flows
+- Notification flows
+
+**Overlap:** `platforms/dify/`, `agileplus-workflow/`
+
+---
+
 #### 4. antinomyhq/forgecode (Code Generation)
 
 **What:** Code generation tool with agent-driven development patterns.

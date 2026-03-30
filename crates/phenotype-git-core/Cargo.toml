@@ -5,7 +5,7 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Git operations for Phenotype — repository info, diff, log, and status via libgit2"
+description = "Git operations for Phenotype — repository info, diff, log, and status via gitoxide"
 
 [dependencies]
 gix.workspace = true
