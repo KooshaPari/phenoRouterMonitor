@@ -6,7 +6,7 @@ members = [
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
-    "crates/phenotype-health"
+    "crates/phenotype-health",
 ]
 exclude = [
     "crates/phenotype-mcp",

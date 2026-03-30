@@ -1,10 +1,10 @@
 [package]
 name = "phenotype-contracts"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Phenotype Contracts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 
-[lib]
-path = "src/lib.rs"
+[dependencies]
+serde = { workspace = true }
+async-trait = { workspace = true }
