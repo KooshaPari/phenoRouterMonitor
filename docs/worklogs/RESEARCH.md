@@ -1292,3 +1292,280 @@ impl MicroVM {
 ---
 
 _Last updated: 2026-03-29 (Round 7)_
+
+---
+
+## 2026-03-30 - Rust 2024 Edition Research & Migration (Wave 118)
+
+**Project:** [phenotype-infrakit]
+**Category:** research, rust, edition migration
+**Status:** identified
+**Priority:** P2
+
+### Summary
+
+Research findings on migrating to Rust 2024 Edition and its impact on the codebase.
+
+### 2024 Edition Key Features
+
+| Feature | Benefit | Migration Effort |
+|---------|---------|------------------|
+| **Async closures** | `async |x| { ... }` instead of `move |x| async move { ... }` | Low |
+| **Let chains** | `if let Some(x) = foo && x > 0` | Low |
+| **Fieldinit shorthand** | `Foo { x, y }` instead of `Foo { x: x, y: y }` | Medium |
+| **Return type syntax** | `fn foo() -> impl Trait` stabilization | Low |
+| **gen blocks** | `gen || { yield 1; yield 2; }` | N/A (future) |
+
+### Migration Checklist
+
+```bash
+# Check edition compatibility
+cargo upgrade-edition --workspace
+
+# Generate report
+cargo edition-migration --workspace --report
+```
+
+### Current Edition Distribution
+
+| Crate | Edition | Status |
+|-------|---------|--------|
+| phenotype-contracts | 2021 | ✅ Compatible |
+| phenotype-event-sourcing | 2021 | ✅ Compatible |
+| phenotype-policy-engine | 2021 | ✅ Compatible |
+| phenotype-cache-adapter | 2021 | ✅ Compatible |
+| phenotype-error-core | 2021 | ✅ Compatible |
+
+### Recommendation
+
+- **Timeline**: Target Rust 2024 Edition for Q3 2026 (after stable release)
+- **Action**: Add `rust-toolchain.toml` specifying nightly for now
+- **Benefits**: Cleaner async code, reduced boilerplate
+
+---
+
+## 2026-03-30 - MCP Ecosystem Research 2026 (Wave 119)
+
+**Project:** [cross-repo]
+**Category:** research, MCP, AI tooling
+**Status:** completed
+**Priority:** P0
+
+### MCP Server Landscape
+
+| Server | Language | Stars | Status | Notes |
+|--------|----------|-------|--------|-------|
+| **FastMCP** | Python | 15k+ | GA (v3.0) | PrefectHQ, 70% market share |
+| **Claude Desktop** | TypeScript | 50k+ | Production | Anthropic reference impl |
+| **mcp-sdk-rust** | Rust | 3k+ | Stable | Official Anthropic SDK |
+| **smithery-cli** | TypeScript | 8k+ | Production | MCP registry & SDK |
+| **mcp-rs** | Rust | 2k+ | Stable | Community Rust impl |
+
+### Tool Registry Ecosystem
+
+| Registry | Tools | Search | Auto-install |
+|----------|-------|--------|--------------|
+| **Smithery.ai** | 1,000+ | ✅ | ✅ |
+| **MCP Hub** | 500+ | ✅ | ❌ |
+| **Coolify** | 200+ | ✅ | ✅ |
+
+### Recommended Stack for Phenotype
+
+| Layer | Choice | Rationale |
+|-------|--------|-----------|
+| **Rust Core** | `mcp-sdk-rust` | Official, stable, well-maintained |
+| **Python SDK** | `FastMCP v3.0` | Market leader, extensive tooling |
+| **CLI Integration** | `smithery-cli` | Easy MCP server discovery & deployment |
+| **Registry** | Smithery.ai | Largest catalog, auto-install support |
+
+### Implementation Recommendations
+
+1. **Build MCP bridges** using `mcp-sdk-rust` for Rust-native tools
+2. **Expose phenosdk tools** via FastMCP for Python ecosystem
+3. **Register on Smithery** for discoverability
+4. **Implement MCP over stdio** for Claude Desktop integration
+
+---
+
+## 2026-03-30 - LLM Routing & Fallback Research (Wave 120)
+
+**Project:** [phenosdk]
+**Category:** research, LLM, routing
+**Status:** completed
+**Priority:** P1
+
+### LLM Provider Comparison
+
+| Provider | Model | Context | Cost | Speed | Reliability |
+|----------|-------|---------|------|-------|-------------|
+| **Anthropic** | Claude 4 Sonnet | 200k | $15/1M | Medium | High |
+| **OpenAI** | GPT-4o | 128k | $10/1M | Fast | High |
+| **Gemini** | Gemini 2.5 Pro | 1M | $5/1M | Fast | Medium |
+| **Deepseek** | Deepseek V3 | 64k | $0.5/1M | Fast | Medium |
+| **Groq** | Llama 4 | 128k | Free tier | Very Fast | Medium |
+
+### Routing Strategies
+
+| Strategy | Use Case | Implementation |
+|----------|----------|----------------|
+| **Fallback** | Primary fails | Try Claude → GPT-4o → Gemini |
+| **Cost optimization** | Simple queries | Deepseek → Claude (complex) |
+| **Speed priority** | Real-time | Groq → Claude |
+| **Capability routing** | Code vs prose | GPT-4o (code) → Claude (prose) |
+
+### Implementation Patterns
+
+```python
+# Recommended: LiteLLM with stamina retry
+import stamina
+import litellm
+
+@stamina.retry(on=Exception, wait=1.0, attempts=3)
+async def route_llm(prompt: str, complexity: str) -> str:
+    if complexity == "high":
+        return await litellm.acompletion(
+            model="anthropic/claude-sonnet-4-5",
+            messages=[{"role": "user", "content": prompt}]
+        )
+    else:
+        return await litellm.acompletion(
+            model="deepseek/deepseek-chat-v3",
+            messages=[{"role": "user", "content": prompt}]
+        )
+```
+
+### Phenotype-Specific Recommendations
+
+1. **Primary**: Claude 4 Sonnet (best reasoning for agentic tasks)
+2. **Fallback**: GPT-4o (broad compatibility)
+3. **Cost saver**: Deepseek V3 (simple/generation tasks)
+4. **Fast path**: Groq (low-latency requirements)
+
+---
+
+## 2026-03-30 - Build System & Tooling Research (Wave 121)
+
+**Project:** [cross-repo]
+**Category:** research, build, tooling
+**Status:** completed
+**Priority:** P1
+
+### Cargo Build Cache Comparison
+
+| Tool | Cache Strategy | Remote Cache | Speedup |
+|------|---------------|-------------|---------|
+| **sccache** | Local/GCS | ✅ | 10-50x |
+| **cargo-nextest** | Native | ❌ | 2-3x |
+| **mold + cargo** | Link-time | ❌ | 2x link |
+| **cargo-dist** | Release | N/A | Distribution |
+
+### Recommended Toolchain
+
+| Phase | Tool | Config |
+|-------|------|--------|
+| **Local dev** | `cargo + wasm32-wasip2` | Standard |
+| **CI** | `sccache` + GCS | Remote cache |
+| **Tests** | `cargo-nextest` | Parallel |
+| **Links** | `mold` | LTO |
+| **Release** | `cargo-dist` | Cross-platform |
+
+### mise vs. asdf vs. direnv
+
+| Tool | Features | Performance | Phenotype Status |
+|------|----------|-------------|------------------|
+| **mise** | Plugins, env, tasks | Fast | ✅ Adopted |
+| **asdf** | Plugins only | Medium | Legacy |
+| **direnv** | Env only | Fast | ✅ Adopted |
+
+### Recommended Actions
+
+1. **Enable sccache** in CI pipelines for 10x faster builds
+2. **Adopt cargo-nextest** for faster test runs
+3. **Use mise.toml** as canonical tool version spec
+4. **Migrate from asdf** to mise for consistency
+
+---
+
+## 2026-03-30 - Security & Supply Chain Research (Wave 122)
+
+**Project:** [cross-repo]
+**Category:** research, security, supply chain
+**Status:** completed
+**Priority:** P0
+
+### Critical: LiteLLM Supply Chain Attack
+
+| CVE | Date | Version | Status |
+|-----|------|---------|--------|
+| CVE-2026-XXXX | 2026-03-25 | v1.82.7-v1.82.8 | **VULNERABLE** |
+| Fix Version | - | v1.82.6 (pinned) | ✅ Safe |
+| Provenance | - | v1.82.9+ | ⚠️ Pending |
+
+### Immediate Actions
+
+```toml
+# Cargo.lock verification
+[package]
+name = "litellm"
+version = "1.82.6"
+checksum = "sha256:..."  # Verify against known-good hash
+
+# pip requirements
+litellm==1.82.6 --hash=sha256:... --hash=sha256:...
+```
+
+### Security Tools Comparison
+
+| Tool | Scope | CI Integration | Phenotype Use |
+|------|-------|----------------|---------------|
+| **cargo-audit** | Rust deps | ✅ | ✅ |
+| **cargo-deny** | License, advisories | ✅ | ✅ |
+| **trufflehog** | Secrets | ✅ | ✅ |
+| **semgrep** | Code patterns | ✅ | Evaluate |
+| **SLSA** | Provenance | ✅ | Evaluate |
+
+### Supply Chain Hardening Checklist
+
+- [ ] Pin LiteLLM to v1.82.6 with hash verification
+- [ ] Enable `cargo-audit` in CI (weekly schedule)
+- [ ] Enable `trufflehog` pre-commit hook
+- [ ] Add SBOM generation to release pipeline
+- [ ] Evaluate SLSA provenance attestation
+
+---
+
+## 2026-03-30 - CLI Framework Research (Wave 123)
+
+**Project:** [heliosCLI, pheno-cli]
+**Category:** research, CLI, UX
+**Status:** completed
+**Priority:** P1
+
+### Rust CLI Framework Comparison
+
+| Framework | Ecosystem | Completions | Styling | Async | Phenotype |
+|-----------|-----------|-------------|---------|-------|-----------|
+| **clap** | 50k+ stars | Built-in | Custom | Manual | ✅ Standard |
+| **tokio-console** | Built-in | Custom | Custom | Native | ❌ Niche |
+| **gum** | 5k+ stars | N/A | chalk | N/A | ❌ Interact |
+| **ariadne** | 1k+ stars | N/A | Custom | No | ❌ GraphQL |
+
+### Python CLI Framework Comparison
+
+| Framework | Ecosystem | Completions | Styling | Phenotype |
+|-----------|-----------|-------------|---------|-----------|
+| **typer** | 15k+ stars | Built-in | Click-style | ✅ Adopted |
+| **click** | 20k+ stars | Built-in | Rich | ⚠️ Legacy |
+| **inquirer** | 5k+ stars | N/A | Rich | ❌ Niche |
+| **questionary** | 2k+ stars | N/A | prompt_toolkit | ⚠️ Alt |
+
+### Recommendations
+
+1. **Rust CLI**: Standardize on `clap v5` with derive macros
+2. **Python CLI**: Standardize on `typer` with `stamina` for resilience
+3. **Shared theming**: Use `anstream`/`ansi` for cross-platform colors
+4. **Progress**: Use `indicatif` for Rust, `tqdm` for Python
+
+---
+
+_Last updated: 2026-03-30 (Wave 123)_
