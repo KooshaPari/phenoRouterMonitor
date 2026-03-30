@@ -30,19 +30,19 @@ class TestLogger:
     def test_logger_implementation(self) -> None:
         """Test implementing Logger interface."""
         class TestLogger(Logger):
-            def debug(self, message: str, **kwargs: Any) -> None:
+            def debug(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def info(self, message: str, **kwargs: Any) -> None:
+            def info(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def warning(self, message: str, **kwargs: Any) -> None:
+            def warning(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def error(self, message: str, **kwargs: Any) -> None:
+            def error(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def critical(self, message: str, **kwargs: Any) -> None:
+            def critical(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
         logger = TestLogger()
@@ -65,13 +65,13 @@ class TestTracer:
     def test_tracer_implementation(self) -> None:
         """Test implementing Tracer interface."""
         class TestTracer(Tracer):
-            def start_span(self, name: str, **kwargs: Any) -> str:
+            def start_span(self, name: str, **_kwargs: Any) -> str:
                 return "span_id"
 
-            def end_span(self, span_id: str, **kwargs: Any) -> None:
+            def end_span(self, span_id: str, **_kwargs: Any) -> None:
                 pass
 
-            def add_event(self, span_id: str, event: str, **kwargs: Any) -> None:
+            def add_event(self, span_id: str, event: str, **_kwargs: Any) -> None:
                 pass
 
         tracer = TestTracer()
@@ -94,13 +94,13 @@ class TestMeter:
     def test_meter_implementation(self) -> None:
         """Test implementing Meter interface."""
         class TestMeter(Meter):
-            def record_counter(self, name: str, value: float = 1.0, **kwargs: Any) -> None:
+            def record_counter(self, name: str, value: float = 1.0, **_kwargs: Any) -> None:
                 pass
 
-            def record_histogram(self, name: str, value: float, **kwargs: Any) -> None:
+            def record_histogram(self, name: str, value: float, **_kwargs: Any) -> None:
                 pass
 
-            def record_gauge(self, name: str, value: float, **kwargs: Any) -> None:
+            def record_gauge(self, name: str, value: float, **_kwargs: Any) -> None:
                 pass
 
         meter = TestMeter()
@@ -175,7 +175,7 @@ class TestAlerter:
     def test_alerter_implementation(self) -> None:
         """Test implementing Alerter interface."""
         class TestAlerter(Alerter):
-            async def send_alert(self, title: str, message: str, **kwargs: Any) -> None:
+            async def send_alert(self, title: str, message: str, **_kwargs: Any) -> None:
                 pass
 
         alerter = TestAlerter()
@@ -188,11 +188,11 @@ class TestAlerter:
             def __init__(self) -> None:
                 self.alerts: list[dict[str, Any]] = []
 
-            async def send_alert(self, title: str, message: str, **kwargs: Any) -> None:
+            async def send_alert(self, title: str, message: str, **_kwargs: Any) -> None:
                 self.alerts.append({
                     "title": title,
                     "message": message,
-                    "extra": kwargs
+                    "extra": _kwargs
                 })
 
         alerter = TestAlerter()
@@ -232,39 +232,39 @@ class TestObservabilityPorts:
 
         # Can instantiate with dummy implementations
         class DummyLogger(Logger):
-            def debug(self, message: str, **kwargs: Any) -> None:
+            def debug(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def info(self, message: str, **kwargs: Any) -> None:
+            def info(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def warning(self, message: str, **kwargs: Any) -> None:
+            def warning(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def error(self, message: str, **kwargs: Any) -> None:
+            def error(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
-            def critical(self, message: str, **kwargs: Any) -> None:
+            def critical(self, _message: str, **_kwargs: Any) -> None:
                 pass
 
         class DummyTracer(Tracer):
-            def start_span(self, name: str, **kwargs: Any) -> str:
+            def start_span(self, name: str, **_kwargs: Any) -> str:
                 return "span"
 
-            def end_span(self, span_id: str, **kwargs: Any) -> None:
+            def end_span(self, span_id: str, **_kwargs: Any) -> None:
                 pass
 
-            def add_event(self, span_id: str, event: str, **kwargs: Any) -> None:
+            def add_event(self, span_id: str, event: str, **_kwargs: Any) -> None:
                 pass
 
         class DummyMeter(Meter):
-            def record_counter(self, name: str, value: float = 1.0, **kwargs: Any) -> None:
+            def record_counter(self, name: str, value: float = 1.0, **_kwargs: Any) -> None:
                 pass
 
-            def record_histogram(self, name: str, value: float, **kwargs: Any) -> None:
+            def record_histogram(self, name: str, value: float, **_kwargs: Any) -> None:
                 pass
 
-            def record_gauge(self, name: str, value: float, **kwargs: Any) -> None:
+            def record_gauge(self, name: str, value: float, **_kwargs: Any) -> None:
                 pass
 
         class DummyHealthChecker(HealthChecker):
@@ -272,7 +272,7 @@ class TestObservabilityPorts:
                 return HealthStatus.HEALTHY, "OK"
 
         class DummyAlerter(Alerter):
-            async def send_alert(self, title: str, message: str, **kwargs: Any) -> None:
+            async def send_alert(self, title: str, message: str, **_kwargs: Any) -> None:
                 pass
 
         obs = ComposedObservability(

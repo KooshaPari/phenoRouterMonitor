@@ -21,27 +21,27 @@ class Logger(ABC):
     """
 
     @abstractmethod
-    def debug(self, message: str, **kwargs: Any) -> None:
+    def debug(self, _message: str, **_kwargs: Any) -> None:
         """Log debug message."""
         pass
 
     @abstractmethod
-    def info(self, message: str, **kwargs: Any) -> None:
+    def info(self, _message: str, **_kwargs: Any) -> None:
         """Log info message."""
         pass
 
     @abstractmethod
-    def warning(self, message: str, **kwargs: Any) -> None:
+    def warning(self, _message: str, **_kwargs: Any) -> None:
         """Log warning message."""
         pass
 
     @abstractmethod
-    def error(self, message: str, **kwargs: Any) -> None:
+    def error(self, _message: str, **_kwargs: Any) -> None:
         """Log error message."""
         pass
 
     @abstractmethod
-    def critical(self, message: str, **kwargs: Any) -> None:
+    def critical(self, _message: str, **_kwargs: Any) -> None:
         """Log critical message."""
         pass
 
@@ -54,13 +54,13 @@ class Tracer(ABC):
     """
 
     @abstractmethod
-    def start_span(self, name: str, **kwargs: Any) -> str:
+    def start_span(self, name: str, **_kwargs: Any) -> str:
         """
         Start a new span.
 
         Args:
             name: Span name.
-            **kwargs: Additional span attributes.
+            **_kwargs: Additional span attributes.
 
         Returns:
             Span ID for later reference.
@@ -68,25 +68,25 @@ class Tracer(ABC):
         pass
 
     @abstractmethod
-    def end_span(self, span_id: str, **kwargs: Any) -> None:
+    def end_span(self, span_id: str, **_kwargs: Any) -> None:
         """
         End a span.
 
         Args:
             span_id: ID of span to end.
-            **kwargs: Additional end span attributes.
+            **_kwargs: Additional end span attributes.
         """
         pass
 
     @abstractmethod
-    def add_event(self, span_id: str, event: str, **kwargs: Any) -> None:
+    def add_event(self, span_id: str, event: str, **_kwargs: Any) -> None:
         """
         Add an event to a span.
 
         Args:
             span_id: ID of span to add event to.
             event: Event description.
-            **kwargs: Additional event attributes.
+            **_kwargs: Additional event attributes.
         """
         pass
 
@@ -99,38 +99,38 @@ class Meter(ABC):
     """
 
     @abstractmethod
-    def record_counter(self, name: str, value: float = 1.0, **kwargs: Any) -> None:
+    def record_counter(self, name: str, value: float = 1.0, **_kwargs: Any) -> None:
         """
         Record a counter metric (monotonically increasing).
 
         Args:
             name: Metric name.
             value: Value to add to counter (default 1.0).
-            **kwargs: Additional metric attributes.
+            **_kwargs: Additional metric attributes.
         """
         pass
 
     @abstractmethod
-    def record_histogram(self, name: str, value: float, **kwargs: Any) -> None:
+    def record_histogram(self, name: str, value: float, **_kwargs: Any) -> None:
         """
         Record a histogram metric (distribution of values).
 
         Args:
             name: Metric name.
             value: Value to record.
-            **kwargs: Additional metric attributes.
+            **_kwargs: Additional metric attributes.
         """
         pass
 
     @abstractmethod
-    def record_gauge(self, name: str, value: float, **kwargs: Any) -> None:
+    def record_gauge(self, name: str, value: float, **_kwargs: Any) -> None:
         """
         Record a gauge metric (instantaneous measurement).
 
         Args:
             name: Metric name.
             value: Current gauge value.
-            **kwargs: Additional metric attributes.
+            **_kwargs: Additional metric attributes.
         """
         pass
 
@@ -161,14 +161,14 @@ class Alerter(ABC):
     """
 
     @abstractmethod
-    async def send_alert(self, title: str, message: str, **kwargs: Any) -> None:
+    async def send_alert(self, title: str, message: str, **_kwargs: Any) -> None:
         """
         Send an alert/notification.
 
         Args:
             title: Alert title.
             message: Alert message.
-            **kwargs: Additional alert metadata (severity, tags, etc).
+            **_kwargs: Additional alert metadata (severity, tags, etc).
         """
         pass
 
