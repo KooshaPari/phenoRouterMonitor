@@ -19,8 +19,10 @@ pub use tracing::{span, Level, Span};
 /// Log output format.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "lowercase")]
+#[derive(Default)]
 pub enum LogFormat {
     /// Human-readable, multi-line output (default for development).
+    #[default]
     Pretty,
     /// Single-line human-readable output.
     Compact,
@@ -28,11 +30,6 @@ pub enum LogFormat {
     Json,
 }
 
-impl Default for LogFormat {
-    fn default() -> Self {
-        Self::Pretty
-    }
-}
 
 /// Configuration for the logging subsystem.
 ///

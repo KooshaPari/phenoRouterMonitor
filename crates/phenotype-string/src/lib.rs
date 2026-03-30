@@ -44,7 +44,7 @@ pub fn to_snake_case(s: &str) -> String {
 
 /// Convert a string to PascalCase.
 pub fn to_pascal_case(s: &str) -> String {
-    s.split(|c: char| c == '_' || c == '-' || c == ' ')
+    s.split(['_', '-', ' '])
         .filter(|w| !w.is_empty())
         .map(|w| {
             let mut chars = w.chars();
