@@ -44,13 +44,28 @@ pub enum StateMachineError {
 /// Result type for state machine operations.
 pub type Result<T> = std::result::Result<T, StateMachineError>;
 
+/// Guard function type for transitions.
+type TransitionGuard = Arc<dyn Fn(&str, &str) -> bool + Send + Sync>;
+
+/// Callback function type for state enter/exit events.
+/// Result type for state machine operations.
+pub type Result<T> = std::result::Result<T, StateMachineError>;
+
+/// Callback type for state entry/exit hooks.
+type StateCallback = Arc<dyn Fn(&str) + Send + Sync>;
+
+/// Callback type for transition guards.
+type TransitionGuard = Arc<dyn Fn(&str, &str) -> bool + Send + Sync>;
+
+/// Registry of state callbacks keyed by state name.
+type StateCallbackRegistry = HashMap<String, Vec<StateCallback>>;
+
 /// A transition definition: (from_state, event) -> to_state with optional guard.
 #[derive(Clone)]
 struct Transition {
     to: String,
-    guard: Option<Arc<dyn Fn(&str, &str) -> bool + Send + Sync>>,
+    guard: Option<TransitionGuard>,
 }
-
 /// A generic finite state machine.
 ///
 /// Thread-safe via internal `RwLock`. States and events are string-based
