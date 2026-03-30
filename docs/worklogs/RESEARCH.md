@@ -713,3 +713,53 @@ Quarterly technology radar update based on starred repo analysis.
 | Custom MCP implementations | Use Pathway patterns |
 
 ---
+
+---
+
+## 2026-03-29 - Error Propagation Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Research into error handling patterns for distributed systems across Rust, TypeScript, and Python services.
+
+### Error Propagation Patterns
+
+| Pattern | Use Case | Assessment |
+|---------|----------|------------|
+| **Result<T, E>** | Synchronous Rust | ✅ Standard |
+| **Try/Catch** | TypeScript/Python | ✅ Standard |
+| **Error Channels** | Async boundaries | ✅ ADOPT |
+| **Circuit Breakers** | Service resilience | 🟡 EVALUATE |
+
+### Cross-Language Error Mapping
+
+```rust
+// Rust Error
+pub enum ServiceError {
+    NotFound(String),
+    Validation(String),
+    Internal(anyhow::Error),
+}
+
+// Convert to JSON-RPC error
+impl From<ServiceError> for jsonrpc::Error {
+    fn from(err: ServiceError) -> Self {
+        match err {
+            ServiceError::NotFound(msg) => jsonrpc::Error::not_found(Some(msg)),
+            ServiceError::Validation(msg) => jsonrpc::Error::invalid_params(msg),
+            ServiceError::Internal(_) => jsonrpc::Error::internal_error(),
+        }
+    }
+}
+```
+
+### Tasks
+
+- [ ] ERROR-001: Standardize error code ranges across services
+- [ ] ERROR-002: Add error code documentation
+
+_Last updated: 2026-03-29_

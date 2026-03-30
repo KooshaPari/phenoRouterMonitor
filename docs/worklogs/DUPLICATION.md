@@ -482,3 +482,40 @@ Comprehensive analysis identifying 1,800 LOC of duplication with 1,200 LOC savin
 - `worklogs/WORK_LOG.md` - Wave 90 entry
 
 ---
+
+---
+
+## 2026-03-29 - Error Handling Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Error handling logic is duplicated across services with different error formats and codes.
+
+### Duplicate Patterns Identified
+
+| Service | Error Format | LOC |
+|---------|-------------|-----|
+| `agileplus` | `anyhow` + custom enum | 120 |
+| `thegent` | `thiserror` only | 80 |
+| `heliosApp` | TypeScript errors | 60 |
+
+### Impact
+- **Inconsistent API responses:** Different error JSON structures
+- **Debugging complexity:** No unified error tracing
+
+### Recommended Action
+Create `phenotype-error-core` with:
+1. Standardized error codes
+2. Error conversion traits
+3. JSON-RPC compatibility
+
+### Tasks
+
+- [ ] ERROR-DUP-001: Audit error formats across services
+- [ ] ERROR-DUP-002: Create unified error crate
+
+_Last updated: 2026-03-29_

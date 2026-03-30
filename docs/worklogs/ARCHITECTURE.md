@@ -382,3 +382,47 @@ Reviewed heliosCLI architecture patterns for consistency with AgilePlus.
 - [ ] Add progress feedback with indicatif
 
 ---
+
+---
+
+## 2026-03-29 - Error Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Architecture for unified error handling across Phenotype services.
+
+### Error Architecture Layers
+
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│   Service Layer │      │   Transport      │      │   Client Layer   │
+│ (anyhow/thiserror)│      │   (JSON-RPC)    │      │ (typed errors) │
+└────────┬────────┘      └────────┬────────┘      └────────┬────────┘
+         │                        │                        │
+         ▼                        ▼                        ▼
+┌───────────────────────────────────────────────────────────────────┐
+│                    phenotype-error-core                       │
+│  • Error codes  • Propagation  • Conversion  • Tracing      │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+### Error Code Standard
+
+| Range | Category | Example |
+|-------|----------|---------|
+| 000-099 | System | NETWORK_ERROR, TIMEOUT |
+| 100-199 | Validation | INVALID_INPUT, MISSING_FIELD |
+| 200-299 | Auth | UNAUTHORIZED, FORBIDDEN |
+| 300-399 | Resource | NOT_FOUND, ALREADY_EXISTS |
+
+### Tasks
+
+- [ ] ERROR-ARCH-001: Create `phenotype-error-core` crate
+- [ ] ERROR-ARCH-002: Define error code standard
+- [ ] ERROR-ARCH-003: Add error middleware to Axum
+
+_Last updated: 2026-03-29_
