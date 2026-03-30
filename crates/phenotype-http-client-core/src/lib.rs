@@ -1,13 +1,15 @@
 //! # HTTP Client Core
 //!
-//! Core traits and retry logic for HTTP clients in the Phenotype ecosystem.
-//! Minimal, no external HTTP crate dependency — consumers bring their own (reqwest, hyper, etc).
+//! HTTP client implementation for the Phenotype ecosystem.
+//! Provides reqwest-based HTTP client with error handling, retry logic, and authentication.
 
 pub mod auth;
+pub mod client;
 pub mod error;
 pub mod retry;
 
 pub use auth::{AuthCredentials, AuthMiddleware};
+pub use client::HttpClient;
 pub use error::{ErrorKind, TransportError};
 pub use retry::RetryPolicy;
 
