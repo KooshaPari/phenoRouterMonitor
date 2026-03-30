@@ -1911,3 +1911,71 @@ if __name__ == "__main__":
 ---
 
 _Last updated: 2026-03-30 (Wave 157)_
+
+---
+
+## 2026-03-30 - git2 → gix Migration Plan (Wave 159)
+
+**Project:** [phenotype-infrakit]
+**Category:** migration, git, security
+**Status:** proposed
+**Priority:** P0
+
+### Rationale
+
+The `git2` crate has known security vulnerabilities and requires C dependencies. `gix` (gitoxide) provides:
+- **Pure Rust implementation** - no C dependencies
+- **Better security** - memory safety by default
+- **Higher performance** - optimized for large repositories
+- **Active maintenance** - regular updates and security patches
+
+### Current State
+
+```toml
+# crates/phenotype-git-core/Cargo.toml
+[dependencies]
+git2.workspace = true
+```
+
+### Target State
+
+```toml
+# crates/phenotype-git-core/Cargo.toml
+[dependencies]
+gix.workspace = true  # Remove git2 dependency
+```
+
+### Migration Tasks
+
+1. **Remove git2 dependency** from Cargo.toml
+2. **Replace imports** in lib.rs
+3. **Adapt function signatures** for gix API
+4. **Update tests** to work with gix
+5. **Update documentation** to reflect new implementation
+
+### gix API Patterns
+
+```rust
+// Current (git2)
+use git2::Repository;
+let repo = Repository::open(path)?;
+let head = repo.head()?;
+let commit = head.peel_to_commit()?;
+
+// Target (gix)
+use gix::Repository;
+let repo = gix::open(path)?;
+let head = repo.head()?;
+let commit = head.peel_to_commit()?;
+```
+
+### Timeline
+
+- **Phase 1**: Basic replacement (1-2 hours)
+- **Phase 2**: Test adaptation (1-2 hours)
+- **Phase 3**: Documentation update (30 minutes)
+- **Total**: ~4 hours estimated
+
+---
+
+_Last updated: 2026-03-30 (Wave 159)_
