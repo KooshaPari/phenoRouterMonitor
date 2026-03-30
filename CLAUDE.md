@@ -157,6 +157,73 @@ See `docs/adr/` for architecture decisions.
 
 ---
 
+## CI/CD Runner Strategy
+
+### Local Runner Governance (Agent-Only Environment)
+
+**Policy**: Use local runners ONLY for benchmarks and heavy builds on agent-triggered tasks; GitHub-hosted Linux for all CI gates; no external runners or secret access.
+
+#### Approved Local Runner Use Cases
+
+- **Long-running benchmarks** (>15 minutes): Cargo bench with stable hardware
+- **Cache-heavy builds**: Incremental compilation with persistent sccache/cargo-cache
+- **Large Rust compilations** (>10 minutes release builds): CPU/memory intensive workloads
+
+#### Local Runner Requirements
+
+- **Hardware**: 2+ CPU cores, 4+ GB RAM, SSD recommended
+- **OS**: Linux (preferred), macOS 11.0+ supported
+- **Security**: All jobs MUST use `self-hosted-agent-only` label
+- **Token Scope**: Read-only repository access; no secrets provisioned
+
+#### Remote Runner Strategy
+
+- **Standard CI gates** (test, lint, security): Use GitHub-hosted `ubuntu-latest` (free)
+- **Cost avoidance**: Skip macOS ($10/min) and Windows ($6/min) runners
+- **Parallelization**: Use matrix strategy across multiple Linux runners for faster feedback
+
+#### Runner Labels
+
+| Label | Usage |
+|-------|-------|
+| `self-hosted-agent-only` | **Required** for all local runner jobs; blocks non-agent execution |
+| `github-hosted-linux` | Standard CI gates; free tier |
+| `benchmark-heavy` | Long benchmarks >15min; requires hardware spec validation |
+| `cache-persistent` | Build jobs needing persistent cache; requires 50GB+ disk |
+
+#### Job Assignment Examples
+
+```yaml
+# ✅ Benchmark (Local Runner)
+jobs:
+  benchmark:
+    runs-on: [self-hosted, self-hosted-agent-only, benchmark-heavy, linux]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - run: cargo bench --all
+
+# ✅ Standard Test (GitHub-Hosted)
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: cargo test --all
+```
+
+#### Compliance Checkpoints
+
+- ✅ Only agent-triggered workflows may use local runners
+- ✅ All local runner jobs labeled with `self-hosted-agent-only`
+- ✅ No credentials or secrets passed to local runner jobs
+- ✅ Quarterly access audits (who triggered jobs)
+- ✅ Monthly cleanup of obsolete jobs/logs
+
+**See**: `.github/workflows/runner-config.md` for full local runner architecture, security posture, setup instructions, and troubleshooting guide.
+
+---
+
 ## Governance Reference
 
 See thegent governance base for:
