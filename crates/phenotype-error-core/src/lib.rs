@@ -7,9 +7,10 @@
 //!
 //! ## Features
 //!
-//! - Common error kinds (NotFound, Serialization, etc.)
-//! - Conversions from standard library errors
+//! - Common error kinds (NotFound, Serialization, Validation, CLI-specific, etc.)
+//! - Conversions from standard library errors and CLI libraries
 //! - Chain error support for error tracing
+//! - CLI error helpers for command-line applications
 //!
 //! ## Usage
 //!
@@ -141,6 +142,27 @@ impl ErrorKind {
         Self(Box::new(ErrorKindInner::AuthError(message.into())))
     }
 
+    /// Create a new `CommandError` error (CLI-specific).
+    pub fn command(command: impl Into<String>, message: impl Into<String>) -> Self {
+        Self(Box::new(ErrorKindInner::CommandError {
+            command: command.into(),
+            message: message.into(),
+        }))
+    }
+
+    /// Create a new `ArgumentError` error (CLI-specific).
+    pub fn argument(arg: impl Into<String>, message: impl Into<String>) -> Self {
+        Self(Box::new(ErrorKindInner::ArgumentError {
+            arg: arg.into(),
+            message: message.into(),
+        }))
+    }
+
+    /// Create a new `UsageError` error (CLI-specific).
+    pub fn usage(message: impl Into<String>) -> Self {
+        Self(Box::new(ErrorKindInner::UsageError(message.into())))
+    }
+
     /// Get the error kind name.
     pub fn kind(&self) -> &'static str {
         match self.0.as_ref() {
@@ -158,6 +180,9 @@ impl ErrorKind {
             ErrorKindInner::ParseError(_) => "ParseError",
             ErrorKindInner::NetworkError(_) => "NetworkError",
             ErrorKindInner::AuthError(_) => "AuthError",
+            ErrorKindInner::CommandError { .. } => "CommandError",
+            ErrorKindInner::ArgumentError { .. } => "ArgumentError",
+            ErrorKindInner::UsageError(_) => "UsageError",
         }
     }
 }
@@ -220,6 +245,18 @@ pub enum ErrorKindInner {
     /// Authentication/authorization error.
     #[error("auth error: {0}")]
     AuthError(String),
+
+    /// Command execution error (CLI-specific).
+    #[error("command '{command}' failed: {message}")]
+    CommandError { command: String, message: String },
+
+    /// Command argument error (CLI-specific).
+    #[error("argument '{arg}' invalid: {message}")]
+    ArgumentError { arg: String, message: String },
+
+    /// Usage/help error (CLI-specific).
+    #[error("usage error: {0}")]
+    UsageError(String),
 }
 
 impl From<IoError> for ErrorKind {
@@ -240,6 +277,7 @@ impl From<serde_json::Error> for ErrorKind {
     }
 }
 
+#[cfg(feature = "diagnostics")]
 impl From<regex::Error> for ErrorKind {
     fn from(err: regex::Error) -> Self {
         Self::parse_error(err.to_string())
@@ -255,6 +293,20 @@ impl From<&str> for ErrorKind {
 impl From<String> for ErrorKind {
     fn from(s: String) -> Self {
         Self::internal(s)
+    }
+}
+
+#[cfg(feature = "cli")]
+impl From<toml::de::Error> for ErrorKind {
+    fn from(err: toml::de::Error) -> Self {
+        Self::config(format!("TOML deserialization failed: {}", err))
+    }
+}
+
+#[cfg(feature = "cli")]
+impl From<toml::ser::Error> for ErrorKind {
+    fn from(err: toml::ser::Error) -> Self {
+        Self::serialization(format!("TOML serialization failed: {}", err))
     }
 }
 
@@ -359,5 +411,47 @@ mod tests {
         let err = ErrorKind::not_found("user");
         let ctx = err.chain("while fetching");
         assert!(ctx.to_string().contains("while fetching"));
+    }
+
+    #[test]
+    fn test_command_error() {
+        let err = ErrorKind::command("deploy", "failed to connect to server");
+        assert_eq!(err.kind(), "CommandError");
+        assert!(err.to_string().contains("deploy"));
+        assert!(err.to_string().contains("failed to connect"));
+    }
+
+    #[test]
+    fn test_argument_error() {
+        let err = ErrorKind::argument("--config", "file not found");
+        assert_eq!(err.kind(), "ArgumentError");
+        assert!(err.to_string().contains("--config"));
+        assert!(err.to_string().contains("file not found"));
+    }
+
+    #[test]
+    fn test_usage_error() {
+        let err = ErrorKind::usage("invalid command syntax");
+        assert_eq!(err.kind(), "UsageError");
+        assert!(err.to_string().contains("invalid command syntax"));
+    }
+
+    #[test]
+    #[cfg(feature = "cli")]
+    fn test_toml_de_error_conversion() {
+        let toml_str = "invalid = = toml";
+        let result: Result<toml::Table, _> = toml::from_str(toml_str);
+        if let Err(e) = result {
+            let err: ErrorKind = e.into();
+            assert_eq!(err.kind(), "Config");
+            assert!(err.to_string().contains("TOML"));
+        }
+    }
+
+    #[test]
+    fn test_error_kind_name_cli_variants() {
+        assert_eq!(ErrorKind::command("test", "msg").kind(), "CommandError");
+        assert_eq!(ErrorKind::argument("arg", "msg").kind(), "ArgumentError");
+        assert_eq!(ErrorKind::usage("msg").kind(), "UsageError");
     }
 }
