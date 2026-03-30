@@ -2,14 +2,23 @@
 name = "phenotype-contracts"
 version.workspace = true
 edition.workspace = true
+authors.workspace = true
 license.workspace = true
+repository.workspace = true
+description = "Hexagonal architecture ports and domain model contracts for Phenotype"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
-async-trait.workspace = true
-phenotype-errors = { path = "../phenotype-errors" }
+chrono = { workspace = true }
+uuid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+phenotype-error-core.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true }
+serde_json = { workspace = true }

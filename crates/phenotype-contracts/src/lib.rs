@@ -1,13 +1,11 @@
-//! Traits.
-pub mod inbound;
-pub mod outbound;
+//! phenotype-contracts
 
-// Inbound ports - application core exposes these to the outside world
-pub mod inbound {
-    // Add inbound port traits here
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
 }
 
-// Outbound ports - application core requires these from the outside
-pub mod outbound {
-    // Add outbound port traits here
-}
+pub type Result<T> = std::result::Result<T, Error>;

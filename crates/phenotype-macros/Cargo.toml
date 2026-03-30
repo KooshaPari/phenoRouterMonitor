@@ -9,8 +9,9 @@ description = "Procedural macros for Phenotype DDD patterns"
 proc-macro = true
 
 [dependencies]
-syn.workspace = true
+syn = { workspace = true, features = ["full"] }
 quote.workspace = true
 proc-macro2.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 thiserror.workspace = true

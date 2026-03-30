@@ -2121,24 +2121,30 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 
 **Project:** [cross-repo]
 **Category:** maintenance
-**Status:** identified
+**Status:** updated 2026-03-31 (`gh pr view`)
 **Priority:** P1
 
-### Worktrees with Unmerged Work
+### phenotype-infrakit draft batch (2026-03-30)
 
-| Worktree | Branch | Last Commit | Status |
-|----------|--------|-------------|--------|
-| chore/add-pr-creation-batch-worklog-2026-03-30 | chore/add-pr-creation-batch-worklog-2026-03-30 | 2026-03-30 | PENDING |
-| chore/cleanup-stale-folders | chore/cleanup-stale-folders | 2026-03 | PENDING |
-| chore/consolidate-nested-duplicates | chore/consolidate-nested-duplicates | 2026-03 | PENDING |
-| chore/dead-code-cleanup | chore/dead-code-cleanup | 2026-03 | PENDING |
-| chore/phenotype-event-sourcing-consolidation | chore/phenotype-event-sourcing-consolidation | 2026-03 | PENDING |
+PRs [#249](https://github.com/KooshaPari/phenotype-infrakit/pull/249)–[#252](https://github.com/KooshaPari/phenotype-infrakit/pull/252) were **closed without merge** (`mergedAt` null). Notes: [`.archive/PR_CREATION_BATCH_2026-03-30.md`](./.archive/PR_CREATION_BATCH_2026-03-30.md).
+
+| PR | State |
+|----|--------|
+| #249–#252 | CLOSED (not merged) |
+
+### Local `repos/worktrees/*` (historical names)
+
+Use `git worktree list` before deleting. **`repos/worktrees/` is a live hub**, not an empty folder.
+
+| Folder | Notes |
+|--------|--------|
+| chore/* (above) | Reconcile branches; nested duplicate work superseded in **repos** by Wave 97 |
 
 ### Priority Actions
 
-1. **Open PRs for completed worktrees** - Batch create PRs
-2. **Delete after merge** - Remove worktrees post-merge
-3. **Push to origin** - Ensure all work is backed up
+1. Decide whether to re-cherry-pick or abandon the closed infrakit PR series.
+2. Prune local dirs only after confirming no unpushed commits.
+3. Hygiene: [`WORK_LOG.md`](./WORK_LOG.md) resume sections.
 
 ### Related
 

@@ -1,11 +1,11 @@
-//! Phenotype Telemetry — metrics and tracing utilities.
+//! phenotype-telemetry
 
-pub mod exporter;
-pub mod registry;
-pub mod snapshot;
-pub mod timer;
+use thiserror::Error;
 
-pub use exporter::{Exporter, ExporterConfig, ExporterKind, HttpExporter, NoopExporter};
-pub use registry::{Counter, Gauge, Histogram, MetricsRegistry, TelemetryConfig};
-pub use snapshot::MetricsSnapshot;
-pub use timer::{timed, SpanTimer};
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

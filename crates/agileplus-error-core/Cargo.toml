@@ -1,19 +1,17 @@
 [package]
 name = "agileplus-error-core"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 authors = ["Phenotype Team"]
 description = "Unified error handling for AgilePlus ecosystem"
-license = "MIT"
-repository = "https://github.com/phenotype/repos"
 
 [dependencies]
-thiserror = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-phenotype-error-core = "0.1"
-
-[dev-dependencies]
-tokio-test = "0.4"
+phenotype-error-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
 
 [lib]
 name = "agileplus_error_core"
