@@ -79,3 +79,6 @@ scripts/audit_scope.sh
 scripts/clone-devenv-abstraction-worktree.sh
 scripts/export_phenotype_session_artifacts.py
 scripts/git-worktree-health.sh
+.forge/
+crates/agileplus-domain/
+docs/adoption/
