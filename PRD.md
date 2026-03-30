@@ -153,8 +153,6 @@ As a domain modeler, I want base traits for `Entity`, `ValueObject`, and `Aggreg
 
 ## E5: State Machine (`phenotype-state-machine`)
 
-**Goal**: Generic forward-only finite state machine with guard callbacks, action hooks, full transition history, and skip-state configuration.
-
 ### E5.1: Typed Forward-Only FSM
 
 As a service developer, I want a `StateMachine<S, C>` where `S` is the state enum and `C` is the context type so workflow state is enforced with forward-only transitions and domain-specific guard callbacks operating over typed context.
@@ -198,6 +196,30 @@ As a platform operator, I want to declare specific non-sequential state advances
 - A transition that jumps forward (target ordinal > current + 1) is rejected unless explicitly listed in `skip_states`.
 - A skip-state entry `(from, to)` is validated at registration: `to` ordinal must be greater than `from` ordinal.
 - Skip-state transitions still require guard evaluation and trigger action hooks identically to sequential transitions.
+
+---
+
+## E6: Metrics & Observability
+
+### E6.1: Metrics Collection Interface
+
+As a platform operator, I want a standardized metrics interface so all phenotype-infrakit crates can report operational telemetry without coupling to a specific monitoring backend.
+
+**Acceptance criteria**:
+- `MetricsCollector` trait with methods: `counter(name, value)`, `gauge(name, value)`, `histogram(name, value, duration)`
+- All public types implement `Send + Sync` for concurrent access
+- Metrics are tagged with crate name and version for easy filtering
+- Default no-op implementation available for crates that don't need metrics
+
+### E6.2: Health Check Abstraction
+
+As a service operator, I want a unified health check interface so I can verify the operational status of all phenotype-infrakit components through a single endpoint.
+
+**Acceptance criteria**:
+- `HealthCheck` trait with method: `check() -> Result<HealthStatus, HealthError>`
+- `HealthStatus` includes `healthy: bool`, `message: String`, `details: HashMap<String, String>`
+- Each crate implements health checks for its core functionality (e.g., event store connectivity, cache connectivity)
+- Health check results are aggregated and exposed via a unified endpoint
 
 ---
 

@@ -156,7 +156,7 @@ Comprehensive 2026 package research across Rust, Go, TypeScript, and Python ecos
 | `dashmap` | 5.5+ | 1.5K | **EVALUATE** | Concurrent HashMap (lock-free reads), good for cache workloads | 100 |
 | `flume` | 0.11+ | 700 | **EVALUATE** | High-throughput multi-producer channels (outperforms crossbeam for some patterns) | 50 |
 | `crossbeam-channel` | 0.5+ | 1K | **MONITOR** | Standard async channel library | - |
-| `arc-swap` | 1.6+ | 500 | **MONITOR** | Atomic swap for RwLock<Arc<T>> patterns | - |
+| `arc-swap` | 1.6+ | 500 | **MONITOR** | Atomic swap for RwLock&lt;Arc&lt;T&gt;&gt; patterns | - |
 
 **Impacted Repos:** phenotype-cache-adapter, event-sourcing crates (read-heavy workloads)
 **Action:** Benchmark dashmap for phenotype-cache-adapter; consider for skill registry (read-heavy)

@@ -1,11 +1,11 @@
-//! Hexagonal architecture ports and domain model contracts for Phenotype.
+//! phenotype-contracts
 
-pub mod error;
-pub mod inbound;
-pub mod models;
-pub mod outbound;
+use thiserror::Error;
 
-pub use error::{ContractError, Result};
-pub use inbound::{CommandHandler, EventHandler, QueryHandler, UseCase};
-pub use models::{AggregateRoot, DomainEntity, DomainEvent, ValueObject};
-pub use outbound::{CachePort, ConfigLoader, EventBus, Repository, SecretManager};
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

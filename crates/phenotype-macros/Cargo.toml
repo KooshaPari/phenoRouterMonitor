@@ -1,16 +1,17 @@
 [package]
 name = "phenotype-macros"
-version = "0.1.0"
-edition = "2021"
-license = "MIT OR Apache-2.0"
-description = "Procedural macros for Phenotype DDD patterns"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "TODO"
 
 [lib]
-proc-macro = true
+path = "src/lib.rs"
 
 [dependencies]
-syn = { version = "2", features = ["full"] }
-quote = "1"
-proc-macro2 = "1"
-serde = { version = "1", features = ["derive"] }
-thiserror = "1"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

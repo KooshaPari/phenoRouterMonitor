@@ -1,18 +1,32 @@
 [package]
 name = "phenotype-cache-adapter"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Phenotype Cache-adapter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+<<<<<<< HEAD
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+chrono.workspace = true
+dashmap.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+lru.workspace = true
+moka.workspace = true
+phenotype-error-core.workspace = true
+=======
+authors.workspace = true
+description = "TODO"
+>>>>>>> origin/main
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
-chrono = { version = "0.4", features = ["serde"] }
-dashmap = "5.5"
-lru = "0.12"
-moka = { version = "0.12", features = ["sync"] }
-serde = { version = "1.0", features = ["derive"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

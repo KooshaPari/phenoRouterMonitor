@@ -56,7 +56,6 @@ phase2_federation_spec.md
 # Uncommitted crate stubs
 crates/phenotype-error-core.ARCHIVED/
 crates/phenotype-event-sourcing/src/async_store.rs
-crates/phenotype-process/
 
 # CI/DevOps
 nextest.toml
@@ -81,4 +80,10 @@ docs/worklogs/libification/WS6_RUST_TOML_AUDIT.md
 service_fixed.py
 service_working.py
 crates/phenotype-contracts/tests/
-crates/phenotype-http-client-core/
+.serena/
+
+# Phase 1-2 architecture docs are tracked
+!docs/adoption/CHASSIS_FOUNDATION.md
+!docs/adoption/FEDERATED_HYBRID_ARCHITECTURE.md
+!docs/adoption/PHENOSDK_EXTRACTION_STRATEGY.md
+!docs/adoption/INDEX.md

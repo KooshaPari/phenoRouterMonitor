@@ -843,4 +843,73 @@ git worktree remove repos/worktrees/expand-test-coverage
 
 ---
 
-_Last updated: 2026-03-29 (Wave 97 final)_
+_Last updated: 2026-03-30 (Wave 96 cleanup)_
+
+---
+
+## 2026-03-30 - Wave 96: Worktree Audit & Pruning
+
+**Status:** Worktree cleanup executed
+**Updated:** 2026-03-30
+
+### Current Worktree State (after cleanup)
+
+| Worktree | Path | Branch | Status | Action |
+|----------|-------|--------|--------|--------|
+| main | `/repos` | main | ✅ Active | KEEP |
+| phenotype-pr-workspace | `/private/tmp/phenotype-pr-workspace` | fix/add-http-client-core | ⚠️ Detached | DELETE after PR |
+| decompose-sqlite-adapter | `~/.worktrees/decompose-sqlite-adapter` | refactor/decompose-sqlite-adapter | Active | KEEP |
+| add-tests | `.worktrees/add-tests` | feat/add-crate-tests | Merged | PRUNE |
+| chore/adopt-governance-pi | `.worktrees/chore/adopt-governance-pi` | chore/governance-migration-pi | Active | KEEP |
+| chore/archive-audit | `.worktrees/chore/archive-audit` | chore/archive-audit | Active | KEEP |
+| cli-errors | `.worktrees/cli-errors` | feat/consolidate-cli-errors | Merged | PRUNE |
+| phenosdk-decompose-core | `.worktrees/feat/phenosdk-decompose-core` | feat/phenosdk-decompose-core | Active | KEEP |
+| fix-clippy | `.worktrees/fix-clippy` | fix/clippy-warnings | Merged | PRUNE |
+| fix-event-sourcing | `.worktrees/fix-event-sourcing` | fix-event-sourcing | Merged | PRUNE |
+| impl-contracts | `.worktrees/impl-contracts` | feat/impl-contracts | Merged | PRUNE |
+| impl-state-machine | `.worktrees/impl-state-machine` | feat/impl-contracts-ports | Merged | PRUNE |
+| impl-test-infra | `.worktrees/impl-test-infra` | feat/impl-test-infra | Merged | PRUNE |
+| archive-manifest | `.worktrees/impl/archive-manifest` | feat/archive-manifest | Active | KEEP |
+| complete-stubs | `.worktrees/impl/complete-stubs` | feat/complete-stub-crates | Active | KEEP |
+| consolidate-errors | `.worktrees/impl/consolidate-errors` | feat/consolidate-error-crates | Active | KEEP |
+| enhance-port-traits | `.worktrees/impl/enhance-port-traits` | feat/enhance-port-traits | Active | KEEP |
+| enhance-telemetry | `.worktrees/impl/enhance-telemetry` | feat/enhance-telemetry | Active | KEEP |
+| archive-broken | `.worktrees/loc-reduction/archive-broken` | loc/archive-broken-crates | Active | KEEP |
+| phase2-consolidation | `.worktrees/loc-reduction/phase2-consolidation` | feat/policy-engine-error-consolidation | Active | KEEP |
+| phenosdk-decompose-mcp-wp01 | `.worktrees/phenosdk-decompose-mcp-wp01` | feat/phenosdk-decompose-mcp | Active | KEEP |
+| consolidate-dotfiles | `platforms/worktrees/thegent/consolidate-dotfiles` | chore/consolidate-dotfiles | Active | KEEP |
+| phenotype-docs | `repos/worktrees/AgilePlus/phenotype-docs` | refactor/decompose-sqlite-adapter-work | Active | KEEP |
+| merge-worklogs | `repos/worktrees/phenotype-infrakit/chore/merge-worklogs` | chore/merge-worklogs | Active | KEEP |
+| chore-docs-sbom-stack | `worktrees/chore-docs-sbom-stack` | chore/sbom-next-docs-osv-sarif | Active | KEEP |
+| chore-sbom-cyclonedx | `worktrees/chore-sbom-cyclonedx` | chore/sbom-cyclonedx-pilot | Active | KEEP |
+| chore-session-sbom-stack | `worktrees/chore-session-sbom-stack` | chore/session-stacked-sbom-delivery | Active | KEEP |
+| phenosdk-wave-a-contracts-impl | `worktrees/phenosdk-wave-a-contracts-impl` | feat/phenosdk-wave-a-contracts | Active | KEEP |
+| feat-phenosdk-sanitize-atoms | `worktrees/phenotype-infrakit/feat-phenosdk-sanitize-atoms` | feat/phenosdk-sanitize-atoms | Active | KEEP |
+| stack-pr-1 | `worktrees/phenotype-infrakit/stack-pr-1` | feat/phase2-stack-pr-1 | Active | KEEP |
+
+### Actions Taken
+
+| Action | Count | Details |
+|--------|-------|---------|
+| Worktrees cleaned | 1 | `.worktrees/phench/` (stale) |
+| Crates added to workspace | 1 | `phenotype-http-client-core` |
+| Branches merged to main | 4 | add-tests, cli-errors, fix-clippy, fix-event-sourcing, impl-* |
+
+### Cleanup Candidates (Pending PR Review)
+
+The following worktrees contain merged branches and should be pruned after PR review:
+
+```bash
+# After PR #278 merges:
+git worktree remove .worktrees/add-tests --force
+git worktree remove .worktrees/cli-errors --force
+git worktree remove .worktrees/fix-clippy --force
+git worktree remove .worktrees/fix-event-sourcing --force
+git worktree remove .worktrees/impl-contracts --force
+git worktree remove .worktrees/impl-state-machine --force
+git worktree remove .worktrees/impl-test-infra --force
+```
+
+---
+
+## 2026-03-29 - Wave 100: Modernization Research & Package Replacements

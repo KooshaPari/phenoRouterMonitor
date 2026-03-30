@@ -1,14 +1,22 @@
 [package]
 name = "phenotype-state-machine"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Phenotype State-machine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
+<<<<<<< HEAD
 thiserror = { workspace = true }
 phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
+=======
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+>>>>>>> origin/main

@@ -1,132 +1,88 @@
-//! HTTP authentication middleware.
-
-use http::{Request, Response, header::HeaderName, header::HeaderValue};
-use std::sync::Arc;
+//! HTTP authentication helpers.
 
 /// Authentication credentials.
 #[derive(Debug, Clone)]
 pub enum AuthCredentials {
-    /// Bearer token authentication.
     Bearer(String),
-    /// API key authentication.
-    ApiKey {
-        key: String,
-        value: String,
-        location: ApiKeyLocation,
-    },
-    /// Basic authentication.
+    ApiKey { header: String, value: String },
     Basic { username: String, password: String },
 }
 
-/// Where to place the API key.
-#[derive(Debug, Clone, Copy)]
-pub enum ApiKeyLocation {
-    /// In the Authorization header.
-    Authorization,
-    /// In a custom header.
-    Header(HeaderName),
-    /// As a query parameter.
-    QueryParam(String),
-}
-
 impl AuthCredentials {
-    /// Create bearer token credentials.
     pub fn bearer(token: impl Into<String>) -> Self {
         Self::Bearer(token.into())
     }
 
-    /// Create API key credentials.
-    pub fn api_key(key: impl Into<String>, value: impl Into<String>, location: ApiKeyLocation) -> Self {
+    pub fn api_key(header: impl Into<String>, value: impl Into<String>) -> Self {
         Self::ApiKey {
-            key: key.into(),
+            header: header.into(),
             value: value.into(),
-            location,
         }
     }
 
-    /// Create basic auth credentials.
     pub fn basic(username: impl Into<String>, password: impl Into<String>) -> Self {
         Self::Basic {
             username: username.into(),
             password: password.into(),
         }
     }
+
+    /// Return the header name and value for this credential.
+    pub fn to_header(&self) -> (String, String) {
+        match self {
+            Self::Bearer(token) => ("Authorization".to_string(), format!("Bearer {token}")),
+            Self::ApiKey { header, value } => (header.clone(), value.clone()),
+            Self::Basic { username, password } => {
+                use std::io::Write;
+                let mut buf = Vec::new();
+                write!(buf, "{username}:{password}").unwrap();
+                let encoded = base64_encode(&buf);
+                ("Authorization".to_string(), format!("Basic {encoded}"))
+            }
+        }
+    }
 }
 
-/// Authentication middleware.
+/// Auth middleware that holds credentials.
 #[derive(Debug, Clone)]
 pub struct AuthMiddleware {
-    credentials: Arc<AuthCredentials>,
+    credentials: AuthCredentials,
 }
 
 impl AuthMiddleware {
-    /// Create new auth middleware.
     pub fn new(credentials: AuthCredentials) -> Self {
-        Self {
-            credentials: Arc::new(credentials),
-        }
+        Self { credentials }
     }
 
-    /// Apply authentication to a request.
-    pub fn apply<B>(&self, mut request: Request<B>) -> Result<Response<Vec<u8>>, crate::error::TransportError> {
-        match self.credentials.as_ref() {
-            AuthCredentials::Bearer(token) => {
-                let header_value = HeaderValue::from_str(&format!("Bearer {}", token))
-                    .map_err(|e| crate::error::TransportError::Auth(format!("Invalid bearer token: {}", e)))?;
-                request.headers_mut().insert(header::AUTHORIZATION, header_value);
-            }
-            AuthCredentials::ApiKey { key, value, location } => {
-                let header_name = match location {
-                    ApiKeyLocation::Authorization => header::AUTHORIZATION,
-                    ApiKeyLocation::Header(name) => *name,
-                    ApiKeyLocation::QueryParam(_) => {
-                        return Err(crate::error::TransportError::Auth(
-                            "Query param auth not supported in middleware".into(),
-                        ));
-                    }
-                };
-
-                let header_value = HeaderValue::from_str(&value)
-                    .map_err(|e| crate::error::TransportError::Auth(format!("Invalid API key: {}", e)))?;
-                request.headers_mut().insert(header_name, header_value);
-            }
-            AuthCredentials::Basic { username, password } => {
-                let credentials = base64::Engine::encode(
-                    &base64::engine::general_purpose::STANDARD,
-                    format!("{}:{}", username, password),
-                );
-                let header_value = HeaderValue::from_str(&format!("Basic {}", credentials))
-                    .map_err(|e| crate::error::TransportError::Auth(format!("Invalid basic auth: {}", e)))?;
-                request.headers_mut().insert(header::AUTHORIZATION, header_value);
-            }
-        }
-
-        Ok(Response::new(Vec::new()))
+    /// Get the auth header pair.
+    pub fn header(&self) -> (String, String) {
+        self.credentials.to_header()
     }
 }
 
-/// Convenience extension trait for adding auth to requests.
-pub trait RequestAuthExt {
-    /// Add bearer authentication.
-    fn bearer_auth(self, token: impl Into<String>) -> Self;
-
-    /// Add API key authentication.
-    fn api_key_auth(self, key: impl Into<String>, value: impl Into<String>) -> Self;
-}
-
-impl<B> RequestAuthExt for Request<B> {
-    fn bearer_auth(mut self, token: impl Into<String>) -> Self {
-        let header_value = HeaderValue::from_str(&format!("Bearer {}", token.into())).unwrap();
-        self.headers_mut().insert(header::AUTHORIZATION, header_value);
-        self
+/// Simple base64 encoding (no external dep).
+fn base64_encode(input: &[u8]) -> String {
+    const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut result = String::new();
+    for chunk in input.chunks(3) {
+        let b0 = chunk[0] as u32;
+        let b1 = chunk.get(1).copied().unwrap_or(0) as u32;
+        let b2 = chunk.get(2).copied().unwrap_or(0) as u32;
+        let triple = (b0 << 16) | (b1 << 8) | b2;
+        result.push(CHARS[((triple >> 18) & 0x3F) as usize] as char);
+        result.push(CHARS[((triple >> 12) & 0x3F) as usize] as char);
+        if chunk.len() > 1 {
+            result.push(CHARS[((triple >> 6) & 0x3F) as usize] as char);
+        } else {
+            result.push('=');
+        }
+        if chunk.len() > 2 {
+            result.push(CHARS[(triple & 0x3F) as usize] as char);
+        } else {
+            result.push('=');
+        }
     }
-
-    fn api_key_auth(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
-        let header_name = HeaderName::from_bytes(key.into().as_bytes()).unwrap();
-        let header_value = HeaderValue::from_str(&value.into()).unwrap();
-        self.headers_mut().insert(header_name, header_value);
-        self
-    }
+    result
 }
 
 #[cfg(test)]
@@ -134,24 +90,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_bearer_auth() {
-        let creds = AuthCredentials::bearer("my-token");
-        match creds {
-            AuthCredentials::Bearer(token) => assert_eq!(token, "my-token"),
-            _ => panic!("Expected Bearer variant"),
-        }
+    fn bearer_header() {
+        let creds = AuthCredentials::bearer("tok123");
+        let (name, value) = creds.to_header();
+        assert_eq!(name, "Authorization");
+        assert_eq!(value, "Bearer tok123");
     }
 
     #[test]
-    fn test_api_key_auth() {
-        let creds = AuthCredentials::api_key("X-API-Key", "secret-key", ApiKeyLocation::Authorization);
-        match creds {
-            AuthCredentials::ApiKey { key, value, location } => {
-                assert_eq!(key, "X-API-Key");
-                assert_eq!(value, "secret-key");
-                matches!(location, ApiKeyLocation::Authorization);
-            }
-            _ => panic!("Expected ApiKey variant"),
-        }
+    fn api_key_header() {
+        let creds = AuthCredentials::api_key("X-API-Key", "secret");
+        let (name, value) = creds.to_header();
+        assert_eq!(name, "X-API-Key");
+        assert_eq!(value, "secret");
+    }
+
+    #[test]
+    fn basic_header() {
+        let creds = AuthCredentials::basic("user", "pass");
+        let (name, value) = creds.to_header();
+        assert_eq!(name, "Authorization");
+        assert!(value.starts_with("Basic "));
+    }
+
+    #[test]
+    fn base64_encode_hello() {
+        assert_eq!(base64_encode(b"Hello"), "SGVsbG8=");
     }
 }
