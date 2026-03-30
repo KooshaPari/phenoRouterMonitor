@@ -153,11 +153,7 @@ where
     }
 }
 
-impl<I: Iterator> ExactSizeIterator for ChunkIter<I>
-where
-    I::Item: Clone + ExactSizeIterator,
-{
-}
+impl<I: Iterator> ExactSizeIterator for ChunkIter<I> where I::Item: Clone + ExactSizeIterator {}
 
 /// Trait for batching an iterator based on predicates.
 ///
@@ -212,7 +208,7 @@ impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
         }
 
         // Fill batch while predicate is true
-        while let Some(item) = self.iter.next() {
+        for item in self.iter.by_ref() {
             if (self.predicate)(&item) {
                 self.buffer.push(item);
             } else {
@@ -221,14 +217,11 @@ impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
             }
         }
 
-        if self.buffer.is_empty() && self.pending.is_none() {
-            self.exhausted = true;
-            None
-        } else if self.buffer.is_empty() && self.pending.is_some() {
+        if self.buffer.is_empty() {
             self.exhausted = true;
             None
         } else {
-            Some(self.buffer.clone())
+            Some(std::mem::take(&mut self.buffer))
         }
     }
 }

@@ -36,7 +36,10 @@ impl PolicyEngine {
     }
 
     pub fn get_policy(&self, name: &str) -> Option<std::sync::Arc<Policy>> {
-        self.policies.get(name).map(|p| p.value().clone()).map(Arc::new)
+        self.policies
+            .get(name)
+            .map(|p| p.value().clone())
+            .map(Arc::new)
     }
 
     pub fn enable_policy(&self, name: &str) -> Result<(), PolicyEngineError> {
@@ -68,7 +71,10 @@ impl PolicyEngine {
     }
 
     /// Evaluates all enabled policies and merges violations.
-    pub fn evaluate_all(&self, context: &EvaluationContext) -> Result<PolicyResult, PolicyEngineError> {
+    pub fn evaluate_all(
+        &self,
+        context: &EvaluationContext,
+    ) -> Result<PolicyResult, PolicyEngineError> {
         let mut result = PolicyResult::passed();
 
         for policy_ref in self.policies.iter() {
@@ -87,19 +93,33 @@ impl PolicyEngine {
     }
 
     /// Evaluates a single policy by name.
-    pub fn evaluate_single(&self, name: &str, context: &EvaluationContext) -> Result<PolicyResult, PolicyEngineError> {
-        let policy = self.get_policy(name)
-            .ok_or_else(|| PolicyEngineError::PolicyNotFound { name: name.to_string() })?;
+    pub fn evaluate_single(
+        &self,
+        name: &str,
+        context: &EvaluationContext,
+    ) -> Result<PolicyResult, PolicyEngineError> {
+        let policy = self
+            .get_policy(name)
+            .ok_or_else(|| PolicyEngineError::PolicyNotFound {
+                name: name.to_string(),
+            })?;
         policy.evaluate(context)
     }
 
     /// Evaluates a subset of policies by name.
-    pub fn evaluate_subset(&self, names: &[&str], context: &EvaluationContext) -> Result<PolicyResult, PolicyEngineError> {
+    pub fn evaluate_subset(
+        &self,
+        names: &[&str],
+        context: &EvaluationContext,
+    ) -> Result<PolicyResult, PolicyEngineError> {
         let mut result = PolicyResult::passed();
 
         for name in names {
-            let policy = self.get_policy(name)
-                .ok_or_else(|| PolicyEngineError::PolicyNotFound { name: name.to_string() })?;
+            let policy =
+                self.get_policy(name)
+                    .ok_or_else(|| PolicyEngineError::PolicyNotFound {
+                        name: name.to_string(),
+                    })?;
             let policy_result = policy.evaluate(context)?;
             for violation in policy_result.violations {
                 result.add_violation(violation);
@@ -134,6 +154,7 @@ mod tests {
         assert_eq!(engine.policy_names(), vec!["test"]);
     }
 
+    // Traces to: FR-POL-004
     #[test]
     fn test_engine_remove_policy() {
         let engine = PolicyEngine::new();
@@ -161,8 +182,7 @@ mod tests {
     #[test]
     fn test_engine_evaluate_single_policy() {
         let engine = PolicyEngine::new();
-        let policy = Policy::new("test")
-            .add_rule(Rule::new(RuleType::Require, "email", ".*"));
+        let policy = Policy::new("test").add_rule(Rule::new(RuleType::Require, "email", ".*"));
         engine.add_policy(policy);
 
         let mut ctx = EvaluationContext::new();
@@ -175,12 +195,8 @@ mod tests {
     #[test]
     fn test_engine_evaluate_all() {
         let engine = PolicyEngine::new();
-        engine.add_policy(
-            Policy::new("p1").add_rule(Rule::new(RuleType::Require, "a", ".*"))
-        );
-        engine.add_policy(
-            Policy::new("p2").add_rule(Rule::new(RuleType::Require, "b", ".*"))
-        );
+        engine.add_policy(Policy::new("p1").add_rule(Rule::new(RuleType::Require, "a", ".*")));
+        engine.add_policy(Policy::new("p2").add_rule(Rule::new(RuleType::Require, "b", ".*")));
 
         let mut ctx = EvaluationContext::new();
         ctx.set_string("a", "1");
@@ -193,9 +209,7 @@ mod tests {
     #[test]
     fn test_engine_evaluate_all_skips_disabled() {
         let engine = PolicyEngine::new();
-        engine.add_policy(
-            Policy::new("enabled").add_rule(Rule::new(RuleType::Require, "x", ".*"))
-        );
+        engine.add_policy(Policy::new("enabled").add_rule(Rule::new(RuleType::Require, "x", ".*")));
         let disabled_policy = Policy::new("disabled")
             .set_enabled(false)
             .add_rule(Rule::new(RuleType::Require, "y", ".*"));
