@@ -5,19 +5,19 @@ from typing import Any, Optional, List
 class SQLAlchemyPersistence:
     """SQLAlchemy-based persistence adapter for production use."""
 
-    def __init__(self, database_url: str) -> None:
+    def __init__(self, _database_url: str) -> None:
         """Initialize SQLAlchemy adapter with database URL."""
         raise NotImplementedError("SQLAlchemy persistence adapter not yet implemented")
 
-    def save(self, key: str, value: Any) -> None:
+    def save(self, _key: str, _value: Any) -> None:
         """Save value to database."""
         raise NotImplementedError("save() not yet implemented")
 
-    def load(self, key: str) -> Optional[Any]:
+    def load(self, _key: str) -> Optional[Any]:
         """Load value from database."""
         raise NotImplementedError("load() not yet implemented")
 
-    def delete(self, key: str) -> None:
+    def delete(self, _key: str) -> None:
         """Delete value from database."""
         raise NotImplementedError("delete() not yet implemented")
 
@@ -25,6 +25,6 @@ class SQLAlchemyPersistence:
         """List all keys in database."""
         raise NotImplementedError("list_keys() not yet implemented")
 
-    def query(self, sql: str, params: dict) -> List[dict]:
+    def query(self, _sql: str, _params: dict) -> List[dict]:
         """Execute raw SQL query."""
         raise NotImplementedError("query() not yet implemented")
