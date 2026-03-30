@@ -3,19 +3,11 @@ name = "phenotype-errors"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 repository.workspace = true
+description = "Error types for Phenotype"
 
 [dependencies]
-serde = { workspace = true, optional = true }
-serde_json.workspace = true
 thiserror.workspace = true
-chrono.workspace = true
-regex.workspace = true
-tokio = { version = "1.40", features = ["full"], optional = true }
-
-[dev-dependencies]
-
-[features]
-default = []
-tokio-support = ["tokio"]
-serde-support = ["serde"]
+serde.workspace = true
+serde_json.workspace = true

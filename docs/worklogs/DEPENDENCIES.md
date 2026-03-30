@@ -48,6 +48,119 @@ Comprehensive audit of external dependencies, package modernization opportunitie
 | `uv` | Python package management | `python/Dockerfile.python`, `python/pyproject.toml` |
 | `ruff` | Python linting/formatting | `python/ruff.toml`, CI pipeline |
 | `gix` | Git operations (v0.79) | `Cargo.toml:91`, `agileplus-git` |
+
+---
+
+## 2026-03-29 - Implementation Progress: thiserror & derive_more Migration
+
+**Project:** [heliosCLI/codex-rs]
+**Category:** LOC reduction | implementation
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Migrated manual `Error` and `Display` implementations to use `thiserror` and `derive_more` derive macros. This reduces boilerplate and improves code quality.
+
+### Completed Migrations
+
+#### 1. keyring-store/src/lib.rs - CredentialStoreError
+- **Before:** 39 LOC (manual Error + Display impls)
+- **After:** 18 LOC (thiserror derive)
+- **Savings:** 21 LOC (54% reduction)
+- **Dependencies:** Added `thiserror = { workspace = true }`
+
+#### 2. core/src/error.rs - ConnectionFailedError
+- **Before:** 14 LOC (manual Display impl)
+- **After:** 4 LOC (thiserror derive)
+- **Savings:** 10 LOC (71% reduction)
+
+#### 3. utils/stream-parser/src/utf8_stream.rs - Utf8StreamParserError
+- **Before:** 38 LOC (manual Error + Display impls)
+- **After:** 14 LOC (thiserror derive)
+- **Savings:** 24 LOC (63% reduction)
+- **Dependencies:** Added `thiserror = { workspace = true }`
+
+#### 4. tui/src/clipboard_paste.rs - PasteImageError & PasteTextError
+- **Before:** 52 LOC (2x manual Error + Display impls)
+- **After:** 16 LOC (thiserror derive)
+- **Savings:** 36 LOC (69% reduction)
+
+#### 5. secrets/src/lib.rs - SecretName
+- **Before:** 8 LOC (manual Display impl)
+- **After:** 2 LOC (derive_more::Display)
+- **Savings:** 6 LOC (75% reduction)
+- **Dependencies:** Added `derive_more = { workspace = true, features = ["display"] }`
+
+#### 6. protocol/src/mcp.rs - RequestId
+- **Before:** 8 LOC (manual Display impl)
+- **After:** 2 LOC (derive_more::Display)
+- **Savings:** 6 LOC (75% reduction)
+- **Dependencies:** Added `derive_more = { workspace = true, features = ["display"] }`
+
+### Dependencies Added to Workspace
+
+```toml
+# Cargo.toml [workspace.dependencies]
+itoa = "1.0"                    # Fast integer to string (3x faster)
+utoa = "0.5"                    # Fast unsigned integer to string
+mockall = "0.13"               # Trait mocking
+rstest = "0.23"                # Parametric testing
+proptest = "1.5"                # Property-based testing
+derive_builder = "0.20"         # Builder pattern derive
+derive_getters = "0.14"         # Automatic getters
+```
+
+### Crate-Specific Dependencies Added
+
+```toml
+# keyring-store/Cargo.toml
+thiserror = { workspace = true }
+
+# stream-parser/Cargo.toml
+thiserror = { workspace = true }
+
+# secrets/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+
+# tui/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+
+# protocol/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+
+# git/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+```
+
+### LOC Reduction Summary
+
+| Error Type | Location | Before | After | Savings |
+|------------|----------|--------|-------|---------|
+| CredentialStoreError | keyring-store | 39 | 18 | **21 LOC** |
+| ConnectionFailedError | core/error.rs | 14 | 4 | **10 LOC** |
+| Utf8StreamParserError | stream-parser | 38 | 14 | **24 LOC** |
+| PasteImageError | tui | 26 | 8 | **18 LOC** |
+| PasteTextError | tui | 26 | 8 | **18 LOC** |
+| SecretName | secrets | 8 | 2 | **6 LOC** |
+| RequestId | protocol | 8 | 2 | **6 LOC** |
+| **TOTAL** | | **159** | **56** | **103 LOC** |
+
+### Next Steps
+
+1. [x] Add new dependencies to Cargo.toml
+2. [x] Migrate `CredentialStoreError` to thiserror
+3. [x] Migrate `ConnectionFailedError` to thiserror
+4. [x] Migrate `Utf8StreamParserError` to thiserror
+5. [x] Migrate `PasteImageError` and `PasteTextError` to thiserror
+6. [x] Migrate `SecretName` to derive_more::Display
+7. [ ] Migrate remaining error types
+8. [ ] Audit hot-path unwrap() calls
+9. [ ] Add itoa usage for numeric string formatting
+
+---
+
+## 2026-03-29 - LOC Reduction Deep Audit (Extended)
 | `buf` | Proto lint/breaking checks | `buf.yaml`, CI pipeline |
 
 #### Could Improve Codebase 🟠
