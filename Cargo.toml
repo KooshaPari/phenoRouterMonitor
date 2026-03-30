@@ -58,6 +58,9 @@ git2 = "0.20"
 syn = { version = "2", features = ["full", "parsing"] }
 quote = "1"
 proc-macro2 = "1"
+dashmap = "6"
+lru = "0.14"
+moka = { version = "0.12", features = ["sync"] }
 
 [profile.dev]
 opt-level = 0

@@ -1,13 +1,20 @@
 [package]
 name = "phenotype-cache-adapter"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Phenotype Cache-adapter"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Two-tier cache adapter (L1 LRU + L2 Moka) for Phenotype"
+
+[dependencies]
+chrono.workspace = true
+dashmap.workspace = true
+lru.workspace = true
+moka.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+phenotype-error-core = { path = "../phenotype-error-core" }
 
 [lib]
 path = "src/lib.rs"
-
-[dependencies]
-phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
