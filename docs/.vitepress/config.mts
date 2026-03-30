@@ -6,7 +6,14 @@ export default withMermaid({
   appearance: 'dark',
   lastUpdated: true,
   // Large audit/research trees use Rust generics and `<` comparisons; Vue treats them as HTML. Ship as repo files, not VP pages.
-  srcExclude: ['worklogs/**', 'research/**', 'reports/**', 'sessions/**', 'audits/**'],
+  srcExclude: [
+    'worklogs/**',
+    'research/**',
+    'reports/**',
+    'sessions/**',
+    'audits/**',
+    'changes/**',
+  ],
   themeConfig: {
     nav: [{ text: 'Home', link: '/' }],
     sidebar: [],

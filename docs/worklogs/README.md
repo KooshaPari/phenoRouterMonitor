@@ -54,8 +54,8 @@ This directory contains detailed audit and research worklogs for the Phenotype e
 ---
 
 ## Resuming Work
-## Resuming Work
-To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md).
+
+Start from [WORK_LOG.md](./WORK_LOG.md) **Resume pointers (2026-03-31)**, then the **P0** items in [DEPENDENCIES.md](./DEPENDENCIES.md) and **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md). Session bundles: [20260330-stacked-pr-sbom](../sessions/20260330-stacked-pr-sbom/00_OVERVIEW.md), [phase READMEs](../sessions/20260329-phase2-error-core/README.md). **`platforms/thegent`:** [PLATFORMS_THEGENT.md](../reference/PLATFORMS_THEGENT.md). **Docs deps:** `npm run deps:reinstall` from `docs/`.
 
 ## 2026-03-30 Wave 96 Summary
 
@@ -72,17 +72,17 @@ To resume the audit or implementation, focus on the **P0 - CRITICAL** action ite
 | #278 | Open | add-tests, cli-errors, fix-clippy, fix-event-sourcing, impl-* |
 
 ### Next Priority Actions
-1. **Migrate git2 → gix** for RUSTSEC-2025-0140 fix
-2. **Deprecate phenotype-errors** → promote phenotype-error-core
-3. **Create phenotype-async-traits** for unified async patterns
-4. **Fork cqrs-es** for event sourcing foundation
 
-1. **Start with P0 items** in `DUPLICATION.md` (Wave 92 & 118)
-2. **Research third-party candidates** in `DEPENDENCIES.md` (Wave 131-133)
-3. **Architecture patterns** in `ARCHITECTURE.md` (Wave 108-112)
-4. **Quality automation** in `QUALITY.md` (Wave 131-135)
-5. **Performance optimization** in `PERFORMANCE.md` (Wave 136-139)
-6. **External packages** in `RESEARCH.md` (Wave 118-120)
+1. **Finish `git2` → `gix` in `phenotype-git-core`** (workspace already on **gix 0.81**)
+2. **Deprecate / merge `phenotype-errors`** toward **`phenotype-error-core`** (ADR + spec)
+3. **Create phenotype-async-traits** for unified async patterns (spec-gated)
+4. **Fork or wrap `cqrs-es`** for event sourcing foundation (spec-gated)
+5. **P0 items** in `DUPLICATION.md` (Wave 92 & 118)
+6. **Third-party candidates** in `DEPENDENCIES.md` (Wave 131-133)
+7. **Architecture** in `ARCHITECTURE.md` (Wave 108-112)
+8. **Quality** in `QUALITY.md` (Wave 131-135)
+9. **Performance** in `PERFORMANCE.md` (Wave 136-139)
+10. **Research** in `RESEARCH.md` (Wave 118-120)
 
 ---
 

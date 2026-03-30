@@ -348,22 +348,22 @@ All error enums use `thiserror` — no hand-rolled implementations found.
 
 ### Critical Issue: Two Competing Error Crates
 
-| Problem | Evidence |
-|---------|----------|
-| **phenotype-errors used by** | phenotype-test-infra, phenotype-telemetry |
-| **phenotype-error-core unused** | In workspace but NO crate depends on it |
-| **Redundant variants** | `ErrorKind` (14) vs `PhenotypeError` (20) |
+| Problem | Evidence (2026-03-31) |
+|---------|------------------------|
+| **Overlap** | `phenotype-errors` and `phenotype-error-core` both expose common conversions (`From` for I/O, JSON, regex, etc.) |
+| **phenotype-error-core dependents** | `phenotype-contracts`, `phenotype-errors`, `phenotype-process`, `phenotype-test-infra`, `agileplus-error-core` (see workspace `Cargo.toml` graphs) |
+| **Redundant variants** | `ErrorKind` vs `PhenotypeError` — pick one canonical surface long-term |
 
 ### Recommendations
 
-1. **Consolidate error crates** - Deprecate `phenotype-error-core` or promote it
-2. **Create wrapper pattern** - Domain errors should wrap common `ErrorKind`
-3. **Adopt phenotype-errors workspace-wide** - Migrate patterns
+1. **Promote one canonical error surface** — either standardize on `phenotype-error-core` + thin domain wrappers, or collapse into a single crate; document in ADR.
+2. **Create wrapper pattern** — domain errors wrap `ErrorKind` with `#[source]` where appropriate.
+3. **Deprecate gradually** — migrate callers crate-by-crate behind explicit FR/spec work.
 
 ### Action Items
 
-- [ ] Evaluate phenotype-error-core vs phenotype-errors
-- [ ] Create shared error wrapper pattern
+- [ ] ADR: error hierarchy (`phenotype-error-core` vs `phenotype-errors`)
+- [ ] Create shared error wrapper pattern (spec-gated)
 - [ ] Document error hierarchy in ADR
 
 ---

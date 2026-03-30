@@ -27,3 +27,12 @@ and should normally contain:
 - Keep transient execution evidence inside the session bundle.
 - Promote only durable repo-wide guidance into canonical docs.
 - Update the active session bundle continuously so later waves can resume cleanly.
+
+## Active / recent bundles
+
+| Session | Purpose |
+|---------|---------|
+| [20260330-stacked-pr-sbom](./20260330-stacked-pr-sbom/00_OVERVIEW.md) | Stacked PR / SBOM wave |
+| [20260329-phase2-error-core](./20260329-phase2-error-core/README.md) | Error-core phase notes |
+| [20260329-phase4-http-client](./20260329-phase4-http-client/README.md) | HTTP client audit phase |
+| [20260329-phase5-config-core](./20260329-phase5-config-core/README.md) | Config-core phase notes |

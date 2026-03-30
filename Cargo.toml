@@ -3,6 +3,7 @@ version = "0.2.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.75"
+description = "Generic infrastructure crates from the Phenotype ecosystem"
 authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
@@ -25,7 +26,6 @@ members = [
 
 exclude = [
     "crates/agileplus-api-types",
-    "crates/agileplus-domain",
     "crates/phenotype-crypto",
     "crates/phenotype-git-core",
     "crates/phenotype-http-client-core",
@@ -55,7 +55,7 @@ tokio = { version = "1", features = ["full"] }
 dashmap = "5"
 parking_lot = "0.12"
 lru = "0.12"
-moka = "0.12"
+moka = { version = "0.12", features = ["sync"] }
 regex = "1"
 toml = "0.8"
 reqwest = { version = "0.12", features = ["json"] }

@@ -1,10 +1,11 @@
 [package]
-blake3.workspace = true
+name = "phenotype-event-sourcing"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
+authors.workspace = true
 description = "Event sourcing with blake3 hash chains"
 
 [dependencies]
@@ -20,6 +21,3 @@ tokio.workspace = true
 
 [lib]
 path = "src/lib.rs"
-
-[dev-dependencies]
-tokio = { workspace = true, features = ["test-util", "macros"] }

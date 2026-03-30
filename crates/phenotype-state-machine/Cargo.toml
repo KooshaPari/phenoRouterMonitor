@@ -5,18 +5,12 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
-authors.workspace = true
-description = "TODO"
+description = "Generic finite state machine with transition guards"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-<<<<<<< HEAD
-thiserror = { workspace = true }
-phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
-=======
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 thiserror.workspace = true
->>>>>>> origin/main
