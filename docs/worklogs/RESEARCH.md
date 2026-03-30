@@ -1,8 +1,6 @@
 # Research Worklogs
 
-<<<<<<< HEAD
 **Category:** RESEARCH | **Updated:** 2026-03-29
-=======
 **Category:** RESEARCH | **Updated:** 2026-03-29 (Wave 92 appended)
 
 ---
@@ -234,7 +232,6 @@ No dominant "hexagonal framework" crate in Rust. Pattern = multi-crate workspace
 |---|---|---|
 | `eventually` 0.5.x | `cqrs-es` | Prerelease quality, slow maintenance |
 | `eventually` | `eventsourced` | NATS+Postgres adapters, Akka Persistence-inspired |
->>>>>>> origin/main
 
 ---
 
@@ -587,7 +584,6 @@ Quarterly technology radar update based on starred repo analysis.
 
 ---
 
-<<<<<<< HEAD
 ## 2026-03-29 - Zero-Copy Serialization Research
 
 **Project:** [cross-repo]
@@ -639,7 +635,6 @@ rkyv deserialize:   0.1 µs (zero-copy)
 ---
 
 ## 2026-03-29 - Supply Chain Security Research
-=======
 ## 2026-03-29 - Agent Protocol Landscape Research (Wave 93)
 
 ### Agent Communication Protocols Comparison
@@ -1212,14 +1207,12 @@ impl MicroVM {
 ---
 
 ## 2026-03-29 - Wave 100: Modernization Research & Package Replacements
->>>>>>> origin/main
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** completed
 **Priority:** P0
 
-<<<<<<< HEAD
 ### Security Tools
 
 | Tool | Purpose | Language | Assessment |
@@ -1272,7 +1265,6 @@ osv-scanner -r -L ./sbom.spdx.json
 ---
 
 ## 2026-03-29 - Edge Computing Research
-=======
 ### LLM Orchestration & MCP (2026 State of the Art)
 
 | Package | Target | Action | Rationale |
@@ -1304,12 +1296,10 @@ osv-scanner -r -L ./sbom.spdx.json
 ---
 
 ## 2026-03-29 - Wave 101: 3rd Party Repo Fork Matrix (Blackbox vs Whitebox)
->>>>>>> origin/main
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** completed
-<<<<<<< HEAD
 **Priority:** P2
 
 ### Edge Platforms
@@ -1360,7 +1350,6 @@ osv-scanner -r -L ./sbom.spdx.json
 ---
 
 ## 2026-03-29 - Observability Stack Research
-=======
 **Priority:** P0
 
 ### Evaluated Repositories for Direct Usage (Blackbox)
@@ -1391,12 +1380,10 @@ osv-scanner -r -L ./sbom.spdx.json
 ---
 
 ## 2026-03-29 - Wave 102: Cross-Project Libification Hotspots (Error/Config/Health)
->>>>>>> origin/main
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** completed
-<<<<<<< HEAD
 **Priority:** P1
 
 ### Observability Stack
@@ -1445,7 +1432,6 @@ osv-scanner -r -L ./sbom.spdx.json
 │  Logs: Loki → Grafana                            │
 │  Profiles: Pyroscope → Grafana                    │
 └─────────────────────────────────────────────────┘
-=======
 **Priority:** P0
 
 ### Target 1: `phenotype-error-core` (LOC Savings: ~850)
@@ -1993,14 +1979,10 @@ class PhenotypeAggregate(Aggregate):
     def process_command(self, command: Command) -> None:
         # Validate and emit events
         pass
->>>>>>> origin/main
 ```
 
 ---
 
-<<<<<<< HEAD
-_Last updated: 2026-03-29_
-=======
 ## 2026-03-30 - External Fork Candidates: Policy Engines (Wave 155)
 
 **Project:** [cross-repo]
@@ -2689,4 +2671,3 @@ tracing_subscriber::registry()
 ---
 
 _Last updated: 2026-03-30 (Wave 4 entries appended)_
->>>>>>> origin/main
