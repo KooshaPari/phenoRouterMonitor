@@ -86,7 +86,7 @@ mod tests {
     #[tokio::test]
     async fn append_and_retrieve() {
         let store = InMemoryEventStore::<String>::new();
-        let event = EventEnvelope::new("test".to_string(), "actor1".into());
+        let event = EventEnvelope::new("test".to_string(), "actor1", "user");
         let seq = store.append("user", "123", event.clone()).await.unwrap();
         assert_eq!(seq, 1);
         let events = store.get_events("user", "123").await.unwrap();

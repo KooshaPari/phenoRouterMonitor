@@ -1,6 +1,6 @@
 //! Error types for the policy engine.
 
-use phenotype_error_core::ErrorKind;
+use phenotype_errors::ErrorKind;
 use thiserror::Error;
 
 /// Errors that can occur during policy operations.

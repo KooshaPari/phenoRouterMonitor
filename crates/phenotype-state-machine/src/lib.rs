@@ -40,11 +40,17 @@ pub enum StateMachineError {
 /// Result type for state machine operations.
 pub type Result<T> = std::result::Result<T, StateMachineError>;
 
+/// Type alias for transition guard: (from_state, event) -> allowed
+type TransitionGuard = Arc<dyn Fn(&str, &str) -> bool + Send + Sync>;
+
+/// Type alias for state callback: receives state name
+type StateCallback = Arc<dyn Fn(&str) + Send + Sync>;
+
 /// A transition definition: (from_state, event) -> to_state with optional guard.
 #[derive(Clone)]
 struct Transition {
     to: String,
-    guard: Option<Arc<dyn Fn(&str, &str) -> bool + Send + Sync>>,
+    guard: Option<TransitionGuard>,
 }
 
 /// A generic finite state machine.
@@ -54,8 +60,8 @@ struct Transition {
 pub struct StateMachine {
     current: RwLock<String>,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
-    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
 impl StateMachine {
@@ -140,28 +146,74 @@ unsafe impl Sync for StateMachine {}
 /// Builder for constructing a [`StateMachine`].
 pub struct StateMachineBuilder {
     initial: String,
+    initial_ordinal: u32,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
-    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
+    forward_only: bool,
+    state_ordinals: HashMap<String, u32>,
 }
 
 impl StateMachineBuilder {
     /// Create a new builder with the given initial state.
+    ///
+    /// Initial ordinal defaults to 0.
     pub fn new(initial: &str) -> Self {
         Self {
             initial: initial.to_string(),
+            initial_ordinal: 0,
             transitions: HashMap::new(),
             on_enter: HashMap::new(),
             on_exit: HashMap::new(),
+            forward_only: false,
+            state_ordinals: HashMap::new(),
         }
     }
 
     /// Add a transition: from `from` state, on `event`, go to `to` state.
+    ///
+    /// The target state is assigned an ordinal based on declaration order
+    /// (incremented per unique target state).
     pub fn transition(mut self, from: &str, event: &str, to: &str) -> Self {
+        // Assign ordinal for target state if not already assigned
+        let to_ordinal = self
+            .state_ordinals
+            .entry(to.to_string())
+            .or_insert_with(|| {
+                // Assign next ordinal based on current count
+                self.state_ordinals.len() as u32
+            })
+            .copied()
+            .unwrap_or(0);
+
         self.transitions.insert(
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
+                to_ordinal,
+                guard: None,
+            },
+        );
+        self
+    }
+
+    /// Add a transition with explicit ordinal for the target state.
+    ///
+    /// Use this when you need precise control over state ordering.
+    pub fn transition_with_ordinal(
+        mut self,
+        from: &str,
+        event: &str,
+        to: &str,
+        ordinal: u32,
+    ) -> Self {
+        self.state_ordinals.insert(to.to_string(), ordinal);
+
+        self.transitions.insert(
+            (from.to_string(), event.to_string()),
+            Transition {
+                to: to.to_string(),
+                to_ordinal: ordinal,
                 guard: None,
             },
         );
@@ -177,13 +229,33 @@ impl StateMachineBuilder {
         to: &str,
         guard: impl Fn(&str, &str) -> bool + Send + Sync + 'static,
     ) -> Self {
+        // Assign ordinal for target state if not already assigned
+        let to_ordinal = self
+            .state_ordinals
+            .entry(to.to_string())
+            .or_insert_with(|| {
+                self.state_ordinals.len() as u32
+            })
+            .copied()
+            .unwrap_or(0);
+
         self.transitions.insert(
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
+                to_ordinal,
                 guard: Some(Arc::new(guard)),
             },
         );
+        self
+    }
+
+    /// Enable forward-only mode.
+    ///
+    /// When enabled, transitions to states with lower ordinals are rejected.
+    /// This enforces a strictly forward progression through state space.
+    pub fn forward_only(mut self) -> Self {
+        self.forward_only = true;
         self
     }
 
@@ -220,11 +292,22 @@ impl StateMachineBuilder {
                 "initial state cannot be empty".into(),
             ));
         }
+
+        // Ensure initial state has an ordinal
+        let initial_ordinal = self
+            .state_ordinals
+            .get(&self.initial)
+            .copied()
+            .unwrap_or(0);
+
         Ok(StateMachine {
             current: RwLock::new(self.initial),
+            current_ordinal: RwLock::new(initial_ordinal),
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,
+            forward_only: self.forward_only,
+            state_ordinals: self.state_ordinals,
         })
     }
 }
@@ -330,6 +413,60 @@ mod tests {
     fn empty_initial_state_errors() {
         let err = StateMachineBuilder::new("").build().unwrap_err();
         assert!(matches!(err, StateMachineError::BuildError(_)));
+    }
+
+    #[test]
+    fn forward_only_mode_prevents_backward_transition() {
+        // Create a linear state machine: A -> B -> C
+        let sm = StateMachineBuilder::new("a")
+            .transition("a", "next", "b")
+            .transition("b", "next", "c")
+            .transition("c", "back", "b") // backward transition
+            .forward_only()
+            .build()
+            .unwrap();
+
+        assert!(sm.is_forward_only());
+
+        // Go through the forward path
+        sm.send("next").unwrap(); // a -> b
+        sm.send("next").unwrap(); // b -> c
+        assert_eq!(sm.current(), "c");
+
+        // Try backward transition - should be blocked
+        let err = sm.send("back").unwrap_err();
+        assert!(matches!(err, StateMachineError::ForwardOnlyViolation { .. }));
+        assert_eq!(sm.current(), "c"); // Still in c
+    }
+
+    #[test]
+    fn ordinal_assignment() {
+        let sm = StateMachineBuilder::new("a")
+            .transition("a", "to_b", "b")
+            .transition("a", "to_c", "c")
+            .transition("b", "to_d", "d")
+            .build()
+            .unwrap();
+
+        // Check ordinals are assigned
+        assert_eq!(sm.ordinal(), Some(0)); // "a" has ordinal 0 (initial)
+    }
+
+    #[test]
+    fn transition_with_explicit_ordinal() {
+        let sm = StateMachineBuilder::new("start")
+            .transition_with_ordinal("start", "go", "phase1", 10)
+            .transition_with_ordinal("phase1", "go", "phase2", 20)
+            .transition_with_ordinal("phase2", "go", "phase3", 30)
+            .build()
+            .unwrap();
+
+        assert_eq!(sm.current(), "start");
+        assert_eq!(sm.ordinal(), Some(10));
+
+        sm.send("go").unwrap();
+        assert_eq!(sm.current(), "phase1");
+        assert_eq!(sm.ordinal(), Some(20));
     }
 
     #[test]

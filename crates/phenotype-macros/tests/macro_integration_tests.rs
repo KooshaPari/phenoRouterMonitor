@@ -1,7 +1,6 @@
 //! Comprehensive integration tests for phenotype-macros
 //! Traces to: FR-PHENO-MACRO-001, FR-PHENO-MACRO-002, FR-PHENO-MACRO-003
 
-use std::str::FromStr;
 
 // Test 1: Builder macro with single field
 // Traces to: FR-PHENO-MACRO-001
@@ -22,7 +21,7 @@ fn test_builder_pattern_structure() {
     // - Builder methods that accept self and return Self
     // - A build() method that returns Result<T, String>
 
-    let expected_methods = vec!["new", "build"];
+    let expected_methods = ["new", "build"];
     assert_eq!(
         expected_methods.len(),
         2,
@@ -163,7 +162,7 @@ fn test_builder_validation() {
 #[test]
 fn test_from_str_variant_matching() {
     // FromStr should correctly match enum variants
-    let variants = vec!["Active", "Inactive", "Pending"];
+    let variants = ["Active", "Inactive", "Pending"];
     assert_eq!(variants.len(), 3, "FromStr should handle multiple variants");
 }
 

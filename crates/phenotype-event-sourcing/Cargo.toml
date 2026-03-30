@@ -1,6 +1,6 @@
 [package]
-[package]
 name = "phenotype-event-sourcing"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 description = "Event sourcing for Phenotype"
@@ -15,3 +15,6 @@ thiserror = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 async-trait = "0.1"
+blake3 = "1.5"
+tokio = { version = "1", features = ["full"] }
+phenotype-error-core = { version = "0.2.0", path = "../phenotype-error-core" }
