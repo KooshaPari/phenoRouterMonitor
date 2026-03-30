@@ -1,5 +1,5 @@
 [package]
-name = "phenotype-event-sourcing"
+blake3.workspace = true
 version.workspace = true
 edition.workspace = true
 license.workspace = true
