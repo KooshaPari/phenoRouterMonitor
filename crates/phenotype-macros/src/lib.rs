@@ -36,3 +36,28 @@ pub fn derive_error(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let i = syn::parse_macro_input!(i as syn::DeriveInput);
     error::derive(i).into()
 }
+
+mod derive_builder;
+mod derive_errors;
+mod derive_serde;
+
+/// Builder pattern macro — generates fluent builder for structs
+#[proc_macro_derive(Builder)]
+pub fn derive_builder(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let i = syn::parse_macro_input!(i as syn::DeriveInput);
+    derive_builder::derive(i).into()
+}
+
+/// Enhanced serialization helpers for serde integration
+#[proc_macro_derive(SerdeHelper)]
+pub fn derive_serde_helper(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let i = syn::parse_macro_input!(i as syn::DeriveInput);
+    derive_serde::derive(i).into()
+}
+
+/// Enhanced error type with Error trait implementation
+#[proc_macro_derive(ErrorType)]
+pub fn derive_error_type(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let i = syn::parse_macro_input!(i as syn::DeriveInput);
+    derive_errors::derive_error_type(i).into()
+}
