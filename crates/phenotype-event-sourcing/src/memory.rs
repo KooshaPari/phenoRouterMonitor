@@ -58,7 +58,12 @@ impl Default for InMemoryEventStore {
 }
 
 impl EventStore for InMemoryEventStore {
-    fn append(&self, event: &JsonEnvelope, entity_type: &str, entity_id: &str) -> Result<i64> {
+    fn append(
+        &self,
+        event: &JsonEnvelope,
+        entity_type: &str,
+        entity_id: &str,
+    ) -> Result<i64> {
         let mut store = self
             .events
             .write()
@@ -67,9 +72,7 @@ impl EventStore for InMemoryEventStore {
         let entity_map = store
             .entry(entity_type.to_string())
             .or_insert_with(BTreeMap::new);
-        let events = entity_map
-            .entry(entity_id.to_string())
-            .or_insert_with(Vec::new);
+        let events = entity_map.entry(entity_id.to_string()).or_insert_with(Vec::new);
 
         let sequence = if events.is_empty() {
             1
@@ -166,10 +169,8 @@ impl EventStore for InMemoryEventStore {
             .read()
             .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
 
-        let seq: Option<i64> = match store.get(entity_type) {
-            Some(m) => m
-                .get(entity_id)
-                .and_then(|events: &Vec<StoredEvent>| events.last().map(|e| e.sequence)),
+        let seq = match store.get(entity_type) {
+            Some(m) => m.get(entity_id).and_then(|events| events.last().map(|e| e.sequence)),
             None => None,
         };
         Ok(seq.unwrap_or(0))
