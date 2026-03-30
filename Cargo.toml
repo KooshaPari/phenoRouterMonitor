@@ -28,9 +28,13 @@ members = [
     "crates/phenotype-http-client-core",
 ]
 
-[workspace.package]
-version = "0.2.0"
-edition = "2021"
+[workspace.metadata.cargo-fuzz]
+schemas = ["target/schemas/**/*.json"]
+
+[workspace.dependencies]
+# === PHENOTYPE CORE CRATES ===
+# Configuration
+figment = { version = "0.10", features = ["toml", "yaml", "env"] }
 license = "MIT"
 rust-version = "1.75"
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
@@ -40,6 +44,7 @@ authors = ["Phenotype Team"]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
+miette = { version = "7.2", features = ["serde"] }
 anyhow = "1.0"
 derive_more = "1.0"
 strum = { version = "0.26", features = ["derive"] }
@@ -55,13 +60,11 @@ tokio = { version = "1.41", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
 regex = "1"
-git2 = "0.20"
+gix = { version = "0.81", default-features = false, features = ["status", "revision", "parallel"] }
 syn = { version = "2", features = ["full", "parsing"] }
 quote = "1"
 proc-macro2 = "1"
 dashmap = "6"
-lru = "0.14"
-moka = { version = "0.12", features = ["sync"] }
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 toml = "0.8"
 dirs = "6.0"
