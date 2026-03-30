@@ -1,10 +1,17 @@
 [package]
 name = "phenotype-crypto"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Crypto for Phenotype"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Cryptographic utilities for Phenotype — hashing, hex encoding, and content addressing"
+
+[dependencies]
+sha2.workspace = true
+hex.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
 
 [lib]
 path = "src/lib.rs"
