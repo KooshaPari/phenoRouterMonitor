@@ -54,8 +54,8 @@ This directory contains detailed audit and research worklogs for the Phenotype e
 ---
 
 ## Resuming Work
-## Resuming Work
-To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md).
+
+To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md). SBOM / supply-chain: [`sessions/20260330-stacked-pr-sbom/`](../sessions/20260330-stacked-pr-sbom/) and **phenotype-infrakit** automation. Repo layout: [`reference/PLATFORMS_THEGENT.md`](../reference/PLATFORMS_THEGENT.md).
 
 ## 2026-03-30 Wave 96 Summary
 

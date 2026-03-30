@@ -14,6 +14,11 @@ chrono.workspace = true
 dashmap.workspace = true
 async-trait.workspace = true
 thiserror.workspace = true
+<<<<<<< HEAD
+lru.workspace = true
+moka.workspace = true
+phenotype-error-core.workspace = true
+=======
 tokio = { workspace = true, features = ["sync"] }
 lru.workspace = true
 moka.workspace = true
@@ -21,6 +26,7 @@ phenotype-error-core.workspace = true
 =======
 authors.workspace = true
 description = "TODO"
+>>>>>>> origin/main
 >>>>>>> origin/main
 
 [lib]

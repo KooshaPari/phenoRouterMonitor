@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+//! Unified error enums for AgilePlus, bridgeable to [`phenotype_error_core::ErrorKind`].
+=======
 //! Unified error handling for the AgilePlus ecosystem.
+>>>>>>> origin/main
 
 pub mod api;
 pub mod domain;
@@ -9,11 +13,16 @@ pub mod traits;
 
 pub use api::ApiError;
 pub use domain::DomainError;
+<<<<<<< HEAD
+=======
 pub use phenotype_error_core::ErrorKind;
+>>>>>>> origin/main
 pub use serialization::SerializationError;
 pub use storage::StorageError;
 pub use sync::SyncError;
 pub use traits::NotFoundMarker;
+<<<<<<< HEAD
+=======
 
 #[cfg(test)]
 mod tests {
@@ -34,3 +43,4 @@ mod tests {
         assert_eq!(k.kind(), "Serialization");
     }
 }
+>>>>>>> origin/main
