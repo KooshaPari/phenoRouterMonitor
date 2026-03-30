@@ -841,3 +841,125 @@ Blueprints created with module structure, handler mapping, re-export patterns.
 - ✅ Test-to-source ratio maintained (0.16:1)
 
 ---
+
+---
+
+## 2026-03-30 - Session: Deep Audit Wave 4 (LOC Reduction, Decomposition, Research)
+
+**Session ID:** wave-4-deep-audit
+**Duration:** Full session
+**Agent:** Subagent orchestrator + 4 parallel SAGE agents
+
+### Tasks Completed
+
+#### 1. Deep Duplication Audit ✅
+- Analyzed 30+ crates for NEW duplication patterns
+- Found 10 new duplication categories
+- Identified 724 LOC potential savings
+
+**Key Findings:**
+- 🔴 Two competing error core systems (phenotype-error-core vs agileplus-error-core)
+- 🔴 HealthStatus enum duplication across phenotype-health and agileplus-health
+- 🟠 Duplicate From<serde_json::Error> implementations (4 crates)
+- 🟠 Builder pattern duplication (ConfigBuilder vs LogConfigBuilder)
+- 🟡 MockClock duplication (phenotype-time vs phenotype-test-infra)
+- 🟡 HTTP response handling duplication (GET/POST/PUT/DELETE)
+- 🟡 Regex compilation with unwrap() pattern
+
+#### 2. Inactive Folders Audit ✅
+- Identified deprecated `src/` directory for deletion
+- Identified empty `repos/` directory for deletion
+- Identified orphaned worktrees in `.archive/orphaned-worktrees/`
+- Potential storage savings: 702MB+
+
+#### 3. LOC Decomposition Audit ✅
+- Analyzed 30+ crates for LOC and decomposition
+- Found 10 files over 200 LOC
+- Found 1 file over 500 LOC (phenotype-state-machine: 626 LOC)
+- Identified 3,062 LOC total savings potential
+
+**Priority Decomposition List:**
+1. phenotype-state-machine/src/lib.rs (626 LOC → 5+ modules)
+2. phenotype-http-client-core/src/client.rs (347 LOC → extract response handling)
+3. phenotype-telemetry/src/registry.rs (267 LOC → extract Metric enum)
+4. phenotype-policy-engine/src/result.rs (219 LOC → extract Violation)
+5. phenotype-cost-core/src/budget.rs (344 LOC → split BudgetManager)
+
+#### 4. 2026 Rust Ecosystem Research ✅
+- Analyzed 9 categories of Rust ecosystem crates
+- Identified P0, P1, P2 adoption priorities
+- Total potential LOC savings: ~3,062 LOC
+
+**Top Opportunities:**
+| Priority | Action | LOC Savings |
+|----------|--------|------------|
+| P0 | Replace phenotype-retry with backon | 200 LOC |
+| P0 | Integrate figment into phenotype-config-core | 634 LOC |
+| P0 | Remove nested duplicate state machines | 365 LOC |
+| P1 | Full derive_more + strum adoption | 778 LOC |
+| P1 | Consolidate telemetry with OTLP | 564 LOC |
+
+#### 5. Worklog Updates ✅
+- DUPLICATION.md: 3848 → 4251 lines (+403 lines)
+- RESEARCH.md: (truncated) → 2452 lines (+2452 lines)
+- DEPENDENCIES.md: 2761 → 2831 lines (+70 lines)
+
+### Subagent Tasks (4 parallel SAGE agents)
+1. **Duplication Patterns Agent** - Analyzed 30+ crates for duplication
+2. **Inactive Folders Agent** - Scanned filesystem for orphaned content
+3. **Ecosystem Research Agent** - Researched 9 Rust ecosystem categories
+4. **LOC Decomposition Agent** - Analyzed LOC and decomposition opportunities
+
+### Deliverables
+
+#### Documentation Updated
+- `docs/worklogs/DUPLICATION.md` - +403 lines (Wave 4 entries)
+- `docs/worklogs/RESEARCH.md` - +2452 lines (Wave 4 entries)
+- `docs/worklogs/DEPENDENCIES.md` - +70 lines (Wave 4 entries)
+- `docs/worklogs/WORK_LOG.md` - Session progress (this entry)
+
+#### Key Reports Generated
+1. **Critical Architectural Conflicts Report**
+   - Two competing error core systems
+   - HealthStatus enum duplication
+   - Builder pattern duplication
+
+2. **Decomposition Priority List**
+   - 11 files prioritized for decomposition
+   - 3,062 LOC total savings potential
+
+3. **2026 Ecosystem Research Report**
+   - 9 Rust ecosystem categories analyzed
+   - Specific adoption recommendations with LOC savings
+
+4. **Storage Cleanup Report**
+   - 702MB+ potential storage savings
+   - Immediate action items for deprecated directories
+
+### Next Steps
+
+#### Immediate Actions (This Session)
+- [ ] DELETE deprecated `src/` directory
+- [ ] DELETE empty `repos/` directory
+- [ ] DELETE `.archive/orphaned-worktrees/consolidate-libraries` (299MB)
+- [ ] DELETE `.archive/orphaned-worktrees/expand-test-coverage` (403MB)
+
+#### Short-Term (Next Sprint)
+- [ ] DECIDE: Choose canonical error core (phenotype-error-core OR agileplus-error-core)
+- [ ] SPLIT: phenotype-state-machine/src/lib.rs into 5+ modules
+- [ ] EXTRACT: HTTP response handling in phenotype-http-client-core
+- [ ] REPLACE: phenotype-retry with backon 1.0
+
+#### Medium-Term (This Month)
+- [ ] INTEGRATE: figment into phenotype-config-core
+- [ ] ADOPT: Full derive_more + strum across workspace
+- [ ] CONSOLIDATE: Telemetry with OTLP
+- [ ] MONITOR: lru 0.13+ and async-nats 0.35+ releases
+
+### Notes
+- All work documented in worklogs for continuity
+- Subagent parallelization achieved 4x throughput
+- No implementation changes made (research only)
+- Ready for implementation phase
+
+_Last updated: 2026-03-30 (Wave 4 session complete)_

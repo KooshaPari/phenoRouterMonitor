@@ -2,24 +2,19 @@
 name = "phenotype-http-client-core"
 version.workspace = true
 edition.workspace = true
-authors.workspace = true
 license.workspace = true
+rust-version.workspace = true
 repository.workspace = true
-description = "HTTP client core with reqwest integration for Phenotype"
-
-[dependencies]
-thiserror.workspace = true
-tokio.workspace = true
-tracing.workspace = true
-async-trait.workspace = true
-serde.workspace = true
-serde_json.workspace = true
-phenotype-error-core.workspace = true
-reqwest.workspace = true
+authors.workspace = true
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
 
-[[test]]
-name = "client_test"
-path = "tests/client_test.rs"
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }

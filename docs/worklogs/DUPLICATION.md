@@ -3846,3 +3846,406 @@ _Last updated: 2026-03-30 (Wave 117)_
 ---
 
 _Last updated: 2026-03-31 (Wave 118)_
+
+---
+
+## 2026-03-30 - Deep Audit Wave 4 (Session 2026-03-30)
+
+**Project:** ALL
+**Category:** duplication
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Deep audit of `crates/` directory (30+ crates) + inactive folder scan + LOC decomposition analysis. Found critical architectural conflicts, massive decomposition opportunities, and storage cleanup targets.
+
+### 🔴 CRITICAL: Two Competing Error Core Systems
+
+**NOT PREVIOUSLY DOCUMENTED AS CONFLICTING:**
+
+| Crate | Approach | Lines |
+|-------|----------|-------|
+| `phenotype-error-core` | OOP-style `ErrorKind` struct with `ErrorKindInner` enum | 251 |
+| `agileplus-error-core` | thiserror enums with `From` conversions | ~150 |
+
+**Conflict**: `agileplus-error-core` re-exports `phenotype_error_core::ErrorKind` at `src/lib.rs:15` but defines its own error enums that convert TO it - architectural inconsistency.
+
+**Code - phenotype-error-core (`src/lib.rs:11-29`):**
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub enum ErrorKindInner {
+    NotFound,
+    Serialization,
+    Validation,
+    Internal,
+    Io,
+    Storage,
+    Connection,
+    Conflict,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ErrorKind {
+    inner: ErrorKindInner,
+    message: String,
+}
+```
+
+**Code - agileplus-error-core (`src/domain.rs:5-18`):**
+```rust
+#[derive(Debug, Error, Clone, PartialEq, Eq)]
+pub enum DomainError {
+    #[error("not found: {0}")]
+    NotFound(String),
+    #[error("conflict: {0}")]
+    Conflict(String),
+    #[error("invalid transition: {0}")]
+    InvalidTransition(String),
+    #[error("internal domain error: {0}")]
+    Internal(String),
+}
+```
+
+**Recommendation:** Choose one as canonical. Recommend: `agileplus-error-core` with `phenotype_error_core::ErrorKind`. Migrate all consumers to the winner.
+
+**Est. LOC Impact**: ~400 LOC across both systems with overlapping concerns.
+
+---
+
+### 🔴 CRITICAL: HealthStatus Enum Duplication
+
+**NOT PREVIOUSLY DOCUMENTED:**
+
+| Crate | Variants | Issue |
+|-------|----------|-------|
+| `phenotype-health` | `Healthy, Degraded, Unhealthy, Unknown` | Has `Unknown` variant |
+| `agileplus-health` | `Healthy, Degraded, Unavailable` | Has `Unavailable` vs `Unhealthy` |
+
+**phenotype-health (`src/lib.rs:19-26`):**
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum HealthStatus {
+    Healthy,
+    Degraded,
+    Unhealthy,
+    Unknown,
+}
+```
+
+**agileplus-health (`src/lib.rs:12-20`):**
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HealthStatus {
+    /// Service is fully operational
+    Healthy,
+    /// Service is degraded but operational
+    Degraded,
+    /// Service is unavailable
+    Unavailable,
+}
+```
+
+**Recommendation**: Adopt `agileplus-health::HealthStatus` as canonical, add `Unknown` for compatibility. **LOC Savings**: ~25 LOC.
+
+---
+
+### 🟠 HIGH: Duplicate `From<serde_json::Error>` Implementations
+
+**NOT FULLY DOCUMENTED:**
+
+| Crate | File | Lines |
+|-------|------|-------|
+| `phenotype-error-core` | `src/lib.rs:160-164` | 5 |
+| `agileplus-error-core` | `src/serialization.rs:23-27` | 5 |
+| `phenotype-policy-engine` | `src/error.rs:40-44` | 5 |
+| `phenotype-cost-core` | `src/error.rs:35-37` | 3 |
+
+**Pattern**: All three convert `serde_json::Error` to a String and wrap in their respective error types.
+
+**LOC Impact**: ~18 LOC duplicated.
+
+---
+
+### 🟠 HIGH: Builder Pattern Duplication
+
+**NOT FULLY DOCUMENTED:**
+
+| Crate | File | Lines | Pattern |
+|-------|------|-------|---------|
+| `phenotype-config-core` | `src/builder.rs:6-54` | 49 | `ConfigBuilder` with `sources: Vec<ConfigSource>` |
+| `phenotype-logging` | `src/lib.rs:95-127` | 33 | `LogConfigBuilder(LogConfig)` tuple struct |
+
+Both follow identical builder pattern but different struct styles (named fields vs tuple).
+
+**LOC Impact**: ~82 LOC with ~60% boilerplate similarity.
+
+---
+
+### 🟡 MEDIUM: MockClock Duplication
+
+**NOT PREVIOUSLY DOCUMENTED:**
+
+| Crate | File | Lines | Time Unit |
+|-------|------|-------|-----------|
+| `phenotype-time` | `src/lib.rs:217-240` | 24 | `AtomicI64` millis |
+| `phenotype-test-infra` | `src/lib.rs:228-274` | 47 | `Arc<AtomicU64>` nanos |
+
+**Issue**: Different time units (millis vs nanos), different abstractions (Timestamp vs Duration).
+
+**Recommendation**: Deprecate `phenotype-time::MockClock` in favor of `phenotype-test-infra::MockClock` with Timestamp support added.
+
+**LOC Savings**: ~70 LOC by consolidation.
+
+---
+
+### 🟡 MEDIUM: MetricsHook Trait
+
+**NOT PREVIOUSLY DOCUMENTED:**
+
+| Crate | File | Lines | Definition |
+|-------|------|-------|-----------|
+| `phenotype-cache-adapter` | `src/lib.rs:17-20` | 4 | Local trait definition |
+
+```rust
+pub trait MetricsHook: Send + Sync + Debug {
+    fn record_hit(&self, tier: &str);
+    fn record_miss(&self, tier: &str);
+}
+```
+
+**Issue**: Could be a shared trait in `phenotype-observability-core` or `phenotype-telemetry` for reuse across cache implementations.
+
+---
+
+### 🟡 MEDIUM: ValidationErrors Pattern (phenotype-validation)
+
+**NEW FINDING:**
+
+| Crate | File | Lines |
+|-------|------|-------|
+| `phenotype-validation` | `src/lib.rs:7-86` | 80 |
+
+**Potential for consolidation**: Could be used by `phenotype-contracts` for input validation.
+
+---
+
+### 🟡 MEDIUM: HTTP Response Handling Duplication
+
+**NEW FINDING:**
+
+| File | Pattern | Repetitions |
+|------|---------|-------------|
+| `phenotype-http-client-core/src/client.rs` | GET/POST/PUT/DELETE response handling | 4x |
+
+**Identical patterns in each method:**
+- Header iteration
+- Response status check
+- JSON parsing with error handling
+
+**Can Extract:**
+```rust
+fn handle_response(response: Response) -> impl Future<Output = Result<Value, TransportError>> { ... }
+```
+
+---
+
+### 🟡 MEDIUM: Regex Compilation with Expect
+
+**NEW FINDING:**
+
+| File | Line | Pattern |
+|------|------|---------|
+| `phenotype-string/src/lib.rs:15` | `Regex::new(r"...").unwrap()` |
+| `phenotype-string/src/lib.rs:33` | `Regex::new(r"...").unwrap()` |
+| `phenotype-validation/src/lib.rs:154` | `Regex::new(r"...").unwrap()` |
+| `phenotype-validation/src/lib.rs:199` | `Regex::new(r"...").unwrap()` |
+| `phenotype-validation/src/validators.rs:20` | `Regex::new(r"...").unwrap()` |
+
+**Issue**: Uses `.unwrap()` instead of proper error handling.
+
+**Opportunity**: Create lazy static regexes or compile once at module init.
+
+---
+
+### 🟢 LOW: Error Display Case Inconsistency
+
+**NEW FINDING:**
+
+| Crate | Error Type | Display Pattern |
+|-------|-----------|-----------------|
+| `phenotype-event-sourcing` | `EventSourcingError` | `"serialization error: {0}"` |
+| `phenotype-http-client-core` | `TransportError` | `"serialization error: {0}"` |
+| `agileplus-error-core` | `SerializationError` | `"serialization error: {0}"` |
+| `phenotype-cost-core` | `CostError` | `"Serialization error: {0}"` |
+
+**Issue**: Case inconsistency (`serialization error:` vs `Serialization error:`)
+
+---
+
+### Summary Table
+
+| Pattern | Crates Affected | Est. LOC | Priority |
+|---------|----------------|----------|----------|
+| Two competing error cores | 2 | 400 | 🔴 CRITICAL |
+| HealthStatus duplication | 2 | 25 | 🔴 CRITICAL |
+| From<serde_json::Error> | 4 | 18 | 🟠 HIGH |
+| Builder patterns | 2 | 82 | 🟠 HIGH |
+| MockClock duplication | 2 | 70 | 🟡 MEDIUM |
+| MetricsHook trait | 1 | 4 | 🟡 MEDIUM |
+| ValidationErrors | 1 | 80 | 🟡 MEDIUM |
+| HTTP response handling | 1 | 40 | 🟡 MEDIUM |
+| Regex compilation | 2 | 5 | 🟡 MEDIUM |
+| Error display case | 4 | 0 | 🟢 LOW |
+
+**Total Potential LOC Savings**: ~724 LOC
+
+---
+
+### Files Reference
+
+| File | Lines | Key Content |
+|------|-------|-------------|
+| `phenotype-error-core/src/lib.rs` | 251 | OOP-style ErrorKind |
+| `agileplus-error-core/src/domain.rs` | 35 | DomainError enum |
+| `phenotype-health/src/lib.rs` | 163 | HealthStatus + ValidationErrors |
+| `agileplus-health/src/lib.rs` | 79 | Alternative HealthStatus |
+| `phenotype-time/src/lib.rs` | 369 | MockClock + Clock trait |
+| `phenotype-test-infra/src/lib.rs` | 515 | Alternative MockClock |
+| `phenotype-config-core/src/builder.rs` | 54 | ConfigBuilder |
+| `phenotype-logging/src/lib.rs` | 422 | LogConfigBuilder |
+| `phenotype-port-traits/src/lib.rs` | 259 | Repository trait + mocks |
+| `phenotype-event-sourcing/src/memory.rs` | 87 | InMemoryEventStore |
+
+---
+
+## 2026-03-30 - Decomposition Audit Wave 4b
+
+**Project:** ALL
+**Category:** decomposition
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Deep LOC analysis of 30+ crates. Found 10 files over 200 LOC, 2 over 350 LOC, 1 over 500 LOC. Potential savings: ~3,062 LOC across 9 categories.
+
+### Files Over 200 Lines - Priority Decomposition
+
+#### 🔴 CRITICAL (626 LOC) - phenotype-state-machine/src/lib.rs
+
+**Current**: Single monolith file
+
+**Functions over 50 lines:**
+| Function | Lines | Issue |
+|----------|-------|-------|
+| `StateMachine::send()` | Lines 94-145 | 3 levels of nesting at lines 117-127 |
+| `StateMachineBuilder::build()` | Lines 289-303 | Can extract validation |
+
+**Recommended Decomposition:**
+```
+src/
+├── lib.rs                    # 15 LOC - re-exports
+├── state_machine.rs          # 180 LOC - StateMachine struct + methods
+├── builder.rs                # 120 LOC - StateMachineBuilder
+├── transition.rs             # 60 LOC - Transition, GuardFn, StateCallbacks
+├── error.rs                 # 40 LOC - StateMachineError enum
+├── result.rs                # 50 LOC - Result type alias
+└── tests/                   # 161 LOC - inline tests
+```
+
+---
+
+#### 🔴 OVER 200 LOC - phenotype-telemetry/src/registry.rs (267 LOC)
+
+**Repeated Pattern Issue**: Counter, Gauge, Histogram structs have nearly identical structure.
+
+**Recommended Decomposition:**
+```
+src/
+├── lib.rs                    # 11 LOC
+├── registry.rs              # 140 LOC - MetricsRegistry only
+├── metric.rs                # 80 LOC - Metric enum, TelemetryConfig
+└── value.rs                 # 80 LOC - Counter, Gauge, Histogram (extract common trait)
+```
+
+---
+
+#### 🔴 OVER 200 LOC - phenotype-http-client-core/src/client.rs (347 LOC)
+
+**Functions over 50 lines:**
+| Function | Lines | Issue |
+|----------|-------|-------|
+| `HttpClient::get()` | Lines 53-91 | 39 LOC - acceptable |
+| `HttpClient::execute()` | Lines 241-304 | 64 LOC - 3 levels nesting |
+
+**Code Duplication Analysis (High)**:
+- GET/POST/PUT/DELETE all have identical header iteration patterns
+- Identical response status checks
+- Identical JSON parsing with error handling
+
+**Recommended Decomposition:**
+```
+src/
+├── lib.rs                    # 20 LOC
+├── client.rs                # 150 LOC - HttpClient reduced
+├── transport.rs              # 100 LOC - extracted request helper methods
+├── error.rs                 # 40 LOC - TransportError enum
+└── auth.rs                  # 80 LOC - already exists
+```
+
+---
+
+#### 🔴 OVER 200 LOC - phenotype-policy-engine/src/engine.rs (298 LOC)
+
+**Functions over 50 lines:**
+| Function | Lines | Issue |
+|----------|-------|-------|
+| `PolicyEngine::evaluate_all()` | Lines 83-100 | 18 LOC - simple |
+| `PolicyEngine::evaluate_subset()` | Lines 103-120 | 18 LOC - DUPLICATE with evaluate_all |
+
+---
+
+#### 🔴 OVER 200 LOC - phenotype-policy-engine/src/result.rs (219 LOC)
+
+**derive_more Opportunity:**
+```rust
+// Current: Manual Display impl for Severity (lines 27-30)
+// Can use: #[derive(derive_more::Display)]
+```
+
+---
+
+### derive_more Opportunities Summary
+
+| Priority | Crate | Type | Current Impl LOC | Savings |
+|----------|-------|------|------------------|---------|
+| **P1** | phenotype-health | HealthStatus Display | 9 | **~6 LOC** |
+| **P1** | phenotype-policy-engine | Severity Display | 4 | **~3 LOC** |
+| **P1** | phenotype-policy-engine | RuleType Display | 4 | **~3 LOC** |
+| **P2** | phenotype-error-core | From impls | 27 | **~20 LOC** |
+| **P3** | phenotype-string | Newtypes | Can add `#[derive(derive_more::Display)]` | **~3-5 each** |
+
+---
+
+### Prioritized Decomposition List
+
+| Rank | File | Current LOC | Target LOC | Action |
+|------|------|-------------|------------|--------|
+| 1 | `phenotype-state-machine/src/lib.rs` | 626 | 120-180/file | Split into 5+ modules |
+| 2 | `phenotype-event-sourcing/*/src/` | ~240 | 0 | Delete nested duplicate crate |
+| 3 | `phenotype-http-client-core/src/client.rs` | 347 | 150-180 | Extract response handling |
+| 4 | `phenotype-telemetry/src/registry.rs` | 267 | 140-180 | Extract Metric enum |
+| 5 | `phenotype-policy-engine/src/result.rs` | 219 | 140-160 | Extract Violation, Severity |
+| 6 | `phenotype-cost-core/src/budget.rs` | 344 | 200-240 | Split BudgetManager from BudgetLimits |
+| 7 | `phenotype-port-traits/src/lib.rs` | 259 | 180-200 | Extract trait tests |
+| 8 | `phenotype-error-core/src/lib.rs` | 238 | 180-200 | Extract ErrorKindInner, ErrorContext |
+| 9 | `phenotype-policy-engine/src/context.rs` | 165 | 140 | Already good |
+| 10 | `phenotype-health/src/lib.rs` | 163 | 140-160 | Extract tests, add derive_more |
+| 11 | `phenotype-cache-adapter/src/lib.rs` | 158 | 140 | Extract tests |
+
+---
+
+_Last updated: 2026-03-30 (Wave 4 entries appended)_
