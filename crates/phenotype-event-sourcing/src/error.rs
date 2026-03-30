@@ -1,5 +1,6 @@
 //! Error types for the event sourcing system.
 
+use phenotype_error_core::ErrorKind;
 use serde::Serialize;
 
 /// Result type for event sourcing operations.
@@ -7,7 +8,7 @@ pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
 /// Wrapper error type for event sourcing operations.
 #[derive(Debug, Clone, Serialize)]
-pub struct EventSourcingError(String);
+pub struct EventSourcingError(pub ErrorKind);
 
 impl std::fmt::Display for EventSourcingError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -20,49 +21,55 @@ impl std::error::Error for EventSourcingError {}
 impl EventSourcingError {
     /// Create a new error
     pub fn new(msg: impl Into<String>) -> Self {
-        Self(msg.into())
+        Self(ErrorKind::internal(msg))
     }
 
     /// Aggregate not found
     pub fn aggregate_not_found(id: impl Into<String>) -> Self {
-        Self(format!("aggregate not found: {}", id.into()))
+        Self(ErrorKind::not_found(format!("aggregate: {}", id.into())))
     }
 
     /// Event not found
     pub fn event_not_found(id: impl Into<String>) -> Self {
-        Self(format!("event not found: {}", id.into()))
+        Self(ErrorKind::not_found(format!("event: {}", id.into())))
     }
 
     /// Serialization error
     pub fn serialization(msg: impl Into<String>) -> Self {
-        Self(format!("serialization error: {}", msg.into()))
+        Self(ErrorKind::serialization(msg))
     }
 
     /// Snapshot error
     pub fn snapshot(msg: impl Into<String>) -> Self {
-        Self(format!("snapshot error: {}", msg.into()))
+        Self(ErrorKind::storage(format!("snapshot: {}", msg.into())))
     }
 
     /// Replay error
     pub fn replay(msg: impl Into<String>) -> Self {
-        Self(format!("replay error: {}", msg.into()))
+        Self(ErrorKind::internal(format!("replay: {}", msg.into())))
     }
 
     /// Internal error
     pub fn internal(msg: impl Into<String>) -> Self {
-        Self(format!("internal error: {}", msg.into()))
+        Self(ErrorKind::internal(msg))
+    }
+}
+
+impl From<ErrorKind> for EventSourcingError {
+    fn from(kind: ErrorKind) -> Self {
+        Self(kind)
     }
 }
 
 impl From<std::io::Error> for EventSourcingError {
     fn from(e: std::io::Error) -> Self {
-        Self::internal(e.to_string())
+        Self(ErrorKind::from(e))
     }
 }
 
 impl From<serde_json::Error> for EventSourcingError {
     fn from(e: serde_json::Error) -> Self {
-        Self::serialization(e.to_string())
+        Self(ErrorKind::from(e))
     }
 }
 

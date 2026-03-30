@@ -14,23 +14,31 @@
 | Dir | Remote | Branch | Dirty | Stashes | Unpushed | Action |
 |-----|--------|--------|-------|---------|----------|--------|
 | `agent-wave-monorepo-temp` | `KooshaPari/agent-wave` | `main` | 5 untracked docs/ | 0 | 0 | Commit or discard untracked docs files |
-| `heliosCLI-monorepo-temp` | — | — | — | — | — | **DELETE** — empty directory |
+| `heliosCLI-monorepo-temp` | — | — | — | — | — | **DELETED** |
 | `phenotype-gauge-temp` | `KooshaPari/phenotype-gauge` | `chore/rescue-temp-dir-20260329` | 5 untracked docs/ | 1 | 1 commit | Push commit + pop stash + commit/discard untracked |
 | `phenotype-go-kit-temp` | `KooshaPari/phenotype-go-kit` | `chore/rescue-temp-dir-20260329` | clean | 1 | 2 commits | Push 2 commits + pop/drop stash → open PR |
 | `phenotype-nexus-temp` | `KooshaPari/phenotype-nexus` | `chore/rescue-temp-dir-20260329` | clean | 1 | 3 commits | Push 3 commits + pop/drop stash → open PR |
 | `phenotype-shared-temp` | `KooshaPari/phenotype-shared` | `chore/sync-test-artifacts-20260329` | clean | 0 | 0 | **SAFE** — no action needed |
 | `template-commons-temp` | `KooshaPari/template-commons` | `main` | `AGENTS.md`, `CLAUDE.md`, `worklog.md` | 0 | 0 | Commit or discard 3 tracked modified files |
 | `tokenledger-temp` | `KooshaPari/tokenledger` | `main` | clean | 0 | 0 | **SAFE** — no action needed |
+| `consolidate-libraries` | `KooshaPari/phenotype-infrakit` | `chore/decomposition-audit-v2` | clean | 0 | 0 | **PRUNABLE** (Already in HEAD) |
+| `expand-test-coverage` | `KooshaPari/phenotype-infrakit` | `chore/ci-cd-workflows-clean` | clean | 0 | 0 | **PRUNABLE** |
 
 ### Worktrees
 
 | Dir | Remote | Branch | Dirty | Unpushed | Action |
 |-----|--------|--------|-------|----------|--------|
-| `repos/.worktrees/gh-pages-deploy` | none | none | — | 0 | **DELETE** — empty/orphaned, not a git repo |
-| `repos/.worktrees/phench-fix` | none | none | — | 0 | **DELETE** — empty/orphaned, not a git repo |
+| `repos/.worktrees/gh-pages-deploy` | none | none | — | 0 | **DELETED** |
+| `repos/.worktrees/phench-fix` | none | none | — | 0 | **DELETED** |
 | `repos/.worktrees/thegent` | `KooshaPari/phenotype-infrakit` | `chore/cost-tracking-modules` | 1 modified + 1 untracked | 1 commit | Push commit → open PR → delete after merge |
-| `worktrees/phenotypeActions` | none | none | — | 0 | **DELETE** — empty/orphaned |
+| `worktrees/phenotypeActions` | none | none | — | 0 | **DELETED** |
 | `worktrees/portage` | `KooshaPari/portage` | `main` | clean | 0 | **SAFE** — clean canonical worktree |
+| `worktrees/chore-docs-sbom-stack` | origin | `chore/tag-automation-release-split` | clean | 0 | **ACTIVE** |
+| `worktrees/chore-sbom-cyclonedx` | origin | `chore/sbom-cyclonedx-pilot` | clean | 0 | **ACTIVE** |
+| `worktrees/chore-session-sbom-stack` | origin | `chore/session-stacked-sbom-delivery` | clean | 0 | **ACTIVE** |
+| `worktrees/phenosdk-wave-a-contracts-impl` | origin | `feat/phenosdk-wave-a-contracts` | clean | 0 | **ACTIVE** |
+| `repos/worktrees/AgilePlus/phenotype-docs` | agileplus | `chore/integrate-phenotype-docs` | clean | 1022+ | **CRITICAL REVIEW** |
+| `merge-spec-docs` | origin | `docs/merge-spec-docs` | clean | 57 | **HIGH REVIEW** |
 
 ### Isolated / Backups
 
