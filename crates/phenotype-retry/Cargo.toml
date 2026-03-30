@@ -8,19 +8,14 @@ repository.workspace = true
 description = "Retry patterns for Phenotype"
 
 [dependencies]
-serde.workspace = true
+tokio = { workspace = true, features = ["time", "macros", "rt-multi-thread"] }
 thiserror.workspace = true
-sha2.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["full", "time"] }
 tenacity = { version = "0.4", features = ["tokio"] }
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["test-util", "macros"] }
+tokio = { workspace = true, features = ["test-util", "macros", "rt-multi-thread"] }
 
 [lib]
 path = "src/lib.rs"
-
-[[bin]]
-name = "retry-example"
-path = "examples/retry_example.rs"

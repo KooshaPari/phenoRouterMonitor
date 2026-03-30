@@ -29,6 +29,10 @@ pub enum RetryError {
     #[error("operation failed: {0}")]
     OperationFailed(String),
 
+    /// Transient failure — caller may retry the operation.
+    #[error("transient: {0}")]
+    Transient(String),
+
     /// Maximum delay exceeded
     #[error("maximum delay ({max_delay:?}) exceeded")]
     MaxDelayExceeded {
@@ -60,13 +64,13 @@ impl RetryError {
     pub fn is_retriable(&self) -> bool {
         matches!(
             self,
-            Self::OperationFailed(_) | Self::MaxDelayExceeded { .. }
+            Self::OperationFailed(_) | Self::Transient(_) | Self::MaxDelayExceeded { .. }
         )
     }
 }
 
-impl From<std::time::Elapsed> for RetryError {
-    fn from(_: std::time::Elapsed) -> Self {
+impl From<tokio::time::error::Elapsed> for RetryError {
+    fn from(_: tokio::time::error::Elapsed) -> Self {
         Self::Cancelled
     }
 }
