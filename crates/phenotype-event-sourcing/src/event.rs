@@ -26,11 +26,24 @@ impl<T: Clone + Serialize> EventEnvelope<T> {
         let sequence = 1;
         let prev_hash = ZERO_HASH.to_string();
         let hash = compute_hash(
-            &id, timestamp, &entity_type,
+            &id,
+            timestamp,
+            &entity_type,
             &serde_json::to_value(&payload).unwrap_or_default(),
-            &actor, &prev_hash,
-        ).unwrap_or_else(|_| "error".to_string());
-        Self { id, sequence, timestamp, entity_type, payload, actor, prev_hash, hash }
+            &actor,
+            &prev_hash,
+        )
+        .unwrap_or_else(|_| "error".to_string());
+        Self {
+            id,
+            sequence,
+            timestamp,
+            entity_type,
+            payload,
+            actor,
+            prev_hash,
+            hash,
+        }
     }
 }
 

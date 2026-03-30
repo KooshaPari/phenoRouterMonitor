@@ -19,6 +19,7 @@ members = [
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
+    "crates/phenotype-http-client-core",
     "crates/phenotype-port-traits",
     "crates/phenotype-policy-engine",
     "crates/phenotype-state-machine",
@@ -29,7 +30,6 @@ members = [
 exclude = [
     "crates/phenotype-crypto",
     "crates/phenotype-git-core",
-    "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
     "crates/phenotype-logging",
     "crates/phenotype-macros",

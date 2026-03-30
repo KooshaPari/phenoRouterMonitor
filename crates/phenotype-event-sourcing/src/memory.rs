@@ -1,9 +1,19 @@
 //! In-memory event store.
-/// Thread-safe aggregate storage.
-type AggregateStore<T> = Arc<RwLock<AggregateEvents<T>>>;
 
-/// Storage mapping aggregate types to their aggregates.
-type EventStoreInner<T> = HashMap<String, AggregateStore<T>>;
+use async_trait::async_trait;
+use serde::{de::DeserializeOwned, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+use crate::error::EventSourcingError;
+use crate::event::EventEnvelope;
+
+/// Entity-level events collection (id -> events)
+type EntityEvents<T> = HashMap<String, Vec<EventEnvelope<T>>>;
+
+/// Aggregate-level events collection (entity_type -> EntityEvents)
+type EventStoreInner<T> = HashMap<String, EntityEvents<T>>;
 
 pub struct InMemoryEventStore<T> {
     events: Arc<RwLock<EventStoreInner<T>>>,
@@ -16,7 +26,6 @@ impl<T> InMemoryEventStore<T> {
         }
     }
 }
-
 
 impl<T> Default for InMemoryEventStore<T> {
     fn default() -> Self {

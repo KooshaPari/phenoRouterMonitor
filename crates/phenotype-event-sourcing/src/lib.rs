@@ -7,8 +7,8 @@ pub mod memory;
 pub mod snapshot;
 pub mod store;
 
-pub use event::EventEnvelope;
 pub use error::{EventSourcingError, HashError};
+pub use event::EventEnvelope;
 pub use hash::{compute_hash, verify_chain, ZERO_HASH};
 pub use memory::InMemoryEventStore;
 pub use snapshot::{Snapshot, SnapshotConfig};

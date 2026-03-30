@@ -64,10 +64,7 @@ mod tests {
         let e = ApiError::NotFound("feature/x".into());
         let resp = ApiResponse::<()>::from_api_error(e);
         assert!(resp.data.is_none());
-        assert_eq!(
-            resp.error.as_deref(),
-            Some("not found: feature/x")
-        );
+        assert_eq!(resp.error.as_deref(), Some("not found: feature/x"));
     }
 
     // Traces to: FR-AGILE-001

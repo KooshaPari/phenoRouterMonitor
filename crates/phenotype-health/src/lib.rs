@@ -95,6 +95,10 @@ impl HealthCheckResult {
         self.latency_ms = Some(latency_ms);
         self
     }
+    pub fn with_message(mut self, message: impl Into<String>) -> Self {
+        self.message = Some(message.into());
+        self
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,11 +111,24 @@ pub struct HealthResponse {
 
 impl HealthResponse {
     pub fn new(results: Vec<HealthCheckResult>) -> Self {
-        let status = results.iter().map(|r| r.status).fold(HealthStatus::Unknown, HealthStatus::worst);
-        Self { status, components: results, timestamp: Utc::now(), version: None }
+        let status = results
+            .iter()
+            .map(|r| r.status)
+            .fold(HealthStatus::Unknown, HealthStatus::worst);
+        Self {
+            status,
+            components: results,
+            timestamp: Utc::now(),
+            version: None,
+        }
     }
     pub fn healthy() -> Self {
-        Self { status: HealthStatus::Healthy, components: Vec::new(), timestamp: Utc::now(), version: None }
+        Self {
+            status: HealthStatus::Healthy,
+            components: Vec::new(),
+            timestamp: Utc::now(),
+            version: None,
+        }
     }
 }
 
@@ -131,9 +148,18 @@ mod tests {
     }
     #[test]
     fn test_health_status_worst() {
-        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Healthy), HealthStatus::Healthy);
-        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Degraded), HealthStatus::Degraded);
-        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Unhealthy), HealthStatus::Unhealthy);
+        assert_eq!(
+            HealthStatus::Healthy.worst(HealthStatus::Healthy),
+            HealthStatus::Healthy
+        );
+        assert_eq!(
+            HealthStatus::Healthy.worst(HealthStatus::Degraded),
+            HealthStatus::Degraded
+        );
+        assert_eq!(
+            HealthStatus::Healthy.worst(HealthStatus::Unhealthy),
+            HealthStatus::Unhealthy
+        );
     }
     #[test]
     fn test_health_check_result() {
