@@ -10,8 +10,11 @@ path = "src/lib.rs"
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
+moka = { version = "0.12", features = ["sync"] }
 lru = "0.12"
-moka = "0.12"
+dashmap = "5"
+tokio = { version = "1", features = ["sync", "rt"] }
+tracing = "0.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

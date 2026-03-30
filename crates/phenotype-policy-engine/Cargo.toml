@@ -3,6 +3,7 @@ name = "phenotype-policy-engine"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
+description = "Generic policy evaluation engine for Phenotype"
 
 [lib]
 path = "src/lib.rs"
@@ -14,9 +15,7 @@ thiserror = "2.0"
 dashmap = "5"
 regex = "1"
 toml = "0.8"
+phenotype-error-core = { path = "../phenotype-error-core" }
 
 [dev-dependencies]
-tokio = { version = "1", features = ["full"] }
-
-[dev-dependencies]
-tempfile.workspace = true
+tempfile = "3"
