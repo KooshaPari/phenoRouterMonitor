@@ -2,6 +2,18 @@
 name = "agileplus-error-core"
 version.workspace = true
 edition.workspace = true
+<<<<<<< HEAD
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Unified error enums for AgilePlus, mapped to phenotype-error-core"
+
+[dependencies]
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+phenotype-error-core.workspace = true
+=======
 license.workspace = true
 repository.workspace = true
 authors = ["Phenotype Team"]
@@ -12,6 +24,7 @@ phenotype-error-core.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+>>>>>>> origin/main
 
 [lib]
 name = "agileplus_error_core"

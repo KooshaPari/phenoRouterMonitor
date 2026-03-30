@@ -20,7 +20,7 @@ export default defineConfig({
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: 'npm run docs:preview',
+        command: 'bun run docs:preview',
         cwd: docsRoot,
         url: 'http://localhost:4173/',
         reuseExistingServer: !process.env.CI,
