@@ -1,8 +1,10 @@
 [package]
 name = "agileplus-domain"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Agileplus-domain"
 
-[dependencies]
+[lib]
+path = "src/lib.rs"

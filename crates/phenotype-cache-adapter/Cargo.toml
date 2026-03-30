@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Phenotype Team"]
 license = "MIT"
-description = "Cache Adapter for Phenotype"
+description = "Phenotype Cache-adapter"
 
 [lib]
 path = "src/lib.rs"

@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Phenotype Team"]
 license = "MIT"
-description = "Test Infra for Phenotype"
+description = "Phenotype Test-infra"
 
 [lib]
 path = "src/lib.rs"
