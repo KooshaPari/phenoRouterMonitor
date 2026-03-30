@@ -10,6 +10,9 @@ description = "MCP (Model Context Protocol) server types for Phenotype"
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true
+num_cpus = "1.16"
+sys-info = "0.9"
+dirs = "5.0"
 
 [lib]
 path = "src/lib.rs"

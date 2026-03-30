@@ -4,11 +4,11 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Phenotype Team"]
 license = "MIT"
-description = "Phenotype State-machine"
+description = "Generic typed state machine with guards, actions, and history"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-thiserror = { workspace = true }
-phenotype-error-core = { version = "0.2.0", path = "../phenotype-error-core" }
+thiserror.workspace = true
+serde = { workspace = true, features = ["derive"] }

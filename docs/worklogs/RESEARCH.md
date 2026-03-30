@@ -1703,3 +1703,211 @@ _Last updated: 2026-03-30 (Wave 123)_
 ---
 
 _Last updated: 2026-03-31 (Wave 118-120)_
+
+---
+
+## 2026-03-30 - External Fork Candidates: Event Sourcing (Wave 154)
+
+**Project:** [phenotype-infrakit]
+**Category:** research, external, event-sourcing
+**Status:** completed
+**Priority:** P1
+
+### Event Sourcing Libraries Research
+
+| Library | Language | Stars | Fork Value | Recommendation |
+|---------|----------|-------|------------|----------------|
+| **watermill** (ThreeDotsLabs) | Go | 9.6k | High | ADOPT patterns |
+| **cqrs-es** | Rust | 1.2k | High | WRAP |
+| **marten** (JasperFx) | .NET | 3.4k | Medium | Reference only |
+| **pyeventsourcing** | Python | 1.6k | Medium | ADOPT patterns |
+| **EventFlow** | .NET | 2.6k | Medium | Reference only |
+| **commanded** | Elixir | 2k | Medium | Reference only |
+
+### Top Recommendation: watermill (Go patterns)
+
+**watermill** is the most mature event sourcing library with excellent documentation. Key patterns to extract:
+
+- **Pub/Sub abstraction**: Universal interface for message brokers
+- **Router pattern**: Decouple event producers from consumers
+- **Dead letter queue**: Graceful failure handling
+- **Schema evolution**: Upcasting patterns for versioned events
+
+### Rust Recommendation: cqrs-es
+
+```rust
+// Canonical wrapper around cqrs-es
+use cqrs_es::{Aggregate, EventEnvelope, PersistenceError};
+
+pub trait PhenotypeAggregate: Aggregate {
+    type Event: Serialize + Deserialize;
+    
+    fn apply(&mut self, event: Self::Event) {
+        // Apply event to aggregate state
+    }
+}
+```
+
+### Python Recommendation: pyeventsourcing
+
+```python
+from eventsourcing.domain import Aggregate, event
+
+class PhenotypeAggregate(Aggregate):
+    @event
+    def process_command(self, command: Command) -> None:
+        # Validate and emit events
+        pass
+```
+
+---
+
+## 2026-03-30 - External Fork Candidates: Policy Engines (Wave 155)
+
+**Project:** [cross-repo]
+**Category:** research, external, policy
+**Status:** completed
+**Priority:** P1
+
+### Policy Engine Libraries Research
+
+| Library | Language | Stars | Fork Value | Recommendation |
+|---------|----------|-------|------------|----------------|
+| **casbin-rs** | Rust | 8k | High | ADOPT |
+| **cedar** | Rust | 2k | High | EVALUATE |
+| **OPA** (Rego) | Go | 12k | Medium | BLACKBOX |
+| **Stern** | Go | 3k | Low | SKIP |
+
+### Top Recommendation: casbin-rs
+
+**casbin-rs** provides production-ready RBAC/ABAC with:
+- **Multiple models**: RBAC, ABAC, ACL, etc.
+- **Role inheritance**: Hierarchical roles
+- **Adapter system**: File, DB, API backends
+- **Active maintenance**: Regular updates
+
+```rust
+use casbin::{CoreApi, Enforcer};
+
+// Load policy model
+let e = Enforcer::new("model.conf", "policy.csv").await?;
+
+// Check permission
+let allowed = e.enforce(("alice", "data1", "read")).await?;
+```
+
+### Alternative: Cedar
+
+**Cedar** (AWS) provides formal verification capabilities:
+- **Formal verification**: Prove policy correctness
+- **Schema validation**: Catch errors at compile time
+- **DENY overrides**: Explicit denial logic
+
+```rust
+use cedar_policy::{Policy, PolicySet};
+
+// Define policy with schema
+let policy: Policy = "permit(principal, action, resource)".parse()?;
+```
+
+---
+
+## 2026-03-30 - External Fork Candidates: Git Operations (Wave 156)
+
+**Project:** [cross-repo]
+**Category:** research, external, git
+**Status:** completed
+**Priority:** P1
+
+### Git Libraries Research
+
+| Library | Language | Stars | Fork Value | Recommendation |
+|---------|----------|-------|------------|----------------|
+| **gix** (gitoxide) | Rust | 12k | High | ADOPT |
+| **git2-rs** | Rust | 3k | Medium | Legacy |
+| **go-git** | Go | 8k | Medium | Reference |
+| **isogit** | Go | 500 | Low | SKIP |
+
+### Top Recommendation: gix (gitoxide)
+
+**gix** is the pure-Rust implementation of Git with:
+- **No C dependencies**: Static linking
+- **High performance**: Optimized for large repos
+- **Async support**: Non-blocking operations
+- **Memory safety**: No unsafe code
+
+```rust
+use gix::Repository;
+
+// Open repository
+let repo = Repository::open(".")?;
+
+let mut revwalk = repo.revwalk()?;
+revwalk.push_ref("HEAD")?;
+
+for oid in revwalk {
+    println!("{}", oid?);
+}
+```
+
+---
+
+## 2026-03-30 - External Fork Candidates: CLI Frameworks (Wave 157)
+
+**Project:** [heliosCLI, pheno-cli]
+**Category:** research, external, CLI
+**Status:** completed
+**Priority:** P1
+
+### CLI Framework Research
+
+| Framework | Language | Stars | Recommendation |
+|-----------|----------|-------|----------------|
+| **clap** | Rust | 12k | ✅ ADOPT |
+| **gum** | Rust | 5k | EVALUATE |
+| **typer** | Python | 15k | ✅ ADOPT |
+| **click** | Python | 20k | Legacy |
+| ** textual** | Python | 10k | EVALUATE |
+
+### Rust: clap v5
+
+```rust
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Run { config: Option<String> },
+    Build { release: bool },
+}
+
+fn main() {
+    let cli = Cli::parse();
+    // ...
+}
+```
+
+### Python: typer
+
+```python
+import typer
+
+app = typer.Typer()
+
+@app.command()
+def run(config: Optional[str] = None, debug: bool = False):
+    """Run the agent with optional config."""
+    pass
+
+if __name__ == "__main__":
+    app()
+```
+
+---
+
+_Last updated: 2026-03-30 (Wave 157)_

@@ -1,0 +1,23 @@
+[package]
+name = "phenotype-config-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Configuration management core for Phenotype"
+keywords = ["config", "settings", "environment"]
+categories = ["config", "development-tools"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+thiserror.workspace = true
+once_cell.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
