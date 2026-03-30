@@ -27,7 +27,6 @@ members = [
     "crates/phenotype-macros",
     "crates/phenotype-mcp",
     "crates/phenotype-http-client-core",
-    "crates/phenotype-process",
     "crates/phenotype-cost-core",
 ]
 

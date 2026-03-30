@@ -493,4 +493,17 @@ cargo +nightly udeps --workspace 2>/dev/null || echo "Install: cargo +nightly in
 
 ───────────────────────────────────────
 
+## 2026-03-31 - Wave 108: phenotype-infrakit PR batch outcome
+
+**Project:** [phenotype-infrakit]
+**Category:** maintenance
+**Status:** verified via `gh pr view` (2026-03-31)
+**Priority:** P1
+
+PRs [#249](https://github.com/KooshaPari/phenotype-infrakit/pull/249)–[#252](https://github.com/KooshaPari/phenotype-infrakit/pull/252) were opened as drafts from stacked branches and **closed the same day without merge** (`mergedAt` null). Batch notes: [`.archive/PR_CREATION_BATCH_2026-03-30.md`](./.archive/PR_CREATION_BATCH_2026-03-30.md).
+
+**Next:** Decide whether to re-cherry-pick or abandon that series; for **repos** nested-crate cleanup status, see [`WORK_LOG.md`](./WORK_LOG.md) (“2026-03-31 — Resume / reconciliation”).
+
+───────────────────────────────────────
+
 _Last updated: 2026-03-31_
