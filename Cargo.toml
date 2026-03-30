@@ -5,6 +5,7 @@ license = "MIT"
 rust-version = "1.75"
 authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
+description = "Phenotype Infrastructure Kit"
 
 [workspace]
 resolver = "2"
