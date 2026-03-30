@@ -34,6 +34,37 @@
 
 ---
 
+## Worklog data and automation
+
+Machine-readable extracts live under `docs/worklogs/data/` (session exports, generated indexes). Regenerate after significant crate or error-enum changes when you need an up-to-date snapshot for audits.
+
+### Session export (`scripts/export_phenotype_session_artifacts.py`)
+
+Aggregates Claude Code and Cursor session JSONL into one JSON file shaped like `phenotype_session_extract_*.json` (`meta`, `user_prompts`, `action_plans`).
+
+```bash
+python3 scripts/export_phenotype_session_artifacts.py \
+  [--home DIR] [--output PATH] [--cutoff DATE] [--cwd-substr SUBSTR] [--repo-root DIR]
+```
+
+- **Default output:** `docs/worklogs/data/phenotype_session_extract_<cutoff>_<today>.json` under `--repo-root` (default: parent of `scripts/`).
+- **Defaults:** `--home` = user home; `--cutoff` = seven days ago (UTC); `--cwd-substr` filters by CWD (default includes `CodeProjects/Phenotype`).
+- **Requires:** Python 3.10+.
+
+### Error enum index (`scripts/generate_error_enums_index.py`)
+
+Scans Rust sources for public error-style enums (`*Error`, `*Errors`, or `Error` in error-oriented paths) and writes `docs/worklogs/data/error_enums_index.json`.
+
+```bash
+python3 scripts/generate_error_enums_index.py [--root DIR]
+```
+
+- **Scan roots:** `crates/`, `libs/`, `rust/`, `tools/` under the repo root (first-party trees only).
+- Skips `target/`, `.git/`, `node_modules/`, `vendor/`, and worktree hub paths (`*-wtrees` / `*_wtrees`).
+- **Output JSON** uses schema `error_enums_index.v1` and lists matching enums with path, line, and name.
+
+---
+
 ## Actions Completed (This Session)
 
 ### Crates Implemented/Created
