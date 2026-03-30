@@ -4,8 +4,10 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Hexagonal architecture ports and contracts for phenotype-infrakit"
 
 [dependencies]
+phenotype-error-core = { path = "../phenotype-error-core" }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 async-trait.workspace = true

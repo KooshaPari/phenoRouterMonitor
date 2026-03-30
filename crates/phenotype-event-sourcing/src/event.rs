@@ -15,7 +15,14 @@ use uuid::Uuid;
 /// - The hash of this event (computed by the store)
 /// - A monotonically increasing sequence number
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EventEnvelope<T: Serialize> {
+#[serde(bound(
+    serialize = "T: Serialize",
+    deserialize = "T: serde::de::DeserializeOwned"
+))]
+pub struct EventEnvelope<T>
+where
+    T: Serialize + serde::de::DeserializeOwned,
+{
     /// Unique event ID
     pub id: Uuid,
 
@@ -38,7 +45,7 @@ pub struct EventEnvelope<T: Serialize> {
     pub sequence: i64,
 }
 
-impl<T: Serialize> EventEnvelope<T> {
+impl<T: Serialize + serde::de::DeserializeOwned> EventEnvelope<T> {
     /// Create a new event envelope.
     /// Hash and sequence will be assigned by the store.
     pub fn new(payload: T, actor: impl Into<String>) -> Self {

@@ -1,12 +1,10 @@
 [package]
 name = "phenotype-state-machine"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Phenotype shared crate"
-
+version = "0.1.0"
+edition = "2021"
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
+phenotype-error-core = { path = "../phenotype-error-core" }
+
+[lib]
+path = "src/lib.rs"
