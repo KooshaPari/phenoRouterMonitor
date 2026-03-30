@@ -10,4 +10,4 @@ description = "Phenotype Test-infra"
 path = "src/lib.rs"
 
 [dependencies]
-phenotype-error-core = { path = "../phenotype-error-core" }
+phenotype-error-core.workspace = true

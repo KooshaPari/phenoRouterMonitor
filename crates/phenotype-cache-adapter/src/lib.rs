@@ -1,5 +1,5 @@
-//! Placeholder for $crate
+//! Two-tier LRU + DashMap cache with TTL.
 
-pub use phenotype_error_core::ErrorKind;
+pub mod cache;
 
-pub type Result<T> = std::result::Result<T, ErrorKind>;
+pub use cache::{Cache, TwoTierCache};
