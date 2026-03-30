@@ -33,4 +33,6 @@ ignore = [
     { id = "RUSTSEC-2025-0140", reason = "No safe upgrade available. gix = 0.71 pinned in Cargo.toml, requires breaking API change." },
     # No safe upgrade available - async-nats 0.46.0 still uses rustls-webpki 0.102.x
     { id = "RUSTSEC-2026-0049", reason = "No safe upgrade available. async-nats 0.46.0 still uses vulnerable rustls-webpki." },
+    # Stacked Borrows violation in lru 0.12.5 - upgrade to 0.13+ when available
+    { id = "RUSTSEC-2026-0002", reason = "lru 0.12.5 has stacked borrows issue. Upgrade planned when next version released. phenotype-cache-adapter is not in critical path." },
 ]

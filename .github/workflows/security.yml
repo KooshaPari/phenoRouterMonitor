@@ -39,7 +39,7 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check advisories, licenses, duplicates
-        run: cargo deny check -c rust/deny.toml
+        run: cargo deny check
 
   # ─── Gitleaks Secret Detection ────────────────────────────────────────
   gitleaks:
