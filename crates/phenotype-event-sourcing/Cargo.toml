@@ -16,12 +16,16 @@ async-trait.workspace = true
 chrono.workspace = true
 uuid.workspace = true
 tokio.workspace = true
+<<<<<<< HEAD
+phenotype-error-core.workspace = true
+=======
 blake3.workspace = true
 hex.workspace = true
 sha2.workspace = true
 anyhow.workspace = true
 phenotype-error-core.workspace = true
 phenotype-errors.workspace = true
+>>>>>>> origin/main
 
 [lib]
 path = "src/lib.rs"

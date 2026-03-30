@@ -6,6 +6,10 @@ license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 <<<<<<< HEAD
+authors.workspace = true
+description = "TODO"
+=======
+<<<<<<< HEAD
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
@@ -26,6 +30,7 @@ phenotype-error-core.workspace = true
 =======
 authors.workspace = true
 description = "TODO"
+>>>>>>> origin/main
 >>>>>>> origin/main
 >>>>>>> origin/main
 

@@ -1,7 +1,16 @@
 //! phenotype-cache-adapter
-//!
-//! Two-tier cache with L1 (LRU) and L2 (DashMap/Moka).
 
+<<<<<<< HEAD
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
+=======
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -67,3 +76,4 @@ where
         self.l2.insert(key, CacheEntry { value });
     }
 }
+>>>>>>> origin/main

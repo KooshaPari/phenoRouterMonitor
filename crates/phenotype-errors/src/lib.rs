@@ -1,5 +1,10 @@
 //! # Phenotype Errors
 //!
+<<<<<<< HEAD
+//! Unified error types for the Phenotype ecosystem.
+
+pub use phenotype_error_core::{ErrorKind, Result};
+=======
 //! Unified error handling for the Phenotype ecosystem.
 //!
 //! This crate provides consolidated error types, serialization utilities, and
@@ -97,6 +102,7 @@ pub type Error = ErrorKind;
 ///
 /// Traces to: FR-PHENO-ERR-002
 pub type Result<T> = std::result::Result<T, ErrorKind>;
+>>>>>>> origin/main
 
 /// Backward compatibility alias for ErrorKind.
 ///
@@ -310,21 +316,40 @@ pub mod serialization {
 mod tests {
     use super::*;
 
+<<<<<<< HEAD
+    #[test]
+    fn error_kind_not_found() {
+=======
     // FR-PHENO-ERR-001: ErrorKind types and Display impl
     #[test]
     fn test_error_kind_not_found() {
+>>>>>>> origin/main
         let err = ErrorKind::not_found("user/42");
         assert!(err.to_string().contains("not found"));
     }
 
+<<<<<<< HEAD
+    #[test]
+    fn error_kind_kind_method() {
+        let err = ErrorKind::not_found("user/42");
+        assert_eq!(err.kind(), "NotFound");
+    }
+
+    #[test]
+    fn result_type_ok() {
+=======
     // FR-PHENO-ERR-002: Result type alias
     #[test]
     fn test_result_type_ok() {
+>>>>>>> origin/main
         let r: Result<i32> = Ok(42);
         assert_eq!(r.unwrap(), 42);
     }
 
+<<<<<<< HEAD
+=======
     // FR-PHENO-ERR-002: Result type alias
+>>>>>>> origin/main
     #[test]
     fn test_result_type_err() {
         let r: Result<i32> = Err(ErrorKind::not_found("missing"));
