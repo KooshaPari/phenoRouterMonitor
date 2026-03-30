@@ -1,14 +1,12 @@
-//! In-memory event store for tests and development.
+//! In-memory [`EventStore`](crate::store::EventStore) with SHA-256 hash chain.
 
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::RwLock;
 
-use crate::error::{EventSourcingError, EventStoreError, Result};
-use crate::event::EventEnvelope;
+use crate::error::{EventStoreError, Result};
 use crate::hash;
-use crate::store::EventStore;
+use crate::store::{EventStore, JsonEnvelope};
 
 /// Nested map: `entity_type` → `entity_id` → append-only event list.
 pub struct InMemoryEventStore {
@@ -34,17 +32,22 @@ impl InMemoryEventStore {
     }
 
     pub fn clear(&self) {
-        self.events.write().unwrap().clear();
+        if let Ok(mut g) = self.events.write() {
+            g.clear();
+        }
     }
 
     pub fn event_count(&self) -> usize {
         self.events
             .read()
-            .unwrap()
-            .values()
-            .flat_map(|m| m.values())
-            .map(|v| v.len())
-            .sum()
+            .map(|store| {
+                store
+                    .values()
+                    .flat_map(|m| m.values())
+                    .map(|v| v.len())
+                    .sum()
+            })
+            .unwrap_or(0)
     }
 }
 
@@ -55,9 +58,9 @@ impl Default for InMemoryEventStore {
 }
 
 impl EventStore for InMemoryEventStore {
-    fn append<T: Serialize + for<'de> Deserialize<'de>>(
+    fn append(
         &self,
-        event: &EventEnvelope<T>,
+        event: &JsonEnvelope,
         entity_type: &str,
         entity_id: &str,
     ) -> Result<i64> {
@@ -82,7 +85,7 @@ impl EventStore for InMemoryEventStore {
             events.last().unwrap().hash.clone()
         };
 
-        let payload_json = serde_json::to_value(&event.payload)?;
+        let payload_json = event.payload.clone();
 
         let hash = hash::compute_hash(
             &event.id,
@@ -106,11 +109,7 @@ impl EventStore for InMemoryEventStore {
         Ok(sequence)
     }
 
-    fn get_events<T: Serialize + for<'de> Deserialize<'de>>(
-        &self,
-        entity_type: &str,
-        entity_id: &str,
-    ) -> Result<Vec<EventEnvelope<T>>> {
+    fn get_events(&self, entity_type: &str, entity_id: &str) -> Result<Vec<JsonEnvelope>> {
         let store = self
             .events
             .read()
@@ -121,90 +120,45 @@ impl EventStore for InMemoryEventStore {
             .and_then(|m| m.get(entity_id))
             .ok_or_else(|| EventStoreError::NotFound(format!("{entity_type}/{entity_id}")))?;
 
-        events
+        Ok(events
             .iter()
-            .map(|se| {
-                let payload: T = serde_json::from_value(se.payload_json.clone())?;
-                Ok(EventEnvelope {
-                    id: se.id,
-                    timestamp: se.timestamp,
-                    payload,
-                    actor: se.actor.clone(),
-                    prev_hash: se.prev_hash.clone(),
-                    hash: se.hash.clone(),
-                    sequence: se.sequence,
-                })
+            .map(|se| JsonEnvelope {
+                id: se.id,
+                timestamp: se.timestamp,
+                payload: se.payload_json.clone(),
+                actor: se.actor.clone(),
+                prev_hash: se.prev_hash.clone(),
+                hash: se.hash.clone(),
+                sequence: se.sequence,
             })
-            .collect::<Result<Vec<_>, EventSourcingError>>()
+            .collect())
     }
 
-    fn get_events_since<T: Serialize + for<'de> Deserialize<'de>>(
+    fn get_events_since(
         &self,
         entity_type: &str,
         entity_id: &str,
         sequence: i64,
-    ) -> Result<Vec<EventEnvelope<T>>> {
-        let store = self
-            .events
-            .read()
-            .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
-
-        let events = store
-            .get(entity_type)
-            .and_then(|m| m.get(entity_id))
-            .ok_or_else(|| EventStoreError::NotFound(format!("{entity_type}/{entity_id}")))?;
-
-        events
-            .iter()
-            .filter(|se| se.sequence > sequence)
-            .map(|se| {
-                let payload: T = serde_json::from_value(se.payload_json.clone())?;
-                Ok(EventEnvelope {
-                    id: se.id,
-                    timestamp: se.timestamp,
-                    payload,
-                    actor: se.actor.clone(),
-                    prev_hash: se.prev_hash.clone(),
-                    hash: se.hash.clone(),
-                    sequence: se.sequence,
-                })
-            })
-            .collect::<Result<Vec<_>, EventSourcingError>>()
+    ) -> Result<Vec<JsonEnvelope>> {
+        Ok(self
+            .get_events(entity_type, entity_id)?
+            .into_iter()
+            .filter(|e| e.sequence > sequence)
+            .collect())
     }
 
-    fn get_events_by_range<T: Serialize + for<'de> Deserialize<'de>>(
+    fn get_events_by_range(
         &self,
         entity_type: &str,
         entity_id: &str,
         from: DateTime<Utc>,
         to: DateTime<Utc>,
-    ) -> Result<Vec<EventEnvelope<T>>> {
-        let store = self
-            .events
-            .read()
-            .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
-
-        let events = store
-            .get(entity_type)
-            .and_then(|m| m.get(entity_id))
-            .ok_or_else(|| EventStoreError::NotFound(format!("{entity_type}/{entity_id}")))?;
-
-        events
-            .iter()
-            .filter(|se| se.timestamp >= from && se.timestamp <= to)
-            .map(|se| {
-                let payload: T = serde_json::from_value(se.payload_json.clone())?;
-                Ok(EventEnvelope {
-                    id: se.id,
-                    timestamp: se.timestamp,
-                    payload,
-                    actor: se.actor.clone(),
-                    prev_hash: se.prev_hash.clone(),
-                    hash: se.hash.clone(),
-                    sequence: se.sequence,
-                })
-            })
-            .collect::<Result<Vec<_>, EventSourcingError>>()
+    ) -> Result<Vec<JsonEnvelope>> {
+        Ok(self
+            .get_events(entity_type, entity_id)?
+            .into_iter()
+            .filter(|e| e.timestamp >= from && e.timestamp <= to)
+            .collect())
     }
 
     fn get_latest_sequence(&self, entity_type: &str, entity_id: &str) -> Result<i64> {
@@ -244,49 +198,33 @@ impl EventStore for InMemoryEventStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    struct TestPayload {
-        value: i32,
-        name: String,
-    }
+    use serde_json::json;
 
     #[test]
     fn append_and_retrieve() {
         let store = InMemoryEventStore::new();
-        let payload = TestPayload {
-            value: 42,
-            name: "test".to_string(),
-        };
-        let event = EventEnvelope::new(payload.clone(), "user1");
+        let event = JsonEnvelope::new(
+            json!({
+                "value": 42,
+                "name": "test"
+            }),
+            "user1",
+        );
         let entity_id = "entity-1";
 
         let seq = store.append(&event, "TestEvent", entity_id).unwrap();
         assert_eq!(seq, 1);
 
-        let retrieved = store.get_events::<TestPayload>("TestEvent", entity_id).unwrap();
+        let retrieved = store.get_events("TestEvent", entity_id).unwrap();
         assert_eq!(retrieved.len(), 1);
-        assert_eq!(retrieved[0].payload.value, 42);
+        assert_eq!(retrieved[0].payload["value"], 42);
     }
 
     #[test]
     fn sequence_increments() {
         let store = InMemoryEventStore::new();
-        let e1 = EventEnvelope::new(
-            TestPayload {
-                value: 1,
-                name: "a".to_string(),
-            },
-            "user1",
-        );
-        let e2 = EventEnvelope::new(
-            TestPayload {
-                value: 2,
-                name: "b".to_string(),
-            },
-            "user1",
-        );
+        let e1 = JsonEnvelope::new(json!({"value": 1, "name": "a"}), "user1");
+        let e2 = JsonEnvelope::new(json!({"value": 2, "name": "b"}), "user1");
 
         let s1 = store.append(&e1, "Event", "entity-1").unwrap();
         let s2 = store.append(&e2, "Event", "entity-1").unwrap();
