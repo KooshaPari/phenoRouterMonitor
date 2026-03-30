@@ -10,7 +10,7 @@ description = "Phenotype Cache-adapter"
 path = "src/lib.rs"
 
 [dependencies]
-phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
+phenotype-error-core = { version = "0.2.0", path = "../phenotype-error-core" }
 chrono = { version = "0.4", features = ["serde"] }
 dashmap = "5.5"
 lru = "0.12"
