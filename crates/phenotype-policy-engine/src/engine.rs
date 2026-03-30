@@ -174,6 +174,7 @@ mod tests {
         assert!(matches!(err, PolicyEngineError::PolicyNotFound { .. }));
     }
 
+    // Traces to: FR-POL-004
     #[test]
     fn test_engine_enable_disable() {
         let engine = PolicyEngine::new();
