@@ -187,23 +187,13 @@ pub fn init_logging_with_config(config: LogConfig) {
 
 /// Create a [`Span`] at INFO level with a given name.
 ///
-/// Returns the span so the caller can `.enter()` or `.in_scope(|| ...)` it.
-///
-/// ```no_run
-/// let span = phenotype_logging::context_span("handle_request");
-/// let _guard = span.enter();
-/// phenotype_logging::info!("processing");
-/// ```
-pub fn context_span(name: &'static str) -> Span {
-    tracing::info_span!("context", otel.name = name)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    // FR-PHENO-015: Default config is INFO level with Pretty format
     #[test]
-    fn default_config_is_info_pretty() {
+    fn test_default_config_is_info_pretty() {
         let cfg = LogConfig::default();
         assert_eq!(cfg.level, "info");
         assert_eq!(cfg.format, LogFormat::Pretty);
@@ -212,8 +202,9 @@ mod tests {
         assert!(!cfg.show_file);
     }
 
+    // FR-PHENO-016: Builder pattern allows step-by-step configuration
     #[test]
-    fn builder_overrides() {
+    fn test_builder_overrides() {
         let cfg = LogConfig::builder()
             .level("debug")
             .format(LogFormat::Json)
@@ -227,8 +218,9 @@ mod tests {
         assert!(cfg.show_file);
     }
 
+    // FR-PHENO-017: Environment variables override defaults
     #[test]
-    fn from_env_reads_vars() {
+    fn test_from_env_reads_vars() {
         std::env::set_var("RUST_LOG", "trace");
         std::env::set_var("LOG_FORMAT", "json");
 
@@ -238,5 +230,193 @@ mod tests {
 
         std::env::remove_var("RUST_LOG");
         std::env::remove_var("LOG_FORMAT");
+    }
+
+    // FR-PHENO-018: Builder preserves show_target flag
+    #[test]
+    fn test_builder_show_target() {
+        let cfg = LogConfig::builder()
+            .show_target(false)
+            .build();
+
+        assert!(!cfg.show_target);
+    }
+
+    // FR-PHENO-019: Builder preserves show_thread flag
+    #[test]
+    fn test_builder_show_thread() {
+        let cfg = LogConfig::builder()
+            .show_thread(true)
+            .build();
+
+        assert!(cfg.show_thread);
+    }
+
+    // FR-PHENO-020: Builder preserves show_file flag
+    #[test]
+    fn test_builder_show_file() {
+        let cfg = LogConfig::builder()
+            .show_file(true)
+            .build();
+
+        assert!(cfg.show_file);
+    }
+
+    // FR-PHENO-021: Multiple log levels can be configured
+    #[test]
+    fn test_custom_log_levels() {
+        let levels = vec!["trace", "debug", "info", "warn", "error"];
+        for level in levels {
+            let cfg = LogConfig::builder().level(level).build();
+            assert_eq!(cfg.level, level);
+        }
+    }
+
+    // FR-PHENO-022: All log formats are supported
+    #[test]
+    fn test_all_log_formats() {
+        let formats = vec![LogFormat::Pretty, LogFormat::Compact, LogFormat::Json];
+        for fmt in formats {
+            let cfg = LogConfig::builder().format(fmt).build();
+            assert_eq!(cfg.format, fmt);
+        }
+    }
+
+    // FR-PHENO-023: LOG_FORMAT env var accepts lowercase variants
+    #[test]
+    fn test_log_format_case_insensitive() {
+        std::env::set_var("LOG_FORMAT", "JSON");
+        let cfg = LogConfig::from_env();
+        assert_eq!(cfg.format, LogFormat::Json);
+
+        std::env::set_var("LOG_FORMAT", "Compact");
+        let cfg = LogConfig::from_env();
+        assert_eq!(cfg.format, LogFormat::Compact);
+
+        std::env::set_var("LOG_FORMAT", "PRETTY");
+        let cfg = LogConfig::from_env();
+        assert_eq!(cfg.format, LogFormat::Pretty);
+
+        std::env::remove_var("LOG_FORMAT");
+    }
+
+    // FR-PHENO-024: Invalid LOG_FORMAT falls back to default
+    #[test]
+    fn test_invalid_log_format_uses_default() {
+        std::env::set_var("LOG_FORMAT", "invalid_format");
+        let cfg = LogConfig::from_env();
+        assert_eq!(cfg.format, LogFormat::default());
+        std::env::remove_var("LOG_FORMAT");
+    }
+
+    // FR-PHENO-025: Builder chaining is fluent and idiomatic
+    #[test]
+    fn test_builder_fluent_chain() {
+        let cfg = LogConfig::builder()
+            .level("warn")
+            .format(LogFormat::Compact)
+            .show_target(true)
+            .show_thread(false)
+            .show_file(true)
+            .build();
+
+        assert_eq!(cfg.level, "warn");
+        assert_eq!(cfg.format, LogFormat::Compact);
+        assert!(cfg.show_target);
+        assert!(!cfg.show_thread);
+        assert!(cfg.show_file);
+    }
+
+    // FR-PHENO-026: LogFormat serialization round-trips correctly
+    #[test]
+    fn test_log_format_serde_roundtrip() {
+        let formats = vec![LogFormat::Pretty, LogFormat::Compact, LogFormat::Json];
+        for fmt in formats {
+            let json = serde_json::to_string(&fmt).unwrap();
+            let deserialized: LogFormat = serde_json::from_str(&json).unwrap();
+            assert_eq!(fmt, deserialized);
+        }
+    }
+
+    // FR-PHENO-027: LogConfig serialization includes all fields
+    #[test]
+    fn test_log_config_serde_roundtrip() {
+        let cfg = LogConfig::builder()
+            .level("debug")
+            .format(LogFormat::Json)
+            .show_thread(true)
+            .show_file(true)
+            .build();
+
+        let json = serde_json::to_string(&cfg).unwrap();
+        let deserialized: LogConfig = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(cfg.level, deserialized.level);
+        assert_eq!(cfg.format, deserialized.format);
+        assert_eq!(cfg.show_target, deserialized.show_target);
+        assert_eq!(cfg.show_thread, deserialized.show_thread);
+        assert_eq!(cfg.show_file, deserialized.show_file);
+    }
+
+    // FR-PHENO-028: RUST_LOG env var with multiple directives
+    #[test]
+    fn test_rust_log_multiple_directives() {
+        std::env::set_var("RUST_LOG", "info,phenotype=debug,tracing=warn");
+        let cfg = LogConfig::from_env();
+        assert_eq!(cfg.level, "info,phenotype=debug,tracing=warn");
+        std::env::remove_var("RUST_LOG");
+    }
+
+    // FR-PHENO-029: Missing env vars use defaults
+    #[test]
+    fn test_missing_env_vars_use_defaults() {
+        std::env::remove_var("RUST_LOG");
+        std::env::remove_var("LOG_FORMAT");
+
+        let cfg = LogConfig::from_env();
+        assert_eq!(cfg.level, "info");
+        assert_eq!(cfg.format, LogFormat::Pretty);
+    }
+
+    // FR-PHENO-030: Config fields are independent
+    #[test]
+    fn test_config_fields_independent() {
+        let cfg1 = LogConfig::builder().level("debug").build();
+        let cfg2 = LogConfig::builder().format(LogFormat::Json).build();
+
+        assert_eq!(cfg1.level, "debug");
+        assert_eq!(cfg1.format, LogFormat::Pretty);
+        assert_eq!(cfg2.level, "info");
+        assert_eq!(cfg2.format, LogFormat::Json);
+    }
+
+    // FR-PHENO-031: Default LogFormat is Pretty
+    #[test]
+    fn test_default_log_format() {
+        assert_eq!(LogFormat::default(), LogFormat::Pretty);
+    }
+
+    // FR-PHENO-032: All display options can be toggled independently
+    #[test]
+    fn test_display_options_independent() {
+        let cfg = LogConfig::builder()
+            .show_target(false)
+            .show_thread(false)
+            .show_file(false)
+            .build();
+
+        assert!(!cfg.show_target);
+        assert!(!cfg.show_thread);
+        assert!(!cfg.show_file);
+
+        let cfg = LogConfig::builder()
+            .show_target(true)
+            .show_thread(true)
+            .show_file(true)
+            .build();
+
+        assert!(cfg.show_target);
+        assert!(cfg.show_thread);
+        assert!(cfg.show_file);
     }
 }
