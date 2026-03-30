@@ -1,21 +1,15 @@
 [package]
 name = "phenotype-test-infra"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
-phenotype-errors = { path = "../phenotype-errors", version = "0.2" }
-dashmap.workspace = true
-tempfile = "3.10"
-uuid = { workspace = true, features = ["v4"] }
-serde = { workspace = true, optional = true }
+serde.workspace = true
 serde_json.workspace = true
+uuid.workspace = true
 chrono.workspace = true
+tempfile = "3.10"
 
 [dev-dependencies]
 tokio = { version = "1.40", features = ["full"] }
-
-[features]
-default = []

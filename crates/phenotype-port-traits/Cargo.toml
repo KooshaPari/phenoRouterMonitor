@@ -1,0 +1,10 @@
+[package]
+name = "phenotype-port-traits"
+version.workspace = true
+edition = "2021"
+description = "Port traits for Phenotype"
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+async-trait.workspace = true

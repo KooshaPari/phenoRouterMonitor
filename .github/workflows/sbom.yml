@@ -1,5 +1,4 @@
-# CycloneDX SBOM pilot — single workspace member (supply-chain artifact).
-# Stacked delivery: land this workflow first; docs follow in a dependent PR.
+# CycloneDX SBOM — workspace members (supply-chain artifacts).
 name: SBOM (CycloneDX pilot)
 
 on:
@@ -16,8 +15,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cyclonedx-phenotype-error-core:
+  cyclonedx:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: phenotype-error-core
+            manifest: crates/phenotype-error-core/Cargo.toml
+            sbom_path: crates/phenotype-error-core/sbom-phenotype-error-core.json
+          - id: phenotype-contracts
+            manifest: crates/phenotype-contracts/Cargo.toml
+            sbom_path: crates/phenotype-contracts/sbom-phenotype-contracts.json
+          - id: phenotype-errors
+            manifest: crates/phenotype-errors/Cargo.toml
+            sbom_path: crates/phenotype-errors/sbom-phenotype-errors.json
+          - id: phenotype-event-sourcing
+            manifest: crates/phenotype-event-sourcing/Cargo.toml
+            sbom_path: crates/phenotype-event-sourcing/sbom-phenotype-event-sourcing.json
+          - id: phenotype-policy-engine
+            manifest: crates/phenotype-policy-engine/Cargo.toml
+            sbom_path: crates/phenotype-policy-engine/sbom-phenotype-policy-engine.json
+          - id: phenotype-cache-adapter
+            manifest: crates/phenotype-cache-adapter/Cargo.toml
+            sbom_path: crates/phenotype-cache-adapter/sbom-phenotype-cache-adapter.json
+          - id: phenotype-config-core
+            manifest: libs/phenotype-config-core/Cargo.toml
+            sbom_path: libs/phenotype-config-core/sbom-phenotype-config-core.json
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,17 +54,17 @@ jobs:
         with:
           tool: cargo-cyclonedx@0.5.9
 
-      - name: Generate CycloneDX JSON (pilot crate)
+      - name: Generate CycloneDX JSON
         run: |
           cargo cyclonedx \
-            --manifest-path crates/phenotype-error-core/Cargo.toml \
+            --manifest-path "${{ matrix.manifest }}" \
             -f json \
             --spec-version 1.5 \
-            --override-filename sbom-phenotype-error-core
+            --override-filename "sbom-${{ matrix.id }}"
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cyclonedx-sbom-phenotype-error-core
-          path: crates/phenotype-error-core/sbom-phenotype-error-core.json
+          name: cyclonedx-sbom-${{ matrix.id }}
+          path: ${{ matrix.sbom_path }}
           if-no-files-found: error
