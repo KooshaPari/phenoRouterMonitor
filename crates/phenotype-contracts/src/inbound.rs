@@ -7,7 +7,7 @@
 //! Traces to: FR-PHENO-003
 
 use crate::error::ContractError;
-use async_trait::async_trait;
+use phenotype_async_traits::async_trait;
 
 /// A general-purpose use case port.
 ///

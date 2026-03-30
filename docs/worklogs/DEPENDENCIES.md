@@ -100,6 +100,25 @@ Comprehensive audit of external dependencies, package modernization opportunitie
 | `anyhow` (manual) | `miette` | 🟠 MEDIUM | Fancy CLI diagnostics; better DX for heliosCLI users |
 | `async-trait` | Native Async Traits | 🟢 LOW | Rust 2024 feature; removes macro overhead and improves compile times |
 | `tokio-serial` | `tokio-serial v5` | 🟢 LOW | Fixes 2025 security vulnerability in underlying `serialport` crate |
+| `blake3` dependency misreference | `workspace.dependencies` only | 🟢 LOW | Fix typo in workspace dependencies to prevent manifest parse failure in `phenotype-event-sourcing` |
+
+### 2026-03-30 - Dependency hygiene updates
+
+**Project:** [phenotype-infrakit]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+- Verified `blake3` is declared in `Cargo.toml` and inherited in `crates/phenotype-event-sourcing/Cargo.toml`.
+- Identified and mitigated workspace dependency inconsistency of `phenotype-async-traits` by ensuring explicit `workspace.dependencies` presence.
+- Reviewed unused workspace dependencies: `lru` still unreferenced, `parking_lot` used only in event sourcing, `moka` unreferenced in active crates.
+- Future action: remove `lru` and `moka` from root workspace dependencies once no reference remains.
+
+### 2026-03-30 - Git wrapper compatibility upgrade
+
+- `gix` set to `0.81` with features `status`, `revision`, `parallel`, `sha1` in the root workspace.
+- `phenotype-git-core` sources currently use now-deprecated gix methods; need revision to newer API names (`rev_walk`, `Category::LocalBranch`, `Repository::head` APIs). 
+- Consider pinning to `gix` `0.79` if API update risk is high until full migration is done.
 
 ### Python Modernization Targets
 
@@ -2121,24 +2140,30 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 
 **Project:** [cross-repo]
 **Category:** maintenance
-**Status:** identified
+**Status:** updated 2026-03-31 (`gh pr view`)
 **Priority:** P1
 
-### Worktrees with Unmerged Work
+### phenotype-infrakit draft batch (2026-03-30)
 
-| Worktree | Branch | Last Commit | Status |
-|----------|--------|-------------|--------|
-| chore/add-pr-creation-batch-worklog-2026-03-30 | chore/add-pr-creation-batch-worklog-2026-03-30 | 2026-03-30 | PENDING |
-| chore/cleanup-stale-folders | chore/cleanup-stale-folders | 2026-03 | PENDING |
-| chore/consolidate-nested-duplicates | chore/consolidate-nested-duplicates | 2026-03 | PENDING |
-| chore/dead-code-cleanup | chore/dead-code-cleanup | 2026-03 | PENDING |
-| chore/phenotype-event-sourcing-consolidation | chore/phenotype-event-sourcing-consolidation | 2026-03 | PENDING |
+PRs [#249](https://github.com/KooshaPari/phenotype-infrakit/pull/249)–[#252](https://github.com/KooshaPari/phenotype-infrakit/pull/252) were **closed without merge** (`mergedAt` null). Notes: [`.archive/PR_CREATION_BATCH_2026-03-30.md`](./.archive/PR_CREATION_BATCH_2026-03-30.md).
+
+| PR | State |
+|----|--------|
+| #249–#252 | CLOSED (not merged) |
+
+### Local `repos/worktrees/*` (historical names)
+
+Use `git worktree list` before deleting. **`repos/worktrees/` is a live hub**, not an empty folder.
+
+| Folder | Notes |
+|--------|--------|
+| chore/* (above) | Reconcile branches; nested duplicate work superseded in **repos** by Wave 97 |
 
 ### Priority Actions
 
-1. **Open PRs for completed worktrees** - Batch create PRs
-2. **Delete after merge** - Remove worktrees post-merge
-3. **Push to origin** - Ensure all work is backed up
+1. Decide whether to re-cherry-pick or abandon the closed infrakit PR series.
+2. Prune local dirs only after confirming no unpushed commits.
+3. Hygiene: [`WORK_LOG.md`](./WORK_LOG.md) resume sections.
 
 ### Related
 

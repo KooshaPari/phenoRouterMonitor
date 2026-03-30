@@ -359,8 +359,8 @@ Projects moved to archive:
 
 ### IMMEDIATE (This Session)
 
-- [ ] DELETE `.worktrees/gh-pages-deploy` (NOT a git repo - 30 dirs of stale content)
-- [ ] DELETE `.worktrees/phench-fix` (NOT a git repo - 30 dirs of stale content)
+- [x] DELETE `.worktrees/gh-pages-deploy` (NOT a git repo - 30 dirs of stale content)
+- [x] DELETE `.worktrees/phench-fix` (NOT a git repo - 30 dirs of stale content)
 - [ ] DELETE `worktree/` (empty)
 - [ ] DELETE `add/` (empty)
 

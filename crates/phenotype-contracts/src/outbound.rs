@@ -8,7 +8,7 @@
 
 use crate::error::ContractError;
 use crate::models::{DomainEntity, DomainEvent, EntityId};
-use async_trait::async_trait;
+use phenotype_async_traits::async_trait;
 use serde::Serialize;
 use std::fmt::Debug;
 

@@ -16,6 +16,8 @@ aes-gcm = "0.10"
 pbkdf2 = "0.12"
 rand = "0.8"
 hmac = "0.12"
+zeroize = "1.7"
+ed25519-dalek = { version = "2.1", features = ["std"] }
 
 [lib]
 path = "src/lib.rs"

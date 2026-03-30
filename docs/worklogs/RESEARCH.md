@@ -98,6 +98,70 @@ Both repos contain: `phenotype-cache-adapter`, `phenotype-event-sourcing`, `phen
 | Package | Action | Notes |
 |---|---|---|
 | **FastMCP v3.0 GA** (PrefectHQ) | ADOPT | 70% of all MCP servers use FastMCP. v3.0 adds component versioning, granular authorization, OpenTelemetry, OpenAPI providers. phenoSDK MCP layer should be built on this directly. |
+
+---
+
+## 2026-03-29 - Wave 93: 18 New 2026 Packages (Post-Research)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Go Ecosystem (5 packages)
+
+| Package | Ecosystem | Type | Recommendation | Notes |
+|---------|-----------|------|-----------------|-------|
+| **otelchi** | Go | Observability | WRAP | chi middleware for OpenTelemetry tracing; consolidate with phenotype-observability |
+| **connect-go** | Go | RPC Framework | EVALUATE | gRPC-compatible but lighter; consider for inter-agent communication vs traditional gRPC |
+| **buf** | Go/Proto | Build Tool | ADOPT | Modern protobuf/gRPC build system; use in go-based services and agent protocols |
+| **go-paseto** | Go | Crypto | EVALUATE | Modern token format (PASETO) alternative to JWT; consider for agent session tokens |
+| **Bifrost (Maxim AI)** | Go | LLM Gateway | EVALUATE | 54x p99 latency improvement at 5k RPS; potential for phenotype LLM routing layer |
+
+### Rust Ecosystem (3 packages)
+
+| Package | Ecosystem | Type | Recommendation | Notes |
+|---------|-----------|------|-----------------|-------|
+| **bubbletea** | Rust | Terminal UI | EVALUATE | TUI framework; useful for agentic dashboards, monitoring UIs in thegent |
+| **ratatui** | Rust | Terminal UI | EVALUATE | Modern TUI alternative to cursive; better perf, cleaner API for agent monitoring |
+| **garde** | Rust | Validation | WRAP | Serde-based validation codec; consolidate with phenotype-validation |
+
+### TypeScript/JavaScript Ecosystem (7 packages)
+
+| Package | Ecosystem | Type | Recommendation | Notes |
+|---------|-----------|------|-----------------|-------|
+| **Effect v3** | TypeScript | Effect System | EVALUATE | Algebraic effects v3 release; powerful pattern for phenotype error handling and resilience |
+| **Hono v4** | TypeScript | Web Framework | ADOPT | v4 release, lightweight edge runtime, route type safety; better for phenotype-api than Express |
+| **@hey-api/openapi-ts** | TypeScript | Code Gen | ADOPT | Modern OpenAPI TypeScript codegen (successor to openapi-generator); generate phenotype API clients |
+| **TanStack Router v2** | TypeScript | Routing | EVALUATE | Type-safe React routing; better DX for AgilePlus dashboard |
+| **TanStack Start** | TypeScript | Framework | EVALUATE | Full-stack type-safe framework; consider for next AgilePlus iteration |
+| **connect-es v2** | TypeScript | RPC Framework | EVALUATE | gRPC-web for TypeScript, lighter than protobuf-ts; inter-agent communication |
+| **mcp-framework** | TypeScript | Protocol | ADOPT | Simplified MCP SDK wrapper; build phenotype MCP servers on this vs raw Anthropic SDK |
+
+### Observability & Protocol (3 packages)
+
+| Package | Ecosystem | Type | Recommendation | Notes |
+|---------|-----------|------|-----------------|-------|
+| **Official Anthropic MCP SDKs** | Python/TS/Go | Protocol | ADOPT | Anthropic published official SDKs for Python, TypeScript, Go (2026-03-20); use for all MCP implementations |
+| **stamina v25.2.0** (Python) | Python | Resilience | ADOPT | hynek's opinionated retry wrapper; exponential backoff + jitter, Prometheus + structlog, async/trio, Python 3.10-3.14 |
+| **A2A v2 (Linux Foundation)** | Multi-Lang | Protocol | RESEARCH | Agent-to-Agent communication spec v2; potential standard for inter-agent protocols in Phenotype |
+
+### Ecosystem Shift Observations
+
+1. **gRPC Alternatives**: connect-go, connect-es — lighter weight, simpler than traditional gRPC
+2. **Modern TUI**: bubbletea, ratatui — significant improvements over legacy cursive for agent monitoring
+3. **Type-Safe Routing**: TanStack Router — type-safe React routing with better DX than React Router v6
+4. **Official MCP Support**: Anthropic now provides official SDKs in 3 languages
+5. **Token Formats**: PASETO (go-paseto) emerging as modern JWT alternative with better security properties
+6. **Edge Runtime**: Hono v4 — lightweight alternative to Express for edge-deployed services
+
+### Integration Priority
+
+**Phase 1 (Immediate)**: Official MCP SDKs, Hono v4, @hey-api/openapi-ts, stamina
+**Phase 2 (Current Sprint)**: buf, connect-go, connect-es, TanStack Router, ratatui/bubbletea
+**Phase 3 (Future)**: Effect v3, go-paseto, Bifrost, A2A v2
+
+---
 | FastAPI-MCP | WRAP | Auto-exposes FastAPI endpoints as MCP tools; use as bridge adapter |
 
 ### Python DI / Hexagonal

@@ -1,13 +1,10 @@
 //! # Phenotype Test Infrastructure
-pub use phenotype_error_core::CoreError;
-pub use std::io::ErrorKind;
 //!
 //! ## Features
 //!
 //! - [`TempDir`] — RAII temporary directory that cleans up on drop.
 //! - [`TestFixture`] — Trait for setup/teardown test patterns.
 //! - [`MockClock`] — Controllable clock for deterministic time-dependent tests.
-//! - [`capture_logs`] — Capture `tracing` output during tests.
 //! - [`assert_err_contains!`] — Assert that an error's display message contains a substring.
 //!
 //! ## Usage
@@ -22,24 +19,11 @@ pub use std::io::ErrorKind;
 //! assert_err_contains!(err, "bad input");
 //! ```
 
-use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
-use std::time::{Duration, SystemTime};
-
-impl fmt::Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ErrorKind::ValidationError => write!(f, "validation error"),
-            ErrorKind::IOError => write!(f, "io error"),
-            ErrorKind::NotFound => write!(f, "not found"),
-            ErrorKind::Timeout => write!(f, "timeout"),
-            ErrorKind::Internal => write!(f, "internal error"),
-        }
-    }
-}
+use std::time::Duration;
 
 /// RAII temporary directory that cleans up on drop.
 pub struct TempDir {
@@ -49,7 +33,8 @@ pub struct TempDir {
 impl TempDir {
     /// Create a new temporary directory.
     pub fn new(prefix: &str) -> std::io::Result<Self> {
-        let path = std::env::temp_dir().join(format!("{}-{}", prefix, uuid::Uuid::new_v4()));
+        let path =
+            std::env::temp_dir().join(format!("{}-{}", prefix, uuid::Uuid::new_v4()));
         fs::create_dir_all(&path)?;
         Ok(TempDir { path })
     }
@@ -125,19 +110,6 @@ macro_rules! assert_err_contains {
             }
         }
     };
-}
-
-/// Capture logs emitted during a test using `tracing`.
-///
-/// Returns the captured log output as a string.
-pub fn capture_logs<F: FnOnce() -> R, R>(f: F) -> (R, String) {
-    use tracing_subscriber::layer::SubscriberExt;
-    use tracing_subscriber::util::SubscriberInitExt;
-
-    let (writer, handle) = tracing_test::trace_init();
-    let result = f();
-    let logs = handle.finish();
-    (result, logs)
 }
 
 #[cfg(test)]

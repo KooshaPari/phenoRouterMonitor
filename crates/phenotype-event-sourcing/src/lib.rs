@@ -16,9 +16,11 @@ pub mod memory;
 pub mod snapshot;
 pub mod store;
 
+pub use error::{EventSourcingError, HashError, Result};
 pub use event::EventEnvelope;
-pub use error::{EventSourcingError, HashError};
-pub use event_sourced::{EventHandler, EventHandlerRegistry, EventMetadata, EventSourcingPort, EventSourced};
+pub use event_sourced::{
+    EventHandler, EventHandlerRegistry, EventMetadata, EventSourcingPort, EventSourced,
+};
 pub use hash::{compute_hash, verify_chain, ZERO_HASH};
 pub use memory::InMemoryEventStore;
 pub use snapshot::{Snapshot, SnapshotConfig};

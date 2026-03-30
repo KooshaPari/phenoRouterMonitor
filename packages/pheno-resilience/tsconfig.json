@@ -1,20 +1,16 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "dist",
     "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
+    "outDir": "dist",
+    "paths": {
+      "@phenotype/pheno-core": ["../pheno-core/src/index.ts"],
+      "@phenotype/pheno-core/*": ["../pheno-core/src/*"]
+    }
   },
-  "include": [
-    "src"
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"],
+  "references": [
+    { "path": "../pheno-core" }
   ]
 }
