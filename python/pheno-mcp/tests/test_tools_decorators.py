@@ -3,8 +3,6 @@
 Traces to: FR-MCP-002 - FastMCP Tool Decorator Abstraction
 """
 
-import pytest
-from typing import Any, Callable
 from pheno_mcp.tools import mcp_tool, tool_registry
 
 
@@ -17,7 +15,7 @@ class TestMCPToolDecorator:
 
         @mcp_tool(registry=registry, name="test_tool")
         def sample_tool(param: str) -> str:
-            """A sample tool."""
+            """Process a sample tool input."""
             return f"processed: {param}"
 
         assert registry.has_tool("test_tool")
@@ -71,7 +69,7 @@ class TestMCPToolDecorator:
 
         @mcp_tool(registry=registry, name="generic_tool")
         def generic_tool() -> str:
-            """A generic tool."""
+            """Return a generic tool result."""
             return "generic result"
 
         # Should work with any MCP server, not atoms-specific
@@ -143,6 +141,7 @@ class TestToolRegistry:
 
             Returns:
                 Sum of x and y
+
             """
             return x + y
 

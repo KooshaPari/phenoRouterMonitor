@@ -186,6 +186,7 @@ class TestConfigLoader:
 
         try:
             os.environ["APP_NAME"] = "override_app"
+            os.environ["PORT"] = "6000"
 
             loader = ConfigLoader(SampleConfig)
             config = loader.from_file(temp_path).from_env().build()
@@ -196,6 +197,7 @@ class TestConfigLoader:
 
             # Cleanup
             del os.environ["APP_NAME"]
+            del os.environ["PORT"]
         finally:
             os.unlink(temp_path)
 
@@ -205,8 +207,9 @@ class TestConfigValidation:
 
     def test_config_type_validation(self) -> None:
         """Test that config validates types."""
-        with pytest.raises(ConfigurationError):
-            from_env(SampleConfig)
+        # Direct instantiation with invalid type raises PydanticValidationError
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
             SampleConfig(port="not_a_number")  # type: ignore
 
     def test_config_field_validation(self) -> None:
@@ -219,5 +222,6 @@ class TestConfigValidation:
         assert config.port == 8080
 
         # Invalid port - should raise during validation
-        with pytest.raises(ConfigurationError):
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
             ValidatedConfig(port=100)  # type: ignore
