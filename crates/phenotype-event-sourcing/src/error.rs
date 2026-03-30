@@ -1,77 +1,69 @@
-//! Error types for the event sourcing system.
-//!
-//! Uses phenotype-error-core for foundational error types.
+//! Error types for phenotype-event-sourcing.
 
-use phenotype_error_core::CoreError;
+use phenotype_error_core::ErrorKind;
+use thiserror::Error;
 
-/// Result type for event sourcing operations.
 pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
-/// Wrapper error type for event sourcing operations.
-/// Maps domain-specific errors to CoreError variants.
-#[derive(Debug, thiserror::Error)]
-#[error(transparent)]
-pub struct EventSourcingError(pub CoreError);
-
-impl From<CoreError> for EventSourcingError {
-    fn from(e: CoreError) -> Self {
-        EventSourcingError(e)
-    }
-}
-
-impl From<EventStoreError> for EventSourcingError {
-    fn from(e: EventStoreError) -> Self {
-        EventSourcingError(CoreError::Failed(e.to_string()))
-    }
-}
-
-impl From<HashError> for EventSourcingError {
-    fn from(e: HashError) -> Self {
-        EventSourcingError(CoreError::Failed(e.to_string()))
-    }
-}
-
-impl From<serde_json::Error> for EventSourcingError {
-    fn from(e: serde_json::Error) -> Self {
-        EventSourcingError(CoreError::Failed(format!("Serialization error: {}", e)))
-    }
-}
-
-impl serde::Serialize for EventSourcingError {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.0.to_string())
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum EventStoreError {
-    #[error("Event not found: {0}")]
-    NotFound(String),
-
-    #[error("Duplicate sequence: {0}")]
-    DuplicateSequence(String),
-
-    #[error("Storage error: {0}")]
-    StorageError(String),
-
-    #[error("Invalid hash: {0}")]
-    InvalidHash(String),
-
-    #[error("Sequence gap: expected {expected}, got {actual}")]
-    SequenceGap { expected: i64, actual: i64 },
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum HashError {
-    #[error("Hash chain broken at sequence {sequence}")]
+#[derive(Debug, Error)]
+pub enum EventSourcingError {
+    #[error("serialization error: {0}")]
+    Serialization(String),
+    #[error("deserialization error: {0}")]
+    Deserialization(String),
+    #[error("hash error: {0}")]
+    Hash(String),
+    #[error("chain broken at sequence {sequence}")]
     ChainBroken { sequence: i64 },
+    #[error("entity not found: {0}")]
+    EntityNotFound(String),
+    #[error("invalid event: {0}")]
+    InvalidEvent(String),
+    #[error("internal error: {0}")]
+    Internal(String),
+}
 
-    #[error("Invalid hash length: expected 32, got {0}")]
+#[derive(Debug, Error)]
+pub enum HashError {
+    #[error("invalid hash length: expected 64, got {0}")]
     InvalidHashLength(usize),
+    #[error("chain broken at sequence {sequence}")]
+    ChainBroken { sequence: i64 },
+}
 
-    #[error("Hash mismatch at sequence {sequence}")]
-    HashMismatch { sequence: i64 },
+impl From<EventSourcingError> for ErrorKind {
+    fn from(e: EventSourcingError) -> Self {
+        match e {
+            EventSourcingError::Serialization(m) => Self::serialization(m),
+            EventSourcingError::Deserialization(m) => Self::serialization(m),
+            EventSourcingError::Hash(m) => Self::internal(m),
+            EventSourcingError::ChainBroken { sequence } => {
+                Self::validation(format!("hash chain broken at sequence {sequence}"))
+            }
+            EventSourcingError::EntityNotFound(m) => Self::not_found(m),
+            EventSourcingError::InvalidEvent(m) => Self::validation(m),
+            EventSourcingError::Internal(m) => Self::internal(m),
+        }
+    }
+}
+
+#[cfg(test)]
+mod error_kind_tests {
+    use super::*;
+
+    // Traces to: FR-PHENO-001
+    #[test]
+    fn event_sourcing_error_maps_entity_not_found_to_kind() {
+        let e = EventSourcingError::EntityNotFound("agg/1".into());
+        let k: ErrorKind = e.into();
+        assert_eq!(k.kind(), "NotFound");
+    }
+
+    // Traces to: FR-PHENO-001
+    #[test]
+    fn event_sourcing_error_maps_serialization_to_kind() {
+        let e = EventSourcingError::Serialization("bad json".into());
+        let k: ErrorKind = e.into();
+        assert_eq!(k.kind(), "Serialization");
+    }
 }

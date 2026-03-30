@@ -1,22 +1,9 @@
-//! Common error types for Phenotype contracts.
+//! Error types for phenotype-contracts.
 
-use thiserror::Error;
+pub use phenotype_errors::{ErrorKind, Error, Result};
 
-/// Result type for contract operations.
-pub type Result<T> = std::result::Result<T, ContractError>;
-
-/// Common errors that can occur in Phenotype contracts.
-#[derive(Debug, Clone, Error)]
-pub enum ContractError {
-    #[error("Not found: {0}")]
-    NotFound(String),
-
-    #[error("Invalid input: {0}")]
-    InvalidInput(String),
-
-    #[error("Unauthorized: {0}")]
-    Unauthorized(String),
-
-    #[error("Internal error: {0}")]
-    InternalError(String),
+impl ErrorKind {
+    pub fn unauthorized(msg: impl Into<String>) -> Self {
+        Self::Permission(format!("unauthorized: {}", msg.into()))
+    }
 }

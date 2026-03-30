@@ -4,19 +4,17 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+description = "Test infrastructure for Phenotype"
+
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
-phenotype-errors = { path = "../phenotype-errors", version = "0.2" }
-dashmap.workspace = true
-parking_lot.workspace = true
-tempfile = "3.10"
-uuid = { workspace = true, features = ["v4"] }
-serde = { workspace = true, optional = true }
+phenotype-error-core.workspace = true
+phenotype-errors.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+serde.workspace = true
 serde_json.workspace = true
+uuid.workspace = true
 chrono.workspace = true
-
-[dev-dependencies]
-tokio = { version = "1.40", features = ["full"] }
-
-[features]
-default = []
