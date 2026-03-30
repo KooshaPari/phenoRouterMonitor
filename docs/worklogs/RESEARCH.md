@@ -1292,3 +1292,275 @@ impl MicroVM {
 ---
 
 _Last updated: 2026-03-29 (Round 7)_
+
+---
+
+## 2026-03-29 - Round 8: Edge Computing & Distributed Systems Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+
+Research into edge-first deployment patterns for Phenotype agents, focusing on minimizing latency for user-facing interactions and ensuring data consistency across distributed nodes.
+
+### Edge Platforms Comparison
+
+| Platform | Runtime | Assessment | Use Case |
+|----------|---------|------------|----------|
+| **Cloudflare Workers** | V8 | ✅ Standard | Global distribution, low cold start. |
+| **Fastly Compute** | WASM | 🔲 EVALUATE | High-performance edge logic. |
+| **Fly.io** | Firecracker | ✅ ADOPT | Regional agent execution with full OS capabilities. |
+
+### Distributed Consistency Patterns
+
+| Pattern | Purpose | Assessment |
+|---------|---------|------------|
+| **CRDTs** | Conflict-free data types. | 🔲 FUTURE for collaborative editing. |
+| **Raft** | Distributed consensus. | 🟡 Use managed services (e.g., etcd) where possible. |
+| **Eventual Consistency** | Relaxed constraints. | ✅ RECOMMENDED for agent memory sync. |
+
+---
+
+## 2026-03-29 - Round 8: Supply Chain Security & SLSA Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Deep dive into the Supply-chain Levels for Software Artifacts (SLSA) framework to ensure Phenotype's build and release process is resilient against supply chain attacks.
+
+### Tooling for SBOM & Provenance
+
+- **Syft:** For generating Software Bill of Materials (SBOM).
+- **Grype:** For vulnerability scanning of generated SBOMs.
+- **Sigstore/Cosign:** For signing artifacts and build provenance.
+
+### Recommendation
+
+Adopt **SLSA Level 3** for all production releases by implementing build provenance signed by GitHub Actions' OIDC identity.
+
+### Tasks
+
+- [ ] SEC-001: Integrate `syft` into the `release.yml` workflow.
+- [ ] SEC-002: Implement `cosign` signing for container images.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 8: Edge Computing & Distributed Systems Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+
+Research into edge-first deployment patterns for Phenotype agents, focusing on minimizing latency for user-facing interactions and ensuring data consistency across distributed nodes.
+
+### Edge Platforms Comparison
+
+| Platform | Runtime | Assessment | Use Case |
+|----------|---------|------------|----------|
+| **Cloudflare Workers** | V8 | ✅ Standard | Global distribution, low cold start. |
+| **Fastly Compute** | WASM | 🔲 EVALUATE | High-performance edge logic. |
+| **Fly.io** | Firecracker | ✅ ADOPT | Regional agent execution with full OS capabilities. |
+
+### Distributed Consistency Patterns
+
+| Pattern | Purpose | Assessment |
+|---------|---------|------------|
+| **CRDTs** | Conflict-free data types. | 🔲 FUTURE for collaborative editing. |
+| **Raft** | Distributed consensus. | 🟡 Use managed services (e.g., etcd) where possible. |
+| **Eventual Consistency** | Relaxed constraints. | ✅ RECOMMENDED for agent memory sync. |
+
+---
+
+## 2026-03-29 - Round 8: Supply Chain Security & SLSA Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Deep dive into the Supply-chain Levels for Software Artifacts (SLSA) framework to ensure Phenotype's build and release process is resilient against supply chain attacks.
+
+### Tooling for SBOM & Provenance
+
+- **Syft:** For generating Software Bill of Materials (SBOM).
+- **Grype:** For vulnerability scanning of generated SBOMs.
+- **Sigstore/Cosign:** For signing artifacts and build provenance.
+
+### Recommendation
+
+Adopt **SLSA Level 3** for all production releases by implementing build provenance signed by GitHub Actions' OIDC identity.
+
+### Tasks
+
+- [ ] SEC-001: Integrate `syft` into the `release.yml` workflow.
+- [ ] SEC-002: Implement `cosign` signing for container images.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 8: Edge Computing & Distributed Systems Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+
+Research into edge-first deployment patterns for Phenotype agents, focusing on minimizing latency for user-facing interactions and ensuring data consistency across distributed nodes.
+
+### Edge Platforms Comparison
+
+| Platform | Runtime | Assessment | Use Case |
+|----------|---------|------------|----------|
+| **Cloudflare Workers** | V8 | ✅ Standard | Global distribution, low cold start. |
+| **Fastly Compute** | WASM | 🔲 EVALUATE | High-performance edge logic. |
+| **Fly.io** | Firecracker | ✅ ADOPT | Regional agent execution with full OS capabilities. |
+
+### Distributed Consistency Patterns
+
+| Pattern | Purpose | Assessment |
+|---------|---------|------------|
+| **CRDTs** | Conflict-free data types. | 🔲 FUTURE for collaborative editing. |
+| **Raft** | Distributed consensus. | 🟡 Use managed services (e.g., etcd) where possible. |
+| **Eventual Consistency** | Relaxed constraints. | ✅ RECOMMENDED for agent memory sync. |
+
+---
+
+## 2026-03-29 - Round 8: Supply Chain Security & SLSA Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Deep dive into the Supply-chain Levels for Software Artifacts (SLSA) framework to ensure Phenotype's build and release process is resilient against supply chain attacks.
+
+### Tooling for SBOM & Provenance
+
+- **Syft:** For generating Software Bill of Materials (SBOM).
+- **Grype:** For vulnerability scanning of generated SBOMs.
+- **Sigstore/Cosign:** For signing artifacts and build provenance.
+
+### Recommendation
+
+Adopt **SLSA Level 3** for all production releases by implementing build provenance signed by GitHub Actions' OIDC identity.
+
+### Tasks
+
+- [ ] SEC-001: Integrate `syft` into the `release.yml` workflow.
+- [ ] SEC-002: Implement `cosign` signing for container images.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 9: Cloud-Native Infrastructure Patterns Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+Research into standardizing Phenotype's deployment across hybrid cloud environments using modern orchestrators beyond basic Kubernetes.
+
+### Platform Comparison
+
+| Platform | Orchestrator | Assessment | Best For |
+|----------|--------------|------------|----------|
+| **Nomad** | Nomad | 🟡 EVALUATE | Simple, bin-packing of WASM/Docker. |
+| **K3s** | Kubernetes | ✅ ADOPT | Lightweight cluster management. |
+| **Crossplane** | K8s API | ✅ RECOMMENDED | Managing cloud DBs via K8s YAML. |
+
+### Infrastructure Lifecycle
+Researching the "GitOps" loop for Phenotype:
+1. **Source:** Git (Standard)
+2. **Sync:** ArgoCD or Flux (EVALUATE)
+3. **Validate:** Kyverno policies for security constraints.
+
+---
+
+## 2026-03-29 - Round 9: Agent Collaboration & Swarm Frameworks
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Analysis of frameworks that allow multiple Phenotype agents to coordinate on complex tasks (Multi-Agent Systems - MAS).
+
+### Frameworks Under Review
+
+- **LangGraph:** For stateful, cyclic multi-agent flows.
+- **AutoGen:** For conversational agent patterns.
+- **CrewAI:** For role-based autonomous agent groups.
+
+### Recommendation
+Adopt a **Message-Bus First** approach for agent collaboration using NATS JetStream as the blackboard for state sharing, rather than a monolithic framework.
+
+_Last updated: 2026-03-29 (Round 9)_
+
+---
+
+## 2026-03-29 - Round 10: eBPF for High-Performance Observability Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P3
+
+### Summary
+Research into using Extended Berkeley Packet Filter (eBPF) for transparent, low-overhead observability of Phenotype's distributed components, especially for network-level tracing without code instrumentation.
+
+### eBPF Capabilities for Phenotype
+- **L7 Protocol Parsing:** Automatically tracing gRPC and HTTP/2 calls without changing app code.
+- **Continuous Profiling:** Sampling stack traces across all agents with <1% CPU overhead.
+- **Security Enforcement:** Blocking unauthorized syscalls in real-time.
+
+### Tools Under Review
+| Tool | Purpose | Assessment |
+|------|---------|------------|
+| **aya** | Rust-native eBPF library. | ✅ ADOPT for custom probes. |
+| **Pixie** | K8s-native observability using eBPF. | 🟡 EVALUATE for cluster-wide monitoring. |
+| **Parca** | eBPF-based continuous profiling. | ✅ RECOMMENDED for performance auditing. |
+
+---
+
+## 2026-03-29 - Round 10: Formal Verification for Policy Engines
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Analysis of formal verification methods to ensure the `phenotype-policy-engine` is mathematically sound and free from logic loops or unintended permission escalations.
+
+### Verification Approaches
+1. **Model Checking (TLA+):** Specifying the policy state machine and checking for invariants.
+2. **Property-Based Testing:** Using `proptest` to generate thousands of random policy contexts to find edge cases.
+3. **Formal DSLs (Cedar):** Evaluating AWS's Cedar policy language which is built with formal verification in mind.
+
+### Recommendation
+Rather than inventing a new policy engine, evaluate wrapping the **Cedar** engine as the backend for `phenotype-policy-engine` to leverage its proven safety guarantees.
+
+_Last updated: 2026-03-29 (Round 10)_

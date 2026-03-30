@@ -3102,3 +3102,160 @@ impl<K, V> CacheLayer<K, V> {
 ---
 
 _Last updated: 2026-03-29 (Round 7)_
+
+---
+
+## 2026-03-29 - Round 8: Identity & Session Management Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Analysis of identity verification and session handling reveals redundant implementations of JWT parsing and session storage across `agileplus-api`, `thegent`, and `heliosApp`.
+
+### Duplicate Patterns Identified
+
+| Implementation | Location | Technology | LOC |
+|----------------|----------|------------|-----|
+| JWT Claims | `libs/auth-core` | `jsonwebtoken` | 150 |
+| Session Store | `crates/auth-adapter` | `redis` | 200 |
+| Token Validation | `heliosApp/src/middleware` | `custom` | 120 |
+
+### Impact
+
+- **Security Risk:** Divergent token validation logic can lead to bypasses.
+- **Maintenance:** Changes to token schema require updates in 3+ repositories.
+
+### Recommended Action
+
+🔴 **CRITICAL:** Consolidate all auth-related logic into `phenotype-auth-core`. This crate should provide traits for `Identity` and `SessionStore`, with adapters for Redis and In-Memory.
+
+### Tasks
+
+- [ ] DUP-AUTH-001: Extract shared JWT claims to `phenotype-contracts`.
+- [ ] DUP-AUTH-002: Move Redis session implementation to `phenotype-cache-adapter` as a feature.
+
+---
+
+## 2026-03-29 - Round 8: Workspace Sync & File Watching Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+
+Ad-hoc file system watching and workspace synchronization logic found in `agileplus-sync` and the local development scripts.
+
+| Component | Duplicated Logic |
+|-----------|------------------|
+| **File Watcher** | `notify` crate setup repeated in 2 locations. |
+| **Ignore Rules** | `.gitignore` parsing logic implemented twice. |
+
+### Recommendation
+
+Create `phenotype-fs-utils` to handle workspace watching and standardized file ignores.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 9: Domain Model & Entity Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Common domain entities like `Project`, `User`, and `Workspace` are defined multiple times across repositories, often with slight structural differences that cause serialization issues.
+
+### Duplicate Entity Matrix
+
+| Entity | `agileplus` | `thegent` | `heliosApp` | Notes |
+|--------|-------------|-----------|-------------|-------|
+| `User` | ✅ (struct) | ✅ (struct) | ✅ (interface) | Different fields for avatar/bio. |
+| `Status` | ✅ (enum) | ✅ (enum) | ❌ | State names diverge (`Todo` vs `Pending`). |
+| `Task` | ✅ (struct) | ✅ (struct) | ✅ (interface) | Logic for priority is duplicated. |
+
+### Impact
+- **Data Inconsistency:** Passing a `User` from one system to another requires manual mapping or fails during Serde deserialization.
+- **Wasted Effort:** Validation logic for email/ID formats is implemented separately in each repo.
+
+### Recommended Action
+Move core entity definitions to `libs/phenotype-contracts`. This library should be strictly "plain old data" (POD) with minimal logic, serving as the source of truth for the entire ecosystem.
+
+---
+
+## 2026-03-29 - Round 9: External Integration (Adapters) Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+Integration logic for 3rd party services like Slack, GitHub, and Discord is scattered across `thegent-hooks` and `agileplus-notifications`.
+
+- **GitHub API:** 3 different implementations of `create_issue`.
+- **Slack Webhooks:** 2 different ways of formatting blocks.
+
+### Task
+- [ ] DUP-EXT-001: Extract GitHub API wrappers into `phenotype-github-adapter`.
+- [ ] DUP-EXT-002: Consolidate Slack message formatting into a shared utility.
+
+_Last updated: 2026-03-29 (Round 9)_
+
+---
+
+## 2026-03-29 - Round 11: Logging & Telemetry Setup Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Redundant boilerplate for initializing `tracing-subscriber` and OpenTelemetry (OTLP) exporters found across all 4 primary binaries.
+
+### Duplicate Patterns Identified
+
+| Binary | Lines of Boilerplate | Logic |
+|--------|----------------------|-------|
+| `agileplus-api` | 45 | EnvFilter + OTLP + stdout formatter. |
+| `agileplus-worker` | 42 | Near identical OTLP setup. |
+| `thegent` | 38 | Different EnvFilter defaults but same structure. |
+| `heliosApp` | 35 | JS-based logging initialization. |
+
+### Impact
+- **Inconsistent Logs:** Different formatting strings make cross-service log aggregation in Loki difficult.
+- **Maintenance:** Upgrading the OTel SDK version requires updating 4 `Cargo.toml` files and 4 setup functions.
+
+### Recommended Action
+Create `phenotype-telemetry` to provide a one-line `init()` function that sets up standardized logging, tracing, and metrics based on a unified config.
+
+---
+
+## 2026-03-29 - Round 11: Health Check & Readiness Logic Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** pending
+**Priority:** P2
+
+### Summary
+The logic to check if a service is "Ready" (DB connected, NATS reachable) is reimplemented in every service.
+
+| Service | Endpoint | Checks |
+|---------|----------|--------|
+| `agileplus` | `/health` | DB + NATS |
+| `thegent` | `/status` | Model connectivity + DB |
+
+### Task
+- [ ] DUP-HEALTH-001: Extract a shared `HealthStatus` enum and `Checker` trait to `phenotype-contracts`.
+
+_Last updated: 2026-03-29 (Round 11)_

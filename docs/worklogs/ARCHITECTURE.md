@@ -2007,3 +2007,371 @@ tower = { version = "0.5", features = ["limit"] }
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Round 8: Generic/Extensible Crate Design Review
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Analysis of crate design patterns across the Phenotype ecosystem reveals a critical architectural debt: many crates are tightly coupled to parent projects (e.g., AgilePlus, heliosApp) rather than being designed as generic infrastructure blocks.
+
+### Problem Statement
+
+**Observation:** We have multiple `phenotype-*` crates that should be standalone utilities but currently import project-specific types or assume project-specific directory structures. This prevents them from being used as "blackbox" systems in other Phenotype projects or external ecosystems.
+
+### Affected Crate Patterns
+
+#### 1. phenotype-event-sourcing
+- **Current:** Hardcoded to `AgilePlus` domain events in several modules.
+- **Target:** Generic `Event<T>` wrapper where `T` is provided by the implementer.
+
+#### 2. phenotype-cache-adapter
+- **Current:** Assumptions about `TenantId` format tied to the `thegent` auth system.
+- **Target:** Pluggable `KeyProvider` trait to allow different ID formats.
+
+### Design Anti-Patterns
+
+| Anti-Pattern | Description | Remediation |
+|--------------|-------------|-------------|
+| **Project-Specific Errors** | Using `AgilePlusError` in a core crate. | Use generic `Error` traits or crate-local error types. |
+| **Directory Assumptions** | Assuming `~/.agileplus/` config paths. | Use `BaseDir` provider or configuration injection. |
+| **Type Leaking** | Public APIs exposing project-specific DTOs. | Use associated types or generic parameters. |
+
+### Recommendations
+
+1. **Extract Trait Boundaries:** All infrastructure crates must define their requirements as traits (`Storage`, `Logger`, `Bus`) in a `phenotype-contracts` or local `traits.rs`.
+2. **Implementation vs Interface:** Move project-specific implementations to a `adapters/` folder within the parent project, leaving the `crates/` version strictly generic.
+3. **Feature-Gating:** Use Rust features to opt-in to specific project integrations without making them mandatory.
+
+### Tasks
+
+- [ ] ARCH-GEN-001: Audit `phenotype-event-sourcing` for `AgilePlus` type leakage.
+- [ ] ARCH-GEN-002: Refactor `phenotype-cache-adapter` to use generic key types.
+- [ ] ARCH-GEN-003: Create `phenotype-traits` library for shared infrastructure definitions.
+
+---
+
+## 2026-03-29 - Round 8: High-Availability & Service Mesh Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+
+Proposal for adopting a service mesh (e.g., Linkerd or Istio) to handle service-to-service communication, security, and observability across the Phenotype cluster.
+
+### Key Features
+
+| Feature | implementation |
+|---------|----------------|
+| **mTLS** | Automatic mutual TLS between all nodes. |
+| **Retries** | Uniform retry and timeout policies without code changes. |
+| **Observability** | Gold-standard metrics (success rate, latency) out of the box. |
+
+### Tasks
+
+- [ ] MESH-001: Evaluate Linkerd overhead for small-scale Phenotype deployments.
+- [ ] MESH-002: Prototype sidecar injection in the `phenotype-gateway` deployment.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 8: Generic/Extensible Crate Design Review
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Analysis of crate design patterns across the Phenotype ecosystem revealing a critical architectural debt: many crates are tightly coupled to parent projects (e.g., AgilePlus, heliosApp) rather than being designed as generic infrastructure blocks.
+
+### Problem Statement
+
+**Observation:** We have multiple `phenotype-*` crates that should be standalone utilities but currently import project-specific types or assume project-specific directory structures. This prevents them from being used as "blackbox" systems in other Phenotype projects or external ecosystems.
+
+### Affected Crate Patterns
+
+#### 1. phenotype-event-sourcing
+- **Current:** Hardcoded to `AgilePlus` domain events in several modules.
+- **Target:** Generic `Event<T>` wrapper where `T` is provided by the implementer.
+
+#### 2. phenotype-cache-adapter
+- **Current:** Assumptions about `TenantId` format tied to the `thegent` auth system.
+- **Target:** Pluggable `KeyProvider` trait to allow different ID formats.
+
+### Design Anti-Patterns
+
+| Anti-Pattern | Description | Remediation |
+|--------------|-------------|-------------|
+| **Project-Specific Errors** | Using `AgilePlusError` in a core crate. | Use generic `Error` traits or crate-local error types. |
+| **Directory Assumptions** | Assuming `~/.agileplus/` config paths. | Use `BaseDir` provider or configuration injection. |
+| **Type Leaking** | Public APIs exposing project-specific DTOs. | Use associated types or generic parameters. |
+
+### Recommendations
+
+1. **Extract Trait Boundaries:** All infrastructure crates must define their requirements as traits (`Storage`, `Logger`, `Bus`) in a `phenotype-contracts` or local `traits.rs`.
+2. **Implementation vs Interface:** Move project-specific implementations to a `adapters/` folder within the parent project, leaving the `crates/` version strictly generic.
+3. **Feature-Gating:** Use Rust features to opt-in to specific project integrations without making them mandatory.
+
+### Tasks
+
+- [ ] ARCH-GEN-001: Audit `phenotype-event-sourcing` for `AgilePlus` type leakage.
+- [ ] ARCH-GEN-002: Refactor `phenotype-cache-adapter` to use generic key types.
+- [ ] ARCH-GEN-003: Create `phenotype-traits` library for shared infrastructure definitions.
+
+---
+
+## 2026-03-29 - Round 8: High-Availability & Service Mesh Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+
+Proposal for adopting a service mesh (e.g., Linkerd or Istio) to handle service-to-service communication, security, and observability across the Phenotype cluster.
+
+### Key Features
+
+| Feature | implementation |
+|---------|----------------|
+| **mTLS** | Automatic mutual TLS between all nodes. |
+| **Retries** | Uniform retry and timeout policies without code changes. |
+| **Observability** | Gold-standard metrics (success rate, latency) out of the box. |
+
+### Tasks
+
+- [ ] MESH-001: Evaluate Linkerd overhead for small-scale Phenotype deployments.
+- [ ] MESH-002: Prototype sidecar injection in the `phenotype-gateway` deployment.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 8: Generic/Extensible Crate Design Review
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Analysis of crate design patterns across the Phenotype ecosystem revealing a critical architectural debt: many crates are tightly coupled to parent projects (e.g., AgilePlus, heliosApp) rather than being designed as generic infrastructure blocks.
+
+### Problem Statement
+
+**Observation:** We have multiple `phenotype-*` crates that should be standalone utilities but currently import project-specific types or assume project-specific directory structures. This prevents them from being used as "blackbox" systems in other Phenotype projects or external ecosystems.
+
+### Affected Crate Patterns
+
+#### 1. phenotype-event-sourcing
+- **Current:** Hardcoded to `AgilePlus` domain events in several modules.
+- **Target:** Generic `Event<T>` wrapper where `T` is provided by the implementer.
+
+#### 2. phenotype-cache-adapter
+- **Current:** Assumptions about `TenantId` format tied to the `thegent` auth system.
+- **Target:** Pluggable `KeyProvider` trait to allow different ID formats.
+
+### Design Anti-Patterns
+
+| Anti-Pattern | Description | Remediation |
+|--------------|-------------|-------------|
+| **Project-Specific Errors** | Using `AgilePlusError` in a core crate. | Use generic `Error` traits or crate-local error types. |
+| **Directory Assumptions** | Assuming `~/.agileplus/` config paths. | Use `BaseDir` provider or configuration injection. |
+| **Type Leaking** | Public APIs exposing project-specific DTOs. | Use associated types or generic parameters. |
+
+### Recommendations
+
+1. **Extract Trait Boundaries:** All infrastructure crates must define their requirements as traits (`Storage`, `Logger`, `Bus`) in a `phenotype-contracts` or local `traits.rs`.
+2. **Implementation vs Interface:** Move project-specific implementations to a `adapters/` folder within the parent project, leaving the `crates/` version strictly generic.
+3. **Feature-Gating:** Use Rust features to opt-in to specific project integrations without making them mandatory.
+
+### Tasks
+
+- [ ] ARCH-GEN-001: Audit `phenotype-event-sourcing` for `AgilePlus` type leakage.
+- [ ] ARCH-GEN-002: Refactor `phenotype-cache-adapter` to use generic key types.
+- [ ] ARCH-GEN-003: Create `phenotype-traits` library for shared infrastructure definitions.
+
+---
+
+## 2026-03-29 - Round 8: High-Availability & Service Mesh Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+
+Proposal for adopting a service mesh (e.g., Linkerd or Istio) to handle service-to-service communication, security, and observability across the Phenotype cluster.
+
+### Key Features
+
+| Feature | implementation |
+|---------|----------------|
+| **mTLS** | Automatic mutual TLS between all nodes. |
+| **Retries** | Uniform retry and timeout policies without code changes. |
+| **Observability** | Gold-standard metrics (success rate, latency) out of the box. |
+
+### Tasks
+
+- [ ] MESH-001: Evaluate Linkerd overhead for small-scale Phenotype deployments.
+- [ ] MESH-002: Prototype sidecar injection in the `phenotype-gateway` deployment.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 9: Generic/Extensible Crate Design Review
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Analysis of crate design patterns across Phenotype ecosystem revealing that many crates are tightly coupled to parent projects rather than designed as generic, extensible systems.
+
+### Problem Statement
+
+**Observation:** Multiple `phenotype-*` crates contain project-specific logic that limits reusability across the ecosystem. They are often "whitebox" integrations rather than "blackbox" infrastructure blocks.
+
+### Affected Crate Patterns
+
+#### 1. phenotype-event-sourcing
+- **Current:** Hardcoded to specific domain entities in some helper modules.
+- **Target:** Full abstraction using `trait Aggregate` and generic event envelopes.
+
+#### 2. phenotype-cache-adapter
+- **Current:** Hardcoded storage backends without a unified provider trait.
+- **Target:** `trait CacheBackend` with feature-gated implementations for DashMap, Moka, and Redis.
+
+### Design Recommendations for Genericity
+
+| Pattern | Current Anti-Pattern | Recommended Generic Pattern |
+|---------|----------------------|-----------------------------|
+| **Error Handling** | Crate-specific enums with project variants. | Core trait `PhenotypeError` + dynamic dispatch or generic error parameter. |
+| **Configuration** | Reading from `~/.agileplus/` directly. | Injecting `trait ConfigSource` or using environment-agnostic paths. |
+| **Dependencies** | Hard dependencies on project-specific libraries. | Using "Ports and Adapters" where the core crate only defines the Port (trait). |
+
+### Tasks
+
+- [ ] ARCH-GEN-001: Audit all `phenotype-*` crates for project-specific string literals or paths.
+- [ ] ARCH-GEN-002: Refactor `phenotype-event-sourcing` to use associated types for Events.
+- [ ] ARCH-GEN-003: Document the "Infrastructure as a Library" standard for new crates.
+
+---
+
+## 2026-03-29 - Round 9: CI/CD Pipeline Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P1
+
+### Summary
+
+Architecture for a unified CI/CD pipeline that supports multi-language projects (Rust, Python, TS) with shared security gates and artifact promotion logic.
+
+### Pipeline Stages
+
+1. **Gate 0: Security & Compliance**
+   - `cargo-audit`, `cargo-deny`, `gitleaks`.
+   - Python `bandit`, `safety`.
+   - NPM `npm audit`.
+
+2. **Gate 1: Quality (The "Lint" Phase)**
+   - `clippy`, `ruff`, `eslint`.
+   - `typos` for documentation.
+
+3. **Gate 2: Verification (The "Test" Phase)**
+   - `cargo-nextest` for Rust.
+   - `pytest` for Python.
+   - `vitest` or `jest` for TS.
+
+4. **Gate 3: Artifact Generation**
+   - Docker image build with multi-stage layers.
+   - Binary stripping and compression (`upx`).
+   - SBOM generation (CycloneDX).
+
+### Tasks
+
+- [ ] CICD-001: Create reusable GitHub Actions composite actions for each gate.
+- [ ] CICD-002: Implement "Test-First" enforcement in the pipeline (fail if coverage decreases).
+
+_Last updated: 2026-03-29 (Round 9)_
+
+---
+
+## 2026-03-29 - Round 11: Real-Time Event Bus Architecture (NATS JetStream)
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Architecture for the centralized Phenotype event bus using NATS JetStream. This system provides durable, at-least-once delivery of events across the cluster with support for consumer groups and message replay.
+
+### Event Bus Topography
+
+```
+┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+│  Producer A  │      │  Producer B  │      │  Producer C  │
+└──────┬───────┘      └──────┬───────┘      └──────┬───────┘
+       │                     │                     │
+       ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    NATS JetStream Cluster                    │
+│  Stream: "phenotype.events" (Durable, File Storage)          │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         ▼                     ▼                     ▼
+┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
+│  Consumer Group │   │  Consumer Group │   │  Single-Shot    │
+│     "Worker"    │   │    "Audit"      │   │    "Monitor"    │
+└─────────────────┘   └─────────────────┘   └─────────────────┘
+```
+
+### Stream Configuration
+- **Subjects:** `phenotype.events.*` (e.g., `phenotype.events.user`, `phenotype.events.task`)
+- **Retention:** `Limits` (based on file size or message age).
+- **Storage:** `File` (for persistence across restarts).
+
+### Tasks
+- [ ] BUS-001: Implement the `NatsEventBus` in `phenotype-events`.
+- [ ] BUS-002: Add support for "Point-in-Time" replay for debugging agent memory.
+
+---
+
+## 2026-03-29 - Round 11: Schema Registry & Evolution Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+To prevent breaking changes in distributed systems, a Schema Registry architecture is proposed to manage the versions of JSON/Protobuf schemas used in events and tool calls.
+
+### Key Components
+1. **Schema Store:** A versioned repository of all valid event schemas.
+2. **Compatibility Checker:** Logic that runs in CI to ensure new schemas don't break old consumers (Backwards/Forwards compatibility).
+3. **Rust Macro Integration:** Derive macros that automatically embed the schema version in the serialized message header.
+
+_Last updated: 2026-03-29 (Round 11)_

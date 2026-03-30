@@ -1969,3 +1969,194 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 ---
 
 _Last updated: 2026-03-31_
+
+---
+
+## 2026-03-29 - Round 8: Security & Supply Chain Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Dependencies and external tools required to implement SLSA Level 3 compliance and ensure secure artifact generation.
+
+| Tool/Crate | Purpose | Assessment |
+|------------|---------|------------|
+| `cosign` | Artifact signing | ✅ REQUIRED for image provenance. |
+| `syft` | SBOM generation | ✅ REQUIRED for CycloneDX output. |
+| `cargo-audit` | Vulnerability scanning | ✅ STANDARD for Rust deps. |
+| `cargo-deny` | License & Bans | ✅ STANDARD for workspace policy. |
+
+### Recommended CI Integration
+```yaml
+# Use in security.yml
+- name: Audit Rust Vulnerabilities
+  uses: rust-lang/rustsec-github-action@v1
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+---
+
+## 2026-03-29 - Round 8: Standardized Web & Middleware Stack
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+Consolidating the HTTP framework and middleware ecosystem to reduce binary bloat and ensure consistent behavior (logging, CORS, compression).
+
+| Crate | Use Case | Recommendation |
+|-------|----------|----------------|
+| `axum` | REST/WebSocket server | ✅ STANDARD |
+| `tower-http` | Common middleware | ✅ ADOPT (cors, trace, compression) |
+| `reqwest` | Async HTTP client | ✅ STANDARD |
+
+### Task
+- [ ] DEP-WEB-001: Move `axum` and `reqwest` to workspace dependencies to pin versions.
+
+_Last updated: 2026-03-29 (Round 8)_
+
+---
+
+## 2026-03-29 - Round 9: High-Performance Networking Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Evaluation of next-generation networking crates to reduce latency in agent-to-agent communication and large-scale data synchronization.
+
+### Evaluation Matrix
+
+| Crate | Purpose | Assessment | Rationale |
+|-------|---------|------------|-----------|
+| `quinn` | QUIC protocol | ✅ ADOPT | Faster connection setup for mobile/unreliable links. |
+| `tonic` | gRPC implementation | ✅ STANDARD | Industry standard for internal high-speed RPC. |
+| `webrtc` | Peer-to-peer | 🔲 EVALUATE | For direct browser-to-agent streaming. |
+
+### Tasks
+- [ ] NET-001: Prototype `phenotype-sync` over QUIC using `quinn`.
+- [ ] NET-002: Benchmark `tonic` vs basic REST for high-volume event ingestion.
+
+---
+
+## 2026-03-29 - Round 9: Modern UI & TUI Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P3
+
+### Summary
+Standardizing the visual feedback tools used in CLI and administrative dashboards.
+
+| Crate | Use Case | Status |
+|-------|----------|--------|
+| `ratatui` | Complex TUI dashboards | ✅ RECOMMENDED |
+| `indicatif` | Progress bars / spinners | ✅ STANDARD |
+| `inquire` | Interactive CLI prompts | ✅ ADOPT |
+
+### Recommended Action
+Replace all remaining `println!` debugging in CLI tools with `tracing` and structured terminal output using `ratatui`.
+
+_Last updated: 2026-03-29 (Round 9)_
+
+---
+
+## 2026-03-29 - Round 10: Advanced Memory & Allocator Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Evaluation of alternative memory allocators to prevent fragmentation in long-running Phenotype agents and improve performance in multi-threaded workloads.
+
+### Crate Options
+
+| Crate | Purpose | Assessment |
+|-------|---------|------------|
+| `jemallocator` | Linux/macOS allocator. | ✅ RECOMMENDED for production binaries. |
+| `mimalloc` | Microsoft's allocator. | ✅ ADOPT for Windows/WSL targets. |
+| `bumpalo` | Fast arena allocation. | ✅ STANDARD for per-request cycles. |
+
+### Recommended Action
+Replace the default `std` allocator with `jemalloc` in all top-level binaries to ensure deterministic memory behavior.
+
+---
+
+## 2026-03-29 - Round 10: Core Cryptography Primitives
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Standardizing the cryptographic primitives used for hashing, signing, and secret management across the cluster.
+
+| Crate | Use Case | Status |
+|-------|----------|--------|
+| `ring` | General crypto. | ✅ STANDARD |
+| `blake3` | Fast hashing. | ✅ ADOPT for event chains. |
+| `ed25519-dalek` | Agent signing. | ✅ STANDARD |
+
+### Task
+- [ ] DEP-CRYPTO-001: Replace all `sha2` usage in hot paths with `blake3` for improved performance.
+
+_Last updated: 2026-03-29 (Round 10)_
+
+---
+
+## 2026-03-29 - Round 11: Distributed Consensus & Coordination Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Evaluation of dependencies for leader election and distributed locking across the Phenotype cluster to support high-availability (HA) for critical agents.
+
+### Crate Comparison
+
+| Crate | Backend | Assessment | Rationale |
+|-------|---------|------------|-----------|
+| `etcd-client` | etcd | ✅ RECOMMENDED | Industry standard for robust HA coordination. |
+| `redis` | Redis | ✅ ADOPT | Good for lightweight locks (Redlock) if Redis exists. |
+| `raft-rs` | Custom | 🔲 EVALUATE | High complexity; only for custom stateful clusters. |
+
+### Tasks
+- [ ] HA-001: Implement a `DistributedLock` trait in `phenotype-contracts`.
+- [ ] HA-002: Prototype leader election for `phenotype-worker` using `etcd-client`.
+
+---
+
+## 2026-03-29 - Round 11: Formal Policy Verification Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P2
+
+### Summary
+Dependencies required to implement mathematically sound policy evaluation.
+
+| Crate | Purpose | Status |
+|-------|---------|--------|
+| `cedar-policy` | Cedar Engine | ✅ RECOMMENDED |
+| `proptest` | Property-based testing | ✅ STANDARD |
+| `z3` | SMT Solver bindings | 🔲 EVALUATE |
+
+### Recommended Action
+Replace the custom JSON-logic implementation in `phenotype-policy-engine` with the `cedar-policy` crate to leverage its built-in formal verification capabilities.
+
+_Last updated: 2026-03-29 (Round 11)_
