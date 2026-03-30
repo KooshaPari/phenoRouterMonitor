@@ -1,0 +1,193 @@
+//! In-memory [`EventStore`](crate::store::EventStore) with SHA-256 hash chain.
+
+use chrono::{DateTime, Utc};
+use std::collections::BTreeMap;
+use std::sync::RwLock;
+
+use crate::error::{EventStoreError, Result};
+use crate::hash;
+use crate::store::{EventStore, JsonEnvelope};
+
+pub struct InMemoryEventStore {
+    events: RwLock<BTreeMap<String, BTreeMap<String, Vec<StoredEvent>>>>,
+}
+
+#[derive(Clone, Debug)]
+struct StoredEvent {
+    sequence: i64,
+    hash: String,
+    prev_hash: String,
+    payload_json: serde_json::Value,
+    actor: String,
+    timestamp: chrono::DateTime<chrono::Utc>,
+    id: uuid::Uuid,
+}
+
+impl InMemoryEventStore {
+    pub fn new() -> Self {
+        Self {
+            events: RwLock::new(BTreeMap::new()),
+        }
+    }
+}
+
+impl Default for InMemoryEventStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl EventStore for InMemoryEventStore {
+    fn append(
+        &self,
+        event: &JsonEnvelope,
+        entity_type: &str,
+        entity_id: &str,
+    ) -> Result<i64> {
+        let mut store = self
+            .events
+            .write()
+            .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
+
+        let entity_map = store
+            .entry(entity_type.to_string())
+            .or_insert_with(BTreeMap::new);
+        let events = entity_map.entry(entity_id.to_string()).or_insert_with(Vec::new);
+
+        let sequence = if events.is_empty() {
+            1
+        } else {
+            events.last().unwrap().sequence + 1
+        };
+        let prev_hash = if events.is_empty() {
+            "0".repeat(64)
+        } else {
+            events.last().unwrap().hash.clone()
+        };
+
+        let payload_json = event.payload.clone();
+
+        let hash = hash::compute_hash(
+            &event.id,
+            event.timestamp,
+            entity_type,
+            &payload_json,
+            &event.actor,
+            &prev_hash,
+        )?;
+
+        events.push(StoredEvent {
+            sequence,
+            hash,
+            prev_hash,
+            payload_json,
+            actor: event.actor.clone(),
+            timestamp: event.timestamp,
+            id: event.id,
+        });
+
+        Ok(sequence)
+    }
+
+    fn get_events(&self, entity_type: &str, entity_id: &str) -> Result<Vec<JsonEnvelope>> {
+        let store = self
+            .events
+            .read()
+            .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
+
+        let events = store
+            .get(entity_type)
+            .and_then(|m| m.get(entity_id))
+            .ok_or_else(|| EventStoreError::NotFound(format!("{entity_type}/{entity_id}")))?;
+
+        Ok(events
+            .iter()
+            .map(|se| JsonEnvelope {
+                id: se.id,
+                timestamp: se.timestamp,
+                payload: se.payload_json.clone(),
+                actor: se.actor.clone(),
+                prev_hash: se.prev_hash.clone(),
+                hash: se.hash.clone(),
+                sequence: se.sequence,
+            })
+            .collect())
+    }
+
+    fn get_events_since(
+        &self,
+        entity_type: &str,
+        entity_id: &str,
+        sequence: i64,
+    ) -> Result<Vec<JsonEnvelope>> {
+        Ok(self
+            .get_events(entity_type, entity_id)?
+            .into_iter()
+            .filter(|e| e.sequence > sequence)
+            .collect())
+    }
+
+    fn get_events_by_range(
+        &self,
+        entity_type: &str,
+        entity_id: &str,
+        from: DateTime<Utc>,
+        to: DateTime<Utc>,
+    ) -> Result<Vec<JsonEnvelope>> {
+        Ok(self
+            .get_events(entity_type, entity_id)?
+            .into_iter()
+            .filter(|e| e.timestamp >= from && e.timestamp <= to)
+            .collect())
+    }
+
+    fn get_latest_sequence(&self, entity_type: &str, entity_id: &str) -> Result<i64> {
+        let store = self
+            .events
+            .read()
+            .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
+
+        Ok(store
+            .get(entity_type)
+            .and_then(|m| m.get(entity_id))
+            .and_then(|events| events.last().map(|e| e.sequence))
+            .unwrap_or(0))
+    }
+
+    fn verify_chain(&self, entity_type: &str, entity_id: &str) -> Result<()> {
+        let store = self
+            .events
+            .read()
+            .map_err(|_| EventStoreError::StorageError("lock poisoned".into()))?;
+
+        let events = store
+            .get(entity_type)
+            .and_then(|m| m.get(entity_id))
+            .ok_or_else(|| EventStoreError::NotFound(format!("{entity_type}/{entity_id}")))?;
+
+        let chain: Vec<(String, String)> = events
+            .iter()
+            .map(|e| (e.hash.clone(), e.prev_hash.clone()))
+            .collect();
+
+        hash::verify_chain(&chain)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn append_and_roundtrip() {
+        let store = InMemoryEventStore::new();
+        let env = JsonEnvelope::new(json!({"k": 1}), "actor");
+        let seq = store.append(&env, "T", "id1").unwrap();
+        assert_eq!(seq, 1);
+        let got = store.get_events("T", "id1").unwrap();
+        assert_eq!(got.len(), 1);
+        assert_eq!(got[0].payload, json!({"k": 1}));
+    }
+}
