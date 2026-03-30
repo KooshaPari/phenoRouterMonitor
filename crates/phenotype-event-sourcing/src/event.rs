@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn create_event_envelope() {
-        #[derive(Serialize)]
+        #[derive(Serialize, Deserialize)]
         struct TestPayload {
             value: i32,
         }

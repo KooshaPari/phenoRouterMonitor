@@ -349,7 +349,7 @@ mod tests {
     #[test]
     fn test_error_context_chain() {
         let err = ErrorKind::not_found("user");
-        let ctx = err.chain("while fetching").with_backtrace();
+        let ctx = err.chain("while fetching");
         assert!(ctx.to_string().contains("while fetching"));
     }
 }

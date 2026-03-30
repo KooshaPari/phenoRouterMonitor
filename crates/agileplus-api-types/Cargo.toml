@@ -8,3 +8,6 @@ description = "Agileplus-api-types"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+serde.workspace = true
