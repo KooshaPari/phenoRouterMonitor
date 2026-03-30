@@ -28,7 +28,6 @@ EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
 crates/phenotype-config-core/
 crates/phenotype-contracts/
-crates/phenotype-error-core/
 crates/phenotype-git-core/
 crates/phenotype-health/
 crates/phenotype-policy-engine/
