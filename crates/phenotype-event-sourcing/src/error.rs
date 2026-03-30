@@ -1,91 +1,17 @@
-//! Error types for phenotype-event-sourcing.
+//! Common error types for event sourcing.
 
-use thiserror::Error;
+pub use phenotype_error_core::Error;
 
-/// Result type for event sourcing operations.
-pub type Result<T> = std::result::Result<T, EventSourcingError>;
-
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum EventSourcingError {
-    #[error(transparent)]
-    Store(#[from] EventStoreError),
-
-    #[error(transparent)]
-    Hash(#[from] HashError),
-
-    #[error(transparent)]
-    Serialization(#[from] serde_json::Error),
-
-    #[error("aggregate not found: {0}")]
-    AggregateNotFound(String),
-
+    #[error("hash error: {0}")]
+    Hash(String),
+    #[error("serialization error: {0}")]
+    Serialization(String),
+    #[error("storage error: {0}")]
+    Storage(String),
     #[error("event not found: {0}")]
     EventNotFound(String),
-
-    #[error("hash mismatch: expected {expected}, got {actual}")]
-    HashMismatch { expected: String, actual: String },
-
-    #[error("snapshot error: {0}")]
-    Snapshot(String),
-
-    #[error("replay error: {0}")]
-    Replay(String),
-
-    #[error("version conflict: expected {expected}, got {actual}")]
-    VersionConflict { expected: u64, actual: u64 },
-
-    #[error("invalid event sequence at position {position}")]
-    InvalidEventSequence { position: u64 },
-
-    #[error("internal error: {0}")]
-    Internal(String),
-}
-
-impl EventSourcingError {
-    pub fn aggregate_not_found(id: impl Into<String>) -> Self {
-        Self::AggregateNotFound(id.into())
-    }
-
-    pub fn hash_mismatch(expected: impl Into<String>, actual: impl Into<String>) -> Self {
-        Self::HashMismatch {
-            expected: expected.into(),
-            actual: actual.into(),
-        }
-    }
-}
-
-impl From<std::io::Error> for EventSourcingError {
-    fn from(e: std::io::Error) -> Self {
-        Self::Internal(e.to_string())
-    }
-}
-
-#[derive(Debug, Error)]
-pub enum EventStoreError {
-    #[error("event not found: {0}")]
-    NotFound(String),
-
-    #[error("duplicate sequence: {0}")]
-    DuplicateSequence(String),
-
-    #[error("storage error: {0}")]
-    StorageError(String),
-
-    #[error("invalid hash: {0}")]
-    InvalidHash(String),
-
-    #[error("sequence gap: expected {expected}, got {actual}")]
-    SequenceGap { expected: i64, actual: i64 },
-}
-
-#[derive(Debug, Error)]
-pub enum HashError {
-    #[error("hash chain broken at sequence {sequence}")]
-    ChainBroken { sequence: i64 },
-
-    #[error("invalid hash length: expected 32 bytes (64 hex digits), got {0}")]
-    InvalidHashLength(usize),
-
-    #[error("hash mismatch at sequence {sequence}")]
-    HashMismatch { sequence: i64 },
+    #[error("version conflict: {0}")]
+    VersionConflict(String),
 }

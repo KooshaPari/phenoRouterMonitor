@@ -1,9 +1,5 @@
-//! Tracing setup for Phenotype.
+//! Tracing utilities.
 
-/// Initialize tracing with JSON formatting.
-pub fn init() {
-    tracing_subscriber::fmt()
-        .with_target(true)
-        .json()
-        .init();
-}
+pub use phenotype_error_core::Error;
+
+pub type Result<T> = std::result::Result<T, Error>;
