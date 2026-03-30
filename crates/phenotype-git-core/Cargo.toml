@@ -2,22 +2,9 @@
 name = "phenotype-git-core"
 version.workspace = true
 edition.workspace = true
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
 license.workspace = true
 repository.workspace = true
-description = "Phenotype git core crate"
-
-[dependencies]
-<<<<<<< HEAD
-=======
-=======
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Git operations for Phenotype via gitoxide (pure Rust) — fixes RUSTSEC-2025-0140"
+description = "Git operations for Phenotype via gitoxide (pure Rust) - fixes RUSTSEC-2025-0140"
 
 [dependencies]
 # gix (gitoxide) - pure Rust git implementation
@@ -27,5 +14,3 @@ thiserror.workspace = true
 
 [lib]
 path = "src/lib.rs"
->>>>>>> origin/main
->>>>>>> origin/main

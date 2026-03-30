@@ -58,7 +58,23 @@ pub struct StateMachine {
     on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
+impl Default for StateMachine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl StateMachine {
+    /// Create a new empty state machine.
+    pub fn new() -> Self {
+        Self {
+            current: RwLock::new(String::new()),
+            transitions: HashMap::new(),
+            on_enter: HashMap::new(),
+            on_exit: HashMap::new(),
+        }
+    }
+
     /// Get the current state.
     pub fn current(&self) -> String {
         self.current.read().unwrap().clone()
@@ -103,7 +119,6 @@ impl StateMachine {
         }
 
         *current = new_state.clone();
-        *current_ordinal = transition.to_ordinal;
         Ok(new_state)
     }
 
@@ -229,21 +244,12 @@ impl StateMachineBuilder {
                 "initial state cannot be empty".into(),
             ));
         }
-        // Ensure initial state has an ordinal
-        if !self.state_ordinals.contains_key(&self.initial) {
-            self.state_ordinals.insert(self.initial.clone(), 0);
-        }
 
         Ok(StateMachine {
             current: RwLock::new(self.initial.clone()),
-            current_ordinal: RwLock::new(*self.state_ordinals.get(&self.initial).unwrap()),
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,
-            sequential_next: self.sequential_next,
-            skip_states: self.skip_states,
-            forward_only: self.forward_only,
-            state_ordinals: self.state_ordinals,
         })
     }
 }

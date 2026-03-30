@@ -620,10 +620,6 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 - [ ] Plan gix upgrade from 0.71 to 0.79
 
 ---
-<<<<<<< HEAD
-=======
-
----
 
 ## 2026-03-29 - Dependency Management Best Practices (2026)
 
@@ -3034,5 +3030,3 @@ grep -r "quote::" crates/ libs/
 # Average deps per crate: ~5
 # Most common: serde, thiserror, tokio, async-trait
 ```
-
->>>>>>> origin/main
