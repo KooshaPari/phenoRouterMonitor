@@ -6,7 +6,7 @@ license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 authors.workspace = true
-description = "TODO"
+description = "Hexagonal architecture port abstractions for domain-driven design"
 
 [lib]
 path = "src/lib.rs"
@@ -15,3 +15,7 @@ path = "src/lib.rs"
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+async-trait.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
