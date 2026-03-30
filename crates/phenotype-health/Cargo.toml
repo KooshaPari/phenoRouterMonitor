@@ -4,27 +4,15 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
-<<<<<<< HEAD
-repository.workspace = true
-description = "Shared health check abstraction for Phenotype services"
-
-[dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true }
-
-[dev-dependencies]
-tokio = { workspace = true }
-=======
 authors.workspace = true
 repository.workspace = true
-description = "Health check abstraction"
+description = "Shared health check abstraction for Phenotype services"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
 thiserror.workspace = true
-serde = { version = "1.0", features = ["derive"] }
->>>>>>> origin/main
+tokio.workspace = true
