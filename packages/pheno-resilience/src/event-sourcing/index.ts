@@ -1,7 +1,7 @@
 // Event Sourcing Module
 // wraps: phenotype-event-sourcing (Rust crate)
 
-import type { DomainEvent } from '@phenotype/pheno-core';
+import type { DomainEvent } from '../../../pheno-core/src/ports/index';
 
 // ============================================================================
 // CORE INTERFACES

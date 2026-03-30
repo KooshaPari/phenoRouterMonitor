@@ -1,7 +1,7 @@
 // Cache Module
 // wraps: phenotype-cache-adapter (Rust crate) — Two-tier (L1/L2) caching with invalidation
 
-import type { CachePort } from '@phenotype/pheno-core';
+import type { CachePort } from '../../../pheno-core/src/ports/index';
 
 // ============================================================================
 // CORE INTERFACES

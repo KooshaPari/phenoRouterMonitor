@@ -16,7 +16,7 @@ pub mod memory;
 pub mod snapshot;
 pub mod store;
 
-pub use error::{EventSourcingError, HashError};
+pub use error::{EventSourcingError, HashError, Result};
 pub use event::EventEnvelope;
 pub use event_sourced::{
     EventHandler, EventHandlerRegistry, EventMetadata, EventSourcingPort, EventSourced,
