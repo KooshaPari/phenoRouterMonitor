@@ -81,7 +81,7 @@ reqwest = { version = "0.12", features = ["json"] }
 
 # Git Operations
 git2 = "0.20"
-gix = "0.62"
+gix = "0.81"
 
 # Logging & Tracing
 tracing = "0.1"
