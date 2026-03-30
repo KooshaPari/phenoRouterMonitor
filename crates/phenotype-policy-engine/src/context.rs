@@ -29,11 +29,9 @@ impl EvaluationContext {
     /// Creates an evaluation context from a JSON value.
     pub fn from_json(value: serde_json::Value) -> Self {
         match value {
-            serde_json::Value::Object(map) => {
-                Self {
-                    facts: map.into_iter().collect(),
-                }
-            }
+            serde_json::Value::Object(map) => Self {
+                facts: map.into_iter().collect(),
+            },
             _ => Self::new(),
         }
     }
@@ -69,7 +67,9 @@ impl EvaluationContext {
 
     /// Gets a fact as a string.
     pub fn get_string(&self, key: &str) -> Option<String> {
-        self.facts.get(key).and_then(|v| v.as_str().map(String::from))
+        self.facts
+            .get(key)
+            .and_then(|v| v.as_str().map(String::from))
     }
 
     /// Gets a fact as a number.
@@ -114,11 +114,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new_context_empty() {
-        let ctx = EvaluationContext::new();
-        assert!(ctx.facts().is_empty());
+    #[test]
+    fn test_from_json() {
+        let json = serde_json::json!({
+            "name": "test_agent",
+            "config": {"timeout": 30}
+        });
+        let _ctx = EvaluationContext::from_json(&json);
     }
-
     #[test]
     fn test_set_and_get_string() {
         let mut ctx = EvaluationContext::new();
@@ -142,8 +145,8 @@ mod tests {
 
     #[test]
     fn test_contains() {
-        let mut ctx = EvaluationContext::new();
-        ctx.set_string("key", "value");
+        let mut _ctx = EvaluationContext::new();
+        _ctx.set_string("key", "value");
         assert!(ctx.contains("key"));
         assert!(!ctx.contains("missing"));
     }

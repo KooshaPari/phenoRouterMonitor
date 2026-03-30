@@ -20946,3 +20946,143 @@ pub fn load_policies_from_file(path: &Path) -> Result<Vec<Policy>, PolicyEngineE
 
 _Last updated: 2026-03-30_
 _Last updated: 2026-03-30 (Wave 157)_
+
+---
+
+## 2026-03-30 - Workflow Orchestration Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Workflow Engine Comparison
+
+| Engine | Language | Durability | Use Case | Phenotype Fit |
+|--------|----------|-----------|----------|---------------|
+| Temporal | Go | Strong | Microservices | ❌ Heavy |
+| Prefekt | Kotlin | Strong | Cloud-native | 🟡 Heavy |
+| forza-core | Rust | Medium | General | ✅ HIGH |
+| Conductor | Java | Strong | Netflix-style | ❌ Heavy |
+| Custom | Rust | TBD | Phenotype | BUILD |
+
+### forza-core Analysis
+
+```rust
+// forza-core patterns
+pub struct WorkflowDefinition {
+    pub id: WorkflowId,
+    pub steps: Vec<Step>,
+    pub retry_policy: RetryPolicy,
+    pub timeout: Duration,
+}
+
+pub enum Step {
+    Task(TaskStep),
+    Parallel(Vec<Step>),
+    Wait(WaitStep),
+    SideEffect(SideEffectStep),
+}
+```
+
+### Phenotype Workflow Design
+
+```rust
+// crates/phenotype-workflow/src/dsl.rs
+
+#[derive(Debug, Clone)]
+pub struct WorkflowDsl {
+    pub name: String,
+    pub triggers: Vec<Trigger>,
+    pub steps: Vec<DslStep>,
+}
+
+#[derive(Debug, Clone)]
+pub enum DslStep {
+    Task {
+        name: String,
+        handler: String,
+        input: Value,
+        retry: Option<RetryPolicy>,
+    },
+    Parallel {
+        branches: Vec<Vec<DslStep>>,
+    },
+    Sequential {
+        steps: Vec<DslStep>,
+    },
+    Conditional {
+        condition: String,
+        then_branch: Vec<DslStep>,
+        else_branch: Vec<DslStep>,
+    },
+}
+```
+
+### Recommendation
+
+| Option | Action | Rationale |
+|--------|--------|-----------|
+| Temporal | REJECT | Too heavy for internal use |
+| forza-core | EVALUATE | Rust-native, moderate complexity |
+| Custom | BUILD | Aligns with phenotype patterns |
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
+## 2026-03-30 - Agent Protocol Landscape Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Agent Communication Protocols Comparison
+
+| Protocol | Organization | Purpose | Status | Phenotype Fit |
+|----------|-------------|---------|--------|---------------|
+| **MCP** | Anthropic | Model Context Protocol | Stable | ✅ HIGH |
+| **A2A** | Agent Protocol | Agent-to-Agent | Draft | 🟡 MEDIUM |
+| **ACP** | ACP | Agent Communication | Active | 🟡 MEDIUM |
+| **ANP** | Neural | Agent Network | Research | ❌ LOW |
+
+### MCP (Model Context Protocol) Analysis
+
+```json
+// MCP Transport
+{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "params": {},
+  "id": 1
+}
+
+// MCP Tool Definition
+{
+  "name": "github_create_issue",
+  "description": "Create a GitHub issue",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "owner": { "type": "string" },
+      "repo": { "type": "string" },
+      "title": { "type": "string" }
+    }
+  }
+}
+```
+
+### Recommendation
+
+| Protocol | Action | Rationale |
+|----------|--------|-----------|
+| MCP | **ADOPT** | Industry standard, Anthropic backing |
+| A2A | **EVALUATE** | Inter-agent communication |
+| ACP | **MONITOR** | Alternative, smaller ecosystem |
+
+---
+
+_Last updated: 2026-03-30_

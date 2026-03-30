@@ -2634,3 +2634,128 @@ deadpool-runtime = "0.6"
 ---
 
 _Last updated: 2026-03-31 (Wave 131-133)_
+
+---
+
+## 2026-03-30 - Message Queue Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Message Queue Crates
+
+| Crate | Purpose | Downloads | Assessment |
+|-------|---------|-----------|------------|
+| `async-nats` | NATS client | 500K+ | ✅ ADOPT |
+| `rdkafka` | Kafka client | 100K+ | 🟡 EVALUATE |
+| `lapin` | RabbitMQ client | 50K+ | 🟡 EVALUATE |
+| `deadpool` | Generic async pool | 1M+ | ✅ ADOPT |
+
+### Recommended Stack
+
+```toml
+# Message queues
+async-nats = "0.22"
+rdkafka = { version = "0.36", features = ["cmake-build"] }
+
+# Async pools
+deadpool = "0.14"
+deadpool-nats = "0.4"
+```
+
+### NATS Usage
+
+```rust
+use async_nats::{Client, ConnectOptions};
+
+pub async fn create_client() -> Result<Client> {
+    ConnectOptions::default()
+        .connect("nats://localhost:4222")
+        .await
+        .map_err(Error::NatsConnect)
+}
+
+pub async fn publish(client: &Client, subject: &str, payload: Vec<u8>) -> Result<()> {
+    client.publish(subject, payload.into())
+        .await
+        .map_err(Error::NatsPublish)?;
+    client.flush().await.map_err(Error::NatsFlush)?;
+    Ok(())
+}
+```
+
+### Tasks
+
+- [ ] MQ-DEP-001: Add async-nats to phenotype-bus
+- [ ] MQ-DEP-002: Implement JetStream consumer
+- [ ] MQ-DEP-003: Add consumer groups
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
+## 2026-03-30 - Vector & Semantic Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Semantic Memory Crates
+
+| Crate | Purpose | Downloads | Assessment |
+|-------|---------|-----------|------------|
+| `qdrant` | Vector DB client | 100K+ | ✅ ADOPT |
+| `pgvector` | PostgreSQL vectors | Built-in | ✅ ADOPT |
+| `meilisearch` | Search engine | 200K+ | 🟡 EVALUATE |
+
+### Recommended Stack
+
+```toml
+# Semantic search
+qdrant-client = "1.12"
+meilisearch-sdk = "0.28"
+
+# Embeddings
+openai-api = "0.1"
+ollama-api = "0.2"
+```
+
+### Embedding Integration
+
+```rust
+use qdrant_client::client::QdrantClient;
+
+pub struct VectorStore {
+    client: QdrantClient,
+    collection: String,
+}
+
+impl VectorStore {
+    pub async fn search(&self, query: &[f32], limit: usize) -> Result<Vec<SearchResult>> {
+        self.client
+            .search_points(&SearchPoints {
+                collection_name: self.collection.clone(),
+                vector: query.to_vec(),
+                limit,
+                ..Default::default()
+            })
+            .await
+            .map_err(Error::VectorSearch)
+    }
+}
+```
+
+### Tasks
+
+- [ ] VEC-001: Add qdrant-client to workspace
+- [ ] VEC-002: Implement embedding generation
+- [ ] VEC-003: Add semantic search to phenotype-memory
+
+---
+
+_Last updated: 2026-03-30_
