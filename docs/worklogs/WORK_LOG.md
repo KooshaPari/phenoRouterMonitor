@@ -9,8 +9,8 @@
 
 ## 2026-03-31 — Resume / reconciliation
 
-- **Supply chain / SBOM:** Canonical narrative and checklists live in [`DEPENDENCIES.md`](./DEPENDENCIES.md) (Waves 103–106, OSV/Syft/CycloneDX). Session bundle: [`sessions/20260330-stacked-pr-sbom/00_OVERVIEW.md`](../sessions/20260330-stacked-pr-sbom/00_OVERVIEW.md).
-- **phenotype-infrakit batch PRs:** [#249](https://github.com/KooshaPari/phenotype-infrakit/pull/249)–[#252](https://github.com/KooshaPari/phenotype-infrakit/pull/252) were opened as drafts and **closed without merge** on 2026-03-30 (`mergedAt` null). Detail: [`docs/worklogs/.archive/PR_CREATION_BATCH_2026-03-30.md`](./.archive/PR_CREATION_BATCH_2026-03-30.md). Wave 108 in `DEPENDENCIES.md` matches that outcome.
+- **Supply chain / SBOM:** Dependency and security notes: [`DEPENDENCIES.md`](./DEPENDENCIES.md). Session bundle: [`sessions/20260330-stacked-pr-sbom/00_OVERVIEW.md`](../sessions/20260330-stacked-pr-sbom/00_OVERVIEW.md). Scripted CycloneDX/OSV automation lives in **phenotype-infrakit** (not this docs tree).
+- **phenotype-infrakit batch PRs:** [#249](https://github.com/KooshaPari/phenotype-infrakit/pull/249)–[#252](https://github.com/KooshaPari/phenotype-infrakit/pull/252) were opened as drafts and **closed without merge** on 2026-03-30 (`mergedAt` null). Detail: [`.archive/PR_CREATION_BATCH_2026-03-30.md`](./.archive/PR_CREATION_BATCH_2026-03-30.md). See **Wave 108** in `DEPENDENCIES.md`.
 - **Wave 97 vs Wave 92–96 table:** Wave 97 **DUP-001** targeted *nested duplicate* inner crate trees. The Wave 92–96 “Non-Canonical Folders” section below is **historical**; top-level `crates/phenotype-*` are **workspace members**. As of 2026-03-31, paths like `crates/phenotype-*/phenotype-*/src/` are **absent** at repo root (nested duplication removed); documented `.archive/*-nested-20260329` paths may not exist in every checkout—verify with `git log` / integrating branch if needed.
 - **Operator hygiene (repo root, verified 2026-03-31):** `worktrees/` still exists; `worktree/`, `add/`, `.worktrees/phench-fix`, and `src/thegent/` are absent; `docs/node_modules/` is still present (regeneratable).
 

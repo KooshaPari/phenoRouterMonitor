@@ -55,7 +55,7 @@ This directory contains detailed audit and research worklogs for the Phenotype e
 
 ## Resuming Work
 
-To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md). Supply-chain / SBOM / OSV work is summarized in `DEPENDENCIES.md` (Waves 103–106) with the session bundle under [`sessions/20260330-stacked-pr-sbom/`](../sessions/20260330-stacked-pr-sbom/); **phenotype-infrakit** hosts the scripted CycloneDX and OSV automation referenced there.
+To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md). For SBOM / supply-chain context, see the same worklog plus [`sessions/20260330-stacked-pr-sbom/`](../sessions/20260330-stacked-pr-sbom/); **phenotype-infrakit** hosts the scripted CycloneDX and OSV automation.
 
 ## 2026-03-30 Wave 96 Summary
 
