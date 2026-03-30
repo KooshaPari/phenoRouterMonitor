@@ -88,3 +88,4 @@ crates/phenotype-contracts/tests/
 !docs/adoption/PHENOSDK_EXTRACTION_STRATEGY.md
 !docs/adoption/INDEX.md
 .hypothesis/
+.hypothesis/

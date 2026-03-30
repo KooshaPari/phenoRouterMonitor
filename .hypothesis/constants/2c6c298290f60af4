@@ -1,4 +1,0 @@
-# file: /Users/kooshapari/CodeProjects/Phenotype/repos/phench/src/phench/paths.py
-# hypothesis_version: 6.151.10
-
-['.', '..', '.phench', '/', 'CodeProjects', 'Phenotype', '\\', '^[A-Za-z0-9._-]+$', 'family name', 'manifest.json', 'modules', 'phench', 'projects', 'repos', 'target name', 'utf-8']
