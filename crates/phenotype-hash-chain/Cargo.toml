@@ -1,0 +1,15 @@
+[package]
+name = "phenotype-hash-chain"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "SHA-256 hash chain for event sourcing"
+
+[dependencies]
+sha2.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
