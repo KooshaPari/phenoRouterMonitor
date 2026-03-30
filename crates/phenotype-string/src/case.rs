@@ -193,21 +193,33 @@ mod tests {
 
     #[test]
     fn test_case_converter_snake() {
-        assert_eq!(CaseConverter::new("HelloWorld").to_snake().build(), "hello_world");
+        assert_eq!(
+            CaseConverter::new("HelloWorld").to_snake().build(),
+            "hello_world"
+        );
     }
 
     #[test]
     fn test_case_converter_camel() {
-        assert_eq!(CaseConverter::new("snake_case").to_camel().build(), "snakeCase");
+        assert_eq!(
+            CaseConverter::new("snake_case").to_camel().build(),
+            "snakeCase"
+        );
     }
 
     #[test]
     fn test_case_converter_pascal() {
-        assert_eq!(CaseConverter::new("snake_case").to_pascal().build(), "SnakeCase");
+        assert_eq!(
+            CaseConverter::new("snake_case").to_pascal().build(),
+            "SnakeCase"
+        );
     }
 
     #[test]
     fn test_case_converter_kebab() {
-        assert_eq!(CaseConverter::new("camelCase").to_kebab().build(), "camel-case");
+        assert_eq!(
+            CaseConverter::new("camelCase").to_kebab().build(),
+            "camel-case"
+        );
     }
 }

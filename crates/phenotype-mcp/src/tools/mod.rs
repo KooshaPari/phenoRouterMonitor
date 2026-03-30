@@ -7,5 +7,5 @@
 pub mod file_ops;
 pub mod system_introspector;
 
-pub use file_ops::{FileOperator, FileOperationResult};
-pub use system_introspector::{SystemIntrospector, SystemInfo};
+pub use file_ops::{FileOperationResult, FileOperator};
+pub use system_introspector::{SystemInfo, SystemIntrospector};

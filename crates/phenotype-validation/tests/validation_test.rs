@@ -256,7 +256,9 @@ fn test_uuid_valid_max_uuid() {
 
 #[test]
 fn test_uuid_valid_urn_format() {
-    assert!(is_valid_uuid("urn:uuid:550e8400-e29b-41d4-a716-446655440000"));
+    assert!(is_valid_uuid(
+        "urn:uuid:550e8400-e29b-41d4-a716-446655440000"
+    ));
 }
 
 #[test]
@@ -327,11 +329,7 @@ fn test_multiple_valid_emails() {
         "firstname.lastname@company.net",
     ];
     for email in valid_emails {
-        assert!(
-            is_valid_email(email),
-            "Email {} should be valid",
-            email
-        );
+        assert!(is_valid_email(email), "Email {} should be valid", email);
     }
 }
 

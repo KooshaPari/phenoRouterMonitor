@@ -168,9 +168,7 @@ mod tests {
     #[test]
     fn test_join() {
         let parts = vec!["world", "!"];
-        let result = StringBuilder::new()
-            .join(parts, " ")
-            .build();
+        let result = StringBuilder::new().join(parts, " ").build();
         assert_eq!(result, "world !");
     }
 

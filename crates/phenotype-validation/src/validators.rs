@@ -17,9 +17,7 @@ use uuid::Uuid;
 /// assert!(!is_valid_email("invalid.email"));
 /// ```
 pub fn is_valid_email(email: &str) -> bool {
-    let email_regex = Regex::new(
-        r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-    ).unwrap();
+    let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
     email_regex.is_match(email)
 }
 
@@ -40,19 +38,19 @@ pub fn is_valid_email(email: &str) -> bool {
 /// ```
 pub fn is_valid_url(url: &str) -> bool {
     let url_lower = url.to_lowercase();
-    
+
     // Check if URL starts with http:// or https://
     if !url_lower.starts_with("http://") && !url_lower.starts_with("https://") {
         return false;
     }
-    
+
     // Extract the part after the scheme
     let after_scheme = if url_lower.starts_with("https://") {
         &url[8..]
     } else {
         &url[7..]
     };
-    
+
     // Ensure there's a non-empty host
     !after_scheme.trim().is_empty()
 }
@@ -217,7 +215,9 @@ mod tests {
 
     #[test]
     fn test_is_valid_uuid_urn() {
-        assert!(is_valid_uuid("urn:uuid:550e8400-e29b-41d4-a716-446655440000"));
+        assert!(is_valid_uuid(
+            "urn:uuid:550e8400-e29b-41d4-a716-446655440000"
+        ));
     }
 
     #[test]

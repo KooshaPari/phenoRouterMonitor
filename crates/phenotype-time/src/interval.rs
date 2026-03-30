@@ -1,7 +1,7 @@
 //! Interval utilities with backoff strategies.
 
-use std::fmt;
 use crate::Duration;
+use std::fmt;
 
 /// Backoff strategy for interval retry behavior
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -76,12 +76,15 @@ impl Interval {
         let wait = match self.strategy {
             BackoffStrategy::Fixed => self.base,
             BackoffStrategy::Exponential { multiplier } => {
-                let multiplier = u64::from(multiplier).pow(u32::from(attempt));
+                let multiplier = u64::from(multiplier).pow(attempt);
                 let secs = self.base.as_secs().saturating_mul(multiplier);
                 Duration::from_secs(secs)
             }
             BackoffStrategy::Linear { step } => {
-                let secs = self.base.as_secs().saturating_add(step.saturating_mul(u64::from(attempt)));
+                let secs = self
+                    .base
+                    .as_secs()
+                    .saturating_add(step.saturating_mul(u64::from(attempt)));
                 Duration::from_secs(secs)
             }
         };
@@ -140,8 +143,8 @@ mod tests {
 
     #[test]
     fn interval_exponential_with_max() {
-        let interval = Interval::exponential(Duration::from_secs(1), 2)
-            .with_max(Duration::from_secs(10));
+        let interval =
+            Interval::exponential(Duration::from_secs(1), 2).with_max(Duration::from_secs(10));
         assert_eq!(interval.next_wait(0), Duration::from_secs(1));
         assert_eq!(interval.next_wait(1), Duration::from_secs(2));
     }

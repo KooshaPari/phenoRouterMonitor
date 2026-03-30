@@ -219,7 +219,6 @@ impl fmt::Display for TimeRange {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

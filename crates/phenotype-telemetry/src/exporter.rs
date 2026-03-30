@@ -83,6 +83,14 @@ impl HttpExporter {
             timeout_secs,
         }
     }
+    #[must_use]
+    pub fn endpoint(&self) -> &str {
+        &self.endpoint
+    }
+    #[must_use]
+    pub fn timeout_secs(&self) -> u64 {
+        self.timeout_secs
+    }
 }
 
 impl Exporter for HttpExporter {

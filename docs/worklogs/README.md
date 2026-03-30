@@ -54,8 +54,28 @@ This directory contains detailed audit and research worklogs for the Phenotype e
 ---
 
 ## Resuming Work
+## Resuming Work
+To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md).
 
-To resume the audit or implementation:
+## 2026-03-30 Wave 96 Summary
+
+### Completed Actions
+- ✅ `phenotype-http-client-core` crate added to workspace
+- ✅ Worktree audit completed (33 worktrees tracked)
+- ✅ Stale worktree `.worktrees/phench/` cleaned
+- ✅ Workspace compiles cleanly
+- ✅ Worklog updated with latest findings
+
+### Pending PR Actions
+| PR | Status | Worktrees to Prune After Merge |
+|----|--------|-------------------------------|
+| #278 | Open | add-tests, cli-errors, fix-clippy, fix-event-sourcing, impl-* |
+
+### Next Priority Actions
+1. **Migrate git2 → gix** for RUSTSEC-2025-0140 fix
+2. **Deprecate phenotype-errors** → promote phenotype-error-core
+3. **Create phenotype-async-traits** for unified async patterns
+4. **Fork cqrs-es** for event sourcing foundation
 
 1. **Start with P0 items** in `DUPLICATION.md` (Wave 92 & 118)
 2. **Research third-party candidates** in `DEPENDENCIES.md` (Wave 131-133)

@@ -17,7 +17,10 @@ pub fn pluralize(word: &str) -> String {
         w if ends_with_any(w, &["ss", "x", "z", "ch", "sh", "us"]) => {
             format!("{}es", word)
         }
-        w if w.len() >= 2 && w.ends_with('y') && is_consonant(w.chars().nth(w.len() - 2).unwrap()) => {
+        w if w.len() >= 2
+            && w.ends_with('y')
+            && is_consonant(w.chars().nth(w.len() - 2).unwrap()) =>
+        {
             format!("{}ies", &word[..word.len() - 1])
         }
         w if w.ends_with("f") => format!("{}ves", &word[..word.len() - 1]),
@@ -43,7 +46,7 @@ pub fn singularize(word: &str) -> String {
         w if w.ends_with("ves") && w.len() > 3 => {
             let stem = &word[..word.len() - 3];
             match stem.chars().last() {
-                Some(c) if matches!(c, 'a' | 'e' | 'i' | 'o' | 'u') => {
+                Some('a' | 'e' | 'i' | 'o' | 'u') => {
                     format!("{}fe", stem)
                 }
                 _ => format!("{}f", stem),
@@ -150,7 +153,29 @@ fn get_irregular_singulars() -> &'static HashMap<&'static str, &'static str> {
 }
 
 fn is_consonant(c: char) -> bool {
-    matches!(c, 'b' | 'c' | 'd' | 'f' | 'g' | 'h' | 'j' | 'k' | 'l' | 'm' | 'n' | 'p' | 'q' | 'r' | 's' | 't' | 'v' | 'w' | 'x' | 'y' | 'z')
+    matches!(
+        c,
+        'b' | 'c'
+            | 'd'
+            | 'f'
+            | 'g'
+            | 'h'
+            | 'j'
+            | 'k'
+            | 'l'
+            | 'm'
+            | 'n'
+            | 'p'
+            | 'q'
+            | 'r'
+            | 's'
+            | 't'
+            | 'v'
+            | 'w'
+            | 'x'
+            | 'y'
+            | 'z'
+    )
 }
 
 fn ends_with_any(word: &str, suffixes: &[&str]) -> bool {

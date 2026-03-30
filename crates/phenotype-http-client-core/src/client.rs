@@ -253,7 +253,10 @@ impl HttpTransport for HttpClient {
             "PATCH" => self.client.patch(url),
             "HEAD" => self.client.head(url),
             _ => {
-                return Err(TransportError::Request(format!("Unsupported HTTP method: {}", method)))
+                return Err(TransportError::Request(format!(
+                    "Unsupported HTTP method: {}",
+                    method
+                )))
             }
         };
 
@@ -325,8 +328,7 @@ mod tests {
 
     #[test]
     fn test_http_client_with_default_header() {
-        let client = HttpClient::new()
-            .with_default_header("Authorization", "Bearer token123");
+        let client = HttpClient::new().with_default_header("Authorization", "Bearer token123");
         assert_eq!(
             client.default_headers.get("Authorization"),
             Some(&"Bearer token123".to_string())
