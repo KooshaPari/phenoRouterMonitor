@@ -9,10 +9,8 @@
 //! Traces to: FR-PHENO-008
 
 use async_trait::async_trait;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::{EventEnvelope, EventSourcingError, EventStore, Result};
 
 /// Metadata attached to sourced events for correlation and causation tracking.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -132,7 +130,7 @@ pub trait EventSourced: Send + Sync + Serialize + DeserializeOwned {
     ///
     /// Called during aggregate mutations. The event is stored locally
     /// until persist_events() is called.
-    fn emit_event(&mut self, event: Self::Event) {
+    fn emit_event(&mut self, _event: Self::Event) {
         // This method can be overridden for custom emission logic,
         // but the default is to collect into pending events.
         // Subclasses should maintain self.pending_events vector.

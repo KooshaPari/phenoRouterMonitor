@@ -7,10 +7,10 @@ description = "Canonical trait definitions for Phenotype hexagonal architecture 
 
 [dependencies]
 async-trait = "0.1"
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }
-thiserror = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

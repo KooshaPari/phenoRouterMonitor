@@ -1,5 +1,4 @@
 [workspace.package]
-description = "Phenotype Infrastructure Kit"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
@@ -16,7 +15,8 @@ members = [
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
-    "crates/phenotype-http-client-core",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
     "crates/phenotype-port-traits",
     "crates/phenotype-policy-engine",
     "crates/phenotype-state-machine",
@@ -24,61 +24,51 @@ members = [
     "crates/phenotype-test-infra",
 ]
 
+exclude = [
+    "crates/agileplus-api-types",
+    "crates/agileplus-domain",
+    "crates/phenotype-config-core",
+    "crates/phenotype-crypto",
+    "crates/phenotype-git-core",
+    "crates/phenotype-http-client-core",
+    "crates/phenotype-iter",
+    "crates/phenotype-mcp",
+    "crates/phenotype-process",
+    "crates/phenotype-retry",
+    "crates/phenotype-string",
+    "crates/phenotype-time",
+    "crates/phenotype-validation",
+    "libs/phenotype-config-core",
+]
+
 [workspace.dependencies]
-# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-
-# Error handling
 thiserror = "2.0"
 anyhow = "1.0"
-
-# Async
 async-trait = "0.1"
-futures = "0.3"
-
-# Time & IDs
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-
-# Caching
-moka = { version = "0.12", features = ["sync"] }
-dashmap = "5"
-lru = "0.12"
-
-# Macros
-strum = { version = "0.26", features = ["derive"] }
-derive_more = "1.0"
-
-# Crypto & hashing
 blake3 = "1.5"
 sha2 = "0.10"
 hex = "0.4"
-
-# Parsing & text
+tokio = { version = "1", features = ["full"] }
+dashmap = "5"
+parking_lot = "0.12"
+lru = "0.16"
+moka = { version = "0.12", features = ["sync"] }
 regex = "1"
 toml = "0.8"
-figment = { version = "0.10", features = ["toml", "yaml", "env"] }
-
-# HTTP & networking
 reqwest = { version = "0.12", features = ["json"] }
-
-# Git integration
-git2 = "0.20"
-gix = { version = "0.81", default-features = false, features = ["status", "revision", "parallel", "sha1"] }
-
-# Utilities
-tempfile = "3"
-once_cell = "1.19"
-parking_lot = "0.12"
-dirs = "6.0"
-tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
-
-# Inter-crate dependencies (path-based for local crates)
-phenotype-error-core = { path = "crates/phenotype-error-core" }
-phenotype-errors = { path = "crates/phenotype-errors" }
+tracing-subscriber = "0.3"
+futures = "0.3"
+syn = "2"
+quote = "1"
+proc-macro2 = "1"
+tempfile = "3"
+phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
+phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
 
 [profile.dev]
 opt-level = 0
