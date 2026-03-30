@@ -6,6 +6,8 @@ authors = ["Phenotype Team"]
 license = "MIT"
 description = "Generic policy evaluation engine with configurable evaluation modes"
 
+[workspace]
+
 [lib]
 path = "src/lib.rs"
 
