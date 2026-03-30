@@ -1,7 +1,6 @@
 //! EventStore trait — generic append-only event storage.
 
 use chrono::{DateTime, Utc};
-use serde::Serialize;
 
 use crate::error::Result;
 use crate::event::EventEnvelope;
