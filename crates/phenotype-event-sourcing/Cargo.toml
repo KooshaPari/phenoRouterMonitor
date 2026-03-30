@@ -7,6 +7,7 @@ repository.workspace = true
 description = "Phenotype shared crate"
 
 [dependencies]
+phenotype-errors = { path = "../phenotype-errors" }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 thiserror.workspace = true
