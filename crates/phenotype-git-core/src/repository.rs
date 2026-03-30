@@ -43,22 +43,20 @@ impl GitRepository {
     /// Get the HEAD commit if it exists.
     pub fn head_commit(&self) -> Result<Option<GitCommit>> {
         match self.inner.head() {
-            Ok(head) => {
-                match head.peel_to_commit() {
-                    Ok(commit) => {
-                        let id = commit.id().to_string()[..8].to_string();
-                        let message = commit
-                            .message()
-                            .unwrap_or("")
-                            .lines()
-                            .next()
-                            .unwrap_or("")
-                            .to_string();
-                        Ok(Some(GitCommit::new(id, message)))
-                    }
-                    Err(_) => Ok(None),
+            Ok(head) => match head.peel_to_commit() {
+                Ok(commit) => {
+                    let id = commit.id().to_string()[..8].to_string();
+                    let message = commit
+                        .message()
+                        .unwrap_or("")
+                        .lines()
+                        .next()
+                        .unwrap_or("")
+                        .to_string();
+                    Ok(Some(GitCommit::new(id, message)))
                 }
-            }
+                Err(_) => Ok(None),
+            },
             Err(_) => Ok(None),
         }
     }

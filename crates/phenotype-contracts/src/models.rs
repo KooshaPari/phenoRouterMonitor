@@ -36,7 +36,9 @@ pub trait DomainEntity: Debug + Clone + Send + Sync + 'static {
 pub trait ValueObject: Debug + Clone + PartialEq + Eq + Send + Sync + 'static {}
 
 /// A domain event representing something that happened in the domain.
-pub trait DomainEvent: Debug + Clone + Send + Sync + Serialize + DeserializeOwned + 'static {
+pub trait DomainEvent:
+    Debug + Clone + Send + Sync + Serialize + DeserializeOwned + 'static
+{
     /// A human-readable name for this event type (e.g. `"OrderPlaced"`).
     fn event_type(&self) -> &str;
 }

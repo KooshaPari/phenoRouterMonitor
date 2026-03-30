@@ -1,28 +1,16 @@
 //! # Phenotype Errors
 //!
 //! Unified error types for the Phenotype ecosystem.
+//!
+//! This crate re-exports `ErrorKind` from `phenotype-error-core` as the
+//! canonical error type. The legacy `Error` enum is retained for
+//! backward compatibility but should not be used in new code.
 
+pub use phenotype_error_core::{Error, ErrorContext, ErrorExt, ErrorKind, ErrorKindInner};
 pub use thiserror::Error;
 
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("Operation failed: {0}")]
-    Failed(String),
-
-    #[error("Not found: {0}")]
-    NotFound(String),
-
-    #[error("Timeout: {0}")]
-    Timeout(String),
-
-    #[error("Unauthorized: {0}")]
-    Unauthorized(String),
-
-    #[error("Internal error: {0}")]
-    Internal(String),
-}
-
-pub type Result<T> = std::result::Result<T, Error>;
+/// Convenience result type using the canonical `ErrorKind`.
+pub type Result<T> = std::result::Result<T, ErrorKind>;
 
 #[cfg(test)]
 mod tests {
@@ -30,44 +18,26 @@ mod tests {
 
     // Traces to: FR-PHENO-001
     #[test]
-    fn error_display_failed() {
-        let e = Error::Failed("disk full".into());
-        assert_eq!(e.to_string(), "Operation failed: disk full");
+    fn re_exported_error_kind_not_found() {
+        let err = ErrorKind::not_found("user/42");
+        assert_eq!(err.kind(), "NotFound");
+        assert!(err.to_string().contains("not found"));
     }
 
     // Traces to: FR-PHENO-001
     #[test]
-    fn error_display_not_found() {
-        let e = Error::NotFound("user/42".into());
-        assert_eq!(e.to_string(), "Not found: user/42");
+    fn re_exported_error_kind_from_io() {
+        let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err: ErrorKind = io_err.into();
+        assert_eq!(err.kind(), "NotFound");
     }
 
     // Traces to: FR-PHENO-001
     #[test]
-    fn error_display_timeout() {
-        let e = Error::Timeout("5s elapsed".into());
-        assert_eq!(e.to_string(), "Timeout: 5s elapsed");
-    }
-
-    // Traces to: FR-PHENO-001
-    #[test]
-    fn error_display_unauthorized() {
-        let e = Error::Unauthorized("bad token".into());
-        assert_eq!(e.to_string(), "Unauthorized: bad token");
-    }
-
-    // Traces to: FR-PHENO-001
-    #[test]
-    fn error_display_internal() {
-        let e = Error::Internal("segfault".into());
-        assert_eq!(e.to_string(), "Internal error: segfault");
-    }
-
-    // Traces to: FR-PHENO-001
-    #[test]
-    fn error_is_std_error() {
-        let e: Box<dyn std::error::Error> = Box::new(Error::Failed("x".into()));
-        assert!(e.to_string().contains("Operation failed"));
+    fn re_exported_error_context_chain() {
+        let err = ErrorKind::not_found("user");
+        let ctx = err.chain("while fetching");
+        assert!(ctx.to_string().contains("while fetching"));
     }
 
     // Traces to: FR-PHENO-001
@@ -80,15 +50,7 @@ mod tests {
     // Traces to: FR-PHENO-001
     #[test]
     fn result_type_err() {
-        let r: Result<i32> = Err(Error::NotFound("missing".into()));
+        let r: Result<i32> = Err(ErrorKind::not_found("missing"));
         assert!(r.is_err());
-    }
-
-    // Traces to: FR-PHENO-001
-    #[test]
-    fn error_debug_format() {
-        let e = Error::Failed("test".into());
-        let dbg = format!("{:?}", e);
-        assert!(dbg.contains("Failed"));
     }
 }

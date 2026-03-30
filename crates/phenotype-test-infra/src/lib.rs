@@ -104,9 +104,7 @@ impl Drop for TempDir {
 
 impl fmt::Debug for TempDir {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("TempDir")
-            .field("path", &self.path)
-            .finish()
+        f.debug_struct("TempDir").field("path", &self.path).finish()
     }
 }
 
@@ -192,10 +190,7 @@ pub trait TestFixture: Sized {
 macro_rules! assert_err_contains {
     ($expr:expr, $substr:expr) => {
         match $expr {
-            Ok(val) => panic!(
-                "assert_err_contains: expected Err, got Ok({:?})",
-                val
-            ),
+            Ok(val) => panic!("assert_err_contains: expected Err, got Ok({:?})", val),
             Err(ref e) => {
                 let msg = e.to_string();
                 assert!(
@@ -422,8 +417,7 @@ mod tests {
     // Traces to: FR-TEST-003
     #[test]
     fn test_assert_err_contains_matches() {
-        let res: std::result::Result<(), String> =
-            Err("validation failed: bad input".into());
+        let res: std::result::Result<(), String> = Err("validation failed: bad input".into());
         assert_err_contains!(res, "bad input");
     }
 
@@ -431,8 +425,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "does not contain")]
     fn test_assert_err_contains_mismatch_panics() {
-        let res: std::result::Result<(), String> =
-            Err("something else".into());
+        let res: std::result::Result<(), String> = Err("something else".into());
         assert_err_contains!(res, "not present");
     }
 
@@ -504,7 +497,11 @@ mod tests {
             tracing::warn!("line one");
             tracing::error!("line two");
         });
-        assert!(logs.lines().len() >= 2, "expected >=2 lines: {:?}", logs.output);
+        assert!(
+            logs.lines().len() >= 2,
+            "expected >=2 lines: {:?}",
+            logs.output
+        );
     }
 
     // Traces to: FR-TEST-005

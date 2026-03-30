@@ -50,8 +50,7 @@ pub trait EventSubscriber: Send + Sync {
 pub trait Notifier: Send + Sync {
     type Error: std::error::Error + Send + Sync + 'static;
 
-    async fn notify(&self, recipient: &str, subject: &str, body: &str)
-        -> Result<(), Self::Error>;
+    async fn notify(&self, recipient: &str, subject: &str, body: &str) -> Result<(), Self::Error>;
 }
 
 /// Cache port for key-value caching.

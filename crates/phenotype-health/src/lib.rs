@@ -154,9 +154,18 @@ mod tests {
     }
     #[test]
     fn test_status_worst() {
-        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Healthy), HealthStatus::Healthy);
-        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Degraded), HealthStatus::Degraded);
-        assert_eq!(HealthStatus::Degraded.worst(HealthStatus::Unhealthy), HealthStatus::Unhealthy);
+        assert_eq!(
+            HealthStatus::Healthy.worst(HealthStatus::Healthy),
+            HealthStatus::Healthy
+        );
+        assert_eq!(
+            HealthStatus::Healthy.worst(HealthStatus::Degraded),
+            HealthStatus::Degraded
+        );
+        assert_eq!(
+            HealthStatus::Degraded.worst(HealthStatus::Unhealthy),
+            HealthStatus::Unhealthy
+        );
     }
     #[test]
     fn test_check_result() {

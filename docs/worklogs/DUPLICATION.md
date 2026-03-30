@@ -3792,3 +3792,57 @@ Identified manual serialization of identical domain models across Rust, Python, 
 ---
 
 _Last updated: 2026-03-30 (Wave 117)_
+
+---
+
+## 2026-03-31 - Wave 118: Additional Cross-Ecosystem Findings
+
+**Project:** [cross-repo]
+**Category:** duplication, patterns
+**Status:** identified
+**Priority:** P2
+
+### Async Trait Proliferation
+
+| Location | Trait | Pattern |
+|----------|-------|---------|
+| `phenotype-contracts/*/ports/inbound` | 3-4 traits | `#[async_trait]` |
+| `phenotype-contracts/*/ports/outbound` | 3-4 traits | `#[async_trait]` |
+| `agileplus-graph` | Storage traits | `#[async_trait]` |
+| `agileplus-cache` | Cache traits | `#[async_trait]` |
+
+**Opportunity:** Create `phenotype-async-traits` crate with standard async trait definitions.
+
+### Connection Pool Inconsistency
+
+| Pool | Manager | Location |
+|------|---------|----------|
+| CachePool | bb8 | `agileplus-cache` |
+| phenotype-redis | deadpool | `libs/phenotype-shared` |
+
+**Recommendation:** Standardize on deadpool (more feature-rich).
+
+### Metrics/Telemetry Fragmentation
+
+| System | Location | Status |
+|--------|----------|--------|
+| `phenotype-telemetry` | `crates/` | Decomposed |
+| `thegent-metrics` | `platforms/thegent` | Monolithic |
+| `agileplus-telemetry` | `crates/agileplus-telemetry` | Partial |
+
+**Recommendation:** Unify telemetry across all Rust projects.
+
+### Port Interface Proliferation (12+ variants)
+
+| Location | Trait Name | Methods |
+|----------|------------|---------|
+| `phenotype-contracts/src/outbound.rs` | `Repository` | 4 |
+| `agileplus-domain/src/ports/storage.rs` | `StoragePort` | 3 |
+| `thegent-git/src/lib.rs` | `GitRepository` | 5 |
+| `heliosCLI/state_db.rs` | `StateStore` | 3 |
+
+**Opportunity:** Consolidate to `phenotype-port-traits` with generic parameters.
+
+---
+
+_Last updated: 2026-03-31 (Wave 118)_

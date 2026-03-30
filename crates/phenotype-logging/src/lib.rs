@@ -30,7 +30,6 @@ pub enum LogFormat {
     Json,
 }
 
-
 /// Configuration for the logging subsystem.
 ///
 /// Use [`LogConfig::builder()`] for ergonomic construction or
@@ -144,8 +143,7 @@ pub fn init_logging() {
 ///
 /// Panics if a global subscriber has already been set.
 pub fn init_logging_with_config(config: LogConfig) {
-    let filter = EnvFilter::try_new(&config.level)
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+    let filter = EnvFilter::try_new(&config.level).unwrap_or_else(|_| EnvFilter::new("info"));
 
     match config.format {
         LogFormat::Pretty => {

@@ -35,10 +35,7 @@ mod tests {
     #[test]
     fn snapshot_creation() {
         let mut metrics = HashMap::new();
-        metrics.insert(
-            "test".into(),
-            Metric::Counter { value: 42 },
-        );
+        metrics.insert("test".into(), Metric::Counter { value: 42 });
 
         let snapshot = MetricsSnapshot::new(metrics);
         assert_eq!(snapshot.metrics.len(), 1);
@@ -48,10 +45,7 @@ mod tests {
     #[test]
     fn snapshot_serialization() {
         let mut metrics = HashMap::new();
-        metrics.insert(
-            "requests".into(),
-            Metric::Counter { value: 100 },
-        );
+        metrics.insert("requests".into(), Metric::Counter { value: 100 });
 
         let snapshot = MetricsSnapshot::new(metrics);
         let json = snapshot.to_json().unwrap();

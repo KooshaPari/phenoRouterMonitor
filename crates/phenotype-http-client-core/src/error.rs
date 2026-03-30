@@ -44,7 +44,10 @@ impl TransportError {
             TransportError::Timeout(_)
                 | TransportError::Connection(_)
                 | TransportError::RateLimited { .. }
-                | TransportError::Server { status: 429 | 500..=599, .. }
+                | TransportError::Server {
+                    status: 429 | 500..=599,
+                    ..
+                }
         )
     }
 

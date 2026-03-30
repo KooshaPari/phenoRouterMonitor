@@ -52,10 +52,10 @@ where
 {
     pub fn new(l1_cap: usize, l2_cap: u64) -> Self {
         Self {
-            l1: Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(l1_cap).unwrap_or(NonZeroUsize::new(100).unwrap())))),
-            l2: MokaCache::builder()
-                .max_capacity(l2_cap)
-                .build(),
+            l1: Arc::new(Mutex::new(LruCache::new(
+                NonZeroUsize::new(l1_cap).unwrap_or(NonZeroUsize::new(100).unwrap()),
+            ))),
+            l2: MokaCache::builder().max_capacity(l2_cap).build(),
             metrics: None,
         }
     }
@@ -71,19 +71,25 @@ where
             let mut l1 = self.l1.lock().unwrap();
             if let Some(entry) = l1.get(key) {
                 if !entry.is_expired() {
-                    if let Some(ref m) = self.metrics { m.record_hit("L1"); }
+                    if let Some(ref m) = self.metrics {
+                        m.record_hit("L1");
+                    }
                     return Some(entry.value.clone());
                 } else {
                     l1.pop(key);
                 }
             }
         }
-        if let Some(ref m) = self.metrics { m.record_miss("L1"); }
+        if let Some(ref m) = self.metrics {
+            m.record_miss("L1");
+        }
 
         // L2 Check
         if let Some(entry) = self.l2.get(key) {
             if !entry.is_expired() {
-                if let Some(ref m) = self.metrics { m.record_hit("L2"); }
+                if let Some(ref m) = self.metrics {
+                    m.record_hit("L2");
+                }
                 // Backfill L1
                 let mut l1 = self.l1.lock().unwrap();
                 l1.put(key.clone(), entry.value.clone().into_entry(entry.expiry));
@@ -92,15 +98,20 @@ where
                 self.l2.invalidate(key);
             }
         }
-        if let Some(ref m) = self.metrics { m.record_miss("L2"); }
+        if let Some(ref m) = self.metrics {
+            m.record_miss("L2");
+        }
 
         None
     }
 
     pub fn insert(&self, key: K, value: V, ttl: Option<Duration>) {
         let expiry = ttl.map(|d| Utc::now() + d);
-        let entry = CacheEntry { value: value.clone(), expiry };
-        
+        let entry = CacheEntry {
+            value: value.clone(),
+            expiry,
+        };
+
         // Update both tiers
         let mut l1 = self.l1.lock().unwrap();
         l1.put(key.clone(), entry.clone());
@@ -120,7 +131,10 @@ trait ToEntry<V> {
 
 impl<V> ToEntry<V> for V {
     fn into_entry(self, expiry: Option<DateTime<Utc>>) -> CacheEntry<V> {
-        CacheEntry { value: self, expiry }
+        CacheEntry {
+            value: self,
+            expiry,
+        }
     }
 }
 

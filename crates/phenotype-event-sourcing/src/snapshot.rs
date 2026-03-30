@@ -85,11 +85,7 @@ impl InMemorySnapshotStore {
     }
 
     /// Get the latest snapshot for an entity.
-    pub fn get_latest(
-        &self,
-        entity_type: &str,
-        entity_id: &str,
-    ) -> Result<Option<Snapshot>> {
+    pub fn get_latest(&self, entity_type: &str, entity_id: &str) -> Result<Option<Snapshot>> {
         let key = (entity_type.to_string(), entity_id.to_string());
         Ok(self.snapshots.get(&key).as_deref().cloned())
     }
@@ -167,13 +163,7 @@ mod tests {
     #[test]
     fn create_snapshot() {
         let state = serde_json::json!({"count": 42, "name": "test"});
-        let snapshot = Snapshot::new(
-            "entity-123",
-            "Order",
-            100,
-            state.clone(),
-            "abc123def456",
-        );
+        let snapshot = Snapshot::new("entity-123", "Order", 100, state.clone(), "abc123def456");
 
         assert_eq!(snapshot.entity_id, "entity-123");
         assert_eq!(snapshot.entity_type, "Order");
@@ -249,7 +239,13 @@ mod tests {
     fn clear_snapshots() {
         let store = InMemorySnapshotStore::new();
         store
-            .save(Snapshot::new("e1", "Order", 50, serde_json::json!({}), "h1"))
+            .save(Snapshot::new(
+                "e1",
+                "Order",
+                50,
+                serde_json::json!({}),
+                "h1",
+            ))
             .unwrap();
         assert!(!store.get_all().unwrap().is_empty());
 

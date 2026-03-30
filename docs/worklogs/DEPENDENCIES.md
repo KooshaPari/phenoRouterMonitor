@@ -2471,3 +2471,120 @@ metrics-exporter-prometheus = "0.13"
 ---
 
 _Last updated: 2026-03-30 (Wave 130)_
+
+---
+
+## 2026-03-31 - External Package Fork/Wrap Candidates (Wave 131)
+
+**Project:** [cross-repo]
+**Category:** dependencies, modernization
+**Status:** identified
+**Priority:** P1
+
+### High-Value Fork Candidates
+
+| ID | Source | Target | LOC | Priority |
+|----|--------|--------|-----|----------|
+| FORK-010 | `utils/pty` | `phenotype-process` | ~750 | P0 |
+| FORK-011 | Custom retry patterns | `backon` | ~300 | P1 |
+| FORK-012 | Custom state machine | `statig` | ~500 | P1 |
+
+### Wrap Candidates
+
+| Package | Wrapper | Purpose | Priority |
+|---------|---------|---------|----------|
+| `gix` | `phenotype-git` | High-perf git ops | P0 |
+| `wasmtime` | `phenotype-sandbox` | Tool execution | P1 |
+| `figment` | `phenotype-config` | Config loading | P1 |
+| `cqrs-es` | `phenotype-eventsourcing` | Event sourcing foundation | P1 |
+
+### Blackbox Candidates (Direct Use)
+
+| Package | Assessment | Status |
+|---------|------------|--------|
+| `serde` | Standard | ✅ Optimal |
+| `tokio` | Standard | ✅ Optimal |
+| `axum` | Standard | ✅ Optimal |
+| `clap` | Standard | ✅ Optimal |
+| `tracing` | Standard | ✅ Optimal |
+| `rig-core` | Best Rust LLM | ✅ Adopt |
+| `sqlx` | Best async DB | ✅ Adopt |
+
+---
+
+## 2026-03-31 - Rust 2026 Modernization Candidates (Wave 132)
+
+**Project:** [phenotype-infrakit]
+**Category:** dependencies, modernization
+**Status:** identified
+**Priority:** P1
+
+### Package Upgrades
+
+| From | To | Effort | Benefit | Priority |
+|------|----|--------|---------|----------|
+| `eventually` 0.5.x | `cqrs-es` | MEDIUM | Production-ready, better maintenance | P0 |
+| `eventually` | `eventsourced` | MEDIUM | Akka Persistence-inspired | P1 |
+| `config-rs` | `figment` | MEDIUM | Better error provenance | P1 |
+| `git2` | `gix` | MEDIUM | RUSTSEC-2025-0140 advisory | P0 |
+| `async-trait` | Native Async Traits | LOW | Rust 2024 edition feature | P2 |
+
+### Event Sourcing Consolidation
+
+| Current | Canonical | LOC Savings |
+|---------|-----------|------------|
+| `phenotype-event-sourcing` | `cqrs-es` based | ~400 LOC |
+| `agileplus-events` | Shared | ~200 LOC |
+| `thegent-event-patters` | Shared | ~150 LOC |
+
+### Policy Engine Consolidation
+
+| Current | Canonical | LOC Savings |
+|---------|-----------|------------|
+| `phenotype-policy-engine` | `casbin-rs` or `cedar` | ~500 LOC |
+| `thegent-policy` | Shared | ~300 LOC |
+
+---
+
+## 2026-03-31 - Dependency Health Scan (Wave 133)
+
+**Project:** [cross-repo]
+**Category:** dependencies, security
+**Status:** identified
+**Priority:** P0
+
+### Security Advisories
+
+| Advisory | Crate | Severity | Action |
+|----------|-------|----------|--------|
+| RUSTSEC-2025-0140 | `git2` | HIGH | Migrate to `gix` immediately |
+| RUSTSEC-2024-0385 | `tokio` | MEDIUM | Update to 1.40+ |
+| RUSTSEC-2024-0412 | `regex` | LOW | Update to 1.11+ |
+
+### Deprecated/Unmaintained
+
+| Crate | Status | Replacement |
+|-------|--------|-------------|
+| `eventually` | Abandoned | `cqrs-es` or `eventsourced` |
+| `surrealdb` | Unstable | `sqlx` with PostgreSQL |
+| `bb8` | Maintenance mode | `deadpool` |
+
+### Recommended Upgrade Path
+
+```toml
+# Cargo.toml
+[dependencies]
+# Replace git2 with gix
+gix = "0.65"  # git2 replacement, RUSTSEC-2025-0140 fix
+
+# Replace eventually with cqrs-es
+cqrs-es = "0.6"  # event-sourcing foundation
+
+# Standardize on deadpool
+deadpool = "0.12"
+deadpool-runtime = "0.6"
+```
+
+---
+
+_Last updated: 2026-03-31 (Wave 131-133)_
