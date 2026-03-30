@@ -1,7 +1,5 @@
 [package]
-[package]
 name = "phenotype-event-sourcing"
-<<<<<<< HEAD
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,33 +8,18 @@ repository.workspace = true
 authors.workspace = true
 description = "Event sourcing with blake3 hash chains"
 
-[dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace = true
-async-trait.workspace = true
-chrono.workspace = true
-uuid.workspace = true
-tokio.workspace = true
-blake3.workspace = true
-hex.workspace = true
-sha2.workspace = true
-anyhow.workspace = true
-phenotype-error-core.workspace = true
-phenotype-errors.workspace = true
-=======
-edition = "2021"
-license = "MIT"
-description = "Event sourcing for Phenotype"
->>>>>>> origin/main
-
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-thiserror = "2.0"
+thiserror = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 async-trait = "0.1"
+blake3 = "1"
+hex = "0.4"
+sha2 = "0.10"
+anyhow = "1"
+phenotype-error-core = { path = "../phenotype-error-core", version = "0.2" }
