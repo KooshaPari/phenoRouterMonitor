@@ -120,10 +120,7 @@ mod tests {
     #[tokio::test]
     async fn query_handler_works() {
         let handler = GetUserHandler;
-        let view = handler
-            .handle(GetUser { id: "42".into() })
-            .await
-            .unwrap();
+        let view = handler.handle(GetUser { id: "42".into() }).await.unwrap();
         assert_eq!(view.id, "42");
         assert_eq!(view.name, "User 42");
     }

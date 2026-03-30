@@ -56,11 +56,7 @@ impl Project {
 }
 
 impl WorkItem {
-    pub fn new(
-        project_id: Uuid,
-        title: impl Into<String>,
-        description: impl Into<String>,
-    ) -> Self {
+    pub fn new(project_id: Uuid, title: impl Into<String>, description: impl Into<String>) -> Self {
         let now = Utc::now();
         Self {
             id: Uuid::new_v4(),

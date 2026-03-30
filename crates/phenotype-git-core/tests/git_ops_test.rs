@@ -6,8 +6,7 @@ use std::path::Path;
 
 /// Find the repo root by searching upward from CARGO_MANIFEST_DIR.
 fn find_repo_root() -> std::path::PathBuf {
-    let mut dir =
-        std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default());
+    let mut dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default());
     loop {
         if dir.join(".git").exists() {
             return dir;

@@ -1,5 +1,10 @@
 //! Phenotype Macros
-mod aggregate; mod command; mod entity; mod error; mod event; mod value_object;
+mod aggregate;
+mod command;
+mod entity;
+mod error;
+mod event;
+mod value_object;
 
 #[proc_macro_derive(Entity, attributes(entity))]
 pub fn derive_entity(i: proc_macro::TokenStream) -> proc_macro::TokenStream {

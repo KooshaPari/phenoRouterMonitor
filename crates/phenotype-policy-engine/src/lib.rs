@@ -474,10 +474,10 @@ mod tests {
 
     #[test]
     fn abstain_does_not_count_as_allow() {
-        let set = PolicySet::new(EvaluationMode::AllMustAllow).with(ClosurePolicy::new(
-            "abstainer",
-            |_: &()| PolicyResult::Abstain,
-        ));
+        let set = PolicySet::new(EvaluationMode::AllMustAllow)
+            .with(ClosurePolicy::new("abstainer", |_: &()| {
+                PolicyResult::Abstain
+            }));
         let decision = set.evaluate(&()).unwrap();
         assert!(!decision.allowed);
     }

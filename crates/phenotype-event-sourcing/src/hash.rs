@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use crate::error::{EventSourcingError, HashError};
+use crate::error::HashError;
 
 /// Compute SHA-256 hash for an event envelope.
 pub fn compute_hash(
@@ -43,7 +43,7 @@ pub fn verify_event_hash(hash: &str, expected: &str) -> crate::error::Result<boo
 }
 
 /// Verify a chain of (hash, prev_hash) pairs is consistent.
-pub fn verify_chain(chain: &[(String, String)]) -> Result<(), EventSourcingError> {
+pub fn verify_chain(chain: &[(String, String)]) -> crate::error::Result<()> {
     for (i, window) in chain.windows(2).enumerate() {
         let (ref current_hash, _) = window[0];
         let (_, ref next_prev) = window[1];

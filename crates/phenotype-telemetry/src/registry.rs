@@ -1,9 +1,9 @@
 //! Metrics registry for collecting and storing telemetry data.
 
-use std::collections::HashMap;
-use std::sync::Arc;
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 /// Telemetry service configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,14 +32,22 @@ pub struct Counter {
 }
 
 impl Counter {
+    /// Get the metric name.
+    #[must_use]
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
     /// Increment the counter by 1.
     pub fn inc(&self) {
-        self.value.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.value
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     }
 
     /// Increment the counter by `delta`.
     pub fn add(&self, delta: u64) {
-        self.value.fetch_add(delta, std::sync::atomic::Ordering::Relaxed);
+        self.value
+            .fetch_add(delta, std::sync::atomic::Ordering::Relaxed);
     }
 
     /// Get the current value.
@@ -56,6 +64,12 @@ pub struct Gauge {
 }
 
 impl Gauge {
+    /// Get the metric name.
+    #[must_use]
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
     /// Set the gauge to a specific value.
     pub fn set(&self, value: f64) {
         *self.value.lock().unwrap() = value;
@@ -75,6 +89,12 @@ pub struct Histogram {
 }
 
 impl Histogram {
+    /// Metric name as registered in the registry.
+    #[must_use]
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
     /// Record a value in the histogram.
     pub fn observe(&self, value: f64) {
         self.values.lock().unwrap().push(value);
@@ -96,6 +116,12 @@ pub struct MetricsRegistry {
 }
 
 impl MetricsRegistry {
+    /// Get the telemetry config.
+    #[must_use]
+    pub fn config(&self) -> &TelemetryConfig {
+        &self.config
+    }
+
     /// Create a new metrics registry.
     pub fn new(config: TelemetryConfig) -> Self {
         Self {
@@ -204,11 +230,13 @@ mod tests {
     }
 
     #[test]
+    #[test]
     fn histogram_observe() {
         let histogram = Histogram {
             name: "test".into(),
             values: Arc::new(std::sync::Mutex::new(Vec::new())),
         };
+        assert_eq!(histogram.name(), "test");
         histogram.observe(1.0);
         histogram.observe(2.5);
         let values = histogram.values();

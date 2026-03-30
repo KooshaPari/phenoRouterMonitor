@@ -17,7 +17,6 @@ sha2.workspace = true
 hex.workspace = true
 blake3.workspace = true
 dashmap.workspace = true
-phenotype-errors = { path = "../phenotype-errors" }
 phenotype-error-core = { path = "../phenotype-error-core" }
 
 [lib]

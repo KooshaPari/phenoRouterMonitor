@@ -11,7 +11,11 @@ pub struct ValidationError {
 }
 
 impl ValidationError {
-    pub fn new(field: impl Into<String>, message: impl Into<String>, code: impl Into<String>) -> Self {
+    pub fn new(
+        field: impl Into<String>,
+        message: impl Into<String>,
+        code: impl Into<String>,
+    ) -> Self {
         Self {
             field: field.into(),
             message: message.into(),
@@ -255,9 +259,15 @@ mod tests {
                 errors.into_result()
             }
         }
-        let valid = User { name: "Alice".into(), email_addr: "alice@test.com".into() };
+        let valid = User {
+            name: "Alice".into(),
+            email_addr: "alice@test.com".into(),
+        };
         assert!(valid.validate().is_ok());
-        let invalid = User { name: "".into(), email_addr: "bad".into() };
+        let invalid = User {
+            name: "".into(),
+            email_addr: "bad".into(),
+        };
         assert!(invalid.validate().is_err());
     }
 }

@@ -26,7 +26,9 @@ impl Default for RetryPolicy {
 impl RetryPolicy {
     /// Calculate the delay for the given attempt number (0-indexed).
     pub fn delay_for(&self, attempt: u32) -> Duration {
-        let base = self.initial_delay.mul_f64(self.backoff_multiplier.powi(attempt as i32));
+        let base = self
+            .initial_delay
+            .mul_f64(self.backoff_multiplier.powi(attempt as i32));
         base.min(self.max_delay)
     }
 
