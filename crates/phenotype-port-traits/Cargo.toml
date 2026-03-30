@@ -1,10 +1,10 @@
 [package]
 name = "phenotype-port-traits"
-version.workspace = true
+version = "0.2.0"
 edition = "2021"
-description = "Port traits for Phenotype"
-license.workspace = true
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Port-traits"
 
-[dependencies]
-serde.workspace = true
-async-trait.workspace = true
+[lib]
+path = "src/lib.rs"

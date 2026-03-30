@@ -1,18 +1,10 @@
 [package]
 name = "phenotype-contracts"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Hexagonal architecture ports and contracts for phenotype-infrakit"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Contracts"
 
-[dependencies]
-phenotype-error-core = { path = "../phenotype-error-core" }
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-async-trait.workspace = true
-thiserror.workspace = true
-uuid.workspace = true
-
-[dev-dependencies]
-tokio.workspace = true
+[lib]
+path = "src/lib.rs"

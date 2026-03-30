@@ -1,11 +1,10 @@
 [package]
 name = "agileplus-api-types"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Shared API types for AgilePlus"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Agileplus-api-types"
 
-[dependencies]
-serde.workspace = true
-serde_json.workspace = true
+[lib]
+path = "src/lib.rs"
