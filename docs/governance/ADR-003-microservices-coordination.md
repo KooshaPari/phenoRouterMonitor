@@ -757,10 +757,6 @@ func (s *Subscriber) SubscribeToAgentExecutionEvents(ctx context.Context) error 
 }
 ```
 
-#### Rust Saga Coordinator (phenotype-infrakit)
-
-See example in section 3 above (Saga Orchestration Example).
-
 ---
 
 ## References
