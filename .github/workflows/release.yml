@@ -1,69 +1,67 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., 0.1.0)'
         required: true
+        type: string
+        description: "Release version"
+      language:
+        required: true
+        type: string
+        description: "Programming language"
+      registry:
+        required: true
+        type: string
+        description: "Package registry"
+      channel:
+        required: false
+        type: string
+        default: stable
+        description: "Release channel (alpha, beta, canary, stable)"
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+        description: "Run without publishing"
+
+permissions:
+  contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: agileplus-release-${{ inputs.version }}
   cancel-in-progress: false
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
-  # ─── Build Release Binaries ───────────────────────────────────────────
-  build-release:
-    name: Build Release
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            use_cross: false
-          - target: x86_64-apple-darwin
-            os: ubuntu-latest
-            use_cross: true
-          - target: aarch64-apple-darwin
-            os: ubuntu-latest
-            use_cross: true
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: arduino/setup-protoc@v3
-        with:
-          version: "28.x"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install cross
-        if: matrix.use_cross
-        run: cargo install cross
-      - name: Build release binary
-        run: |
-          if [ "${{ matrix.use_cross }}" = "true" ]; then
-            cross build --release --target ${{ matrix.target }}
-          else
-            cargo build --release --target ${{ matrix.target }}
-          fi
-      - name: Strip binary
-        run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            strip target/${{ matrix.target }}/release/agileplus || true
-          fi
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: agileplus-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/agileplus
-          retention-days: 5
+  gate-check:
+    uses: ./.github/workflows/gate-check.yml
+    with:
+      language: ${{ inputs.language }}
+      channel: ${{ inputs.channel }}
+      risk_profile: high
 
+<<<<<<< HEAD
+  changelog:
+    needs: gate-check
+    uses: ./.github/workflows/changelog.yml
+    with:
+      version: ${{ inputs.version }}
+
+  publish:
+    needs: changelog
+    uses: ./.github/workflows/publish.yml
+    with:
+      language: ${{ inputs.language }}
+      registry: ${{ inputs.registry }}
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      dry_run: ${{ inputs.dry_run }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
+=======
   # ─── CycloneDX SBOMs (attached to GitHub Release with binaries) ───────
   cyclonedx-sboms:
     name: CycloneDX SBOMs
@@ -176,3 +174,4 @@ jobs:
           allowUpdates: true
           omitBodyDuringUpdate: true
           omitNameDuringUpdate: true
+>>>>>>> origin/main

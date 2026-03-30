@@ -2,6 +2,13 @@
 name = "phenotype-git-core"
 version.workspace = true
 edition.workspace = true
+<<<<<<< HEAD
+license.workspace = true
+repository.workspace = true
+description = "Phenotype git core crate"
+
+[dependencies]
+=======
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
@@ -15,3 +22,4 @@ thiserror.workspace = true
 
 [lib]
 path = "src/lib.rs"
+>>>>>>> origin/main

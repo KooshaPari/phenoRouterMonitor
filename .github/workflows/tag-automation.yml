@@ -1,22 +1,17 @@
 name: Tag Automation
-
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'Cargo.toml'
-      - 'package.json'
-
-permissions:
-  contents: write
-  pull-requests: read
-
+    tags:
+      - 'v*'
 jobs:
-  create-tag:
+  tag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+<<<<<<< HEAD
+      - name: Create release tag
+        run: echo "Creating release for ${{ github.ref_name }}"
+=======
         with:
           fetch-depth: 0
 
@@ -75,3 +70,4 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "Pushed v${VERSION}. The Release workflow creates the GitHub Release and assets."
+>>>>>>> origin/main

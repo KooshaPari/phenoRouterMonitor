@@ -1,3 +1,3 @@
 # 概覽
 
-`phenotype-infrakit` 的文件入口。
+`apps/AgilePlus` 的文件入口。

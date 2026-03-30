@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP15",
+  "feature_slug": "003-agileplus-platform-completion",
+  "worktree_path": ".worktrees/003-agileplus-platform-completion-WP15",
+  "branch_name": "003-agileplus-platform-completion-WP15",
+  "base_branch": "main",
+  "base_commit": "e4f4052878f43cc3537b8da83b9e70a83a641a14",
+  "dependencies": [],
+  "created_at": "2026-03-02T12:16:22.394755+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

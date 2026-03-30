@@ -1,3 +1,3 @@
 # نمای کلی
 
-`phenotype-infrakit` درگاه مستندات است.
+`apps/AgilePlus` درگاه مستندات است.

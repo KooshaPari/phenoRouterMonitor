@@ -1,0 +1,23 @@
+[package]
+name = "agileplus-github"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+agileplus-domain = { path = "../agileplus-domain" }
+agileplus-triage = { path = "../agileplus-triage" }
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+tracing.workspace = true
+anyhow.workspace = true
+sha2.workspace = true
+tokio.workspace = true
+reqwest = { version = "0.12", features = ["json"] }
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["rt", "macros"] }
+wiremock = "0.6"

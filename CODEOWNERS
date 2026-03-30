@@ -1,7 +1,7 @@
-# Repository governance
-# Primary maintainer for this repository
 * @KooshaPari
 
-# Documentation
+.github/workflows/ @KooshaPari
+.github/hooks/ @KooshaPari
 docs/ @KooshaPari
-*.md @KooshaPari
+crates/ @KooshaPari
+python/ @KooshaPari

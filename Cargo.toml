@@ -1,66 +1,82 @@
-[workspace.package]
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-rust-version = "1.75"
-authors = ["Phenotype Team"]
-description = "Phenotype Infrastructure Kit"
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
-
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
-    "crates/phenotype-cache-adapter",
-    "crates/phenotype-contracts",
-    "crates/phenotype-error-core",
-    "crates/phenotype-errors",
-    "crates/phenotype-event-sourcing",
-    "crates/phenotype-health",
-    "crates/phenotype-iter",
-    "crates/phenotype-port-traits",
-    "crates/phenotype-policy-engine",
-    "crates/phenotype-state-machine",
-    "crates/phenotype-telemetry",
+  "crates/agileplus-domain",
+  "crates/agileplus-cli",
+  "crates/agileplus-api",
+  "crates/agileplus-grpc",
+  "crates/agileplus-sqlite",
+  "crates/agileplus-git",
+  "crates/agileplus-plane",
+  "crates/agileplus-telemetry",
+  "crates/agileplus-triage",
+  "crates/agileplus-events",
+  "crates/agileplus-cache",
+  "crates/agileplus-subcmds",
+  "crates/agileplus-graph",
+  "crates/agileplus-nats",
+  "crates/agileplus-sync",
+  "crates/agileplus-dashboard",
+  "crates/agileplus-github",
+  "crates/agileplus-p2p",
+  "crates/agileplus-integration-tests",
+  "crates/agileplus-contract-tests",
+  "crates/agileplus-benchmarks",
+  "crates/phenotype-error-core",
+  "crates/phenotype-git-core",
+  "crates/phenotype-health",
+  "crates/phenotype-config-core",
+  "rust",
+  "tests/bdd",
 ]
 
+[workspace.package]
+version = "0.1.1"
+edition = "2024"
+license = "MIT"
+rust-version = "1.86"
+authors = ["AgilePlus Team"]
+repository = "https://github.com/AgilePlus/agileplus"
+keywords = ["agile", "project-management", "software-development"]
+categories = ["Software Development", "Project Management"]
+
 [workspace.dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "2.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
-hex = "0.4"
-dashmap = "6.1"
-parking_lot = "0.12"
-lru = "0.12"
-moka = { version = "0.12", features = ["sync", "future"] }
-toml = "0.8"
-regex = "1.11"
-uuid = { version = "1.11", features = ["v4", "serde"] }
-blake3 = "1.5"
-anyhow = "1.0"
-async-trait = "0.1"
 tokio = { version = "1", features = ["full"] }
-futures = "0.3"
+thiserror = "2"
+anyhow = "1"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+tracing-subscriber = "0.3"
+tracing-opentelemetry = "0.32"
+futures-util = "0.3"
+axum = { version = "0.8", features = ["json", "macros"] }
+tonic = { version = "0.13", features = ["transport"] }
+tonic-build = { version = "0.13", features = ["prost"] }
+prost = "0.13"
+opentelemetry = { version = "0.31", features = ["trace", "metrics"] }
+opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "http-proto", "reqwest-client"] }
+opentelemetry_sdk = { version = "0.31", features = ["trace", "metrics", "rt-tokio"] }
+criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
+time = ">=0.3.49"
+trait-variant = "0.1"
+async-trait = "0.1"
+toml = "0.8"
+serde_yaml = "0.9"
+figment = { version = "0.10", features = ["toml", "yaml", "json", "env"] }
+dirs = "6.0"
+tempfile = "3.15"
+
+# Plugin crates (external from separate repos)
+agileplus-plugin-core = { git = "https://github.com/KooshaPari/agileplus-plugin-core" }
+agileplus-plugin-git = { git = "https://github.com/KooshaPari/agileplus-plugin-git" }
+agileplus-plugin-sqlite = { git = "https://github.com/KooshaPari/agileplus-plugin-sqlite" }
+
+# Git operations
+gix = "0.71"
 git2 = "0.20"
-syn = "2"
-quote = "1"
-proc-macro2 = "1.0"
-strum = { version = "0.26", features = ["derive"] }
-derive_more = "1.0"
-once_cell = "1.19"
-tempfile = "3"
-phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
-phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
 
-[profile.dev]
-opt-level = 0
-debug = true
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-strip = true
+# Database
+rusqlite = { version = "0.32", features = ["bundled"] }
