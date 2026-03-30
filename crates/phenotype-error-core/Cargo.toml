@@ -1,11 +1,25 @@
 [package]
 name = "phenotype-error-core"
-version = "0.2.0"
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Canonical error types for Phenotype"
+version = "0.1.0"
+edition = "2024"
+description = "Centralized error types for Phenotype ecosystem"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/phenotype/phenotype"
+keywords = ["error", "error-handling", "phenotype"]
+categories = ["error-handling"]
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-utilities", "macros"] }
+
+[features]
+default = []
+std = ["anyhow/std"]
