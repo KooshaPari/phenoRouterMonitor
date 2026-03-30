@@ -2,17 +2,16 @@
 name = "phenotype-time"
 version.workspace = true
 edition.workspace = true
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Time utilities for the Phenotype ecosystem"
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-chrono.workspace = true
 serde.workspace = true
-thiserror.workspace = true
-
-[dev-dependencies]
 serde_json.workspace = true
+thiserror.workspace = true

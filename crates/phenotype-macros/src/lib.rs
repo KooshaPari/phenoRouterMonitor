@@ -1,63 +1,11 @@
-//! Phenotype Macros
-mod aggregate;
-mod command;
-mod entity;
-mod error;
-mod event;
-mod value_object;
+//! phenotype-macros
 
-#[proc_macro_derive(Entity, attributes(entity))]
-pub fn derive_entity(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    entity::derive(i).into()
-}
-#[proc_macro_derive(ValueObject)]
-pub fn derive_value_object(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    value_object::derive(i).into()
-}
-#[proc_macro_derive(Command, attributes(command))]
-pub fn derive_command(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    command::derive(i).into()
-}
-#[proc_macro_derive(DomainEvent, attributes(event))]
-pub fn derive_event(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    event::derive(i).into()
-}
-#[proc_macro_derive(Aggregate, attributes(aggregate))]
-pub fn derive_aggregate(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    aggregate::derive(i).into()
-}
-#[proc_macro_derive(Error)]
-pub fn derive_error(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    error::derive(i).into()
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
 }
 
-mod derive_builder;
-mod derive_errors;
-mod derive_serde;
-
-/// Builder pattern macro — generates fluent builder for structs
-#[proc_macro_derive(Builder)]
-pub fn derive_builder(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    derive_builder::derive(i).into()
-}
-
-/// Enhanced serialization helpers for serde integration
-#[proc_macro_derive(SerdeHelper)]
-pub fn derive_serde_helper(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    derive_serde::derive(i).into()
-}
-
-/// Enhanced error type with Error trait implementation
-#[proc_macro_derive(ErrorType)]
-pub fn derive_error_type(i: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let i = syn::parse_macro_input!(i as syn::DeriveInput);
-    derive_errors::derive_error_type(i).into()
-}
+pub type Result<T> = std::result::Result<T, Error>;
