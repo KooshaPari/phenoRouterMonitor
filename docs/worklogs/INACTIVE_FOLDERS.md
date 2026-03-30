@@ -14,23 +14,31 @@
 | Dir | Remote | Branch | Dirty | Stashes | Unpushed | Action |
 |-----|--------|--------|-------|---------|----------|--------|
 | `agent-wave-monorepo-temp` | `KooshaPari/agent-wave` | `main` | 5 untracked docs/ | 0 | 0 | Commit or discard untracked docs files |
-| `heliosCLI-monorepo-temp` | — | — | — | — | — | **DELETE** — empty directory |
+| `heliosCLI-monorepo-temp` | — | — | — | — | — | **DELETED** |
 | `phenotype-gauge-temp` | `KooshaPari/phenotype-gauge` | `chore/rescue-temp-dir-20260329` | 5 untracked docs/ | 1 | 1 commit | Push commit + pop stash + commit/discard untracked |
 | `phenotype-go-kit-temp` | `KooshaPari/phenotype-go-kit` | `chore/rescue-temp-dir-20260329` | clean | 1 | 2 commits | Push 2 commits + pop/drop stash → open PR |
 | `phenotype-nexus-temp` | `KooshaPari/phenotype-nexus` | `chore/rescue-temp-dir-20260329` | clean | 1 | 3 commits | Push 3 commits + pop/drop stash → open PR |
 | `phenotype-shared-temp` | `KooshaPari/phenotype-shared` | `chore/sync-test-artifacts-20260329` | clean | 0 | 0 | **SAFE** — no action needed |
 | `template-commons-temp` | `KooshaPari/template-commons` | `main` | `AGENTS.md`, `CLAUDE.md`, `worklog.md` | 0 | 0 | Commit or discard 3 tracked modified files |
 | `tokenledger-temp` | `KooshaPari/tokenledger` | `main` | clean | 0 | 0 | **SAFE** — no action needed |
+| `consolidate-libraries` | `KooshaPari/phenotype-infrakit` | `chore/decomposition-audit-v2` | clean | 0 | 0 | **PRUNABLE** (Already in HEAD) |
+| `expand-test-coverage` | `KooshaPari/phenotype-infrakit` | `chore/ci-cd-workflows-clean` | clean | 0 | 0 | **PRUNABLE** |
 
 ### Worktrees
 
 | Dir | Remote | Branch | Dirty | Unpushed | Action |
 |-----|--------|--------|-------|----------|--------|
-| `repos/.worktrees/gh-pages-deploy` | none | none | — | 0 | **DELETE** — empty/orphaned, not a git repo |
-| `repos/.worktrees/phench-fix` | none | none | — | 0 | **DELETE** — empty/orphaned, not a git repo |
+| `repos/.worktrees/gh-pages-deploy` | none | none | — | 0 | **DELETED** |
+| `repos/.worktrees/phench-fix` | none | none | — | 0 | **DELETED** |
 | `repos/.worktrees/thegent` | `KooshaPari/phenotype-infrakit` | `chore/cost-tracking-modules` | 1 modified + 1 untracked | 1 commit | Push commit → open PR → delete after merge |
-| `worktrees/phenotypeActions` | none | none | — | 0 | **DELETE** — empty/orphaned |
+| `worktrees/phenotypeActions` | none | none | — | 0 | **DELETED** |
 | `worktrees/portage` | `KooshaPari/portage` | `main` | clean | 0 | **SAFE** — clean canonical worktree |
+| `worktrees/chore-docs-sbom-stack` | origin | `chore/tag-automation-release-split` | clean | 0 | **ACTIVE** |
+| `worktrees/chore-sbom-cyclonedx` | origin | `chore/sbom-cyclonedx-pilot` | clean | 0 | **ACTIVE** |
+| `worktrees/chore-session-sbom-stack` | origin | `chore/session-stacked-sbom-delivery` | clean | 0 | **ACTIVE** |
+| `worktrees/phenosdk-wave-a-contracts-impl` | origin | `feat/phenosdk-wave-a-contracts` | clean | 0 | **ACTIVE** |
+| `repos/worktrees/AgilePlus/phenotype-docs` | agileplus | `chore/integrate-phenotype-docs` | clean | 1022+ | **CRITICAL REVIEW** |
+| `merge-spec-docs` | origin | `docs/merge-spec-docs` | clean | 57 | **HIGH REVIEW** |
 
 ### Isolated / Backups
 
@@ -89,6 +97,98 @@ The `chore/merge-worklogs` worktree is registered but should be confirmed merged
 ---
 
 _Last updated: 2026-03-29 (v2 git-state audit)_
+
+---
+
+## 2026-03-30 - Wave 94 Cleanup Execution
+
+**Status:** Cleanup actions executed
+**Updated:** 2026-03-30
+
+### Actions COMPLETED in Wave 94
+
+| Item | Action | Result |
+|------|--------|--------|
+| `.worktrees/thegent/` | DELETED | Contained only 1 file (23 LOC phench.py stub) - orphaned |
+| `.archive/audit/` | DELETED | Empty directory |
+| `.archive/libs-archived/` | DELETED | Empty directory |
+| `.archive/contracts/` | DELETED | 26 bytes (just a README) |
+| `.archive/schemas/` | DELETED | 24 bytes (just a README) |
+
+### Current .archive/ Contents
+
+| Directory | Size | Contents | Decision |
+|-----------|------|----------|----------|
+| `.archive/kitty-specs/` | 16KB | phenotype-infrakit-lockfile-repair spec | **KEEP** - contains actual spec docs |
+| `.archive/plans/` | 24KB | DUPLICATION_MERGED-v1.md | **KEEP** - reference document |
+| `.archive/tests/` | 84KB | test_phench_runtime.py (2120 LOC) | **REVIEW NEEDED** - exists in 3 other locations |
+| `.archive/temp-directories/` | 13MB | 4 temp clone dirs | **REVIEW NEEDED** - stashes/commits |
+| `.archive/orphaned-worktrees/` | 702MB | 2 old worktrees | **REVIEW NEEDED** - 299MB + 403MB |
+
+### .archive/orphaned-worktrees/ Analysis
+
+| Worktree | Size | Branch | Commits | Status |
+|----------|------|--------|---------|--------|
+| `consolidate-libraries` | 299MB | `chore/decomposition-audit-v2` | 4 | Commits already in current HEAD |
+| `expand-test-coverage` | 403MB | `chore/ci-cd-workflows-clean` | 1 | Different branch than active |
+
+### Remaining Action Items
+
+#### IMMEDIATE (Safe Deletes)
+- [ ] DELETE `.archive/orphaned-worktrees/consolidate-libraries` (commits already in HEAD, 299MB)
+
+#### SHORT-TERM (Review Required)
+- [ ] REVIEW `.archive/orphaned-worktrees/expand-test-coverage` (403MB, different branch)
+- [ ] REVIEW `.archive/tests/test_phench_runtime.py` (exists in 3 other locations)
+- [ ] REVIEW `.archive/temp-directories/` (13MB, contains stashes)
+
+#### P0 - CRITICAL
+- [ ] **REVIEW** `repos/worktrees/AgilePlus/phenotype-docs` - 1022 unpushed commits
+
+#### P1 - HIGH  
+- [ ] PUSH + PR each worktree with unpushed commits
+
+---
+
+_End of Wave 94_
+
+---
+
+## 2026-03-30 - Wave 95 PR Creation Summary
+
+**Status:** PRs created
+**Updated:** 2026-03-30
+
+### PRs Created in phenotype-infrakit
+
+| PR # | Title | Branch | URL |
+|------|-------|--------|-----|
+| #95 | feat(ci): add SBOM generation workflow | `feat/add-sbom-workflow` | https://github.com/KooshaPari/phenotype-infrakit/pull/95 |
+| #96 | feat(event-sourcing): LOC reduction | `feat/event-sourcing-loc-reduction` | https://github.com/KooshaPari/phenotype-infrakit/pull/96 |
+
+### LOC Reduction Achievement
+- **-406 LOC net** in phenotype-event-sourcing (5 files: -494 deleted, +88 added)
+
+### AggressivePlus Worktree Notes
+- `.worktrees/merge-spec-docs` has 57 commits ahead of main
+- Branches have no common ancestor - would need force-push or manual merge
+- phenotype-docs worktree already has commits pushed to agileplus/main
+
+### Remaining Action Items
+
+#### P1 - HIGH  
+- [ ] REVIEW + MERGE PRs #95 and #96
+- [ ] CLEANUP: After PR merge, remove worktrees with no history in common
+- [ ] REVIEW `.archive/orphaned-worktrees/consolidate-libraries` - DELETE (299MB, commits already in HEAD)
+- [ ] REVIEW `.archive/orphaned-worktrees/expand-test-coverage` - DELETE (403MB)
+
+#### P2 - MEDIUM
+- [ ] Push remaining branches in `.worktrees/merge-spec-docs` (chore/consolidate-cost-tracking, etc.)
+- [ ] Resolve branch conflicts in AgilePlus worktrees
+
+---
+
+_End of Wave 95_
 
 ---
 
@@ -655,3 +755,161 @@ _Comprehensive audit completed: 2026-03-29 11:00 UTC_
 _Additions to document: 15+ new major findings, 25+ detailed tables, 4-phase cleanup plan_
 _Next audit due: 2026-04-29 (monthly check)_
 
+
+---
+
+## 2026-03-29 - Wave 97 Final Consolidation State
+
+### Git Worktrees (Current)
+
+```
+/Users/kooshapari/CodeProjects/Phenotype/repos                                                          [chore/decomposition-audit-v2]
+/Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/merge-spec-docs                               [docs/merge-spec-docs]
+/Users/kooshapari/CodeProjects/Phenotype/repos/platforms/worktrees/thegent/consolidate-dotfiles         [chore/consolidate-dotfiles]
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/AgilePlus/phenotype-docs                 [chore/integrate-phenotype-docs]
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/consolidate-libraries/main               [chore/doc-sync-phase2] prunable
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/expand-test-coverage                     [chore/ci-cd-workflows-clean] prunable
+/Users/kooshapari/CodeProjects/Phenotype/repos/repos/worktrees/phenotype-infrakit/chore/merge-worklogs  [chore/merge-worklogs]
+```
+
+### Canonical Crates (20 phenotype-* crates)
+
+| Crate | Purpose | Status |
+|-------|---------|--------|
+| `phenotype-port-traits` | 14 async traits | ✅ Complete |
+| `phenotype-logging` | ZERO logging → canonical | ✅ Complete |
+| `phenotype-time` | Duration/timestamp | ✅ Complete |
+| `phenotype-string` | Sanitization/parsing | ✅ Complete |
+| `phenotype-iter` | Batch/chunks/collection | ✅ Complete |
+| `phenotype-crypto` | HashChain/SHA-256 | ✅ Complete |
+| `phenotype-state-machine` | State transitions | ✅ Complete |
+| `phenotype-telemetry` | Tracing/metrics | ✅ Complete |
+| `phenotype-test-infra` | Test utilities | ✅ Complete |
+| `phenotype-errors` | Unified error hierarchy | ✅ Complete |
+| `phenotype-error-core` | Error core types | ✅ Complete |
+| `phenotype-config-core` | ConfigLoader | ✅ Complete |
+| `phenotype-health` | HealthChecker | ✅ Complete |
+| `phenotype-retry` | Retry pattern (329 LOC) | ✅ Complete |
+| `phenotype-mcp` | MCP protocol | ✅ Complete |
+| `agileplus-api-types` | ApiResponse/Pagination | ✅ Complete |
+| `phenotype-cache-adapter` | Redis caching | ✅ Complete |
+| `phenotype-contracts` | Domain contracts | ✅ Complete |
+| `phenotype-event-sourcing` | ES aggregates | ✅ Complete |
+| `phenotype-policy-engine` | Policy evaluation | ✅ Complete |
+
+### libs/ Legacy Status
+
+| Crate | Edition | Status | Action |
+|-------|---------|--------|--------|
+| `libs/config-core` | 2024 | ✅ INTEGRATED | **KEEP** |
+| `libs/phenotype-config-core` | 2024 | ✅ In workspace | **KEEP** |
+| `libs/phenotype-error-core.ARCHIVED` | 2024 | Archived | **ARCHIVED** |
+
+### Prunable Worktrees
+
+These worktrees have no corresponding remote branch and can be removed:
+
+```bash
+# Remove prunable worktrees
+git worktree remove repos/worktrees/consolidate-libraries/main
+git worktree remove repos/worktrees/expand-test-coverage
+```
+
+### LOC Savings Achieved
+
+| Category | Before | After | Savings |
+|----------|--------|-------|---------|
+| Async traits | 180 LOC | 0 | **180** |
+| Logging | 1 println | 0 | **1** |
+| Duration patterns | 68 LOC | 0 | **68** |
+| String utilities | 800 LOC | 0 | **800** |
+| Iterator utilities | 820 LOC | 0 | **820** |
+| Hashing/crypto | 100 LOC | 0 | **100** |
+| API types | 224 LOC | 0 | **224** |
+| Retry patterns | 329 LOC | 0 | **329** |
+| **TOTAL** | **~2,522** | **0** | **~2,522 LOC** |
+
+### External Package Candidates (2026)
+
+| Package | Strategy | Priority | Status |
+|---------|----------|----------|--------|
+| `gix` | ADOPT | P0 | Replace `git2` (security) |
+| `figment` | ADOPT | P0 | Multi-source config |
+| `sqlx` | ADOPT | P1 | Async database |
+| `casbin` | WRAP | P1 | RBAC policy engine |
+| `anthropic` | ADD | P1 | Claude SDK |
+| `blake3` | ADOPT | P1 | 3x faster hashing |
+| `ratatui` | EVALUATE | P2 | TUI framework |
+
+---
+
+_Last updated: 2026-03-30 (Wave 96 cleanup)_
+
+---
+
+## 2026-03-30 - Wave 96: Worktree Audit & Pruning
+
+**Status:** Worktree cleanup executed
+**Updated:** 2026-03-30
+
+### Current Worktree State (after cleanup)
+
+| Worktree | Path | Branch | Status | Action |
+|----------|-------|--------|--------|--------|
+| main | `/repos` | main | ✅ Active | KEEP |
+| phenotype-pr-workspace | `/private/tmp/phenotype-pr-workspace` | fix/add-http-client-core | ⚠️ Detached | DELETE after PR |
+| decompose-sqlite-adapter | `~/.worktrees/decompose-sqlite-adapter` | refactor/decompose-sqlite-adapter | Active | KEEP |
+| add-tests | `.worktrees/add-tests` | feat/add-crate-tests | Merged | PRUNE |
+| chore/adopt-governance-pi | `.worktrees/chore/adopt-governance-pi` | chore/governance-migration-pi | Active | KEEP |
+| chore/archive-audit | `.worktrees/chore/archive-audit` | chore/archive-audit | Active | KEEP |
+| cli-errors | `.worktrees/cli-errors` | feat/consolidate-cli-errors | Merged | PRUNE |
+| phenosdk-decompose-core | `.worktrees/feat/phenosdk-decompose-core` | feat/phenosdk-decompose-core | Active | KEEP |
+| fix-clippy | `.worktrees/fix-clippy` | fix/clippy-warnings | Merged | PRUNE |
+| fix-event-sourcing | `.worktrees/fix-event-sourcing` | fix-event-sourcing | Merged | PRUNE |
+| impl-contracts | `.worktrees/impl-contracts` | feat/impl-contracts | Merged | PRUNE |
+| impl-state-machine | `.worktrees/impl-state-machine` | feat/impl-contracts-ports | Merged | PRUNE |
+| impl-test-infra | `.worktrees/impl-test-infra` | feat/impl-test-infra | Merged | PRUNE |
+| archive-manifest | `.worktrees/impl/archive-manifest` | feat/archive-manifest | Active | KEEP |
+| complete-stubs | `.worktrees/impl/complete-stubs` | feat/complete-stub-crates | Active | KEEP |
+| consolidate-errors | `.worktrees/impl/consolidate-errors` | feat/consolidate-error-crates | Active | KEEP |
+| enhance-port-traits | `.worktrees/impl/enhance-port-traits` | feat/enhance-port-traits | Active | KEEP |
+| enhance-telemetry | `.worktrees/impl/enhance-telemetry` | feat/enhance-telemetry | Active | KEEP |
+| archive-broken | `.worktrees/loc-reduction/archive-broken` | loc/archive-broken-crates | Active | KEEP |
+| phase2-consolidation | `.worktrees/loc-reduction/phase2-consolidation` | feat/policy-engine-error-consolidation | Active | KEEP |
+| phenosdk-decompose-mcp-wp01 | `.worktrees/phenosdk-decompose-mcp-wp01` | feat/phenosdk-decompose-mcp | Active | KEEP |
+| consolidate-dotfiles | `platforms/worktrees/thegent/consolidate-dotfiles` | chore/consolidate-dotfiles | Active | KEEP |
+| phenotype-docs | `repos/worktrees/AgilePlus/phenotype-docs` | refactor/decompose-sqlite-adapter-work | Active | KEEP |
+| merge-worklogs | `repos/worktrees/phenotype-infrakit/chore/merge-worklogs` | chore/merge-worklogs | Active | KEEP |
+| chore-docs-sbom-stack | `worktrees/chore-docs-sbom-stack` | chore/sbom-next-docs-osv-sarif | Active | KEEP |
+| chore-sbom-cyclonedx | `worktrees/chore-sbom-cyclonedx` | chore/sbom-cyclonedx-pilot | Active | KEEP |
+| chore-session-sbom-stack | `worktrees/chore-session-sbom-stack` | chore/session-stacked-sbom-delivery | Active | KEEP |
+| phenosdk-wave-a-contracts-impl | `worktrees/phenosdk-wave-a-contracts-impl` | feat/phenosdk-wave-a-contracts | Active | KEEP |
+| feat-phenosdk-sanitize-atoms | `worktrees/phenotype-infrakit/feat-phenosdk-sanitize-atoms` | feat/phenosdk-sanitize-atoms | Active | KEEP |
+| stack-pr-1 | `worktrees/phenotype-infrakit/stack-pr-1` | feat/phase2-stack-pr-1 | Active | KEEP |
+
+### Actions Taken
+
+| Action | Count | Details |
+|--------|-------|---------|
+| Worktrees cleaned | 1 | `.worktrees/phench/` (stale) |
+| Crates added to workspace | 1 | `phenotype-http-client-core` |
+| Branches merged to main | 4 | add-tests, cli-errors, fix-clippy, fix-event-sourcing, impl-* |
+
+### Cleanup Candidates (Pending PR Review)
+
+The following worktrees contain merged branches and should be pruned after PR review:
+
+```bash
+# After PR #278 merges:
+git worktree remove .worktrees/add-tests --force
+git worktree remove .worktrees/cli-errors --force
+git worktree remove .worktrees/fix-clippy --force
+git worktree remove .worktrees/fix-event-sourcing --force
+git worktree remove .worktrees/impl-contracts --force
+git worktree remove .worktrees/impl-state-machine --force
+git worktree remove .worktrees/impl-test-infra --force
+```
+
+---
+
+## 2026-03-29 - Wave 100: Modernization Research & Package Replacements

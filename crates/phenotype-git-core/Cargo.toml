@@ -1,0 +1,16 @@
+[package]
+name = "phenotype-git-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Git operations for Phenotype — repository info, diff, log, and status via libgit2"
+
+[dependencies]
+git2.workspace = true
+gix.workspace = true
+thiserror.workspace = true
+
+[lib]
+path = "src/lib.rs"

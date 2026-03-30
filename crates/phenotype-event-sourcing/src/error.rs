@@ -1,46 +1,31 @@
-//! Error types for the event sourcing system.
+//! Error types for phenotype-event-sourcing.
 
-/// Result type for event sourcing operations.
+use thiserror::Error;
+
 pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Error)]
 pub enum EventSourcingError {
-    #[error("Store error: {0}")]
-    Store(#[from] EventStoreError),
-
-    #[error("Hash error: {0}")]
-    Hash(#[from] HashError),
-
-    #[error("Serialization error: {0}")]
-    Serialization(#[from] serde_json::Error),
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum EventStoreError {
-    #[error("Event not found: {0}")]
-    NotFound(String),
-
-    #[error("Duplicate sequence: {0}")]
-    DuplicateSequence(String),
-
-    #[error("Storage error: {0}")]
-    StorageError(String),
-
-    #[error("Invalid hash: {0}")]
-    InvalidHash(String),
-
-    #[error("Sequence gap: expected {expected}, got {actual}")]
-    SequenceGap { expected: i64, actual: i64 },
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum HashError {
-    #[error("Hash chain broken at sequence {sequence}")]
+    #[error("serialization error: {0}")]
+    Serialization(String),
+    #[error("deserialization error: {0}")]
+    Deserialization(String),
+    #[error("hash error: {0}")]
+    Hash(String),
+    #[error("chain broken at sequence {sequence}")]
     ChainBroken { sequence: i64 },
+    #[error("entity not found: {0}")]
+    EntityNotFound(String),
+    #[error("invalid event: {0}")]
+    InvalidEvent(String),
+    #[error("internal error: {0}")]
+    Internal(String),
+}
 
-    #[error("Invalid hash length: expected 32, got {0}")]
+#[derive(Debug, Error)]
+pub enum HashError {
+    #[error("invalid hash length: expected 64, got {0}")]
     InvalidHashLength(usize),
-
-    #[error("Hash mismatch at sequence {sequence}")]
-    HashMismatch { sequence: i64 },
+    #[error("chain broken at sequence {sequence}")]
+    ChainBroken { sequence: i64 },
 }

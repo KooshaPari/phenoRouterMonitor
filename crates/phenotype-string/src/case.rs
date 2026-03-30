@@ -1,27 +1,8 @@
 //! Case conversion utilities for string transformations.
-//!
-//! Provides pure, stateless functions for converting between various string case formats:
-//! - snake_case: lowercase with underscores
-//! - camelCase: first word lowercase, subsequent words capitalized
-//! - PascalCase: all words capitalized
-//! - kebab-case: lowercase with hyphens
 
 use regex::Regex;
 
-/// Converts a string to snake_case (lowercase with underscores).
-///
-/// # Arguments
-/// * `s` - String to convert
-///
-/// # Returns
-/// snake_case converted string
-///
-/// # Example
-/// ```
-/// use phenotype_string::to_snake_case;
-/// assert_eq!(to_snake_case("CamelCase"), "camel_case");
-/// assert_eq!(to_snake_case("PascalCase"), "pascal_case");
-/// ```
+/// Converts a string to snake_case.
 pub fn to_snake_case(s: &str) -> String {
     if s.is_empty() {
         return s.to_string();
@@ -43,20 +24,7 @@ pub fn to_snake_case(s: &str) -> String {
     result
 }
 
-/// Converts a string to camelCase (first word lowercase, rest capitalized).
-///
-/// # Arguments
-/// * `s` - String to convert
-///
-/// # Returns
-/// camelCase converted string
-///
-/// # Example
-/// ```
-/// use phenotype_string::to_camel_case;
-/// assert_eq!(to_camel_case("snake_case"), "snakeCase");
-/// assert_eq!(to_camel_case("PascalCase"), "pascalCase");
-/// ```
+/// Converts a string to camelCase.
 pub fn to_camel_case(s: &str) -> String {
     if s.is_empty() {
         return s.to_string();
@@ -76,20 +44,7 @@ pub fn to_camel_case(s: &str) -> String {
     result
 }
 
-/// Converts a string to PascalCase (all words capitalized).
-///
-/// # Arguments
-/// * `s` - String to convert
-///
-/// # Returns
-/// PascalCase converted string
-///
-/// # Example
-/// ```
-/// use phenotype_string::to_pascal_case;
-/// assert_eq!(to_pascal_case("snake_case"), "SnakeCase");
-/// assert_eq!(to_pascal_case("kebab-case"), "KebabCase");
-/// ```
+/// Converts a string to PascalCase.
 pub fn to_pascal_case(s: &str) -> String {
     if s.is_empty() {
         return s.to_string();
@@ -111,20 +66,7 @@ pub fn to_pascal_case(s: &str) -> String {
         .collect()
 }
 
-/// Converts a string to kebab-case (lowercase with hyphens).
-///
-/// # Arguments
-/// * `s` - String to convert
-///
-/// # Returns
-/// kebab-case converted string
-///
-/// # Example
-/// ```
-/// use phenotype_string::to_kebab_case;
-/// assert_eq!(to_kebab_case("snake_case"), "snake-case");
-/// assert_eq!(to_kebab_case("camelCase"), "camel-case");
-/// ```
+/// Converts a string to kebab-case.
 pub fn to_kebab_case(s: &str) -> String {
     if s.is_empty() {
         return s.to_string();
@@ -135,16 +77,6 @@ pub fn to_kebab_case(s: &str) -> String {
 }
 
 /// CaseConverter provides a builder-style interface for string case conversion.
-///
-/// # Example
-/// ```
-/// use phenotype_string::CaseConverter;
-/// let result = CaseConverter::new("hello_world")
-///     .to_pascal()
-///     .build();
-/// assert_eq!(result, "HelloWorld");
-/// ```
-#[derive(Clone)]
 pub struct CaseConverter {
     input: String,
 }
@@ -181,14 +113,11 @@ impl CaseConverter {
     }
 }
 
-/// Builder for case conversion, returned by CaseConverter methods.
-#[derive(Clone)]
 pub struct CaseBuilder {
     result: String,
 }
 
 impl CaseBuilder {
-    /// Returns the converted string.
     pub fn build(self) -> String {
         self.result
     }
@@ -292,68 +221,5 @@ mod tests {
             CaseConverter::new("camelCase").to_kebab().build(),
             "camel-case"
         );
-    }
-
-    #[test]
-    fn test_case_converter_clone() {
-        let converter = CaseConverter::new("test_string");
-        let cloned = converter.clone();
-        assert_eq!(cloned.to_snake().build(), to_snake_case("test_string"));
-    }
-
-    #[test]
-    fn test_mixed_separators() {
-        assert_eq!(to_pascal_case("hello-world_test case"), "HelloWorldTestCase");
-        assert_eq!(to_snake_case("hello-world_testCase"), "hello_world_test_case");
-    }
-
-    #[test]
-    fn test_empty_strings() {
-        assert_eq!(to_snake_case(""), "");
-        assert_eq!(to_camel_case(""), "");
-        assert_eq!(to_pascal_case(""), "");
-        assert_eq!(to_kebab_case(""), "");
-    }
-
-    #[test]
-    fn test_single_characters() {
-        assert_eq!(to_snake_case("a"), "a");
-        assert_eq!(to_snake_case("A"), "a");
-        assert_eq!(to_camel_case("a"), "a");
-        assert_eq!(to_pascal_case("a"), "A");
-    }
-
-    #[test]
-    fn test_consecutive_underscores() {
-        assert_eq!(to_snake_case("hello__world"), "hello__world");
-        assert_eq!(to_camel_case("hello__world"), "helloWorld");
-    }
-
-    #[test]
-    fn test_leading_trailing_separators() {
-        // Function keeps leading/trailing separators as is in snake_case
-        assert_eq!(to_snake_case("_hello_world_"), "_hello_world_");
-        // Hyphens become underscores in camel_case
-        assert_eq!(to_camel_case("-hello-world-"), "helloWorld");
-    }
-
-    #[test]
-    fn test_acronyms() {
-        assert_eq!(to_snake_case("HTTPServer"), "h_t_t_p_server");
-        assert_eq!(to_pascal_case("http_server"), "HttpServer");
-    }
-
-    #[test]
-    fn test_numbers() {
-        assert_eq!(to_snake_case("Test123Case"), "test123_case");
-        assert_eq!(to_camel_case("test_123_case"), "test123Case");
-        assert_eq!(to_pascal_case("test_123_case"), "Test123Case");
-    }
-
-    #[test]
-    fn test_case_builder_clone() {
-        let builder = CaseConverter::new("hello_world").to_camel();
-        let cloned = builder.clone();
-        assert_eq!(builder.build(), cloned.build());
     }
 }

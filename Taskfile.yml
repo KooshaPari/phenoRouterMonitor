@@ -86,6 +86,11 @@ tasks:
     cmds:
       - cargo build --release
 
+  sbom:
+    desc: Generate CycloneDX JSON for all workspace crates (needs cargo-cyclonedx@0.5.x and jq)
+    cmds:
+      - bash scripts/ci/generate-workspace-sboms.sh . sbom-out
+
   build:watch:
     desc: Build with file watcher
     cmds:

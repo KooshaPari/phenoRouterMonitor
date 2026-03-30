@@ -6,7 +6,7 @@ license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 authors.workspace = true
-description = "String manipulation utilities including compression, normalization, and case conversion"
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
@@ -15,6 +15,3 @@ path = "src/lib.rs"
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
-zstd.workspace = true
-unicode-normalization.workspace = true
-regex.workspace = true

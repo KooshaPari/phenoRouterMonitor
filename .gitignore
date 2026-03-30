@@ -1,4 +1,5 @@
 /target
+/sbom-out/
 Cargo.lock
 *.swp
 *.swo
@@ -10,10 +11,10 @@ docs/plans/
 docs/reports/
 evidence_ledger.jsonl
 plans/
-tests/
+# Only the repository-root tests/ tree (not per-crate integration tests).
+/tests/
 #worklogs/
 docs/AGENT_MASTER_AUDIT_PROMPT.md
-libs/
 platforms/
 docs/research/
 docs/worklogs/LIBIFICATION_AUDIT_2026-03-29.md
@@ -26,12 +27,7 @@ docs/worklogs/WorkLog.md
 EXTRACTION_REPORT_CONFIG_CORE.md
 EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
-crates/phenotype-config-core/
-crates/phenotype-contracts/
-crates/phenotype-error-core/
-crates/phenotype-git-core/
-crates/phenotype-health/
-crates/phenotype-policy-engine/
+# Non-workspace / legacy crate trees (keep ignored until promoted into the workspace).
 crates/phenotype-ports-canonical/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md
@@ -46,3 +42,48 @@ docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
 docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
 docs/worklogs/data/
 tools/
+
+# Session/agent artifacts
+.github/QUICK_REFERENCE.md
+.github/README_CONSOLIDATION.md
+FIXTURE_CONSOLIDATION_CODE_EXAMPLES.md
+FIXTURE_CONSOLIDATION_INDEX.md
+phase2_federation_spec.md
+
+# Build artifacts
+.sccache/
+
+# Uncommitted crate stubs
+crates/phenotype-error-core.ARCHIVED/
+crates/phenotype-event-sourcing/src/async_store.rs
+
+# CI/DevOps
+nextest.toml
+
+# Scripts
+scripts/audit_scope.sh
+scripts/clone-devenv-abstraction-worktree.sh
+scripts/export_phenotype_session_artifacts.py
+scripts/git-worktree-health.sh
+.forge/
+.github/workflows/sbom.yml
+docs/adoption/
+cargo-check.log
+docs/worklogs/libification/CODE_QUALITY_METRICS.md
+docs/worklogs/libification/DEEP_CODEBASE_AUDIT.md
+docs/worklogs/libification/LOC_REDUCTION_PLAN.md
+docs/worklogs/libification/WS1_RUST_THISERROR_AUDIT.md
+docs/worklogs/libification/WS3_TS_ZOD_AUDIT.md
+docs/worklogs/libification/WS4_PYTHON_HTTPX_AUDIT.md
+docs/worklogs/libification/WS5_PYTHON_PYDANTIC_AUDIT.md
+docs/worklogs/libification/WS6_RUST_TOML_AUDIT.md
+service_fixed.py
+service_working.py
+crates/phenotype-contracts/tests/
+.serena/
+
+# Phase 1-2 architecture docs are tracked
+!docs/adoption/CHASSIS_FOUNDATION.md
+!docs/adoption/FEDERATED_HYBRID_ARCHITECTURE.md
+!docs/adoption/PHENOSDK_EXTRACTION_STRATEGY.md
+!docs/adoption/INDEX.md
