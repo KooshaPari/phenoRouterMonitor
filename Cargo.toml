@@ -68,11 +68,13 @@ tempfile = "3"
 blake3 = "1.3"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 phenotype-async-traits = { path = "crates/phenotype-async-traits" }
-opt-level = "0"
+
+[profile.dev]
+opt-level = 0
 debug = true
 
 [profile.release]
 opt-level = "z"
 lto = true
 codegen-units = 1
-blake3 = "1.5"
+strip = true
