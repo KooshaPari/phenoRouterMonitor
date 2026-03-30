@@ -35,6 +35,9 @@ pub enum Error {
     Internal(String),
 }
 
+/// Alias for ergonomic usage.
+pub type PhenotypeError = Error;
+
 impl Error {
     pub fn not_found<S: Into<String>>(msg: S) -> Self {
         Self::NotFound(msg.into())
@@ -46,6 +49,10 @@ impl Error {
 
     pub fn conflict<S: Into<String>>(msg: S) -> Self {
         Self::Conflict(msg.into())
+    }
+
+    pub fn serialization<S: Into<String>>(msg: S) -> Self {
+        Self::Serialization(msg.into())
     }
 
     pub fn internal<S: Into<String>>(msg: S) -> Self {

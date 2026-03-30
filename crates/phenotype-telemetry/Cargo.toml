@@ -6,5 +6,8 @@ authors = ["Phenotype Team"]
 license = "MIT"
 description = "Phenotype Telemetry"
 
+[dependencies]
+phenotype-error-core = { path = "../phenotype-error-core" }
+
 [lib]
 path = "src/lib.rs"

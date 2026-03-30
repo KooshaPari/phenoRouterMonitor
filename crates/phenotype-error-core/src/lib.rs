@@ -14,10 +14,10 @@
 //! ## Usage
 //!
 //! ```rust
-//! use phenotype_error_core::{ErrorKind, ErrorExt};
+//! use phenotype_error_core::ErrorKind;
 //!
 //! fn example() -> Result<(), ErrorKind> {
-//!     Err(ErrorKind::NotFound("resource".into()))
+//!     Err(ErrorKind::not_found("resource"))
 //! }
 //! ```
 
@@ -28,6 +28,12 @@ use std::fmt;
 use std::io::Error as IoError;
 use std::time::SystemTime;
 use thiserror::Error;
+
+/// Convenience alias so downstream crates can `use phenotype_error_core::Error`.
+pub type PhenotypeError = ErrorKind;
+
+/// Re-export as `Error` for ergonomic downstream usage.
+pub use crate::PhenotypeError as Error;
 
 /// Timestamp for when the error occurred.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -349,7 +355,7 @@ mod tests {
     #[test]
     fn test_error_context_chain() {
         let err = ErrorKind::not_found("user");
-        let ctx = err.chain("while fetching").with_backtrace();
+        let ctx = err.chain("while fetching");
         assert!(ctx.to_string().contains("while fetching"));
     }
 }

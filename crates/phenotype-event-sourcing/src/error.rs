@@ -2,6 +2,9 @@
 
 use thiserror::Error;
 
+/// Result type alias for event sourcing operations.
+pub type Result<T> = std::result::Result<T, EventSourcingError>;
+
 /// Event sourcing errors
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum EventSourcingError {
