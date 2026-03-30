@@ -1,8 +1,15 @@
 //! Digital signature utilities — signing and verification using Ed25519.
+//!
+//! Also provides HMAC functionality for message authentication codes.
+//! @trace FR-PHENO-CRYPTO-003
 
 use crate::key::{KeyError, KeyPair, PublicKey};
 use ed25519_dalek::{Signature, Signer as _};
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
 use thiserror::Error;
+
+type HmacSha256 = Hmac<Sha256>;
 
 /// Errors related to signing operations.
 #[derive(Debug, Error)]
@@ -173,6 +180,83 @@ impl SignatureBundle {
     }
 }
 
+/// Compute HMAC-SHA256 signature of a message.
+///
+/// # Arguments
+/// - `message`: The data to authenticate
+/// - `key`: The shared secret key
+///
+/// # Returns
+/// A 32-byte HMAC signature
+/// @trace FR-PHENO-CRYPTO-003
+pub fn compute_hmac(message: &[u8], key: &[u8]) -> Result<Vec<u8>, SigningError> {
+    let mut mac = HmacSha256::new_from_slice(key)
+        .map_err(|_| SigningError::VerificationFailed)?;
+    mac.update(message);
+    Ok(mac.finalize().into_bytes().to_vec())
+}
+
+/// Compute HMAC-SHA256 signature and return as hex string.
+///
+/// # Arguments
+/// - `message`: The data to authenticate
+/// - `key`: The shared secret key
+///
+/// # Returns
+/// A 64-character hex string representation of the HMAC
+/// @trace FR-PHENO-CRYPTO-003
+pub fn compute_hmac_hex(message: &[u8], key: &[u8]) -> Result<String, SigningError> {
+    let signature = compute_hmac(message, key)?;
+    Ok(hex::encode(signature))
+}
+
+/// Verify an HMAC-SHA256 signature.
+///
+/// # Arguments
+/// - `message`: The original data that was authenticated
+/// - `signature`: The HMAC signature to verify (32 bytes)
+/// - `key`: The shared secret key
+///
+/// # Returns
+/// `Ok(())` if verification succeeds, `SigningError` otherwise
+/// @trace FR-PHENO-CRYPTO-003
+pub fn verify_hmac(
+    message: &[u8],
+    signature: &[u8],
+    key: &[u8],
+) -> Result<(), SigningError> {
+    if signature.len() != HMAC_SIZE {
+        return Err(SigningError::VerificationFailed);
+    }
+
+    let mut mac = HmacSha256::new_from_slice(key)
+        .map_err(|_| SigningError::VerificationFailed)?;
+    mac.update(message);
+
+    mac.verify_slice(signature)
+        .map_err(|_| SigningError::VerificationFailed)
+}
+
+/// Verify a hex-encoded HMAC-SHA256 signature.
+///
+/// # Arguments
+/// - `message`: The original data that was authenticated
+/// - `hex_signature`: The HMAC signature as a 64-character hex string
+/// - `key`: The shared secret key
+///
+/// # Returns
+/// `Ok(())` if verification succeeds, `SigningError` otherwise
+/// @trace FR-PHENO-CRYPTO-003
+pub fn verify_hmac_hex(
+    message: &[u8],
+    hex_signature: &str,
+    key: &[u8],
+) -> Result<(), SigningError> {
+    let signature = hex::decode(hex_signature)
+        .map_err(|e| SigningError::DecodeError(e.to_string()))?;
+    verify_hmac(message, &signature, key)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -287,5 +371,120 @@ mod tests {
         bundle
             .verify(&data, &signature)
             .expect("Verification failed");
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_compute_hmac() {
+        let message = b"Hello, World!";
+        let key = b"secret-key";
+
+        let signature = compute_hmac(message, key).expect("HMAC computation failed");
+        assert_eq!(signature.len(), HMAC_SIZE);
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_hmac_deterministic() {
+        let message = b"Test message";
+        let key = b"shared-secret";
+
+        let sig1 = compute_hmac(message, key).expect("HMAC 1 failed");
+        let sig2 = compute_hmac(message, key).expect("HMAC 2 failed");
+
+        assert_eq!(sig1, sig2);
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_verify_hmac_valid() {
+        let message = b"Authenticate this";
+        let key = b"my-secret-key";
+
+        let signature = compute_hmac(message, key).expect("HMAC computation failed");
+
+        let result = verify_hmac(message, &signature, key);
+        assert!(result.is_ok());
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_verify_hmac_fails_with_wrong_key() {
+        let message = b"Authenticate this";
+        let key = b"original-key";
+        let wrong_key = b"wrong-key";
+
+        let signature = compute_hmac(message, key).expect("HMAC computation failed");
+
+        let result = verify_hmac(message, &signature, wrong_key);
+        assert!(result.is_err());
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_verify_hmac_fails_with_modified_message() {
+        let message = b"Original message";
+        let key = b"secret";
+
+        let signature = compute_hmac(message, key).expect("HMAC computation failed");
+
+        let modified_message = b"Modified message";
+        let result = verify_hmac(modified_message, &signature, key);
+        assert!(result.is_err());
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_compute_hmac_hex() {
+        let message = b"Test data";
+        let key = b"key";
+
+        let hex_sig = compute_hmac_hex(message, key).expect("Hex HMAC failed");
+        assert_eq!(hex_sig.len(), HMAC_SIZE * 2);
+        assert!(hex_sig.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_verify_hmac_hex_valid() {
+        let message = b"Authenticate";
+        let key = b"secret";
+
+        let hex_sig = compute_hmac_hex(message, key).expect("Hex HMAC computation failed");
+        let result = verify_hmac_hex(message, &hex_sig, key);
+        assert!(result.is_ok());
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_verify_hmac_hex_fails_with_wrong_key() {
+        let message = b"Secret message";
+        let key = b"original-key";
+        let wrong_key = b"wrong-key";
+
+        let hex_sig = compute_hmac_hex(message, key).expect("Hex HMAC failed");
+        let result = verify_hmac_hex(message, &hex_sig, wrong_key);
+        assert!(result.is_err());
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_hmac_empty_message() {
+        let key = b"secret";
+
+        let signature = compute_hmac(b"", key).expect("HMAC of empty message failed");
+        let result = verify_hmac(b"", &signature, key);
+        assert!(result.is_ok());
+    }
+
+    // @trace FR-PHENO-CRYPTO-003
+    #[test]
+    fn test_hmac_large_message() {
+        let message = vec![42u8; 100_000];
+        let key = b"secret-key";
+
+        let signature = compute_hmac(&message, key).expect("HMAC of large message failed");
+        let result = verify_hmac(&message, &signature, key);
+        assert!(result.is_ok());
     }
 }
