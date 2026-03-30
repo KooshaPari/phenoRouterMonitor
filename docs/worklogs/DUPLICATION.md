@@ -3453,6 +3453,255 @@ impl From<serde_json::Error> for HookError { ... }
 
 ---
 
+## 2026-03-30 - Extended Error Enum Audit (Wave 110 Findings)
+
+**Project:** [phenotype-infrakit]
+**Category:** duplication | error-consolidation
+**Status:** completed
+**Priority:** P0
+
+### NEW Error Enum Instances (NOT in Previous Audits)
+
+| Crate | File | Duplicated Variants | LOC | Recommendation |
+|-------|------|---------------------|-----|----------------|
+| `phenotype-errors` | `crates/phenotype-errors/src/lib.rs:7-23` | `NotFound`, `Timeout`, `Internal` | 94 | **Replace with ErrorKind alias** |
+| `phenotype-http-client-core` | `crates/phenotype-http-client-core/src/error.rs:6-36` | `Timeout`, `Connection`, `NotFound`, `Serialization`, `Io` | 81 | Wrap ErrorKind |
+| `phenotype-retry` | `crates/phenotype-retry/src/error.rs:6-42` | `Timeout` | 76 | Add `Retry` variant to ErrorKind or keep |
+| `phenotype-health` | `crates/phenotype-health/src/lib.rs:8-16` | `Timeout` | 173 | Add `Health` context or keep |
+| `phenotype-config-core` | `libs/phenotype-config-core/src/lib.rs:15-25` | `NotFound` | 142 | Add `Io`/`Toml` variants or wrap ErrorKind |
+
+### Critical Finding: Duplicate StateMachineError Definitions
+
+**`phenotype-state-machine` has TWO separate StateMachineError definitions:**
+
+| Location | Variants |
+|----------|----------|
+| `crates/phenotype-state-machine/src/lib.rs:25-38` | `InvalidTransition`, `GuardRejected`, `UnknownState`, `BuildError` |
+| `crates/phenotype-state-machine/phenotype-state-machine/src/lib.rs:15-28` | `InvalidTransition`, `GuardConditionFailed`, `Locked`, `InvalidState` |
+
+**These are different crates with identical names but different variants** - creates confusion.
+
+### Variant Commonalities Matrix (Extended)
+
+| Error Variant | ErrorKind | TransportError | RetryError | HealthError | ConfigError | phenotype-errors |
+|---------------|-----------|----------------|------------|-------------|-------------|------------------|
+| NotFound | ✅ | ✅ | - | - | - | ✅ |
+| Timeout | ✅ | ✅ | ✅ | ✅ | - | ✅ |
+| Internal | ✅ | - | - | - | - | ✅ |
+| Connection | ✅ | ✅ | - | - | - | - |
+| Serialization | ✅ | ✅ | - | - | - | - |
+| Io | ✅ | ✅ | - | - | ✅ | - |
+| Authentication | ✅ | ✅ | - | - | - | - |
+| Network | ✅ | ✅ | - | - | - | - |
+| Config | ✅ | - | - | - | ✅ | - |
+
+### Immediate Actions
+
+1. **Deprecate `phenotype-errors`** in favor of direct `ErrorKind` usage
+   - Location: `crates/phenotype-errors/src/lib.rs`
+   - LOC savings: ~94 lines of duplicated error types
+
+2. **Add HTTP-specific variants to ErrorKind** or create `TransportErrorKind` enum:
+   - Request, RateLimited, Server - useful for HTTP clients
+   - Location: `crates/phenotype-http-client-core/src/error.rs:70-81`
+
+3. **Consolidate ConfigError** with ErrorKind:
+   - Add `Toml(String)` variant or keep ConfigError wrapper
+   - Location: `libs/phenotype-config-core/src/lib.rs:15-25`
+
+---
+
+## 2026-03-30 - External Package Modernization (Wave 111 Findings)
+
+**Project:** [phenotype-infrakit]
+**Category:** dependency-modernization | LOC-reduction
+**Status:** completed
+**Priority:** P1
+
+### Current Implementation Overview
+
+| Crate | LOC | Primary Function |
+|-------|-----|-----------------|
+| `phenotype-config-core` | 142 | TOML cascading config loader |
+| `phenotype-logging` | 244 | Tracing subscriber wrapper |
+| `phenotype-telemetry` | 420 | Metrics registry, timers, snapshots |
+| `phenotype-state-machine` | 361 | Generic FSM with guards/callbacks |
+
+### External Alternatives Summary
+
+| Area | Recommendation | LOC Savings | Risk |
+|------|----------------|-------------|------|
+| Configuration | Replace with `config` crate | ~100 LOC | Low |
+| Logging | Keep as-is | 0 | N/A |
+| Telemetry | Replace with `metrics` crate | ~200 LOC | Medium |
+| State Machines | Keep as-is | 0 | N/A |
+
+**Total Potential Reduction:** ~300 LOC
+
+### 1. Configuration - Replace with `config` crate
+
+**Current Implementation:** `libs/phenotype-config-core/src/lib.rs:29-90`
+
+Provides:
+- TOML-only cascading search paths
+- System → User → Project precedence
+- Custom path injection via `with_path()`
+
+**External Alternative:** **`config` crate** (v0.15.22)
+
+| Pros | Cons |
+|------|------|
+| Mature, multi-format (TOML/JSON/YAML/INI) | Heavier (~15+ deps) |
+| env var support | |
+| Live file watching | |
+| rust-cli maintained | |
+
+**Key Features of `config` crate:**
+```rust
+use config::{Config, File};
+
+let settings = Config::builder()
+    .add_source(File::with_name("/etc/myapp"))
+    .add_source(File::with_name("~/.config/myapp").required(false))
+    .add_source(Environment::with_prefix("MYAPP"))
+    .build()?;
+```
+
+### 2. Telemetry - Replace with `metrics` crate
+
+**Current Implementation:** `crates/phenotype-telemetry/src/`
+
+Your custom implementation includes:
+- `MetricsRegistry` (241 LOC) - counter/gauge/histogram with DashMap
+- `SpanTimer` (109 LOC) - RAII duration tracking
+- `MetricsSnapshot` (61 LOC) - serializable snapshot
+
+**External Alternative:** **`metrics` crate** (v0.24.3)
+
+| Pros | Cons |
+|------|------|
+| De-facto standard facade | Histogram stores raw values (no pre-aggregation) |
+| No-op recorder for zero-cost | |
+| Works with 20+ exporters | |
+
+**Savings:** ~200 LOC in your crate, gains Prometheus/export flexibility.
+
+**Migration Path:**
+```rust
+use metrics::{counter, gauge, histogram};
+
+// Libraries emit metrics (no recorder needed - no-op by default)
+counter!("requests_total").increment(1);
+gauge!("memory_usage_bytes").set(1024.0);
+histogram!("request_duration").record(duration);
+
+// Executables install exporter
+use metrics_exporter_prometheus::PrometheusBuilder;
+PrometheusBuilder::new().install()?;
+```
+
+### 3. Logging - Keep as-is
+
+**Assessment:** **Keep as-is**
+
+The `tracing` ecosystem you already depend on (`tracing` 0.1, `tracing-subscriber` 0.3) is the industry standard. Your thin wrapper (~240 LOC) provides valuable ergonomics.
+
+### 4. State Machines - Keep as-is
+
+**Assessment:** **Keep as-is**
+
+The `fsm` crate (v0.2.2) is no longer actively maintained and lacks guards and callbacks. Your implementation is more feature-rich.
+
+---
+
+## 2026-03-30 - Inactive Folders Extended Audit (Wave 112 Findings)
+
+**Project:** [cross-repo]
+**Category:** cleanup | maintenance
+**Status:** completed
+**Priority:** P1
+
+### Critical Review Items (P0-P1)
+
+| Directory | Issue | Priority | Action |
+|----------|-------|----------|--------|
+| `repos/worktrees/AgilePlus/phenotype-docs` | **1022+ unpushed commits** | **P0 CRITICAL** | Review and push or discard |
+| `worktrees/merge-spec-docs` | 57 unpushed commits | **P1 HIGH** | Push + PR review |
+| `.archive/orphaned-worktrees/consolidate-libraries` | 299MB, commits already in HEAD | **DELETE** | Safe to remove |
+| `.archive/orphaned-worktrees/expand-test-coverage` | 403MB | **REVIEW** | Verify branch status |
+
+### Cleanup Execution Plan
+
+#### Immediate (Safe Deletes — No Unpushed Work)
+
+```bash
+# Orphaned .worktrees/ copies
+rm -rf .worktrees/gh-pages-deploy
+rm -rf .worktrees/phench-fix
+rm -rf .worktrees/thegent
+
+# Stale -wtrees directories
+rm -rf phenotype-shared-wtrees
+rm -rf heliosCLI-wtrees
+
+# Git metadata cleanup
+git worktree prune --verbose
+
+# Empty archive entries
+rm -rf .archive/orphaned-worktrees/consolidate-libraries
+```
+
+### Storage Recovery Potential
+
+| Category | Count | Disposition |
+|----------|-------|-------------|
+| **Canonical Shelf (Synced)** | 7 | Keep, verify periodically |
+| **Safe to Delete** | 11 | Delete immediately |
+| **Need Review** | 3 | Review before action |
+| **Git Metadata Prune** | 5 | Run `git worktree prune` |
+
+**Total Storage Recovery Potential:** ~800MB+ from orphaned worktrees
+
+---
+
+## 2026-03-30 - Consolidated Action Items Summary
+
+### P0 - CRITICAL (Implement Now)
+
+| Item | Crate | LOC Savings | Files |
+|------|-------|-------------|-------|
+| Deprecate `phenotype-errors` | `crates/phenotype-errors` | ~94 | 1 |
+| Replace telemetry with `metrics` | `crates/phenotype-telemetry` | ~200 | 3 |
+| Replace config with `config` crate | `libs/phenotype-config-core` | ~100 | 2 |
+
+### P1 - HIGH (Next Sprint)
+
+| Item | Crate | LOC Savings | Files |
+|------|-------|-------------|-------|
+| Add HTTP-specific variants to ErrorKind | `crates/phenotype-http-client-core` | ~81 | 1 |
+| Consolidate ConfigError with ErrorKind | `libs/phenotype-config-core` | ~50 | 1 |
+| Push `worktrees/merge-spec-docs` | worktree | - | 1 PR |
+
+### P2 - MEDIUM (Future Consideration)
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Replace `phenotype-state-machine` | Keep | No viable external crate |
+| Replace `phenotype-logging` | Keep | Already optimal |
+| Create `agileplus-health` crate | Proposed | External `health_check` crate exists |
+| Migrate bb8 to deadpool | Medium | Breaking change |
+
+### Total Potential LOC Reduction
+
+| Category | Current | Savings | Target |
+|----------|---------|---------|--------|
+| Error enums | ~1,435 | ~300 | phenotype-error-core |
+| Telemetry | ~420 | ~200 | metrics crate |
+| Config | ~142 | ~100 | config crate |
+| **Total** | **~2,000** | **~600** | |
+
+---
+
 ## 2026-03-30 - Authentication & Authorization Duplication (Wave 116)
 
 **Project:** [cross-repo]
