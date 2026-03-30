@@ -1,0 +1,240 @@
+# CodeRabbit Auto-Stabilizer Configuration
+# Enables CodeRabbit to act as first-pass code reviewer before merge gates execute
+# Reference: https://docs.coderabbit.ai/
+
+# Auto-review settings
+auto_review: true
+auto_assign_reviewers: true
+auto_apply_labels: true
+request_changes_workflow: true
+abort_on_close: true
+
+# Exclude paths from review
+path_filters:
+  exclude:
+    - "node_modules/**"
+    - "dist/**"
+    - ".git/**"
+    - "target/**"
+    - "build/**"
+    - "*.min.js"
+    - "*.min.css"
+    - "coverage/**"
+    - ".venv/**"
+    - "venv/**"
+
+# Review configuration
+review:
+  # Review status and commit status
+  review_status: true
+  commit_status: true
+
+  # Collapse walkthrough for cleaner reviews
+  collapse_walkthrough: false
+
+  # Review instructions and guidelines
+  max_files_to_review: 50
+  max_lines_per_file: 500
+
+  # Safety and quality checks
+  skip_draft_prs: true
+  skip_large_files: true
+  min_changes_for_review: 1
+
+# Labels configuration for anti-slop detection and categorization
+labels:
+  - name: "slop-detected"
+    description: "AI-generated code with quality issues detected"
+    color: "ff6b6b"
+
+  - name: "reviewed"
+    description: "CodeRabbit auto-review completed"
+    color: "51cf66"
+
+  - name: "changes-requested"
+    description: "CodeRabbit requested changes"
+    color: "ffa940"
+
+  - name: "blocked-quality"
+    description: "Quality gate failures detected"
+    color: "ff7875"
+
+  - name: "dead-code-detected"
+    description: "Unused imports or dead code found"
+    color: "d4380d"
+
+  - name: "complexity-exceeded"
+    description: "Cognitive/cyclomatic complexity too high"
+    color: "eb2f96"
+
+  - name: "security-warning"
+    description: "Security vulnerability or anti-pattern detected"
+    color: "c41d7f"
+
+# Anti-slop detection rules
+anti_slop:
+  enabled: true
+  detect_placeholder_todos: true
+  detect_lorem_ipsum: true
+  detect_placeholder_domains: true
+  detect_llm_leakage: true
+  detect_lazy_comments: true
+  detect_placeholder_bodies: true
+  label: "slop-detected"
+
+# Review criteria
+criteria:
+  # Code quality checks
+  check_imports: true
+  check_duplicates: true
+  check_complexity: true
+  check_performance: true
+  check_security: true
+  check_accessibility: true
+  check_tests: true
+
+  # Specification compliance
+  check_fr_traceability: true
+  check_test_coverage: true
+  check_documentation: true
+
+  # Style and formatting
+  check_style: true
+  check_formatting: true
+
+# Reviewer assignment
+reviewers:
+  # Assign based on file patterns
+  patterns:
+    - path: "crates/**"
+      reviewers:
+        - "auto"
+      team: "rust-maintainers"
+
+    - path: "platforms/thegent/**"
+      reviewers:
+        - "auto"
+      team: "go-maintainers"
+
+    - path: "docs/**"
+      reviewers:
+        - "auto"
+      team: "docs-maintainers"
+
+    - path: ".github/**"
+      reviewers:
+        - "auto"
+      team: "devops-maintainers"
+
+# Fail conditions that trigger change requests
+fail_conditions:
+  - condition: "slop_detected"
+    action: "request_changes"
+    label: "slop-detected"
+
+  - condition: "complexity_exceeded"
+    action: "request_changes"
+    label: "complexity-exceeded"
+
+  - condition: "security_issue"
+    action: "request_changes"
+    label: "security-warning"
+
+  - condition: "dead_code_detected"
+    action: "request_changes"
+    label: "dead-code-detected"
+
+  - condition: "no_test_coverage"
+    action: "request_changes"
+    message: "Please add or update tests to meet coverage thresholds"
+
+  - condition: "fr_not_traced"
+    action: "request_changes"
+    message: "Please add FR traceability via @trace comments or test markers"
+
+# Comment settings
+comments:
+  # Auto-resolve obsolete comments
+  auto_resolve: true
+
+  # Collapse resolved sections
+  collapse_resolved: true
+
+  # Add summary to PR
+  add_summary: true
+
+# Workflow integration
+workflow:
+  # Required status checks
+  required_status_checks: true
+
+  # Block merge on changes requested
+  block_merge_on_changes_requested: true
+
+  # Auto-collapse on approval
+  auto_collapse_on_approval: true
+
+# Schedule settings
+schedule:
+  # Run on all PRs immediately
+  trigger: "on_pr_open"
+
+  # Also review on updates
+  review_on_push: true
+
+  # Timeout for review completion (minutes)
+  timeout: 30
+
+# Notification settings
+notifications:
+  # Request review from CodeRabbit
+  comment_on_pr: true
+
+  # Summary in PR description
+  summary_in_description: false
+
+# Suppress review on certain conditions
+suppress:
+  - type: "draft_pr"
+  - type: "automated_commit"
+    authors: ["dependabot", "renovate", "github-actions"]
+  - type: "merge_commit"
+
+# Report generation
+reporting:
+  # Generate review reports
+  generate_reports: true
+
+  # Save to artifacts
+  save_artifacts: true
+
+  # Metrics to track
+  track_metrics:
+    - "review_coverage"
+    - "slop_detection_rate"
+    - "complexity_trend"
+    - "test_coverage_trend"
+    - "security_issues"
+
+# Integration with other tools
+integrations:
+  # Slack notifications
+  slack:
+    enabled: false
+    # Configure in repository secrets: SLACK_WEBHOOK_URL
+
+  # GitHub Actions integration
+  github_actions:
+    enabled: true
+
+    # Link to CI/CD workflows
+    link_ci_artifacts: true
+
+    # Block on workflow failures
+    block_on_workflow_failure: false
+
+# Version and metadata
+version: "1.0"
+name: "phenotype-infrakit-auto-stabilizer"
+description: "CodeRabbit auto-review configuration for phenotype-infrakit"
+updated: "2026-03-30"
