@@ -17,12 +17,13 @@
 - **FR-EVT-003:** `EventEnvelope<T>` SHALL round-trip through `serde_json` without data loss for
   any `T: Serialize + DeserializeOwned`.
   Traces to: E1.1
-- **FR-EVT-004:** `compute_hash(id, timestamp, entity_type, payload, actor, prev_hash)` SHALL
-  produce a deterministic 64-character lowercase hex BLAKE3 hash string (32 bytes / 256 bits).
+- **FR-EVT-004:** `compute_hash(id, timestamp, event_type, payload, actor, prev_hash)` SHALL
+  produce a deterministic 64-character lowercase hex SHA-256 string.
   Traces to: E1.2
 - **FR-EVT-005:** Hash input construction SHALL follow this exact order: UUID bytes (16),
-  RFC3339 timestamp bytes, entity_type bytes, big-endian u32 length + JSON payload bytes,
-  big-endian u32 length + actor bytes, 32-byte decoded prev_hash.
+  big-endian u32 length + ISO 8601 timestamp bytes, big-endian u32 length + event\_type bytes,
+  big-endian u32 length + JSON payload bytes, big-endian u32 length + actor bytes,
+  32-byte decoded prev\_hash.
   Traces to: E1.2
 - **FR-EVT-006:** `verify_chain(pairs: &[(hash, prev_hash)])` SHALL return
   `HashError::ChainBroken { sequence }` on the first broken link.

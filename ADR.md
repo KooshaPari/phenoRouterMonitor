@@ -26,29 +26,25 @@ reason about; feature combinations create hidden coupling).
 
 ---
 
-## ADR-002: Hash Chain for Event Integrity
+## ADR-002: SHA-256 Hash Chain for Event Integrity
 
 **Status:** Accepted
 **Context:** Event sourcing stores immutable domain events. Without integrity verification,
 a compromised or buggy store could silently corrupt historical events. The system must detect
 tampering deterministically.
-**Decision:** Each `EventEnvelope` stores a `hash` (BLAKE3 of the current event fields +
+**Decision:** Each `EventEnvelope` stores a `hash` (SHA-256 of the current event fields +
 `prev_hash`) and `prev_hash` (hash of the preceding event, or 64 zero hex chars for genesis).
 `verify_chain()` walks the sequence and recomputes each hash, failing on first mismatch.
-Hash input construction order is canonicalized: UUID bytes, RFC3339 timestamp, entity_type,
-JSON payload, actor, decoded prev_hash (all length-prefixed with big-endian u32, except UUID
-and prev_hash which are fixed 16 and 32 bytes respectively).
+Hash input construction order is canonicalized: UUID bytes, timestamp, event\_type, JSON payload,
+actor, prev\_hash (all length-prefixed with big-endian u32).
 **Consequences:**
 - Any post-hoc modification to a stored event breaks the chain at that sequence number.
-- BLAKE3 computation is 3-5x faster than SHA-256 with equivalent security; acceptable for
-  event sourcing workloads.
-- BLAKE3 output is 32 bytes (256 bits), same as SHA-256, maintaining hash length.
-- Hash input format must never change without a migration strategy.
+- Hash computation adds ~microseconds per append; acceptable for event sourcing workloads.
+- Canonical hash input format must never change without a migration strategy.
 **Alternatives considered:** HMAC with shared secret (requires secret management);
-Merkle tree (more complex, not needed for sequential log); SHA-256 (slower, no other
-advantage); no integrity check (unacceptable).
+Merkle tree (more complex, not needed for sequential log); no integrity check (unacceptable).
 **Code location:** `crates/phenotype-event-sourcing/src/hash.rs`,
-`crates/phenotype-event-sourcing/src/event.rs`
+`crates/phenotype-event-sourcing/src/store.rs`
 
 ---
 

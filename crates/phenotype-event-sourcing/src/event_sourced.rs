@@ -9,11 +9,8 @@
 //! Traces to: FR-PHENO-008
 
 use async_trait::async_trait;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::error::Result;
 
 /// Metadata attached to sourced events for correlation and causation tracking.
 #[derive(Debug, Clone, Serialize, Deserialize)]

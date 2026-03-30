@@ -6,10 +6,10 @@ Rust infrastructure toolkit extracted from the Phenotype ecosystem. Generic, dom
 
 | Crate | Description | Tests |
 |-------|-------------|-------|
-| [`phenotype-event-sourcing`](crates/phenotype-event-sourcing) | Append-only event store with BLAKE3 hash chain verification, snapshot management, and pluggable storage backends | 12 |
-| [`phenotype-cache-adapter`](crates/phenotype-cache-adapter) | Two-tier cache (L1 LRU + L2 Moka) with TTL expiration and pluggable `MetricsHook` for observability | 3 |
+| [`phenotype-event-sourcing`](crates/phenotype-event-sourcing) | Append-only event store with SHA-256 hash chain verification, snapshot management, and pluggable storage backends | 15 |
+| [`phenotype-cache-adapter`](crates/phenotype-cache-adapter) | Two-tier cache (L1 LRU + L2 DashMap) with TTL expiration and pluggable `MetricsHook` for observability | 7 |
 | [`phenotype-policy-engine`](crates/phenotype-policy-engine) | Rule-based policy evaluation engine with allow/deny/require rules, TOML config loading, and severity levels | 43 |
-| [`phenotype-state-machine`](crates/phenotype-state-machine) | Generic finite state machine with transition guards and callbacks (string-based states) | 10 |
+| [`phenotype-state-machine`](crates/phenotype-state-machine) | Generic finite state machine with transition guards, forward-only enforcement, skip-state config, and history tracking | 11 |
 
 ## Quick Start
 
@@ -95,7 +95,7 @@ assert_eq!(sm.current(), &Status::Review);
 ## Development
 
 ```bash
-cargo test --workspace      # Run all tests
+cargo test --workspace      # Run all 76 tests
 cargo clippy --workspace    # Lint
 cargo fmt --check           # Format check
 ```
