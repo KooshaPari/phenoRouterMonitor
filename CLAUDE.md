@@ -140,3 +140,33 @@ crates/
 ### ADRs (Architecture Decision Records)
 
 See `docs/adr/` for architecture decisions.
+
+---
+
+## TypeScript Validation Standard
+
+All TypeScript projects use **Zod** (^3.24.2+) for runtime validation:
+
+- **React forms**: Use `@hookform/resolvers` for react-hook-form + Zod integration
+- **APIs**: Use `zod-to-json-schema` for JSON Schema generation from Zod schemas
+- **Schema location**: Define all validation schemas in `src/schemas/` directory
+- **Runtime validation**: Always use `.safeParse()` for validation with proper error handling
+- **No custom validators**: Use Zod's built-in methods and composable validators
+- **Type safety**: Leverage Zod's `z.infer<typeof schema>` for TypeScript type inference
+
+See `docs/reference/VALIDATION_STANDARDS.md` for detailed patterns and examples.
+
+---
+
+## Python Configuration Standard
+
+All Python projects use **pydantic-settings v2.x** for configuration management:
+
+- **Base pattern**: Composite `BaseSettings` with `SettingsConfigDict`
+- **Environment loading**: Auto `.env` loading via `env_file='.env'` in Config
+- **Field validators**: Use type hints, descriptions, and range validation on all config fields
+- **Consistent env prefix**: Define per-project prefix (e.g., `THGENT_*`, `AGILEPLUS_*`)
+- **Type safety**: All fields typed; use `Annotated` for validation metadata
+- **Immutability**: Configure `ConfigDict(frozen=True)` for production configs
+
+See `docs/reference/CONFIGURATION_STANDARDS.md` for detailed patterns and examples.

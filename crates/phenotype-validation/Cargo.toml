@@ -1,0 +1,11 @@
+[package]
+name = "phenotype-validation"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Shared validation library for the Phenotype ecosystem"
+
+[dependencies]
+thiserror.workspace = true
+serde.workspace = true
+regex.workspace = true
