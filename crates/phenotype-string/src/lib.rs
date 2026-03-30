@@ -1,11 +1,16 @@
 //! # Phenotype String
 //!
-//! String utilities: slugify, truncate, case conversion, and sanitization.
+//! String utilities: case conversion, string building, inflection, slugify, truncate, and sanitization.
+
+pub mod builder;
+pub mod case;
+pub mod inflection;
+
+pub use builder::StringBuilder;
+pub use case::{to_camel_case, to_kebab_case, to_pascal_case, to_snake_case, CaseConverter};
+pub use inflection::{pluralize, singularize, Inflection};
 
 /// Convert a string to a URL-safe slug.
-///
-/// Lowercases, replaces non-alphanumeric with hyphens, collapses consecutive
-/// hyphens, and trims leading/trailing hyphens.
 pub fn slugify(s: &str) -> String {
     let re = regex::Regex::new(r"[^a-z0-9]+").unwrap();
     let lower = s.to_lowercase();
@@ -19,45 +24,8 @@ pub fn truncate(s: &str, max_len: usize, suffix: &str) -> String {
         return s.to_string();
     }
     let end = max_len.saturating_sub(suffix.len());
-    // Find a char boundary
     let end = s.floor_char_boundary(end);
     format!("{}{}", &s[..end], suffix)
-}
-
-/// Convert a string to snake_case.
-pub fn to_snake_case(s: &str) -> String {
-    let mut result = String::with_capacity(s.len() + 4);
-    for (i, ch) in s.chars().enumerate() {
-        if ch.is_uppercase() {
-            if i > 0 {
-                result.push('_');
-            }
-            result.extend(ch.to_lowercase());
-        } else if ch == '-' || ch == ' ' {
-            result.push('_');
-        } else {
-            result.push(ch);
-        }
-    }
-    result
-}
-
-/// Convert a string to PascalCase.
-pub fn to_pascal_case(s: &str) -> String {
-    s.split(['_', '-', ' '])
-        .filter(|w| !w.is_empty())
-        .map(|w| {
-            let mut chars = w.chars();
-            match chars.next() {
-                None => String::new(),
-                Some(first) => {
-                    let mut s = first.to_uppercase().to_string();
-                    s.extend(chars.flat_map(|c| c.to_lowercase()));
-                    s
-                }
-            }
-        })
-        .collect()
 }
 
 /// Strip ANSI escape sequences from a string.
