@@ -1,13 +1,13 @@
 [package]
 name = "phenotype-telemetry"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Canonical telemetry (tracing + metrics + logs) for Phenotype services"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Telemetry"
+
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["json"] }
-serde.workspace = true
-serde_json.workspace = true
+phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }

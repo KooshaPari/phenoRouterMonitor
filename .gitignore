@@ -10,10 +10,10 @@ docs/plans/
 docs/reports/
 evidence_ledger.jsonl
 plans/
-tests/
+# Only the repository-root tests/ tree (not per-crate integration tests).
+/tests/
 #worklogs/
 docs/AGENT_MASTER_AUDIT_PROMPT.md
-libs/
 platforms/
 docs/research/
 docs/worklogs/LIBIFICATION_AUDIT_2026-03-29.md
@@ -26,12 +26,9 @@ docs/worklogs/WorkLog.md
 EXTRACTION_REPORT_CONFIG_CORE.md
 EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
-crates/phenotype-config-core/
-crates/phenotype-contracts/
-crates/phenotype-error-core/
+# Non-workspace / legacy crate trees (keep ignored until promoted into the workspace).
 crates/phenotype-git-core/
 crates/phenotype-health/
-crates/phenotype-policy-engine/
 crates/phenotype-ports-canonical/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md
@@ -46,13 +43,7 @@ docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
 docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
 docs/worklogs/data/
 tools/
-crates/agileplus-api-types
-crates/phenotype-crypto
-crates/phenotype-iter
 crates/phenotype-logging
-crates/phenotype-port-traits
-crates/phenotype-string
-crates/phenotype-time
 
 # Session/agent artifacts
 .github/QUICK_REFERENCE.md
