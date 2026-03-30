@@ -17,7 +17,7 @@ sha2.workspace = true
 hex.workspace = true
 blake3.workspace = true
 phenotype-errors = { path = "../phenotype-errors" }
-phenotype-error-core = { path = "../phenotype-error-core" }
+phenotype-error-core.workspace = true
 
 [lib]
 path = "src/lib.rs"
