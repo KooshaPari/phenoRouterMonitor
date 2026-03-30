@@ -5,19 +5,13 @@
 
 pub mod error;
 pub mod models;
-pub mod providers;
 pub mod router;
-pub mod metrics;
+pub mod tests;
 
-pub use error::BifrostError;
+pub use error::{BifrostError, BifrostResult};
 pub use models::{
-    LLMRequest, LLMResponse, LLMProvider, ProviderMetadata, StreamingMessage,
-};
-pub use providers::{
-    OpenAIProvider, AnthropicProvider, OpenRouterProvider, TogetherProvider,
+    Message, MessageRole, LLMRequest, LLMResponse, LLMProvider, ProviderMetadata, StreamingMessage,
+    RoutingRequest,
 };
 pub use router::{Router, RoutingStrategy, RoutingStrategyType};
-pub use metrics::{ProviderMetrics, CostTracker, LatencyTracker};
-
-#[cfg(test)]
-mod tests;
+pub use tests as router_tests;

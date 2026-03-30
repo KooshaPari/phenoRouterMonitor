@@ -4,9 +4,14 @@ version = "0.2.0"
 edition = "2021"
 license = "MIT"
 
+[workspace]
+
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde = { workspace = true }
-thiserror = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
