@@ -1,0 +1,22 @@
+[package]
+name = "phenotype-meter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "API metering, quota enforcement, rate limiting, and usage analytics"
+
+[dependencies]
+phenotype-monitor-contracts = { path = "../phenotype-monitor-contracts" }
+phenotype-metrics = { path = "../phenotype-metrics" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+chrono = { workspace = true }
+dashmap = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }

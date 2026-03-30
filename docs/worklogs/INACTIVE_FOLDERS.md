@@ -840,7 +840,35 @@ git worktree remove repos/worktrees/expand-test-coverage
 | `anthropic` | ADD | P1 | Claude SDK |
 | `blake3` | ADOPT | P1 | 3x faster hashing |
 | `ratatui` | EVALUATE | P2 | TUI framework |
+| `metrics` | ADOPT | P1 | Standardized telemetry |
+| `config` | ADOPT | P1 | Standardized config loading |
+| `health_check` | ADOPT | P2 | Standardized health checks |
+
+### Wave 118 Cleanup Actions Completed
+
+| Action | Status | Details |
+|--------|--------|---------|
+| `git worktree prune` | ✅ Done | Cleaned stale metadata |
+| Delete orphaned `.worktrees` entries | ✅ Done | Removed `.worktrees/gh-pages-deploy`, `.worktrees/phench-fix`, `.worktrees/thegent` |
+| Push `merge-spec-docs` | ✅ Done | 57 commits pushed to AgilePlus |
+| Push `phenotype-docs` | ✅ Done | 1022+ commits pushed to AgilePlus |
+| Create PR: consolidate-cost-tracking | ✅ Done | PR created on KooshaPari/AgilePlus |
+| Create PR: integrate-phenotype-docs | ✅ Done | PR created on KooshaPari/AgilePlus |
+
+### Remaining Worktrees Requiring Attention
+
+| Worktree | Branch | Commits | Action Required |
+|----------|--------|---------|----------------|
+| `.worktrees/chore/governance-pi` | `chore/governance-migration-pi` | 7 | Review & merge |
+| `.worktrees/feat/phenosdk-decompose-core` | `feat/phenosdk-decompose-core` | 4 | Review & merge |
+| `.worktrees/impl/complete-stubs` | `feat/complete-stub-crates` | 12 | Review & merge |
+| `.worktrees/impl/consolidate-errors` | `feat/consolidate-error-crates` | 8 | Review & merge |
+| `.worktrees/impl/enhance-port-traits` | `feat/enhance-port-traits` | 15 | Review & merge |
+| `.worktrees/impl/enhance-telemetry` | `feat/enhance-telemetry` | 3 | Review & merge |
+| `.worktrees/loc-reduction/*` | Various | 23 | Review & merge |
+| `.worktrees/phenosdk-decompose-mcp-wp01` | `feat/phenosdk-decompose-mcp` | 6 | Review & merge |
+| `.worktrees/phenosdk-wave-a-contracts-impl` | `feat/phenosdk-wave-a-contracts` | 11 | Review & merge |
 
 ---
 
-_Last updated: 2026-03-29 (Wave 97 final)_
+_Last updated: 2026-03-31 (Wave 118)_

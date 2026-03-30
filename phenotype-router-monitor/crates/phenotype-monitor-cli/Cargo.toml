@@ -1,0 +1,24 @@
+[package]
+name = "phenotype-monitor-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "CLI tool for real-time monitoring of router and metrics"
+
+[[bin]]
+name = "phenotype-monitor"
+path = "src/main.rs"
+
+[dependencies]
+phenotype-router = { path = "../phenotype-router" }
+phenotype-metrics = { path = "../phenotype-metrics" }
+phenotype-meter = { path = "../phenotype-meter" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+clap = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]

@@ -191,11 +191,11 @@ impl MetricsRegistry {
         }
 
         for entry in self.histograms.iter() {
+            let h = entry.value();
+            let _name = h.name(); // Read the name field
             snapshot.insert(
                 entry.key().clone(),
-                Metric::Histogram {
-                    values: entry.value().values(),
-                },
+                Metric::Histogram { values: h.values() },
             );
         }
 
@@ -229,6 +229,9 @@ mod tests {
         assert_eq!(gauge.value(), 42.5);
     }
 
+    #[test]
+    #[test]
+    #[test]
     #[test]
     #[test]
     fn histogram_observe() {

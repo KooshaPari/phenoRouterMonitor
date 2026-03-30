@@ -1,0 +1,33 @@
+[package]
+name = "phenotype-router"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Pareto-efficient routing engine with audit trails and hysteresis control"
+
+[dependencies]
+phenotype-monitor-contracts = { path = "../phenotype-monitor-contracts" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+uuid = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+proptest = { workspace = true }
+
+[[bench]]
+name = "audit_bench"
+harness = false
+
+[features]
+python = ["pyo3"]
+python-ffi = ["python"]
+
+[target.'cfg(not(windows))'.dependencies]
+pyo3 = { workspace = true, optional = true }

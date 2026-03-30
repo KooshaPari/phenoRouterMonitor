@@ -1,0 +1,17 @@
+[package]
+name = "phenotype-metrics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "High-performance metrics collection: counters, gauges, histograms with percentile support"
+
+[dependencies]
+phenotype-monitor-contracts = { path = "../phenotype-monitor-contracts" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+dashmap = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }

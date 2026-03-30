@@ -3843,6 +3843,63 @@ _Last updated: 2026-03-30 (Wave 117)_
 
 **Opportunity:** Consolidate to `phenotype-port-traits` with generic parameters.
 
+### P1: Telemetry Replacement Analysis (Wave 118)
+
+| Component | Current LOC | External Alternative | Savings | Risk |
+|-----------|-------------|-------------------|---------|------|
+| `phenotype-telemetry` | 442 | `metrics` crate | ~280 | Medium |
+| `thegent-metrics` | 890 | `metrics` crate | ~600 | Medium |
+
+**Analysis:** Custom metrics implementation overlaps significantly with the `metrics` crate (available on crates.io since 2020). The `metrics` crate provides:
+- Standard metrics API (counters, gauges, histograms)
+- Multiple exporters (stdout, prometheus, etc.)
+- No runtime dependency
+
+**Recommendation:** Create wrapper crate `phenotype-metrics-adapter` wrapping `metrics` for internal use.
+
+### P1: Config Loading Duplication (Wave 118)
+
+| Location | Pattern | Lines |
+|----------|---------|-------|
+| `libs/phenotype-config-core` | TOML + env override | 142 |
+| `thegent-config` | YAML + env override | 156 |
+| `agileplus-config` | JSON + env override | 89 |
+
+**Analysis:** All three implementations follow identical patterns:
+1. Load from file (TOML/YAML/JSON)
+2. Override with environment variables
+3. Validate with schema
+
+**Recommendation:** Extract to `phenotype-config` crate using the `config` crate (https://github.com/mehcode/config-rs) as the base.
+
+### P2: Health Check Fragmentation (Wave 118)
+
+| Crate | Implementation | LOC |
+|-------|---------------|-----|
+| `phenotype-health` | 3 status enum variants | 173 |
+| `thegent-health` | 5 status variants | 234 |
+| `agileplus-health` | 2 status variants | 45 |
+
+**Opportunity:** Unified `phenotype-health` crate using the `health_check` crate.
+
+### P2: Async Trait Patterns (Wave 118)
+
+| Pattern | Count | Locations |
+|---------|-------|----------|
+| `#[async_trait]` | 47 | `phenotype-contracts/*/ports/*`, `agileplus-graph` |
+| Manual async trait objects | 12 | Legacy code |
+
+**Recommendation:** Standardize on `#[async_trait]` with `phenotype-async-traits` facade.
+
+### P2: Connection Pool Divergence (Wave 118)
+
+| Pool | Manager | Usage |
+|------|---------|-------|
+| CachePool | `bb8` | `agileplus-cache` |
+| phenotype-redis | `deadpool` | `libs/phenotype-shared` |
+
+**Recommendation:** Standardize on `deadpool` (supports Redis, PostgreSQL, SQLite, etc.)
+
 ---
 
 _Last updated: 2026-03-31 (Wave 118)_

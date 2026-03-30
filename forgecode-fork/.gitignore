@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+bun.lockb
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# Runtime
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
+.pnpm-store/
+.turbo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Archive
+.archive/
