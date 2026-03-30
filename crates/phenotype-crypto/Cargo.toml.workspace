@@ -1,0 +1,21 @@
+[package]
+name = "phenotype-crypto"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Cryptographic utilities for Phenotype — hashing, symmetric encryption, key derivation, and HMAC signatures"
+
+[dependencies]
+sha2.workspace = true
+hex.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+aes-gcm.workspace = true
+pbkdf2.workspace = true
+rand.workspace = true
+hmac.workspace = true
+
+[lib]
+path = "src/lib.rs"
