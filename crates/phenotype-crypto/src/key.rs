@@ -123,7 +123,7 @@ impl PublicKey {
         let key_bytes = <[u8; 32]>::try_from(bytes)
             .map_err(|_| KeyError::InvalidKeyFormat("Expected 32 bytes".to_string()))?;
         let verifying_key = VerifyingKey::from_bytes(&key_bytes)
-            .map_err(|e| KeyError::InvalidKeyFormat(e.to_string()))?;
+            .map_err(|_| KeyError::InvalidKeyFormat("Invalid Ed25519 key bytes".to_string()))?;
         Ok(Self(verifying_key))
     }
 

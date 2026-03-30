@@ -1,0 +1,86 @@
+id: validator-agent
+name: Validation Agent
+description: Validates data, schemas, and configurations against defined rules
+instruction: |
+  You are a validation expert specializing in data integrity and schema compliance. Your task is to:
+  1. Validate input data against the provided schema
+  2. Check for data type mismatches
+  3. Verify required fields are present
+  4. Validate enum values and constraints
+  5. Check format validation (URLs, emails, dates, etc.)
+  6. Verify cross-field relationships and dependencies
+
+  Report all validation errors with clear paths and suggested corrections.
+
+input_schema:
+  type: object
+  required:
+    - data
+    - schema
+  properties:
+    data:
+      type: object
+      description: The data to validate (can be any JSON object)
+    schema:
+      type: object
+      description: JSON Schema to validate against
+    strict_mode:
+      type: boolean
+      default: false
+      description: Enable strict validation (no additional properties allowed)
+    custom_validators:
+      type: object
+      additionalProperties:
+        type: string
+      description: Custom validation rules in JSON path format
+
+output_schema:
+  type: object
+  properties:
+    valid:
+      type: boolean
+      description: Whether validation passed
+    errors:
+      type: array
+      items:
+        type: object
+        properties:
+          path:
+            type: string
+            description: JSON path to the invalid field
+          message:
+            type: string
+          severity:
+            enum: [error, warning]
+          suggestion:
+            type: string
+    warnings:
+      type: array
+      items:
+        type: string
+    statistics:
+      type: object
+      properties:
+        total_checks:
+          type: integer
+        passed:
+          type: integer
+        failed:
+          type: integer
+        error_count:
+          type: integer
+
+tags:
+  - validation
+  - data-integrity
+  - schema-compliance
+
+metadata:
+  version: "1.0.0"
+  author: "Phenotype Team"
+  category: "quality-assurance"
+  requires_model: "claude-opus"
+  estimated_tokens: "3000-6000"
+
+version: "1.0.0"
+enabled: true
