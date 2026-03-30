@@ -9,7 +9,6 @@ description = "Git operations for Phenotype — repository info, diff, log, and 
 
 [dependencies]
 git2.workspace = true
-gix.workspace = true
 thiserror.workspace = true
 
 [lib]

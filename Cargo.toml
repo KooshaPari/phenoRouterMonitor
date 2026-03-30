@@ -9,15 +9,12 @@ repository = "https://github.com/KooshaPari/phenotype-infrakit"
 [workspace]
 resolver = "2"
 members = [
-    "crates/agileplus-error-core",
-    "crates/agileplus-domain",
-    "crates/agileplus-api-types",
-    "libs/phenotype-config-core",
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
     "crates/phenotype-health",
     "crates/phenotype-port-traits",
     "crates/phenotype-policy-engine",
@@ -27,6 +24,8 @@ members = [
 ]
 
 exclude = [
+    "crates/agileplus-domain",
+    "crates/agileplus-error-core",
     "crates/phenotype-crypto",
     "crates/phenotype-git-core",
     "crates/phenotype-http-client-core",
@@ -73,7 +72,6 @@ proc-macro2 = "1"
 tempfile = "3"
 dirs = "5"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
-agileplus-error-core = { version = "0.2.0", path = "crates/agileplus-error-core" }
 
 [profile.dev]
 opt-level = 0
@@ -84,3 +82,4 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
+gix = { version = "0.81", default-features = false, features = ["status", "revision", "parallel", "sha1"] }
