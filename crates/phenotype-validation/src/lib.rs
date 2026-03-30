@@ -1,3 +1,5 @@
+pub mod validators;
+
 use regex::Regex;
 use std::fmt;
 use thiserror::Error;
