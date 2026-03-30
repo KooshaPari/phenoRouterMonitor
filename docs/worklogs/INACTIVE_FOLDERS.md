@@ -100,6 +100,114 @@ _Last updated: 2026-03-29 (v2 git-state audit)_
 
 ---
 
+## 2026-03-30 - Extended Inactive Folders Audit (Wave 112)
+
+**Status:** Research complete — updated action items
+**Updated:** 2026-03-30
+
+### Category 1: Canonical Shelf Folders (Ensure Synced)
+
+These are legitimate worktrees that need verification but contain active or recently-pushed work:
+
+| Directory | Remote | Branch | Unpushed | Status | Action |
+|-----------|--------|--------|----------|--------|--------|
+| `worktrees/portage/` | `KooshaPari/portage` | `main` | 0 | **SAFE** | No action needed |
+| `.worktrees/merge-spec-docs/` | origin | `docs/merge-spec-docs` | 57 | **ACTIVE** | Push + PR review |
+| `worktrees/chore-docs-sbom-stack/` | origin | `chore/tag-automation-release-split` | 0 | **ACTIVE** | No action needed |
+| `worktrees/chore-sbom-cyclonedx/` | origin | `chore/sbom-cyclonedx-pilot` | 0 | **ACTIVE** | No action needed |
+| `worktrees/chore-session-sbom-stack/` | origin | `chore/session-stacked-sbom-delivery` | 0 | **ACTIVE** | No action needed |
+| `worktrees/phenosdk-wave-a-contracts-impl/` | origin | `feat/phenosdk-wave-a-contracts` | 0 | **ACTIVE** | No action needed |
+| `platforms/worktrees/thegent/consolidate-dotfiles/` | — | `chore/consolidate-dotfiles` | — | **REVIEW** | Confirm status |
+
+### Category 2: Temporary/Inactive Folders (Mark for Cleanup)
+
+#### A. `*-temp` Directories
+
+| Directory | Remote | Branch | Dirty | Stashes | Unpushed | Cleanup Action |
+|-----------|--------|--------|-------|---------|----------|----------------|
+| `agent-wave-monorepo-temp/` | `KooshaPari/agent-wave` | `main` | 5 untracked docs/ | 0 | 0 | **DELETE** — discard untracked docs |
+| `heliosCLI-monorepo-temp/` | — | — | — | — | — | **DELETED** (2026-03-29) |
+| `phenotype-gauge-temp/` | `KooshaPari/phenotype-gauge` | `chore/rescue-temp-dir-20260329` | 5 untracked docs/ | 1 | 1 | **DELETE** — push commit first |
+| `phenotype-go-kit-temp/` | `KooshaPari/phenotype-go-kit` | `chore/rescue-temp-dir-20260329` | clean | 1 | 2 | **DELETE** — push 2 commits, drop stash |
+| `phenotype-nexus-temp/` | `KooshaPari/phenotype-nexus` | `chore/rescue-temp-dir-20260329` | clean | 1 | 3 | **DELETE** — push 3 commits, drop stash |
+| `phenotype-shared-temp/` | `KooshaPari/phenotype-shared` | `chore/sync-test-artifacts-20260329` | clean | 0 | 0 | **SAFE** |
+| `template-commons-temp/` | `KooshaPari/template-commons` | `main` | 3 modified files | 0 | 0 | **DELETE** — discard or commit changes |
+| `tokenledger-temp/` | `KooshaPari/tokenledger` | `main` | clean | 0 | 0 | **SAFE** |
+
+#### B. `*-wtrees` Directories
+
+| Directory | Status | Action |
+|-----------|--------|--------|
+| `phenotype-shared-wtrees/resolve-pr58/` | **BROKEN** — empty container, no `.git` | **DELETE** |
+| `heliosCLI-wtrees/experimental-mcp/` | **DELETED** — PR #114 merged |
+| `heliosCLI-wtrees/main/` | Stale branch, 4 deletions staged | **DELETE** — PR merged |
+| `phenotype-shared-wtrees/` | Origin main synced, no stashes | **PURGE** |
+
+#### C. `.worktrees/` Directory (Orphaned Entries)
+
+| Directory | Git Status | Contents | Action |
+|-----------|------------|----------|--------|
+| `.worktrees/gh-pages-deploy/` | **NOT GIT REPO** | 30 dirs, stale | **DELETE** |
+| `.worktrees/phench-fix/` | **NOT GIT REPO** | 30 dirs, stale | **DELETE** |
+| `.worktrees/thegent/` | **NOT GIT REPO** | 1 file (23 LOC phench.py stub) | **DELETE** |
+
+#### D. Git Metadata Entries (Stale - Need Pruning)
+
+| Metadata Entry | Target | Status | Fix |
+|----------------|--------|--------|-----|
+| `.git/worktrees/resolve-pr57` | `/private/tmp/resolve-pr57/.git` | **BROKEN** | `git worktree prune` |
+| `.git/worktrees/resolve-pr581` | `/private/tmp/resolve-pr58/.git` | **BROKEN** | `git worktree prune` |
+| `.git/worktrees/merge-spec-docs` | `.worktrees/merge-spec-docs/.git` | **BROKEN** | `git worktree prune` |
+| `.git/worktrees/merge-worklogs` | `repos/worktrees/.../.git` | **BROKEN** | `git worktree prune` |
+| `.git/worktrees/resolve-pr58` | `phenotype-shared-wtrees/.../.git` | **BROKEN** | `git worktree prune` |
+
+### Critical Review Items
+
+| Directory | Issue | Priority | Action |
+|----------|-------|----------|--------|
+| `repos/worktrees/AgilePlus/phenotype-docs/` | **1022+ unpushed commits** | **P0 CRITICAL** | Review and push or discard |
+| `worktrees/merge-spec-docs/` | 57 unpushed commits | **P1 HIGH** | Push + PR review |
+| `.archive/orphaned-worktrees/consolidate-libraries/` | 299MB, commits already in HEAD | **DELETE** | Safe to remove |
+| `.archive/orphaned-worktrees/expand-test-coverage/` | 403MB | **REVIEW** | Verify branch status |
+
+### Cleanup Execution Plan
+
+#### Immediate (Safe Deletes — No Unpushed Work)
+
+```bash
+# Orphaned .worktrees/ copies
+rm -rf .worktrees/gh-pages-deploy
+rm -rf .worktrees/phench-fix
+rm -rf .worktrees/thegent
+
+# Stale -wtrees directories
+rm -rf phenotype-shared-wtrees
+rm -rf heliosCLI-wtrees
+
+# Git metadata cleanup
+git worktree prune --verbose
+
+# Empty archive entries
+rm -rf .archive/orphaned-worktrees/consolidate-libraries
+```
+
+### Storage Recovery Summary
+
+| Category | Count | Disposition |
+|----------|-------|-------------|
+| **Canonical Shelf (Synced)** | 7 | Keep, verify periodically |
+| **Safe to Delete** | 11 | Delete immediately |
+| **Need Review** | 3 | Review before action |
+| **Git Metadata Prune** | 5 | Run `git worktree prune` |
+
+**Storage Recovery Potential:** ~800MB+ from orphaned worktrees (`expand-test-coverage`: 403MB, `consolidate-libraries`: 299MB, plus various temp dirs)
+
+---
+
+_Last updated: 2026-03-30 (Wave 112 audit)_
+
+---
+
 ## 2026-03-30 - Wave 94 Cleanup Execution
 
 **Status:** Cleanup actions executed
