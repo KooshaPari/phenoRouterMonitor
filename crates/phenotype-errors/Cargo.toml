@@ -1,12 +1,5 @@
 [package]
 name = "phenotype-errors"
-<<<<<<< HEAD
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Unified error types and utilities for Phenotype ecosystem"
-=======
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
@@ -17,13 +10,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
->>>>>>> origin/main
 
 [lib]
 path = "src/lib.rs"
-
-[dependencies]
-thiserror.workspace = true
-chrono.workspace = true
-serde_json.workspace = true
-phenotype-error-core.workspace = true
