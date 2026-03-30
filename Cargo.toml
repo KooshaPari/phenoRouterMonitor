@@ -1,28 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/agileplus-api-types",
-    "crates/phenotype-cache-adapter",
-    "crates/phenotype-contracts",
-    "crates/phenotype-crypto",
-    "crates/phenotype-errors",
-    "crates/phenotype-error-core",
     "crates/phenotype-event-sourcing",
-    "crates/phenotype-git-core",
-    "crates/phenotype-health",
-    "crates/phenotype-iter",
-    "crates/phenotype-logging",
-    "crates/phenotype-macros",
-    "crates/phenotype-mcp",
-    "crates/phenotype-policy-engine",
-    "crates/phenotype-port-traits",
-    "crates/phenotype-retry",
-    "crates/phenotype-state-machine",
-    "crates/phenotype-string",
-    "crates/phenotype-telemetry",
-    "crates/phenotype-test-infra",
-    "crates/phenotype-time",
-    "libs/phenotype-config-core"
 ]
 
 [workspace.package]
@@ -37,29 +16,11 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
 thiserror = "2.0"
-anyhow = "1.0"
-derive_more = "1.0"
-strum = { version = "0.26", features = ["derive"] }
-futures = "0.3"
-blake3 = "1.5"
-rkyv = { version = "0.8", features = ["validate"] }
-async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 sha2 = "0.10"
 hex = "0.4"
-gix = "0.79"
-dashmap = "5"
-toml = "0.8"
-regex = "1"
-figment = "0.10"
-reqwest = { version = "0.12", features = ["json"] }
-tracing = "0.1"
-tracing-subscriber = "0.3"
-syn = "2"
-quote = "1"
-proc-macro2 = "1"
-dirs = "6.0"
+async-trait = "0.1"
 
 [profile.dev]
 opt-level = 0

@@ -1,48 +1,78 @@
-//! Error types for phenotype-event-sourcing
+//! Error types for phenotype-event-sourcing.
 
-/// Event sourcing errors
-#[derive(Debug, Clone, PartialEq, Eq)]
+use thiserror::Error;
+
+/// Result type for event sourcing operations.
+pub type Result<T> = std::result::Result<T, EventSourcingError>;
+
+#[derive(Debug, Error)]
 pub enum EventSourcingError {
+    #[error(transparent)]
+    Store(#[from] EventStoreError),
+
+    #[error(transparent)]
+    Hash(#[from] HashError),
+
+    #[error(transparent)]
+    Serialization(#[from] serde_json::Error),
+
+    #[error("aggregate not found: {0}")]
     AggregateNotFound(String),
+
+    #[error("event not found: {0}")]
     EventNotFound(String),
-    Serialization(String),
-    HashMismatch,
-    Snapshot(String),
-    Replay(String),
-    VersionConflict,
-    InvalidEventSequence,
+
+    #[error("hash mismatch: expected {expected}, got {actual}")]
+    HashMismatch { expected: String, actual: String },
+
+    #[error("version conflict: expected {expected}, got {actual}")]
+    VersionConflict { expected: u64, actual: u64 },
+
+    #[error("internal error: {0}")]
     Internal(String),
 }
 
-impl std::fmt::Display for EventSourcingError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::AggregateNotFound(s) => write!(f, "aggregate not found: {}", s),
-            Self::EventNotFound(s) => write!(f, "event not found: {}", s),
-            Self::Serialization(s) => write!(f, "serialization error: {}", s),
-            Self::HashMismatch => write!(f, "hash mismatch"),
-            Self::Snapshot(s) => write!(f, "snapshot error: {}", s),
-            Self::Replay(s) => write!(f, "replay error: {}", s),
-            Self::VersionConflict => write!(f, "version conflict"),
-            Self::InvalidEventSequence => write!(f, "invalid event sequence"),
-            Self::Internal(s) => write!(f, "internal error: {}", s),
+impl EventSourcingError {
+    pub fn aggregate_not_found(id: impl Into<String>) -> Self {
+        Self::AggregateNotFound(id.into())
+    }
+
+    pub fn hash_mismatch(expected: impl Into<String>, actual: impl Into<String>) -> Self {
+        Self::HashMismatch {
+            expected: expected.into(),
+            actual: actual.into(),
         }
     }
 }
 
-impl std::error::Error for EventSourcingError {}
-
-impl EventSourcingError {
-    pub fn aggregate_not_found(id: impl Into<String>) -> Self { Self::AggregateNotFound(id.into()) }
-    pub fn event_not_found(id: impl Into<String>) -> Self { Self::EventNotFound(id.into()) }
-    pub fn serialization(msg: impl Into<String>) -> Self { Self::Serialization(msg.into()) }
-    pub fn snapshot(msg: impl Into<String>) -> Self { Self::Snapshot(msg.into()) }
-    pub fn replay(msg: impl Into<String>) -> Self { Self::Replay(msg.into()) }
-    pub fn internal(msg: impl Into<String>) -> Self { Self::Internal(msg.into()) }
+impl From<std::io::Error> for EventSourcingError {
+    fn from(e: std::io::Error) -> Self {
+        Self::Internal(e.to_string())
+    }
 }
 
-impl From<serde_json::Error> for EventSourcingError {
-    fn from(e: serde_json::Error) -> Self { Self::serialization(e.to_string()) }
+#[derive(Debug, Error)]
+pub enum EventStoreError {
+    #[error("event not found: {0}")]
+    NotFound(String),
+
+    #[error("storage error: {0}")]
+    StorageError(String),
+
+    #[error("sequence gap: expected {expected}, got {actual}")]
+    SequenceGap { expected: i64, actual: i64 },
+}
+
+#[derive(Debug, Error)]
+pub enum HashError {
+    #[error("hash chain broken at sequence {sequence}")]
+    ChainBroken { sequence: i64 },
+
+    #[error("invalid hash length: expected 32 bytes (64 hex digits), got {0}")]
+    InvalidHashLength(usize),
+
+    #[error("hash mismatch at sequence {sequence}")]
+    HashMismatch { sequence: i64 },
 }
 
 // Conversion to unified phenotype error hierarchy
