@@ -4,7 +4,6 @@
 
 pub mod tools;
 
-use fastmcp::{Server, Tool, ToolInput, ToolResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -24,92 +23,85 @@ impl Default for Config {
     }
 }
 
-/// Create the Phenotype MCP server
-pub fn create_server(config: Config) -> Server {
-    let mut server = Server::new(&config.name);
+/// MCP Server state
+pub struct Server {
+    config: Config,
+    tools: HashMap<String, ToolDef>,
+}
+
+/// Tool definition
+#[derive(Debug, Clone)]
+pub struct ToolDef {
+    pub name: String,
+    pub description: String,
+}
+
+impl Server {
+    /// Create a new server
+    pub fn new() -> Self {
+        let mut server = Self {
+            config: Config::default(),
+            tools: HashMap::new(),
+        };
+        server.register_default_tools();
+        server
+    }
     
-    // Register AgilePlus tools
-    server.add_tool(Tool::new(
-        "agileplus_create_feature",
-        "Create a feature specification",
-        |input: ToolInput| {
-            let title = input.arguments.get("title")
-                .and_then(|v| v.as_str())
-                .unwrap_or("Untitled");
-            ToolResult::success(serde_json::json!({
-                "feature_id": format!("feat_{}", uuid::Uuid::new_v4()),
-                "title": title,
-                "status": "created"
-            }))
-        },
-    ));
+    /// Register default tools
+    fn register_default_tools(&mut self) {
+        self.tools.insert("agileplus_create_feature".into(), ToolDef {
+            name: "agileplus_create_feature".into(),
+            description: "Create a feature specification".into(),
+        });
+        self.tools.insert("agileplus_validate".into(), ToolDef {
+            name: "agileplus_validate".into(),
+            description: "Validate a feature against governance rules".into(),
+        });
+        self.tools.insert("agileplus_status".into(), ToolDef {
+            name: "agileplus_status".into(),
+            description: "Update work package status".into(),
+        });
+        self.tools.insert("phenotype_parse_spec".into(), ToolDef {
+            name: "phenotype_parse_spec".into(),
+            description: "Parse and validate specifications".into(),
+        });
+        self.tools.insert("agent_dispatch".into(), ToolDef {
+            name: "agent_dispatch".into(),
+            description: "Dispatch a task to an AI agent".into(),
+        });
+    }
     
-    server.add_tool(Tool::new(
-        "agileplus_validate",
-        "Validate a feature against governance rules",
-        |input: ToolInput| {
-            let feature_id = input.arguments.get("feature_id")
-                .and_then(|v| v.as_str())
-                .unwrap_or("unknown");
-            ToolResult::success(serde_json::json!({
-                "valid": true,
-                "feature_id": feature_id,
-                "checks_passed": 5,
-                "checks_total": 5
-            }))
-        },
-    ));
+    /// Get server info
+    pub fn info(&self) -> ServerInfo {
+        ServerInfo {
+            name: self.config.name.clone(),
+            version: self.config.version.clone(),
+            tool_count: self.tools.len(),
+        }
+    }
     
-    server.add_tool(Tool::new(
-        "agileplus_status",
-        "Update work package status",
-        |input: ToolInput| {
-            let wp_id = input.arguments.get("wp_id")
-                .and_then(|v| v.as_str())
-                .unwrap_or("unknown");
-            let state = input.arguments.get("state")
-                .and_then(|v| v.as_str())
-                .unwrap_or("unknown");
-            ToolResult::success(serde_json::json!({
-                "wp_id": wp_id,
-                "state": state,
-                "updated": true
-            }))
-        },
-    ));
-    
-    // Register Phenotype tools
-    server.add_tool(Tool::new(
-        "phenotype_parse_spec",
-        "Parse and validate specifications",
-        |input: ToolInput| {
-            let content = input.arguments.get("spec_content")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
-            ToolResult::success(serde_json::json!({
-                "valid": true,
-                "lines": content.lines().count()
-            }))
-        },
-    ));
-    
-    // Register Agent tools
-    server.add_tool(Tool::new(
-        "agent_dispatch",
-        "Dispatch a task to an AI agent",
-        |input: ToolInput| {
-            let task = input.arguments.get("task")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
-            ToolResult::success(serde_json::json!({
-                "task_id": format!("task_{}", uuid::Uuid::new_v4()),
-                "task": task,
-                "status": "dispatched"
-            }))
-        },
-    ));
-    
-    server
+    /// List all tools
+    pub fn list_tools(&self) -> Vec<ToolInfo> {
+        self.tools.values().map(|t| ToolInfo {
+            name: t.name.clone(),
+            description: t.description.clone(),
+        }).collect()
+    }
+}
+
+/// Server information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServerInfo {
+    pub name: String,
+    pub version: String,
+    pub tool_count: usize,
+}
+
+/// Tool information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolInfo {
+    pub name: String,
+    pub description: String,
 }
 
 #[cfg(test)]
@@ -118,7 +110,9 @@ mod tests {
 
     #[test]
     fn test_server_creation() {
-        let server = create_server(Config::default());
-        assert_eq!(server.name(), "phenotype");
+        let server = Server::new();
+        let info = server.info();
+        assert_eq!(info.name, "phenotype");
+        assert_eq!(info.tool_count, 5);
     }
 }

@@ -1292,3 +1292,55 @@ impl MicroVM {
 ---
 
 _Last updated: 2026-03-29 (Round 7)_
+
+---
+
+## 2026-03-29 - Round 8: WebAssembly (WASM) Component Model Deep Dive
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+Research into transitioning from legacy WASM FFI patterns to the WebAssembly Component Model (WASI Preview 2) for "blackbox" extensibility in Phenotype agents.
+
+### Key Benefits
+- **WIT (WebAssembly Interface Type):** Defining language-agnostic contracts for agent tools.
+- **Shared-Nothing Linking:** Enforcing strict memory boundaries between guest tools and the host agent.
+- **Language Portability:** Allowing tools written in Rust, Go, or Python to run in the same sandbox.
+
+### Comparison: FFI vs Component Model
+
+| Feature | Legacy FFI | Component Model |
+|---------|------------|-----------------|
+| **Types** | i32, i64, f32, f64 | Records, Variants, Lists, Strings |
+| **Safety** | Manual pointer arithmetic | Automated type-safe bindings |
+| **Tooling** | `wasm-bindgen` | `wit-bindgen` + `cargo-component` |
+
+### Tasks
+- [ ] WASM-001: Prototype a `phenotype-tool-wit` interface for filesystem access.
+- [ ] WASM-002: Benchmark `wasmtime` component instantiation overhead.
+
+---
+
+## 2026-03-29 - Round 8: Distributed Graph Database Scaling (Neo4j vs Age)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Evaluating scaling strategies for the Phenotype knowledge graph as the number of cross-project relationships grows.
+
+| System | Scaling Pattern | Assessment |
+|--------|-----------------|------------|
+| **Neo4j** | Causal Clustering | ✅ High maturity, expensive. |
+| **Apache AGE** | Postgres Sharding | ✅ Leverage existing PG infra. |
+| **SurrealDB** | TiKV/FoundationDB | 🟡 Emerging, highly scalable. |
+
+### Recommendation
+Focus on **Apache AGE** for initial implementation to maintain Postgres as the unified relational+graph store.
+
+_Last updated: 2026-03-29 (Round 8)_
