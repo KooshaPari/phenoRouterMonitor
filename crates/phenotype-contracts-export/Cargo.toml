@@ -1,0 +1,23 @@
+[package]
+name = "phenotype-contracts-export"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Contract extraction and export for Phenotype polyglot clients (OpenAPI, Protobuf, JSON Schema)"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+phenotype-contracts = { path = "../phenotype-contracts" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[[test]]
+name = "contract_extraction_tests"
+path = "tests/contract_extraction_tests.rs"
