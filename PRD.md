@@ -153,21 +153,51 @@ As a domain modeler, I want base traits for `Entity`, `ValueObject`, and `Aggreg
 
 ## E5: State Machine (`phenotype-state-machine`)
 
-**Goal**: Generic forward-only finite state machine with guard callbacks and full transition history.
+**Goal**: Generic forward-only finite state machine with guard callbacks, action hooks, full transition history, and skip-state configuration.
 
 ### E5.1: Typed Forward-Only FSM
 
-As a service developer, I want a `StateMachine<S>` where `S` is the state enum so workflow state is enforced with forward-only transitions and domain-specific guard callbacks.
+As a service developer, I want a `StateMachine<S, C>` where `S` is the state enum and `C` is the context type so workflow state is enforced with forward-only transitions and domain-specific guard callbacks operating over typed context.
 
 **Acceptance criteria**:
-- `StateMachine::new(initial_state: S)` constructs a machine in the given state.
-- `add_transition(from, trigger, to, guard, action)` registers a transition; `guard` is `Option<fn(&Context) -> bool>`.
-- `transition(trigger, context)` returns `Ok(new_state)` or `Err(StateMachineError::InvalidTransition)`.
-- Transitions to states with a lower ordinal value than the current state are rejected (forward-only enforcement).
-- Guard callbacks are evaluated before the transition is applied; a failing guard is treated as a non-matching transition, not an error.
-- `current_state()` returns the current state by reference.
-- Full transition history is maintained for audit and replay.
-- An optional skip-state configuration allows specific non-sequential advances that are explicitly declared.
+- `StateMachine::new(initial_state: S, initial_context: C)` constructs a machine in the given state with an owned context.
+- `Transition::new(from, to)` creates a transition registration between two states.
+- `add_transition(transition)` registers a `Transition<S, C>` with the machine.
+- `transition_to(target_state)` returns `Ok(())` or `Err(StateMachineError::InvalidTransition)`.
+- Transitions are matched by `(from == current, to == target)` equality; no matching transition returns `InvalidTransition { from, to }`.
+- All public types (`S`, `C`) are bounded by `Clone + PartialEq + Debug + Serialize + DeserializeOwned`.
+- All internal state is behind `Arc<RwLock<_>>` for `Send + Sync` compatibility.
+
+### E5.2: Guard Callbacks and Action Hooks
+
+As a service developer, I want guard conditions that gate transitions and action hooks that run on successful transitions so domain logic is decoupled from state-machine plumbing.
+
+**Acceptance criteria**:
+- `Transition::with_guard(Fn(&C) -> bool + Send + Sync + 'static)` attaches a guard closure; evaluated before the transition is applied.
+- `Transition::with_action(Fn(&mut C) + Send + Sync + 'static)` attaches an action closure; executed after guard passes but before the state is updated.
+- A failing guard returns `StateMachineError::GuardConditionFailed { reason }` and the machine state is unchanged.
+- A transition with no guard always succeeds (permissive by default).
+- `can_transition_to(&S)` returns `Ok(true)` if a matching transition exists and its guard (if any) returns `true`; `Ok(false)` otherwise.
+
+### E5.3: Transition History
+
+As an auditor, I want an immutable record of every state the machine has visited so transitions can be replayed and inspected post-hoc.
+
+**Acceptance criteria**:
+- `history()` returns `Result<Vec<S>>` containing every state in visitation order, starting with the initial state.
+- History is append-only; each successful `transition_to` appends the new state.
+- History is persisted behind `Arc<RwLock<Vec<S>>>` for concurrent read access.
+- A machine with N successful transitions has `history().len() == N + 1`.
+
+### E5.4: Skip-State Configuration
+
+As a platform operator, I want to declare specific non-sequential state advances so emergency or out-of-band transitions bypass the normal forward path.
+
+**Acceptance criteria**:
+- `StateMachineConfig` (or equivalent) holds a `skip_states: Vec<(S, S)>` list of allowed non-sequential transitions.
+- A transition that jumps forward (target ordinal > current + 1) is rejected unless explicitly listed in `skip_states`.
+- A skip-state entry `(from, to)` is validated at registration: `to` ordinal must be greater than `from` ordinal.
+- Skip-state transitions still require guard evaluation and trigger action hooks identically to sequential transitions.
 
 ---
 
