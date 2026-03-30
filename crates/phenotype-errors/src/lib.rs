@@ -2,9 +2,6 @@
 //!
 //! Unified error types for the Phenotype ecosystem.
 
-use thiserror::Error;
-
-// Re-export ErrorKind from phenotype-error-core for unified error handling
 pub use phenotype_error_core::ErrorKind;
 
 /// Canonical error type alias for type annotations.
@@ -17,86 +14,6 @@ pub type Result<T> = std::result::Result<T, ErrorKind>;
 
 /// Backward compatibility alias for ErrorKind.
 pub use ErrorKind as CoreError;
-
-impl ErrorKind {
-    /// Returns the kind name for this error as a static string.
-    pub fn kind(&self) -> &'static str {
-        match self {
-            ErrorKind::NotFound(_) => "NotFound",
-            ErrorKind::Serialization(_) => "Serialization",
-            ErrorKind::Validation(_) => "Validation",
-            ErrorKind::Conflict(_) => "Conflict",
-            ErrorKind::Timeout(_) => "Timeout",
-            ErrorKind::Storage(_) => "Storage",
-            ErrorKind::Network(_) => "Network",
-            ErrorKind::Configuration(_) => "Configuration",
-            ErrorKind::Permission(_) => "Permission",
-            ErrorKind::Internal(_) => "Internal",
-            ErrorKind::InvalidInput(_) => "InvalidInput",
-            ErrorKind::Io(_) => "Io",
-        }
-    }
-
-    /// Create a not found error.
-    pub fn not_found(entity: impl Into<String>) -> Self {
-        Self::NotFound(entity.into())
-    }
-
-    /// Create a serialization error.
-    pub fn serialization(msg: impl Into<String>) -> Self {
-        Self::Serialization(msg.into())
-    }
-
-    /// Create a validation error.
-    pub fn validation(msg: impl Into<String>) -> Self {
-        Self::Validation(msg.into())
-    }
-
-    /// Create a conflict error.
-    pub fn conflict(msg: impl Into<String>) -> Self {
-        Self::Conflict(msg.into())
-    }
-
-    /// Create a timeout error.
-    pub fn timeout(msg: impl Into<String>) -> Self {
-        Self::Timeout(msg.into())
-    }
-
-    /// Create a storage error.
-    pub fn storage(msg: impl Into<String>) -> Self {
-        Self::Storage(msg.into())
-    }
-
-    /// Create a network error.
-    pub fn network(msg: impl Into<String>) -> Self {
-        Self::Network(msg.into())
-    }
-
-    /// Create a configuration error.
-    pub fn configuration(msg: impl Into<String>) -> Self {
-        Self::Configuration(msg.into())
-    }
-
-    /// Create a permission error.
-    pub fn permission(msg: impl Into<String>) -> Self {
-        Self::Permission(msg.into())
-    }
-
-    /// Create an internal error.
-    pub fn internal(msg: impl Into<String>) -> Self {
-        Self::Internal(msg.into())
-    }
-
-    /// Create an invalid input error.
-    pub fn invalid_input(msg: impl Into<String>) -> Self {
-        Self::InvalidInput(msg.into())
-    }
-
-    /// Create an IO error.
-    pub fn io(err: std::io::Error) -> Self {
-        Self::from(err)
-    }
-}
 
 #[cfg(test)]
 mod tests {

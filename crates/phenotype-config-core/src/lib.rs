@@ -571,4 +571,54 @@ port = 5432
             Some("env_value")
         );
     }
+
+    // FR-PHENO-CONFIG-009: validate_schema validates JSON schema
+    #[test]
+    fn test_validate_schema_success() {
+        let loader = ConfigLoader::new();
+        let schema = r#"{
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object"
+        }"#;
+        let result = loader.validate_schema(schema);
+        assert!(result.is_ok());
+    }
+
+    // FR-PHENO-CONFIG-009: validate_schema fails on invalid config
+    #[test]
+    fn test_validate_schema_failure() {
+        let mut loader = ConfigLoader::new();
+        loader.merge_value(
+            serde_json::json!({"name": "test", "port": "not_a_number"}),
+            ConfigSource::Inline,
+        );
+
+        let schema = r#"{
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" },
+                "port": { "type": "integer" }
+            }
+        }"#;
+        let result = loader.validate_schema(schema);
+        assert!(result.is_err());
+    }
+
+    // FR-PHENO-CONFIG-011: generate_schema generates valid JSON schema
+    #[test]
+    fn test_generate_schema() {
+        #[derive(Serialize, Deserialize, JsonSchema)]
+        struct TestConfig {
+            name: String,
+            port: u16,
+        }
+
+        let schema_result = ConfigLoader::generate_schema::<TestConfig>();
+        assert!(schema_result.is_ok());
+
+        let schema = schema_result.unwrap();
+        assert!(schema.contains("name"));
+        assert!(schema.contains("port"));
+    }
 }
