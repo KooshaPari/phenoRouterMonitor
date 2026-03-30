@@ -5,16 +5,13 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Test infrastructure utilities for the Phenotype ecosystem: temp dirs, fixtures, log capture, assertion macros, and mock clocks."
+description = "Test infrastructure utilities for the Phenotype ecosystem"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-phenotype-error-core = { path = "../phenotype-error-core" }
+phenotype-errors = { path = "../phenotype-errors" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
-tracing-test = "0.2"
 uuid.workspace = true
-
-[dev-dependencies]
