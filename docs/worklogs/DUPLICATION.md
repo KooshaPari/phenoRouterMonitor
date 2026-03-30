@@ -519,3 +519,59 @@ Create `phenotype-error-core` with:
 - [ ] ERROR-DUP-002: Create unified error crate
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Error Propagation Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Error Handling Duplication
+
+| Pattern | Locations | LOC |
+|---------|-----------|-----|
+| Custom error enums | 8+ | ~400 |
+| Error conversion | 5+ | ~200 |
+| anyhow::Context | 10+ | ~150 |
+
+### Duplicate Error Types
+
+```rust
+// Pattern A: Custom error in agileplus
+#[derive(Error, Debug)]
+pub enum AgilePlusError {
+    #[error("not found: {0}")]
+    NotFound(String),
+    #[error("validation: {0}")]
+    Validation(String),
+}
+
+// Pattern B: Different error in thegent
+#[derive(Error, Debug)]
+pub enum ThegentError {
+    #[error("entity not found: {0}")]
+    NotFound(String),
+    #[error("invalid: {0}")]
+    Invalid(String),
+}
+```
+
+### Impact
+
+- **Inconsistent error responses:** Different JSON structures
+- **Debugging complexity:** No unified error codes
+- **API consumer confusion:** Different error formats
+
+### Recommended Action
+
+Create `phenotype-error-core` with:
+1. Standardized error codes (000-999 ranges)
+2. Error conversion traits
+3. JSON-RPC compatibility
+
+---
+
+_Last updated: 2026-03-30_

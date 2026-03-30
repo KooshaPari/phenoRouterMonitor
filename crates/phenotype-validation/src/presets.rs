@@ -3,7 +3,7 @@ use crate::validator::Validator;
 
 pub struct EmailValidator;
 impl EmailValidator {
-    pub fn new() -> Validator {
+    pub fn email() -> Validator {
         Validator::new()
             .add_rule(RequiredRule)
             .add_rule(EmailRule::new())
@@ -15,7 +15,7 @@ impl Default for EmailValidator {
 
 pub struct UrlValidator;
 impl UrlValidator {
-    pub fn new() -> Validator {
+    pub fn url() -> Validator {
         Validator::new()
             .add_rule(RequiredRule)
             .add_rule(UrlRule::new())
@@ -27,7 +27,7 @@ impl Default for UrlValidator {
 
 pub struct UsernameValidator;
 impl UsernameValidator {
-    pub fn new() -> Validator {
+    pub fn username() -> Validator {
         let pattern = PatternRule::new(r"^[a-zA-Z0-9_-]{3,20}$").unwrap();
         Validator::new()
             .add_rule(RequiredRule)
@@ -78,7 +78,7 @@ impl Default for PhoneValidator {
 
 pub struct SlugValidator;
 impl SlugValidator {
-    pub fn new() -> Validator {
+    pub fn slug() -> Validator {
         let pattern = PatternRule::new(r"^[a-z0-9]+(?:-[a-z0-9]+)*$").unwrap();
         Validator::new()
             .add_rule(RequiredRule)
