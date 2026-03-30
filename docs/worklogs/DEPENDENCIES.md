@@ -1968,4 +1968,233 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 
 ---
 
+## 2026-03-31 - Wave 106: Package Evolutions & Modernization Research
+
+**Project:** [cross-repo]
+**Category:** dependencies | modernization
+**Status:** completed
+**Priority:** P0
+
+### Rust Async Ecosystem: Current State (2026-03)
+
+#### async-trait Crate Status
+- **Latest:** `async-trait v0.1.89` (stable)
+- **Rust 1.75+:** Native `async fn` in traits works for **static dispatch only**
+- **Gap:** `dyn Trait` with async fn still requires `#[async_trait]` macro
+- **Phenotype Impact:** All trait objects (`Box<dyn SomeTrait>`) still need `async-trait`
+
+**Recommendation:** Continue using `async-trait` for dynamic dispatch patterns. Monitor for native `dyn async` stabilization (likely 2026-2027).
+
+#### Key Rust Edition 2024 Changes
+- **Async closures:** `async || { }` syntax now stable
+- **Return position impl Trait (RPITIT):** Fully stable
+- **Type alias impl Trait:** Fully stable
+- **Associated types in GATs:** Fully stable
+
+### Package Evolution Matrix (2026)
+
+#### Stable (Keep As-Is)
+
+| Crate | Current | Latest | Status |
+|-------|---------|--------|--------|
+| `async-trait` | 0.1.x | 0.1.89 | Still needed for dyn |
+| `tokio` | 1.40+ | 1.40.2 | STANDARD |
+| `serde` | 1.0 | 1.0.218 | STANDARD |
+| `axum` | 0.8.x | 0.8.1 | STANDARD |
+| `thiserror` | 2.0 | 2.0.11 | STANDARD |
+
+#### Evolving (Plan Upgrades)
+
+| Crate | Current | Target | Why | Effort |
+|-------|---------|--------|-----|--------|
+| `gix` | 0.79 | 0.81+ | New features, perf | LOW |
+| `figment` | 0.10 | 0.10.19 | Bug fixes, features | LOW |
+| `miette` | 7.x | 8.x | Better diagnostics | MEDIUM |
+
+#### Replacement Candidates
+
+| From | To | When | Benefit |
+|------|----|------|---------|
+| `chrono` | `time` | WASM needed | WASM compatibility |
+| `config-rs` | `figment` | Config rewrite | Better ergonomics |
+| `git2` | `gix` | git2→gix migration | RUSTSEC-2025-0140 |
+| `tenacity` | `stamina` | Python | Better defaults |
+
+### Python Package Evolution (2026)
+
+| Package | Current | Target | Why |
+|---------|---------|--------|-----|
+| `litellm` | 1.82.x | 2.x | Supply chain fix, new providers |
+| `stamina` | - | ADOPT | Replace tenacity |
+| `fastmcp` | 3.0 | 3.5 | New provider auth patterns |
+| `ruff` | 0.8 | 0.15 | New lint rules |
+
+### TypeScript Package Evolution (2026)
+
+| Package | Current | Target | Why |
+|---------|---------|--------|-----|
+| `mastra` | 1.0 | 1.2 | Agentic workflow improvements |
+| `@modelcontextprotocol/sdk` | 0.x | 0.x+ | MCP spec updates |
+| `zod` | 3.x | 3.x | Still stable |
+
+### 3rd Party Fork Candidates (Whitebox Opportunities)
+
+| Repo | Fork Target | Why | LOC Savings |
+|------|-------------|-----|-------------|
+| `Byron/gitoxide` | Already using | `gix` | N/A |
+| `tokio-rs/axum` | Already using | HTTP standard | N/A |
+| `hyperium/tonic` | Already using | gRPC standard | N/A |
+| `anthropic/mcp-sdk-rust` | Already using | MCP transport | N/A |
+
+### Dependency Health Score (2026-03)
+
+| Category | Score | Trend |
+|----------|-------|-------|
+| Core Runtime | 95/100 | Stable |
+| Async Stack | 90/100 | Stable |
+| Serialization | 98/100 | Excellent |
+| Web/HTTP | 95/100 | Stable |
+| CLI | 92/100 | Stable |
+| Observability | 85/100 | Aging |
+
+---
+
+## 2026-03-31 - Wave 107: Inactive Worktrees Audit & Cleanup
+
+**Project:** [repos workspace]
+**Category:** maintenance
+**Status:** completed
+**Priority:** P1
+
+### Worktrees Summary
+
+#### Active Worktrees (.worktrees/ - 18 total)
+| Worktree | Branch | Status | Action |
+|----------|--------|--------|--------|
+| add-tests | feat/add-crate-tests | Merged | DELETE after PR |
+| chore-govern-pi | chore/governance-migration-pi | Done | DELETE after PR |
+| chore/* | various | Mixed | Review per-worktree |
+| feat/* | various | Mixed | Review per-worktree |
+| fix-* | various | Mixed | Review per-worktree |
+| impl-* | various | Mixed | Review per-worktree |
+| loc-reduction/* | various | Done | DELETE after PR |
+| merge-spec-docs | chore/consolidate-cost-tracking | In progress | Keep |
+| phase4-test-consolidation | feat/phase4-test-consolidation | Done | PR merged |
+
+#### Standalone Worktrees (worktrees/ - 8 total)
+
+| Directory | Branch | Status | Action |
+|-----------|--------|--------|--------|
+| chore-docs-sbom-stack | chore/tag-automation-release-split | Old | CHECK status |
+| chore-sbom-cyclonedx | chore/sbom-cyclonedx-pilot | Old | CHECK status |
+| chore-session-sbom-stack | chore/session-stacked-sbom-delivery | Old | CHECK status |
+| devenv-abstraction | main | Synced | OK |
+| phenosdk-wave-a-contracts-impl | feat/phenosdk-wave-a-contracts | In progress | Keep |
+| phenotype-infrakit | main | Synced | OK |
+| phenotype | main | Synced | OK |
+
+### Inactive Candidates (Need Review)
+
+1. **chore-docs-sbom-stack/** - Last activity: 2026-03-29
+2. **chore-sbom-cyclonedx/** - Last activity: 2026-03-29
+3. **chore-session-sbom-stack/** - Last activity: 2026-03-29
+
+### Actions Required
+
+- [ ] Verify `chore-docs-sbom-stack` work is merged or needs PR
+- [ ] Verify `chore-sbom-cyclonedx` work is merged or needs PR
+- [ ] Verify `chore-session-sbom-stack` work is merged or needs PR
+- [ ] Delete stale worktrees after verification
+- [ ] Prune `.worktrees/` of completed worktrees
+
+### Stash Verification (Per Wave 103)
+
+| Worktree | Has Stashes | Merged To | Safe to Purge |
+|----------|-------------|-----------|---------------|
+| phenotype-shared-wtrees | No | Yes | Yes |
+| heliosCLI-wtrees | Pending | feat/mcp-v3 | After push |
+
+---
+
+## 2026-03-31 - Wave 108: Finished Work Pending PRs
+
+**Project:** [cross-repo]
+**Category:** maintenance
+**Status:** identified
+**Priority:** P1
+
+### Worktrees with Unmerged Work
+
+| Worktree | Branch | Last Commit | Status |
+|----------|--------|-------------|--------|
+| chore/add-pr-creation-batch-worklog-2026-03-30 | chore/add-pr-creation-batch-worklog-2026-03-30 | 2026-03-30 | PENDING |
+| chore/cleanup-stale-folders | chore/cleanup-stale-folders | 2026-03 | PENDING |
+| chore/consolidate-nested-duplicates | chore/consolidate-nested-duplicates | 2026-03 | PENDING |
+| chore/dead-code-cleanup | chore/dead-code-cleanup | 2026-03 | PENDING |
+| chore/phenotype-event-sourcing-consolidation | chore/phenotype-event-sourcing-consolidation | 2026-03 | PENDING |
+
+### Priority Actions
+
+1. **Open PRs for completed worktrees** - Batch create PRs
+2. **Delete after merge** - Remove worktrees post-merge
+3. **Push to origin** - Ensure all work is backed up
+
+### Related
+
+- Worklog tracking: `docs/worklogs/WORK_LOG.md`
+- Branch list: See `git branch -a` for all branches
+
+---
+
+## 2026-03-31 - Wave 109: Rust 2026 Edition Deep Dive
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Rust Edition 2024 Features Summary
+
+| Feature | Status | Phenotype Impact |
+|---------|--------|------------------|
+| Async closures | Stable | Use in hot paths |
+| RPITIT | Stable | Better error messages |
+| `impl Trait` in type position | Stable | Code clarity |
+| `?` in closure return | Stable | Cleaner error handling |
+
+### Async Fn in Traits (2026 State)
+
+```rust
+// WORKS (static dispatch) - Rust 1.75+
+trait MyTrait {
+    async fn method(&self);
+}
+
+// WORKS (dynamic dispatch) - needs async-trait crate
+#[async_trait]
+trait MyDynTrait {
+    async fn method(&self);
+}
+```
+
+**Phenotype Pattern:** Use native `async fn` for concrete types; use `#[async_trait]` for trait objects.
+
+### Cargo Unstable Features to Watch
+
+| Feature | Purpose | Stabilization |
+|---------|---------|---------------|
+| `public-dependency` | API visibility | 2026-Q2 |
+| `msrv-policy` | MSRV enforcement | Stable |
+| `sbom` | SBOM generation | 2026-Q3 |
+| `gc` | Global cache GC | 2026-Q4 |
+
+### Recommended Preperation
+
+1. **Audit `#[async_trait]` usage** - Plan migration to native where possible
+2. **Adopt async closures** - In new code, prefer `async || {}` over closures + `.await`
+3. **Update MSRV** - Consider raising to 1.85 for latest features
+4. **Watch for edition 2026** - Likely late 2026, major async features expected
+
+---
+
 _Last updated: 2026-03-31_

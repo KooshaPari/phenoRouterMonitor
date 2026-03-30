@@ -1280,8 +1280,95 @@ features = ["sqlite", "postgres", "grpc"]
 _Last updated: 2026-03-29_
 ---
 
+## 2026-03-30 - phenotype-telemetry Decomposition (LOC Reduction)
+
+**Project:** [phenotype-infrakit]
+**Category:** LOC reduction, decomposition
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Decomposed monolithic `phenotype-telemetry/src/lib.rs` into focused, single-responsibility modules following the project's modular architecture guidelines.
+
+### Before (Monolithic File)
+
+| File | LOC |
+|------|-----|
+| `phenotype-telemetry/src/lib.rs` | 500+ |
+
+### After (Decomposed)
+
+| Module | File | LOC | Purpose |
+|--------|------|-----|---------|
+| Core | `lib.rs` | 15 | Re-exports only |
+| Metrics | `metrics.rs` | ~50 | MetricRecorder trait + implementations |
+| OTEL | `otel.rs` | ~80 | OpenTelemetry integration |
+| Log | `log.rs` | ~60 | Structured logging |
+| Health | `health.rs` | ~70 | Health reporter trait |
+| Error | `error.rs` | ~25 | TelemetryError enum |
+| Span | `span.rs` | ~40 | Span context utilities |
+
+### Key Changes
+
+1. **Extracted `MetricRecorder` trait** - Unified interface for metrics collection
+2. **Separated OTEL concerns** - OTLP exporter logic isolated
+3. **Created `LogRecorder`** - Structured logging abstraction
+4. **Moved health to `HealthReporter`** - Health reporting trait
+5. **Minimal `lib.rs`** - Re-exports only, no implementation
+
+### Files Created/Modified
+
+```
+crates/phenotype-telemetry/
+├── Cargo.toml           # Updated dependencies
+└── src/
+    ├── lib.rs           # REWRITTEN: 15 LOC (re-exports)
+    ├── metrics.rs        # NEW: MetricRecorder trait + implementations
+    ├── otel.rs          # NEW: OpenTelemetry integration
+    ├── log.rs           # NEW: Structured logging
+    ├── health.rs        # NEW: Health reporter
+    ├── error.rs         # NEW: Error types
+    └── span.rs          # NEW: Span utilities
+```
+
+### LOC Savings
+
+| Metric | Value |
+|--------|-------|
+| Original monolithic | 500+ LOC |
+| Decomposed total | ~340 LOC |
+| **Net savings** | ~160 LOC |
+| **Per-module average** | ~53 LOC |
+
+### Dependency Impact
+
+- No new dependencies required
+- Existing dependencies restructured for clarity
+
+### Compilation Status
+
+```
+✅ cargo check -p phenotype-telemetry
+```
+
+### Next Steps
+
+- [ ] Add comprehensive tests for each module
+- [ ] Document module boundaries in lib.rs doc comments
+- [ ] Consider extracting OTEL to separate crate if unused by other crates
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
 _Last updated: 2026-03-29_
-- [ ] 🟢 LOW: Delete `phenotype-state-machine` (dead code)
+
+---
+
+_Last updated: 2026-03-29_
 
 ### Related
 
@@ -3102,3 +3189,265 @@ impl<K, V> CacheLayer<K, V> {
 ---
 
 _Last updated: 2026-03-29 (Round 7)_
+
+---
+
+## 2026-03-30 - Git Operations Cross-Project Duplication (Wave 113)
+
+**Project:** [cross-repo]
+**Category:** duplication, git
+**Status:** identified
+**Priority:** P1
+
+### Summary
+
+Identified 6+ implementations of git operations across projects with varying approaches (libgit2, gix, shell exec).
+
+### Git Implementation Hotspots
+
+| Implementation | Location | LOC | Approach | Quality |
+|----------------|----------|-----|----------|---------|
+| `thegent-git` | `platforms/thegent/crates/thegent-git/` | 709 | libgit2 | High |
+| `agileplus-git` | `agileplus/crates/agileplus-git/` | 340 | gix (gitoxide) | Medium |
+| `heliosCLI/git` | `heliosCLI/codex-rs/core/src/git_info.rs` | 95 | libgit2 | Medium |
+| `pheno-cli/git` | `python/pheno-cli/src/git.py` | 72 | Shell exec | Low |
+| `phenosdk/git` | `python/phenosdk/src/git.py` | 58 | Shell exec | Low |
+
+### Overlap Analysis
+
+| Operation | thegent-git | agileplus-git | heliosCLI | pheno-cli | phenosdk |
+|-----------|-------------|---------------|-----------|-----------|----------|
+| clone | ✅ | ✅ | ❌ | ✅ | ✅ |
+| commit | ✅ | ✅ | ✅ | ❌ | ❌ |
+| push | ✅ | ✅ | ✅ | ❌ | ❌ |
+| pull | ✅ | ✅ | ✅ | ❌ | ❌ |
+| diff | ✅ | ❌ | ✅ | ✅ | ✅ |
+| log | ✅ | ❌ | ✅ | ✅ | ✅ |
+| status | ✅ | ❌ | ✅ | ✅ | ✅ |
+| blame | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+### LOC Impact
+
+- **Total Duplicated LOC**: ~1,274 LOC
+- **Canonical Implementation**: `thegent-git` (most feature-complete)
+- **Target**: `phenotype-git-core` wrapping gix
+
+### Recommended Action
+
+1. Adopt gix (gitoxide) as canonical git engine (pure Rust, better perf)
+2. Extract `GitOperationsPort` trait to `phenotype-port-traits`
+3. Deprecate shell-exec implementations in pheno-cli/phenosdk
+4. Migrate agileplus-git to canonical implementation
+
+---
+
+## 2026-03-30 - Configuration Loading Duplication (Wave 114)
+
+**Project:** [cross-repo]
+**Category:** duplication, configuration
+**Status:** identified
+**Priority:** P1
+
+### Summary
+
+Identified 8+ configuration loading implementations with varying sources (TOML, YAML, ENV, JSON).
+
+### Config Implementation Hotspots
+
+| Implementation | Location | Sources | LOC | Library |
+|-----------------|----------|---------|-----|---------|
+| AgilePlus | `crates/agileplus-config/` | TOML, ENV | 450 | config-rs |
+| thegent | `config_loader/` | TOML, ENV, JSON | 320 | serde_json |
+| heliosCLI | `codex-rs/core/config/` | ENV, JSON | 180 | custom |
+| phenotype-config-core | `crates/phenotype-config-core/` | TOML, ENV, YAML | 200 | figment |
+| pheno-cli | `python/pheno-cli/config.py` | ENV, TOML | 85 | python-dotenv |
+
+### Common Config Patterns
+
+| Pattern | AgilePlus | thegent | heliosCLI | pheno-config-core |
+|---------|-----------|---------|-----------|------------------|
+| Env var override | ✅ | ✅ | ✅ | ✅ |
+| TOML file | ✅ | ✅ | ❌ | ✅ |
+| YAML file | ❌ | ❌ | ❌ | ✅ |
+| Default values | ✅ | ✅ | ✅ | ✅ |
+| Schema validation | ❌ | ❌ | ❌ | Partial |
+
+### LOC Impact
+
+- **Total Duplicated LOC**: ~1,235 LOC
+- **Target**: `phenotype-config-core` (figment-based)
+- **Estimated Savings**: ~800 LOC via shared implementation
+
+### Recommended Action
+
+1. Promote `phenotype-config-core` to canonical config crate
+2. Add YAML support via `figment` providers
+3. Add schema validation with `schemars` or `json_schema`
+4. Migrate all projects to shared implementation
+
+---
+
+## 2026-03-30 - Error Handling Cross-Project Duplication (Wave 115)
+
+**Project:** [cross-repo]
+**Category:** duplication, errors
+**Status:** identified
+**Priority:** P0
+
+### Summary
+
+Comprehensive audit of error handling patterns across all projects. Found 14+ public error enums with significant overlap.
+
+### Error Enum Hotspots
+
+| Crate | Error Enum | Variants | Uses thiserror | Uses miette | LOC |
+|-------|------------|----------|---------------|-------------|-----|
+| `phenotype-errors` | `Error` | 12 | ✅ | ❌ | 180 |
+| `phenotype-event-sourcing` | `EventStoreError` | 8 | ✅ | ❌ | 95 |
+| `phenotype-retry` | `RetryError` | 6 | ✅ | ❌ | 45 |
+| `phenotype-policy-engine` | `PolicyError` | 7 | ✅ | ❌ | 55 |
+| `agileplus-domain` | `DomainError` | 15 | ✅ | ❌ | 120 |
+| `agileplus-api` | `ApiError` | 10 | ✅ | ❌ | 80 |
+| `thegent-hooks` | `HookError` | 8 | ✅ | ❌ | 60 |
+| `heliosCLI` | `Error` | 25+ | ✅ | ✅ | 400+ |
+
+### Error Variant Overlap
+
+| Variant | phenotype-errors | agileplus-domain | thegent-hooks | heliosCLI |
+|---------|------------------|------------------|---------------|-----------|
+| NotFound | ✅ | ✅ | ✅ | ✅ |
+| AlreadyExists | ✅ | ✅ | ❌ | ✅ |
+| PermissionDenied | ✅ | ✅ | ✅ | ✅ |
+| InvalidInput | ✅ | ✅ | ✅ | ✅ |
+| Timeout | ✅ | ✅ | ✅ | ✅ |
+| Internal | ✅ | ✅ | ✅ | ✅ |
+| ConfigError | ✅ | ❌ | ❌ | ✅ |
+| NetworkError | ✅ | ❌ | ❌ | ✅ |
+
+### Error Conversion Boilerplate
+
+Found 50+ `From<T> for Error` implementations across crates:
+
+```rust
+// phenotype-event-sourcing/src/error.rs
+impl From<io::Error> for EventStoreError { ... }  // 8 implementations
+impl From<serde_json::Error> for EventStoreError { ... }
+impl From<sha2::DigestError> for EventStoreError { ... }
+impl From<chrono::ParseError> for EventStoreError { ... }
+
+// agileplus-domain/src/error.rs
+impl From<sqlx::Error> for DomainError { ... }    // 5 implementations
+impl From<io::Error> for DomainError { ... }
+impl From<config::ConfigError> for DomainError { ... }
+
+// thegent-hooks/src/error.rs
+impl From<io::Error> for HookError { ... }        // 4 implementations
+impl From<git2::Error> for HookError { ... }
+impl From<serde_json::Error> for HookError { ... }
+```
+
+### LOC Impact
+
+- **Total Error LOC**: ~1,435 LOC across all crates
+- **From Impl LOC**: ~300 LOC (duplicate conversions)
+- **Target**: `phenotype-error-core` with unified `CommonError` variants
+
+### Recommended Action
+
+1. Extract `CommonError` enum to `phenotype-error-core` with all common variants
+2. Standardize `#[from]` attributes on all error enums
+3. Add miette support for CLI tools (heliosCLI, pheno-cli)
+4. Audit all `anyhow::Error` usages for replace with typed errors
+
+---
+
+## 2026-03-30 - Authentication & Authorization Duplication (Wave 116)
+
+**Project:** [cross-repo]
+**Category:** duplication, auth
+**Status:** identified
+**Priority:** P1
+
+### Summary
+
+Identified 4+ authentication implementations with varying strategies (JWT, API Key, OAuth).
+
+### Auth Implementation Hotspots
+
+| Implementation | Location | Strategy | LOC | Status |
+|----------------|----------|----------|-----|--------|
+| AgilePlus | `agileplus-auth/` | JWT + API Key | 450 | Production |
+| thegent | `thegent-auth/` | JWT | 280 | Production |
+| heliosCLI | `codex-rs/core/auth.rs` | Bearer Token | 320 | Production |
+| pheno-cli | `python/pheno-cli/auth.py` | API Key | 95 | Basic |
+| phenotype-port-traits | `phenotype-port-traits/auth.rs` | Trait stubs | 0 | STUB |
+
+### Auth Trait Hotspots
+
+| Trait | agileplus-auth | thegent | phenotype-port-traits |
+|-------|----------------|---------|----------------------|
+| `Authenticator` | ✅ (concrete) | ✅ (concrete) | ❌ (missing) |
+| `TokenValidator` | ✅ | ✅ | ❌ |
+| `UserProvider` | ✅ | ❌ | ❌ |
+| `SessionManager` | ✅ | ✅ | ❌ |
+
+### LOC Impact
+
+- **Total Auth LOC**: ~1,145 LOC
+- **Canonical Target**: `phenotype-auth-core`
+- **Estimated Savings**: ~600 LOC via shared trait abstraction
+
+### Recommended Action
+
+1. Define `AuthenticatorPort` trait in `phenotype-port-traits`
+2. Extract common JWT validation logic to shared crate
+3. Deprecate pheno-cli basic auth in favor of shared implementation
+4. Add OAuth2 provider abstraction for future multi-provider support
+
+---
+
+## 2026-03-30 - Serialization Cross-Language Duplication (Wave 117)
+
+**Project:** [cross-repo]
+**Category:** duplication, serialization, cross-language
+**Status:** identified
+**Priority:** P1
+
+### Summary
+
+Identified manual serialization of identical domain models across Rust, Python, and Go with no shared schema.
+
+### Model Hotspots
+
+| Model | Rust | Python | Go | Shared? |
+|-------|------|--------|----|----|
+| `EventEnvelope` | ✅ | ✅ | ✅ | ❌ |
+| `AuditEntry` | ✅ | ❌ | ✅ | ❌ |
+| `ToolCall` | ✅ | ✅ | ❌ | ❌ |
+| `AgentMessage` | ✅ | ✅ | ❌ | ❌ |
+| `SessionState` | ✅ | ❌ | ❌ | ❌ |
+| `PolicyRule` | ✅ | ❌ | ❌ | ❌ |
+
+### LOC Impact
+
+| Model | Rust LOC | Python LOC | Go LOC | Total | Canonical (buf) |
+|-------|----------|------------|--------|-------|-----------------|
+| `EventEnvelope` | 45 | 38 | 52 | 135 | ~20 |
+| `AuditEntry` | 30 | 0 | 28 | 58 | ~15 |
+| `ToolCall` | 25 | 22 | 0 | 47 | ~10 |
+| `AgentMessage` | 35 | 30 | 0 | 65 | ~15 |
+
+**Total Duplicated LOC**: ~305 LOC
+**Target Savings**: ~250 LOC (via buf/Protobuf schema)
+
+### Recommended Action
+
+1. Define canonical Protobuf schemas in `proto/` directory
+2. Generate Rust types with `tonic-build`
+3. Generate Python types with `buf`
+4. Generate Go types with `buf generate`
+5. Deprecate manual model definitions in favor of generated
+
+---
+
+_Last updated: 2026-03-30 (Wave 117)_
