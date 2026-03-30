@@ -1,0 +1,109 @@
+id: reporter-agent
+name: Report Generation Agent
+description: Generates comprehensive reports from analysis results and metrics
+instruction: |
+  You are a professional report generation expert. Your task is to:
+  1. Synthesize multiple data sources and analysis results
+  2. Structure findings into a clear, hierarchical narrative
+  3. Create executive summaries with key metrics
+  4. Generate visualizable data representations
+  5. Include recommendations and action items
+  6. Format output in multiple formats (markdown, JSON, HTML)
+
+  Generate professional, actionable reports that stakeholders can easily understand.
+
+input_schema:
+  type: object
+  required:
+    - report_type
+    - data
+  properties:
+    report_type:
+      type: string
+      enum:
+        - code-quality
+        - security-audit
+        - performance-analysis
+        - architecture-review
+        - test-coverage
+      description: Type of report to generate
+    data:
+      type: object
+      description: Analysis data and metrics to include
+    format:
+      type: string
+      enum:
+        - markdown
+        - json
+        - html
+        - pdf
+      default: markdown
+    include_recommendations:
+      type: boolean
+      default: true
+    include_history:
+      type: boolean
+      default: false
+      description: Include historical comparison if available
+    audience:
+      type: string
+      enum:
+        - technical
+        - management
+        - executive
+      default: technical
+
+output_schema:
+  type: object
+  properties:
+    report_id:
+      type: string
+      description: Unique identifier for this report
+    title:
+      type: string
+    executive_summary:
+      type: string
+    sections:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          content:
+            type: string
+          metrics:
+            type: object
+    recommendations:
+      type: array
+      items:
+        type: object
+        properties:
+          priority:
+            enum: [critical, high, medium, low]
+          action:
+            type: string
+          impact:
+            type: string
+          effort:
+            type: string
+    generated_at:
+      type: string
+      format: date-time
+    format:
+      type: string
+
+tags:
+  - reporting
+  - documentation
+  - analytics
+
+metadata:
+  version: "1.0.0"
+  author: "Phenotype Team"
+  category: "reporting"
+  requires_model: "claude-opus"
+  estimated_tokens: "4000-8000"
+
+version: "1.0.0"
+enabled: true

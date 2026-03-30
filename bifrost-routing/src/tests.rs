@@ -41,7 +41,7 @@ mod integration_tests {
         let anthropic = AnthropicProvider::new(anthropic_config);
 
         let openrouter_config = OpenRouterConfig::new("sk-or-test".to_string());
-        let openrouter = OpenRouterProvider::new(openrouter_config);
+        let _openrouter = OpenRouterProvider::new(openrouter_config);
 
         let together_config = TogetherConfig::new("sk-together-test".to_string());
         let together = TogetherProvider::new(together_config);

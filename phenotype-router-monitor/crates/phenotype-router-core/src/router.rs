@@ -45,7 +45,7 @@ impl Router {
     /// Load router from configuration
     pub fn from_config(config: RouterConfig) -> Result<Self> {
         let mut routes = Vec::new();
-        let route_map = Arc::new(DashMap::new());
+        let route_map = DashMap::new();
 
         for (idx, route_cfg) in config.routes.iter().enumerate() {
             let pattern = if route_cfg.path_pattern.starts_with('^') {
@@ -83,7 +83,7 @@ impl Router {
 
         Ok(Self {
             routes,
-            route_map,
+            route_map: Arc::new(route_map),
             config: Arc::new(config),
         })
     }

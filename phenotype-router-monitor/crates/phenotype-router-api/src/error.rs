@@ -25,6 +25,12 @@ pub enum ApiError {
 
     #[error("Route error: {0}")]
     RouteError(#[from] phenotype_router_core::RouterError),
+
+    #[error("IO error: {0}")]
+    IoError(#[from] std::io::Error),
+
+    #[error("Address parse error: {0}")]
+    AddrParseError(#[from] std::net::AddrParseError),
 }
 
 /// Result type for API operations

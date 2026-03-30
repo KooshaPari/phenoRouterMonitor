@@ -45,12 +45,9 @@ pub struct RepoInfo {
 
 /// Open a repository and return summary info.
 pub fn repo_info(path: &std::path::Path) -> Result<RepoInfo> {
-    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
+    let repo = gix::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
 
-    let head_branch = repo
-        .head()
-        .ok()
-        .and_then(|h| h.name().map(String::from));
+    let head_branch = repo.head().ok().and_then(|h| h.name().map(String::from));
 
     let head_commit = repo
         .head()
@@ -75,7 +72,7 @@ pub fn repo_info(path: &std::path::Path) -> Result<RepoInfo> {
 
 /// List changed files (staged + unstaged).
 pub fn changed_files(path: &std::path::Path) -> Result<Vec<String>> {
-    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
+    let repo = gix::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
     let statuses = repo.status().map_err(|e| GitError::Git(e.to_string()))?;
     let files: Vec<String> = statuses
         .index()
@@ -87,7 +84,7 @@ pub fn changed_files(path: &std::path::Path) -> Result<Vec<String>> {
 
 /// Get the current branch name (or None if detached HEAD).
 pub fn current_branch(path: &std::path::Path) -> Result<Option<String>> {
-    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
+    let repo = gix::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
     Ok(repo
         .head()
         .ok()
@@ -97,7 +94,7 @@ pub fn current_branch(path: &std::path::Path) -> Result<Option<String>> {
 
 /// Get the latest N commit messages from HEAD.
 pub fn recent_commits(path: &std::path::Path, count: usize) -> Result<Vec<(String, String)>> {
-    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
+    let repo = gix::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
 
     let mut revwalk = repo
         .revwalk(Category::LocalBranches)
@@ -109,7 +106,7 @@ pub fn recent_commits(path: &std::path::Path, count: usize) -> Result<Vec<(Strin
         let oid = oid?;
         let commit = repo.find_commit(oid).map_err(|e| GitError::Git(e.to_string()))?;
         let short_id = oid.to_string()[..8].to_string();
-        let message = commit.message.lines().next().unwrap_or("").to_string();
+        let message = commit.message().lines().next().unwrap_or("").to_string();
         commits.push((short_id, message));
     }
     Ok(commits)

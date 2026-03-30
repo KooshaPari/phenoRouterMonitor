@@ -1,7 +1,7 @@
 //! Digital signature utilities — signing and verification using Ed25519.
 
 use crate::key::{KeyError, KeyPair, PublicKey};
-use ed25519_dalek::Signature;
+use ed25519_dalek::{Signature, Signer as _};
 use thiserror::Error;
 
 /// Errors related to signing operations.

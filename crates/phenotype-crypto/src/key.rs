@@ -1,7 +1,8 @@
 //! Key management utilities — Ed25519 key pair generation, export, and import.
 
-use ed25519_dalek::{SigningKey, VerifyingKey};
+use ed25519_dalek::{SigningKey, VerifyingKey, SECRET_KEY_LENGTH};
 use rand::rngs::OsRng;
+use rand::RngCore;
 use thiserror::Error;
 use zeroize::Zeroize;
 
@@ -28,7 +29,9 @@ pub struct KeyPair {
 impl KeyPair {
     /// Generate a new random Ed25519 keypair.
     pub fn generate() -> Self {
-        let signing_key = SigningKey::generate(&mut OsRng);
+        let mut seed = [0u8; SECRET_KEY_LENGTH];
+        OsRng.fill_bytes(&mut seed);
+        let signing_key = SigningKey::from_bytes(&seed);
         let verifying_key = VerifyingKey::from(&signing_key);
         Self {
             signing_key,

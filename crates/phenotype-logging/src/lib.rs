@@ -2,12 +2,29 @@
 //!
 //! Wraps: tracing 0.1 + tracing-subscriber 0.3
 //!
+//! # Features
+//!
+//! - Structured logging with context propagation (correlation IDs)
+//! - Multiple output formats (JSON, compact, pretty)
+//! - Per-module filtering
+//! - Request context management with correlation IDs
+//!
 //! # Quick Start
 //!
 //! ```no_run
 //! phenotype_logging::init_logging();
 //! phenotype_logging::info!("service started");
+//! 
+//! // Or with context:
+//! let ctx = phenotype_logging::RequestContext::new("service", "init");
+//! let span = phenotype_logging::context_span_with_context("startup", ctx);
+//! let _guard = span.enter();
+//! phenotype_logging::info!("initialized");
 //! ```
+
+pub mod context;
+pub mod filters;
+pub mod formatters;
 
 use tracing_subscriber::{fmt, EnvFilter};
 
@@ -15,6 +32,11 @@ use tracing_subscriber::{fmt, EnvFilter};
 pub use tracing::{debug, error, info, instrument, trace, warn};
 // Re-export core tracing types consumers commonly need.
 pub use tracing::{span, Level, Span};
+
+// Re-export commonly used types from submodules
+pub use context::{CorrelationId, RequestContext};
+pub use filters::{FilterLevel, ModuleFilter};
+pub use formatters::LogEntry;
 
 /// Log output format.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
@@ -143,7 +165,8 @@ pub fn init_logging() {
 ///
 /// Panics if a global subscriber has already been set.
 pub fn init_logging_with_config(config: LogConfig) {
-    let filter = EnvFilter::try_new(&config.level).unwrap_or_else(|_| EnvFilter::new("info"));
+    let filter = EnvFilter::try_new(&config.level)
+        .unwrap_or_else(|_| EnvFilter::new("info"));
 
     match config.format {
         LogFormat::Pretty => {
@@ -196,6 +219,28 @@ pub fn init_logging_with_config(config: LogConfig) {
 /// ```
 pub fn context_span(name: &'static str) -> Span {
     tracing::info_span!("context", otel.name = name)
+}
+
+/// Create a [`Span`] with request context information.
+///
+/// The span will include correlation ID and other context fields for distributed tracing.
+///
+/// ```no_run
+/// let ctx = phenotype_logging::RequestContext::new("api", "request_handler");
+/// let span = phenotype_logging::context_span_with_context("process", ctx);
+/// let _guard = span.enter();
+/// phenotype_logging::info!("handling request");
+/// ```
+pub fn context_span_with_context(name: &'static str, context: RequestContext) -> Span {
+    tracing::info_span!(
+        "context",
+        otel.name = name,
+        correlation_id = %context.correlation_id,
+        source = %context.source,
+        target = %context.target,
+        user_id = ?context.user_id,
+        session_id = ?context.session_id,
+    )
 }
 
 #[cfg(test)]
@@ -263,7 +308,7 @@ mod tests {
 
     #[test]
     fn context_span_with_context_creates_span() {
-        let ctx = context::RequestContext::new("service", "op");
+        let ctx = RequestContext::new("service", "op");
         let span = context_span_with_context("test", ctx);
         // Span is created successfully with context if this doesn't panic
         let _guard = span.enter();
