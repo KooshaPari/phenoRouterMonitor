@@ -25,7 +25,7 @@ members = [
     "crates/phenotype-logging",
     "crates/phenotype-macros",
     "crates/phenotype-mcp",
-    "crates/phenotype-http-client-core", "bifrost-routing",
+    "crates/phenotype-http-client-core", "bifrost-routing", "forgecode-fork",
 ]
 
 [workspace.metadata.cargo-fuzz]

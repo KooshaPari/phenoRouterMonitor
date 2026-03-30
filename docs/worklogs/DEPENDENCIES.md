@@ -228,6 +228,406 @@ derive_more = { workspace = true, features = ["display"] }
 ### Next Steps
 
 1. [x] Add new dependencies to Cargo.toml
+
+---
+
+## 2026-04-05 - Wave 147: Fork Candidates (Rust Async + Network)
+
+### async-execution Alternatives
+
+#### 1. async-std → smol
+
+**Status:** `async-std` is deprecated, `smol` is its spiritual successor
+
+**Fork Candidate:** Fork `smol` for custom executor features:
+- Real-time scheduling priorities
+- Custom waker implementations
+- Latency-sensitive optimizations
+
+**Opportunity:** Create `async-exec-patched` crate with:
+- Priority-based task scheduling
+- Deadline-aware futures
+- Metrics integration
+
+**Usage:** `agileplus-sync`, `agileplus-api`
+
+---
+
+#### 2. tokio → custom runtime config
+
+**Status:** `tokio` is dominant, but runtime config is complex
+
+**Fork Candidate:** Fork `tokio` for embedded/constrained environments:
+- Minimal task allocation
+- No-std support
+- Custom I/O driver
+
+**Opportunity:** Create `tokio-embedded` crate with:
+- WASM-compatible runtime
+- Browser environment support
+- Mobile/embedded targets
+
+**Usage:** `agileplus-api`, `phenotype-event-sourcing`
+
+---
+
+#### 3. async-trait → macro-based approach
+
+**Status:** `async-trait` has performance overhead due to heap allocation
+
+**Fork Candidate:** Create custom async trait solution:
+- Zero-cost abstraction
+- No heap allocation
+- Better debugging
+
+**Opportunity:** Create `async-trait-core` crate with:
+- Native async fn in traits (stabilized in Rust 1.75)
+- Migration utilities
+- Compatibility layer
+
+**Usage:** `agileplus-domain`, `phenotype-port-interfaces`
+
+---
+
+## 2026-04-05 - Wave 148: Serialization Fork Candidates
+
+### serde_json → simd-json
+
+**Status:** `serde_json` is ubiquitous but not the fastest
+
+**Fork Candidate:** Fork `simd-json` for performance-critical paths:
+- SIMD-accelerated parsing
+- 10x faster for large payloads
+- Zero-copy deserialization
+
+**Opportunity:** Create `simd-json-patched` crate with:
+- Custom error types
+- Streaming API
+- Memory arena integration
+
+**Usage:** `agileplus-api`, `phenotype-http-adapter`
+
+---
+
+### bincode → rkyv
+
+**Status:** `bincode` is simple but slow, `rkyv` is zero-copy
+
+**Fork Candidate:** Fork `rkyv` for zero-copy serialization:
+- Zero-copy deserialization
+- Memory layout control
+- Validation framework
+
+**Opportunity:** Create `rkyv-validated` crate with:
+- Schema validation
+- Type evolution support
+- Migration helpers
+
+**Usage:** `phenotype-event-sourcing`, `agileplus-sync`
+
+---
+
+## 2026-04-05 - Wave 149: Logging Fork Candidates
+
+### tracing → custom subscriber
+
+**Status:** `tracing` is the standard, but subscribers are complex
+
+**Fork Candidate:** Fork `tracing-subscriber` for custom output:
+- Structured log output
+- Cloud-native formats
+- Cost attribution
+
+**Opportunity:** Create `tracing-agileplus` crate with:
+- AgilePlus-specific fields
+- Cost tracking integration
+- Spec-aware context
+
+**Usage:** `agileplus-api`, `agileplus-domain`
+
+---
+
+### log → tracing ecosystem migration
+
+**Status:** `log` crate is legacy, `tracing` is modern
+
+**Fork Candidate:** Migrate all `log` usage to `tracing`:
+- Async-aware logging
+- Structured fields
+- Span-based context
+
+**Opportunity:** Create `log-to-tracing-migration` guide:
+- Automated migration script
+- Compatibility shims
+- Performance comparison
+
+**Usage:** `phenotype-cache-adapter`, `phenotype-policy-engine`
+
+---
+
+## 2026-04-05 - Wave 150: Caching Fork Candidates
+
+### lru → moka → hybrid approach
+
+**Status:** Three LRU implementations exist: `lru`, `moka`, `dashmap`
+
+**Fork Candidate:** Create unified caching crate:
+- L1: DashMap (in-memory, no TTL)
+- L2: Moka (TTL, async support)
+- L3: Redis (distributed, persistence)
+
+**Opportunity:** Create `caching-unified` crate with:
+- Tiered caching
+- Automatic eviction
+- Metrics integration
+
+**Usage:** `phenotype-cache-adapter`, `agileplus-domain`
+
+---
+
+### hashbrown → FxHash alternatives
+
+**Status:** `hashbrown` is the standard, but has DoS vulnerabilities
+
+**Fork Candidate:** Create DoS-resistant hash map:
+- SipHash or HighwayHash
+- Constant-time lookups
+- SIMD-accelerated hashing
+
+**Opportunity:** Create `secure-hashmap` crate with:
+- Type-safe API
+- DoS protection
+- Benchmark suite
+
+**Usage:** `phenotype-cache-adapter`, `agileplus-sync`
+
+---
+
+## 2026-04-05 - Wave 151: Database Fork Candidates
+
+### sqlx → refined query builder
+
+**Status:** `sqlx` is compile-time checked but verbose
+
+**Fork Candidate:** Fork `sqlx` with custom query macros:
+- Type-safe query builder
+- Automatic pagination
+- Migration integration
+
+**Opportunity:** Create `sqlx-extended` crate with:
+- AgilePlus-specific types
+- Query templates
+- Audit logging
+
+**Usage:** `agileplus-domain`, `agileplus-api`
+
+---
+
+### rusqlite → embedded SQL engine
+
+**Status:** `rusqlite` is synchronous only
+
+**Fork Candidate:** Create async SQLite wrapper:
+- Async I/O support
+- Connection pooling
+- WAL mode support
+
+**Opportunity:** Create `sqlite-async` crate with:
+- Tokio integration
+- Async transactions
+- Full-text search
+
+**Usage:** `phenotype-event-sourcing`, `agileplus-cache`
+
+---
+
+## 2026-04-05 - Wave 152: HTTP/Network Fork Candidates
+
+### reqwest → custom HTTP client
+
+**Status:** `reqwest` is the standard but has TLS complexity
+
+**Fork Candidate:** Fork `reqwest` for constrained environments:
+- No-TLS variant
+- WASM support
+- Connection pooling
+
+**Opportunity:** Create `reqwest-embedded` crate with:
+- Browser compatibility
+- Mobile optimizations
+- Custom TLS backends
+
+**Usage:** `phenotype-http-adapter`, `agileplus-api`
+
+---
+
+### hyper → blaze/tyrant
+
+**Status:** `hyper` is low-level, `blaze`/`tyrant` are forks
+
+**Fork Candidate:** Fork `hyper` for specific features:
+- HTTP/3 support
+- WebSocket improvements
+- Metrics integration
+
+**Opportunity:** Create `hyper-extended` crate with:
+- AgilePlus-specific middleware
+- Request tracing
+- Cost attribution
+
+**Usage:** `phenotype-http-adapter`, `agileplus-api`
+
+---
+
+## 2026-04-05 - Wave 153: Configuration Fork Candidates
+
+### config → configuration toolkit
+
+**Status:** `config` crate is unmaintained
+
+**Fork Candidate:** Create modern configuration crate:
+- TOML, YAML, JSON, env support
+- Schema validation
+- Hot reloading
+
+**Opportunity:** Create `config-modern` crate with:
+- Type-safe config
+- Migration support
+- Secret rotation
+
+**Usage:** `agileplus-domain`, `agileplus-telemetry`
+
+---
+
+### figment → configuration composition
+
+**Status:** `figment` is powerful but complex
+
+**Fork Candidate:** Simplify `figment`:
+- Reduced complexity
+- Better error messages
+- Documentation improvements
+
+**Opportunity:** Create `figment-simple` crate with:
+- Simplified API
+- Migration guide
+- Example configs
+
+**Usage:** `agileplus-domain`, `agileplus-cli`
+
+---
+
+## 2026-04-05 - Wave 154: Testing Fork Candidates
+
+### mockall → mockall-derive
+
+**Status:** `mockall` is powerful but complex derive macro
+
+**Fork Candidate:** Fork `mockall` with improvements:
+- Better error messages
+- Async mock support
+- Mock verification
+
+**Opportunity:** Create `mockall-plus` crate with:
+- Fluent assertions
+- Call recording
+- Performance testing
+
+**Usage:** `agileplus-domain`, `phenotype-port-interfaces`
+
+---
+
+### proptest → formal verification
+
+**Status:** `proptest` is state-of-the-art for property testing
+
+**Fork Candidate:** Extend `proptest`:
+- Formal verification integration
+- Model-based testing
+- Coverage guidance
+
+**Opportunity:** Create `proptest-plus` crate with:
+- AgilePlus-specific strategies
+- Mutation testing
+- Fuzzing integration
+
+**Usage:** `agileplus-sync`, `phenotype-event-sourcing`
+
+---
+
+## 2026-04-05 - Wave 155: Observability Fork Candidates
+
+### metrics → custom metrics backend
+
+**Status:** `metrics` is the standard but requires exporters
+
+**Fork Candidate:** Fork `metrics` with built-in exporters:
+- Prometheus-compatible
+- OpenTelemetry integration
+- CloudWatch support
+
+**Opportunity:** Create `metrics-all-in-one` crate with:
+- Built-in exporters
+- Alerting rules
+- Dashboard templates
+
+**Usage:** `agileplus-api`, `agileplus-domain`
+
+---
+
+### opentelemetry → lightweight SDK
+
+**Status:** `opentelemetry` SDK is heavy
+
+**Fork Candidate:** Create lightweight tracing SDK:
+- Reduced dependencies
+- Better performance
+- WASM support
+
+**Opportunity:** Create `otel-lite` crate with:
+- Core tracing only
+- No_std support
+- Export adapters
+
+**Usage:** `phenotype-http-adapter`, `agileplus-sync`
+
+---
+
+## 2026-04-05 - Wave 156: Security Fork Candidates
+
+### ring → aws-lc-rs
+
+**Status:** `ring` is unmaintained, `aws-lc-rs` is the successor
+
+**Fork Candidate:** Migrate to `aws-lc-rs`:
+- FIPS compliance
+- Active maintenance
+- Performance parity
+
+**Opportunity:** Create `crypto-shim` crate with:
+- Consistent API
+- Fallback support
+- Migration helpers
+
+**Usage:** `agileplus-domain`, `agileplus-sync`
+
+---
+
+### rustls → custom TLS stack
+
+**Status:** `rustls` is modern but has limited cipher support
+
+**Fork Candidate:** Create TLS stack with:
+- Post-quantum ciphers
+- Custom certificate handling
+- Hardware integration
+
+**Opportunity:** Create `tls-postquantum` crate with:
+- Kyber support
+- Hybrid key exchange
+- Migration utilities
+
+**Usage:** `phenotype-http-adapter`, `agileplus-api`
 2. [x] Migrate `CredentialStoreError` to thiserror
 3. [x] Migrate `ConnectionFailedError` to thiserror
 4. [x] Migrate `Utf8StreamParserError` to thiserror
