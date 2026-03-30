@@ -1136,3 +1136,134 @@ impl MicroVM {
 ---
 
 _Last updated: 2026-03-29 (Round 7)_
+
+---
+
+## 2026-03-29 - Generic Crate Design Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Research into generic, extensible crate design patterns for creating reusable infrastructure libraries.
+
+### Generic Design Patterns
+
+#### 1. Associated Types vs Generics
+
+| Pattern | Use Case | Example |
+|---------|----------|---------|
+| `type Id` | When single implementation | `type Id = String` |
+| `T: Clone` | When multiple implementations | `fn get(&self, id: T) -> Option<V>` |
+
+```rust
+// Associated types - single implementation
+pub trait Aggregate {
+    type Event: DomainEvent;
+    type State: Clone;
+}
+
+// Generics - multiple implementations
+pub trait Cache<K, V> {
+    fn get(&self, key: &K) -> Option<V>;
+}
+```
+
+#### 2. Trait Objects for Extensibility
+
+```rust
+// Type erasure for plugin systems
+pub type DynEventStore = Arc<dyn EventStore<Event = Box<dyn DomainEvent>>>;
+
+// Factory pattern
+pub trait EventStoreFactory: Send + Sync {
+    fn create(&self) -> Result<Arc<dyn EventStore>>;
+}
+```
+
+#### 3. Feature-Gated Modules
+
+```rust
+// Main crate: traits only
+pub mod traits;
+pub mod aggregate;
+
+// feature = "rusqlite"
+#[cfg(feature = "rusqlite")]
+pub mod rusqlite;
+
+// feature = "postgres"
+#[cfg(feature = "postgres")]
+pub mod postgres;
+```
+
+### Well-Designed Generic Crates
+
+| Crate | Stars | Design Pattern | Recommendation |
+|-------|-------|---------------|---------------|
+| `async-trait` | 5K | Trait async methods | ✅ ADOPT |
+| `dyn-clone` | 500 | Type erasure for Clone | ✅ ADOPT |
+| `dyn-upcast` | 200 | Trait upcasting | 🟡 EVALUATE |
+| `erasable` | 100 | Full type erasure | 🟡 EVALUATE |
+
+### Recommended Patterns
+
+#### 1. Marker Traits
+
+```rust
+// For compile-time guarantees
+pub trait DomainEvent: serde::Serialize + serde::Deserialize {
+    fn event_type(&self) -> &'static str;
+}
+
+pub trait Aggregate: Send + Sync {
+    type Event: DomainEvent;
+}
+```
+
+#### 2. Builder Patterns
+
+```rust
+// For complex configuration
+pub struct EventStoreBuilder<B: Backend> {
+    backend: B,
+    serializer: Box<dyn Serializer>,
+    snapshot_policy: SnapshotPolicy,
+}
+
+impl<B: Backend> EventStoreBuilder<B> {
+    pub fn with_serializer<S: Serializer + 'static>(mut self, s: S) -> Self {
+        self.serializer = Box::new(s);
+        self
+    }
+
+    pub fn build(self) -> Result<EventStore<B>> { ... }
+}
+```
+
+#### 3. Extension Traits
+
+```rust
+// For adding methods to existing types
+pub trait EventStoreExt: EventStore {
+    fn append_one(&self, event: Self::Event) -> Result<u64> {
+        self.append(vec![event])
+    }
+}
+
+impl<T: EventStore> EventStoreExt for T {}
+```
+
+### Tasks
+
+- [ ] GEN-001: Research trait object patterns
+- [ ] GEN-002: Evaluate dyn-clone for type erasure
+- [ ] GEN-003: Add feature flags to phenotype-*
+
+---
+
+_Last updated: 2026-03-29_
+
