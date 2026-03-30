@@ -63,6 +63,7 @@ lru = "0.14"
 moka = { version = "0.12", features = ["sync"] }
 dirs = "5"
 toml = "0.8"
+tempfile = "3"
 
 [profile.dev]
 opt-level = 0

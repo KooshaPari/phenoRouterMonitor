@@ -5,6 +5,7 @@ export default withMermaid({
   description: 'Rust infrastructure toolkit: event sourcing, caching, policy evaluation, and state machine crates.',
   appearance: 'dark',
   lastUpdated: true,
+  srcExclude: ['worklogs/**', 'research/**', 'reports/**', 'sessions/**', 'audits/**'],
   themeConfig: {
     nav: [{ text: 'Home', link: '/' }],
     sidebar: [],
