@@ -81,7 +81,9 @@ impl fmt::Display for Duration {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let t = self.0.as_secs(); let h = t/3600; let m = (t%3600)/60; let s = t%60;
         let mut p = Vec::new();
-        if h > 0 { p.push(format!("{h}h")); } if m > 0 { p.push(format!("{m}m")); } if s > 0 || p.is_empty() { p.push(format!("{s}s")); }
+        if h > 0 { p.push(format!("{h}h")); }
+        if m > 0 { p.push(format!("{m}m")); }
+        if s > 0 || p.is_empty() { p.push(format!("{s}s")); }
         write!(f, "{}", p.join(" "))
     }
 }

@@ -8,6 +8,12 @@ pub struct Counter {
     value: Arc<AtomicU64>,
 }
 
+impl Default for Counter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Counter {
     pub fn new() -> Self {
         Self { value: Arc::new(AtomicU64::new(0)) }
