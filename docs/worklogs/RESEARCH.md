@@ -1,5 +1,8 @@
 # Research Worklogs
 
+<<<<<<< HEAD
+**Category:** RESEARCH | **Updated:** 2026-03-29
+=======
 **Category:** RESEARCH | **Updated:** 2026-03-29 (Wave 92 appended)
 
 ---
@@ -231,6 +234,7 @@ No dominant "hexagonal framework" crate in Rust. Pattern = multi-crate workspace
 |---|---|---|
 | `eventually` 0.5.x | `cqrs-es` | Prerelease quality, slow maintenance |
 | `eventually` | `eventsourced` | NATS+Postgres adapters, Akka Persistence-inspired |
+>>>>>>> origin/main
 
 ---
 
@@ -527,107 +531,115 @@ Quarterly technology radar update based on starred repo analysis.
 
 ---
 
-## 2026-03-29 - Wave 92: Ecosystem radar (serialization, OTel, WASM, data)
+## 2026-03-29 - Graph Database Alternatives Research
 
 **Project:** [cross-repo]
 **Category:** research
-**Status:** in_progress
-**Priority:** P1
+**Status:** completed
+**Priority:** P2
 
-### Summary
+### Graph DB Landscape
 
-Additional 2026 candidates to **wrap at the adapter boundary** or **trial** in pilots. Avoid reimplementing these cross-cutting concerns in `libs/` when mature OSS exists.
+| System | Language | Architecture | Assessment |
+|--------|----------|-------------|------------|
+| **Neo4j** | Java | Single-node | ✅ Standard |
+| **ArangoDB** | C++ | Distributed | 🔲 EVALUATE |
+| **Dgraph** | Go | Distributed | 🔲 EVALUATE |
+| **TigerGraph** | C++ | Distributed | 🔲 WATCH |
+| **Memgraph** | C++ | In-memory | 🔲 WATCH |
+| **petgraph** | Rust | In-memory | ✅ ADOPT |
 
-### Rust: serialization and zero-copy
+### Neo4j (Reference)
 
-| Crate / project | Action | Notes |
-|-----------------|--------|-------|
-| `rkyv` 0.8+ | EVALUATE | Zero-copy archives for hot read paths; schema evolution needs discipline |
-| `flatbuffers` / `capnp` | WRAP | RPC + stable schemas vs hand-rolled JSON for internal services |
-| `minicbor` | ADOPT | Small CBOR for constrained agents / WASM |
-| `postcard` 1.x | ADOPT | `no_std`-friendly binary serde for device edges |
+**What:** The standard graph database with Cypher query language.
 
-### Rust: async runtime adjacent
+**Key Features:**
+- ACID transactions
+- Cypher query language
+- Graph algorithms
+- Visualization tools
 
-| Crate | Action | Notes |
-|-------|--------|-------|
-| `tokio-util` `CancellationToken` | ADOPT | Replace ad-hoc `watch` channels for shutdown |
-| `async-stream` | WRAP | Ergonomic streaming iterators into axum bodies |
-| `backon` | EVALUATE | Retry policies; compare with custom retry in NATS clients |
+**Status:** Use as reference for query patterns
 
-### Rust: WASM / components
+### Dgraph (Distributed)
 
-| Tooling | Action | Notes |
-|---------|--------|-------|
-| `cargo-component` | TRIAL | WIT-first components vs raw `wasm-bindgen` sprawl |
-| `wit-bindgen` 0.35+ | ADOPT | Generated bindings for plugin boundaries (aligns with Extism direction) |
-| `wasmtime` 24+ | ADOPT | Host runtime for policy / sandboxed plugins |
+**What:** Distributed graph database with GraphQL-like query language (DQL).
 
-### TypeScript / Node
+**Key Features:**
+- Horizontal scaling
+- Low-latency queries
+- Distributed transactions
+- GraphQL-like API
 
-| Package | Action | Notes |
-|---------|--------|-------|
-| `effect` / `@effect/schema` | EVALUATE | Typed errors + schema; heavy bundle; use in services not browser |
-| `arktype` | TRIAL | Faster TS-first validation vs zod in hot paths |
-| `pino` + `pino-pretty` | ADOPT | JSON logs for Node services; pair with OTel trace context fields |
-| `bullmq` | WRAP | Redis queues for async agent jobs; avoid custom Redis Lua |
-| `ioredis` | ADOPT | Cluster + sentinel; standardize on one Redis client per repo |
+**Status:** 🔲 EVALUATE - For production at scale
 
-### Go (for services still on Go)
+### petgraph (In-Memory)
 
-| Module | Action | Notes |
-|--------|--------|-------|
-| `github.com/bytedance/sonic` | EVALUATE | Fast JSON; CGO-free config matters for static builds |
-| `github.com/rs/zerolog` | ADOPT | Structured logs; bridge to OTel via hooks |
-| `go.uber.org/fx` | EVALUATE | DI graph vs manual wiring in large cmds |
-| `connectrpc.com/connect` | WRAP | gRPC-compatible without full protobuf weight where acceptable |
+**What:** Rust-native in-memory graph library.
 
-### Python: agents and data
+**Key Features:**
+- No external dependency
+- Optimal for small-medium graphs
+- Graph algorithms built-in
+- DOT export
 
-| Package | Action | Notes |
-|---------|--------|-------|
-| `opentelemetry-sdk` + `opentelemetry-exporter-otlp` | ADOPT | Match Rust/TS trace IDs across MCP + FastAPI |
-| `limits` (Flask-starlette pattern) | WRAP | Rate limits for public HTTP adapters |
-| `faker` + `polyfactory` | ADOPT | Factory fixtures instead of duplicated JSON blobs in tests |
-| `hypothesis` | ADOPT | Property tests for spec parsers and merge logic |
-
-### Observability backends (hosted or self)
-
-| System | Action | Notes |
-|--------|--------|-------|
-| Grafana Tempo | ADOPT | Trace backend; works with OTLP from all stacks |
-| Pyroscope / Grafana profiles | TRIAL | Continuous profiling for Rust/Go CPU hot spots |
-| Loki | ADOPT | Log aggregation matching label conventions in `phenotype-*` |
-
-### Security / policy engines (reuse)
-
-| Project | Action | Notes |
-|---------|--------|-------|
-| Open Policy Agent (Wasm bundle) | WRAP | Same policy bundle in Rust host + CI `conftest` |
-| Cedar (AWS) | EVALUATE | Alternative to hand-rolled RBAC in multi-tenant APIs |
-| `zxcvbn-rs` | ADOPT | Password strength in CLI onboarding; do not invent heuristics |
-
-### Additional starred / ecosystem repos to track
-
-| Repo | Why watch |
-|------|-----------|
-| `open-telemetry/opentelemetry-rust` | Exporter parity and MSRV policy |
-| `bytecodealliance/wasmtime` | Component model churn |
-| `tokio-rs/axum` | Middleware patterns for adapter layer |
-| `rust-lang/cargo` | `edition` / workspace features affecting `libs/` migration |
-| `withastro/starlight` | Docs sites if VitePress limits hit |
-| `bufbuild/buf` | Breaking change detection for protos already in CI |
-| `google/osv.dev` | OSV API for automated dep triage bots |
-| `rustsec/advisory-db` | Source of truth for `cargo deny` |
-
-### Research tasks (Wave 92)
-
-- [ ] Benchmark `rkyv` vs JSON for one internal read-heavy aggregate path (spike only).
-- [ ] Prototype WIT surface for one sandboxed “tool” using `cargo-component`.
-- [ ] Align Python/Rust/TS on single OTLP endpoint + resource attributes table.
+**Status:** ✅ ADOPT - For internal phenoinfrakit graphs
 
 ---
 
+<<<<<<< HEAD
+## 2026-03-29 - Zero-Copy Serialization Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Zero-Copy Options
+
+| System | Language | Schema | Assessment |
+|--------|----------|--------|------------|
+| **rkyv** | Rust | Static | ✅ ADOPT |
+| **flatbuffers** | Multiple | Schema | 🔲 WRAP |
+| **capnproto** | Multiple | Schema | 🔲 WRAP |
+| **abomonation** | Rust | Dynamic | 🔲 EVALUATE |
+
+### rkyv (Rust)
+
+**What:** Zero-copy deserialization for Rust with zero allocation reads.
+
+**Key Features:**
+- Zero allocation on deserialization
+- 10-100x faster than JSON
+- Mature ecosystem
+- Schema evolution support
+
+**Benchmark:**
+```
+JSON serialize:   1.2 µs
+JSON deserialize:   2.1 µs
+rkyv serialize:    0.3 µs
+rkyv deserialize:   0.1 µs (zero-copy)
+```
+
+**Status:** ✅ ADOPT - For hot read paths in phenoinfrakit
+
+### flatbuffers (Multi-language)
+
+**What:** Efficient cross-platform serialization by Google.
+
+**Key Features:**
+- Multiple language support
+- Schema evolution
+- Direct memory access
+- Game-ready performance
+
+**Status:** 🔲 WRAP - For cross-language serialization
+
+---
+
+## 2026-03-29 - Supply Chain Security Research
+=======
 ## 2026-03-29 - Agent Protocol Landscape Research (Wave 93)
 
 ### Agent Communication Protocols Comparison
@@ -1200,12 +1212,67 @@ impl MicroVM {
 ---
 
 ## 2026-03-29 - Wave 100: Modernization Research & Package Replacements
+>>>>>>> origin/main
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** completed
 **Priority:** P0
 
+<<<<<<< HEAD
+### Security Tools
+
+| Tool | Purpose | Language | Assessment |
+|------|---------|----------|------------|
+| **cargo-audit** | Vulnerability scanning | Rust | ✅ ADOPT |
+| **cargo-deny** | License/banned deps | Rust | ✅ ADOPT |
+| **OSV** | Vulnerability database | Any | ✅ ADOPT |
+| **Syft** | SBOM generation | Go | 🔲 TRIAL |
+| **Grype** | Vulnerability scanning | Go | 🔲 TRIAL |
+
+### Cargo Audit Integration
+
+```yaml
+# .github/workflows/security.yml
+name: Security Audit
+on: [push, pull_request]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rust-lang/cargo-deny@v0.16
+        with:
+          bans: fail
+      - uses: actions-rust-lang/cargo-audit@v0.18
+```
+
+### SBOM Generation
+
+```bash
+# Generate SPDX SBOM
+syft packages . -o spdx-json > sbom.spdx.json
+
+# Upload to OSV
+osv-scanner -r -L ./sbom.spdx.json
+```
+
+### Supply Chain Attacks
+
+**Known incidents (2026):**
+- LiteLLM v1.82.7-1.82.8 (supply chain, 2026-03-25)
+- Multiple PyPI typosquatting campaigns
+
+**Mitigation:**
+1. Pin exact versions with hash verification
+2. Use OSV for vulnerability monitoring
+3. Generate and publish SBOMs
+4. Use only official registries
+
+---
+
+## 2026-03-29 - Edge Computing Research
+=======
 ### LLM Orchestration & MCP (2026 State of the Art)
 
 | Package | Target | Action | Rationale |
@@ -1237,10 +1304,63 @@ impl MicroVM {
 ---
 
 ## 2026-03-29 - Wave 101: 3rd Party Repo Fork Matrix (Blackbox vs Whitebox)
+>>>>>>> origin/main
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** completed
+<<<<<<< HEAD
+**Priority:** P2
+
+### Edge Platforms
+
+| Platform | Runtime | Assessment | Use Case |
+|----------|---------|------------|----------|
+| **Cloudflare Workers** | V8 Isolates | ✅ ADOPT | Global edge |
+| **Fastly Compute** | Wasm | 🔲 EVALUATE | Fast edge |
+| **AWS Lambda@Edge** | Node.js | 🟡 Good | AWS-specific |
+| **Fly.io** | Firecracker | 🔲 EVALUATE | Distributed |
+
+### Cloudflare Workers
+
+**What:** Global edge computing with V8 isolates.
+
+**Key Features:**
+- 200+ data centers
+- <5ms cold start
+- TypeScript/JavaScript
+- Durable Objects
+
+**Status:** ✅ ADOPT - For global agent deployment
+
+### Fastly Compute
+
+**What:** WebAssembly-based edge computing.
+
+**Key Features:**
+- WASM runtime
+- Rust support
+- TypeScript SDK
+- Instant purge
+
+**Status:** 🔲 EVALUATE - For WASM-first edge
+
+### Firecracker (Fly.io)
+
+**What:** MicroVM-based distributed computing.
+
+**Key Features:**
+- Lightweight VMs
+- Strong isolation
+- Fast cold starts
+- SSH access
+
+**Status:** 🔲 EVALUATE - For full OS at edge
+
+---
+
+## 2026-03-29 - Observability Stack Research
+=======
 **Priority:** P0
 
 ### Evaluated Repositories for Direct Usage (Blackbox)
@@ -1271,10 +1391,61 @@ impl MicroVM {
 ---
 
 ## 2026-03-29 - Wave 102: Cross-Project Libification Hotspots (Error/Config/Health)
+>>>>>>> origin/main
 
 **Project:** [cross-repo]
 **Category:** research
 **Status:** completed
+<<<<<<< HEAD
+**Priority:** P1
+
+### Observability Stack
+
+| Component | Option | Assessment | Use Case |
+|-----------|--------|------------|----------|
+| **Tracing** | Jaeger | 🟡 Good | Distributed |
+| **Tracing** | Zipkin | 🟡 Good | Simple |
+| **Metrics** | Prometheus | ✅ STANDARD | Metrics |
+| **Logs** | Loki | ✅ ADOPT | Log aggregation |
+| **Profiles** | Pyroscope | 🔲 TRIAL | CPU profiling |
+| **Dashboards** | Grafana | ✅ STANDARD | Visualization |
+
+### OpenTelemetry
+
+**What:** Vendor-neutral observability standard.
+
+**Key Features:**
+- Traces, metrics, logs
+- Language-agnostic
+- Backends: Jaeger, Tempo, etc.
+- Auto-instrumentation
+
+**Status:** ✅ ADOPT - For distributed phenoinfrakit
+
+### Grafana Stack
+
+**What:** Complete observability platform.
+
+**Key Features:**
+- Dashboards
+- Alerting
+- Multi-data source
+- Explore UI
+
+**Status:** ✅ STANDARD - For all Phenotype projects
+
+### Recommended Stack
+
+```
+┌─────────────────────────────────────────────────┐
+│              Observability Stack                   │
+├─────────────────────────────────────────────────┤
+│  Traces: OpenTelemetry → Jaeger/Tempo            │
+│  Metrics: Prometheus → Grafana                    │
+│  Logs: Loki → Grafana                            │
+│  Profiles: Pyroscope → Grafana                    │
+└─────────────────────────────────────────────────┘
+=======
 **Priority:** P0
 
 ### Target 1: `phenotype-error-core` (LOC Savings: ~850)
@@ -1822,10 +1993,14 @@ class PhenotypeAggregate(Aggregate):
     def process_command(self, command: Command) -> None:
         # Validate and emit events
         pass
+>>>>>>> origin/main
 ```
 
 ---
 
+<<<<<<< HEAD
+_Last updated: 2026-03-29_
+=======
 ## 2026-03-30 - External Fork Candidates: Policy Engines (Wave 155)
 
 **Project:** [cross-repo]
@@ -2514,3 +2689,4 @@ tracing_subscriber::registry()
 ---
 
 _Last updated: 2026-03-30 (Wave 4 entries appended)_
+>>>>>>> origin/main

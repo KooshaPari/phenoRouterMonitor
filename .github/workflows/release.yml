@@ -1,6 +1,7 @@
 name: Release
 
 on:
+<<<<<<< HEAD
   push:
     tags:
       - 'v*.*.*'
@@ -62,8 +63,90 @@ jobs:
         with:
           name: agileplus-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/agileplus
-          retention-days: 5
+=======
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+        description: "Release version"
+      language:
+        required: true
+        type: string
+        description: "Programming language"
+      registry:
+        required: true
+        type: string
+        description: "Package registry"
+      channel:
+        required: false
+        type: string
+        default: stable
+        description: "Release channel (alpha, beta, canary, stable)"
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+        description: "Run without publishing"
 
+permissions:
+  contents: write
+
+concurrency:
+  group: agileplus-release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  gate-check:
+    uses: ./.github/workflows/gate-check.yml
+    with:
+      language: ${{ inputs.language }}
+      channel: ${{ inputs.channel }}
+      risk_profile: high
+<<<<<<< HEAD
+
+  changelog:
+    needs: gate-check
+    uses: ./.github/workflows/changelog.yml
+    with:
+      version: ${{ inputs.version }}
+
+  publish:
+    needs: changelog
+    uses: ./.github/workflows/publish.yml
+    with:
+      language: ${{ inputs.language }}
+      registry: ${{ inputs.registry }}
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      dry_run: ${{ inputs.dry_run }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
+=======
+
+<<<<<<< HEAD
+  changelog:
+    needs: gate-check
+    uses: ./.github/workflows/changelog.yml
+    with:
+      version: ${{ inputs.version }}
+
+  publish:
+    needs: changelog
+    uses: ./.github/workflows/publish.yml
+    with:
+      language: ${{ inputs.language }}
+      registry: ${{ inputs.registry }}
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      dry_run: ${{ inputs.dry_run }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      CARGO_TOKEN: ${{ secrets.CARGO_TOKEN }}
+=======
   # ─── CycloneDX SBOMs (attached to GitHub Release with binaries) ───────
   cyclonedx-sboms:
     name: CycloneDX SBOMs
@@ -120,16 +203,21 @@ jobs:
           name: syft-spdx-workspace
           path: sbom-out/syft-spdx-workspace.json
           if-no-files-found: error
+>>>>>>> origin/main
           retention-days: 5
 
   # ─── Create GitHub Release ────────────────────────────────────────────
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+<<<<<<< HEAD
+    needs: build-release
+=======
     needs:
       - build-release
       - cyclonedx-sboms
       - syft-spdx
+>>>>>>> origin/main
     permissions:
       contents: write
     steps:
@@ -150,6 +238,8 @@ jobs:
               cp "$binary_path" "./release-assets/agileplus-${target_name}"
             fi
           done
+<<<<<<< HEAD
+=======
           sbom_dir="./binaries/cyclonedx-sbom-workspace"
           if [ -d "$sbom_dir" ]; then
             shopt -s nullglob
@@ -164,6 +254,7 @@ jobs:
               [ -f "$f" ] && cp "$f" ./release-assets/
             done
           fi
+>>>>>>> origin/main
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
@@ -172,7 +263,12 @@ jobs:
           draft: false
           prerelease: false
           generateReleaseNotes: true
+<<<<<<< HEAD
+=======
           # Re-runs / human-edited releases: keep title & body; still refresh assets list.
           allowUpdates: true
           omitBodyDuringUpdate: true
           omitNameDuringUpdate: true
+>>>>>>> origin/main
+>>>>>>> origin/main
+>>>>>>> origin/main

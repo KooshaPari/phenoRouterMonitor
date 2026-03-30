@@ -1,0 +1,16 @@
+[package]
+name = "agileplus-proto"
+version = "0.1.0"
+edition = "2024"
+description = "Generated gRPC stubs for AgilePlus"
+license = "MIT"
+
+[dependencies]
+prost = "0.13"
+tonic = { workspace = true }
+
+[package.metadata.cargo-machete]
+ignored = ["prost"]
+
+[build-dependencies]
+tonic-build = { workspace = true }

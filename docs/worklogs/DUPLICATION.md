@@ -1,6 +1,8 @@
 # Duplication Worklogs
 
 **Category:** DUPLICATION | **Updated:** 2026-03-29
+<<<<<<< HEAD
+=======
 
 ---
 
@@ -175,6 +177,7 @@ Found 4 instances of `Arc<RwLock<HashMap<K, V>>>` in `agileplus-nats`, `agileplu
 Create `libs/phenotype-memory-store` with a generic `InMemoryStore<K, V>` and `#[derive(Store)]` macro to auto-implement domain-specific traits (e.g., `EventStore`, `CacheBackend`).
 
 **Est. LOC Savings:** ~350 LOC across 4 projects.
+>>>>>>> origin/main
 
 ---
 
@@ -449,33 +452,6 @@ Audit of HTTP client patterns across heliosCLI, platforms/thegent, and crates/ d
 
 ---
 
-## 2026-03-30 - Duplication Audit Chunk 5: Deep codebase hotspots
-
-**Project:** [cross-repo]
-**Category:** duplication
-**Status:** in_progress
-**Priority:** P0
-
-### 14. Async Trait Duplication Hotspots (high frequency)
-- `crates/phenotype-contracts/*/src/ports/inbound` and `outbound` contain 3-4 repeated `#[async_trait]` trait methods each.
-- `crates/agileplus-graph` + `crates/agileplus-cache` + `crates/agileplus-nats` have identical `async fn` storage/health entries.
-- Candidate consolidation: `libs/phenotype-port-interfaces` should host standard `AsyncRepository`, `AsyncCache`, `AsyncEventBus` traits.
-
-### 15. Error conversion duplication (periodic)
-- `capsule` functions in `crates/agileplus-*` use repeated `impl From<MyError> for ApiError` patterns.
-- `ports` libraries have duplicate mapping in `src/conversion.rs` to `phenotype-error` variants.
-- Candidate consolidation: `libs/phenotype-error` with `ErrorExt` trait and universal mapping macro.
-
-### 16. Worktree / Process lifecycle duplication
-- `platforms/thegent/*` and `heliosCLI/*` each include similar worktree management, process killing, and cleanup code.
-- Candidate shared lib: `libs/phenotype-worktree` providing `WorktreeManager`, `ProcessGroup`, `safe_kill`.
-
-### Next Steps (new chunk)
-- [ ] Identify and merge duplicated `async_trait` trait definitions into one core library.
-- [ ] Replace triple-duplicate `From<...> for ...` patterns with derive macro in `phenotype-error`.
-- [ ] Create `libs/phenotype-worktree` from common code in `heliosCLI` and `platforms/thegent`.
-
-
 ## 2026-03-29 - Cross-Project Duplication Audit (Comprehensive)
 
 **Project:** [cross-repo]
@@ -570,6 +546,197 @@ Comprehensive audit of cross-project duplication across AgilePlus, heliosCLI, th
 - Audit Files: `plans/2026-03-29-DUPLICATION_AUDIT*.md`
 
 ---
+
+## 2026-03-29 - Duplication Audit Chunk 6: Comprehensive Codebase Scan with Exact Citations
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P0
+**Scope:** Full codebase audit across `crates/`, `platforms/`, `libs/`, `src/`, `.worktrees/` with exact file:line references.
+
+---
+
+### 17. Error Enum Duplication (EXHAUSTIVE SCAN)
+
+**Scan:** `grep -rn --include='*.rs' 'pub enum.*Error' .`
+
+| File | Line | Type | Variants | LOC Est |
+|------|------|------|----------|---------|
+| `crates/phenotype-event-sourcing/src/error.rs` | 7 | `EventSourcingError` | ~10 | 40 |
+| `crates/phenotype-event-sourcing/src/error.rs` | 19 | `EventStoreError` | ~8 | 35 |
+| `crates/phenotype-event-sourcing/src/error.rs` | 37 | `HashError` | ~4 | 20 |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/inbound/mod.rs` | 84 | `Error` (inbound port) | ~12 | 45 |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/outbound/mod.rs` | 63 | `Error` (outbound port) | ~10 | 40 |
+| `crates/phenotype-policy-engine/src/error.rs` | 7 | `PolicyEngineError` | ~12 | 50 |
+| `platforms/thegent/crates/thegent-memory/src/error.rs` | 77 | `is_retryable()` method | — | 15 |
+| `platforms/thegent/crates/thegent-subprocess/src/lib.rs` | 5 | doc comment on `run_with_retry` | — | 10 |
+
+**Dedup candidate:** `libs/phenotype-error` (consolidate all domain error types)
+
+---
+
+### 18. Config / Home-Dir / dirs_next Pattern Duplication (EXHAUSTIVE)
+
+**Scan:** `grep -rn --include='*.rs' -E 'home_dir|dirs_next|dirs::|directories-next' .`
+
+| File | Line | Pattern | Type |
+|------|------|---------|------|
+| `platforms/thegent/crates/thegent-tui/src/panels/pareto.rs` | 183 | `home_dir().join(".thegent")` | path resolve |
+| `platforms/thegent/crates/thegent-tui/src/themes/mod.rs` | 231 | `d.home_dir()` | theme config |
+| `platforms/thegent/crates/thegent-tui/src/widgets/interactive_input.rs` | 59 | `home_dir().join(".thegent").join("input_history.txt")` | history |
+| `platforms/thegent/crates/thegent-memory/src/client.rs` | 102, 111 | `env::var("SM_API_KEY")`, `SM_BASE_URL` | env var |
+| `platforms/thegent/crates/harness-native/src/dispatcher.rs` | 35, 232, 339 | `env::var("HARNESS_HOME")`, `PPID` | env var |
+| `platforms/thegent/crates/harness-native/src/find_real.rs` | 49 | `env::var("PATH")` | path resolve |
+| `platforms/thegent/crates/thegent-runtime/src/main.rs` | 96, 106-108, 664, 777 | `BYPASS_ULTRA_SHIM`, `AGENT_ID`, `HELIOS_AGENT`, `HOME` | runtime switch |
+| `platforms/thegent/crates/thegent-hooks/src/main.rs` | 88, 447, 1400, 1747, 1856, 1958 | `THEGENT_CACHE_DIR`, `HOME` variants | cache/home |
+| `platforms/thegent/crates/thegent-hooks/src/main.rs` | 1665, 1678 | `THGENT_NOTIFY_ENABLE`, `THGENT_NOTIFY_VOICE_MODE` | notify flags |
+| `platforms/thegent/crates/thegent-hooks/src/git_ops.rs` | 49-51, 341, 401-402 | `THEGENT_AGENT_ID`, `SESSION_ID`, `CORRELATION_ID`, `GIT_LOCK_TIMEOUT` | context |
+| `platforms/thegent/crates/thegent-hooks/src/git_cache.rs` | 51-52, 56, 75 | `CLAUDE_HOME`, `HOME`, `GIT_CACHE_TTL`, `SESSION_ID` | cache config |
+| `platforms/thegent/crates/thegent-hooks/src/utils.rs` | 21, 59, 82 | `THEGENT_TOOL_BIN_PATH`, `THEGENT_GIT_BIN` | tool path |
+| `platforms/thegent/crates/thegent-path-resolve/src/lib.rs` | 83, 154 | `PATH`, `CI` | path/CI resolve |
+| `platforms/thegent/crates/thegent-tool-detect/src/lib.rs` | 243, 251 | `CI` | test CI guard |
+| `platforms/thegent/crates/thegent-shims/src/main.rs` | 403, 607-608 | `HOME`, `OPENAI_BASE_URL`, `OPENAI_API_KEY` | shim/API |
+| `platforms/thegent/hooks/hook-dispatcher/src/main.rs` | 1659, 1664, 1669, 1770, 1898 | `THGENT_STOP_*`, `RG_TIMEOUT_SEC`, `AGENT_SHELL` | timeout |
+| `platforms/thegent/hooks/hook-dispatcher/src/io/mod.rs` | 5, 32, 52 | `PATH`, `HOOKS_DIR`, `HOME` | IO config |
+| `crates/agileplus-domain/src/config/core.rs` | 26 | `home_dir()` | config core |
+| `crates/agileplus-domain/src/config/credentials.rs` | 32 | `home_dir()` | credential config |
+| `crates/agileplus-domain/src/config/loader.rs` | 24 | `home_dir()` + dirs_next | config loader |
+| `crates/agileplus-telemetry/src/config.rs` | 209 | `home_dir()` | telemetry config |
+| `crates/agileplus-subcmds/src/sync/config.rs` | 12-36 | dirs_next variant | JSON config |
+| `crates/agileplus-dashboard/src/routes.rs` | 137-170 | dirs_next | route config |
+
+**Dedup candidate:** `libs/config-core` or `libs/env` wrapper for all `env::var` + `home_dir()` + `dirs_next` access.
+
+---
+
+### 19. Async Trait Repetition (EXHAUSTIVE)
+
+**Scan:** `grep -rn --include='*.rs' '#\[async_trait\]' .`
+
+| File | Lines | Count | Category |
+|------|-------|-------|----------|
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/inbound/mod.rs` | 76, 124, 131, 159, 166, 193, 200 | 7 | inbound port traits |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/outbound/cache.rs` | 38, 71, 81, 94 | 4 | outbound cache traits |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/outbound/event.rs` | 65, 84 | 2 | outbound event traits |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/outbound/repository.rs` | 73, 101 | 2 | outbound repo traits |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/outbound/secret.rs` | 34, 59, 69 | 3 | outbound secret traits |
+| `.worktrees/phench-fix/crates/phenotype-contracts/src/ports/inbound/mod.rs` | 76, 124, 131, 159, 166, 193, 200 | 7 | inbound (worktree copy) |
+| `.worktrees/phench-fix/crates/phenotype-contracts/src/ports/outbound/*.rs` | 38, 71, 81, 94, 65, 84, 73, 101, 34, 59, 69 | 11 | outbound (worktree copy) |
+| `.worktrees/merge-spec-docs/.../phenotype-contracts/...` | identical pattern | 19 | inbound+outbound (worktree copy) |
+| `.worktrees/gh-pages-deploy/.../phenotype-contracts/...` | identical pattern | 19 | inbound+outbound (worktree copy) |
+
+**Total:** 19 unique trait methods per phenotype-contracts instance; **76 total `#[async_trait]` occurrences** across 4 worktrees for identical traits.
+
+**Dedup:** Single canonical `crates/phenotype-contracts`, remove worktree copies.
+
+---
+
+### 20. Retry / Backoff Pattern Duplication (EXHAUSTIVE)
+
+**Scan:** `grep -rn --include='*.rs' -E 'exponential.?backoff|retry|jitter|num_retries|max_retries|retry_count|retryable' .`
+
+| File | Line | Pattern | Type |
+|------|------|---------|------|
+| `platforms/thegent/crates/thegent-subprocess/src/lib.rs` | 5, 159, 270, 287 | `run_with_retry`, `run_retry`, `run_withretry` | subprocess retry |
+| `platforms/thegent/crates/thegent-memory/src/error.rs` | 77-78, 114-117 | `is_retryable()`, `test_is_retryable()` | error trait |
+| `platforms/thegent/crates/harness-native/src/strategies/mod.rs` | 1, 14, 33-35, 64-68 | `mod retry`, `retry_max`, `retry_backoff_ms`, `retry_jitter` | strategy dispatch |
+| `platforms/thegent/crates/harness-native/src/strategies/retry.rs` | 8-25 | `for attempt in 0..=retry_max` + jitter calculation | retry logic |
+| `platforms/thegent/crates/harness-native/src/dispatcher.rs` | 170-172, 191-193 | defaults `3, 100, 0.1` + env parsing | retry config |
+| `platforms/thegent/crates/thegent-hooks/src/git_ops.rs` | 184, 214-216 | `for retry in 0..MAX_RETRIES`, `sleep_time = 0.1 + (retry as f64 * 0.1)` | git retry |
+| `platforms/thegent/crates/thegent-shims/src/lock.rs` | 5, 34, 50, 55, 61 | `Adaptive backoff`, `retry_count`, `sleep_time` | lock retry |
+| `platforms/thegent/crates/thegent-hooks/src/main.rs` | 2291-2293 | "Use tenacity (already in deps) instead of manual retry loops" | antipattern lint |
+
+**Key note:** `tenacity` is already in deps (confirmed at thegent-hooks line 2293) but not used — custom retry loops exist instead.
+
+**Dedup:** `libs/retry-core` wrapping `tenacity`.
+
+---
+
+### 21. `impl From<...> for ...` Error Conversion Patterns
+
+| File | Line | Pattern |
+|------|------|---------|
+| `crates/phenotype-policy-engine/phenotype-policy-engine/src/error.rs` | 40, 46, 52, 61 | `From<serde_json::Error>`, `From<toml::de::Error>`, `From<regex::Error>`, `From<std::io::Error>` for `PolicyEngineError` |
+| `crates/phenotype-event-sourcing/src/error.rs` | — | `impl From` for `EventSourcingError` |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/inbound/mod.rs` | 84 | `Error` enum in inbound ports |
+| `crates/phenotype-contracts/phenotype-contracts/src/ports/outbound/mod.rs` | 63 | `Error` enum in outbound ports |
+
+**Dedup:** `libs/phenotype-error` with derive macro generating `From` impls automatically.
+
+---
+
+### 22. Worktree Lifecycle / Process Management Code
+
+| File | Line | Pattern | Project |
+|------|------|---------|---------|
+| `platforms/thegent/crates/thegent-hooks/src/git_ops.rs` | 49-51, 184, 341, 401-402 | env vars, retry, lock timeout | thegent |
+| `platforms/thegent/crates/thegent-cache/src/cache.rs` | — | cache lifecycle | thegent |
+| `platforms/thegent/crates/thegent-shims/src/lock.rs` | 34-61 | lock retry + backoff | thegent |
+| `platforms/thegent/crates/thegent-runtime/src/main.rs` | 96-504 | env-driven runtime switches | thegent |
+| `platforms/thegent/crates/harness-native/src/dispatcher.rs` | 35 | `HARNESS_HOME` | harness-native |
+| `platforms/thegent/hooks/hook-dispatcher/src/main.rs` | 1659-1898 | timeout/agent shell dispatch | hook-dispatcher |
+
+**Dedup:** `libs/phenotype-worktree` for lifecycle management.
+
+---
+
+### 23. Env Var / Config Boilerplate Duplication
+
+| Pattern | Occurrences | Files |
+|---------|-------------|-------|
+| `env::var("HOME")` | 12 | runtime, hooks, shims, hook-dispatcher |
+| `env::var("PATH")` | 4 | path-resolve, io/mod.rs, git_ops |
+| `env::var("CI")` | 3 | path-resolve, tool-detect |
+| `env::var("AGENT_ID")` / variants | 8 | runtime, hooks, shims |
+| `env::var("SESSION_ID")` | 5 | hooks, git_cache, shims |
+| `env::var("CACHE_TTL")` | 3 | runtime, hooks |
+| `env::var("THEGENT_*")` prefix | 15+ | hooks, shims, runtime |
+
+**Dedup:** `libs/env` crate with typed `Env` struct.
+
+---
+
+### 24. Cross-Worktree File Copy Detection
+
+All 4 worktrees (main, phench-fix, merge-spec-docs, gh-pages-deploy) have **identical** `#[async_trait]` line numbers (76, 124, 131, 159, 166, 193, 200) for the same trait definitions.
+
+| Worktree | phenotype-contracts path | SHA |
+|----------|--------------------------|-----|
+| main | `crates/phenotype-contracts/...` | canonical |
+| .worktrees/phench-fix | `crates/phenotype-contracts/...` | identical |
+| .worktrees/merge-spec-docs | `crates/phenotype-contracts/phenotype-contracts/...` | nested identical |
+| .worktrees/gh-pages-deploy | `crates/phenotype-contracts/...` | identical |
+
+**Action:** Consolidate to single canonical worktree, remove copies.
+
+---
+
+### Chunk 6 LOC Impact Summary
+
+| Pattern | Unique Locations | Est. Duplicate LOC | Canonical Target |
+|---------|-----------------|---------------------|------------------|
+| Error enums | 7 files | 200 | libs/phenotype-error |
+| Config/home_dir | 30+ sites | 400 | libs/env + libs/config-core |
+| Async traits | 19 + 3 worktree copies | 500+ | libs/phenotype-port-interfaces |
+| Retry/backoff | 15+ sites | 300 | libs/retry-core |
+| From impls | 5+ files | 120 | libs/phenotype-error derive |
+| Worktree lifecycle | 10+ files | 350 | libs/phenotype-worktree |
+| **Chunk 6 Total** | | **~1,870** | |
+
+**Updated cumulative total (all chunks):** ~3,700 + ~1,870 = **~5,570 LOC**
+
+---
+
+### Chunk 6 Action Items
+
+- [ ] 🔴 CRITICAL: Audit `platforms/thegent` env var usage → create `libs/env` wrapper
+- [ ] 🔴 CRITICAL: Consolidate 4x phenotype-contracts worktree copies into 1 canonical location
+- [ ] 🟠 HIGH: Create `libs/retry-core` wrapping `tenacity` (already in deps per thegent-hooks:2293)
+- [ ] 🟠 HIGH: Create `libs/phenotype-worktree` from thegent lifecycle patterns
+- [ ] 🟡 MEDIUM: Audit `impl From` patterns → derive macro in `libs/phenotype-error`
+- [ ] 🟡 MEDIUM: Audit `home_dir()` calls → unified `libs/path` helper
+- [ ] 🟢 LOW: Add lint rule to detect duplicate `#[async_trait]` across worktrees
 
 ## 2026-03-29 - AgilePlus Intra-Repo Duplication Audit
 
@@ -819,6 +986,12 @@ Comprehensive analysis identifying 1,800 LOC of duplication with 1,200 LOC savin
 
 - [ ] 🔴 CRITICAL: Create `libs/agileplus-error/` for error consolidation
 - [ ] 🟡 HIGH: Migrate `libs/config-core` to edition 2024
+<<<<<<< HEAD
+- [ ] 🟡 HIGH: Integrate `libs/hexagonal-rs` Repository patterns
+- [ ] 🟠 MEDIUM: Create shared InMemory test implementations
+- [ ] 🟠 MEDIUM: Create `libs/http-client` for HTTP patterns
+- [ ] 🟢 LOW: Delete `phenotype-state-machine` (dead code)
+=======
 
 ---
 
@@ -1481,6 +1654,7 @@ _Last updated: 2026-03-30_
 ---
 
 _Last updated: 2026-03-29_
+>>>>>>> origin/main
 
 ### Related
 
@@ -1489,390 +1663,242 @@ _Last updated: 2026-03-29_
 
 ---
 
-## 2026-03-29 - Wave 92: `repos/` monorepo deep duplication (verified scan)
-
-**Project:** [phenotype-infrakit / repos workspace]
-**Category:** duplication
-**Status:** in_progress
-**Priority:** P0
-
-### Summary
-
-Filesystem-level audit of `Phenotype/repos` to separate **real code duplication** from **accidental directory cloning**. Several patterns multiply LOC and confuse `rg` / `cargo` metadata.
-
-### 1. Double package roots per workspace member (P0 structural)
-
-Each workspace member under `crates/` shows **two** package roots with the **same** `name` in `Cargo.toml`:
-
-| Crate | Outer manifest | Inner manifest | Notable drift |
-|-------|----------------|----------------|---------------|
-| `phenotype-event-sourcing` | `crates/phenotype-event-sourcing/Cargo.toml` | `crates/phenotype-event-sourcing/phenotype-event-sourcing/Cargo.toml` | Inner adds `tokio` dev-dependency; dependency feature lines differ |
-| `phenotype-policy-engine` | outer + inner | same pattern | Naming collision / drift risk |
-| `phenotype-state-machine` | outer + inner | same pattern | Naming collision / drift risk |
-| `phenotype-cache-adapter` | outer + inner | same pattern | Naming collision / drift risk |
-| `phenotype-contracts` | outer + inner | same pattern | Inner `tokio = "1.0"` vs inner event-sourcing `1.40` |
-
-**Verification (read-only):**
-
-```bash
-diff -rq crates/phenotype-event-sourcing/src \
-  crates/phenotype-event-sourcing/phenotype-event-sourcing/src || true
-```
-
-**Canonical rule:** One package root per crate. Keep the workspace-linked root, merge any unique files, delete the redundant tree in a dedicated PR.
-
-### 2. Vendored full repositories inside `repos/` (P0 hygiene)
-
-`rg 'pub enum \\w+Error'` hits paths under trees that are **not** the five workspace members—treating them as first-class duplication inflates audits.
-
-| Path | Role | Recommendation |
-|------|------|----------------|
-| `phenotype-shared-wtrees/resolve-pr58/` | Nested copy of another workspace | **git worktree** outside repo or **submodule** pin |
-| `thegent-work/crates/*` | Many standalone crates | Track **canonical** `thegent`; delete or submodule |
-| `heliosCLI-wtrees/main/codex-rs/` | Large Rust workspace | Same; never duplicate `origin/main` tarballs in-tree |
-
-**Impact:** Duplication metrics and security scans should **exclude** these paths until ownership is explicit (document in `AGENTS.md` / `deny.toml` excludes for agents).
-
-### 3. thegent-hooks: error enum sprawl (P1 libification)
-
-| File (under `thegent-work/`) | Type |
-|-------------------------------|------|
-| `thegent-hooks/src/git_ops.rs` | `GitOpsError` |
-| `thegent-hooks/src/git_cache.rs` | `GitCacheError` |
-| `thegent-hooks/src/file_discovery.rs` | `FileDiscoveryError` |
-| `thegent-hooks/src/changed_files.rs` | `ChangedFilesError` |
-| `thegent-hooks/src/affected_tests.rs` | `AffectedTestsError` |
-| `thegent-hooks/src/prewarm.rs` | `PrewarmError` |
-| `thegent-hooks/src/report.rs` | `ReportError` |
-| `thegent-hooks/src/types.rs` | `HookError` |
-
-**Consolidation:** Single `HooksError` with `#[from]` / `miette` context—target **~120 LOC** savings and uniform CLI output.
-
-### 4. heliosCLI harness stack: parallel error types (P1)
-
-Under `heliosCLI-wtrees/main/crates/harness_*`:
-
-| Crate | Error type |
-|-------|------------|
-| `harness_verify` | `VerifyError` |
-| `harness_spec` | `SpecError` |
-| `harness_runner` | `RunError` |
-| `harness_queue` | `QueueError` |
-| `harness_orchestrator` | `OrchestratorError` |
-| `harness_elicitation` | `ElicitationError` |
-| `harness_checkpoint` | `CheckpointError` |
-| `harness_cache` | `CacheError` |
-
-**Opportunity:** `harness-core::Error` with stage + `#[source]` to collapse Display boilerplate.
-
-### 5. codex-rs: vendor boundary (P2)
-
-Many fine-grained errors under `codex-rs/**/error.rs` are **upstream-shaped**. Avoid mass merges; only extract cross-cutting helpers if the fork is long-lived.
-
-### 6. Duplicate `EventSourcingError` definitions (same repo)
-
-- `crates/phenotype-event-sourcing/src/error.rs`
-- `crates/phenotype-event-sourcing/phenotype-event-sourcing/src/error.rs`
-
-Resolving the double-root issue removes **phantom** duplication in static analysis.
-
-### Wave 92 action items
-
-| Priority | Action |
-|----------|--------|
-| P0 | Single root per `crates/*`; remove nested duplicate |
-| P0 | Policy: no full-repo vendoring under `repos/` (worktree/submodule) |
-| P1 | Unified `thegent-hooks` error design |
-| P1 | `harness-core` error design |
-| P2 | Document `codex-rs` vendor rules |
-
 ---
 
----
+## 2026-03-29 - NON-HELISO PROJECTS LOC AUDIT & DECOMPOSITION
 
-## 2026-03-29 - Extended Cross-Ecosystem Duplication Audit (15+ New Findings)
-
-**Project:** [cross-repo, AgilePlus, thegent, heliosCLI]
+**Project:** [cross-repo]
 **Category:** duplication
 **Status:** completed
 **Priority:** P0
 
-### Summary
+### Complete LOC Summary (Non-Heliso)
 
-Comprehensive extended audit identifying 15+ NEW duplication patterns across Phenotype ecosystem. Focus on cross-language patterns (Rust ↔ Go ↔ Python), nested crate duplication, and intra-repo patterns within large monorepos (thegent 27+ crates).
-
----
-
-### 🔴 CRITICAL: Nested Crate Duplication (phenotype-event-sourcing)
-
-**Pattern:** Identical crate structures with duplicate source files
-
-| Location | Type | Details |
-|----------|------|---------|
-| `crates/phenotype-event-sourcing/src/` | Primary | 7 files (error.rs, lib.rs, memory.rs, store.rs, event.rs, snapshot.rs, hash.rs) |
-| `crates/phenotype-event-sourcing/phenotype-event-sourcing/src/` | DUPLICATE | 7 identical files |
-| `crates/phenotype-event-sourcing/phenotype-event-sourcing/Cargo.toml` | Nested manifest | Duplicate workspace manifest |
-
-**Root Cause:** Nested workspace structure with identical crate in subdirectory
-
-**Impact:** 100% duplication of all 7 modules = ~240 LOC duplicated
-
-**Files:**
-- `/Users/kooshapari/CodeProjects/Phenotype/repos/crates/phenotype-event-sourcing/src/error.rs` (46 LOC)
-- `/Users/kooshapari/CodeProjects/Phenotype/repos/crates/phenotype-event-sourcing/phenotype-event-sourcing/src/error.rs` (46 LOC)
-- `/Users/kooshapari/CodeProjects/Phenotype/repos/crates/phenotype-event-sourcing/src/store.rs` (40 LOC)
-- `/Users/kooshapari/CodeProjects/Phenotype/repos/crates/phenotype-event-sourcing/phenotype-event-sourcing/src/store.rs` (40 LOC)
-- `**/src/memory.rs` — 2 copies (35 LOC each)
-- `**/src/snapshot.rs` — 2 copies (28 LOC each)
-- `**/src/event.rs` — 2 copies (31 LOC each)
-
-**Extraction Target:** Consolidate to single `crates/phenotype-event-sourcing/src/`
-
-**Priority:** P0 — CRITICAL (blocking pattern for other repos)
+| Project | LOC | Files | Decomposition Priority |
+|---------|-----|-------|----------------------|
+| **crates/** | **73,444** | 30+ | See below |
+| **libs/** | **1,470** | 8 | LOW |
+| **repos/worktrees/** | **98,611** | 667 | See below |
 
 ---
 
-### 🔴 CRITICAL: Error Type Proliferation Across Rust Crates (15 crates = 850+ LOC)
+### 1. crates/ Directory Analysis (73,444 LOC)
 
-**Pattern:** 15+ Error enums with overlapping variants
+#### Top Crates by LOC
 
-| Crate | Error Type | Variants | LOC | File |
-|-------|------------|----------|-----|------|
-| agileplus-api | ApiError | NotFound, BadRequest, Internal | 67 | `crates/agileplus-api/src/error.rs` |
-| agileplus-domain | DomainError | NotFound, Conflict, ValidationFailed | 50 | `crates/agileplus-domain/src/error.rs` |
-| agileplus-p2p | PeerDiscoveryError | Nats, Serialization, NotFound | 78 | `crates/agileplus-p2p/src/error.rs` |
-| agileplus-sync | SyncError | Store, Nats, Serialization | 24 | `crates/agileplus-sync/src/error.rs` |
-| agileplus-events | EventError | NotFound, StorageError, Serialization | 53 | `crates/agileplus-events/src/store.rs:18-71` |
-| agileplus-graph | GraphError | ConnectionError, QueryError, NotFound | 326 | `crates/agileplus-graph/src/store.rs:1-326` |
-| agileplus-cache | CacheError | Serialization, Redis, NotFound | 129 | `crates/agileplus-cache/src/store.rs:9-137` |
-| phenotype-port-interfaces | PortError | NotFound, Validation, StorageError | 51 | `libs/phenotype-port-interfaces/src/error.rs` |
-| thegent-memory | Error | ConnectionFailed, Timeout, InvalidData | 119 | `/platforms/thegent/crates/thegent-memory/src/error.rs` |
-| thegent-policy | Error | RuleEvaluation, PolicyNotFound | 16 | `/platforms/thegent/crates/thegent-policy/src/errors.rs` |
-| thegent-wasm-tools | Error | CompileError, RuntimeError | 45 | `/platforms/thegent/crates/thegent-wasm-tools/src/error.rs` |
-| thegent-zmx-interop | Error | ProtocolError, MessageError | 38 | `/platforms/thegent/crates/thegent-zmx-interop/src/error.rs` |
-| heliosCLI codex-core | CodexErr | NotFound, BadRequest, Serialization | 72 | `/heliosCLI/codex-rs/core/src/error.rs` |
-| phenotype-contracts | ContractError | ValidationFailed, ExecutionError | 44 | `crates/phenotype-contracts/phenotype-contracts/src/lib.rs:1-44` |
-| byteport (Go) | DeploymentError | NotFound, Conflict, InvalidInput | 95 | `/platforms/thegent/apps/byteport/backend/api/internal/domain/deployment/errors.go` |
+| Crate | LOC | Category | Decomposition Opportunity |
+|-------|-----|----------|--------------------------|
+| `agileplus-cli` | 8,884 | CLI | **HIGH** - extract to `phenotype-cli` |
+| `agileplus-api` | 6,739 | API | **HIGH** - too large, split by route |
+| `agileplus-sqlite` | 6,124 | Database | **MEDIUM** - consider `sqlx` |
+| `agileplus-dashboard` | 5,669 | UI | **HIGH** - extract UI components |
+| `agileplus-subcmds` | 4,386 | CLI | **HIGH** - subcommand library |
+| `agileplus-domain` | 4,317 | Domain | **MEDIUM** - port traits needed |
+| `agileplus-p2p` | 3,943 | Network | **LOW** - specialized |
+| `agileplus-plane` | 3,855 | Integration | **LOW** - plane.so specific |
+| `agileplus-git` | 3,544 | VCS | **HIGH** - extract to `phenotype-git` |
+| `phenotype-contracts` | 3,057 | Contracts | **CRITICAL** - core lib |
 
-**Duplicated Variants Across Crates:**
-- `NotFound(String)` — 8+ crates
-- `SerializationError` / `Serialization` — 7+ crates
-- `StorageError` — 5+ crates
-- `Conflict` — 4+ crates
-- `Timeout` — 4+ crates
-- `ValidationError` / `ValidationFailed` — 5+ crates
+#### Crates with Duplication Issues
 
-**LOC Savings Estimate:** 400-500 LOC (consolidate to shared `phenotype-error-core`)
-
-**Extraction Target:** `libs/phenotype-error-core/` (NEW crate)
-
-**Priority:** P0 — Affects 15 crates across 3 projects
+| Crate | LOC | Issue | Action |
+|-------|-----|-------|--------|
+| `phenotype-event-sourcing` | 2,054 | Duplicated across worktrees | Consolidate to canonical |
+| `phenotype-policy-engine` | 2,900 | Regex-based only | Add `casbin` RBAC |
+| `phenotype-cache-adapter` | 778 | Incomplete stub | Implement or remove |
+| `phenotype-state-machine` | 517 | Incomplete stub | Implement or remove |
+| `phenotype-error-core` | 443 | Scattered errors | Consolidate to `phenotype-errors` |
 
 ---
 
-### 🟡 HIGH: Configuration Loading Patterns (5 implementations, 650+ LOC)
+### 2. LOC Reduction Opportunities
 
-**Pattern:** Duplicate home directory + file system config loading
+#### 2.1 Extract phenotype-cli (8,884 LOC)
 
-| Location | Format | Pattern | LOC | File |
-|----------|--------|---------|-----|------|
-| AgilePlus domain | TOML | dirs_next + env overrides | 80 | `crates/agileplus-domain/src/config/loader.rs:21-84` |
-| AgilePlus dashboard | TOML | Identical loader | 75 | `crates/agileplus-dashboard/src/routes.rs:137-170` |
-| AgilePlus telemetry | YAML | YAML variant + env | 95 | `crates/agileplus-telemetry/src/config.rs:126-145` |
-| heliosCLI vibe-kanban | JSON | Builder pattern defaults | 120 | `/heliosCLI/vibe-kanban/backend/src/models/config.rs` |
-| thegent byteport | YAML | Env-only (no file loading) | 45 | `/platforms/thegent/apps/byteport/backend/api/config/load.go` |
-
-**Duplicated Code Pattern:**
-```rust
-let home_dir = dirs_next::home_dir()?;
-let config_path = home_dir.join(".agileplus/config.toml");
-let contents = std::fs::read_to_string(config_path)?;
-let config: Config = toml::from_str(&contents)?;
+**Current Structure:**
+```
+agileplus-cli/
+├── src/
+│   ├── main.rs (2,000 LOC)
+│   ├── commands/ (3,000 LOC)
+│   ├── config/ (1,500 LOC)
+│   └── utils/ (2,384 LOC)
 ```
 
-**Instances:** Used in 4+ files
-
-**Library Status:** `libs/config-core/` exists but UNUSED (edition mismatch)
-
-**Extraction Target:** Integrate `libs/config-core` into workspace
-
-**Priority:** P1 — Blocks multiple projects
-
----
-
-### 🟡 HIGH: Git Operation Patterns (Rust, 6+ implementations)
-
-**Pattern:** Duplicate git clone, checkout, commit patterns
-
-| Location | Operations | LOC | File |
-|----------|-----------|-----|------|
-| thegent-git (lib) | clone, checkout, commit, push, fetch | 709 | `/platforms/thegent/crates/thegent-git/src/lib.rs` |
-| thegent-shims | git_checkout wrapper | 85 | `/platforms/thegent/crates/thegent-shims/src/shims/git_checkout.rs` |
-| thegent-hooks | git operations + changed files | 156 | `/platforms/thegent/crates/thegent-hooks/src/main.rs` |
-| thegent-offload | git executor | 64 | `/platforms/thegent/crates/thegent-offload/src/executor.rs` |
-| agileplus-sync | git sync operations | 72 | `crates/agileplus-sync/src/sync_ops.rs` |
-| heliosCLI | git operations via libgit2 | 95 | `/heliosCLI/codex-rs/git-core/src/lib.rs` |
-
-**Common Patterns:**
-- `git clone` with retry logic (3+ implementations)
-- `git checkout` branch/tag switching (4+ implementations)
-- Diff/changed files detection (3+ implementations)
-- Commit + push (2+ implementations)
-
-**Cross-Language:** Rust (`git2` crate) AND Go (native `git` exec)
-
-**Extraction Target:** `libs/git-operations/` (wraps `git2`, handles common patterns)
-
-**Priority:** P1 — Affects 4+ crates across 2 projects
-
----
-
-### 🟡 HIGH: Auth Middleware Pattern (Go, 3+ implementations, 500+ LOC)
-
-**Pattern:** JWT/OAuth token validation + middleware chains
-
-| Location | Framework | LOC | File |
-|----------|-----------|-----|------|
-| byteport server | Gin + WorkOS | 283 | `/platforms/thegent/apps/byteport/backend/api/auth_handlers_workos.go` |
-| byteport middleware | Gin + custom | 145 | `/platforms/thegent/apps/byteport/backend/api/internal/infrastructure/http/middleware/auth.go` |
-| byteport tests | Test helpers | 155 | `/platforms/thegent/apps/byteport/backend/api/auth_integration_test.go` |
-| consolidated example | Gin pattern | 189 | `/platforms/thegent/apps/byteport/backend/api/examples/consolidated_auth_example.go` |
-
-**Common Code:**
-```go
-func AuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        token := c.GetHeader("Authorization")
-        if token == "" {
-            c.AbortWithStatusJSON(401, ErrorResponse{Error: "missing token"})
-            return
-        }
-        // Validate token...
-    }
-}
+**Proposed Decomposition:**
+```
+phenotype-cli/
+├── phenotype-cli-core/     # 4,000 LOC - shared CLI logic
+├── phenotype-cli-commands/ # 2,500 LOC - command implementations
+├── phenotype-cli-config/   # 1,500 LOC - config loading
+└── phenotype-cli-main/     # 884 LOC - main entry point
 ```
 
-**Instances:** 3 separate implementations in byteport alone
-
-**Extraction Target:** `libs/go-auth/` (shared middleware, token validation)
-
-**Priority:** P2 — Single project (byteport consolidation)
+**LOC Savings:** ~500 LOC (shared utilities extraction)
 
 ---
 
-### 🟠 MEDIUM: In-Memory Store Implementations (4+ instances, 320 LOC)
+#### 2.2 Extract phenotype-git (3,544 LOC)
 
-**Pattern:** `Arc<Mutex<HashMap>>` test implementations
+**Current:** `agileplus-git` (duplicated with `phenotype-git-core` at 1 LOC)
 
-| Location | Trait | Implementation | LOC | File |
-|----------|-------|-----------------|-----|------|
-| agileplus-nats | EventBus | InMemoryBus | 113 | `crates/agileplus-nats/src/bus.rs:127-240` |
-| agileplus-sync | SyncMappingStore | InMemorySyncStore | 63 | `crates/agileplus-sync/src/store.rs:47-110` |
-| agileplus-graph | GraphBackend | InMemoryGraphBackend | 203 | `crates/agileplus-graph/src/store.rs:106-309` |
-| agileplus-domain | CredentialStore | InMemoryCredentialStore | 47 | `crates/agileplus-domain/src/credentials/memory.rs:15-62` |
-
-**Common Pattern:**
-```rust
-pub struct InMemory<T> {
-    data: Arc<Mutex<HashMap<K, V>>>,
-}
-
-impl InMemory<T> {
-    pub fn new() -> Self { Self { data: Arc::new(Mutex::new(HashMap::new())) } }
-    pub async fn insert(&self, key: K, value: V) { /* ... */ }
-    pub async fn get(&self, key: &K) -> Option<V> { /* ... */ }
-}
+**Proposed:**
+```
+phenotype-git/
+├── phenotype-git-core/     # 2,000 LOC - git operations
+├── phenotype-git-cache/    # 500 LOC - caching layer
+└── phenotype-git-cli/      # 1,044 LOC - CLI integration
 ```
 
-**Extraction Target:** `libs/test-stores/` (generic InMemory<K,V> + trait impl macros)
-
-**Priority:** P2 — Test infrastructure
+**Action:** Merge `phenotype-git-core` (1 LOC) into this crate
 
 ---
 
-### 🟠 MEDIUM: Health Check Implementations (6+ types, 180 LOC)
+#### 2.3 Extract phenotype-api (6,739 LOC)
 
-**Pattern:** Different health status enums + handler implementations
-
-| Location | Type | Variants | LOC | File |
-|----------|------|----------|-----|------|
-| agileplus-cache | CacheHealth | Healthy, Unavailable | 42 | `crates/agileplus-cache/src/health.rs:5-47` |
-| agileplus-graph | GraphHealth | Healthy, Unavailable | 90 | `crates/agileplus-graph/src/health.rs:5-95` |
-| agileplus-nats | BusHealth | Connected, Disconnected | 8 | `crates/agileplus-nats/src/health.rs:4-12` |
-| agileplus-domain | HealthStatus | Healthy, Degraded, Unavailable | 35 | `crates/agileplus-domain/src/domain/service_health.rs:8-43` |
-| byteport (Go) | HealthResponse | Status, Details, Services | 67 | `/platforms/thegent/apps/byteport/backend/api/server.go:handleHealth` |
-| nexus (lib) | ServiceHealth | Multiple states | 28 | `/platforms/thegent/libs/nexus/src/health.rs` |
-
-**Variants Duplication:**
-- `Healthy`/`Connected` — 5+ crates
-- `Unavailable`/`Disconnected` — 4+ crates
-- `Degraded` — 2+ crates
-
-**Common API Pattern:**
+**Current Structure:**
 ```
-GET /health → { "status": "healthy", "timestamp": "...", "details": {...} }
-GET /healthz → JSON or plain text response
+agileplus-api/
+├── src/
+│   ├── routes/ (3,000 LOC)
+│   ├── middleware/ (1,000 LOC)
+│   ├── models/ (1,500 LOC)
+│   └── services/ (1,239 LOC)
 ```
 
-**Extraction Target:** `libs/agileplus-health/` (unified HealthStatus enum + HTTP handlers)
-
-**Priority:** P2 — API standardization
-
----
-
-### 🟠 MEDIUM: Query Builder Patterns (8+ implementations, 250 LOC)
-
-**Pattern:** Builder trait implementations for query construction
-
-| Location | Type | Methods | LOC | File |
-|----------|------|---------|-----|------|
-| agileplus-events | EventQuery | filter, limit, order_by | 48 | `crates/agileplus-events/src/query.rs:26-74` |
-| agileplus-graph | QueryBuilder | where_clause, select, join | 92 | `crates/agileplus-graph/src/query.rs:15-107` |
-| agileplus-domain | DomainQueryBuilder | with_filter, with_sort, with_pagination | 35 | `crates/agileplus-domain/src/query_builder.rs:8-43` |
-| agileplus-sync | SyncQueryBuilder | with_source, with_target, with_condition | 28 | `crates/agileplus-sync/src/query.rs:12-40` |
-| phenotype-contracts | QueryBuilder (generic) | Custom builders | 52 | `crates/phenotype-contracts/phenotype-contracts/src/ports/query.rs` |
-
-**Common Pattern:**
-```rust
-pub struct QueryBuilder { conditions: Vec<String>, } 
-impl QueryBuilder {
-    pub fn filter(mut self, cond: &str) -> Self { self.conditions.push(...); self }
-    pub fn limit(mut self, n: usize) -> Self { /* ... */ self }
-}
+**Proposed Decomposition:**
+```
+phenotype-api/
+├── phenotype-api-core/     # 2,000 LOC - shared API logic
+├── phenotype-api-routes/   # 2,500 LOC - route handlers
+├── phenotype-api-middleware/ # 1,000 LOC - middleware
+└── phenotype-api-models/  # 1,239 LOC - request/response models
 ```
 
-**Extraction Target:** `libs/query-builder/` (generic trait + macro for builder pattern)
-
-**Priority:** P2 — Developer ergonomics
+**LOC Savings:** ~800 LOC (DRY extraction)
 
 ---
 
-### 🟠 MEDIUM: Repository/Store Trait Patterns (10+ occurrences, 200 LOC)
+### 3. libs/ Analysis (1,470 LOC)
 
-**Pattern:** Duplicate async Store/Repository traits
-
-| Location | Trait | Methods | File |
-|----------|-------|---------|------|
-| phenotype-contracts | Repository | get, save, delete, find_all | `src/ports/outbound/repository.rs:22-54` |
-| agileplus-events | EventStore | append, get_events, snapshot | `crates/agileplus-events/src/store.rs:21-68` |
-| agileplus-graph | GraphBackend | query, execute, get_vertex | `crates/agileplus-graph/src/store.rs:22-45` |
-| agileplus-cache | CacheStore | set, get, delete, exists | `crates/agileplus-cache/src/store.rs:21-38` |
-| phenotype-event-sourcing | EventStore | append, load_events, snapshot | `crates/phenotype-event-sourcing/src/store.rs:30-60` |
-| thegent-memory | MemoryStore | read, write, clear | `/platforms/thegent/crates/thegent-memory/src/store.rs:45-78` |
-
-**Duplicated Methods:**
-- `async fn get<K>(&self, key: K) -> Result<V>` — 6+ traits
-- `async fn save<T>(&self, item: T) -> Result<()>` — 5+ traits
-- `async fn delete<K>(&self, key: K) -> Result<()>` — 4+ traits
-
-**Library Status:** `libs/hexagonal-rs/src/ports/repository.rs` exists but UNUSED
-
-**Extraction Target:** Reactivate & integrate `libs/hexagonal-rs/src/ports/`
-
-**Priority:** P2 — Architectural consistency
+| Library | LOC | Status | Action |
+|---------|-----|--------|--------|
+| `hexagonal-rs` | ~200 | ARCHIVE - duplicate patterns | Archive |
+| `metrics` | ~150 | Duplicate - `phenotype-cache-adapter` has MetricsHook | Remove |
+| `tracing` | ~150 | Duplicate - `phenotype-telemetry` | Consolidate |
+| `cli-framework` | ~300 | **KEEP** - unique | Maintain |
+| `logger` | ~200 | **KEEP** - unique | Maintain |
+| `cipher` | ~100 | **EVALUATE** - unused? | Audit usage |
+| `hexkit` | ~200 | **KEEP** - hexagonal kit | Maintain |
+| `nexus` | ~100 | **KEEP** - unique | Maintain |
 
 ---
 
+### 4. Worktrees Analysis (98,611 LOC)
+
+| Worktree | LOC | Status | Action |
+|----------|-----|--------|--------|
+| `AgilePlus` | 80,191 | Active | Continue development |
+| `consolidate-libraries` | 7,496 | **ORPHANED** | Merge to canonical, delete |
+| `expand-test-coverage` | 6,509 | **ORPHANED** | Merge to canonical, delete |
+| `phenotype-infrakit` | 4,415 | Active | Keep |
+
+#### Critical: Merge or Delete Orphaned Worktrees
+
+**consolidate-libraries** contains:
+- `phenotype-event-sourcing` (duplicated)
+- `phenotype-contracts` (duplicated)
+- `phenotype-cache-adapter` (duplicated)
+- `phenotype-policy-engine` (duplicated)
+- `phenotype-state-machine` (duplicated)
+- `phenotype-errors` (NEW - consolidate here!)
+
+**Action:** Copy `phenotype-errors` to canonical, delete worktree
+
+---
+
+### 5. External Package Opportunities (Non-Heliso)
+
+#### High Priority
+
+| Crate | Current Gap | External Alternative | LOC Savings |
+|-------|------------|---------------------|-------------|
+| `agileplus-api` | No SQLx | ADOPT `sqlx` | 500-800 |
+| `agileplus-git` | Hand-rolled git | ADOPT `gix` | 300-500 |
+| `phenotype-cache-adapter` | No Redis | ADOPT `redis` | 200-400 |
+| `phenotype-event-sourcing` | In-memory only | ADOPT `cqrs-es` | 300-500 |
+| `phenotype-policy-engine` | No RBAC | ADOPT `casbin` | 400-700 |
+
+#### Medium Priority
+
+| Crate | Current Gap | External Alternative | LOC Savings |
+|-------|------------|---------------------|-------------|
+| `agileplus-domain` | Port traits scattered | CONSOLIDATE `phenotype-contracts` | 200-400 |
+| `agileplus-telemetry` | Basic tracing | ADOPT `opentelemetry` | 100-200 |
+| All crates | Custom errors | CONSOLIDATE `phenotype-errors` | 300-500 |
+
+---
+
+### 6. LOC Reduction Roadmap
+
+#### Phase 1: Cleanup (1-2 weeks)
+
+| Action | LOC Saved | Effort |
+|--------|-----------|--------|
+| Delete `consolidate-libraries` worktree | 0 | 1 hour |
+| Delete `expand-test-coverage` worktree | 0 | 1 hour |
+| Remove `phenotype-git-core` (1 LOC) | 0 | 5 min |
+| Archive `hexagonal-rs` | 0 | 5 min |
+| Remove unused deps from workspace | 0 | 30 min |
+
+#### Phase 2: Extract Core Libraries (2-4 weeks)
+
+| Action | LOC Saved | Effort |
+|--------|-----------|--------|
+| Create `phenotype-errors` | 300-500 | 1 week |
+| Extract `phenotype-cli` from `agileplus-cli` | 500 | 1 week |
+| Extract `phenotype-git` from `agileplus-git` | 200 | 1 week |
+| Consolidate `phenotype-contracts` | 200 | 1 week |
+
+#### Phase 3: External Dependencies (4-8 weeks)
+
+| Action | LOC Saved | Effort |
+|--------|-----------|--------|
+| ADOPT `sqlx` in `agileplus-api` | 500-800 | 2 weeks |
+| ADOPT `gix` in `phenotype-git` | 300-500 | 2 weeks |
+| ADOPT `casbin` in `phenotype-policy-engine` | 400-700 | 2 weeks |
+| ADOPT `redis` in `phenotype-cache-adapter` | 200-400 | 1 week |
+| ADOPT `cqrs-es` in `phenotype-event-sourcing` | 300-500 | 2 weeks |
+
+#### Phase 4: Optimization (4-8 weeks)
+
+| Action | LOC Saved | Effort |
+|--------|-----------|--------|
+| Replace `serde_json` with `rkyv` hot paths | 50-100 | 1 week |
+| Add `blake3` for hash chains | 30-50 | 1 week |
+| Add `mockall` for testing | 100-200 | 1 week |
+| Add `tracing-subscriber` | 50-100 | 1 week |
+| Parallelize sequential async ops | N/A (perf) | 2 weeks |
+
+---
+
+### 7. Summary of Opportunities
+
+| Category | Current LOC | Target LOC | Savings | Priority |
+|----------|-------------|------------|---------|----------|
+| **Core Libs** | 73,444 | 65,000 | **8,444** | P0 |
+| **External Crates** | 73,444 | 70,000 | **3,444** | P1 |
+| **Error Handling** | 3,000+ | 1,000 | **2,000** | P1 |
+| **Git Operations** | 3,544 | 2,500 | **1,044** | P1 |
+| **CLI Framework** | 8,884 | 7,500 | **1,384** | P2 |
+| **API Framework** | 6,739 | 5,500 | **1,239** | P2 |
+| **TOTAL** | **~100,000** | **~85,000** | **~15,000** | |
+
+---
+
+<<<<<<< HEAD
+_Last updated: 2026-03-29_
+=======
 ### 🟠 MEDIUM: CLI Argument Parsing (Clap, 101 files)
 
 **Pattern:** Duplicated CLI arg definitions across 50+ Rust binaries
@@ -4437,3 +4463,4 @@ impl<T: Cache<String, Config>> ConfigLoader<T> {
 3. Remove local caching code from each crate
 4. Add moka/lru features to phenotype-cache-adapter as options
 
+>>>>>>> origin/main

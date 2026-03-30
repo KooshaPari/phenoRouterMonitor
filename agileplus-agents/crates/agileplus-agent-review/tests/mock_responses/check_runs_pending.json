@@ -1,0 +1,23 @@
+{
+  "total_count": 2,
+  "check_runs": [
+    {
+      "id": 6001,
+      "name": "lint",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/checks/6001",
+      "started_at": "2026-03-01T09:00:00Z",
+      "completed_at": "2026-03-01T09:01:00Z"
+    },
+    {
+      "id": 6002,
+      "name": "tests",
+      "status": "in_progress",
+      "conclusion": null,
+      "details_url": "https://github.com/checks/6002",
+      "started_at": "2026-03-01T09:00:00Z",
+      "completed_at": null
+    }
+  ]
+}

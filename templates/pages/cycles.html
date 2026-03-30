@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Cycles{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8">
+  <section class="border-b border-zinc-700 pb-6">
+    <div class="flex items-end justify-between gap-6">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Delivery Cycles</h1>
+        <p class="text-sm text-zinc-400 mt-2">
+          Cycles are timeboxed delivery lanes scoped to a module and validated by feature readiness.
+        </p>
+      </div>
+      <a href="/modules"
+         class="px-4 py-2 rounded border border-emerald-600 bg-emerald-700 hover:bg-emerald-600 text-sm transition">
+        Open Modules
+      </a>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-[0.2em] text-zinc-500">Cycles</div>
+      <div class="mt-3 text-3xl font-bold">{{ total_cycles }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-[0.2em] text-zinc-500">Active</div>
+      <div class="mt-3 text-3xl font-bold">{{ active_cycles }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-[0.2em] text-zinc-500">Features</div>
+      <div class="mt-3 text-3xl font-bold">{{ total_features }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-[0.2em] text-zinc-500">Work Packages</div>
+      <div class="mt-3 text-3xl font-bold">{{ total_work_packages }}</div>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {% for cycle in cycles %}
+      <a href="/cycles/{{ cycle.id }}"
+         class="block rounded border {% if selected_cycle_id == cycle.id %}border-cyan-500 bg-cyan-950/30{% else %}border-zinc-700 bg-zinc-800{% endif %} p-5 hover:border-zinc-500 transition">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-xs uppercase tracking-[0.2em] text-cyan-400">{{ cycle.state }}</div>
+            <h3 class="text-xl font-semibold mt-2">{{ cycle.name }}</h3>
+            <p class="text-sm text-zinc-400 mt-2">{{ cycle.description }}</p>
+            <div class="mt-2 text-xs text-zinc-500">Scope: {{ cycle.module_scope }}</div>
+          </div>
+          <div class="text-right text-sm text-zinc-400 space-y-1">
+            <div>{{ cycle.feature_count }} features</div>
+            <div>{{ cycle.work_package_count }} work packages</div>
+            <div>{{ cycle.days_remaining }} days remaining</div>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-between">
+          {% if cycle.shippable %}
+            <span class="text-xs uppercase tracking-[0.2em] text-emerald-400">Shippable</span>
+          {% else %}
+            <span class="text-xs uppercase tracking-[0.2em] text-zinc-500">Needs validation</span>
+          {% endif %}
+          <span class="text-sm text-cyan-300">Open cycle</span>
+        </div>
+      </a>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

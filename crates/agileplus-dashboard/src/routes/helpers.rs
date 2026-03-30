@@ -43,6 +43,10 @@ pub(super) fn render<T: Template>(tpl: T) -> Response {
     }
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
 pub fn html_escape(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
@@ -51,6 +55,8 @@ pub fn html_escape(s: &str) -> String {
         .replace('\'', "&#39;")
 }
 
+>>>>>>> origin/main
+>>>>>>> origin/main
 pub(super) fn load_projects(store: &DashboardStore) -> (Vec<ProjectView>, Option<ProjectView>) {
     let projects: Vec<ProjectView> = store
         .projects
@@ -175,6 +181,10 @@ pub(super) fn sample_events() -> Vec<crate::templates::EventView> {
             kind: "system".into(),
             description: "Dashboard booted with native Plane surface".into(),
             timestamp: "just now".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
             agent_name: None,
             agent_link: None,
             wp_id: None,
@@ -183,12 +193,18 @@ pub(super) fn sample_events() -> Vec<crate::templates::EventView> {
             commit_link: None,
             ci_run_id: None,
             ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
         },
         crate::templates::EventView {
             id: "evt-2".into(),
             kind: "agent_action".into(),
             description: "Planner synced feature ownership metadata".into(),
             timestamp: "2m ago".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
             agent_name: Some("planner-agent".into()),
             agent_link: None,
             wp_id: None,
@@ -197,12 +213,24 @@ pub(super) fn sample_events() -> Vec<crate::templates::EventView> {
             commit_link: None,
             ci_run_id: None,
             ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
         },
         crate::templates::EventView {
             id: "evt-3".into(),
             kind: "state_change".into(),
             description: "Feature moved from researched to planned".into(),
             timestamp: "9m ago".into(),
+<<<<<<< HEAD
+        },
+    ]
+}
+=======
+<<<<<<< HEAD
+        },
+    ]
+}
+=======
             agent_name: None,
             agent_link: None,
             wp_id: None,
@@ -317,3 +345,5 @@ pub fn build_feature_media_assets(
 
     media
 }
+>>>>>>> origin/main
+>>>>>>> origin/main

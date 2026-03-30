@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "004-modules-and-cycles",
+  "worktree_path": ".worktrees/004-modules-and-cycles-WP01",
+  "branch_name": "004-modules-and-cycles-WP01",
+  "base_branch": "main",
+  "base_commit": "3d3f72886c95592ae83f525d4416118882ab189f",
+  "dependencies": [],
+  "created_at": "2026-03-04T01:51:18.239715+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

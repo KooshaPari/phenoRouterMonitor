@@ -9,9 +9,21 @@ use chrono::Utc;
 
 use crate::app_state::SharedState;
 use crate::templates::{
+<<<<<<< HEAD
+    AgentActivityPartial, AgentView, CiLinkView, DashboardPage, EventTimelinePartial,
+    EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
+    KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
+=======
+<<<<<<< HEAD
+    AgentActivityPartial, AgentView, CiLinkView, DashboardPage, EventTimelinePartial,
+    EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
+    KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
+=======
     AgentActivityPartial, AgentView, DashboardPage, EventTimelinePartial,
     EvidenceBundleView, FeatureDetailPage, FeatureView, HealthPanelPartial,
     KanbanPartial, MediaAssetView, ProjectSwitcherPartial, ProjectView,
+>>>>>>> origin/main
+>>>>>>> origin/main
     ReportArtifactView, WpListPartial, WpView,
 };
 
@@ -30,6 +42,10 @@ fn build_feature_events(
         kind: "system".into(),
         description: format!("Feature '{}' opened in dashboard", feature.slug),
         timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
         agent_name: None,
         agent_link: None,
         wp_id: None,
@@ -38,6 +54,8 @@ fn build_feature_events(
         commit_link: None,
         ci_run_id: None,
         ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
     }];
 
     if !workpackages.is_empty() {
@@ -46,6 +64,10 @@ fn build_feature_events(
             kind: "agent_action".into(),
             description: format!("{} work package entries synced", workpackages.len()),
             timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
             agent_name: None,
             agent_link: None,
             wp_id: None,
@@ -54,6 +76,8 @@ fn build_feature_events(
             commit_link: None,
             ci_run_id: None,
             ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
         });
 
         for wp in workpackages {
@@ -62,6 +86,10 @@ fn build_feature_events(
                 kind: "state_change".into(),
                 description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
                 timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
                 agent_name: None,
                 agent_link: None,
                 wp_id: Some(wp.id.to_string()),
@@ -70,6 +98,8 @@ fn build_feature_events(
                 commit_link: None,
                 ci_run_id: None,
                 ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
             });
         }
     } else {
@@ -78,6 +108,10 @@ fn build_feature_events(
             kind: "system".into(),
             description: "No work packages linked yet".into(),
             timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
             agent_name: None,
             agent_link: None,
             wp_id: None,
@@ -86,6 +120,8 @@ fn build_feature_events(
             commit_link: None,
             ci_run_id: None,
             ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
         });
     }
 
@@ -315,22 +351,34 @@ pub async fn agent_activity(_state: State<SharedState>) -> Response {
             status: "idle".into(),
             current_task: String::new(),
             last_action: "2m ago".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
             pid: None,
             started_at: None,
             worktree: String::new(),
             worktree_label: String::new(),
             is_live: false,
+>>>>>>> origin/main
+>>>>>>> origin/main
         },
         AgentView {
             name: "impl-agent".into(),
             status: "running".into(),
             current_task: "WP13 implementation".into(),
             last_action: "just now".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
             pid: Some(12345),
             started_at: Some("2024-01-15 10:30:00 UTC".into()),
             worktree: "/Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/merge-spec-docs".into(),
             worktree_label: "merge-spec-docs".into(),
             is_live: true,
+>>>>>>> origin/main
+>>>>>>> origin/main
         },
     ];
     render(AgentActivityPartial { agents })
@@ -370,6 +418,10 @@ pub async fn switch_project(State(state): State<SharedState>, Path(id): Path<i64
     let cards = build_kanban_cards(&store, DashboardFilter::All);
     render(KanbanPartial { cards })
 }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
 
 // ── /api/dashboard/features/{id}/events ──────────────────────────────────
 
@@ -451,3 +503,5 @@ pub async fn time_footer() -> axum::response::Html<String> {
 pub async fn stream_placeholder() -> StatusCode {
     StatusCode::NO_CONTENT
 }
+>>>>>>> origin/main
+>>>>>>> origin/main

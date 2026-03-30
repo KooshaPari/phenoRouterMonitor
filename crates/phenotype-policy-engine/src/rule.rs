@@ -1,4 +1,4 @@
-// Policy rule definitions with cached regex compilation.
+//! Policy rule definitions with cached regex compilation.
 
 use crate::context::EvaluationContext;
 use crate::error::PolicyEngineError;
@@ -80,20 +80,18 @@ impl Rule {
         let regex = match &self._compiled_regex {
             Some(r) => r.clone(),
             None => {
-                Regex::new(&self.pattern).map_err(|e| {
-                    PolicyEngineError::RegexCompilationError {
-                        pattern: self.pattern.clone(),
-                        source: e,
-                    }
+                Regex::new(&self.pattern).map_err(|e| PolicyEngineError::RegexCompilationError {
+                    pattern: self.pattern.clone(),
+                    source: e,
                 })?
             }
         };
 
         let fact_value = context.get_string(&self.fact);
         match self.rule_type {
-            RuleType::Allow => Ok(fact_value.map_or(true, |v| regex.is_match(v.as_str()))),
-            RuleType::Deny => Ok(fact_value.is_some_and(|v| !regex.is_match(v.as_str()))),
-            RuleType::Require => Ok(fact_value.is_some_and(|v| regex.is_match(v.as_str()))),
+            RuleType::Allow => Ok(fact_value.as_ref().map_or(true, |v| regex.is_match(&v))),
+            RuleType::Deny => Ok(fact_value.as_ref().map_or(true, |v| !regex.is_match(&v))),
+            RuleType::Require => Ok(fact_value.as_ref().is_some_and(|v| regex.is_match(&v))),
         }
     }
 }
@@ -135,6 +133,13 @@ mod tests {
         let mut ctx = EvaluationContext::new();
         ctx.set_string("s", "banned");
         assert!(!r.evaluate(&ctx).unwrap());
+    }
+
+    #[test]
+    fn test_deny_rule_missing_fact() {
+        let r = Rule::new(RuleType::Deny, "s", "^banned$");
+        // Missing facts are treated as pass for Deny rules
+        assert!(r.evaluate(&EvaluationContext::new()).unwrap());
     }
 
     #[test]

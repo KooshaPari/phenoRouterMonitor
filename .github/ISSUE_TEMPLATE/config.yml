@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/KooshaPari/AgilePlus/tree/main/docs
+    about: Review the docs before filing an issue.
