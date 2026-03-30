@@ -1,82 +1,123 @@
 //! Error types for the event sourcing system.
 
-use thiserror::Error;
+use serde::Serialize;
 
 /// Result type for event sourcing operations.
 pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
-/// Top-level error for event sourcing operations.
-#[derive(Debug, Error)]
-pub enum EventSourcingError {
-    #[error("aggregate not found: {0}")]
-    AggregateNotFound(String),
+/// Wrapper error type for event sourcing operations.
+#[derive(Debug, Clone, Serialize)]
+pub struct EventSourcingError(String);
 
-    #[error("event not found: {0}")]
-    EventNotFound(String),
+impl std::fmt::Display for EventSourcingError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
-    #[error("serialization error: {0}")]
-    Serialization(String),
+impl std::error::Error for EventSourcingError {}
 
-    #[error("hash mismatch")]
-    HashMismatch,
+impl EventSourcingError {
+    /// Create a new error
+    pub fn new(msg: impl Into<String>) -> Self {
+        Self(msg.into())
+    }
 
-    #[error("snapshot error: {0}")]
-    Snapshot(String),
+    /// Aggregate not found
+    pub fn aggregate_not_found(id: impl Into<String>) -> Self {
+        Self(format!("aggregate not found: {}", id.into()))
+    }
 
-    #[error("version conflict")]
-    VersionConflict,
+    /// Event not found
+    pub fn event_not_found(id: impl Into<String>) -> Self {
+        Self(format!("event not found: {}", id.into()))
+    }
 
-    #[error("invalid event sequence")]
-    InvalidEventSequence,
+    /// Serialization error
+    pub fn serialization(msg: impl Into<String>) -> Self {
+        Self(format!("serialization error: {}", msg.into()))
+    }
 
-    #[error("internal error: {0}")]
-    Internal(String),
+    /// Snapshot error
+    pub fn snapshot(msg: impl Into<String>) -> Self {
+        Self(format!("snapshot error: {}", msg.into()))
+    }
 
-    #[error("replay error: {0}")]
-    Replay(String),
+    /// Replay error
+    pub fn replay(msg: impl Into<String>) -> Self {
+        Self(format!("replay error: {}", msg.into()))
+    }
 
-    #[error(transparent)]
-    Store(#[from] EventStoreError),
+    /// Internal error
+    pub fn internal(msg: impl Into<String>) -> Self {
+        Self(format!("internal error: {}", msg.into()))
+    }
+}
 
-    #[error(transparent)]
-    Hash(#[from] HashError),
+impl From<std::io::Error> for EventSourcingError {
+    fn from(e: std::io::Error) -> Self {
+        Self::internal(e.to_string())
+    }
 }
 
 impl From<serde_json::Error> for EventSourcingError {
     fn from(e: serde_json::Error) -> Self {
-        EventSourcingError::Serialization(e.to_string())
+        Self::serialization(e.to_string())
     }
 }
 
-impl serde::Serialize for EventSourcingError {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-#[derive(Debug, Error)]
+/// Event store errors
+#[derive(Debug, Clone)]
 pub enum EventStoreError {
-    #[error("event not found: {0}")]
     NotFound(String),
-
-    #[error("storage error: {0}")]
     StorageError(String),
-
-    #[error("sequence gap: expected {expected}, got {actual}")]
     SequenceGap { expected: i64, actual: i64 },
 }
 
-#[derive(Debug, Error)]
+impl std::fmt::Display for EventStoreError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotFound(s) => write!(f, "event not found: {s}"),
+            Self::StorageError(s) => write!(f, "storage error: {s}"),
+            Self::SequenceGap { expected, actual } => {
+                write!(f, "sequence gap: expected {expected}, got {actual}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for EventStoreError {}
+
+/// Hash verification errors
+#[derive(Debug, Clone)]
 pub enum HashError {
-    #[error("hash chain broken at sequence {sequence}")]
     ChainBroken { sequence: i64 },
-
-    #[error("invalid hash length: expected 32 bytes (64 hex digits), got {0}")]
     InvalidHashLength(usize),
-
-    #[error("hash mismatch at sequence {sequence}")]
     HashMismatch { sequence: i64 },
+}
+
+impl std::fmt::Display for HashError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ChainBroken { sequence } => write!(f, "hash chain broken at sequence {sequence}"),
+            Self::InvalidHashLength(len) => {
+                write!(f, "invalid hash length: expected 64 hex chars, got {len}")
+            }
+            Self::HashMismatch { sequence } => write!(f, "hash mismatch at sequence {sequence}"),
+        }
+    }
+}
+
+impl std::error::Error for HashError {}
+
+impl From<EventStoreError> for EventSourcingError {
+    fn from(e: EventStoreError) -> Self {
+        Self(e.to_string())
+    }
+}
+
+impl From<HashError> for EventSourcingError {
+    fn from(e: HashError) -> Self {
+        Self(e.to_string())
+    }
 }

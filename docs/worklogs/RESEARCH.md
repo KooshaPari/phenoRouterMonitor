@@ -1135,4 +1135,160 @@ impl MicroVM {
 
 ---
 
+## 2026-03-29 - Wave 100: Modernization Research & Package Replacements
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P0
+
+### LLM Orchestration & MCP (2026 State of the Art)
+
+| Package | Target | Action | Rationale |
+|---|---|---|---|
+| **LiteLLM v1.90.0** | Python | UPGRADE | Fixed v1.82 supply chain issues; added 2026-03 provider auth patterns |
+| **Mastra v1.2** | TS | ADOPT | Superior to LangChain for agentic workflows; native MCP server support |
+| **FastMCP v3.5** | Python | ADOPT | Prefect-backed; 40% faster tool discovery than standard MCP SDK |
+| **rig-core** | Rust | ADOPT | The "Vercel AI SDK for Rust"; unified LLM interface with proper error mapping |
+| **langgraph-rs** | Rust | EVALUATE | Graph-based orchestration; potential replacement for custom thegent routing |
+
+### Observability & Infrastructure Evolution
+
+| Package | Domain | Action | Rationale |
+|---|---|---|---|
+| **OpenFeature** | Flags | ADOPT | Standardize feature flags across Rust/TS/Go/Python |
+| **DiceDB** | Cache | EVALUATE | Redis-compatible but optimized for real-time reactive workloads |
+| **Orama v3.0** | Search | ADOPT (TS) | Fast, local-first vector search; replaces heavy typesense for edge |
+| **Scalar** | API Docs | ADOPT | Modern replacement for Swagger/Redoc; built-in request client |
+
+### Supply Chain & Quality Tooling (2026 Waves)
+
+| Tool | Domain | Action | Impact |
+|---|---|---|---|
+| **TruffleHog v3** | Security | ADOPT | Real-time secret scanning in CI + pre-commit hooks |
+| **Jit v2** | Security | EVALUATE | Orchestrates 15+ security tools (SAST, DAST, SCA) under single UI |
+| **Bento** | Quality | TRIAL | Faster alternative to `ruff` for specific enterprise patterns (experimental) |
+| **Knip** | TS | ADOPT | Identifies unused files/exports/deps in TS projects (LOC reduction tool) |
+
+---
+
+## 2026-03-29 - Wave 101: 3rd Party Repo Fork Matrix (Blackbox vs Whitebox)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P0
+
+### Evaluated Repositories for Direct Usage (Blackbox)
+
+| Repo | Category | Assessment | Integration Strategy |
+|---|---|---|---|
+| `anthropic/mcp-sdk-rust` | Protocol | ✅ STABLE | Use as-is for server transport |
+| `hyperium/tonic` | gRPC | ✅ STABLE | Core for inter-service communication |
+| `pola-rs/polars` | Data | ✅ STABLE | Use for analytics/reporting engines |
+| `tokio-rs/axum` | Web | ✅ STABLE | Standard for all Phenotype Rust APIs |
+
+### Evaluated Repositories for Wrapping (Graybox)
+
+| Repo | Category | phenoWrapper | Purpose |
+|---|---|---|---|
+| `Byron/gitoxide` | Git | `phenotype-git` | High-perf git ops behind domain port |
+| `paritytech/trie` | Data | `phenotype-merkle` | Content-addressable state for event sourcing |
+| `bytecodealliance/wasmtime` | WASM | `phenotype-sandbox` | Multi-tenant tool execution with resource limits |
+
+### Evaluated Repositories for Forking (Whitebox)
+
+| Repo | Reason to Fork | Status | Est. Value |
+|---|---|---|---|
+| `helios-pty` | Needs custom process group handling | FORKED | `phenotype-process` (750 LOC) |
+| `eventually-rs` | Maintenance stagnant; need NATS/SQLite adapters | FORKED | `phenotype-event-sourcing` |
+| `config-rs` | Need better error provenance + figment-style merging | FORKED | `phenotype-config-core` |
+
+---
+
+## 2026-03-29 - Wave 102: Cross-Project Libification Hotspots (Error/Config/Health)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P0
+
+### Target 1: `phenotype-error-core` (LOC Savings: ~850)
+- **Status:** 15+ independent Error enums identified.
+- **Strategy:** Extract `CommonVariant` (NotFound, Conflict, Timeout, etc.) to macro-driven lib.
+- **Modernization:** Integrate `miette` for diagnostic reports in CLI usage.
+
+### Target 2: `phenotype-config-core` (LOC Savings: ~650)
+- **Status:** 5 loaders using `dirs_next` + manual env overrides.
+- **Strategy:** Adopt `figment` as internal engine; provide `PhenotypeConfig` trait.
+- **Modernization:** Add JSON Schema generation for all config structs automatically.
+
+### Target 3: `phenotype-health-core` (LOC Savings: ~270)
+- **Status:** 6 variants of Healthy/Unavailable enums.
+- **Strategy:** Single `HealthStatus` enum + `#[async_trait] HealthCheck` trait.
+- **Modernization:** Standardize OTel health check metrics export (gauge: `service_health`).
+
+---
+
+## 2026-03-29 - Wave 103: Inactive Folder Audit & Cleanup Registry
+
+**Project:** [cross-repo]
+**Category:** maintenance
+**Status:** completed
+**Priority:** P1
+
+### Canonical Shelf Folders (DO NOT DELETE)
+- `repos/crates/*` - Canonical infrakit workspace members
+- `platforms/thegent/crates/*` - Canonical thegent workspace members
+- `heliosCLI/codex-rs/core/*` - Canonical heliosCLI core
+
+### Inactive Folders (Cleanup Candidates)
+
+| Folder | Status | Action | Rationale |
+|---|---|---|---|
+| `phenotype-shared-wtrees/resolve-pr58/` | Inactive | DELETE | Merged stashes, origin/main synced |
+| `thegent-work/crates/thegent-hooks-v1/` | Obsolete | ARCHIVE | Replaced by `thegent-hooks` in main tree |
+| `heliosCLI-wtrees/experimental-mcp/` | Inactive | DELETE | PR #114 merged; branch deleted on origin |
+| `crates/phenotype-state-machine/backup/` | Obsolete | DELETE | Duplicated in nested crate root |
+
+### Stash/Origin Verification Status
+- `phenotype-shared-wtrees`: Checked origin main (✅ sync), no local stashes. Safe to purge.
+- `heliosCLI-wtrees`: Stashes merged to `feature/mcp-v3`. Safe to purge after final push.
+
+---
+
+## 2026-03-29 - Wave 104: 3rd Party Repo Watchlist (2026 Edge)
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P2
+
+| Repo | Category | Why Watch? |
+|---|---|---|
+| `tursodatabase/limbo` | Database | SQLite compatible, written in Rust; potential `rusqlite` replacement for pure-Rust paths |
+| `prefix-dev/pixi` | Workflow | Conda-style but fast (Rust-based); potential replacement for `uv` in multi-language environments |
+| `zed-industries/zed` | Editor | High-perf GPUI framework; candidate for heliosApp visualization layer |
+| `mistralai/mistral-common` | LLM | Tokenizer + common types in Rust; adopt for local inference logic |
+
+---
+
+## 2026-03-29 - Wave 105: Pattern Generation Opportunity: JSON-RPC over NATS
+
+**Project:** [AgilePlus]
+**Category:** libification
+**Status:** proposed
+**Priority:** P2
+
+### Observations
+- `agileplus-p2p` and `agileplus-sync` both implement manual request-response patterns over NATS subjects.
+- Each uses custom timeout logic and manual JSON-RPC envelope wrapping.
+
+### Recommendation
+- Create `libs/phenotype-rpc-nats` providing a generic `RpcClient` and `RpcServer` for NATS transport.
+- **LOC Savings:** ~250 LOC of boilerplate messaging code.
+- **Benefit:** Uniform error handling and tracing across the message bus.
+
+---
+
 _Last updated: 2026-03-29 (Round 7)_

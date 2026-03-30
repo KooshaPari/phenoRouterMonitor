@@ -122,6 +122,62 @@ Enums in `thegent-hooks` that could use `strum::Display`:
 
 ---
 
+## 2026-03-29 - Cross-Project Libification Hotspots (Wave 102 Expansion)
+
+**Project:** [cross-repo]
+**Category:** duplication | libification
+**Status:** completed
+**Priority:** P0
+
+### 1. Unified Error Core (`phenotype-error-core`)
+
+| Feature | Benefit | Current Duplication |
+|---|---|---|
+| `CommonVariant` Macro | Deduplicate `NotFound`, `Conflict`, `Timeout` | 15+ enums, ~400 LOC |
+| `miette` Integration | Graphical CLI diagnostics | Manual `Display` impls, ~200 LOC |
+| `ErrorExt` Trait | Universal mapping across boundaries | Manual `From` impls, ~150 LOC |
+
+**Extraction Target:** `libs/phenotype-error-core/` (replacing `phenotype-errors`)
+
+### 2. Standardized Configuration (`phenotype-config-core`)
+
+| Feature | Benefit | Current Duplication |
+|---|---|---|
+| `Figment` Provider | Hierarchical overrides (file, env, defaults) | 5 loaders, ~350 LOC |
+| JSON Schema Gen | Auto-generate schemas for IDE support | Missing (manual docs) |
+| `dirs_next` Wrap | Consistent home-dir resolution | 4+ callsites |
+
+**Extraction Target:** `libs/phenotype-config-core/` (Edition 2024 migration)
+
+### 3. Service Health Abstraction (`phenotype-health-core`)
+
+| Feature | Benefit | Current Duplication |
+|---|---|---|
+| `HealthStatus` Enum | Standardize `Healthy`, `Degraded`, `Critical` | 6 enums, ~120 LOC |
+| `HealthCheck` Trait | Unified async check interface | 5 traits, ~100 LOC |
+| OTel Exporter | Automated health metric export | Missing |
+
+**Extraction Target:** `libs/phenotype-health-core/` (Shared across Rust/TS/Go adapters)
+
+---
+
+## 2026-03-29 - In-Memory Store Pattern Generation
+
+**Project:** [cross-repo]
+**Category:** duplication | patterns
+**Status:** proposed
+**Priority:** P1
+
+### Common Pattern Identification
+Found 4 instances of `Arc<RwLock<HashMap<K, V>>>` in `agileplus-nats`, `agileplus-sync`, `phenotype-event-sourcing`, and `thegent-memory`.
+
+### Strategy
+Create `libs/phenotype-memory-store` with a generic `InMemoryStore<K, V>` and `#[derive(Store)]` macro to auto-implement domain-specific traits (e.g., `EventStore`, `CacheBackend`).
+
+**Est. LOC Savings:** ~350 LOC across 4 projects.
+
+---
+
 ## 2026-03-29 - AgilePlus Extended Duplication Audit
 
 **Project:** [AgilePlus]

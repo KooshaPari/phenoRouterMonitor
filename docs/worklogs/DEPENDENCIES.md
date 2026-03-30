@@ -51,6 +51,85 @@ Comprehensive audit of external dependencies, package modernization opportunitie
 
 ---
 
+## 2026-03-29 - External Repo Dependency Audit (Blackbox vs Whitebox)
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+### Blackbox Dependency Assessment (Usage As-Is)
+
+| Dependency | Project | Status | Rationale |
+|---|---|---|---|
+| **mcp-sdk-rust** | heliosCLI | ✅ ADOPT | Official Anthropic SDK; no need to fork transport layer |
+| **rig-core** | thegent | ✅ ADOPT | Cleanest Rust LLM orchestration; replaces manual OpenAI/Anthropic wrappers |
+| **sqlx v0.8** | phenotype-infrakit | ✅ UPGRADE | Native async SQLite/Postgres with compile-time checks |
+| **axum v0.8** | All Rust APIs | ✅ STANDARD | Modern, tower-based HTTP; standard across Phenotype |
+
+### Graybox Dependency Assessment (Wrapping/Adapting)
+
+| Dependency | Project | phenoWrapper | Purpose |
+|---|---|---|---|
+| **gitoxide (gix)** | AgilePlus | `phenotype-git` | Wrap high-perf git ops behind domain-specific Port traits |
+| **wasmtime** | thegent | `phenotype-sandbox` | Sandbox tool execution; wrap host functions for Phenotype context |
+| **figment** | All Rust | `phenotype-config` | Standardize hierarchical config loading with Phenotype error mapping |
+
+### Whitebox Dependency Assessment (Forking/Modification)
+
+| Dependency | Project | Reason | Est. Value |
+|---|---|---|---|
+| **eventually-rs** | phenotype-infrakit | Maintenance stagnant; need native NATS/SQLite adapters | `phenotype-event-sourcing` |
+| **helios-pty** | heliosCLI | Needs custom process group + terminal resizing logic | `phenotype-process` (750 LOC) |
+| **langgraph-rs** | thegent | Need custom edge-case handling for agentic routing loops | Internal orchestration |
+
+---
+
+## 2026-03-29 - Package Modernization Matrix (2026 Roadmap)
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Rust Modernization Targets
+
+| From | To | Effort | Benefit |
+|---|---|---|---|
+| `config-rs` | `figment` | 🟠 MEDIUM | Better error provenance, array env var parsing, hierarchical merging |
+| `anyhow` (manual) | `miette` | 🟠 MEDIUM | Fancy CLI diagnostics; better DX for heliosCLI users |
+| `async-trait` | Native Async Traits | 🟢 LOW | Rust 2024 feature; removes macro overhead and improves compile times |
+| `tokio-serial` | `tokio-serial v5` | 🟢 LOW | Fixes 2025 security vulnerability in underlying `serialport` crate |
+
+### Python Modernization Targets
+
+| From | To | Effort | Benefit |
+|---|---|---|---|
+| `Tenacity` | `stamina` | 🟢 LOW | Hynek's opinionated wrapper; better defaults, Prometheus integration |
+| `ABC` (Inheritance) | `Protocol` (Structural) | 🟠 MEDIUM | Decouples ports from adapters; more idiomatic for hexagonal Python |
+| `FastAPI` (Manual) | `FastMCP` | 🟠 MEDIUM | Auto-exposes endpoints as MCP tools; simplifies agent tool integration |
+
+---
+
+## 2026-03-29 - Supply Chain Security & Provenance Audit
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P0
+
+### Verified Pinned Versions (Security Fixes)
+- **LiteLLM**: Pinned to `v1.90.0` (fixed Mar 2026 supply chain vulnerability in v1.82.7).
+- **gix**: Pinned to `v0.79.0` (resolves RUSTSEC-2025-0140).
+- **async-nats**: Pinned to `v0.37.0` (resolves RUSTSEC-2025-0134 via rustls-pemfile update).
+
+### New Security Tooling Integration
+- **cargo-deny**: Integrated in `Cargo.toml`; fails CI on `RUSTSEC` advisories.
+- **trufflehog**: Pre-commit hook added for secret scanning.
+- **osv-scanner**: Added to monthly dependency audit schedule.
+
+---
+
 ## 2026-03-29 - Implementation Progress: thiserror & derive_more Migration
 
 **Project:** [heliosCLI/codex-rs]
