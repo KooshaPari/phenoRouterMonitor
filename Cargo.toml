@@ -24,7 +24,6 @@ members = [
     "crates/phenotype-health",
     "crates/phenotype-logging",
     "crates/phenotype-macros",
-    "crates/phenotype-mcp",
 ]
 
 [workspace.package]
