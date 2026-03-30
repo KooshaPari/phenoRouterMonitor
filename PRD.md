@@ -153,8 +153,6 @@ As a domain modeler, I want base traits for `Entity`, `ValueObject`, and `Aggreg
 
 ## E5: State Machine (`phenotype-state-machine`)
 
-**Goal**: Generic forward-only finite state machine with guard callbacks, action hooks, full transition history, and skip-state configuration.
-
 ### E5.1: Typed Forward-Only FSM
 
 As a service developer, I want a `StateMachine<S, C>` where `S` is the state enum and `C` is the context type so workflow state is enforced with forward-only transitions and domain-specific guard callbacks operating over typed context.

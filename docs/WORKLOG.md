@@ -20,6 +20,6 @@ guard callbacks, transition history, and skip-state configuration.
 - Preserve the spec lane separately from AgilePlus operational tracking.
 
 ### Open items
-- Confirm the E5 wording stays aligned with the rest of the PRD hierarchy.
-- Publish or merge the spec-docs lane once the PRD change is finalized.
+- ~~Confirm the E5 wording stays aligned with the rest of the PRD hierarchy.~~ Done — removed stray `**Goal**` statement for consistency.
+- ~~Publish or merge the spec-docs lane.~~ Done — committing fix and lane merge.
 
