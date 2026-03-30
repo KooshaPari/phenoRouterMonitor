@@ -1,31 +1,30 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/agileplus-api-types",
-    "crates/agileplus-domain",
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
-    "crates/phenotype-crypto",
-    "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
-    "crates/phenotype-iter",
-    "crates/phenotype-policy-engine",
+    "crates/phenotype-health",
     "crates/phenotype-port-traits",
     "crates/phenotype-state-machine",
-    "crates/phenotype-string",
     "crates/phenotype-telemetry",
-    "crates/phenotype-test-infra",
-    "crates/phenotype-time",
-    "crates/phenotype-validation",
+    "crates/phenotype-test-infra"
 ]
 exclude = [
-    "crates/phenotype-retry",
-    "crates/phenotype-macros",
     "crates/phenotype-mcp",
-    "crates/phenotype-health",
-    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-retry",
+    "crates/phenotype-validation",
+    "crates/phenotype-string",
+    "crates/phenotype-time",
     "crates/phenotype-git-core",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-error-core",
+    "crates/phenotype-iter",
+    "crates/phenotype-crypto",
+    "crates/agileplus-api-types",
+    "crates/agileplus-domain"
 ]
 
 [workspace.package]
@@ -34,8 +33,8 @@ edition = "2021"
 license = "MIT"
 rust-version = "1.75"
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
-authors = ["Phenotype Team"]
 
+[workspace.dependencies]
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -49,6 +48,10 @@ anyhow = "1"
 tokio = { version = "1.41", features = ["full"] }
 tracing = "0.1"
 regex = "1"
+tenacity = "0.5"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+dirs = "6.0"
 
 [profile.dev]
 opt-level = 0
