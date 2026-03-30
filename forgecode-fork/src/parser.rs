@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use crate::config::AgentConfig;
+use crate::config::{AgentConfig, SubagentConfig};
 use crate::error::{ForgeError, Result};
 
 /// YAML parser for loading agent configurations
@@ -126,7 +126,6 @@ impl YamlParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
 
     fn create_test_yaml() -> String {
         r#"

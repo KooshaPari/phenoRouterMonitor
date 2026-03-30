@@ -15,6 +15,7 @@ mod repository;
 pub use commit::GitCommit;
 pub use repository::GitRepository;
 
+use gix::reference::Category;
 use gix::Repository;
 use thiserror::Error;
 
@@ -46,12 +47,15 @@ pub struct RepoInfo {
 pub fn repo_info(path: &std::path::Path) -> Result<RepoInfo> {
     let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
 
-    let head_branch = repo.head().ok().and_then(|h| h.name().map(String::from));
+    let head_branch = repo
+        .head()
+        .ok()
+        .and_then(|h| h.name().map(String::from));
 
     let head_commit = repo
         .head()
         .ok()
-        .and_then(|h| h.peel_to_commit_in_os().ok())
+        .and_then(|h| h.peel_to_commit().ok())
         .map(|c| c.id.to_string()[..8].to_string());
 
     let is_dirty = repo.status().map(|s| !s.is_clean()).unwrap_or(false);
@@ -96,20 +100,14 @@ pub fn recent_commits(path: &std::path::Path, count: usize) -> Result<Vec<(Strin
     let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
 
     let mut revwalk = repo
-        .revwalk(gix::refs::namespace::Namespace::from(
-            gix::refs::category::Category::LocalBranches,
-        ))
+        .revwalk(Category::LocalBranches)
         .map_err(|e| GitError::Git(e.to_string()))?;
-    revwalk
-        .push_head()
-        .map_err(|e| GitError::Git(e.to_string()))?;
+    revwalk.push_head().map_err(|e| GitError::Git(e.to_string()))?;
 
     let mut commits = Vec::new();
     for oid in revwalk.take(count) {
         let oid = oid?;
-        let commit = repo
-            .find_commit(oid)
-            .map_err(|e| GitError::Git(e.to_string()))?;
+        let commit = repo.find_commit(oid).map_err(|e| GitError::Git(e.to_string()))?;
         let short_id = oid.to_string()[..8].to_string();
         let message = commit.message.lines().next().unwrap_or("").to_string();
         commits.push((short_id, message));

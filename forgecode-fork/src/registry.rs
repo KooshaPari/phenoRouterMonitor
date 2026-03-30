@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use tokio::sync::RwLock;
 
-use crate::config::AgentConfig;
+use crate::config::{AgentConfig, SubagentConfig};
 use crate::error::{ForgeError, Result};
 
 /// Central registry for managing and looking up agents
@@ -33,12 +33,7 @@ impl AgentRegistry {
     pub async fn register(&self, agent: AgentConfig) -> Result<()> {
         agent.validate()?;
 
-        let mut agents = self
-            .agents
-            .write()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
-
+        let mut agents = self.agents.write().await;
         let agent_id = agent.id.clone();
         agents.insert(agent_id.clone(), agent);
 
@@ -56,11 +51,7 @@ impl AgentRegistry {
     /// * `Ok(())` - Successfully unregistered (or agent didn't exist)
     /// * `Err(ForgeError)` - If operation fails
     pub async fn unregister(&self, agent_id: &str) -> Result<()> {
-        let mut agents = self
-            .agents
-            .write()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
+        let mut agents = self.agents.write().await;
 
         if agents.remove(agent_id).is_some() {
             tracing::debug!("Unregistered agent: {}", agent_id);
@@ -79,12 +70,7 @@ impl AgentRegistry {
     /// * `Ok(None)` - Agent not found
     /// * `Err(ForgeError)` - If operation fails
     pub async fn get(&self, agent_id: &str) -> Result<Option<AgentConfig>> {
-        let agents = self
-            .agents
-            .read()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
-
+        let agents = self.agents.read().await;
         Ok(agents.get(agent_id).cloned())
     }
 
@@ -109,12 +95,7 @@ impl AgentRegistry {
     /// * `Ok(Vec<AgentConfig>)` - All registered agents
     /// * `Err(ForgeError)` - If operation fails
     pub async fn list_all(&self) -> Result<Vec<AgentConfig>> {
-        let agents = self
-            .agents
-            .read()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
-
+        let agents = self.agents.read().await;
         Ok(agents.values().cloned().collect())
     }
 
@@ -127,11 +108,7 @@ impl AgentRegistry {
     /// * `Ok(Vec<AgentConfig>)` - All agents with the specified tag
     /// * `Err(ForgeError)` - If operation fails
     pub async fn list_by_tag(&self, tag: &str) -> Result<Vec<AgentConfig>> {
-        let agents = self
-            .agents
-            .read()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
+        let agents = self.agents.read().await;
 
         let filtered: Vec<_> = agents
             .values()
@@ -148,11 +125,7 @@ impl AgentRegistry {
     /// * `Ok(Vec<AgentConfig>)` - All enabled agents
     /// * `Err(ForgeError)` - If operation fails
     pub async fn list_enabled(&self) -> Result<Vec<AgentConfig>> {
-        let agents = self
-            .agents
-            .read()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
+        let agents = self.agents.read().await;
 
         let enabled: Vec<_> = agents
             .values()
@@ -172,12 +145,7 @@ impl AgentRegistry {
     /// * `Ok(bool)` - Whether the agent is registered
     /// * `Err(ForgeError)` - If operation fails
     pub async fn exists(&self, agent_id: &str) -> Result<bool> {
-        let agents = self
-            .agents
-            .read()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
-
+        let agents = self.agents.read().await;
         Ok(agents.contains_key(agent_id))
     }
 
@@ -187,12 +155,7 @@ impl AgentRegistry {
     /// * `Ok(usize)` - Number of registered agents
     /// * `Err(ForgeError)` - If operation fails
     pub async fn count(&self) -> Result<usize> {
-        let agents = self
-            .agents
-            .read()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
-
+        let agents = self.agents.read().await;
         Ok(agents.len())
     }
 
@@ -202,11 +165,7 @@ impl AgentRegistry {
     /// * `Ok(())` - Successfully cleared
     /// * `Err(ForgeError)` - If operation fails
     pub async fn clear(&self) -> Result<()> {
-        let mut agents = self
-            .agents
-            .write()
-            .await
-            .map_err(|e| ForgeError::RegistryError(e.to_string()))?;
+        let mut agents = self.agents.write().await;
 
         let count = agents.len();
         agents.clear();

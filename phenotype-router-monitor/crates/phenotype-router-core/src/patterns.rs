@@ -59,7 +59,7 @@ impl PathPattern {
     }
 
     /// Extract captured groups if pattern is regex
-    pub fn captures(&self, path: &str) -> Option<regex::Captures> {
+    pub fn captures<'a>(&self, path: &'a str) -> Option<regex::Captures<'a>> {
         match self {
             PathPattern::Regex(re) => re.captures(path),
             _ => None,

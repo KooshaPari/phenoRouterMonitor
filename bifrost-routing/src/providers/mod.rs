@@ -13,7 +13,6 @@ pub use together::{TogetherProvider, TogetherConfig};
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_provider_names() {

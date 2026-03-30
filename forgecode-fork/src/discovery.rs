@@ -81,7 +81,7 @@ impl AgentDiscovery {
     /// * `Err(ForgeError)` - If initialization fails
     pub fn initialize_hot_reload(&self) -> Result<()> {
         let registry = Arc::clone(&self.registry);
-        let discovery_path = self.discovery_path.clone();
+        let discovery_path_clone = self.discovery_path.clone();
 
         let (tx, mut rx) = mpsc::channel(32);
 
@@ -106,7 +106,7 @@ impl AgentDiscovery {
         // Spawn async task to handle file changes
         tokio::spawn(async move {
             while let Some(event) = rx.recv().await {
-                if let Err(e) = Self::handle_fs_event(&event, &registry, &discovery_path).await {
+                if let Err(e) = Self::handle_fs_event(&event, &registry, &discovery_path_clone).await {
                     tracing::error!("Error handling file system event: {}", e);
                 }
             }
@@ -120,7 +120,7 @@ impl AgentDiscovery {
                     .map_err(|e| {
                         ForgeError::DiscoveryError(format!("Failed to watch path: {}", e))
                     })?;
-                tracing::info!("Hot reload enabled for {}", discovery_path.display());
+                tracing::info!("Hot reload enabled for {}", self.discovery_path.display());
             }
         }
 
@@ -131,7 +131,7 @@ impl AgentDiscovery {
     async fn handle_fs_event(
         event: &notify::Event,
         registry: &AgentRegistry,
-        discovery_path: &Path,
+        _discovery_path: &Path,
     ) -> Result<()> {
         use notify::EventKind;
 
@@ -245,6 +245,7 @@ output_schema: {}
             .registry()
             .get("discover-agent-1")
             .await
+            .expect("Failed to get agent")
             .expect("Agent 1 not found");
         assert_eq!(agent1.name, "Discovery Agent 1");
     }

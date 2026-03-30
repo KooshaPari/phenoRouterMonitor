@@ -7,8 +7,7 @@
 //! This consolidates ~500 LOC of scattered serialization logic into a cohesive registry pattern.
 
 use crate::error::{EventSourcingError, Result};
-use crate::event::EventEnvelope;
-use serde_json::Value as JsonValue;
+use crate::store::JsonEnvelope;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -195,10 +194,9 @@ impl Default for SerializerRegistry {
 mod tests {
     use super::*;
     use serde_json::json;
-    use uuid::Uuid;
-    use chrono::Utc;
 
     fn create_test_envelope() -> JsonEnvelope {
+        use crate::event::EventEnvelope;
         EventEnvelope::new(
             json!({
                 "user_id": "user-123",

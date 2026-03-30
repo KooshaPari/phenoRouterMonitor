@@ -19,7 +19,7 @@ pub enum KeyError {
 }
 
 /// Ed25519 keypair wrapper with secure key handling.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct KeyPair {
     signing_key: SigningKey,
     verifying_key: VerifyingKey,

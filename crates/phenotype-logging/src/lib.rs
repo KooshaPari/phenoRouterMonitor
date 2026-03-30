@@ -263,7 +263,7 @@ mod tests {
 
     #[test]
     fn context_span_with_context_creates_span() {
-        let ctx = crate::context::RequestContext::new("service", "op");
+        let ctx = context::RequestContext::new("service", "op");
         let span = context_span_with_context("test", ctx);
         // Span is created successfully with context if this doesn't panic
         let _guard = span.enter();

@@ -43,7 +43,7 @@ impl GitRepository {
     /// Get the HEAD commit if it exists.
     pub fn head_commit(&self) -> Result<Option<GitCommit>> {
         match self.inner.head() {
-            Ok(head) => match head.peel_to_commit_in_os() {
+            Ok(head) => match head.peel_to_commit() {
                 Ok(commit) => {
                     let id = commit.id.to_string()[..8].to_string();
                     let message = commit.message.lines().next().unwrap_or("").to_string();
