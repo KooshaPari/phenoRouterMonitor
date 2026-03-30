@@ -1,21 +1,23 @@
 [package]
 name = "phenotype-event-sourcing"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
-repository.workspace = true
-description = "Event sourcing patterns for Phenotype"
-
-[dependencies]
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
-tokio.workspace = true
-anyhow.workspace = true
-chrono.workspace = true
-uuid.workspace = true
-phenotype-errors = { path = "../phenotype-errors" }
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Event sourcing with SHA-256 hash chains"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+sha2 = "0.10"
+hex = "0.4"
+async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
+dashmap = "5"
+parking_lot = "0.12"

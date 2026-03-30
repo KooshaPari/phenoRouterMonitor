@@ -1,0 +1,19 @@
+[package]
+name = "phenotype-http-client-core"
+version.workspace = true
+edition.workspace = true
+license = "MIT OR Apache-2.0"
+authors = ["Phenotype Team <team@phenotype.dev>"]
+description = "HTTP client core for Phenotype ecosystem"
+
+[dependencies]
+http = "1"
+reqwest = "0.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokio = { version = "1.41", features = ["full"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1.41", features = ["test-util", "macros"] }

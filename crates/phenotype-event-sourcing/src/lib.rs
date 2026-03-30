@@ -8,6 +8,7 @@ pub mod hash;
 pub mod memory;
 pub mod snapshot;
 pub mod store;
+pub mod async_store;
 
 pub use error::{EventSourcingError, EventStoreError, HashError, Result};
 pub use event::EventEnvelope;

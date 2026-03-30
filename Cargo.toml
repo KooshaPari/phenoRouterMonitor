@@ -1,17 +1,30 @@
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+rust-version = "1.75"
+description = "Phenotype Infrastructure Kit"
+authors = ["Phenotype Team"]
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+
 [workspace]
 resolver = "2"
 members = [
-    "crates/agileplus-api-types",
-    "crates/agileplus-domain",
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
     "crates/phenotype-crypto",
-    "crates/phenotype-error-core",
     "crates/phenotype-errors",
+    "crates/phenotype-error-core",
     "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
+    "crates/phenotype-health",
     "crates/phenotype-iter",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-mcp",
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
+    "crates/phenotype-process",
     "crates/phenotype-retry",
     "crates/phenotype-state-machine",
     "crates/phenotype-string",
@@ -19,45 +32,35 @@ members = [
     "crates/phenotype-test-infra",
     "crates/phenotype-time",
     "crates/phenotype-validation",
-    "libs/phenotype-config-core",
-    "crates/phenotype-git-core",
-    "crates/phenotype-health",
-    "crates/phenotype-logging",
-    "crates/phenotype-macros",
-    "crates/phenotype-mcp",
 ]
 
-[workspace.package]
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-rust-version = "1.75"
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
-authors = ["Phenotype Team"]
+backoff = { version = "0.4", features = ["tokio"] }
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
 anyhow = "1.0"
-derive_more = "1.0"
-strum = { version = "0.26", features = ["derive"] }
-futures = "0.3"
-blake3 = "1.5"
-rkyv = { version = "0.8", features = ["validate"] }
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
 sha2 = "0.10"
 hex = "0.4"
-uuid = { version = "1", features = ["v4", "serde"] }
-tokio = { version = "1.41", features = ["full"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+tokio = { version = "1", features = ["full"] }
+dashmap = "5"
+parking_lot = "0.12"
+lru = "0.12"
+moka = "0.12"
 regex = "1"
-git2 = "0.20"
-syn = { version = "2", features = ["full", "parsing"] }
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+futures = "0.3"
+syn = "2"
 quote = "1"
 proc-macro2 = "1"
+tempfile = "3"
 
 [profile.dev]
 opt-level = 0
