@@ -14,10 +14,10 @@
 //! ## Usage
 //!
 //! ```rust
-//! use phenotype_error_core::{ErrorKind, ErrorExt};
+//! use phenotype_error_core::ErrorKind;
 //!
 //! fn example() -> Result<(), ErrorKind> {
-//!     Err(ErrorKind::NotFound("resource".into()))
+//!     Err(ErrorKind::not_found("resource"))
 //! }
 //! ```
 
