@@ -83,3 +83,14 @@ scripts/git-worktree-health.sh
 .github/workflows/sbom.yml
 crates/agileplus-domain/
 docs/adoption/
+cargo-check.log
+docs/worklogs/libification/CODE_QUALITY_METRICS.md
+docs/worklogs/libification/DEEP_CODEBASE_AUDIT.md
+docs/worklogs/libification/LOC_REDUCTION_PLAN.md
+docs/worklogs/libification/WS1_RUST_THISERROR_AUDIT.md
+docs/worklogs/libification/WS3_TS_ZOD_AUDIT.md
+docs/worklogs/libification/WS4_PYTHON_HTTPX_AUDIT.md
+docs/worklogs/libification/WS5_PYTHON_PYDANTIC_AUDIT.md
+docs/worklogs/libification/WS6_RUST_TOML_AUDIT.md
+service_fixed.py
+service_working.py
