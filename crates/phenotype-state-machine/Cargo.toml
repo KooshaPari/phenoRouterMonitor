@@ -8,4 +8,5 @@ license = "MIT"
 path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { workspace = true }
+thiserror = { workspace = true }

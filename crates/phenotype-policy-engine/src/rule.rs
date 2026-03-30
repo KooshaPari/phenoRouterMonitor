@@ -1,4 +1,6 @@
 // Policy rule definitions with cached regex compilation.
+
+use crate::context::EvaluationContext;
 use crate::error::PolicyEngineError;
 use crate::result::Severity;
 use regex::Regex;
@@ -89,9 +91,9 @@ impl Rule {
 
         let fact_value = context.get_string(&self.fact);
         match self.rule_type {
-            RuleType::Allow => Ok(fact_value.map_or(true, |v| regex.is_match(&v))),
-            RuleType::Deny => Ok(fact_value.is_some_and(|v| !regex.is_match(v))),
-            RuleType::Require => Ok(fact_value.is_some_and(|v| regex.is_match(v))),
+            RuleType::Allow => Ok(fact_value.map_or(true, |v| regex.is_match(v.as_str()))),
+            RuleType::Deny => Ok(fact_value.is_some_and(|v| !regex.is_match(v.as_str()))),
+            RuleType::Require => Ok(fact_value.is_some_and(|v| regex.is_match(v.as_str()))),
         }
     }
 }
