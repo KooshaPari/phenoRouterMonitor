@@ -1,10 +1,15 @@
 [package]
 name = "phenotype-git-core"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Git core for Phenotype"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Git operations for Phenotype — repository info, diff, log, and status via libgit2"
+
+[dependencies]
+git2.workspace = true
+thiserror.workspace = true
 
 [lib]
 path = "src/lib.rs"
