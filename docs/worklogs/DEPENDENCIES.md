@@ -1,6 +1,6 @@
 # Dependencies Worklogs
 
-**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (SBOM script + release assets)
+**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (OSV SARIF + worktree audit closure)
 
 ---
 
@@ -1904,7 +1904,7 @@ Create a unified dependency version policy:
 |------|--------|
 | `cargo-cyclonedx` | **PILOT:** `scripts/ci/generate-workspace-sboms.sh` drives `.github/workflows/sbom.yml` (CI artifact `cyclonedx-sbom-workspace`) and `.github/workflows/release.yml` (same JSONs attached to **GitHub Releases** on `v*.*.*` tags alongside binaries) |
 | `syft` | **PILOT:** `.github/workflows/release.yml` → job `syft-spdx` → SPDX JSON `syft-spdx-workspace.json` on GitHub Releases (with CycloneDX crate SBOMs) |
-| OSV-Scanner | **ADOPT:** `.github/workflows/security.yml` → job `osv-scanner` (`cargo generate-lockfile` + `osv-scanner scan -L Cargo.lock`; same schedule as Security workflow) |
+| OSV-Scanner | **ADOPT:** `.github/workflows/security.yml` → job `osv-scanner` (`cargo generate-lockfile`, SARIF → `osv-results.sarif`, `github/codeql-action/upload-sarif` category `osv-cargo-lock`, `continue-on-error` if Code Scanning unavailable; table log on failure) |
 | `cargo audit` + `cargo deny advisories` | Run both weekly |
 
 ### Black-box wraps
@@ -1951,7 +1951,7 @@ Create a unified dependency version policy:
 | CI artifact | `cyclonedx-sbom-workspace` (all JSONs in one bundle) |
 | Releases | `tag-automation.yml` **only** creates/pushes `v*` tags from `main`; `release.yml` **creates** the GitHub Release (binaries + per-crate CycloneDX JSON + SPDX from Syft). `ncipollo/release-action` keeps `allowUpdates` + `omitBodyDuringUpdate` / `omitNameDuringUpdate` for workflow re-runs and manual title/body edits |
 | Local | `task sbom` (requires `cargo-cyclonedx` + `jq`) |
-| OSV.dev | `security.yml` job `osv-scanner` — `cargo generate-lockfile` then `osv-scanner scan -L Cargo.lock` (pinned binary v2.3.5) |
+| OSV.dev | `security.yml` job `osv-scanner` — `cargo generate-lockfile`, `osv-scanner scan -L Cargo.lock --format sarif` → Code Scanning upload; table output when findings fail the job (binary v2.3.5) |
 | SPDX (Syft) | `release.yml` job `syft-spdx` — Syft v1.42.3, `syft .` → `syft-spdx-workspace.json` (excludes `target`, `docs`, venvs, `node_modules`, `.git`) |
 
 ### Stacked delivery (historical)
@@ -1965,6 +1965,7 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 - [x] Single owner for GitHub Releases: `tag-automation.yml` pushes tags only; `release.yml` creates the release (no duplicate `softprops/action-gh-release`).
 - [x] **OSV-Scanner** on generated `Cargo.lock` in `security.yml` (alongside existing `cargo audit` / `cargo deny`).
 - [x] **Syft** SPDX JSON on tagged releases (`release.yml` `syft-spdx` job).
+- [x] **OSV SARIF** uploaded to GitHub Code Scanning (`upload-sarif`, category `osv-cargo-lock`).
 
 ---
 
@@ -2085,27 +2086,27 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 
 | Directory | Branch | Status | Action |
 |-----------|--------|--------|--------|
-| chore-docs-sbom-stack | chore/tag-automation-release-split | Old | CHECK status |
-| chore-sbom-cyclonedx | chore/sbom-cyclonedx-pilot | Old | CHECK status |
-| chore-session-sbom-stack | chore/session-stacked-sbom-delivery | Old | CHECK status |
+| chore-docs-sbom-stack | (historical) | Merged | Landed on `main` via [#139](https://github.com/KooshaPari/phenotype-infrakit/pull/139), [#160](https://github.com/KooshaPari/phenotype-infrakit/pull/160), [#191](https://github.com/KooshaPari/phenotype-infrakit/pull/191), [#225](https://github.com/KooshaPari/phenotype-infrakit/pull/225); delete local dir when idle |
+| chore-sbom-cyclonedx | (historical) | Merged | SBOM workflow superseded on `main`; safe to delete local worktree |
+| chore-session-sbom-stack | (historical) | Merged | Session doc on `main` under `docs/sessions/20260330-stacked-pr-sbom/`; safe to delete local worktree |
 | devenv-abstraction | main | Synced | OK |
 | phenosdk-wave-a-contracts-impl | feat/phenosdk-wave-a-contracts | In progress | Keep |
 | phenotype-infrakit | main | Synced | OK |
 | phenotype | main | Synced | OK |
 
-### Inactive Candidates (Need Review)
+### Inactive Candidates (SBOM stack — resolved 2026-03-31)
 
-1. **chore-docs-sbom-stack/** - Last activity: 2026-03-29
-2. **chore-sbom-cyclonedx/** - Last activity: 2026-03-29
-3. **chore-session-sbom-stack/** - Last activity: 2026-03-29
+1. **chore-docs-sbom-stack/** — work merged to `main` (see PRs above).
+2. **chore-sbom-cyclonedx/** — obsolete branch; workflow lives on `main`.
+3. **chore-session-sbom-stack/** — session documentation merged.
 
 ### Actions Required
 
-- [ ] Verify `chore-docs-sbom-stack` work is merged or needs PR
-- [ ] Verify `chore-sbom-cyclonedx` work is merged or needs PR
-- [ ] Verify `chore-session-sbom-stack` work is merged or needs PR
-- [ ] Delete stale worktrees after verification
-- [ ] Prune `.worktrees/` of completed worktrees
+- [x] Verify `chore-docs-sbom-stack` work is merged or needs PR (merged).
+- [x] Verify `chore-sbom-cyclonedx` work is merged or needs PR (merged / superseded).
+- [x] Verify `chore-session-sbom-stack` work is merged or needs PR (merged).
+- [ ] Delete stale **local** worktrees when convenient (no remote action required).
+- [ ] Prune `.worktrees/` of completed worktrees (operator hygiene).
 
 ### Stash Verification (Per Wave 103)
 
