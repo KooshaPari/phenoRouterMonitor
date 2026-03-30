@@ -1,0 +1,12 @@
+[package]
+name = "phenotype-contract"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+description = "Shared traits"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde.workspace = true

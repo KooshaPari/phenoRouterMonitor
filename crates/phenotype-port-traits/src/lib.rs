@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 //! # Phenotype Port Traits
 //!
 //! Canonical async trait definitions for hexagonal architecture ports.
@@ -26,3 +30,9 @@ pub mod outbound;
 
 // Re-export common types
 pub use async_trait::async_trait;
+<<<<<<< HEAD
+=======
+=======
+// phenotype-port-traits
+>>>>>>> origin/main
+>>>>>>> origin/main

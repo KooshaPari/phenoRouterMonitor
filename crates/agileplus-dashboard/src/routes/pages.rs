@@ -121,6 +121,39 @@ pub async fn home(State(state): State<SharedState>) -> Response {
     root(State(state)).await
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+pub async fn dashboard_page(
+    State(state): State<SharedState>,
+    axum::extract::Query(query): axum::extract::Query<std::collections::HashMap<String, String>>,
+) -> Response {
+    use crate::templates::DashboardPage;
+
+    let store = state.read().await;
+    let filter = super::helpers::dashboard_filter_from_query(&query);
+    let cards = super::helpers::build_kanban_cards(&store, filter);
+    let (projects, active_project) = super::helpers::load_projects(&store);
+    let active_filter = query.get("filter").cloned().unwrap_or_else(|| "all".into());
+    render(DashboardPage {
+        kanban_cards: cards,
+        health: store.health.clone(),
+        projects,
+        active_project,
+        active_filter,
+    })
+}
+
+pub async fn hub_page() -> Response {
+    use crate::templates::HubPage;
+    render(HubPage {
+        projects: vec![],
+    })
+}
+
+>>>>>>> origin/main
+>>>>>>> origin/main
 pub async fn settings_page() -> Response {
     render(SettingsPage)
 }
@@ -223,13 +256,35 @@ pub async fn agent_settings_page() -> Response {
         agent_pool_size: 6,
         retry_budget: 3,
         dispatch_mode: "balanced".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        default_provider: "default".into(),
+>>>>>>> origin/main
+>>>>>>> origin/main
     })
 }
 
 pub async fn services_settings_page(State(state): State<SharedState>) -> Response {
     let store = state.read().await;
+<<<<<<< HEAD
     render(ServicesSettingsPage {
         services: store.health.clone(),
+=======
+<<<<<<< HEAD
+    render(ServicesSettingsPage {
+        services: store.health.clone(),
+=======
+    let configs = store.health.iter().map(|h| crate::templates::ServiceConfigView {
+        name: h.name.clone(),
+        endpoint_url: format!("http://localhost:8080/health/{}", h.name),
+    }).collect();
+    render(ServicesSettingsPage {
+        services: store.health.clone(),
+        configs,
+>>>>>>> origin/main
+>>>>>>> origin/main
     })
 }
 
@@ -244,3 +299,174 @@ pub async fn time_footer() -> Html<String> {
 pub async fn stream_placeholder() -> StatusCode {
     StatusCode::NO_CONTENT
 }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+// ── Settings POST Handlers ─────────────────────────────────────────────────
+
+pub async fn save_plane_settings(axum::Form(form): axum::Form<super::PlaneSettingsForm>) -> Response {
+    use crate::templates::ToastPartial;
+    use super::{Config, PlaneConfig};
+
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    config.plane = Some(PlaneConfig {
+        api_url: form.api_url.trim().to_string(),
+        api_key: form.api_key.trim().to_string(),
+        workspace_slug: form.workspace_slug.trim().to_string(),
+        project_slug: form.project_slug.trim().to_string(),
+    });
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Plane settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+pub async fn save_agent_settings(axum::Form(form): axum::Form<super::AgentSettingsForm>) -> Response {
+    use crate::templates::ToastPartial;
+    use super::{Config, AgentConfig};
+
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    config.agents = Some(AgentConfig {
+        pool_size: form.pool_size,
+        retry_budget: form.retry_budget,
+        dispatch_mode: form.dispatch_mode.trim().to_string(),
+        default_provider: form.default_provider.trim().to_string(),
+    });
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Agent settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+pub async fn save_dashboard_settings(
+    axum::Form(form): axum::Form<super::DashboardSettingsForm>,
+) -> Response {
+    use crate::templates::ToastPartial;
+    use super::{Config, DashboardConfig};
+
+    let mut config = match Config::load() {
+        Ok(c) => c,
+        Err(_) => Config {
+            plane: None,
+            agents: None,
+            services: None,
+            dashboard: None,
+        },
+    };
+
+    config.dashboard = Some(DashboardConfig {
+        theme: form.theme.trim().to_string(),
+        log_level: form.log_level.trim().to_string(),
+        data_directory: form.data_directory.trim().to_string(),
+    });
+
+    match config.save() {
+        Ok(_) => render(ToastPartial {
+            message: "Dashboard settings saved successfully".to_string(),
+            success: true,
+        }),
+        Err(e) => render(ToastPartial {
+            message: format!("Failed to save settings: {}", e),
+            success: false,
+        }),
+    }
+}
+
+pub async fn test_agent_connection(
+    axum::Form(form): axum::Form<super::AgentSettingsForm>,
+) -> Html<String> {
+    use super::helpers::env_or_none;
+
+    // Provider reachability check: validate that required env vars are present.
+    let (ok, msg) = match form.default_provider.as_str() {
+        "claude" => {
+            let key = env_or_none("ANTHROPIC_API_KEY");
+            if key.is_some() {
+                (
+                    true,
+                    "Claude API key detected — connection likely valid".to_string(),
+                )
+            } else {
+                (false, "ANTHROPIC_API_KEY not set".to_string())
+            }
+        }
+        "gemini" => {
+            let key = env_or_none("GEMINI_API_KEY").or_else(|| env_or_none("GOOGLE_API_KEY"));
+            if key.is_some() {
+                (
+                    true,
+                    "Gemini API key detected — connection likely valid".to_string(),
+                )
+            } else {
+                (false, "GEMINI_API_KEY / GOOGLE_API_KEY not set".to_string())
+            }
+        }
+        "local" => (
+            true,
+            "Local provider requires no external credentials".to_string(),
+        ),
+        other => (false, format!("Unknown provider: {}", other)),
+    };
+
+    let css = if ok { "text-green-400" } else { "text-red-400" };
+    Html(format!(r#"<span class="{}">{}</span>"#, css, msg))
+}
+
+pub async fn test_plane_connection(axum::Form(form): axum::Form<super::PlaneSettingsForm>) -> Response {
+    use crate::templates::ToastPartial;
+
+    // Simple validation: check that required fields are filled and api_url looks like a URL
+    let is_valid = !form.api_url.trim().is_empty()
+        && !form.api_key.trim().is_empty()
+        && !form.workspace_slug.trim().is_empty()
+        && form.api_url.starts_with("http");
+
+    if is_valid {
+        // In a real implementation, you would make an HTTP request to verify connectivity
+        render(ToastPartial {
+            message: "Plane connection test passed (mock)".to_string(),
+            success: true,
+        })
+    } else {
+        render(ToastPartial {
+            message: "Plane settings are incomplete or invalid".to_string(),
+            success: false,
+        })
+    }
+}
+>>>>>>> origin/main
+>>>>>>> origin/main

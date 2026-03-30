@@ -86,6 +86,11 @@ tasks:
     cmds:
       - cargo build --release
 
+  sbom:
+    desc: Generate CycloneDX JSON for all workspace crates (needs cargo-cyclonedx@0.5.x and jq)
+    cmds:
+      - bash scripts/ci/generate-workspace-sboms.sh . sbom-out
+
   build:watch:
     desc: Build with file watcher
     cmds:
@@ -155,6 +160,12 @@ tasks:
       - bun run docs:build
     dir: docs
 
+  docs:check:
+    desc: Build VitePress docs and run unit, component, and e2e tests
+    cmds:
+      - bun run docs:check
+    dir: docs
+
   docs:dev:
     desc: Start VitePress dev server
     cmds:
@@ -175,6 +186,7 @@ tasks:
       - task: lint
       - task: python:lint
       - task: docs:lint
+      - task: docs:build
       - task: test
       - task: python:test
 

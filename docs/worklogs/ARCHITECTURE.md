@@ -1,6 +1,181 @@
 # Architecture Worklogs
 
+<<<<<<< HEAD
 **Category:** ARCHITECTURE | **Updated:** 2026-03-29
+=======
+**Category:** ARCHITECTURE | **Updated:** 2026-03-29 (Wave 93)
+
+---
+---
+
+## 2026-03-30 - Standardized Port & Adapter Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture, standardization
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Established a canonical port hierarchy to resolve the split between `phenotype-port-interfaces` and `agileplus-domain/src/ports`. All new crates must use `phenotype-port-traits` for interface definitions to enable true plug-and-play adapter swapping across ecosystems.
+
+### Port Hierarchy
+
+| Layer | Responsibility | Example Trait |
+|-------|----------------|---------------|
+| **Core** | Fundamental IO | `AsyncReader`, `AsyncWriter` |
+| **Domain** | Business Logic Ports | `Repository<T>`, `EventBus<E>` |
+| **Infrastructure** | System Services | `SecretManager`, `ConfigLoader` |
+
+### Standard Trait: Repository<T, ID>
+
+```rust
+#[async_trait]
+pub trait Repository<T, ID>: Send + Sync 
+where 
+    T: Entity<ID>,
+    ID: Identifier
+{
+    async fn save(&self, entity: T) -> Result<(), PortError>;
+    async fn find_by_id(&self, id: &ID) -> Result<Option<T>, PortError>;
+    async fn delete(&self, id: &ID) -> Result<(), PortError>;
+    async fn list_all(&self) -> Result<Vec<T>, PortError>;
+}
+```
+
+### 2026-03-30 - Python phenoSDK Architecture Evolution
+
+**Project:** [python-sdk]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P1
+
+### Summary
+
+Proposed architectural shift for `phenosdk` to move from a monolithic package to a modular "plugin" architecture based on `FastMCP v3.5`.
+
+### Proposed Structure
+
+```
+python/phenosdk/
+├── pheno-core/          # Core abstractions & FastMCP wrapper
+├── pheno-mcp/           # MCP transport & tool registry
+├── pheno-shared/        # Shared Pydantic models (synced with Rust via buf)
+└── pheno-plugins/       # dynamic tool collections
+```
+
+---
+
+### Architecture Principles Observed
+
+| Principle | Status | Implementation |
+|-----------|--------|----------------|
+| Hexagonal Architecture | ✅ Present | Ports/adapters separation |
+| Error propagation | ✅ Consistent | thiserror + anyhow |
+| Async-first | ✅ Present | tokio runtime |
+| Serialization | ✅ Unified | serde ecosystem |
+| Testing | ⚠️ Basic | Unit tests only |
+| Documentation | ⚠️ Minimal | Inline docs only |
+
+### Crate Dependency Graph
+
+```
+evidence-ledger
+    └── (standalone - no internal deps)
+           │
+phenotype-cache-adapter
+    ├── dashmap (concurrent maps)
+    ├── moka (TTL cache)
+    └── serde (serialization)
+           │
+phenotype-contracts
+    └── serde (serialization)
+           │
+phenotype-event-sourcing
+    ├── sha2 (chain hashing)
+    ├── chrono (timestamps)
+    ├── serde (serialization)
+    ├── parking_lot (sync primitives)
+    └── thiserror (errors)
+           │
+phenotype-policy-engine
+    ├── serde (serialization)
+    ├── thiserror (errors)
+    └── [inner crate - same functionality]
+           │
+phenotype-state-machine
+    └── (NO src/ in outer - only inner exists)
+```
+
+### Architecture Quality Assessment
+
+#### ✅ Strengths
+
+1. **Clean dependency graph** - No circular dependencies
+2. **Minimal dependencies** - Each crate has focused purpose
+3. **Consistent error handling** - thiserror + anyhow pattern
+4. **Modern Rust** - Edition 2024, tokio, parking_lot
+5. **Serialization-agnostic** - serde_json, serde_yaml, serde
+
+#### ⚠️ Concerns
+
+1. **Nested crate structure** - `crates/X/X/` pattern during rebase
+2. **Incomplete state-machine** - No outer src/ directory
+3. **Minimal testing** - No property-based or integration tests
+4. **Limited documentation** - No rustdoc on public APIs
+5. **Inner crate duplication** - phenotype-policy-engine has inner copy
+
+### Port/Trait Architecture
+
+#### phenotype-event-sourcing Ports
+
+```rust
+// phenotype-event-sourcing/src/store.rs
+#[async_trait]
+pub trait EventStore<T: Aggregate> {
+    async fn append(&mut self, event: EventEnvelope<T>) -> Result<(), EventStoreError>;
+    async fn get_events(&self, id: &T::Id) -> Result<Vec<EventEnvelope<T>>, EventStoreError>;
+    async fn get_snapshots(&self, id: &T::Id) -> Result<Vec<Snapshot<T>>, EventStoreError>;
+}
+```
+
+#### phenotype-cache-adapter Ports
+
+```rust
+// phenotype-cache-adapter/src/lib.rs
+pub trait CacheBackend: Send + Sync {
+    async fn get(&self, key: &str) -> Option<Vec<u8>>;
+    async fn set(&self, key: &str, value: Vec<u8>, ttl: Option<Duration>) -> Result<(), CacheError>;
+    async fn delete(&self, key: &str) -> Result<(), CacheError>;
+}
+```
+
+#### Evidence Ledger Ports
+
+```rust
+// evidence-ledger/src/lib.rs
+pub trait LedgerBackend: Send + Sync {
+    async fn append(&self, entry: EvidenceEntry) -> Result<Hash, LedgerError>;
+    async fn verify(&self, chain: &Chain) -> Result<bool, LedgerError>;
+    async fn query(&self, filter: &QueryFilter) -> Result<Vec<EvidenceEntry>, LedgerError>;
+}
+```
+
+### Recommended Architecture Improvements
+
+| Improvement | Priority | Effort | Impact |
+|-------------|----------|--------|--------|
+| Add rustdoc to public APIs | 🟡 MEDIUM | 1 day | Quality |
+| Add property-based tests | 🟡 MEDIUM | 3 days | Reliability |
+| Extract shared error types | 🟠 HIGH | 2 days | DRY |
+| Consolidate nested crates | 🔴 CRITICAL | 1 day | Cleanup |
+| Add integration tests | 🟡 MEDIUM | 2 days | Confidence |
+
+### Related
+
+- Dependencies: `worklogs/DEPENDENCIES.md`
+- Quality: `worklogs/QUALITY.md`
+>>>>>>> origin/main
 
 ---
 
@@ -705,3 +880,47 @@ resolver = "2"
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Round 13: Edge-First Deployment Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Architecture for deploying Phenotype agents to edge locations (CDN nodes, local branch offices) to ensure low-latency response for high-frequency user interactions.
+
+### Edge Node Components
+1. **Lightweight Runtime:** WASM or Firecracker microVMs.
+2. **Local State:** SQLite or Sled for transient data.
+3. **Upstream Sync:** NATS JetStream for asynchronous state propagation to the "Home" region.
+
+### Connectivity Topography
+- **Edge-to-Cloud:** Persistent gRPC stream for real-time control.
+- **Edge-to-Edge:** Peer-to-peer gossip (future) for local discovery.
+
+---
+
+## 2026-03-29 - Round 13: Collaborative State Architecture (CRDT)
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P3
+
+### Summary
+Architecture for multi-agent and multi-user collaborative editing of shared state (e.g., project boards, policy docs) using Conflict-free Replicated Data Types (CRDTs).
+
+### Implementation Layers
+1. **Model Layer:** `Automerge` or `Yjs` structures.
+2. **Persistence Layer:** Storing CRDT change logs in the `evidence-ledger`.
+3. **Network Layer:** WebSockets via the `phenotype-gateway` for real-time update broadcasts.
+
+### Key Benefits
+- **No Merge Conflicts:** Automatic deterministic merging of state.
+- **Offline Support:** Agents can continue working during network outages and sync later.
+
+_Last updated: 2026-03-29 (Round 13)_

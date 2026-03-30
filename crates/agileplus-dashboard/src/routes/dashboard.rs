@@ -9,9 +9,21 @@ use chrono::Utc;
 
 use crate::app_state::SharedState;
 use crate::templates::{
+<<<<<<< HEAD
     AgentActivityPartial, AgentView, CiLinkView, DashboardPage, EventTimelinePartial,
     EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
     KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
+=======
+<<<<<<< HEAD
+    AgentActivityPartial, AgentView, CiLinkView, DashboardPage, EventTimelinePartial,
+    EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
+    KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
+=======
+    AgentActivityPartial, AgentView, DashboardPage, EventTimelinePartial,
+    EvidenceBundleView, FeatureDetailPage, FeatureView, HealthPanelPartial,
+    KanbanPartial, MediaAssetView, ProjectSwitcherPartial, ProjectView,
+>>>>>>> origin/main
+>>>>>>> origin/main
     ReportArtifactView, WpListPartial, WpView,
 };
 
@@ -30,6 +42,20 @@ fn build_feature_events(
         kind: "system".into(),
         description: format!("Feature '{}' opened in dashboard", feature.slug),
         timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+        agent_name: None,
+        agent_link: None,
+        wp_id: None,
+        wp_link: None,
+        commit_sha: None,
+        commit_link: None,
+        ci_run_id: None,
+        ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
     }];
 
     if !workpackages.is_empty() {
@@ -38,6 +64,20 @@ fn build_feature_events(
             kind: "agent_action".into(),
             description: format!("{} work package entries synced", workpackages.len()),
             timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
         });
 
         for wp in workpackages {
@@ -46,6 +86,20 @@ fn build_feature_events(
                 kind: "state_change".into(),
                 description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
                 timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+                agent_name: None,
+                agent_link: None,
+                wp_id: Some(wp.id.to_string()),
+                wp_link: None,
+                commit_sha: None,
+                commit_link: None,
+                ci_run_id: None,
+                ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
             });
         }
     } else {
@@ -54,6 +108,20 @@ fn build_feature_events(
             kind: "system".into(),
             description: "No work packages linked yet".into(),
             timestamp: now.clone(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+>>>>>>> origin/main
+>>>>>>> origin/main
         });
     }
 
@@ -283,12 +351,34 @@ pub async fn agent_activity(_state: State<SharedState>) -> Response {
             status: "idle".into(),
             current_task: String::new(),
             last_action: "2m ago".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+            pid: None,
+            started_at: None,
+            worktree: String::new(),
+            worktree_label: String::new(),
+            is_live: false,
+>>>>>>> origin/main
+>>>>>>> origin/main
         },
         AgentView {
             name: "impl-agent".into(),
             status: "running".into(),
             current_task: "WP13 implementation".into(),
             last_action: "just now".into(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+            pid: Some(12345),
+            started_at: Some("2024-01-15 10:30:00 UTC".into()),
+            worktree: "/Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/merge-spec-docs".into(),
+            worktree_label: "merge-spec-docs".into(),
+            is_live: true,
+>>>>>>> origin/main
+>>>>>>> origin/main
         },
     ];
     render(AgentActivityPartial { agents })
@@ -328,3 +418,90 @@ pub async fn switch_project(State(state): State<SharedState>, Path(id): Path<i64
     let cards = build_kanban_cards(&store, DashboardFilter::All);
     render(KanbanPartial { cards })
 }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+// ── /api/dashboard/features/{id}/events ──────────────────────────────────
+
+pub async fn feature_events(
+    State(state): State<SharedState>,
+    Path(feature_id): Path<i64>,
+) -> Response {
+    use crate::templates::WpView;
+
+    let store = state.read().await;
+    let feature = match store.features.iter().find(|f| f.id == feature_id) {
+        Some(f) => FeatureView::from_feature(f),
+        None => return (StatusCode::NOT_FOUND, "Feature not found").into_response(),
+    };
+    let wps: Vec<WpView> = store
+        .work_packages
+        .get(&feature_id)
+        .map(|v| v.iter().map(WpView::from_wp).collect())
+        .unwrap_or_default();
+    let events = super::helpers::build_feature_events(&feature, &wps);
+
+    render(crate::templates::EventTimelinePartial {
+        feature_id,
+        events,
+    })
+}
+
+// ── /api/dashboard/features/{id}/media ───────────────────────────────────
+
+pub async fn feature_media(
+    State(state): State<SharedState>,
+    Path(feature_id): Path<i64>,
+) -> Response {
+    use crate::templates::WpView;
+    use axum::response::Html;
+
+    let store = state.read().await;
+    let feature = match store.features.iter().find(|f| f.id == feature_id) {
+        Some(f) => FeatureView::from_feature(f),
+        None => return (StatusCode::NOT_FOUND, "Feature not found").into_response(),
+    };
+    let wps: Vec<WpView> = store
+        .work_packages
+        .get(&feature_id)
+        .map(|v| v.iter().map(WpView::from_wp).collect())
+        .unwrap_or_default();
+    let media = super::helpers::build_feature_media_assets(&feature, &wps);
+
+    // Return media assets as a simple HTML partial
+    let html = media
+        .iter()
+        .map(|m| {
+            format!(
+                r#"<div class="media-asset border rounded p-3 bg-zinc-800">
+                <img src="{}" alt="{}" class="w-full rounded"/>
+                <p class="text-xs text-zinc-400 mt-2">{}</p>
+              </div>"#,
+                m.url_or_path, m.name, m.name
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    Html(format!(
+        r#"<div class="grid grid-cols-2 gap-3 media-gallery">{}</div>"#,
+        html
+    ))
+    .into_response()
+}
+
+pub async fn time_footer() -> axum::response::Html<String> {
+    axum::response::Html(
+        chrono::Utc::now()
+            .format("%Y-%m-%d %H:%M:%S UTC")
+            .to_string(),
+    )
+}
+
+pub async fn stream_placeholder() -> StatusCode {
+    StatusCode::NO_CONTENT
+}
+>>>>>>> origin/main
+>>>>>>> origin/main
