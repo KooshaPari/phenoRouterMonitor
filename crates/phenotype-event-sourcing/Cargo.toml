@@ -13,7 +13,7 @@ thiserror.workspace = true
 chrono = { workspace = true }
 sha2.workspace = true
 hex.workspace = true
-uuid = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
 
 [dev-dependencies]
 serde_json.workspace = true
