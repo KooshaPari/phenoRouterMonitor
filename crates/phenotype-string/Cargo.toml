@@ -1,0 +1,11 @@
+[package]
+name = "phenotype-string"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+regex.workspace = true
+
+[dev-dependencies]
