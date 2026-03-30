@@ -5,23 +5,11 @@
 //! This crate provides a compatibility layer for crates that depend on `phenotype_errors`.
 
 // Re-export all error types from phenotype-error-core
-pub use phenotype_error_core::Error;
+pub use phenotype_error_core::{ErrorContext, ErrorExt, ErrorKind, ErrorKindInner, ErrorTimestamp};
 
-// Convenience type aliases for backward compatibility
-#[deprecated(since = "0.2.0", note = "Use phenotype_error_core::Error instead")]
-pub type PhenoError = Error;
+/// Convenience alias — the primary error type for the Phenotype ecosystem.
+pub type PhenotypeError = ErrorKind;
 
-#[deprecated(since = "0.2.0", note = "Use phenotype_error_core::Error::NotFound instead")]
-pub fn not_found<S: Into<String>>(msg: S) -> Error {
-    Error::not_found(msg)
-}
-
-#[deprecated(since = "0.2.0", note = "Use phenotype_error_core::Error::Validation instead")]
-pub fn validation<S: Into<String>>(msg: S) -> Error {
-    Error::validation(msg)
-}
-
-#[deprecated(since = "0.2.0", note = "Use phenotype_error_core::Error::Conflict instead")]
-pub fn conflict<S: Into<String>>(msg: S) -> Error {
-    Error::conflict(msg)
-}
+/// Convenience alias for backward compatibility.
+#[deprecated(since = "0.2.0", note = "Use PhenotypeError (ErrorKind) instead")]
+pub type PhenoError = ErrorKind;
