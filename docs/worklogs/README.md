@@ -54,7 +54,7 @@ This directory contains detailed audit and research worklogs for the Phenotype e
 ---
 
 ## Resuming Work
-
+## Resuming Work
 To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md).
 
 ## 2026-03-30 Wave 96 Summary
@@ -76,8 +76,6 @@ To resume the audit or implementation, focus on the **P0 - CRITICAL** action ite
 2. **Deprecate phenotype-errors** → promote phenotype-error-core
 3. **Create phenotype-async-traits** for unified async patterns
 4. **Fork cqrs-es** for event sourcing foundation
-
-### Deeper audit trail
 
 1. **Start with P0 items** in `DUPLICATION.md` (Wave 92 & 118)
 2. **Research third-party candidates** in `DEPENDENCIES.md` (Wave 131-133)

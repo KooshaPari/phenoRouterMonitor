@@ -53,7 +53,7 @@
 **Key Findings:**
 - 227 LOC of health enums across 7 crates
 - 3 variants: Healthy/Unavailable, Connected/Disconnected, Healthy/Warning/Critical
-- 82 LOC savings via unified `ServiceHealth<T>` enum
+- 82 LOC savings via unified ServiceHealth<T> enum
 - File paths: 7 actual health enum files with line ranges
 
 ### 2. Event Bus Adapter Patterns (5 Implementations)
