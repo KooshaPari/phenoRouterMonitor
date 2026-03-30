@@ -1,6 +1,23 @@
+<<<<<<< HEAD
 # CLAUDE.md — repos shelf root
 
 ## Identity
+=======
+<!-- Base: platforms/thegent/dotfiles/governance/CLAUDE.base.md -->
+<!-- Last synced: 2026-03-29 -->
+
+# phenotype-infrakit — CLAUDE.md
+
+Extends thegent governance base. See `platforms/thegent/dotfiles/governance/CLAUDE.base.md` for canonical definitions.
+
+## Project Overview
+
+- **Name**: phenotype-infrakit
+- **Description**: Rust workspace containing generic infrastructure crates extracted from the Phenotype ecosystem
+- **Location**: `/Users/kooshapari/CodeProjects/Phenotype/repos/` (monorepo)
+- **Language Stack**: Rust (edition 2021)
+- **Published**: Internal (shared across Phenotype org)
+>>>>>>> origin/main
 
 This is the **repos shelf** for `CodeProjects/Phenotype/organizational-shelf/repos`.
 A shelf is a top-level organizational unit containing related but independent
@@ -10,7 +27,100 @@ versioned and synced as a polyrepo (repo of repos).
 **NOT AgilePlus.** AgilePlus is one of ~30 projects inside this shelf.
 See `projects/INDEX.md` for the full catalog.
 
+<<<<<<< HEAD
 ## Structure
+=======
+## Work Requirements
+
+1. **Check for AgilePlus spec before implementing**
+2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
+3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
+4. **No code without corresponding AgilePlus spec**
+
+## Branch Discipline
+
+- Feature branches in `repos/worktrees/<project>/<category>/<branch>`
+- Canonical repository tracks `main` only
+- Return to `main` for merge/integration checkpoints
+
+## UTF-8 Encoding
+
+All markdown files must use UTF-8.
+
+---
+
+## Local Quality Checks
+
+From this repository root:
+
+```bash
+cargo test --workspace
+cargo clippy --workspace -- -D warnings
+cargo fmt --check
+```
+
+## Testing & Specification Traceability
+
+All tests MUST reference a Functional Requirement (FR):
+
+```rust
+// Traces to: FR-XXX-NNN
+#[test]
+fn test_feature_name() {
+    // Test body
+}
+```
+
+**Verification**:
+- Every FR in FUNCTIONAL_REQUIREMENTS.md MUST have >=1 test
+- Every test MUST reference >=1 FR
+- Run: `cargo test` to verify
+
+---
+
+## Project-Specific Configuration
+
+This monorepo consists of domain-agnostic, independently consumable Rust crates:
+
+### Crate Structure
+
+```
+crates/
+  phenotype-event-sourcing/   # Append-only event store with SHA-256 hash chains
+  phenotype-cache-adapter/    # Two-tier LRU + DashMap cache with TTL
+  phenotype-policy-engine/    # Rule-based policy evaluation with TOML config
+  phenotype-state-machine/    # Generic FSM with transition guards
+  phenotype-contracts/        # Shared traits and types
+  phenotype-error-core/       # Canonical error types
+  phenotype-health/           # Health check abstraction
+  phenotype-config-core/      # Configuration management
+```
+
+### Conventions
+
+- All public types implement `Debug`, `Clone` where possible
+- Error types use `thiserror` with `#[from]` for conversions
+- Serialization via `serde` with `Serialize`/`Deserialize` derives
+- No inter-crate dependencies; each crate stands alone
+- Workspace-level dependency versions in root `Cargo.toml`
+- Tests are inline (`#[cfg(test)]` modules) within each source file
+
+### Adding a New Crate
+
+1. Create `crates/<name>/` with `Cargo.toml` and `src/lib.rs`
+2. Add to `members` in root `Cargo.toml`
+3. Use `workspace = true` for shared dependencies
+4. Include inline tests with `#[cfg(test)]`
+5. Update `README.md` crate table
+
+---
+
+## Architecture
+
+### Hexagonal Architecture (Ports & Adapters)
+
+This project follows Hexagonal Architecture with clear separation of concerns:
+>>>>>>> origin/main
 
 ```
 repos/                          # ← YOU ARE HERE (shelf root)
@@ -34,6 +144,7 @@ repos/                          # ← YOU ARE HERE (shelf root)
 └── REPOS_INDEX.md              # Detailed shelf index
 ```
 
+<<<<<<< HEAD
 ## Agent Rules
 
 **READ `AGENTS.md` FIRST.** It contains the authoritative agent interaction
@@ -43,6 +154,9 @@ rules for this shelf. Key points:
 - Never assume a project is at shelf root — always verify
 - Test commands must run inside the target project directory, not shelf root
 - File reads should specify the correct relative path from shelf root
+=======
+### Design Principles
+>>>>>>> origin/main
 
 ## Project Index
 
@@ -52,6 +166,7 @@ See `projects/INDEX.md` for the full catalog of all projects in this shelf.
 
 This shelf is part of the **Phenotype Federated Hybrid Architecture**, which provides two complementary chassis systems:
 
+<<<<<<< HEAD
 ### Phenotype Docs Chassis
 
 Provides VitePress configuration, design tokens, and theme components for consistent documentation across the organization.
@@ -80,3 +195,19 @@ Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMEN
 | Cross-project scripts | `scripts/` |
 | Docs Chassis Interface | `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` |
 | Governance Chassis Interface | `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` |
+=======
+See `docs/adr/` for architecture decisions.
+
+---
+
+## Governance Reference
+
+See thegent governance base for:
+- Complete CI completeness policy
+- Phenotype Git and Delivery Workflow Protocol
+- Phenotype Org Cross-Project Reuse Protocol
+- Phenotype Long-Term Stability and Non-Destructive Change Protocol
+- Worktree Discipline guidelines
+
+Location: `platforms/thegent/dotfiles/governance/CLAUDE.base.md`
+>>>>>>> origin/main

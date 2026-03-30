@@ -53,6 +53,7 @@ AgilePlus is built as a Rust workspace monorepo (22 crates) following hexagonal 
 **Priority**: P0
 **Description**: Every state mutation produces both a domain event and an audit entry, both forming hash chains (SHA-256) for tamper detection. Events are append-only, partitioned by entity type and ID, with sequence numbers. Snapshots materialize current state periodically for fast reads without full event replay. Audit entries link to evidence references and can be archived to object storage (MinIO).
 
+<<<<<<< HEAD
 #### Stories
 - E3.1: Hash-chained audit log -- Every state change produces an AuditEntry with actor, timestamp, transition description, evidence references, and SHA-256 chain linking to the previous entry
 - E3.2: Event sourcing -- Append-only Event stream per entity with hash chain, sequence numbers, typed payloads, and actor attribution
@@ -189,6 +190,75 @@ AgilePlus is built as a Rust workspace monorepo (22 crates) following hexagonal 
 - E12.3: Service health checks -- Health status reporting for storage, VCS, graph, and external service adapters
 - E12.4: Structured logging -- Tracing-subscriber-based structured logging with configurable verbosity
 - E12.5: Dashboard -- Web-based dashboard (Axum + HTMX) for visualizing feature status, cycle progress, module organization, and metrics; seed data for development
+=======
+### E5.1: Typed Forward-Only FSM
+
+As a service developer, I want a `StateMachine<S, C>` where `S` is the state enum and `C` is the context type so workflow state is enforced with forward-only transitions and domain-specific guard callbacks operating over typed context.
+
+**Acceptance criteria**:
+- `StateMachine::new(initial_state: S, initial_context: C)` constructs a machine in the given state with an owned context.
+- `Transition::new(from, to)` creates a transition registration between two states.
+- `add_transition(transition)` registers a `Transition<S, C>` with the machine.
+- `transition_to(target_state)` returns `Ok(())` or `Err(StateMachineError::InvalidTransition)`.
+- Transitions are matched by `(from == current, to == target)` equality; no matching transition returns `InvalidTransition { from, to }`.
+- All public types (`S`, `C`) are bounded by `Clone + PartialEq + Debug + Serialize + DeserializeOwned`.
+- All internal state is behind `Arc<RwLock<_>>` for `Send + Sync` compatibility.
+
+### E5.2: Guard Callbacks and Action Hooks
+
+As a service developer, I want guard conditions that gate transitions and action hooks that run on successful transitions so domain logic is decoupled from state-machine plumbing.
+
+**Acceptance criteria**:
+- `Transition::with_guard(Fn(&C) -> bool + Send + Sync + 'static)` attaches a guard closure; evaluated before the transition is applied.
+- `Transition::with_action(Fn(&mut C) + Send + Sync + 'static)` attaches an action closure; executed after guard passes but before the state is updated.
+- A failing guard returns `StateMachineError::GuardConditionFailed { reason }` and the machine state is unchanged.
+- A transition with no guard always succeeds (permissive by default).
+- `can_transition_to(&S)` returns `Ok(true)` if a matching transition exists and its guard (if any) returns `true`; `Ok(false)` otherwise.
+
+### E5.3: Transition History
+
+As an auditor, I want an immutable record of every state the machine has visited so transitions can be replayed and inspected post-hoc.
+
+**Acceptance criteria**:
+- `history()` returns `Result<Vec<S>>` containing every state in visitation order, starting with the initial state.
+- History is append-only; each successful `transition_to` appends the new state.
+- History is persisted behind `Arc<RwLock<Vec<S>>>` for concurrent read access.
+- A machine with N successful transitions has `history().len() == N + 1`.
+
+### E5.4: Skip-State Configuration
+
+As a platform operator, I want to declare specific non-sequential state advances so emergency or out-of-band transitions bypass the normal forward path.
+
+**Acceptance criteria**:
+- `StateMachineConfig` (or equivalent) holds a `skip_states: Vec<(S, S)>` list of allowed non-sequential transitions.
+- A transition that jumps forward (target ordinal > current + 1) is rejected unless explicitly listed in `skip_states`.
+- A skip-state entry `(from, to)` is validated at registration: `to` ordinal must be greater than `from` ordinal.
+- Skip-state transitions still require guard evaluation and trigger action hooks identically to sequential transitions.
+
+---
+
+## E6: Metrics & Observability
+
+### E6.1: Metrics Collection Interface
+
+As a platform operator, I want a standardized metrics interface so all phenotype-infrakit crates can report operational telemetry without coupling to a specific monitoring backend.
+
+**Acceptance criteria**:
+- `MetricsCollector` trait with methods: `counter(name, value)`, `gauge(name, value)`, `histogram(name, value, duration)`
+- All public types implement `Send + Sync` for concurrent access
+- Metrics are tagged with crate name and version for easy filtering
+- Default no-op implementation available for crates that don't need metrics
+
+### E6.2: Health Check Abstraction
+
+As a service operator, I want a unified health check interface so I can verify the operational status of all phenotype-infrakit components through a single endpoint.
+
+**Acceptance criteria**:
+- `HealthCheck` trait with method: `check() -> Result<HealthStatus, HealthError>`
+- `HealthStatus` includes `healthy: bool`, `message: String`, `details: HashMap<String, String>`
+- Each crate implements health checks for its core functionality (e.g., event store connectivity, cache connectivity)
+- Health check results are aggregated and exposed via a unified endpoint
+>>>>>>> origin/main
 
 ---
 

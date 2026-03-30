@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //! Canonical error types for the Phenotype ecosystem.
 //!
 //! This crate provides a unified error framework that consolidates the
@@ -441,3 +442,6 @@ mod tests {
         assert!(anyhow_err.to_string().contains("crash"));
     }
 }
+=======
+// phenotype-error-core
+>>>>>>> origin/main

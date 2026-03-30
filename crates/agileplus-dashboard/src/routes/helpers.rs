@@ -43,6 +43,17 @@ pub(super) fn render<T: Template>(tpl: T) -> Response {
     }
 }
 
+<<<<<<< HEAD
+=======
+pub fn html_escape(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#39;")
+}
+
+>>>>>>> origin/main
 pub(super) fn load_projects(store: &DashboardStore) -> (Vec<ProjectView>, Option<ProjectView>) {
     let projects: Vec<ProjectView> = store
         .projects
@@ -167,18 +178,157 @@ pub(super) fn sample_events() -> Vec<crate::templates::EventView> {
             kind: "system".into(),
             description: "Dashboard booted with native Plane surface".into(),
             timestamp: "just now".into(),
+<<<<<<< HEAD
+=======
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+>>>>>>> origin/main
         },
         crate::templates::EventView {
             id: "evt-2".into(),
             kind: "agent_action".into(),
             description: "Planner synced feature ownership metadata".into(),
             timestamp: "2m ago".into(),
+<<<<<<< HEAD
+=======
+            agent_name: Some("planner-agent".into()),
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+>>>>>>> origin/main
         },
         crate::templates::EventView {
             id: "evt-3".into(),
             kind: "state_change".into(),
             description: "Feature moved from researched to planned".into(),
             timestamp: "9m ago".into(),
+<<<<<<< HEAD
         },
     ]
 }
+=======
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+        },
+    ]
+}
+
+pub fn build_feature_events(
+    feature: &crate::templates::FeatureView,
+    workpackages: &[crate::templates::WpView],
+) -> Vec<crate::templates::EventView> {
+    let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
+    let mut events = vec![crate::templates::EventView {
+        id: format!("evt-feature-{}-created", feature.id),
+        kind: "system".into(),
+        description: format!("Feature '{}' opened in dashboard", feature.slug),
+        timestamp: now.clone(),
+        agent_name: None,
+        agent_link: None,
+        wp_id: None,
+        wp_link: None,
+        commit_sha: None,
+        commit_link: None,
+        ci_run_id: None,
+        ci_run_link: None,
+    }];
+
+    if !workpackages.is_empty() {
+        events.push(crate::templates::EventView {
+            id: format!("evt-feature-{}-sync", feature.id),
+            kind: "agent_action".into(),
+            description: format!("{} work package entries synced", workpackages.len()),
+            timestamp: now.clone(),
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+        });
+
+        for wp in workpackages {
+            events.push(crate::templates::EventView {
+                id: format!("evt-feature-{}-wp-{}", feature.id, wp.id),
+                kind: "state_change".into(),
+                description: format!("Work-package {} is in state '{}'", wp.title, wp.state),
+                timestamp: now.clone(),
+                agent_name: None,
+                agent_link: None,
+                wp_id: Some(wp.id.to_string()),
+                wp_link: None,
+                commit_sha: None,
+                commit_link: None,
+                ci_run_id: None,
+                ci_run_link: None,
+            });
+        }
+    } else {
+        events.push(crate::templates::EventView {
+            id: format!("evt-feature-{}-no-wp", feature.id),
+            kind: "system".into(),
+            description: "No work packages linked yet".into(),
+            timestamp: now.clone(),
+            agent_name: None,
+            agent_link: None,
+            wp_id: None,
+            wp_link: None,
+            commit_sha: None,
+            commit_link: None,
+            ci_run_id: None,
+            ci_run_link: None,
+        });
+    }
+
+    events
+}
+
+pub fn build_feature_media_assets(
+    feature: &crate::templates::FeatureView,
+    workpackages: &[crate::templates::WpView],
+) -> Vec<crate::templates::MediaAssetView> {
+    let mut media = vec![crate::templates::MediaAssetView {
+        id: format!("media-{id}-cover", id = feature.id),
+        source: "dashboard".into(),
+        name: format!("{slug}-hero.png", slug = feature.slug),
+        kind: "image".into(),
+        mime: "image/png".into(),
+        url_or_path: format!("/assets/{slug}/cover.png", slug = feature.slug),
+        size_bytes: 128_512,
+        uploaded_at: chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+    }];
+
+    for wp in workpackages {
+        media.push(crate::templates::MediaAssetView {
+            id: format!("media-{fid}-wp-{wid}", fid = feature.id, wid = wp.id),
+            source: "agent-work-package".into(),
+            name: format!("{slug}-wp-{wid}.png", slug = feature.slug, wid = wp.id),
+            kind: "screenshot".into(),
+            mime: "image/png".into(),
+            url_or_path: format!("/assets/wp/{wid}/coverage.png", wid = wp.id),
+            size_bytes: 84_320 + (wp.id as usize * 3_000),
+            uploaded_at: chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+        });
+    }
+
+    media
+}
+>>>>>>> origin/main

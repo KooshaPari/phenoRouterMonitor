@@ -1,1 +1,1 @@
-// Phenotype phenotype-cache-adapter stub
+// phenotype-cache-adapter

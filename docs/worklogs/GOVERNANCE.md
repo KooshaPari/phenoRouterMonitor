@@ -234,3 +234,320 @@ Plan for tracking DORA (DevOps Research and Assessment) metrics.
 - Metrics: `crates/agileplus-telemetry/`
 
 ---
+
+## 2026-03-29 - Cross-Repo Governance Deep Audit (v2)
+
+**Project:** [cross-repo]
+**Category:** governance
+**Status:** completed
+**Priority:** P0
+
+### Executive Summary
+
+~70% governance maturity. Strong Rust/Python quality gates but weak cross-repo consistency. Critical gap: AgilePlus (core platform) has zero CI/CD.
+
+---
+
+### CLAUDE.md Coverage (18 files found)
+
+| Location | Status | Gap |
+|----------|--------|-----|
+| `/repos/CLAUDE.md` | ✅ Active | — |
+| `/repos/heliosCLI/CLAUDE.md` | ✅ Active | Missing vale/ruff refs |
+| `/platforms/thegent/CLAUDE.md` | ✅ Active | Most complete |
+| Worktree copies | ✅ 5 files | — |
+| Templates | ✅ scaffolding | — |
+
+**Rules enforced everywhere:** AgilePlus mandate, branch discipline, CI completeness, non-destructive protocol
+
+**Inconsistencies:**
+- `vale + ruff` enforcement: thegent only (not AgilePlus, heliosCLI)
+- `UTF-8 validation`: 2/3 primary projects
+- `impeccable CSS baseline`: thegent only
+- `gitleaks`: 2/3 projects
+- `type checking` (mypy/basedpyright): thegent only
+
+**Conflicts:**
+- heliosCLI CLAUDE.md references undefined "phenotype CLIProxy model-check" task
+- thegent pre-commit has 157 hooks not documented in CLAUDE.md
+
+---
+
+### CI/CD Inventory
+
+| Repo | Workflows | Format | Lint | Test | Audit | CodeQL | License |
+|------|-----------|--------|------|------|-------|--------|---------|
+| heliosCLI | 47 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| thegent | 14 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| phenotype-infrakit | 4 | — | — | — | — | ✅ | — |
+| **AgilePlus** | **0** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+**Critical:** AgilePlus (core platform) has ZERO CI/CD configured.
+
+---
+
+### License Compliance (deny.toml)
+
+**Allowed permissive:** MIT, Apache-2.0, BSD-*, CC0-1.0, ISC, Unlicense ✅
+
+**Allowed — POLICY CONCERN:**
+- `GPL-3.0-only` is PERMITTED in deny.toml but GOVERNANCE.md says "Avoid"
+- **Action:** Change to deny; audit current transitive deps
+
+**3 ignored RUSTSEC advisories:**
+- RUSTSEC-2025-0134 — rustls-pemfile deprecated (blocked by async-nats)
+- RUSTSEC-2025-0140 — gix 0.71 pinned old version
+- RUSTSEC-2026-0049 — rustls-webpki via async-nats
+
+**No SBOM generation** (CycloneDX/SPDX) anywhere.
+
+---
+
+### Secret Detection
+
+| Project | gitleaks CI | Custom Scripts | Status |
+|---------|------------|----------------|--------|
+| heliosCLI | ❌ | ✅ security-guard.sh | Partial |
+| thegent | ✅ pre-commit | ✅ security-guard.sh | Good |
+| AgilePlus | ❌ | ❌ | NONE |
+
+No `.gitleaks.toml` at repo root.
+
+---
+
+### Pre-commit Hook Coverage
+
+| Repo | Config | Lines | Key Hooks |
+|------|--------|-------|-----------|
+| thegent | `.pre-commit-config.yaml` | 157 | ruff, gitleaks, ty, basedpyright, VitePress build, DX audit |
+| heliosCLI | `.pre-commit-config.yaml` | 22 | base hooks, security-guard.sh |
+| AgilePlus | ❌ NONE | — | — |
+
+---
+
+### Security Policy
+
+| Repo | SECURITY.md | Reporting | SLA |
+|------|------------|-----------|-----|
+| heliosCLI | ✅ | Private email | 24h–30d by severity |
+| thegent | ❌ | — | — |
+| AgilePlus | ❌ | — | — |
+
+---
+
+### CODEOWNERS Coverage
+
+All major repos have CODEOWNERS. Single owner `@KooshaPari` for all paths.
+**Gap:** No granular path ownership, no fallback/escalation owners.
+
+---
+
+### ADR Status
+
+**1 ADR exists:** `docs/governance/ADR-001-external-package-adoption.md` (Accepted, 2026-03-29)
+
+**Gap:** Architectural decisions for hexagonal migration, event sourcing, plugin architecture not recorded.
+
+---
+
+### Compliance Matrix
+
+| Area | heliosCLI | thegent | AgilePlus |
+|------|-----------|---------|-----------|
+| CI/CD | ✅ | ✅ | ❌ |
+| License check | ✅ | ❌ | ❌ |
+| Secret detection | ⚠️ | ✅ | ❌ |
+| Pre-commit | ✅ | ✅ | ❌ |
+| Security policy | ✅ | ❌ | ❌ |
+| Type checking | — | ✅ | ❌ |
+| Coverage report | ❌ | ⚠️ | ❌ |
+| ADRs | ❌ | ❌ | ❌ |
+
+**Overall maturity: ~40%**
+
+---
+
+### Action Items (Prioritized)
+
+#### P0 — Critical
+- [ ] Create AgilePlus `.github/workflows/ci.yml` (fmt, clippy, test, audit)
+- [ ] Fix `GPL-3.0-only` in deny.toml → move to deny list
+- [ ] Add root `.gitleaks.toml` + CI integration for AgilePlus
+
+#### P1 — High
+- [ ] Add `pip-audit` to thegent Python CI
+- [ ] Fix undefined task/tool references in AgilePlus CLAUDE.md
+- [ ] Create incident runbooks: `docs/runbooks/db-outage.md`, `security-breach.md`
+
+#### P2 — Medium
+- [ ] Unify pre-commit config across all repos
+- [ ] Add tarpaulin (Rust) + coverage.py (Python) + Codecov upload
+- [ ] Expand CODEOWNERS with per-crate ownership + fallback team
+- [ ] Create `docs/governance/ADR-002` for hexagonal migration decision
+- [ ] Add `cargo deny` license check to thegent CI
+
+#### P3 — Low
+- [ ] Document ADR numbering scheme
+- [ ] Create cross-project governance charter
+- [ ] Set policy review cadence (quarterly)
+
+### Related
+
+- Compliance framework: `docs/worklogs/GOVERNANCE.md`
+- Security policies: `heliosCLI/SECURITY.md`
+- License config: `deny.toml`
+- ADRs: `docs/governance/`
+
+---
+
+---
+
+## 2026-03-30 - Release Management & Versioning Policy (Wave 151)
+
+**Project:** [cross-repo]
+**Category:** governance, release
+**Status:** in_progress
+**Priority:** P1
+
+### Release Strategy
+
+| Type | Frequency | Versioning | Scope |
+|------|-----------|------------|-------|
+| **Stable** | Monthly | Semver | Breaking changes only |
+| **Beta** | Bi-weekly | Semver | Feature freeze |
+| **Alpha** | Weekly | Semver | Active development |
+| **Nightly** | Daily | Timestamp | Testing only |
+
+### Cargo.toml Policy
+
+```toml
+[package]
+version = "0.4.0"  # Always use precise versions
+
+[dependencies]
+# Pin to exact versions in production
+tokio = "=1.40.0"
+serde = "=1.0.217"
+
+# Use range for dev-dependencies only
+[dev-dependencies]
+tokio-test = "1.40"  # Allow patch updates
+```
+
+### Release Checklist
+
+- [ ] All tests pass (`cargo test --workspace`)
+- [ ] No clippy warnings (`cargo clippy --workspace -- -D warnings`)
+- [ ] Changelog updated (`git cliff --unreleased`)
+- [ ] Version bumped (`cargo release`)
+- [ ] Tag pushed (`git push --tags`)
+- [ ] GitHub Release created
+- [ ] SBOM generated (`cargo sbom`)
+- [ ] crates.io published (`cargo publish`)
+
+---
+
+## 2026-03-30 - Code Review Standards (Wave 152)
+
+**Project:** [cross-repo]
+**Category:** governance, code review
+**Status:** in_progress
+**Priority:** P1
+
+### Review Checklist
+
+| Category | Item | Priority |
+|----------|------|----------|
+| **Correctness** | Tests cover new code | Required |
+| **Correctness** | Edge cases handled | Required |
+| **Correctness** | No panics on invalid input | Required |
+| **Performance** | No obvious O(n²) patterns | High |
+| **Security** | No new `unsafe` blocks | High |
+| **Security** | Input validation | Required |
+| **Maintainability** | Code is self-documenting | High |
+| **Maintainability** | No magic numbers | Medium |
+| **Maintainability** | Error messages are actionable | Medium |
+
+### Review SLAs
+
+| PR Size | Target Time | Max Time |
+|---------|-------------|----------|
+| XS (< 10 lines) | 4 hours | 24 hours |
+| S (10-50 lines) | 8 hours | 48 hours |
+| M (50-200 lines) | 24 hours | 72 hours |
+| L (200-500 lines) | 48 hours | 1 week |
+| XL (> 500 lines) | 1 week | 2 weeks |
+
+### Merge Requirements
+
+- **Minimum 1 approval** from maintainer
+- **All CI checks passing**
+- **No unresolved conversations**
+- **Linear history** (squash merge)
+- **Conventional commit message**
+
+---
+
+## 2026-03-30 - Dependency Governance (Wave 153)
+
+**Project:** [cross-repo]
+**Category:** governance, dependencies
+**Status:** in_progress
+**Priority:** P0
+
+### Dependency Policy
+
+| Type | Policy | Audit Frequency |
+|------|--------|-----------------|
+| **Direct** | Review required | Per PR |
+| **Indirect** | Reviewed quarterly | Monthly |
+| **Dev-only** | No prod impact | Quarterly |
+| **Build-only** | No runtime impact | Quarterly |
+
+### Dependabot Configuration
+
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      rust-core:
+        patterns:
+          - tokio
+          - serde
+          - tracing
+      async-libs:
+        patterns:
+          - sqlx
+          - axum
+          - reqwest
+    labels:
+      - dependencies
+      - rust
+
+  - package-ecosystem: pip
+    directory: /python
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - python
+```
+
+### Security Advisory Response
+
+| Severity | Response Time | Action |
+|----------|---------------|--------|
+| Critical | 24 hours | Patch release |
+| High | 1 week | Next minor |
+| Medium | 1 month | Next release |
+| Low | Quarterly | Backlog |
+
+---
+
+_Last updated: 2026-03-30 (Wave 153)_
