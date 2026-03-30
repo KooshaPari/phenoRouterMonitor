@@ -1,5 +1,4 @@
-//! Generic finite state machine with transition guards, callbacks, and optional
-//! skip-state enforcement (E5.4).
+//! Generic finite state machine with transition guards and callbacks.
 //!
 //! ```rust
 //! use phenotype_state_machine::{StateMachine, StateMachineBuilder};
@@ -17,7 +16,7 @@
 //! assert_eq!(sm.current(), "running");
 //! ```
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt;
 use std::sync::{Arc, RwLock};
 use thiserror::Error;
@@ -30,9 +29,6 @@ pub enum StateMachineError {
 
     #[error("transition from '{from}' on '{event}' rejected by guard")]
     GuardRejected { from: String, event: String },
-
-    #[error("skip transition from '{from}' to '{to}' is not allowed")]
-    SkipTransitionRejected { from: String, to: String },
 
     #[error("unknown state: '{0}'")]
     UnknownState(String),
@@ -60,8 +56,6 @@ pub struct StateMachine {
     transitions: HashMap<(String, String), Transition>,
     on_enter: HashMap<String, Vec<StateCallback>>,
     on_exit: HashMap<String, Vec<StateCallback>>,
-    sequential_next: HashMap<String, String>,
-    skip_states: HashSet<(String, String)>,
 }
 
 impl StateMachine {
@@ -70,52 +64,38 @@ impl StateMachine {
         self.current.read().unwrap().clone()
     }
 
-    fn validate_transition<'a>(&'a self, from: &str, event: &str) -> Result<&'a Transition> {
-        let key = (from.to_string(), event.to_string());
-        let transition =
-            self.transitions
-                .get(&key)
-                .ok_or_else(|| StateMachineError::InvalidTransition {
-                    from: from.to_string(),
-                    event: event.to_string(),
-                })?;
-
-        if let Some(expected) = self.sequential_next.get(from) {
-            let to = &transition.to;
-            if to != expected && !self.skip_states.contains(&(from.to_string(), to.clone())) {
-                return Err(StateMachineError::SkipTransitionRejected {
-                    from: from.to_string(),
-                    to: to.clone(),
-                });
-            }
-        }
-
-        Ok(transition)
-    }
-
     /// Send an event to the state machine, potentially triggering a transition.
     pub fn send(&self, event: &str) -> Result<String> {
         let mut current = self.current.write().unwrap();
-        let from = current.clone();
-        let transition = self.validate_transition(&from, event)?;
+        let key = (current.clone(), event.to_string());
+
+        let transition = self
+            .transitions
+            .get(&key)
+            .ok_or_else(|| StateMachineError::InvalidTransition {
+                from: current.clone(),
+                event: event.to_string(),
+            })?;
 
         if let Some(guard) = &transition.guard {
-            if !guard(&from, event) {
+            if !guard(&current, event) {
                 return Err(StateMachineError::GuardRejected {
-                    from: from.clone(),
+                    from: current.clone(),
                     event: event.to_string(),
                 });
             }
         }
 
-        if let Some(cbs) = self.on_exit.get(from.as_str()) {
+        // Fire on_exit callbacks for current state.
+        if let Some(cbs) = self.on_exit.get(current.as_str()) {
             for cb in cbs {
-                cb(&from);
+                cb(&current);
             }
         }
 
         let new_state = transition.to.clone();
 
+        // Fire on_enter callbacks for new state.
         if let Some(cbs) = self.on_enter.get(&new_state) {
             for cb in cbs {
                 cb(&new_state);
@@ -123,39 +103,25 @@ impl StateMachine {
         }
 
         *current = new_state.clone();
+        *current_ordinal = transition.to_ordinal;
         Ok(new_state)
     }
 
     /// Check if a transition is possible from the current state on the given event.
     pub fn can_send(&self, event: &str) -> bool {
         let current = self.current.read().unwrap();
-        self.validate_transition(current.as_str(), event).is_ok()
-            && self
-                .transitions
-                .get(&(current.clone(), event.to_string()))
-                .map(|t| {
-                    if let Some(g) = &t.guard {
-                        g(current.as_str(), event)
-                    } else {
-                        true
-                    }
-                })
-                .unwrap_or(false)
+        self.transitions
+            .contains_key(&(current.clone(), event.to_string()))
     }
 
     /// Get all events valid from the current state.
     pub fn available_events(&self) -> Vec<String> {
         let current = self.current.read().unwrap();
-        let mut events: Vec<String> = self
-            .transitions
+        self.transitions
             .keys()
             .filter(|(from, _)| from == current.as_str())
-            .filter(|(_, ev)| self.validate_transition(current.as_str(), ev).is_ok())
             .map(|(_, event)| event.clone())
-            .collect();
-        events.sort();
-        events.dedup();
-        events
+            .collect()
     }
 }
 
@@ -164,8 +130,6 @@ impl fmt::Debug for StateMachine {
         f.debug_struct("StateMachine")
             .field("current", &self.current())
             .field("transitions", &self.transitions.len())
-            .field("sequential_next", &self.sequential_next.len())
-            .field("skip_states", &self.skip_states.len())
             .finish()
     }
 }
@@ -178,10 +142,8 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
-    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
-    sequential_next: HashMap<String, String>,
-    skip_states: HashSet<(String, String)>,
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
 impl StateMachineBuilder {
@@ -192,8 +154,6 @@ impl StateMachineBuilder {
             transitions: HashMap::new(),
             on_enter: HashMap::new(),
             on_exit: HashMap::new(),
-            sequential_next: HashMap::new(),
-            skip_states: HashSet::new(),
         }
     }
 
@@ -203,6 +163,7 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
+                to_ordinal: self.state_ordinals.len() as u32,
                 guard: None,
             },
         );
@@ -222,6 +183,7 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
+                to_ordinal: self.state_ordinals.len() as u32,
                 guard: Some(Arc::new(guard)),
             },
         );
@@ -242,7 +204,11 @@ impl StateMachineBuilder {
     }
 
     /// Register a callback for when a state is exited.
-    pub fn on_exit(mut self, state: &str, callback: impl Fn(&str) + Send + Sync + 'static) -> Self {
+    pub fn on_exit(
+        mut self,
+        state: &str,
+        callback: impl Fn(&str) + Send + Sync + 'static,
+    ) -> Self {
         self.on_exit
             .entry(state.to_string())
             .or_default()
@@ -250,22 +216,10 @@ impl StateMachineBuilder {
         self
     }
 
-    /// Declare the normal sequential next state for `from`.
-    pub fn sequential_transition(mut self, from: &str, next: &str) -> Self {
-        self.sequential_next
-            .insert(from.to_string(), next.to_string());
+    /// Enable forward-only mode. Transitions to states with lower ordinals are rejected.
+    pub fn forward_only(mut self) -> Self {
+        self.forward_only = true;
         self
-    }
-
-    /// Register an allowed skip-state pair `(from, to)`.
-    pub fn skip_transition(mut self, from: &str, to: &str) -> Result<Self> {
-        if !self.sequential_next.contains_key(from) {
-            return Err(StateMachineError::BuildError(format!(
-                "skip_transition: state '{from}' has no sequential_next configured"
-            )));
-        }
-        self.skip_states.insert((from.to_string(), to.to_string()));
-        Ok(self)
     }
 
     /// Build the state machine.
@@ -275,38 +229,22 @@ impl StateMachineBuilder {
                 "initial state cannot be empty".into(),
             ));
         }
-
-        for (from, to) in &self.skip_states {
-            let has_path = self
-                .transitions
-                .iter()
-                .any(|((f, _), tr)| f == from && &tr.to == to);
-            if !has_path {
-                return Err(StateMachineError::BuildError(format!(
-                    "skip_transition ({from}, {to}) has no transition with that target"
-                )));
-            }
+        // Ensure initial state has an ordinal
+        if !self.state_ordinals.contains_key(&self.initial) {
+            self.state_ordinals.insert(self.initial.clone(), 0);
         }
 
         Ok(StateMachine {
-            current: RwLock::new(self.initial),
+            current: RwLock::new(self.initial.clone()),
+            current_ordinal: RwLock::new(*self.state_ordinals.get(&self.initial).unwrap()),
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,
             sequential_next: self.sequential_next,
             skip_states: self.skip_states,
+            forward_only: self.forward_only,
+            state_ordinals: self.state_ordinals,
         })
-    }
-}
-
-impl fmt::Debug for StateMachineBuilder {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("StateMachineBuilder")
-            .field("initial", &self.initial)
-            .field("transitions", &self.transitions.len())
-            .field("sequential_next", &self.sequential_next)
-            .field("skip_states", &self.skip_states)
-            .finish()
     }
 }
 
@@ -429,147 +367,8 @@ mod tests {
         for h in handles {
             h.join().unwrap();
         }
+        // Should be in one of the 3 states
         let state = sm.current();
         assert!(["red", "green", "yellow"].contains(&state.as_str()));
-    }
-
-    // --- E5.4 skip-state configuration ---
-
-    #[test]
-    fn e5_4_no_skip_config_means_no_enforcement() {
-        // Traces to: FR-E5.4 — without sequential_transition, non-sequential edges are allowed.
-        let sm = StateMachineBuilder::new("a")
-            .transition("a", "leap", "c")
-            .build()
-            .unwrap();
-        sm.send("leap").unwrap();
-        assert_eq!(sm.current(), "c");
-    }
-
-    fn skip_light() -> StateMachine {
-        StateMachineBuilder::new("red")
-            .sequential_transition("red", "green")
-            .sequential_transition("green", "yellow")
-            .sequential_transition("yellow", "red")
-            .transition("red", "next", "green")
-            .transition("green", "next", "yellow")
-            .transition("yellow", "next", "red")
-            .transition("red", "skip_to_yellow", "yellow")
-            .transition("green", "jump_to_red", "red")
-            .skip_transition("red", "yellow")
-            .unwrap()
-            .build()
-            .unwrap()
-    }
-
-    #[test]
-    fn e5_4_sequential_transition_allowed() {
-        let sm = skip_light();
-        assert_eq!(sm.current(), "red");
-        sm.send("next").unwrap();
-        assert_eq!(sm.current(), "green");
-    }
-
-    #[test]
-    fn e5_4_skip_transition_allowed_when_configured() {
-        let sm = skip_light();
-        sm.send("skip_to_yellow").unwrap();
-        assert_eq!(sm.current(), "yellow");
-    }
-
-    #[test]
-    fn e5_4_skip_transition_rejected_when_not_configured() {
-        let sm = skip_light();
-        sm.send("next").unwrap();
-        assert_eq!(sm.current(), "green");
-        let err = sm.send("jump_to_red").unwrap_err();
-        assert!(matches!(
-            err,
-            StateMachineError::SkipTransitionRejected { .. }
-        ));
-        if let StateMachineError::SkipTransitionRejected { from, to } = &err {
-            assert_eq!(from, "green");
-            assert_eq!(to, "red");
-        }
-        assert_eq!(sm.current(), "green");
-    }
-
-    #[test]
-    fn e5_4_skip_transition_with_guard() {
-        let sm = StateMachineBuilder::new("red")
-            .sequential_transition("red", "green")
-            .sequential_transition("green", "yellow")
-            .transition("red", "skip", "yellow")
-            .guarded_transition("red", "skip", "yellow", |_, _| false)
-            .skip_transition("red", "yellow")
-            .unwrap()
-            .build()
-            .unwrap();
-        let err = sm.send("skip").unwrap_err();
-        assert!(matches!(err, StateMachineError::GuardRejected { .. }));
-        assert_eq!(sm.current(), "red");
-    }
-
-    #[test]
-    fn e5_4_skip_transition_callbacks_fire() {
-        let enter_count = Arc::new(AtomicUsize::new(0));
-        let exit_count = Arc::new(AtomicUsize::new(0));
-        let ec = enter_count.clone();
-        let xc = exit_count.clone();
-
-        let sm = StateMachineBuilder::new("red")
-            .sequential_transition("red", "green")
-            .sequential_transition("green", "yellow")
-            .transition("red", "skip", "yellow")
-            .skip_transition("red", "yellow")
-            .unwrap()
-            .on_exit("red", move |_| {
-                xc.fetch_add(1, Ordering::SeqCst);
-            })
-            .on_enter("yellow", move |_| {
-                ec.fetch_add(1, Ordering::SeqCst);
-            })
-            .build()
-            .unwrap();
-
-        sm.send("skip").unwrap();
-        assert_eq!(exit_count.load(Ordering::SeqCst), 1);
-        assert_eq!(enter_count.load(Ordering::SeqCst), 1);
-        assert_eq!(sm.current(), "yellow");
-    }
-
-    #[test]
-    fn e5_4_skip_transition_requires_sequential_first() {
-        let err = StateMachineBuilder::new("red")
-            .transition("red", "skip", "yellow")
-            .skip_transition("red", "yellow");
-        assert!(matches!(err, Err(StateMachineError::BuildError(_))));
-    }
-
-    #[test]
-    fn e5_4_skip_pair_requires_event_with_skip_target() {
-        let err = StateMachineBuilder::new("red")
-            .sequential_transition("red", "green")
-            .skip_transition("red", "yellow")
-            .unwrap()
-            .transition("red", "next", "green")
-            .build()
-            .unwrap_err();
-        assert!(matches!(err, StateMachineError::BuildError(_)));
-    }
-
-    #[test]
-    fn e5_4_skip_via_different_event() {
-        let sm = StateMachineBuilder::new("red")
-            .sequential_transition("red", "green")
-            .sequential_transition("green", "yellow")
-            .transition("red", "walk", "green")
-            .transition("red", "jump", "yellow")
-            .skip_transition("red", "yellow")
-            .unwrap()
-            .build()
-            .unwrap();
-        sm.send("jump").unwrap();
-        assert_eq!(sm.current(), "yellow");
     }
 }

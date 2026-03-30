@@ -1,5 +1,5 @@
 //! Comprehensive integration tests for phenotype-macros
-//! Traces to: FR-PHENO-MACRO-001, FR-PHENO-MACRO-002, FR-PHENO-MACRO-003
+//! Traces to: FR-MACRO-001, FR-MACRO-002, FR-MACRO-003
 
 use std::str::FromStr;
 

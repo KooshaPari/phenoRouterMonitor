@@ -8,9 +8,15 @@ use serde::Deserialize;
 use std::fs;
 use std::path::Path;
 
-fn default_priority() -> u32 { 100 }
-fn default_severity_str() -> String { "Error".to_string() }
-fn default_enabled() -> bool { true }
+fn default_priority() -> u32 {
+    100
+}
+fn default_severity_str() -> String {
+    "Error".to_string()
+}
+fn default_enabled() -> bool {
+    true
+}
 
 #[derive(Debug, Deserialize)]
 struct RuleConfig {
@@ -46,18 +52,25 @@ impl RuleConfig {
             "allow" => RuleType::Allow,
             "deny" => RuleType::Deny,
             "require" => RuleType::Require,
-            other => return Err(PolicyEngineError::RuleValidationError {
-                message: format!("Invalid rule type: '{}'", other),
-            }),
+            other => {
+                return Err(PolicyEngineError::RuleValidationError {
+                    message: format!("Invalid rule type: '{}'", other),
+                })
+            }
         };
 
         let severity = match self.severity.to_lowercase().as_str() {
             "info" => Severity::Info,
             "warning" => Severity::Warning,
             "error" => Severity::Error,
-            other => return Err(PolicyEngineError::RuleValidationError {
-                message: format!("Invalid severity: '{}'. Expected Info, Warning, or Error", other),
-            }),
+            other => {
+                return Err(PolicyEngineError::RuleValidationError {
+                    message: format!(
+                        "Invalid severity: '{}'. Expected Info, Warning, or Error",
+                        other
+                    ),
+                })
+            }
         };
 
         let _ = regex::Regex::new(&self.pattern).map_err(|e| {
@@ -250,14 +263,18 @@ pattern = "[invalid"
     fn test_policies_config_from_file() {
         use std::io::Write;
         let mut file = tempfile::NamedTempFile::new().unwrap();
-        write!(file, r#"
+        write!(
+            file,
+            r#"
 [[policies]]
 name = "from_file"
 [[policies.rules]]
 rule_type = "Allow"
 fact = "field"
 pattern = ".*"
-"#).unwrap();
+"#
+        )
+        .unwrap();
         let config = PoliciesConfigFile::from_file(file.path()).unwrap();
         assert_eq!(config.policies[0].name, "from_file");
     }

@@ -136,11 +136,14 @@ impl Default for PolicyEngine {
     }
 }
 
+/// Tests for PolicyEngine.
+/// Traces to: FR-POL-004
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::rule::{Rule, RuleType};
 
+    // Traces to: FR-POL-004
     #[test]
     fn test_engine_new() {
         let engine = PolicyEngine::new();
@@ -215,7 +218,7 @@ mod tests {
             .add_rule(Rule::new(RuleType::Require, "y", ".*"));
         engine.add_policy(disabled_policy);
 
-        let mut ctx = EvaluationContext::new(); // both x and y are missing
+        let ctx = EvaluationContext::new(); // both x and y are missing
 
         let result = engine.evaluate_all(&ctx).unwrap();
         // Only the enabled policy should contribute violations
@@ -231,7 +234,7 @@ mod tests {
         engine.add_policy(Policy::new("p2").add_rule(Rule::new(RuleType::Require, "b", ".*")));
         engine.add_policy(Policy::new("p3").add_rule(Rule::new(RuleType::Require, "c", ".*")));
 
-        let mut ctx = EvaluationContext::new();
+        let ctx = EvaluationContext::new();
 
         let result = engine.evaluate_subset(&["p1", "p3"], &ctx).unwrap();
         assert!(!result.passed);
