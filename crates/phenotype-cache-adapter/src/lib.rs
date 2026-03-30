@@ -1,17 +1,8 @@
 //! phenotype-cache-adapter
+//!
+//! Two-tier cache with L1 (LRU) and L2 (Moka).
 
-<<<<<<< HEAD
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("{0}")]
-    Invalid(String),
-}
-
-pub type Result<T> = std::result::Result<T, Error>;
-=======
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
@@ -45,11 +36,10 @@ where
     pub fn new(l1_cap: usize, l2_cap: u64) -> Self {
         Self {
             l1: std::sync::Arc::new(std::sync::Mutex::new(lru::LruCache::new(
-                std::num::NonZeroUsize::new(l1_cap).unwrap_or(std::num::NonZeroUsize::new(100).unwrap()),
+                std::num::NonZeroUsize::new(l1_cap)
+                    .unwrap_or(std::num::NonZeroUsize::new(100).unwrap()),
             ))),
-            l2: moka::sync::Cache::builder()
-                .max_capacity(l2_cap)
-                .build(),
+            l2: moka::sync::Cache::builder().max_capacity(l2_cap).build(),
         }
     }
 
@@ -59,11 +49,13 @@ where
             return Some(entry.value.clone());
         }
         drop(l1);
-        
+
         if let Some(entry) = self.l2.get(key) {
             let value = entry.value.clone();
             let mut l1 = self.l1.lock().unwrap();
-            l1.put(key.clone(), CacheEntry { value: value.clone() });
+            l1.put(key.clone(), CacheEntry {
+                value: value.clone(),
+            });
             return Some(value);
         }
         None
@@ -71,9 +63,10 @@ where
 
     pub fn put(&self, key: K, value: V) {
         let mut l1 = self.l1.lock().unwrap();
-        l1.put(key.clone(), CacheEntry { value: value.clone() });
+        l1.put(key.clone(), CacheEntry {
+            value: value.clone(),
+        });
         drop(l1);
         self.l2.insert(key, CacheEntry { value });
     }
 }
->>>>>>> origin/main

@@ -1,31 +1,21 @@
 [package]
 name = "phenotype-contracts"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
-repository.workspace = true
-authors.workspace = true
-description = "TODO"
-
-phenotype-errors.workspace = true
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+repository = { workspace = true }
+authors = { workspace = true }
+description = { workspace = true }
 
 [dependencies]
-<<<<<<< HEAD
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
-phenotype-async-traits.workspace = true
-=======
-chrono = { workspace = true }
-uuid = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-async-trait = { workspace = true }
 thiserror = { workspace = true }
-phenotype-error-core.workspace = true
+async-trait = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+phenotype-errors = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
-serde_json = { workspace = true }
->>>>>>> origin/main

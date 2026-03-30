@@ -4,15 +4,14 @@
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 use std::collections::HashMap;
-use tokio::sync::RwLock;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
-use crate::error::{EventSourcingError, Result};
+use crate::error::EventSourcingError;
 use crate::event::EventEnvelope;
-use crate::store::EventStore;
 
 pub struct InMemoryEventStore<T> {
-    events: Arc<RwLock<HashMap<String, HashMap<String, Vec<EventEnvelope<T>>>>>,
+    events: Arc<RwLock<HashMap<String, HashMap<String, Vec<EventEnvelope<T>>>>>>,
 }
 
 impl<T> Default for InMemoryEventStore<T> {
@@ -30,15 +29,16 @@ impl<T> InMemoryEventStore<T> {
 }
 
 #[async_trait]
-impl<T: Send + Sync + Serialize + DeserializeOwned> EventStore for InMemoryEventStore<T> {
+impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> crate::EventStore<T>
+    for InMemoryEventStore<T>
+{
     async fn append(
         &self,
         entity_type: &str,
         entity_id: &str,
         event: EventEnvelope<T>,
-    ) -> std::result::Result<EventEnvelope<T>, crate::Error> {
+    ) -> Result<i64, EventSourcingError> {
         let mut store = self.events.write().await;
-<<<<<<< HEAD
         let entity_events = store.entry(entity_type.to_string()).or_default();
         let seq = entity_events
             .entry(entity_id.to_string())
@@ -50,33 +50,26 @@ impl<T: Send + Sync + Serialize + DeserializeOwned> EventStore for InMemoryEvent
             .unwrap()
             .push(event);
         Ok(seq)
-=======
-        let entity_map = store.entry(entity_type.to_string()).or_insert_with(HashMap::new);
-        let events = entity_map.entry(entity_id.to_string()).or_insert_with(Vec::new);
-        let sequence = if events.is_empty() { 1 } else { events.len() as i64 + 1 };
-        events.push(event.clone());
-        Ok(event)
->>>>>>> origin/main
     }
 
-    async fn get_events(&self, entity_type: &str, entity_id: &str) -> std::result::Result<Vec<EventEnvelope<T>>, crate::Error> {
+    async fn get_events(
+        &self,
+        entity_type: &str,
+        entity_id: &str,
+    ) -> Result<Vec<EventEnvelope<T>>, EventSourcingError> {
         let store = self.events.read().await;
-        Ok(store.get(entity_type).and_then(|m| m.get(entity_id)).cloned().unwrap_or_default())
+        Ok(store
+            .get(entity_type)
+            .and_then(|e| e.get(entity_id).cloned())
+            .unwrap_or_default())
     }
 
-    async fn get_events_since(&self, entity_type: &str, entity_id: &str, sequence: i64) -> std::result::Result<Vec<EventEnvelope<T>>, crate::Error> {
-        let events = self.get_events(entity_type, entity_id).await?;
-        Ok(events.into_iter().filter(|e| e.metadata.sequence > sequence).collect())
-    }
-
-    async fn get_events_by_range(&self, entity_type: &str, entity_id: &str, from: chrono::DateTime<chrono::Utc>, to: chrono::DateTime<chrono::Utc>) -> std::result::Result<Vec<EventEnvelope<T>>, crate::Error> {
-        let events = self.get_events(entity_type, entity_id).await?;
-        Ok(events.into_iter().filter(|e| e.metadata.timestamp >= from && e.metadata.timestamp <= to).collect())
-    }
-
-    async fn get_latest_sequence(&self, entity_type: &str, entity_id: &str) -> std::result::Result<i64, crate::Error> {
+    async fn get_sequence(
+        &self,
+        entity_type: &str,
+        entity_id: &str,
+    ) -> Result<i64, EventSourcingError> {
         let store = self.events.read().await;
-<<<<<<< HEAD
         Ok(store
             .get(entity_type)
             .and_then(|e| e.get(entity_id))
@@ -98,12 +91,5 @@ mod tests {
         assert_eq!(seq, 1);
         let events = store.get_events("user", "123").await.unwrap();
         assert_eq!(events.len(), 1);
-=======
-        Ok(store.get(entity_type).and_then(|m| m.get(entity_id)).map(|e| e.len() as i64).unwrap_or(0))
-    }
-
-    async fn verify_chain(&self, entity_type: &str, entity_id: &str) -> std::result::Result<bool, crate::Error> {
-        Ok(true)
->>>>>>> origin/main
     }
 }

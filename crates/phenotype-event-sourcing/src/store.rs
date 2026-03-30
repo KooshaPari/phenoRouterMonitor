@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::error::Error;
+use crate::error::EventSourcingError;
 use crate::event::EventEnvelope;
 
 #[async_trait]
@@ -15,17 +15,17 @@ pub trait EventStore<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'st
         entity_type: &str,
         entity_id: &str,
         event: EventEnvelope<T>,
-    ) -> Result<i64, Error>;
+    ) -> Result<i64, EventSourcingError>;
 
     async fn get_events(
         &self,
         entity_type: &str,
         entity_id: &str,
-    ) -> Result<Vec<EventEnvelope<T>>, Error>;
+    ) -> Result<Vec<EventEnvelope<T>>, EventSourcingError>;
 
     async fn get_sequence(
         &self,
         entity_type: &str,
         entity_id: &str,
-    ) -> Result<i64, Error>;
+    ) -> Result<i64, EventSourcingError>;
 }
