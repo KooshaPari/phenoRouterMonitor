@@ -1,6 +1,6 @@
 # Dependencies Worklogs
 
-**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (SBOM full workspace matrix)
+**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (SBOM script + release assets)
 
 ---
 
@@ -1823,7 +1823,7 @@ Create a unified dependency version policy:
 
 | Tool | Action |
 |------|--------|
-| `cargo-cyclonedx` | **PILOT:** `.github/workflows/sbom.yml` → artifacts `cyclonedx-sbom-<crate-id>` per matrix row (JSON spec 1.5); matrix matches **all** root `Cargo.toml` `[workspace.members]` (including `libs/phenotype-config-core`) |
+| `cargo-cyclonedx` | **PILOT:** `scripts/ci/generate-workspace-sboms.sh` drives `.github/workflows/sbom.yml` (CI artifact `cyclonedx-sbom-workspace`) and `.github/workflows/release.yml` (same JSONs attached to **GitHub Releases** on `v*.*.*` tags alongside binaries) |
 | `syft` | WRAP in release pipeline |
 | OSV-Scanner | ADOPT for batch triage |
 | `cargo audit` + `cargo deny advisories` | Run both weekly |
@@ -1867,9 +1867,11 @@ Create a unified dependency version policy:
 | Workflow | `.github/workflows/sbom.yml` |
 | Triggers | `push` to `main`, `pull_request`, `workflow_dispatch` |
 | Tool | `cargo-cyclonedx@0.5.9` via `taiki-e/install-action` |
-| Scope | Full matrix: every `[workspace.members]` crate (16 rows; `fail-fast: false`) |
-| Output | One `sbom-<crate-id>.json` next to each crate manifest |
-| Artifact names | `cyclonedx-sbom-<crate-id>` (one upload per matrix row) |
+| Crate list | `cargo metadata --no-deps` (always matches `[workspace.members]`) |
+| Generator | `scripts/ci/generate-workspace-sboms.sh` → flat `cyclonedx-sbom-<crate>.json` files |
+| CI artifact | `cyclonedx-sbom-workspace` (all JSONs in one bundle) |
+| Releases | `release.yml` uploads the same files as release assets; `ncipollo/release-action` uses `allowUpdates` + `omitBodyDuringUpdate` / `omitNameDuringUpdate` so releases created by `tag-automation.yml` keep their body while assets are added |
+| Local | `task sbom` (requires `cargo-cyclonedx` + `jq`) |
 
 ### Stacked delivery (historical)
 
@@ -1878,7 +1880,7 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 ### Next expansions
 
 - [x] Add remaining workspace members to the matrix (full `[workspace.members]` coverage).
-- [ ] Attach SBOM to GitHub Releases for tagged builds (release workflow).
+- [x] Attach SBOM to GitHub Releases for tagged builds (`release.yml` + `cyclonedx-sboms` job).
 
 ---
 
