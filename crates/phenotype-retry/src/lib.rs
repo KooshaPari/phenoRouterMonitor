@@ -1,58 +1,29 @@
 //! # Phenotype Retry Library
 //!
-//! Provides retry patterns using the tenacity crate with exponential backoff.
-//!
-//! ## Features
-//!
-//! - Exponential backoff with configurable base delay
-//! - Jitter for randomization
-//! - Maximum retry attempts limit
-//! - Timeout support
-//! - Error filtering (only retry certain errors)
-//!
-//! ## Usage
-//!
-//! ```rust,ignore
-//! use phenotype_retry::retry;
-//! use std::time::Duration;
-//!
-//! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let result = retry()
-//!         .max_attempts(3)
-//!         .base_delay(Duration::from_millis(100))
-//!         .execute(|| async {
-//!             // Your async operation here
-//!             Ok(())
-//!         })
-//!         .await;
-//!     Ok(result?)
-//! }
-//! ```
+//! Async retry helpers with exponential backoff (Tokio).
 
 pub mod builder;
 pub mod error;
 
-pub use builder::RetryBuilder;
+pub use builder::{ExponentialBackoff, RetryBuilder};
 pub use error::RetryError;
 
-// Re-export tenacity types for advanced usage
-pub use tenacity::Backoff;
+/// Backwards-compatible alias for [`ExponentialBackoff`].
+pub type Backoff = ExponentialBackoff;
 
-// Re-export commonly used types
 pub use std::time::Duration;
 
-/// Default retry builder with sensible defaults
+/// Default retry builder with sensible defaults.
 pub fn retry() -> RetryBuilder {
     RetryBuilder::default()
 }
 
-/// Create a retry builder with custom max attempts
+/// Create a retry builder with custom max attempts.
 pub fn retry_with_attempts(max_attempts: u32) -> RetryBuilder {
     RetryBuilder::default().max_attempts(max_attempts)
 }
 
-/// Create a retry builder with custom base delay
+/// Create a retry builder with custom base delay.
 pub fn retry_with_delay(base_delay: Duration) -> RetryBuilder {
     RetryBuilder::default().base_delay(base_delay)
 }
@@ -105,7 +76,7 @@ mod tests {
     async fn test_retry_exhausted() {
         static CALL_COUNT: AtomicU32 = AtomicU32::new(0);
 
-        let result = retry()
+        let result: Result<(), RetryError> = retry()
             .max_attempts(3)
             .base_delay(Duration::from_millis(10))
             .execute(|| async {
