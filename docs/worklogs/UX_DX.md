@@ -904,3 +904,288 @@ impl Onboarding {
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-30 - Developer Onboarding Experience (Wave 144)
+
+**Project:** [cross-repo]
+**Category:** UX, DX, onboarding
+**Status:** in_progress
+**Priority:** P1
+
+### Onboarding Friction Points
+
+| Issue | Impact | Solution |
+|-------|--------|----------|
+| No quick-start | 2+ hours | `justfile` with shortcuts |
+| Unclear deps | 1 hour | `.env.example` + guide |
+| No IDE setup | 30 min | `.vscode/` config |
+| Stale docs | Hours | Auto-sync from code |
+
+### Justfile for Common Tasks
+
+```just
+# justfile
+set dotenv-load := true
+
+# Development
+dev:
+    cargo watch -x check -x test
+
+test:
+    cargo nextest run --workspace
+
+clippy:
+    cargo clippy --workspace -- -D warnings
+
+fmt:
+    cargo fmt
+
+doc:
+    cargo doc --open
+
+# Python
+py-dev:
+    cd python && uv sync --all-extras
+
+py-test:
+    cd python && uv pytest
+
+py-type:
+    cd python && uv pyright
+
+# Full stack
+ci:
+    cargo fmt --check
+    cargo clippy --workspace -- -D warnings
+    cargo nextest run --workspace
+    cd python && uv pyright && uv pytest
+
+# Release
+release VERSION:
+    cargo release --execute --no-publish -- --version {{VERSION}}
+```
+
+### VS Code Configuration
+
+```jsonc
+// .vscode/settings.json
+{
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
+    "editor.rulers": [100]
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  },
+  "rust-analyzer.linkedProjects": [
+    "Cargo.toml",
+    "platforms/thegent/crates/Cargo.toml"
+  ],
+  "python.analysis.typeCheckingMode": "strict",
+  "python.analysis.extraPaths": ["python/phenosdk/src"]
+}
+```
+
+---
+
+## 2026-03-30 - Error Message UX (Wave 145)
+
+**Project:** [cross-repo]
+**Category:** UX, DX, errors
+**Status:** proposed
+**Priority:** P2
+
+### Error Message Best Practices
+
+| Pattern | Before | After |
+|---------|--------|-------|
+| Generic | `"Error occurred"` | `"Failed to connect to database: connection refused (localhost:5432)"` |
+| No context | `NotFound` | `NotFound: User with id '123' not found in 'users' table` |
+| No recovery | `"Invalid input"` | `"Invalid input: 'email' must be a valid email address (got 'user@@')"` |
+
+### miette for Beautiful Errors
+
+```rust
+use miette::{Diagnostic, LabeledSpan, SourceSpan};
+use thiserror::Error;
+
+#[derive(Error, Diagnostic, Debug)]
+#[error("Failed to parse configuration")]
+pub enum ConfigError {
+    #[error("Missing required field '{field}'")]
+    #[diagnostic(help("Add '{field}' to your configuration file"))]
+    MissingField {
+        field: String,
+        #[source_code]
+        src: String,
+        #[label("here")]
+        span: SourceSpan,
+    },
+
+    #[error("Invalid value for '{field}'")]
+    #[diagnostic(help("Expected {expected}, got {actual}"))]
+    InvalidValue {
+        field: String,
+        expected: String,
+        actual: String,
+        #[label("this value")]
+        span: SourceSpan,
+    },
+}
+```
+
+### User-Friendly Error Response
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "Request validation failed",
+    "details": [
+      {
+        "field": "email",
+        "code": "INVALID_FORMAT",
+        "message": "Invalid email format",
+        "received": "user@@domain",
+        "expected": "user@domain.com"
+      }
+    ],
+    "request_id": "req_abc123",
+    "docs": "https://docs.phenotype.dev/errors/VALIDATION_FAILED"
+  }
+}
+```
+
+---
+
+## 2026-03-30 - Terminal UI Patterns (Wave 146)
+
+**Project:** [heliosCLI, pheno-cli]
+**Category:** UX, TUI
+**Status:** proposed
+**Priority:** P2
+
+### TUI Framework Comparison
+
+| Framework | Language | Ecosystem | Phenotype |
+|-----------|----------|-----------|-----------|
+| **ratatui** | Rust | Growing | ✅ Adopt |
+| **crossterm** | Rust | Standard | ✅ Used by ratatui |
+| **bubbletea** | Go | Large | ❌ |
+| **textual** | Python | Growing | ✅ Evaluate |
+
+### ratatui Pattern
+
+```rust
+use ratatui::{
+    prelude::*,
+    widgets::{Paragraph, Borders, Block},
+};
+
+pub fn render(app: &App) -> impl Widget {
+    let title = Paragraph::new("Phenotype Agent")
+        .style(Style::new().cyan().bold())
+        .block(Block::default().borders(Borders::TOP));
+
+    let status = Paragraph::new(format!(
+        "Status: {} | Session: {}",
+        app.status, app.session_id
+    ))
+    .style(Style::new().dim())
+    .block(Block::default().borders(Borders::BOTTOM));
+
+    let logs = List::new(app.logs.iter().map(|log| {
+        ListItem::new(log.as_str())
+    }))
+    .block(Block::default().title("Logs").borders(Borders::ALL));
+
+    Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Length(3),
+            Constraint::Min(0),
+        ])
+        .split(frame.size())
+}
+```
+
+---
+
+## 2026-03-30 - API Documentation UX (Wave 147)
+
+**Project:** [AgilePlus, API consumers]
+**Category:** UX, documentation
+**Status:** proposed
+**Priority:** P1
+
+### API Documentation Stack
+
+| Tool | Type | Phenotype |
+|------|------|-----------|
+| **Scalar** | OpenAPI UI | ✅ Evaluate |
+| **Stoplight** | API platform | ❌ |
+| **RapiDoc** | OpenAPI Web | ✅ Adopt |
+| **Swagger UI** | OpenAPI Web | ⚠️ Legacy |
+
+### OpenAPI with Scalar
+
+```yaml
+# openapi.yaml
+openapi: 3.1.0
+info:
+  title: Phenotype API
+  version: 1.0.0
+  description: Agent orchestration and observability
+  x-logo:
+    url: https://phenotype.dev/logo.png
+servers:
+  - url: https://api.phenotype.dev/v1
+    description: Production
+  - url: https://staging.phenotype.dev/v1
+    description: Staging
+
+paths:
+  /events:
+    post:
+      summary: Emit an event
+      tags: [Events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventEnvelope'
+      responses:
+        '201':
+          description: Event accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+```
+
+### Interactive SDK Generation
+
+```bash
+# Generate SDKs from OpenAPI
+openapi-generator-cli generate \
+  -i openapi.yaml \
+  -g rust \
+  -o sdk/rust \
+  --additional-properties=packageName=phenotype-sdk
+
+openapi-generator-cli generate \
+  -i openapi.yaml \
+  -g python \
+  -o sdk/python \
+  --additional-properties=packageName=phenotype_sdk
+```
+
+---
+
+_Last updated: 2026-03-30 (Wave 147)_

@@ -4,6 +4,10 @@ version = "0.2.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
+[features]
+default = []
+miette = ["dep:miette"]
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json.workspace = true
@@ -11,3 +15,4 @@ thiserror.workspace = true
 chrono.workspace = true
 uuid.workspace = true
 regex = "1"
+miette = { workspace = true, optional = true }
