@@ -1,3 +1,33 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/phenotype-cache-adapter",
+    "crates/phenotype-contracts",
+    "crates/phenotype-crypto",
+    "crates/phenotype-error-core",
+    "crates/phenotype-errors",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
+    "crates/phenotype-health",
+    "crates/phenotype-http-client-core",
+    "crates/phenotype-iter",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-mcp",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-retry",
+    "crates/phenotype-state-machine",
+    "crates/phenotype-string",
+    "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra",
+    "crates/phenotype-time",
+    "crates/phenotype-validation",
+    "crates/phenotype-http-client-core",
+    "crates/phenotype-config-core",
+    "libs/phenotype-config-core",
+]
+
 [workspace.package]
 version = "0.2.0"
 edition = "2021"
@@ -6,23 +36,9 @@ rust-version = "1.75"
 authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
-[workspace]
-resolver = "2"
-members = [
-    "crates/phenotype-cache-adapter",
-    "crates/phenotype-contracts",
-    "crates/phenotype-errors",
-    "crates/phenotype-error-core",
-    "crates/phenotype-event-sourcing",
-    "crates/phenotype-health",
-    "crates/phenotype-policy-engine",
-    "crates/phenotype-port-traits",
-    "crates/phenotype-state-machine",
-    "crates/phenotype-telemetry",
-    "crates/phenotype-test-infra",
-]
-
 [workspace.dependencies]
+[workspace.dependencies]
+# Core
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
@@ -30,30 +46,58 @@ anyhow = "1.0"
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-sha2 = "0.10"
-hex = "0.4"
+
+# Async/Concurrency
 tokio = { version = "1", features = ["full"] }
-tracing = "0.1"
-tracing-subscriber = "0.3"
 futures = "0.3"
-regex = "1"
+
+# Collections
 dashmap = "5"
 parking_lot = "0.12"
 lru = "0.12"
-moka = "0.12"
+moka = { version = "0.12", features = ["sync"] }
+
+# Serialization
+rkyv = { version = "0.8", features = ["validate"] }
 toml = "0.8"
+
+# HTTP/Network
 reqwest = { version = "0.12", features = ["json"] }
+axum = "0.7"
+
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+miette = { version = "7.2", features = ["serde"] }
+
+# Config & Process
+figment = { version = "0.10", features = ["toml", "yaml", "env"] }
+command-group = "5.0"
+
+# CLI
+indicatif = "0.18"
+console = "0.16"
+dialoguer = "0.11"
+
+# Utils
+regex = "1"
 tempfile = "3"
 dirs = "5"
-figment = "0.10"
-blake3 = "1.5"
+blake3 = "1.0"
+sha2 = "0.10"
+hex = "0.4"
+derive_more = "1.0"
+strum = { version = "0.26", features = ["derive"] }
+
+# Proc macros
 syn = "2"
 quote = "1"
 proc-macro2 = "1"
-phenotype-error-core = { path = "crates/phenotype-error-core" }
 
+# Local crates
+phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
+agileplus-error-core = { version = "0.2.0", path = "crates/agileplus-error-core" }
 [profile.dev]
-opt-level = 0
 debug = true
 
 [profile.release]
