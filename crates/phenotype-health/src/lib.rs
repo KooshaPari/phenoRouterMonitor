@@ -182,19 +182,28 @@ mod tests {
     // FR-PHENO-HLT-003: worst Unhealthy dominates
     #[test]
     fn test_health_status_worst_unhealthy_dominates() {
-        assert_eq!(HealthStatus::Unhealthy.worst(HealthStatus::Healthy), HealthStatus::Unhealthy);
+        assert_eq!(
+            HealthStatus::Unhealthy.worst(HealthStatus::Healthy),
+            HealthStatus::Unhealthy
+        );
     }
 
     // FR-PHENO-HLT-004: worst Degraded precedence
     #[test]
     fn test_health_status_worst_degraded_precedence() {
-        assert_eq!(HealthStatus::Healthy.worst(HealthStatus::Degraded), HealthStatus::Degraded);
+        assert_eq!(
+            HealthStatus::Healthy.worst(HealthStatus::Degraded),
+            HealthStatus::Degraded
+        );
     }
 
     // FR-PHENO-HLT-005: worst Unknown absorption
     #[test]
     fn test_health_status_worst_unknown_absorption() {
-        assert_eq!(HealthStatus::Unknown.worst(HealthStatus::Healthy), HealthStatus::Healthy);
+        assert_eq!(
+            HealthStatus::Unknown.worst(HealthStatus::Healthy),
+            HealthStatus::Healthy
+        );
     }
 
     // FR-PHENO-HLT-006: unhealthy factory

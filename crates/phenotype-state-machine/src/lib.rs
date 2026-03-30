@@ -117,7 +117,10 @@ impl StateMachine {
         if let Some(expected_next) = self.sequential_next.get(current.as_str()) {
             if &new_state != expected_next {
                 // Not the normal sequential step — check skip_states allowlist.
-                if !self.skip_states.contains(&(current.clone(), new_state.clone())) {
+                if !self
+                    .skip_states
+                    .contains(&(current.clone(), new_state.clone()))
+                {
                     return Err(StateMachineError::SkipTransitionRejected {
                         from: current.clone(),
                         to: new_state.clone(),
@@ -280,8 +283,7 @@ impl StateMachineBuilder {
                 "skip_transition: state '{from}' has no sequential_next configured"
             )));
         }
-        self.skip_states
-            .insert((from.to_string(), to.to_string()));
+        self.skip_states.insert((from.to_string(), to.to_string()));
         Ok(self)
     }
 
@@ -492,10 +494,7 @@ mod tests {
         assert_eq!(sm.current(), "green");
         // green → red is not in skip_states, so it is rejected.
         let err = sm.send("jump_to_red").unwrap_err();
-        let err_variant = matches!(
-            err,
-            StateMachineError::SkipTransitionRejected { .. }
-        );
+        let err_variant = matches!(err, StateMachineError::SkipTransitionRejected { .. });
         assert!(err_variant, "expected SkipTransitionRejected, got {err:?}");
         if let StateMachineError::SkipTransitionRejected { from, to } = &err {
             assert_eq!(from, "green");
@@ -546,8 +545,16 @@ mod tests {
 
         sm.send("skip").unwrap();
         assert_eq!(sm.current(), "yellow");
-        assert_eq!(exit_count.load(Ordering::SeqCst), 1, "on_exit for red fired");
-        assert_eq!(enter_count.load(Ordering::SeqCst), 1, "on_enter for yellow fired");
+        assert_eq!(
+            exit_count.load(Ordering::SeqCst),
+            1,
+            "on_exit for red fired"
+        );
+        assert_eq!(
+            enter_count.load(Ordering::SeqCst),
+            1,
+            "on_enter for yellow fired"
+        );
     }
 
     #[test]
@@ -590,7 +597,8 @@ mod tests {
             .sequential_transition("red", "green")
             .transition("red", "next", "green") // only this event from red
             // skip pair for red→yellow registered but no event leads to yellow
-            .skip_transition("red", "yellow").unwrap()
+            .skip_transition("red", "yellow")
+            .unwrap()
             .build()
             .unwrap();
 

@@ -28,7 +28,7 @@ impl<T> Default for InMemoryEventStore<T> {
 }
 
 #[async_trait]
-impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> super::EventStore<T>
+impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> crate::EventStore<T>
     for InMemoryEventStore<T>
 {
     async fn append(
@@ -39,8 +39,15 @@ impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> super::Eve
     ) -> Result<i64, EventSourcingError> {
         let mut store = self.events.write().await;
         let entity_events = store.entry(entity_type.to_string()).or_default();
-        let seq = entity_events.entry(entity_id.to_string()).or_default().len() as i64 + 1;
-        entity_events.get_mut(&entity_id.to_string()).unwrap().push(event);
+        let seq = entity_events
+            .entry(entity_id.to_string())
+            .or_default()
+            .len() as i64
+            + 1;
+        entity_events
+            .get_mut(&entity_id.to_string())
+            .unwrap()
+            .push(event);
         Ok(seq)
     }
 
