@@ -4,10 +4,24 @@ edition = "2021"
 license = "MIT"
 rust-version = "1.75"
 authors = ["Phenotype Team"]
+authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
+[package]
+name = "phenotype-infrakit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+phenotype-error-core = { path = "crates/phenotype-error-core" }
+
 [workspace]
-resolver = "2"
 members = [
     "crates/agileplus-error-core",
     "crates/phenotype-cache-adapter",
@@ -38,7 +52,6 @@ members = [
 ]
 
 [workspace.dependencies]
-[workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
@@ -65,13 +78,13 @@ syn = "2"
 quote = "1"
 proc-macro2 = "1"
 tempfile = "3"
-phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
-agileplus-error-core = { version = "0.2.0", path = "crates/agileplus-error-core" }
 
+[profile.dev]
 opt-level = 0
 debug = true
 
 [profile.release]
 opt-level = "z"
+lto = true
 codegen-units = 1
 strip = true
