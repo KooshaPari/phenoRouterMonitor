@@ -160,7 +160,7 @@ No forked or patched external repositories identified.
 ### Action Items
 
 - [ ] PKG-001: Remove unused `lru`, `parking_lot`, `moka` from workspace
-- [ ] PKG-002: Add Lazy<Regex> to Rule struct for caching
+- [ ] PKG-002: Add `Lazy<Regex>` to Rule struct for caching
 - [ ] PKG-003: Implement PolicyRegistry wrapper with metrics/TTL
 - [ ] PKG-004: Extract config parsers to `phenotype-config-parser` crate
 - [ ] PKG-005: Implement `phenotype-cache-adapter` using moka
