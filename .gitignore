@@ -27,8 +27,6 @@ EXTRACTION_REPORT_CONFIG_CORE.md
 EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
 # Non-workspace / legacy crate trees (keep ignored until promoted into the workspace).
-crates/phenotype-git-core/
-crates/phenotype-health/
 crates/phenotype-ports-canonical/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md
@@ -43,7 +41,6 @@ docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
 docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
 docs/worklogs/data/
 tools/
-crates/phenotype-logging
 
 # Session/agent artifacts
 .github/QUICK_REFERENCE.md
@@ -58,8 +55,6 @@ phase2_federation_spec.md
 # Uncommitted crate stubs
 crates/phenotype-error-core.ARCHIVED/
 crates/phenotype-event-sourcing/src/async_store.rs
-crates/phenotype-macros/
-crates/phenotype-mcp/
 crates/phenotype-process/
 
 # CI/DevOps

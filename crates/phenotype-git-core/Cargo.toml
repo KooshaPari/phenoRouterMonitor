@@ -1,0 +1,10 @@
+[package]
+name = "phenotype-git-core"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Git core for Phenotype"
+
+[lib]
+path = "src/lib.rs"
