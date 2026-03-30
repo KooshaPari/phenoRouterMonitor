@@ -173,7 +173,7 @@ impl ConfigLoader {
     }
 
     /// Get a config value as a specific type.
-    pub fn get<T: Deserialize>(&self, key: &str) -> Result<T> {
+    pub fn get<T: serde::de::DeserializeOwned>(&self, key: &str) -> Result<T> {
         self.values
             .get(key)
             .ok_or_else(|| ConfigError::KeyNotFound(key.to_string()))
@@ -212,7 +212,7 @@ impl ConfigLoader {
     /// Returns the default value if the key is not found.
     ///
     /// Traces to: FR-PHENO-CONFIG-005
-    pub fn get_or_default<T: Deserialize + Default>(&self, key: &str) -> T {
+    pub fn get_or_default<T: serde::de::DeserializeOwned + Default>(&self, key: &str) -> T {
         self.get(key).unwrap_or_default()
     }
 
