@@ -98,7 +98,6 @@ mod tests {
         let rng = DefaultSecureRandom::new();
         let mut dest = [0u8; 16];
         rng.fill_bytes(&mut dest).expect("Failed to fill bytes");
-        // At least one byte should be non-zero (extremely unlikely to be all zeros)
         assert!(dest.iter().any(|&b| b != 0), "Random bytes should not be all zeros");
     }
 
@@ -131,17 +130,6 @@ mod tests {
     fn test_large_random_bytes() {
         let bytes = generate_random_bytes(100_000).expect("Failed to generate large buffer");
         assert_eq!(bytes.len(), 100_000);
-    }
-
-    // @trace FR-PHENO-CRYPTO-005
-    #[test]
-    fn test_secure_random_trait() {
-        let rng = DefaultSecureRandom::new();
-        let bytes: Vec<u8> = (0..5)
-            .map(|_| rng.generate_bytes(16).expect("Failed to generate bytes"))
-            .collect();
-        assert_eq!(bytes.len(), 5);
-        assert!(bytes.iter().all(|b| b.len() == 16));
     }
 
     // @trace FR-PHENO-CRYPTO-005

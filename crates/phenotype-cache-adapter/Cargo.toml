@@ -3,9 +3,13 @@ name = "phenotype-cache-adapter"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+authors.workspace = true
 rust-version.workspace = true
 repository.workspace = true
-<<<<<<< HEAD
+description = "Cache adapter implementation"
+
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
@@ -18,15 +22,3 @@ tokio = { workspace = true, features = ["sync"] }
 lru.workspace = true
 moka.workspace = true
 phenotype-error-core.workspace = true
-=======
-authors.workspace = true
-description = "TODO"
->>>>>>> origin/main
-
-[lib]
-path = "src/lib.rs"
-
-[dependencies]
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
