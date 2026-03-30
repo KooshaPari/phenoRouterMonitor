@@ -1569,3 +1569,137 @@ litellm==1.82.6 --hash=sha256:... --hash=sha256:...
 ---
 
 _Last updated: 2026-03-30 (Wave 123)_
+
+---
+
+## 2026-03-31 - Wave 118: Rust 2026 Package Ecosystem Scan
+
+**Project:** [cross-repo]
+**Category:** research, dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### External Package Fork/Wrap Candidates (2026)
+
+| Package | Purpose | Status | Decision |
+|---------|---------|--------|----------|
+| `gix` | Git operations | RUSTSEC-2025-0140 | Fork `git2` → `gix` immediately |
+| `cqrs-es` | Event sourcing | Stable | Fork for `phenotype-event-sourcing` foundation |
+| `backon` | Retry/backoff | Modern | Wrap for `phenotype-retry` replacement |
+| `stamina` | Retry middleware | Tokio-native | Alternative to backon |
+| `rig-core` | LLM orchestration | Best-in-class | Adopt for AI agent framework |
+| `figment` | Config loading | Well-maintained | Wrap for `phenotype-config` |
+| `cedar` | Policy engine | AWS-maintained | Fork for `phenotype-policy` |
+| `statig` | State machines | Async-native | Consider for `phenotype-state-machine` |
+
+### Deprecation Candidates
+
+| Current | Reason | Replacement |
+|---------|--------|-------------|
+| `eventually` | Unmaintained since 2023 | `cqrs-es` or `eventsourced` |
+| `git2` | RUSTSEC-2025-0140 | `gix` (gitoxide) |
+| `async-trait` | Native async in Rust 2024 | Remove when edition 2024 |
+
+### Whitebox Analysis Results
+
+| Crate | Dependency | Usage | Opportunity |
+|-------|------------|-------|-------------|
+| `phenotype-event-sourcing` | `sha2` | SHA-256 hashing | Wrap in `ContentHash` trait |
+| `phenotype-cache-adapter` | `dashmap` | In-memory cache | Could use `moka` instead |
+| `phenotype-policy-engine` | `regex` | Rule matching | Could add `fancy-regex` for complex patterns |
+| `phenotype-retry` | Custom impl | Backoff | Replace with `backon` |
+
+---
+
+## 2026-03-31 - Wave 119: Git Worktree & Inactive Folder Audit
+
+**Project:** [repos workspace]
+**Category:** maintenance
+**Status:** completed
+**Priority:** P1
+
+### Git Worktree Inventory (30 found)
+
+| Path | Branch | Status | Action |
+|------|--------|--------|--------|
+| `/private/tmp/phenotype-pr-workspace` | `fix/add-http-client-core` | Temp | DELETE after PR |
+| `.worktrees/add-tests` | `feat/add-crate-tests` | Active | Keep |
+| `.worktrees/chore-govern-pi` | detached | Needs cleanup | DELETE |
+| `.worktrees/loc-reduction/*` | Various | Cleanup candidates | DELETE after merge |
+| `.worktrees/impl-contracts` | `feat/impl-contracts` | Merged | DELETE |
+
+### Inactive Worktrees (Cleanup Required)
+
+| Worktree | Status | Action |
+|----------|--------|--------|
+| `loc-reduction/archive-broken` | Done | DELETE after merge |
+| `loc-reduction/phase2-consolidation` | Done | DELETE after merge |
+| `chore/adopt-governance-pi` | Merged | DELETE after review |
+| `chore-govern-pi` | detached | DELETE |
+
+### Canonical Shelf Folders
+
+| Location | Type | Status |
+|----------|------|--------|
+| `repos/crates/*` | Canonical infrakit | ✅ Active |
+| `platforms/thegent/crates/*` | Canonical thegent | ✅ Active |
+| `heliosCLI/codex-rs/core/*` | Canonical heliosCLI | ✅ Active |
+
+### Stash Status
+- 10 stashes found
+- Recommendation: Apply or drop before major changes
+- Backup branch if stashes needed long-term
+
+---
+
+## 2026-03-31 - Wave 120: Cross-Ecosystem Dependency Analysis
+
+**Project:** [cross-repo]
+**Category:** research, dependencies
+**Status:** in_progress
+**Priority:** P2
+
+### Async Trait Proliferation
+
+| Location | Trait | Pattern |
+|----------|-------|---------|
+| `phenotype-contracts/*/ports/inbound` | 3-4 traits | `#[async_trait]` |
+| `phenotype-contracts/*/ports/outbound` | 3-4 traits | `#[async_trait]` |
+| `agileplus-graph` | Storage traits | `#[async_trait]` |
+| `agileplus-cache` | Cache traits | `#[async_trait]` |
+
+**Opportunity:** Create `phenotype-async-traits` crate with standard async trait definitions.
+
+### Connection Pool Inconsistency
+
+| Pool | Manager | Location |
+|------|---------|----------|
+| CachePool | bb8 | `agileplus-cache` |
+| phenotype-redis | deadpool | `libs/phenotype-shared` |
+
+**Recommendation:** Standardize on deadpool (more feature-rich).
+
+### Metrics/Telemetry Fragmentation
+
+| System | Location | Status |
+|--------|----------|--------|
+| `phenotype-telemetry` | `crates/` | Decomposed |
+| `thegent-metrics` | `platforms/thegent` | Monolithic |
+| `agileplus-telemetry` | `crates/agileplus-telemetry` | Partial |
+
+**Recommendation:** Unify telemetry across all Rust projects.
+
+### Port Interface Proliferation (12+ variants)
+
+| Location | Trait Name | Methods |
+|----------|------------|---------|
+| `phenotype-contracts/src/outbound.rs` | `Repository` | 4 |
+| `agileplus-domain/src/ports/storage.rs` | `StoragePort` | 3 |
+| `thegent-git/src/lib.rs` | `GitRepository` | 5 |
+| `heliosCLI/state_db.rs` | `StateStore` | 3 |
+
+**Opportunity:** Consolidate to `phenotype-port-traits` with generic parameters.
+
+---
+
+_Last updated: 2026-03-31 (Wave 118-120)_

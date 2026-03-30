@@ -334,3 +334,55 @@ The workspace is now significantly more maintainable, with:
 **Date**: 2026-03-29  
 **Repository**: KooshaPari/phenotype-infrakit  
 **Branch**: feat/loc-reduction-workspace-deps (Phase 1-2) + feat/phase4-test-consolidation (Phase 4)
+
+---
+
+## 2026-03-31 - Wave 134: Additional LOC Reduction Findings
+
+**Project:** [phenotype-infrakit]
+**Category:** LOC reduction, duplication
+**Status:** identified
+**Priority:** P0
+
+### 🔴 CRITICAL: Duplicate State Machine Crates (~726 LOC)
+
+| Crate | Path | LOC | Approach |
+|-------|------|-----|----------|
+| phenotype-state-machine | `crates/phenotype-state-sourcing/src/lib.rs` | 361 | String-based FSM |
+| phenotype-state-machine (nested) | `crates/phenotype-state-machine/phenotype-state-machine/src/lib.rs` | 365 | Generic/typed FSM |
+
+**Recommendation:** Merge into single crate with generic type parameter. **Estimated savings: ~726 LOC**
+
+### Files Exceeding 350 LOC Guideline
+
+| File | Current LOC | Over Target | Recommendation |
+|------|-------------|-------------|----------------|
+| `crates/phenotype-test-infra/src/lib.rs` | 518 | +168 | Split into modules |
+| `crates/phenotype-policy-engine/src/lib.rs` | 484 | +134 | Decompose by responsibility |
+| `crates/phenotype-error-core/src/lib.rs` | 363 | +13 | Minimal refactor needed |
+
+### Error Type Duplication (200+ LOC Redundant)
+
+| Crate | Error Type | Variants | LOC |
+|-------|------------|----------|-----|
+| `phenotype-error-core` | ErrorKind | 15 | 363 |
+| `phenotype-errors` | Error | 5 | 94 |
+| `phenotype-event-sourcing/src/error.rs` | 3 enums | ~50 | 130 |
+| `phenotype-http-client-core/src/error.rs` | TransportError | ~30 | 81 |
+
+**Recommendation:** Deprecate `phenotype-errors`, promote `phenotype-error-core`. **Estimated savings: ~100 LOC**
+
+### Summary of Optimization Opportunities
+
+| Category | Estimated LOC Savings | Effort |
+|----------|----------------------|--------|
+| Merge duplicate state machines | ~726 LOC | High |
+| Remove phenotype-errors | ~94 LOC | Low |
+| Apply existing Error derive | ~30 LOC | Low |
+| Consolidate MockClock | ~50 LOC | Medium |
+| Shared metric types | ~30 LOC | Medium |
+| **Total Potential Reduction** | **~930 LOC** | — |
+
+---
+
+_Last updated: 2026-03-31 (Wave 134)_
