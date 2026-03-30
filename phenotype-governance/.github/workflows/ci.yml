@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  rust-quality:
+    uses: ./.github/workflows/rust-quality.yml
+    secrets: inherit
+
+  python-quality:
+    uses: ./.github/workflows/python-quality.yml
+    secrets: inherit
+
+  proto-contract:
+    uses: ./.github/workflows/proto-contract.yml
+    secrets: inherit
+
+  docs-quality:
+    uses: ./.github/workflows/docs-quality.yml
+    secrets: inherit
+
+  security:
+    uses: ./.github/workflows/security-guard.yml
+    secrets: inherit
