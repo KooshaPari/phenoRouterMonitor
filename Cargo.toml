@@ -24,6 +24,8 @@ members = [
     "crates/phenotype-health",
     "crates/phenotype-logging",
     "crates/phenotype-macros",
+    "crates/phenotype-mcp",
+    "crates/phenotype-http-client-core",
 ]
 
 [workspace.package]
@@ -70,6 +72,3 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
-
-# blake3 dependency
-generic-array = "0.14"
