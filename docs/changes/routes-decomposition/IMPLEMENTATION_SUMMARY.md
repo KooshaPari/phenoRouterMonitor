@@ -45,10 +45,9 @@ Worktree Location (active development):
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| **DESIGN.md** | `docs/changes/routes-decomposition/DESIGN.md` | Architecture design, module responsibilities |
-| **MIGRATION_CHECKLIST.md** | `docs/changes/routes-decomposition/MIGRATION_CHECKLIST.md` | Step-by-step implementation checklist |
-| **MODULE_BOUNDARIES.md** | `docs/changes/routes-decomposition/MODULE_BOUNDARIES.md` | Dependency map, communication patterns |
+| **COMPLETION_REPORT.md** | `docs/changes/routes-decomposition/COMPLETION_REPORT.md` | Final verification + rollback plan |
 | **IMPLEMENTATION_SUMMARY.md** | `docs/changes/routes-decomposition/IMPLEMENTATION_SUMMARY.md` | This file — overview + file reference |
+| **INDEX.md** | `docs/changes/routes-decomposition/INDEX.md` | Navigation index for all route decomposition docs |
 
 ---
 
@@ -470,6 +469,7 @@ cargo clippy --package agileplus-dashboard
 ## References & Related Documents
 
 ### Design Documentation
+- **COMPLETION_REPORT.md** — Final verification and rollback plan
 - **DESIGN.md** — Detailed architecture, module responsibilities, design decisions
 - **MIGRATION_CHECKLIST.md** — Step-by-step implementation checklist (10 phases)
 - **MODULE_BOUNDARIES.md** — Dependency graphs, communication patterns, boundary rules
