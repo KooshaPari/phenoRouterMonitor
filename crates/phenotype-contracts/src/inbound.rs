@@ -1,40 +1,33 @@
 //! Inbound ports (driving side) - interfaces for external requests.
-//!
-//! These are the interfaces that external actors (REST API, gRPC, CLI, etc.)
-//! implement to drive the application.
 
-use crate::Result;
+use crate::error;
 
 /// Use case port for executing business operations.
 pub trait UseCase: Send + Sync {
     type Request: Send + Sync;
     type Response: Send + Sync;
 
-    /// Executes the use case with the given request.
-    fn execute(&self, request: Self::Request) -> Result<Self::Response>;
+    fn execute(&self, request: Self::Request) -> error::Result<Self::Response>;
 }
 
 /// Command handler port for processing commands.
 pub trait CommandHandler: Send + Sync {
     type Command: Send + Sync;
 
-    /// Handles a command.
-    fn handle(&self, command: Self::Command) -> Result<()>;
+    fn handle(&self, command: Self::Command) -> error::Result<()>;
 }
 
 /// Query handler port for processing queries.
 pub trait QueryHandler: Send + Sync {
     type Query: Send + Sync;
-    type Result: Send + Sync;
+    type Output: Send + Sync;
 
-    /// Handles a query and returns the result.
-    fn handle(&self, query: Self::Query) -> Result<Self::Result>;
+    fn handle(&self, query: Self::Query) -> error::Result<Self::Output>;
 }
 
 /// Event handler port for processing domain events.
 pub trait EventHandler: Send + Sync {
     type Event: Send + Sync;
 
-    /// Handles a domain event.
-    fn handle(&self, event: Self::Event) -> Result<()>;
+    fn handle(&self, event: Self::Event) -> error::Result<()>;
 }
