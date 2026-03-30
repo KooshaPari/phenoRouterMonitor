@@ -31,16 +31,18 @@ members = [
 [workspace.metadata.cargo-fuzz]
 schemas = ["target/schemas/**/*.json"]
 
-[workspace.dependencies]
-# === PHENOTYPE CORE CRATES ===
-# Configuration
-figment = { version = "0.10", features = ["toml", "yaml", "env"] }
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
 license = "MIT"
 rust-version = "1.75"
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
 authors = ["Phenotype Team"]
 
 [workspace.dependencies]
+# === PHENOTYPE CORE CRATES ===
+# Configuration
+figment = { version = "0.10", features = ["toml", "yaml", "env"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
