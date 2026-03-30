@@ -89,3 +89,89 @@ pub enum HashError {
     #[error("hash mismatch at sequence {sequence}")]
     HashMismatch { sequence: i64 },
 }
+
+// Conversion to unified phenotype error hierarchy
+impl From<EventSourcingError> for phenotype_errors::PhenotypeError {
+    fn from(err: EventSourcingError) -> Self {
+        match err {
+            EventSourcingError::AggregateNotFound(s) => {
+                phenotype_errors::PhenotypeError::NotFound(s)
+            }
+            EventSourcingError::EventNotFound(s) => {
+                phenotype_errors::PhenotypeError::NotFound(s)
+            }
+            EventSourcingError::Serialization(e) => {
+                phenotype_errors::PhenotypeError::Serialization(e.to_string())
+            }
+            EventSourcingError::HashMismatch { expected, actual } => {
+                phenotype_errors::PhenotypeError::InvalidState(format!(
+                    "hash mismatch: expected {}, got {}",
+                    expected, actual
+                ))
+            }
+            EventSourcingError::Snapshot(s) => {
+                phenotype_errors::PhenotypeError::InvalidState(s)
+            }
+            EventSourcingError::VersionConflict { expected, actual } => {
+                phenotype_errors::PhenotypeError::Conflict(format!(
+                    "version conflict: expected {}, got {}",
+                    expected, actual
+                ))
+            }
+            EventSourcingError::InvalidEventSequence { position } => {
+                phenotype_errors::PhenotypeError::InvalidState(format!(
+                    "invalid event sequence at position {}",
+                    position
+                ))
+            }
+            EventSourcingError::Internal(s) => phenotype_errors::PhenotypeError::Internal(s),
+            EventSourcingError::Store(e) => {
+                // Map EventStoreError variants
+                match e {
+                    EventStoreError::NotFound(s) => {
+                        phenotype_errors::PhenotypeError::NotFound(s)
+                    }
+                    EventStoreError::DuplicateSequence(s) => {
+                        phenotype_errors::PhenotypeError::Conflict(s)
+                    }
+                    EventStoreError::StorageError(s) => {
+                        phenotype_errors::PhenotypeError::StorageFailure(s)
+                    }
+                    EventStoreError::InvalidHash(s) => {
+                        phenotype_errors::PhenotypeError::InvalidState(s)
+                    }
+                    EventStoreError::SequenceGap { expected, actual } => {
+                        phenotype_errors::PhenotypeError::InvalidState(format!(
+                            "sequence gap: expected {}, got {}",
+                            expected, actual
+                        ))
+                    }
+                }
+            }
+            EventSourcingError::Hash(e) => {
+                // Map HashError variants
+                match e {
+                    HashError::ChainBroken { sequence } => {
+                        phenotype_errors::PhenotypeError::InvalidState(format!(
+                            "hash chain broken at sequence {}",
+                            sequence
+                        ))
+                    }
+                    HashError::InvalidHashLength(len) => {
+                        phenotype_errors::PhenotypeError::InvalidState(format!(
+                            "invalid hash length: expected 32 bytes (64 hex digits), got {}",
+                            len
+                        ))
+                    }
+                    HashError::HashMismatch { sequence } => {
+                        phenotype_errors::PhenotypeError::InvalidState(format!(
+                            "hash mismatch at sequence {}",
+                            sequence
+                        ))
+                    }
+                }
+            }
+            EventSourcingError::Replay(s) => phenotype_errors::PhenotypeError::InvalidState(s),
+        }
+    }
+}
