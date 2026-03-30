@@ -1,6 +1,6 @@
 # Dependencies Worklogs
 
-**Category:** DEPENDENCIES | **Updated:** 2026-03-29
+**Category:** DEPENDENCIES | **Updated:** 2026-03-30 (SBOM pilot doc)
 
 ---
 
@@ -1710,7 +1710,7 @@ Create a unified dependency version policy:
 
 | Tool | Action |
 |------|--------|
-| `cargo-cyclonedx` | ADOPT for SBOM artifacts |
+| `cargo-cyclonedx` | **PILOT:** `.github/workflows/sbom.yml` → artifacts `cyclonedx-sbom-<crate>` per matrix member (JSON spec 1.5); includes `phenotype-error-core`, contracts, errors, event-sourcing, policy-engine, cache-adapter, `phenotype-config-core` |
 | `syft` | WRAP in release pipeline |
 | OSV-Scanner | ADOPT for batch triage |
 | `cargo audit` + `cargo deny advisories` | Run both weekly |
@@ -1743,4 +1743,30 @@ Create a unified dependency version policy:
 
 ---
 
-_Last updated: 2026-03-29_
+## 2026-03-30 - CycloneDX SBOM pilot (CI)
+
+**Project:** phenotype-infrakit | **Status:** implemented | **Priority:** P1
+
+### What shipped
+
+| Item | Detail |
+|------|--------|
+| Workflow | `.github/workflows/sbom.yml` |
+| Triggers | `push` to `main`, `pull_request`, `workflow_dispatch` |
+| Tool | `cargo-cyclonedx@0.5.9` via `taiki-e/install-action` |
+| Scope | Matrix of workspace members (see workflow `matrix.include`) |
+| Output | One `sbom-<crate-id>.json` next to each crate manifest |
+| Artifact names | `cyclonedx-sbom-<crate-id>` (one upload per matrix row) |
+
+### Stacked delivery (historical)
+
+Earlier stacked PRs (#99–#101) were closed without merge; workflow initially landed via #95. Docs + session + matrix expansion ship together on `main` (see session folder + current PR).
+
+### Next expansions
+
+- [ ] Add remaining workspace members to the matrix (`agileplus-api-types`, crypto, iter, port-traits, state-machine, string, telemetry, test-infra, time).
+- [ ] Attach SBOM to GitHub Releases for tagged builds (release workflow).
+
+---
+
+_Last updated: 2026-03-30_
