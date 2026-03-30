@@ -3,9 +3,13 @@ name = "phenotype-errors"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description.workspace = true
 repository.workspace = true
-description = "Error types for the Phenotype ecosystem"
 
 [dependencies]
 phenotype-error-core = { path = "../phenotype-error-core" }
-serde = { workspace = true }
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+regex.workspace = true

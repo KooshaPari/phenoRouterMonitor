@@ -5,6 +5,10 @@ use thiserror::Error;
 /// Errors that can occur during retry operations
 #[derive(Debug, Error)]
 pub enum RetryError {
+    /// Transient failure (tests and simple call sites)
+    #[error("{0}")]
+    Transient(String),
+
     /// Maximum retry attempts exceeded
     #[error("maximum retry attempts ({max_attempts}) exceeded")]
     MaxAttemptsExceeded {

@@ -1,10 +1,10 @@
 [package]
-name = "phenotype-port-traits"
+name = "phenotype-crypto"
 version = "0.2.0"
 edition = "2021"
 authors = ["Phenotype Team"]
 license = "MIT"
-description = "Port Traits for Phenotype"
+description = "Crypto for Phenotype"
 
 [lib]
 path = "src/lib.rs"

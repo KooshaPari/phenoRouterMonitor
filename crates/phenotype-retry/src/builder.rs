@@ -1,15 +1,9 @@
 //! Retry builder for configuring retry behavior.
 
 use std::future::Future;
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use std::time::{Duration, Instant};
-
-use pin_project::pin_project;
-use tenacity::{Backoff, RetryForError, SystemClock};
+use std::time::Duration;
 
 use crate::error::RetryError;
-use crate::RetryBuilder;
 
 /// Maximum number of retry attempts
 const DEFAULT_MAX_ATTEMPTS: u32 = 3;
@@ -20,6 +14,9 @@ const DEFAULT_BASE_DELAY: Duration = Duration::from_millis(100);
 /// Maximum delay between retries
 const DEFAULT_MAX_DELAY: Duration = Duration::from_secs(30);
 
+/// Multiplier for exponential backoff
+const DEFAULT_MULTIPLIER: f64 = 2.0;
+
 /// Builder for configuring retry behavior
 #[derive(Default, Debug, Clone)]
 pub struct RetryConfig {
@@ -28,6 +25,7 @@ pub struct RetryConfig {
     pub max_delay: Duration,
     pub jitter: bool,
     pub timeout: Option<Duration>,
+    pub multiplier: f64,
 }
 
 impl RetryConfig {
@@ -67,13 +65,12 @@ impl RetryConfig {
     }
 
     /// Execute an async operation with retry logic
-    pub async fn execute<F, Fut, T, E>(&self, f: F) -> Result<T, E>
+    pub async fn execute<F, Fut, T, E>(&self, mut f: F) -> Result<T, RetryError>
     where
         F: FnMut() -> Fut,
-        Fut: Future<Output = Result<T, E>>,
-        E: std::error::Error + Send + Sync + 'static,
+        Fut: Future<Output = Result<T, RetryError>>,
     {
-        let mut backoff = ExponentialBackoff::new(self.base_delay, self.max_delay);
+        let mut backoff = ExponentialBackoff::new(self.base_delay, self.max_delay, self.multiplier);
 
         for attempt in 0..self.max_attempts {
             match f().await {
@@ -81,13 +78,18 @@ impl RetryConfig {
                 Err(e) if attempt == self.max_attempts - 1 => return Err(e),
                 Err(_) => {
                     if let Some(delay) = backoff.next_delay() {
-                        tokio::time::sleep(delay).await;
+                        if self.jitter {
+                            let jitter = Duration::from_millis(rand::random::<u64>() % 50);
+                            tokio::time::sleep(delay + jitter).await;
+                        } else {
+                            tokio::time::sleep(delay).await;
+                        }
                     }
                 }
             }
         }
 
-        unreachable!()
+        Err(RetryError::MaxAttemptsExceeded)
     }
 }
 
@@ -102,12 +104,12 @@ pub struct ExponentialBackoff {
 
 impl ExponentialBackoff {
     /// Create a new backoff calculator
-    pub fn new(base_delay: Duration, max_delay: Duration) -> Self {
+    pub fn new(base_delay: Duration, max_delay: Duration, multiplier: f64) -> Self {
         Self {
             current_delay: base_delay,
             base_delay,
             max_delay,
-            multiplier: 2.0,
+            multiplier,
         }
     }
 
@@ -118,9 +120,8 @@ impl ExponentialBackoff {
         }
 
         let delay = self.current_delay;
-        self.current_delay =
-            Duration::from_millis((self.current_delay.as_millis() as f64 * self.multiplier) as u64);
-        self.current_delay = self.current_delay.min(self.max_delay);
+        let next = (self.current_delay.as_millis() as f64 * self.multiplier) as u64;
+        self.current_delay = Duration::from_millis(next).min(self.max_delay);
         Some(delay)
     }
 
@@ -132,6 +133,6 @@ impl ExponentialBackoff {
 
 impl Default for ExponentialBackoff {
     fn default() -> Self {
-        Self::new(DEFAULT_BASE_DELAY, DEFAULT_MAX_DELAY)
+        Self::new(DEFAULT_BASE_DELAY, DEFAULT_MAX_DELAY, DEFAULT_MULTIPLIER)
     }
 }
