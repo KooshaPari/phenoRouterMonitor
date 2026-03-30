@@ -30,8 +30,9 @@ impl EvaluationContext {
     pub fn from_json(value: serde_json::Value) -> Self {
         match value {
             serde_json::Value::Object(map) => {
-                let facts = map.into_iter().map(|(k, v)| (k, v)).collect();
-                Self { facts }
+                Self {
+                    facts: map.into_iter().collect(),
+                }
             }
             _ => Self::new(),
         }
@@ -68,9 +69,7 @@ impl EvaluationContext {
 
     /// Gets a fact as a string.
     pub fn get_string(&self, key: &str) -> Option<String> {
-        self.facts
-            .get(key)
-            .and_then(|v| v.as_str().map(String::from))
+        self.facts.get(key).and_then(|v| v.as_str().map(String::from))
     }
 
     /// Gets a fact as a number.
