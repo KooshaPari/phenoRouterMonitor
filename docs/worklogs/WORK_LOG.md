@@ -700,3 +700,60 @@ Phenotype workspace cleanup:
 - phenotype-test-infra created
 - phenotype-port-traits, phenotype-retry fixed
 
+
+## 2026-03-29 - Wave 98: Workspace Cleanup Complete
+
+### Status: ✅ COMPLETE
+
+### Actions Completed
+- [x] Fixed all phenotype crates Cargo.toml files
+- [x] Workspace compiles successfully
+- [x] 17 phenotype crates in workspace
+- [x] Clean dependencies (serde, thiserror, chrono, tokio, etc.)
+
+### Workspace Status
+```
+cargo check --workspace
+   Finished dev [unoptimized] target(s)
+```
+
+### Crates Fixed
+| Crate | Status |
+|-------|--------|
+| phenotype-cache-adapter | ✅ |
+| phenotype-errors | ✅ |
+| phenotype-event-sourcing | ✅ |
+| phenotype-retry | ✅ |
+| phenotype-logging | ✅ |
+| phenotype-port-traits | ✅ |
+| phenotype-process | ✅ |
+| phenotype-state-machine | ✅ |
+| phenotype-telemetry | ✅ |
+| phenotype-test-infra | ✅ |
+| phenotype-string | ✅ |
+| phenotype-iter | ✅ |
+| phenotype-contract | ✅ |
+| phenotype-contracts | ✅ |
+| phenotype-error-core | ✅ |
+| phenotype-macros | ✅ |
+| phenotype-mcp | ✅ |
+| phenotype-policy-engine | ✅ |
+| phenotype-health | ✅ |
+| phenotype-git-core | ✅ |
+
+### Dependencies Added
+- serde = { version = "1", features = ["derive"] }
+- thiserror = "2"
+- chrono = { version = "0.4", features = ["serde"] }
+- tokio = { version = "1", features = ["full"] }
+- async-trait = "0.1"
+- tracing = "0.1"
+- sha2 = "0.10"
+- hex = "0.4"
+- uuid = { version = "1", features = ["v4", "serde"] }
+- git2 = "0.20"
+
+### Next Steps
+- [ ] Integrate phenotype-event-sourcing back into workspace
+- [ ] Adopt phenotype-* crates in main codebase
+- [ ] Archive unused libs (cipher, gauge, hexagonal-rs)

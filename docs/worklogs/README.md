@@ -1,8 +1,39 @@
 # Phenotype Worklogs
+1: # Phenotype Worklogs (2026)
+2: 
+3: This directory contains detailed audit and research worklogs for the Phenotype ecosystem, focusing on duplication reduction, library extraction (libification), and modernization.
+4: 
+5: ## Core Worklogs
+6: 
+7: | Log | Purpose | Last Updated | Status |
+8: |---|---|---|---|
+9: | [RESEARCH.md](./RESEARCH.md) | Ecosystem research, 3rd party repos, modernization targets | 2026-03-29 | Wave 105 appended |
+10: | [DEPENDENCIES.md](./DEPENDENCIES.md) | Package audit, fork candidates, security provenance | 2026-03-29 | Wave 101-103 appended |
+11: | [DUPLICATION.md](./DUPLICATION.md) | Code duplication hotspots, patterns, libification plans | 2026-03-29 | Wave 102 expansion |
+12: | [WORK_LOG.md](./WORK_LOG.md) | Master session history and task execution log | 2026-03-31 | Active |
+13: 
+14: ## 2026 Modernization Roadmap (Wave 100-105 Summary)
+15: 
+16: ### 1. LLM & Agentic Ecosystem
+17: - **LiteLLM v1.90.0**: Adopt for multi-provider routing (Python).
+18: - **Mastra v1.2**: Adopt for agentic workflows (TypeScript).
+19: - **FastMCP v3.5**: Adopt for high-perf MCP tool discovery (Python).
+20: - **rig-core**: Adopt as the standard Rust LLM interface.
+21: 
+22: ### 2. Critical Libification Targets
+23: - **`phenotype-error-core`**: Consolidate 15+ error enums (~850 LOC savings).
+24: - **`phenotype-config-core`**: Standardize on `figment` + JSON Schema (~650 LOC savings).
+25: - **`phenotype-health-core`**: Standardize service health patterns (~270 LOC savings).
+26: - **`phenotype-process`**: Fork `utils/pty` for robust process management (~750 LOC).
+27: 
+28: ### 3. Cleanup & Maintenance
+29: - Purge inactive worktrees (`phenotype-shared-wtrees`, `heliosCLI-wtrees`).
+30: - Resolve nested crate duplication in `phenotype-infrakit`.
+31: - Remove unused workspace dependencies (`lru`, `moka`, `parking_lot`).
+32: 
+33: ## Resuming Work
+34: To resume the audit or implementation, focus on the **P0 - CRITICAL** action items in [DEPENDENCIES.md](./DEPENDENCIES.md) or the **Libification Hotspots** in [DUPLICATION.md](./DUPLICATION.md).
 
-> Canonical logging and audit documentation for the Phenotype ecosystem (6.5M+ LOC codebase).
-
----
 
 ## File Index
 
