@@ -1,6 +1,7 @@
 //! EventStore trait — generic append-only event storage.
 
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::error::Result;
 use crate::event::EventEnvelope;
@@ -50,7 +51,5 @@ pub trait EventStore: Send + Sync {
 
     /// Get the latest event sequence number for an entity (0 if none exist).
     fn get_latest_sequence(&self, entity_type: &str, entity_id: &str) -> Result<i64>;
-
-    /// Verify the hash chain integrity for an entity.
     fn verify_chain(&self, entity_type: &str, entity_id: &str) -> Result<()>;
 }

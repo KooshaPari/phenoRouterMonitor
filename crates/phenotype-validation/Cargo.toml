@@ -1,0 +1,14 @@
+[package]
+name = "phenotype-validation"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Validation"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+regex.workspace = true
+thiserror.workspace = true
