@@ -1,0 +1,16 @@
+[package]
+name = "phenotype-errors"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Errors"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 0.1.0)'
+        required: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ─── Build Release Binaries ───────────────────────────────────────────
+  build-release:
+    name: Build Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            use_cross: false
+          - target: x86_64-apple-darwin
+            os: ubuntu-latest
+            use_cross: true
+          - target: aarch64-apple-darwin
+            os: ubuntu-latest
+            use_cross: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: arduino/setup-protoc@v3
+        with:
+          version: "28.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install cross
+        if: matrix.use_cross
+        run: cargo install cross
+      - name: Build release binary
+        run: |
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            cross build --release --target ${{ matrix.target }}
+          else
+            cargo build --release --target ${{ matrix.target }}
+          fi
+      - name: Strip binary
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            strip target/${{ matrix.target }}/release/agileplus || true
+          fi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agileplus-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/agileplus
+          retention-days: 5
+
+  # ─── Create GitHub Release ────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./binaries
+      - name: Prepare release assets
+        run: |
+          mkdir -p ./release-assets
+          for target_dir in ./binaries/*/; do
+            target_name=$(basename "$target_dir")
+            binary_path="$target_dir/agileplus"
+            if [ -f "$binary_path" ]; then
+              cp "$binary_path" "./release-assets/agileplus-${target_name}"
+            fi
+          done
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./release-assets/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: false
+          generateReleaseNotes: true
