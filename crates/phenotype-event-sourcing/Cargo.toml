@@ -3,16 +3,14 @@ name = "phenotype-event-sourcing"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 repository.workspace = true
+description = "Event sourcing patterns for Phenotype"
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
+serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
-chrono = { workspace = true, features = ["serde"] }
-uuid = { workspace = true, features = ["v4", "serde"] }
-sha2.workspace = true
-hex.workspace = true
 tokio.workspace = true
 anyhow.workspace = true
 phenotype-errors = { path = "../phenotype-errors" }
