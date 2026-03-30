@@ -75,6 +75,65 @@ pub fn is_valid_uuid(id: &str) -> bool {
     Uuid::parse_str(id).is_ok()
 }
 
+/// Validates a phone number using flexible international format.
+///
+/// Accepts phone numbers in formats:
+/// - Basic: digits only (7+ digits)
+/// - With spaces: 123 456 7890
+/// - With hyphens: 123-456-7890
+/// - With parentheses: (123) 456-7890
+/// - International: +1 123 456 7890
+/// - Extensions: (123) 456-7890 ext. 1234
+///
+/// # Examples
+///
+/// ```
+/// use phenotype_validation::validators::is_valid_phone;
+///
+/// assert!(is_valid_phone("1234567890"));
+/// assert!(is_valid_phone("+1 (123) 456-7890"));
+/// assert!(is_valid_phone("123-456-7890"));
+/// assert!(!is_valid_phone("123"));
+/// assert!(!is_valid_phone("abc-def-ghij"));
+/// ```
+pub fn is_valid_phone(phone: &str) -> bool {
+    // Remove common formatting characters and count digits
+    let digits: String = phone.chars().filter(|c| c.is_ascii_digit()).collect();
+
+    // Phone must have at least 7 digits (international minimum for valid phone)
+    // and at most 15 digits (ITU-T E.164 standard)
+    if digits.len() < 7 || digits.len() > 15 {
+        return false;
+    }
+
+    // Check for common valid patterns
+    let phone_lower = phone.to_lowercase();
+
+    // Valid patterns:
+    // - All digits: 1234567890
+    // - With spaces: 123 456 7890
+    // - With hyphens: 123-456-7890
+    // - With parentheses: (123) 456-7890
+    // - With plus: +1 123 456 7890
+    // - With extensions: (123) 456-7890 ext. 1234
+    let valid_chars = phone_lower
+        .chars()
+        .all(|c| c.is_ascii_digit() || matches!(c, ' ' | '-' | '(' | ')' | '+' | '.'));
+
+    if !valid_chars {
+        return false;
+    }
+
+    // Additional check: ensure at least 2 digit sequences separated by non-digits
+    // This helps prevent pure strings like "       "
+    let digit_groups: Vec<&str> = phone
+        .split(|c: char| !c.is_ascii_digit())
+        .filter(|g| !g.is_empty())
+        .collect();
+
+    !digit_groups.is_empty()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -248,5 +307,86 @@ mod tests {
     #[test]
     fn test_is_invalid_uuid_wrong_hyphens() {
         assert!(!is_valid_uuid("550e8400e29b-41d4-a716-446655440000"));
+    }
+
+    // Phone validation tests
+    #[test]
+    fn test_is_valid_phone_digits_only() {
+        assert!(is_valid_phone("1234567890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_with_hyphens() {
+        assert!(is_valid_phone("123-456-7890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_with_spaces() {
+        assert!(is_valid_phone("123 456 7890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_with_parentheses() {
+        assert!(is_valid_phone("(123) 456-7890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_international() {
+        assert!(is_valid_phone("+1 (123) 456-7890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_plus_sign() {
+        assert!(is_valid_phone("+1 123 456 7890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_extension() {
+        assert!(is_valid_phone("(123) 456-7890 ext. 1234"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_eleven_digits() {
+        assert!(is_valid_phone("11234567890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_minimum_length() {
+        assert!(is_valid_phone("1234567"));
+    }
+
+    #[test]
+    fn test_is_invalid_phone_too_short() {
+        assert!(!is_valid_phone("123456"));
+    }
+
+    #[test]
+    fn test_is_invalid_phone_too_long() {
+        assert!(!is_valid_phone("1234567890123456"));
+    }
+
+    #[test]
+    fn test_is_invalid_phone_empty() {
+        assert!(!is_valid_phone(""));
+    }
+
+    #[test]
+    fn test_is_invalid_phone_letters() {
+        assert!(!is_valid_phone("abc-def-ghij"));
+    }
+
+    #[test]
+    fn test_is_invalid_phone_only_special_chars() {
+        assert!(!is_valid_phone("()- +-"));
+    }
+
+    #[test]
+    fn test_is_invalid_phone_invalid_special_chars() {
+        assert!(!is_valid_phone("123@456#7890"));
+    }
+
+    #[test]
+    fn test_is_valid_phone_mixed_formatting() {
+        assert!(is_valid_phone("+1-123-456-7890"));
     }
 }

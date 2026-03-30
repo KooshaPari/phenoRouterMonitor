@@ -1,5 +1,7 @@
 pub mod validators;
 
+pub use validators::{is_valid_email, is_valid_phone, is_valid_url, is_valid_uuid};
+
 use regex::Regex;
 use std::fmt;
 use thiserror::Error;
@@ -89,6 +91,51 @@ pub trait Validatable {
     fn validate(&self) -> Result<(), ValidationErrors>;
 }
 
+/// A custom validator trait for applying domain-specific validation rules.
+///
+/// Validators receive a field value and return a Result indicating success or a ValidationError.
+/// This trait allows for composable, reusable validation logic.
+///
+/// # Example
+/// ```
+/// use phenotype_validation::Validator;
+///
+/// struct MinLengthValidator { min: usize }
+///
+/// impl Validator for MinLengthValidator {
+///     fn validate(&self, value: &str, field: &str) -> Result<(), phenotype_validation::ValidationError> {
+///         if value.len() >= self.min {
+///             Ok(())
+///         } else {
+///             Err(phenotype_validation::ValidationError::new(field, "too short", self.code()))
+///         }
+///     }
+///     fn code(&self) -> &str { "min_length_custom" }
+/// }
+/// ```
+pub trait Validator {
+    /// Execute the validation.
+    ///
+    /// Returns Ok(()) if validation passes, or ValidationError if it fails.
+    fn validate(&self, value: &str, field: &str) -> Result<(), ValidationError>;
+
+    /// Validate and return a detailed error message.
+    fn validate_with_message(
+        &self,
+        value: &str,
+        field: &str,
+        error_message: &str,
+    ) -> Result<(), ValidationError> {
+        self.validate(value, field)
+            .map_err(|_| ValidationError::new(field, error_message, self.code()))
+    }
+
+    /// Return the validation code/name for this validator.
+    fn code(&self) -> &str {
+        "custom"
+    }
+}
+
 pub fn required(value: &str, field: &str) -> Result<(), ValidationError> {
     if value.trim().is_empty() {
         Err(ValidationError::new(field, "is required", "required"))
@@ -151,9 +198,36 @@ pub fn range<T: PartialOrd + fmt::Display>(
 }
 
 pub fn email(value: &str, field: &str) -> Result<(), ValidationError> {
-    let email_re = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
-    if !email_re.is_match(value) {
+    if !is_valid_email(value) {
         Err(ValidationError::new(field, "is not a valid email", "email"))
+    } else {
+        Ok(())
+    }
+}
+
+pub fn url(value: &str, field: &str) -> Result<(), ValidationError> {
+    if !is_valid_url(value) {
+        Err(ValidationError::new(field, "is not a valid URL", "url"))
+    } else {
+        Ok(())
+    }
+}
+
+pub fn phone(value: &str, field: &str) -> Result<(), ValidationError> {
+    if !is_valid_phone(value) {
+        Err(ValidationError::new(
+            field,
+            "is not a valid phone number",
+            "phone",
+        ))
+    } else {
+        Ok(())
+    }
+}
+
+pub fn uuid(value: &str, field: &str) -> Result<(), ValidationError> {
+    if !is_valid_uuid(value) {
+        Err(ValidationError::new(field, "is not a valid UUID", "uuid"))
     } else {
         Ok(())
     }
@@ -271,5 +345,175 @@ mod tests {
             email_addr: "bad".into(),
         };
         assert!(invalid.validate().is_err());
+    }
+
+    #[test]
+    fn test_url_valid() {
+        assert!(url("https://example.com", "website").is_ok());
+    }
+
+    #[test]
+    fn test_url_invalid() {
+        assert!(url("not-a-url", "website").is_err());
+    }
+
+    #[test]
+    fn test_phone_valid() {
+        assert!(phone("123-456-7890", "phone").is_ok());
+    }
+
+    #[test]
+    fn test_phone_valid_international() {
+        assert!(phone("+1 (555) 123-4567", "phone").is_ok());
+    }
+
+    #[test]
+    fn test_phone_invalid() {
+        assert!(phone("123", "phone").is_err());
+    }
+
+    #[test]
+    fn test_uuid_valid() {
+        assert!(uuid("550e8400-e29b-41d4-a716-446655440000", "id").is_ok());
+    }
+
+    #[test]
+    fn test_uuid_invalid() {
+        assert!(uuid("not-a-uuid", "id").is_err());
+    }
+
+    #[test]
+    fn test_validator_trait_implementation() {
+        struct MinLengthValidator {
+            min: usize,
+        }
+
+        impl Validator for MinLengthValidator {
+            fn validate(&self, value: &str, field: &str) -> Result<(), ValidationError> {
+                if value.len() >= self.min {
+                    Ok(())
+                } else {
+                    Err(ValidationError::new(
+                        field,
+                        format!("must be at least {} characters", self.min),
+                        self.code(),
+                    ))
+                }
+            }
+
+            fn code(&self) -> &str {
+                "min_length_custom"
+            }
+        }
+
+        let validator = MinLengthValidator { min: 5 };
+        assert!(validator.validate("hello", "name").is_ok());
+        assert!(validator.validate("hi", "name").is_err());
+    }
+
+    #[test]
+    fn test_complex_validation_workflow() {
+        struct FormData {
+            name: String,
+            email: String,
+            phone: String,
+            website: String,
+        }
+
+        impl Validatable for FormData {
+            fn validate(&self) -> Result<(), ValidationErrors> {
+                let mut errors = ValidationErrors::new();
+                errors.add_if_err(required(&self.name, "name"));
+                errors.add_if_err(min_length(&self.name, 2, "name"));
+                errors.add_if_err(email(&self.email, "email"));
+                errors.add_if_err(phone(&self.phone, "phone"));
+                errors.add_if_err(url(&self.website, "website"));
+                errors.into_result()
+            }
+        }
+
+        let valid_form = FormData {
+            name: "John Doe".into(),
+            email: "john@example.com".into(),
+            phone: "(555) 123-4567".into(),
+            website: "https://example.com".into(),
+        };
+        assert!(valid_form.validate().is_ok());
+
+        let invalid_form = FormData {
+            name: "J".into(),
+            email: "invalid-email".into(),
+            phone: "123".into(),
+            website: "not-a-url".into(),
+        };
+        let result = invalid_form.validate();
+        assert!(result.is_err());
+        if let Err(errors) = result {
+            assert!(errors.len() >= 4);
+        }
+    }
+
+    #[test]
+    fn test_email_validation_edge_cases() {
+        assert!(email("user+tag@subdomain.example.co.uk", "email").is_ok());
+        assert!(email("first.last@example123.com", "email").is_ok());
+        assert!(email("user_name@example.com", "email").is_ok());
+    }
+
+    #[test]
+    fn test_phone_validation_various_formats() {
+        assert!(phone("1234567890", "phone").is_ok());
+        assert!(phone("123-456-7890", "phone").is_ok());
+        assert!(phone("(123) 456-7890", "phone").is_ok());
+        assert!(phone("+1 (555) 123-4567", "phone").is_ok());
+    }
+
+    #[test]
+    fn test_validation_error_codes() {
+        let email_err = email("bad", "email").unwrap_err();
+        assert_eq!(email_err.code, "email");
+
+        let phone_err = phone("1", "phone").unwrap_err();
+        assert_eq!(phone_err.code, "phone");
+
+        let url_err = url("not-url", "website").unwrap_err();
+        assert_eq!(url_err.code, "url");
+    }
+
+    #[test]
+    fn test_validation_errors_display() {
+        let mut errors = ValidationErrors::new();
+        errors.add(ValidationError::new("email", "invalid", "email"));
+        errors.add(ValidationError::new("phone", "too short", "phone"));
+        let display_string = format!("{}", errors);
+        assert!(display_string.contains("email"));
+        assert!(display_string.contains("phone"));
+    }
+
+    #[test]
+    fn test_validator_trait_with_message() {
+        struct CustomValidator;
+
+        impl Validator for CustomValidator {
+            fn validate(&self, value: &str, _field: &str) -> Result<(), ValidationError> {
+                if value.len() > 10 {
+                    Ok(())
+                } else {
+                    Err(ValidationError::new("field", "error", self.code()))
+                }
+            }
+
+            fn code(&self) -> &str {
+                "custom_length"
+            }
+        }
+
+        let validator = CustomValidator;
+        let result = validator.validate_with_message("short", "field", "field is too short");
+        assert!(result.is_err());
+        if let Err(err) = result {
+            assert_eq!(err.message, "field is too short");
+            assert_eq!(err.code, "custom_length");
+        }
     }
 }

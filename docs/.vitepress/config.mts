@@ -5,6 +5,8 @@ export default withMermaid({
   description: 'Rust infrastructure toolkit: event sourcing, caching, policy evaluation, and state machine crates.',
   appearance: 'dark',
   lastUpdated: true,
+  // Agent/research trees use Rust generics and `<` comparisons; Vue MD treats them as HTML.
+  srcExclude: ['worklogs/**', 'research/**', 'reports/**', 'sessions/**', 'audits/**'],
   themeConfig: {
     nav: [{ text: 'Home', link: '/' }],
     sidebar: [],

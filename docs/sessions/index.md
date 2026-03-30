@@ -8,13 +8,17 @@ This directory contains session-led work bundles for active and historical waves
 
 ## Structure
 
-Each session should live under:
+Each session lives under:
 
-`docs/sessions/<YYYYMMDD-descriptive-name>/`
+`sessions/<YYYYMMDD-descriptive-name>/`
 
-and should normally contain:
+That path is **relative to this documentation package** (the `docs/` folder in the Phenotype `repos` checkout, i.e. `repos/docs/sessions/…`).
 
-- `00_SESSION_OVERVIEW.md`
+### Bundle files
+
+Prefer the standard set:
+
+- `00_SESSION_OVERVIEW.md` — primary overview (some older bundles use `00_OVERVIEW.md`; treat as equivalent)
 - `01_RESEARCH.md`
 - `02_SPECIFICATIONS.md`
 - `03_DAG_WBS.md`
@@ -27,3 +31,7 @@ and should normally contain:
 - Keep transient execution evidence inside the session bundle.
 - Promote only durable repo-wide guidance into canonical docs.
 - Update the active session bundle continuously so later waves can resume cleanly.
+
+## Note on VitePress
+
+Session markdown is listed under `srcExclude` in `.vitepress/config.mts` so it is **not** compiled as site routes (Vue would mis-parse Rust generics and `<` in prose). Sessions remain the source of truth in git; the published site focuses on curated guides and reference.

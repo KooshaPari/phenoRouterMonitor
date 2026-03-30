@@ -1,5 +1,8 @@
 node_modules/
 .vitepress/dist/
 .vitepress/cache/
+# Stale builds when VitePress root was mis-pointed at a nested `docs/` folder
+docs/.vitepress/dist/
+docs/.vitepress/cache/
 test-results/
 package-lock.json

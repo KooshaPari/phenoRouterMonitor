@@ -1,18 +1,29 @@
 //! phenotype-cache-adapter
+//! phenotype-cache-adapter
 //!
 //! Two-tier cache with L1 (LRU) and L2 (DashMap/Moka).
 
+use thiserror::Error;
 use chrono::{DateTime, Duration, Utc};
 use lru::LruCache;
 use moka::sync::Cache as MokaCache;
-use phenotype_error_core::ErrorKind;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 
-pub type Result<T> = std::result::Result<T, ErrorKind>;
+/// Result type for cache operations.
+pub type Result<T> = std::result::Result<T, CacheError>;
 
+/// Cache error types
+#[derive(Debug, Error)]
+pub enum CacheError {
+    #[error("cache error: {0}")]
+    Internal(String),
+
+    #[error("serialization error: {0}")]
+    Serialization(String),
+}
 /// Metrics hook for observability.
 pub trait MetricsHook: Send + Sync + Debug {
     fn record_hit(&self, tier: &str);

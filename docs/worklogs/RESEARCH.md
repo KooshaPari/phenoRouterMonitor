@@ -1911,3 +1911,43 @@ if __name__ == "__main__":
 ---
 
 _Last updated: 2026-03-30 (Wave 157)_
+
+---
+
+## 2026-03-31 - Platform Engineering Research
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** in_progress
+**Priority:** P1
+
+### Platform Engineering Comparison
+
+| Platform | Type | Assessment | Best For |
+|----------|------|------------|----------|
+| **Heroku** | PaaS | 🟡 Legacy | Quick deploys |
+| **Railway** | Modern PaaS | ✅ ADOPT | Fast iteration |
+| **Render** | PaaS | 🟡 Good | Static sites |
+| **Fly.io** | Distributed | ✅ ADOPT | Global edge |
+| **Coolify** | Self-hosted | 🟡 EVALUATE | On-prem |
+
+### Fly.io for Global Edge
+
+**What:** Deploy apps close to users worldwide.
+
+**Key Features:**
+- Firecracker VMs
+- Anycast networking
+- Volume management
+- Auto-scaling
+
+**Status:** ✅ ADOPT - For global agent deployment
+
+### Tasks
+
+- [ ] PLAT-001: Evaluate Fly.io for agent deployment
+- [ ] PLAT-002: Test cold start performance
+
+---
+
+_Last updated: 2026-03-31_

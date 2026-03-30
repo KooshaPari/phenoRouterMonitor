@@ -22,7 +22,7 @@
 //! assert_err_contains!(err, "bad input");
 //! ```
 
-pub use phenotype_error_core::ErrorKind;
+pub use std::io::ErrorKind;
 
 use std::fmt;
 use std::fs;
