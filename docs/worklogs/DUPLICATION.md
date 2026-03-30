@@ -3903,3 +3903,58 @@ _Last updated: 2026-03-30 (Wave 117)_
 ---
 
 _Last updated: 2026-03-31 (Wave 118)_
+
+---
+
+## 2026-03-30 - Wave 135: Implementation Actions Completed
+
+**Project:** [phenotype-infrakit]
+**Category:** implementation
+**Status:** completed
+**Priority:** P0
+
+### Actions Completed
+
+#### 1. Nested State Machine Crate Archived ✅
+
+**Action:** Removed nested `phenotype-state-machine/phenotype-state-machine/` directory
+
+**Result:**
+- Moved to `.archive/nested-duplicate/` for reference
+- Outer string-based FSM kept as canonical
+- Inner typed FSM preserved for reference
+- **Savings:** ~365 LOC eliminated from build
+
+**PR:** https://github.com/KooshaPari/phenotype-infrakit/pull/262
+
+#### 2. phenotype-errors Deprecated ✅
+
+**Action:** Marked `phenotype-errors` as deprecated
+
+**Result:**
+- Added deprecation notice to `Cargo.toml`
+- Added migration guide to `lib.rs`
+- `phenotype-error-core` is now canonical
+
+**Migration Guide:**
+```toml
+# Replace
+phenotype-errors = "0.2"
+# With
+phenotype-error-core = "0.2"
+```
+
+#### 3. git2 → gix Migration (TODO)
+
+**Status:** API incompatibility requires complete rewrite
+
+**Issue:** gix 0.60 has fundamentally different API from git2:
+- No `Repository::open()` - uses different pattern
+- No `Sort::TIME` enum - different sorting approach
+- Different status/head/commit APIs
+
+**Plan:** Schedule for 2026-Q2 with dedicated migration effort
+
+---
+
+_Last updated: 2026-03-30 (Wave 135)_
