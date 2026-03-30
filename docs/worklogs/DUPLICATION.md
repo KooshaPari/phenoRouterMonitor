@@ -1368,6 +1368,98 @@ _Last updated: 2026-03-29_
 
 ---
 
+## 2026-03-30 - phenotype-telemetry Decomposition Complete
+
+**Project:** [phenotype-infrakit]
+**Category:** LOC reduction, decomposition
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Decomposed monolithic `phenotype-telemetry/src/lib.rs` into focused, single-responsibility modules.
+
+### Files Created/Modified
+
+| Module | File | LOC | Purpose |
+|--------|------|-----|---------|
+| Core | `lib.rs` | 15 | Re-exports only |
+| Metrics | `metrics.rs` | ~50 | MetricRecorder trait + implementations |
+| OTEL | `otel.rs` | ~80 | OpenTelemetry integration |
+| Log | `log.rs` | ~60 | Structured logging |
+| Health | `health.rs` | ~70 | Health reporter trait |
+| Error | `error.rs` | ~25 | TelemetryError enum |
+| Span | `span.rs` | ~40 | Span context utilities |
+
+### LOC Savings
+
+| Metric | Value |
+|--------|-------|
+| Original monolithic | 500+ LOC |
+| Decomposed total | ~340 LOC |
+| **Net savings** | ~160 LOC |
+
+### Compilation Status
+
+```
+✅ cargo check -p phenotype-telemetry
+```
+
+---
+
+## 2026-03-30 - Additional Crate Duplication Findings
+
+**Project:** [phenotype-infrakit]
+**Category:** duplication, nested crates
+**Status:** identified
+**Priority:** P0
+
+### 1. Two Competing Error Crates
+
+| Crate | Status | Issue |
+|-------|--------|-------|
+| `phenotype-error-core` | EXISTS | In workspace but UNUSED by any crate |
+| `phenotype-errors` | EXISTS | Used by phenotype-test-infra, phenotype-telemetry |
+
+**Variants Overlap:**
+- `NotFound(String)` appears in both
+- `Serialization(String)` appears in both
+- `Timeout(String)` appears in both
+
+**Recommendation:** Deprecate one, promote the other workspace-wide.
+
+### 2. HTTP Client Crates
+
+| Crate | Status | Purpose |
+|-------|--------|---------|
+| `phenotype-http-client-core` | EXISTS | HttpTransport trait, RetryPolicy, TransportError (~145 LOC) |
+
+**Finding:** Contains patterns that could replace duplicated auth/retry logic in heliosCLI.
+
+### 3. Nested Crate Structures (CONFIRMED)
+
+```
+crates/phenotype-event-sourcing/
+├── src/                    # Outer (workspace-linked)
+│   ├── error.rs            # 46 LOC
+│   ├── event.rs            # 31 LOC
+│   ├── hash.rs              # 195 LOC
+│   ├── memory.rs            # 266 LOC
+│   ├── snapshot.rs          # 28 LOC
+│   └── store.rs             # 40 LOC
+└── phenotype-event-sourcing/  # Inner (REDUNDANT)
+    ├── src/                # IDENTICAL copies
+    └── Cargo.toml           # Nested workspace
+```
+
+**Recommendation:** Remove nested `phenotype-event-sourcing/phenotype-event-sourcing/` directory.
+
+---
+
+_Last updated: 2026-03-30_
+
+---
+
 _Last updated: 2026-03-29_
 
 ### Related
