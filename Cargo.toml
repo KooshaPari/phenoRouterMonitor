@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
+    "crates/phenotype-error-core",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health"
 ]
@@ -15,7 +16,6 @@ exclude = [
     "crates/phenotype-time",
     "crates/phenotype-git-core",
     "crates/phenotype-policy-engine",
-    "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-iter",
     "crates/phenotype-crypto",
