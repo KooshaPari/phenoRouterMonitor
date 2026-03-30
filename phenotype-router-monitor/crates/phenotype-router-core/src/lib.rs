@@ -17,11 +17,11 @@ pub mod patterns;
 pub mod router;
 
 // Pareto router modules (extracted from thegent)
-pub mod audit;
-pub mod executor;
-pub mod hysteresis;
-pub mod orchestrator;
-pub mod risk;
+pub mod pareto_audit;
+pub mod pareto_executor;
+pub mod pareto_hysteresis;
+pub mod pareto_orchestrator;
+pub mod pareto_risk;
 
 // Re-exports: infrastructure
 pub use backend::{BackendAddress, BackendPool, LoadBalancingStrategy};
@@ -31,11 +31,11 @@ pub use patterns::PathPattern;
 pub use router::Router;
 
 // Re-exports: Pareto routing
-pub use audit::{AuditLogger, AuditRecord};
-pub use executor::{DispatchTarget, Dispatcher, ExecutionOutcome, RouteExecutor};
-pub use hysteresis::HysteresisManager;
-pub use orchestrator::{AgentRoutingState, ArbitrationPolicy, RouterStatus, RoutingOrchestrator};
-pub use risk::{ComplexityLevel, RiskCalculator, RiskFactors};
+pub use pareto_audit::{AuditLogger, AuditRecord};
+pub use pareto_executor::{DispatchTarget, Dispatcher, ExecutionOutcome, RouteExecutor};
+pub use pareto_hysteresis::HysteresisManager;
+pub use pareto_orchestrator::{AgentRoutingState, ArbitrationPolicy, RouterStatus, RoutingOrchestrator};
+pub use pareto_risk::{ComplexityLevel, RiskCalculator, RiskFactors};
 
 #[cfg(test)]
 mod tests {

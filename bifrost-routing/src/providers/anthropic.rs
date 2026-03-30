@@ -284,6 +284,7 @@ impl LLMProvider for AnthropicProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::{LLMProvider, Message};
 
     #[test]
     fn test_anthropic_config() {

@@ -5,10 +5,10 @@
 //! - Per-agent routing state
 //! - `thegent router status` output via RouterStatus
 
-use crate::audit::AuditLogger;
-use crate::executor::Dispatcher;
-use crate::risk::RiskFactors;
-use crate::router::{ParetoRouter, RouterConfig, RoutingDecision, RoutingMode};
+use crate::pareto_audit::AuditLogger;
+use crate::pareto_executor::Dispatcher;
+use crate::pareto_risk::RiskFactors;
+use crate::pareto_router::{ParetoRouter, RouterConfig, RoutingDecision, RoutingMode};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};

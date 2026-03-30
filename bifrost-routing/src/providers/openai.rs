@@ -296,6 +296,7 @@ impl LLMProvider for OpenAIProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::{LLMProvider, Message};
 
     #[test]
     fn test_openai_config() {

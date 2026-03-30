@@ -277,6 +277,7 @@ impl LLMProvider for TogetherProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::Message;
 
     #[test]
     fn test_together_config() {

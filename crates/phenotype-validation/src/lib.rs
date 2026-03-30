@@ -326,7 +326,7 @@ pub fn slug(value: &str, field: &str) -> Result<(), ValidationError> {
 
 /// Validate contains only numeric digits
 pub fn numeric(value: &str, field: &str) -> Result<(), ValidationError> {
-    if !value.chars().all(|c| c.is_ascii_digit()) {
+    if value.is_empty() || !value.chars().all(|c| c.is_ascii_digit()) {
         Err(ValidationError::new(
             field,
             "must contain only digits",

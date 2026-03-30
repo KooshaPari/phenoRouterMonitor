@@ -3,8 +3,8 @@
 //! Integrates routing decisions from ParetoRouter with actual task execution
 //! by dispatching to the appropriate provider (Lifecycle or TheGent).
 
-use crate::audit::{AuditLogger, AuditRecord};
-use crate::router::{RoutingDecision, RoutingMode};
+use crate::pareto_audit::{AuditLogger, AuditRecord};
+use crate::pareto_router::{RoutingDecision, RoutingMode};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Instant;

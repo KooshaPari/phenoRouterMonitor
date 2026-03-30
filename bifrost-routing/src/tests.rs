@@ -2,7 +2,7 @@
 
 #[cfg(test)]
 mod integration_tests {
-    use crate::models::{LLMRequest, Message, MessageRole};
+    use crate::models::{LLMProvider, LLMRequest, Message, MessageRole};
     use crate::providers::{
         AnthropicConfig, AnthropicProvider, OpenAIConfig, OpenAIProvider,
         OpenRouterConfig, OpenRouterProvider, TogetherConfig, TogetherProvider,
@@ -210,7 +210,7 @@ mod integration_tests {
 
         assert_eq!(metrics.latency_tracker.min_latency_ms(), Some(100));
         assert_eq!(metrics.latency_tracker.max_latency_ms(), Some(500));
-        assert_eq!(metrics.latency_tracker.average_latency_ms(), 250);
+        assert_eq!(metrics.latency_tracker.average_latency_ms(), 283); // (100+500+250)/3
     }
 
     #[test]

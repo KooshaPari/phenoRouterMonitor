@@ -3,8 +3,8 @@
 //! Routes tasks between Lifecycle (low-risk, fast) and TheGent (high-risk, thorough)
 //! based on a configurable risk threshold.
 
-use crate::hysteresis::HysteresisManager;
-use crate::risk::{RiskCalculator, RiskFactors};
+use crate::pareto_hysteresis::HysteresisManager;
+use crate::pareto_risk::{RiskCalculator, RiskFactors};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -173,8 +173,8 @@ impl ParetoRouter {
         }
         *last = Some(mode);
 
-        // NEW: Sync to SHM
-        let _ = thegent_shm::update_router_metrics(lc_inc, tg_inc, changes_inc, 0);
+        // NOTE: SHM telemetry integration omitted (thegent-specific)
+        // Can be re-enabled if phenotype-router-monitor adds shared memory support
 
         let rationale = match mode {
             RoutingMode::Lifecycle => format!(
