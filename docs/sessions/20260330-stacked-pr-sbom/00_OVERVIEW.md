@@ -12,6 +12,14 @@ Land supply-chain automation as **small, reviewable PRs** (stacked / layered). *
 | 2 | `chore/docs-tooling-sbom-stack` | `chore/sbom-cyclonedx-pilot` | `docs/worklogs/DEPENDENCIES.md` (pilot documentation) |
 | 3 | `chore/session-stacked-sbom-delivery` | `chore/docs-tooling-sbom-stack` | This session note |
 
+## Opened PRs (2026-03-30)
+
+| PR | Link |
+|----|------|
+| 1 | https://github.com/KooshaPari/phenotype-infrakit/pull/99 |
+| 2 | https://github.com/KooshaPari/phenotype-infrakit/pull/100 |
+| 3 | https://github.com/KooshaPari/phenotype-infrakit/pull/101 |
+
 ## After PR 1 merges
 
 - Rebase or retarget PR 2 to `main` (or merge PR 2 into updated base as per GitHub stacked-PR workflow).
@@ -32,9 +40,9 @@ gh pr create --base chore/docs-tooling-sbom-stack --head chore/session-stacked-s
 
 ## Success criteria
 
-- [ ] PR 1 open and CI runs `SBOM (CycloneDX pilot)` workflow.
+- [x] PR 1 open (merge triggers `SBOM (CycloneDX pilot)` workflow when Actions billing allows).
 - [ ] Artifact `cyclonedx-sbom-phenotype-error-core` present on workflow run.
-- [ ] PR 2 and PR 3 open with correct base branches.
+- [x] PR 2 and PR 3 open with correct base branches.
 
 ---
 
