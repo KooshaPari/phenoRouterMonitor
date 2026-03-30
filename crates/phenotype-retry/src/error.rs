@@ -3,8 +3,12 @@
 use thiserror::Error;
 
 /// Errors that can occur during retry operations
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Clone)]
 pub enum RetryError {
+    /// Transient error that should be retried
+    #[error("transient error: {0}")]
+    Transient(String),
+
     /// Maximum retry attempts exceeded
     #[error("maximum retry attempts ({max_attempts}) exceeded")]
     MaxAttemptsExceeded {
@@ -65,8 +69,8 @@ impl RetryError {
     }
 }
 
-impl From<std::time::Elapsed> for RetryError {
-    fn from(_: std::time::Elapsed) -> Self {
+impl From<tokio::time::error::Elapsed> for RetryError {
+    fn from(_: tokio::time::error::Elapsed) -> Self {
         Self::Cancelled
     }
 }

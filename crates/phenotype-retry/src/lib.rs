@@ -1,14 +1,13 @@
 //! # Phenotype Retry Library
 //!
-//! Provides retry patterns using the tenacity crate with exponential backoff.
+//! Provides retry patterns with exponential backoff.
 //!
 //! ## Features
 //!
 //! - Exponential backoff with configurable base delay
-//! - Jitter for randomization
+//! - Jitter for randomization via deterministic spread
 //! - Maximum retry attempts limit
-//! - Timeout support
-//! - Error filtering (only retry certain errors)
+//! - Error types for retry operations
 //!
 //! ## Usage
 //!
@@ -36,9 +35,6 @@ pub mod error;
 pub use builder::RetryBuilder;
 pub use error::RetryError;
 
-// Re-export tenacity types for advanced usage
-pub use tenacity::Backoff;
-
 // Re-export commonly used types
 pub use std::time::Duration;
 
@@ -61,60 +57,73 @@ pub fn retry_with_delay(base_delay: Duration) -> RetryBuilder {
 mod tests {
     use super::*;
     use std::sync::atomic::{AtomicU32, Ordering};
+    use std::sync::Arc;
 
     #[tokio::test]
     async fn test_retry_success() {
-        static CALL_COUNT: AtomicU32 = AtomicU32::new(0);
+        let attempt_count = Arc::new(AtomicU32::new(0));
+        let attempt_count_clone = attempt_count.clone();
 
-        let result = retry()
+        let result: Result<&str, RetryError> = retry()
             .max_attempts(3)
             .base_delay(Duration::from_millis(10))
-            .execute(|| async {
-                CALL_COUNT.fetch_add(1, Ordering::SeqCst);
-                Ok::<_, RetryError>("success")
+            .execute(|| {
+                let count = attempt_count_clone.clone();
+                async move {
+                    count.fetch_add(1, Ordering::SeqCst);
+                    Ok::<_, RetryError>("success")
+                }
             })
             .await;
 
         assert!(result.is_ok());
-        assert_eq!(CALL_COUNT.load(Ordering::SeqCst), 1);
+        assert_eq!(attempt_count.load(Ordering::SeqCst), 1);
     }
 
     #[tokio::test]
     async fn test_retry_failure_then_success() {
-        static CALL_COUNT: AtomicU32 = AtomicU32::new(0);
+        let attempt_count = Arc::new(AtomicU32::new(0));
+        let attempt_count_clone = attempt_count.clone();
 
-        let result = retry()
+        let result: Result<&str, RetryError> = retry()
             .max_attempts(3)
             .base_delay(Duration::from_millis(10))
-            .execute(|| async {
-                let count = CALL_COUNT.fetch_add(1, Ordering::SeqCst);
-                if count < 1 {
-                    Err(RetryError::Transient("try again".into()))
-                } else {
-                    Ok("success")
+            .execute(|| {
+                let count = attempt_count_clone.clone();
+                async move {
+                    let attempt_num = count.fetch_add(1, Ordering::SeqCst);
+                    if attempt_num < 1 {
+                        Err(RetryError::Transient("try again".into()))
+                    } else {
+                        Ok("success")
+                    }
                 }
             })
             .await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "success");
-        assert_eq!(CALL_COUNT.load(Ordering::SeqCst), 2);
+        assert_eq!(attempt_count.load(Ordering::SeqCst), 2);
     }
 
     #[tokio::test]
     async fn test_retry_exhausted() {
-        static CALL_COUNT: AtomicU32 = AtomicU32::new(0);
+        let attempt_count = Arc::new(AtomicU32::new(0));
+        let attempt_count_clone = attempt_count.clone();
 
-        let result = retry()
+        let result: Result<&str, RetryError> = retry()
             .max_attempts(3)
             .base_delay(Duration::from_millis(10))
-            .execute(|| async {
-                CALL_COUNT.fetch_add(1, Ordering::SeqCst);
-                Err(RetryError::Transient("always fail".into()))
+            .execute(|| {
+                let count = attempt_count_clone.clone();
+                async move {
+                    count.fetch_add(1, Ordering::SeqCst);
+                    Err(RetryError::Transient("always fail".into()))
+                }
             })
             .await;
 
         assert!(result.is_err());
-        assert_eq!(CALL_COUNT.load(Ordering::SeqCst), 3);
+        assert_eq!(attempt_count.load(Ordering::SeqCst), 3);
     }
 }

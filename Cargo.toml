@@ -12,6 +12,7 @@ members = [
     "crates/phenotype-iter",
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
+    "crates/phenotype-retry",
     "crates/phenotype-state-machine",
     "crates/phenotype-string",
     "crates/phenotype-telemetry",
@@ -20,7 +21,6 @@ members = [
     "crates/phenotype-validation",
 ]
 exclude = [
-    "crates/phenotype-retry",
     "crates/phenotype-macros",
     "crates/phenotype-mcp",
     "crates/phenotype-health",
