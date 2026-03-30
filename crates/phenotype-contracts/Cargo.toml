@@ -6,7 +6,7 @@ license = { workspace = true }
 rust-version = { workspace = true }
 repository = { workspace = true }
 authors = { workspace = true }
-description = "Shared traits and types for Phenotype crates"
+description = { workspace = true }
 
 [dependencies]
 serde = { workspace = true }

@@ -3,23 +3,6 @@ name = "phenotype-error-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-<<<<<<< HEAD
-repository.workspace = true
-description = "Canonical error types for the Phenotype ecosystem"
-keywords = ["error", "phenotype", "thiserror"]
-
-[dependencies]
-thiserror = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-
-[dev-dependencies]
-anyhow = { workspace = true }
-
-[lib]
-name = "phenotype_error_core"
-path = "src/lib.rs"
-=======
 authors.workspace = true
 repository.workspace = true
 description = "Error types for Phenotype"
@@ -27,4 +10,3 @@ description = "Error types for Phenotype"
 [dependencies]
 serde.workspace = true
 thiserror.workspace = true
->>>>>>> origin/main
