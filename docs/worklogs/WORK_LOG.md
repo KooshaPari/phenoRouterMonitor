@@ -681,3 +681,22 @@ docs/worklogs/
 ---
 
 _Last updated: 2026-03-29 (Wave 97 complete)_
+
+---
+## Wave 94 - PR #149 Created (2026-03-29)
+
+**Status:** completed  
+**Priority:** P1  
+**PR:** https://github.com/KooshaPari/phenotype-infrakit/pull/149
+
+### Summary
+Phenotype workspace cleanup:
+- Removed unused dependencies (lru, moka)
+- Fixed 15 phenotype crates
+- All crates now build successfully
+
+### PR Changes
+- phenotype-errors, phenotype-event-sourcing fixed
+- phenotype-test-infra created
+- phenotype-port-traits, phenotype-retry fixed
+

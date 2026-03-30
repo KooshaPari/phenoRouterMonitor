@@ -1,0 +1,10 @@
+[package]
+name = "agileplus-domain"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Agileplus-domain"
+
+[lib]
+path = "src/lib.rs"

@@ -1,6 +1,6 @@
-//! phenotype-event-sourcing
+//! # Phenotype Event Sourcing
 //!
-//! Append-only event store with SHA-256 hash chain integrity for the Phenotype ecosystem.
+//! Event sourcing primitives for phenotype-infrakit.
 
 pub mod error;
 pub mod event;
@@ -9,7 +9,6 @@ pub mod memory;
 pub mod snapshot;
 pub mod store;
 
-pub use error::{EventSourcingError, EventStoreError, HashError, Result};
+pub use error::EventSourcingError;
 pub use event::EventEnvelope;
-pub use memory::InMemoryEventStore;
 pub use store::EventStore;

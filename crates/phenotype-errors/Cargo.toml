@@ -1,21 +1,16 @@
 [package]
 name = "phenotype-errors"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Errors"
+
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
-serde = { workspace = true, optional = true }
+phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
+serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
-chrono.workspace = true
-regex.workspace = true
-tokio = { version = "1.40", features = ["full"], optional = true }
-
-[dev-dependencies]
-
-[features]
-default = []
-tokio-support = ["tokio"]
-serde-support = ["serde"]

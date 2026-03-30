@@ -146,6 +146,44 @@ _End of Wave 94_
 
 ---
 
+## 2026-03-30 - Wave 95 PR Creation Summary
+
+**Status:** PRs created
+**Updated:** 2026-03-30
+
+### PRs Created in phenotype-infrakit
+
+| PR # | Title | Branch | URL |
+|------|-------|--------|-----|
+| #95 | feat(ci): add SBOM generation workflow | `feat/add-sbom-workflow` | https://github.com/KooshaPari/phenotype-infrakit/pull/95 |
+| #96 | feat(event-sourcing): LOC reduction | `feat/event-sourcing-loc-reduction` | https://github.com/KooshaPari/phenotype-infrakit/pull/96 |
+
+### LOC Reduction Achievement
+- **-406 LOC net** in phenotype-event-sourcing (5 files: -494 deleted, +88 added)
+
+### AggressivePlus Worktree Notes
+- `.worktrees/merge-spec-docs` has 57 commits ahead of main
+- Branches have no common ancestor - would need force-push or manual merge
+- phenotype-docs worktree already has commits pushed to agileplus/main
+
+### Remaining Action Items
+
+#### P1 - HIGH  
+- [ ] REVIEW + MERGE PRs #95 and #96
+- [ ] CLEANUP: After PR merge, remove worktrees with no history in common
+- [ ] REVIEW `.archive/orphaned-worktrees/consolidate-libraries` - DELETE (299MB, commits already in HEAD)
+- [ ] REVIEW `.archive/orphaned-worktrees/expand-test-coverage` - DELETE (403MB)
+
+#### P2 - MEDIUM
+- [ ] Push remaining branches in `.worktrees/merge-spec-docs` (chore/consolidate-cost-tracking, etc.)
+- [ ] Resolve branch conflicts in AgilePlus worktrees
+
+---
+
+_End of Wave 95_
+
+---
+
 ## 2026-03-29 - Fresh Audit Findings
 
 **Status:** Verified current state
