@@ -81,4 +81,3 @@ docs/worklogs/libification/WS6_RUST_TOML_AUDIT.md
 service_fixed.py
 service_working.py
 crates/phenotype-contracts/tests/
-crates/phenotype-http-client-core/

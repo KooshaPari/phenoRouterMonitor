@@ -23,20 +23,8 @@ pub enum TransportError {
     #[error("server error: {status} - {message}")]
     Server { status: u16, message: String },
 
-    #[error("parse error: {0}")]
-    Parse(String),
-
-    #[error("validation error: {0}")]
-    Validation(String),
-
     #[error("not found: {0}")]
     NotFound(String),
-
-    #[error("forbidden: {0}")]
-    Forbidden(String),
-
-    #[error("conflict: {0}")]
-    Conflict(String),
 
     #[error("serialization error: {0}")]
     Serialization(String),
@@ -46,15 +34,6 @@ pub enum TransportError {
 
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
-
-    #[error("http error: {0}")]
-    Http(#[from] http::Error),
-
-    #[error("url error: {0}")]
-    Url(#[from] url::ParseError),
-
-    #[error("reqwest error: {0}")]
-    Reqwest(#[from] reqwest::Error),
 }
 
 impl TransportError {
@@ -78,22 +57,15 @@ impl TransportError {
             TransportError::Authentication(_) => ErrorKind::Authentication,
             TransportError::RateLimited { .. } => ErrorKind::RateLimited,
             TransportError::Server { .. } => ErrorKind::Server,
-            TransportError::Parse(_) => ErrorKind::Parse,
-            TransportError::Validation(_) => ErrorKind::Validation,
             TransportError::NotFound(_) => ErrorKind::NotFound,
-            TransportError::Forbidden(_) => ErrorKind::Forbidden,
-            TransportError::Conflict(_) => ErrorKind::Conflict,
             TransportError::Serialization(_) => ErrorKind::Serialization,
             TransportError::Unknown(_) => ErrorKind::Unknown,
             TransportError::Io(_) => ErrorKind::Io,
-            TransportError::Http(_) => ErrorKind::Http,
-            TransportError::Url(_) => ErrorKind::Url,
-            TransportError::Reqwest(_) => ErrorKind::Reqwest,
         }
     }
 }
 
-/// Error kind categorization for transport errors.
+/// Error kind categorization.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ErrorKind {
     Request,
@@ -102,15 +74,8 @@ pub enum ErrorKind {
     Authentication,
     RateLimited,
     Server,
-    Parse,
-    Validation,
     NotFound,
-    Forbidden,
-    Conflict,
     Serialization,
     Unknown,
     Io,
-    Http,
-    Url,
-    Reqwest,
 }
