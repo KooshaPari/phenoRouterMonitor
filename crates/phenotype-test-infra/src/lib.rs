@@ -225,7 +225,7 @@ macro_rules! assert_err_contains {
 /// clock.advance(Duration::from_secs(5));
 /// assert_eq!(clock.now(), Duration::from_secs(5));
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct MockClock {
     nanos: Arc<AtomicU64>,
 }
@@ -267,11 +267,6 @@ impl MockClock {
     }
 }
 
-impl Default for MockClock {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 // ---------------------------------------------------------------------------
 // Log capture
