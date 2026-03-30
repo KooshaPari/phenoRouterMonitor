@@ -106,13 +106,13 @@ rm -rf docs/node_modules/
 ```
 ### Action Items
 
-- [ ] CLEAN-001: Delete `worktrees/`, `worktree/`, `add/` (empty placeholders)
-- [ ] CLEAN-002: Archive `.worktrees/phench-fix/` to ~/Archives/
-- [ ] CLEAN-003: Archive `.worktrees/gh-pages-deploy/` to ~/Archives/
-- [ ] CLEAN-004: Delete `docs/node_modules/` (regeneratable)
-- [ ] CLEAN-005: Investigate `src/thegent/` vs `platforms/thegent/` duplication
-- [ ] CLEAN-006: Archive `crates/phenotype-event-sourcing/` (orphan content)
-- [ ] CLEAN-007: Document purpose of `platforms/thegent/`
+- [ ] CLEAN-001: Remove or repurpose `worktrees/` at repo root (still present 2026-03-31); `worktree/` and `add/` already absent
+- [x] CLEAN-002: Archive `.worktrees/phench-fix/` — **N/A** (path not present at repo root 2026-03-31)
+- [x] CLEAN-003: Archive `.worktrees/gh-pages-deploy/` — **N/A** (path not present at repo root 2026-03-31)
+- [ ] CLEAN-004: Delete `docs/node_modules/` when not needed (still present 2026-03-31)
+- [x] CLEAN-005: Investigate `src/thegent/` vs `platforms/thegent/` — **`src/thegent/` absent**; only `platforms/thegent/` remains (confirm whether that subtree is still desired)
+- [x] CLEAN-006: Archive nested orphan under `crates/` — **superseded**: nested inner trees removed (Wave 97); canonical `crates/phenotype-*` are workspace members—not the old “orphan nested copy” problem
+- [ ] CLEAN-007: Document purpose of `platforms/thegent/` (external clone still present)
 
 ---
 
