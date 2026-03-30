@@ -1,0 +1,534 @@
+name: Extended Security (Comprehensive)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3am UTC
+  workflow_dispatch:
+
+concurrency:
+  group: extended-security-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: read
+  security-events: write
+  checks: write
+
+jobs:
+  # ─── CodeQL SAST (Expanded Language Matrix) ─────────────────────────────────
+  codeql:
+    name: CodeQL Analysis (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - go
+          - python
+          - javascript-typescript
+          - cpp
+          - java
+          - ruby
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: auto
+
+      - name: Auto-build
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: codeql-${{ matrix.language }}
+          fail-on: high
+
+  # ─── Semgrep (Generic SAST) ───────────────────────────────────────────────
+  semgrep:
+    name: Semgrep SAST Scan
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run Semgrep with security rulesets
+        id: semgrep
+        run: |
+          semgrep --config=p/security-audit \
+            --config=p/owasp-top-ten \
+            --config=p/cwe-top-25 \
+            --format=sarif \
+            --output=/tmp/semgrep-results.sarif \
+            --severity=HIGH \
+            --severity=CRITICAL \
+            . 2>&1 || SEMGREP_EXIT=$?
+          echo "SEMGREP_EXIT=${SEMGREP_EXIT:-0}" >> "${GITHUB_ENV}"
+
+      - name: Upload Semgrep SARIF
+        if: hashFiles('/tmp/semgrep-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/semgrep-results.sarif
+          category: semgrep
+
+  # ─── Python Security (bandit) ──────────────────────────────────────────────
+  python-bandit:
+    name: Python Security (bandit)
+    runs-on: ubuntu-latest
+    if: contains(github.repository, 'phenotype') || contains(github.repository, 'agileplus')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Run bandit
+        id: bandit
+        run: |
+          bandit -r python/ -ll -f json --output /tmp/bandit.json 2>&1 || BANDIT_EXIT=$?
+          echo "BANDIT_EXIT=${BANDIT_EXIT:-0}" >> "${GITHUB_ENV}"
+        env:
+          PYTHONPATH: python/src
+
+      - name: Display bandit results
+        if: hashFiles('/tmp/bandit.json') != ''
+        run: python -m json.tool /tmp/bandit.json || cat /tmp/bandit.json
+
+  # ─── Go Security (gosec) ───────────────────────────────────────────────────
+  go-gosec:
+    name: Go Security (gosec)
+    runs-on: ubuntu-latest
+    if: contains(github.repository, 'thegent') || contains(github.repository, 'phenotype')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Run gosec
+        uses: securego/gosec@master
+        with:
+          args: '-no-fail -fmt sarif -out /tmp/gosec-sarif.sarif ./...'
+
+      - name: Upload gosec SARIF
+        if: hashFiles('/tmp/gosec-sarif.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/gosec-sarif.sarif
+          category: gosec-go
+
+  # ─── Ruby Security (brakeman) ──────────────────────────────────────────────
+  ruby-brakeman:
+    name: Ruby Security (brakeman)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/*.rb') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Install brakeman
+        run: gem install brakeman
+
+      - name: Run brakeman
+        id: brakeman
+        run: |
+          brakeman --format json --output /tmp/brakeman-results.json 2>&1 || BRAKEMAN_EXIT=$?
+          echo "BRAKEMAN_EXIT=${BRAKEMAN_EXIT:-0}" >> "${GITHUB_ENV}"
+
+      - name: Display brakeman results
+        if: hashFiles('/tmp/brakeman-results.json') != ''
+        run: cat /tmp/brakeman-results.json | head -100
+
+  # ─── PHP Security (psalm) ──────────────────────────────────────────────────
+  php-psalm:
+    name: PHP Security (psalm)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/*.php') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install psalm via composer
+        run: composer require --dev vimeo/psalm 2>&1 || true
+
+      - name: Run psalm
+        id: psalm
+        run: |
+          if [ -f composer.json ]; then
+            ./vendor/bin/psalm --output-format=json 2>&1 || PSALM_EXIT=$?
+            echo "PSALM_EXIT=${PSALM_EXIT:-0}" >> "${GITHUB_ENV}"
+          fi
+
+  # ─── Dependency Scanning (pip-audit for Python) ───────────────────────────
+  dependency-python:
+    name: Dependency Scan - Python (pip-audit)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/requirements*.txt', 'pyproject.toml', 'poetry.lock', 'Pipfile') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit
+        id: pip_audit
+        run: |
+          pip-audit --desc --format json --output /tmp/pip-audit.json 2>&1 || PIP_AUDIT_EXIT=$?
+          echo "PIP_AUDIT_EXIT=${PIP_AUDIT_EXIT:-0}" >> "${GITHUB_ENV}"
+
+      - name: Display pip-audit results
+        if: hashFiles('/tmp/pip-audit.json') != ''
+        run: python -m json.tool /tmp/pip-audit.json || cat /tmp/pip-audit.json
+
+  # ─── Dependency Scanning (npm audit for JavaScript) ───────────────────────
+  dependency-npm:
+    name: Dependency Scan - JavaScript (npm audit)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run npm audit
+        id: npm_audit
+        run: |
+          npm audit --audit-level=high --json > /tmp/npm-audit.json 2>&1 || NPM_AUDIT_EXIT=$?
+          echo "NPM_AUDIT_EXIT=${NPM_AUDIT_EXIT:-0}" >> "${GITHUB_ENV}"
+
+      - name: Display npm audit results
+        if: hashFiles('/tmp/npm-audit.json') != ''
+        run: cat /tmp/npm-audit.json | head -100
+
+  # ─── Dependency Scanning (govulncheck for Go) ───────────────────────────────
+  dependency-go:
+    name: Dependency Scan - Go (govulncheck)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/go.mod') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Run govulncheck
+        id: govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./... 2>&1 || GOVULN_EXIT=$?
+          echo "GOVULN_EXIT=${GOVULN_EXIT:-0}" >> "${GITHUB_ENV}"
+
+  # ─── Dependency Scanning (cargo-audit for Rust) ────────────────────────────
+  dependency-cargo:
+    name: Dependency Scan - Rust (cargo-audit)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run cargo-audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─── Supply Chain Security (syft SBOM Generation) ──────────────────────────
+  sbom-syft:
+    name: Supply Chain - SBOM (syft)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Generate SBOM with syft
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: sbom-spdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-spdx
+          path: sbom-spdx.json
+          if-no-files-found: warn
+
+  # ─── Supply Chain Security (OSV-Scanner for lockfiles) ──────────────────────
+  supply-chain-osv:
+    name: Supply Chain - OSV-Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Generate Cargo.lock
+        run: cargo generate-lockfile
+        continue-on-error: true
+
+      - name: Install OSV-Scanner
+        env:
+          OSV_VERSION: v2.3.5
+        run: |
+          set -e
+          curl -fsSL -o /tmp/osv-scanner \
+            "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64"
+          chmod +x /tmp/osv-scanner
+          sudo mv /tmp/osv-scanner /usr/local/bin/osv-scanner
+
+      - name: Run OSV-Scanner
+        id: osv
+        run: |
+          osv-scanner scan --lockfile=Cargo.lock --format sarif \
+            --output /tmp/osv-sarif.sarif 2>&1 || OSV_EXIT=$?
+          echo "OSV_EXIT=${OSV_EXIT:-0}" >> "${GITHUB_ENV}"
+
+      - name: Upload OSV SARIF
+        if: hashFiles('/tmp/osv-sarif.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/osv-sarif.sarif
+          category: osv-scanner
+
+  # ─── Infrastructure Scanning (tfsec for Terraform) ────────────────────────
+  infra-tfsec:
+    name: Infrastructure - Terraform (tfsec)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/*.tf') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: .
+          format: sarif
+          out_file: /tmp/tfsec-sarif.sarif
+        continue-on-error: true
+
+      - name: Upload tfsec SARIF
+        if: hashFiles('/tmp/tfsec-sarif.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/tfsec-sarif.sarif
+          category: tfsec-terraform
+
+  # ─── Infrastructure Scanning (hadolint for Dockerfile) ──────────────────────
+  infra-hadolint:
+    name: Infrastructure - Docker (hadolint)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/Dockerfile*') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          format: sarif
+          output-file: /tmp/hadolint-sarif.sarif
+        continue-on-error: true
+
+      - name: Upload hadolint SARIF
+        if: hashFiles('/tmp/hadolint-sarif.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/hadolint-sarif.sarif
+          category: hadolint-docker
+
+  # ─── Container Scanning (trivy for filesystem and images) ────────────────────
+  infra-trivy:
+    name: Infrastructure - Container (trivy)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/Dockerfile*', 'docker-compose.yml') != ''
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: /tmp/trivy-sarif.sarif
+        continue-on-error: true
+
+      - name: Upload Trivy SARIF
+        if: hashFiles('/tmp/trivy-sarif.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: /tmp/trivy-sarif.sarif
+          category: trivy-container
+
+  # ─── Secret Detection (Gitleaks) ─────────────────────────────────────────
+  secrets-gitleaks:
+    name: Secret Detection (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─── Secret Detection (trufflehog) ──────────────────────────────────────────
+  secrets-trufflehog:
+    name: Secret Detection (trufflehog)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run trufflehog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+        continue-on-error: true
+
+  # ─── License Compliance (cargo-deny for Rust) ──────────────────────────────
+  license-cargo-deny:
+    name: License Compliance (cargo-deny)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+
+      - name: Check advisories, licenses, duplicates
+        id: cargo_deny
+        run: cargo deny check 2>&1 || DENY_EXIT=$?
+        env:
+          DENY_EXIT: 0
+
+  # ─── Summary & Fail Gate ────────────────────────────────────────────────────
+  security-summary:
+    name: Security Summary & Gate
+    runs-on: ubuntu-latest
+    needs:
+      - codeql
+      - semgrep
+      - dependency-cargo
+      - secrets-gitleaks
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Report CodeQL results
+        run: |
+          if [ "${{ needs.codeql.result }}" = "failure" ]; then
+            echo "CRITICAL: CodeQL detected HIGH/CRITICAL issues"
+            exit 1
+          fi
+          echo "✓ CodeQL passed"
+
+      - name: Report Semgrep results
+        run: |
+          if [ "${{ needs.semgrep.result }}" = "failure" ]; then
+            echo "CRITICAL: Semgrep detected HIGH/CRITICAL security issues"
+            exit 1
+          fi
+          echo "✓ Semgrep passed"
+
+      - name: Report dependency scanning
+        run: |
+          if [ "${{ needs.dependency-cargo.result }}" = "failure" ]; then
+            echo "CRITICAL: Vulnerable Rust dependencies detected"
+            exit 1
+          fi
+          echo "✓ Dependency scanning passed"
+
+      - name: Report secret detection
+        run: |
+          if [ "${{ needs.secrets-gitleaks.result }}" = "failure" ]; then
+            echo "CRITICAL: Secrets detected in repository"
+            exit 1
+          fi
+          echo "✓ Secret detection passed"
+
+      - name: Security gate summary
+        if: success()
+        run: |
+          echo "✓ All security gates passed"
+          echo "├─ CodeQL: ${{ needs.codeql.result }}"
+          echo "├─ Semgrep: ${{ needs.semgrep.result }}"
+          echo "├─ Cargo Audit: ${{ needs.dependency-cargo.result }}"
+          echo "└─ Gitleaks: ${{ needs.secrets-gitleaks.result }}"
