@@ -16,9 +16,17 @@ type EntityEvents<T> = HashMap<String, Vec<EventEnvelope<T>>>;
 type EventStoreInner<T> = HashMap<String, EntityEvents<T>>;
 
 pub struct InMemoryEventStore<T> {
+/// Thread-safe storage for a single entity's events.
+type EntityEvents<T> = HashMap<String, Vec<EventEnvelope<T>>>;
+
+/// Storage mapping entity types to their entities.
+type EventStoreInner<T> = HashMap<String, EntityEvents<T>>;
+
+/// In-memory event store.
+#[allow(clippy::type_complexity)]
+pub struct InMemoryEventStore<T> {
     events: Arc<RwLock<EventStoreInner<T>>>,
 }
-
 impl<T> InMemoryEventStore<T> {
     pub fn new() -> Self {
         Self {
