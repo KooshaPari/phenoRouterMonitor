@@ -120,7 +120,7 @@ mod tests {
             "name": "test_agent",
             "config": {"timeout": 30}
         });
-        let _ctx = EvaluationContext::from_json(&json);
+        let _ctx = EvaluationContext::from_json(json);
     }
     #[test]
     fn test_set_and_get_string() {
@@ -145,8 +145,8 @@ mod tests {
 
     #[test]
     fn test_contains() {
-        let mut _ctx = EvaluationContext::new();
-        _ctx.set_string("key", "value");
+        let mut ctx = EvaluationContext::new();
+        ctx.set_string("key", "value");
         assert!(ctx.contains("key"));
         assert!(!ctx.contains("missing"));
     }

@@ -54,7 +54,10 @@ impl PricingDatabase {
 
         // === GOOGLE GEMINI ===
         models.insert("gemini-1.5-pro".to_string(), ModelPricing::new(7.0, 21.0));
-        models.insert("gemini-1.5-flash".to_string(), ModelPricing::new(0.075, 0.30));
+        models.insert(
+            "gemini-1.5-flash".to_string(),
+            ModelPricing::new(0.075, 0.30),
+        );
         models.insert("gemini-1.0-pro".to_string(), ModelPricing::new(0.50, 1.50));
 
         // === META LLAMA ===

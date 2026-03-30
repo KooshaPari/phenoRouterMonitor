@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 //! In-memory event store.
 
 use async_trait::async_trait;
@@ -39,8 +40,15 @@ impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> super::Eve
     ) -> Result<i64, EventSourcingError> {
         let mut store = self.events.write().await;
         let entity_events = store.entry(entity_type.to_string()).or_default();
-        let seq = entity_events.entry(entity_id.to_string()).or_default().len() as i64 + 1;
-        entity_events.get_mut(&entity_id.to_string()).unwrap().push(event);
+        let seq = entity_events
+            .entry(entity_id.to_string())
+            .or_default()
+            .len() as i64
+            + 1;
+        entity_events
+            .get_mut(&entity_id.to_string())
+            .unwrap()
+            .push(event);
         Ok(seq)
     }
 
@@ -73,7 +81,7 @@ impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> super::Eve
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::EventStore;
+    use crate::EventStore as _;
 
     #[tokio::test]
     async fn append_and_retrieve() {

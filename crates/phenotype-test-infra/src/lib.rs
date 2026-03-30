@@ -22,7 +22,7 @@
 //! assert_err_contains!(err, "bad input");
 //! ```
 
-pub use phenotype_error_core::ErrorKind;
+pub use phenotype_error_core::CoreError;
 
 use std::fmt;
 use std::fs;
@@ -42,7 +42,7 @@ use tracing_subscriber::fmt::MakeWriter;
 pub type Result<T> = std::result::Result<T, TestError>;
 
 /// Common errors that can occur in tests.
-pub type TestError = ErrorKind;
+pub type TestError = CoreError;
 
 // ---------------------------------------------------------------------------
 // TempDir
@@ -77,7 +77,8 @@ impl TempDir {
         let id = COUNTER.fetch_add(1, Ordering::Relaxed);
         let name = format!("{prefix}-{}-{id}", std::process::id());
         let path = std::env::temp_dir().join(name);
-        fs::create_dir_all(&path).map_err(ErrorKind::io)?;
+        fs::create_dir_all(&path)
+            .map_err(|e| CoreError::storage(format!("failed to create temp dir: {}", e)))?;
         Ok(Self { path })
     }
 

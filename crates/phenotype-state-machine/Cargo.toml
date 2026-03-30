@@ -1,14 +1,17 @@
 [package]
 name = "phenotype-state-machine"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "Generic typed state machine with guards, actions, and history"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
 thiserror.workspace = true
-serde = { workspace = true, features = ["derive"] }

@@ -2,15 +2,13 @@
 //!
 //! Unified error types for the Phenotype ecosystem.
 //!
-//! This crate re-exports `ErrorKind` from `phenotype-error-core` as the
-//! canonical error type. The legacy `Error` enum is retained for
-//! backward compatibility but should not be used in new code.
+//! This crate re-exports the canonical error type `CoreError` from
+//! `phenotype-error-core` along with the convenience `Result` type.
 
-pub use phenotype_error_core::{Error, ErrorContext, ErrorExt, ErrorKind, ErrorKindInner};
-pub use thiserror::Error;
+pub use phenotype_error_core::{CoreError, Result};
 
-/// Convenience result type using the canonical `ErrorKind`.
-pub type Result<T> = std::result::Result<T, ErrorKind>;
+/// Alias for the canonical error type from error-core.
+pub type Error = CoreError;
 
 #[cfg(test)]
 mod tests {
@@ -18,26 +16,23 @@ mod tests {
 
     // Traces to: FR-PHENO-001
     #[test]
-    fn re_exported_error_kind_not_found() {
-        let err = ErrorKind::not_found("user/42");
-        assert_eq!(err.kind(), "NotFound");
-        assert!(err.to_string().contains("not found"));
+    fn re_exported_core_error_not_found() {
+        let err = CoreError::not_found("user/42");
+        assert_eq!(err.to_string(), "not found: user/42");
     }
 
     // Traces to: FR-PHENO-001
     #[test]
-    fn re_exported_error_kind_from_io() {
-        let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
-        let err: ErrorKind = io_err.into();
-        assert_eq!(err.kind(), "NotFound");
+    fn re_exported_core_error_validation() {
+        let err = CoreError::validation("invalid input");
+        assert_eq!(err.to_string(), "validation error: invalid input");
     }
 
     // Traces to: FR-PHENO-001
     #[test]
-    fn re_exported_error_context_chain() {
-        let err = ErrorKind::not_found("user");
-        let ctx = err.chain("while fetching");
-        assert!(ctx.to_string().contains("while fetching"));
+    fn error_alias() {
+        let err: Error = CoreError::internal("failed");
+        assert_eq!(err.to_string(), "internal error: failed");
     }
 
     // Traces to: FR-PHENO-001
@@ -50,7 +45,7 @@ mod tests {
     // Traces to: FR-PHENO-001
     #[test]
     fn result_type_err() {
-        let r: Result<i32> = Err(ErrorKind::not_found("missing"));
+        let r: Result<i32> = Err(CoreError::not_found("missing"));
         assert!(r.is_err());
     }
 }

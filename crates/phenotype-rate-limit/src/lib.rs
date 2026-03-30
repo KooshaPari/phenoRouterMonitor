@@ -1,4 +1,4 @@
-//! phenotype-time
+//! phenotype-rate-limit
 
 use thiserror::Error;
 
