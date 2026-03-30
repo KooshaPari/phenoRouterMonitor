@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 //! Generic finite state machine with transition guards and callbacks.
 //!
 //! ```rust
@@ -354,16 +353,3 @@ mod tests {
         assert!(["red", "green", "yellow"].contains(&state.as_str()));
     }
 }
-=======
-//! phenotype-state-machine
-
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("{0}")]
-    Invalid(String),
-}
-
-pub type Result<T> = std::result::Result<T, Error>;
->>>>>>> origin/main
