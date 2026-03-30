@@ -1,0 +1,93 @@
+{
+  "schema": "error_enums_index.v1",
+  "repo_root": "repos",
+  "scan_scope": "workspace",
+  "count": 17,
+  "enums": [
+    {
+      "path": "crates/phenotype-contracts/src/error.rs",
+      "line": 10,
+      "enum": "ContractError"
+    },
+    {
+      "path": "crates/phenotype-errors/src/lib.rs",
+      "line": 22,
+      "enum": "PhenotypeError"
+    },
+    {
+      "path": "crates/phenotype-event-sourcing/src/error.rs",
+      "line": 9,
+      "enum": "EventSourcingError"
+    },
+    {
+      "path": "crates/phenotype-event-sourcing/src/error.rs",
+      "line": 64,
+      "enum": "EventStoreError"
+    },
+    {
+      "path": "crates/phenotype-event-sourcing/src/error.rs",
+      "line": 82,
+      "enum": "HashError"
+    },
+    {
+      "path": "crates/phenotype-macros/src/aggregate.rs",
+      "line": 27,
+      "enum": "ApplyError"
+    },
+    {
+      "path": "crates/phenotype-macros/src/command.rs",
+      "line": 32,
+      "enum": "CommandError"
+    },
+    {
+      "path": "crates/phenotype-macros/src/event.rs",
+      "line": 39,
+      "enum": "EventError"
+    },
+    {
+      "path": "crates/phenotype-mcp/src/error.rs",
+      "line": 10,
+      "enum": "McpError"
+    },
+    {
+      "path": "crates/phenotype-retry/src/error.rs",
+      "line": 7,
+      "enum": "RetryError"
+    },
+    {
+      "path": "crates/phenotype-state-machine/phenotype-state-machine/src/lib.rs",
+      "line": 16,
+      "enum": "StateMachineError"
+    },
+    {
+      "path": "libs/config-core/src/error.rs",
+      "line": 7,
+      "enum": "ConfigError"
+    },
+    {
+      "path": "libs/phenotype-config-core/src/error.rs",
+      "line": 8,
+      "enum": "ConfigError"
+    },
+    {
+      "path": "libs/phenotype-error-core.ARCHIVED/src/lib.rs",
+      "line": 140,
+      "enum": "StorageError"
+    },
+    {
+      "path": "libs/phenotype-error-core.ARCHIVED/src/lib.rs",
+      "line": 190,
+      "enum": "SerializationError"
+    },
+    {
+      "path": "libs/phenotype-error-core.ARCHIVED/src/lib.rs",
+      "line": 232,
+      "enum": "NetworkError"
+    },
+    {
+      "path": "libs/phenotype-error-core.ARCHIVED/src/lib.rs",
+      "line": 271,
+      "enum": "ConfigError"
+    }
+  ]
+}

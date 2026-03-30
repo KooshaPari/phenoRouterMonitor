@@ -1,0 +1,11 @@
+[package]
+name = "phenotype-logging"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Structured logging setup for the Phenotype ecosystem"
+
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+serde = { version = "1.0", features = ["derive"] }
