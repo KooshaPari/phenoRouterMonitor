@@ -354,4 +354,102 @@ mod tests {
         let state = sm.current();
         assert!(["red", "green", "yellow"].contains(&state.as_str()));
     }
+
+    // =============================================================================
+    // E5.4: Skip-State Configuration
+    // Traces to: FR-PHENO-E54
+    // =============================================================================
+
+    #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+    enum SkipState {
+        Idle,
+        Running,
+        Paused,
+        Completed,
+    }
+
+    /// StateMachineConfig holds skip-state declarations for non-sequential transitions.
+    #[derive(Clone, Debug, Default)]
+    pub struct StateMachineConfig<S> {
+        pub skip_states: Vec<(S, S)>,
+    }
+
+    #[test]
+    fn test_skip_state_allowed_when_declared() {
+        // Traces to: FR-PHENO-E54 — "skip_states allows declared non-sequential transitions"
+        let ctx = OrderContext {
+            order_id: "123".to_string(),
+            amount: 100.0,
+            notes: String::new(),
+        };
+        let sm = StateMachine::new(OrderState::Pending, ctx);
+        let mut sm = sm.with_skip_states(vec![
+            (OrderState::Pending, OrderState::Shipped),
+        ]);
+        sm.add_transition(Transition::new(OrderState::Pending, OrderState::Shipped));
+
+        // Pending→Shipped is ordinal jump 1→3 (skip 2), declared in skip_states → allowed
+        let result = sm.transition_to(OrderState::Shipped);
+        assert!(result.is_ok(), "skip-state transition should be allowed when declared");
+        assert_eq!(sm.current().unwrap(), OrderState::Shipped);
+    }
+
+    #[test]
+    fn test_skip_state_rejected_when_not_declared() {
+        // Traces to: FR-PHENO-E54 — "non-sequential transition rejected unless in skip_states"
+        let ctx = OrderContext {
+            order_id: "123".to_string(),
+            amount: 100.0,
+            notes: String::new(),
+        };
+        let sm = StateMachine::new(OrderState::Pending, ctx);
+        let mut sm = sm.with_skip_states(vec![]); // empty — no skip allowed
+        sm.add_transition(Transition::new(OrderState::Pending, OrderState::Shipped));
+
+        // Pending→Shipped is ordinal jump 1→3, NOT in skip_states → must be rejected
+        let result = sm.transition_to(OrderState::Shipped);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_skip_state_with_guard() {
+        // Traces to: FR-PHENO-E54 — "skip-state transitions still require guard evaluation"
+        let ctx = OrderContext {
+            order_id: "123".to_string(),
+            amount: 0.0, // will fail guard
+            notes: String::new(),
+        };
+        let sm = StateMachine::new(OrderState::Pending, ctx);
+        let mut sm = sm.with_skip_states(vec![(OrderState::Pending, OrderState::Delivered)]);
+        let t = Transition::new(OrderState::Pending, OrderState::Delivered)
+            .with_guard(|ctx: &OrderContext| ctx.amount > 0.0);
+        sm.add_transition(t);
+
+        // Guard fails → transition rejected even though skip is declared
+        let result = sm.transition_to(OrderState::Delivered);
+        assert!(result.is_err());
+        assert_eq!(sm.current().unwrap(), OrderState::Pending); // state unchanged
+    }
+
+    #[test]
+    fn test_skip_state_with_action() {
+        // Traces to: FR-PHENO-E54 — "skip-state transitions trigger action hooks identically"
+        let ctx = OrderContext {
+            order_id: "123".to_string(),
+            amount: 100.0,
+            notes: String::new(),
+        };
+        let sm = StateMachine::new(OrderState::Pending, ctx);
+        let mut sm = sm.with_skip_states(vec![(OrderState::Pending, OrderState::Delivered)]);
+        let t = Transition::new(OrderState::Pending, OrderState::Delivered)
+            .with_action(|ctx: &mut OrderContext| {
+                ctx.notes.push_str("Emergency delivery confirmed");
+            });
+        sm.add_transition(t);
+
+        sm.transition_to(OrderState::Delivered).unwrap();
+        let ctx = sm.context().unwrap();
+        assert_eq!(ctx.notes, "Emergency delivery confirmed");
+        assert_eq!(sm.current().unwrap(), OrderState::Delivered);
+    }
 }
