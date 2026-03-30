@@ -1,0 +1,22 @@
+[package]
+name = "forgecode-providers"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+authors = ["Phenotype Team"]
+
+[dependencies]
+tokio = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+derive_builder = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+mockall = { workspace = true }
