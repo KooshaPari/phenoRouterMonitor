@@ -1,7 +1,7 @@
 # Error Core Extraction Plan
 
 **Created:** 2026-03-29
-**Status:** Planned
+**Status:** Phase 1 in repo (`agileplus-error-core`, `phenotype-error-core`); `Into<ErrorKind>` / `From<crate::Error> for ErrorKind` started for contracts, event-sourcing, policy-engine. See `docs/reference/ADR_ERROR_LAYER_BOUNDARIES.md`. Full AgilePlus crate migration still planned.
 **Priority:** P0 (Critical)
 **Estimated LOC Savings:** ~400 lines
 

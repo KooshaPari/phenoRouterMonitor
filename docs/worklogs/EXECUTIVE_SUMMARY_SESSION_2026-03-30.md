@@ -1,5 +1,7 @@
 # Executive Summary: phenotype-infrakit Session State (2026-03-30)
 
+> **Stale snapshot:** Re-validate branch counts, open PRs, and dirty paths before acting. Use `git status` and `gh pr list` as source of truth.
+
 ## Current State: HIGHLY FRAGMENTED
 
 - **200+ local branches** (down to 150+ after cleanup)

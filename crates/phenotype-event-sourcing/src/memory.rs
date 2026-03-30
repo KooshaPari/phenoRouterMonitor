@@ -14,17 +14,17 @@ pub struct InMemoryEventStore<T> {
     events: Arc<RwLock<HashMap<String, HashMap<String, Vec<EventEnvelope<T>>>>>>,
 }
 
-impl<T> InMemoryEventStore<T> {
-    pub fn new() -> Self {
+impl<T> Default for InMemoryEventStore<T> {
+    fn default() -> Self {
         Self {
             events: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 }
 
-impl<T> Default for InMemoryEventStore<T> {
-    fn default() -> Self {
-        Self::new()
+impl<T> InMemoryEventStore<T> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

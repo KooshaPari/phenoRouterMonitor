@@ -100,6 +100,25 @@ Comprehensive audit of external dependencies, package modernization opportunitie
 | `anyhow` (manual) | `miette` | 🟠 MEDIUM | Fancy CLI diagnostics; better DX for heliosCLI users |
 | `async-trait` | Native Async Traits | 🟢 LOW | Rust 2024 feature; removes macro overhead and improves compile times |
 | `tokio-serial` | `tokio-serial v5` | 🟢 LOW | Fixes 2025 security vulnerability in underlying `serialport` crate |
+| `blake3` dependency misreference | `workspace.dependencies` only | 🟢 LOW | Fix typo in workspace dependencies to prevent manifest parse failure in `phenotype-event-sourcing` |
+
+### 2026-03-30 - Dependency hygiene updates
+
+**Project:** [phenotype-infrakit]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+- Verified `blake3` is declared in `Cargo.toml` and inherited in `crates/phenotype-event-sourcing/Cargo.toml`.
+- Identified and mitigated workspace dependency inconsistency of `phenotype-async-traits` by ensuring explicit `workspace.dependencies` presence.
+- Reviewed unused workspace dependencies: `lru` still unreferenced, `parking_lot` used only in event sourcing, `moka` unreferenced in active crates.
+- Future action: remove `lru` and `moka` from root workspace dependencies once no reference remains.
+
+### 2026-03-30 - Git wrapper compatibility upgrade
+
+- `gix` set to `0.81` with features `status`, `revision`, `parallel`, `sha1` in the root workspace.
+- `phenotype-git-core` sources currently use now-deprecated gix methods; need revision to newer API names (`rev_walk`, `Category::LocalBranch`, `Repository::head` APIs). 
+- Consider pinning to `gix` `0.79` if API update risk is high until full migration is done.
 
 ### Python Modernization Targets
 

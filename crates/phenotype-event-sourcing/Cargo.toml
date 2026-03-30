@@ -17,6 +17,7 @@ blake3.workspace = true
 parking_lot.workspace = true
 async-trait.workspace = true
 tokio.workspace = true
+phenotype-error-core.workspace = true
 
 [lib]
 path = "src/lib.rs"

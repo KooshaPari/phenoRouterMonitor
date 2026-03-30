@@ -1,25 +1,28 @@
 # Phase 2: Error Core Implementation
 
-## Status: IN PROGRESS
+## Status: SCAFFOLD AND BOUNDARIES IN PLACE; EXTEND MIGRATION AS CRATES CHANGE
 
-## Goals
-1. Consolidate error handling into phenotype-errors crate
-2. Deprecate phenotype-error-core (or promote it)
-3. Create shared error wrapper pattern
+## Canonical stack (current repo)
 
-## Key Findings
-- 6 error enums across crates with duplicated variants
-- phenotype-errors used by phenotype-test-infra, phenotype-telemetry
-- phenotype-error-core unused but present in workspace
-- Duplicated variants: NotFound, Serialization, Conflict, Internal
+| Layer | Crate | Role |
+|-------|-------|------|
+| Kinds | `phenotype-error-core` | `ErrorKind` at boundaries |
+| Facade | `phenotype-errors` | Re-exports `phenotype-error-core` |
+| AgilePlus | `agileplus-error-core` | Domain/API/sync/storage enums with `Into<ErrorKind>` |
 
-## Implementation Plan
-1. Audit which crate should be canonical (phenotype-errors vs phenotype-error-core)
-2. Extract shared error types to phenotype-error-core
-3. Migrate phenotype-test-infra, phenotype-telemetry to use phenotype-error-core
-4. Document error hierarchy in ADR
+## Completed
 
-## Action Items
-- [ ] Evaluate phenotype-error-core vs phenotype-errors
-- [ ] Create shared error wrapper pattern
-- [ ] Document error hierarchy in ADR
+- [x] Evaluate `phenotype-error-core` vs `phenotype-errors` — **`ErrorKind` in `phenotype-error-core` is canonical**
+- [x] `From<…> for ErrorKind` for **`phenotype-event-sourcing`**, **`phenotype-policy-engine`**, **`ContractError`**
+- [x] ADR — **`docs/reference/ADR_ERROR_LAYER_BOUNDARIES.md`**
+
+## Remaining (incremental)
+
+- [ ] Apply the same `Into<ErrorKind>` pattern to other crates when editing them
+- [ ] Reconcile stale checkboxes in `DUPLICATION.md` / `WORK_LOG.md`
+- [ ] `git2` → `gix` in `phenotype-git-core` per `docs/worklogs/DEPENDENCIES.md` (separate initiative)
+
+## References
+
+- `docs/reference/ADR_ERROR_LAYER_BOUNDARIES.md`
+- `docs/worklogs/PLANS/ErrorCoreExtraction.md`
