@@ -26,24 +26,6 @@ members = [
 ]
 
 exclude = [
-    "crates/agileplus-api-types",
-    "crates/agileplus-domain",
-    "crates/agileplus-error-core",
-    "crates/phenotype-async-traits",
-    "crates/phenotype-cost-core",
-    "crates/phenotype-crypto",
-    "crates/phenotype-http-client-core",
-    "crates/phenotype-iter",
-    "crates/phenotype-logging",
-    "crates/phenotype-macros",
-    "crates/phenotype-mcp",
-    "crates/phenotype-process",
-    "crates/phenotype-retry",
-    "crates/phenotype-string",
-    "crates/phenotype-time",
-    "crates/phenotype-validation",
-    "libs/phenotype-config-core",
-]
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
