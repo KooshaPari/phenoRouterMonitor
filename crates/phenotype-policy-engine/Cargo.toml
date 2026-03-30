@@ -2,12 +2,11 @@
 name = "phenotype-policy-engine"
 version.workspace = true
 edition.workspace = true
-authors = ["Phenotype Team"]
-license = "MIT"
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
 description = "Generic policy evaluation engine with configurable evaluation modes"
-
-[workspace]
-workspace = true
 
 [lib]
 path = "src/lib.rs"

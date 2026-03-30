@@ -354,7 +354,7 @@ Expanded worklog audit with comprehensive LOC reduction analysis, external packa
 - [ ] Create `agileplus-error-core` crate
 - [ ] Integrate figment for config loading
 - [ ] Fork health-check for unified health status
-- [ ] Remove nested duplicate crates (Phase 1)
+- [x] Remove nested duplicate crates (Phase 1) — **Wave 97 DUP-001** (see “2026-03-31 — Resume / reconciliation”)
 
 ---
 
@@ -437,7 +437,7 @@ crates/phenotype-cache-adapter/phenotype-cache-adapter/src/ # DUP
 
 ### Next Steps
 
-- [ ] Remove nested crate duplicates (1,710 LOC - immediate)
+- [x] Remove nested crate duplicates (1,710 LOC) — **Wave 97 DUP-001**
 - [ ] Create `libs/sync-utils/` crate
 - [ ] Create `libs/async-timeout/` crate
 - [ ] Create `libs/retry/` crate (evaluate `backoff`)
@@ -535,7 +535,7 @@ Created comprehensive LOC reduction analysis and external package fork/wrap stra
 
 ### Next Steps
 
-- [ ] Remove nested duplicate crates (Phase 1 - 1,710 LOC)
+- [x] Remove nested duplicate crates (Phase 1 - 1,710 LOC) — **Wave 97 DUP-001**
 - [ ] Integrate `figment` for config loading
 - [ ] Add `miette` diagnostics to ApiError
 - [ ] Evaluate `statig` for state machines
