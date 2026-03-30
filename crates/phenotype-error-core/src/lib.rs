@@ -240,6 +240,7 @@ impl From<serde_json::Error> for ErrorKind {
     }
 }
 
+#[cfg(feature = "diagnostics")]
 impl From<regex::Error> for ErrorKind {
     fn from(err: regex::Error) -> Self {
         Self::parse_error(err.to_string())

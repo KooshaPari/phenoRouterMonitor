@@ -18,6 +18,9 @@ toml.workspace = true
 thiserror.workspace = true
 once_cell.workspace = true
 tracing.workspace = true
+serde_yaml = "0.9"
+regex = "1.10"
 
 [dev-dependencies]
 tempfile.workspace = true
+serde = { workspace = true, features = ["derive"] }

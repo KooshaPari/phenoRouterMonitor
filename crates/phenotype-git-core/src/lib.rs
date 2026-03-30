@@ -1,23 +1,13 @@
 //! # Phenotype Git Core
 //!
-//! Git operations via libgit2: repository info, branch, status, log.
+//! Git operations via gitoxide (gix): repository info, branch, status, log.
 //!
-//! Provides high-level abstractions over libgit2 for working with git repositories:
-//! - Repository information and state introspection
-//! - Commit history navigation
-//! - Branch and status queries
+//! Migrated from libgit2 to gitoxide for better safety and performance.
+//! - No C dependencies
+//! - Pure Rust implementation
+//! - Better error handling
 //!
-//! # Example
-//!
-//! ```rust,no_run
-//! use phenotype_git_core::GitRepository;
-//!
-//! let repo = GitRepository::open(".")?;
-//! if let Some(commit) = repo.head_commit()? {
-//!     println!("HEAD: {} {}", commit.id, commit.message);
-//! }
-//! # Ok::<(), phenotype_git_core::GitError>(())
-//! ```
+//! See: <https://github.com/GitoxideLabs/gitoxide>
 
 mod commit;
 mod repository;
@@ -25,15 +15,15 @@ mod repository;
 pub use commit::GitCommit;
 pub use repository::GitRepository;
 
-use git2::Repository;
+use gix::Repository;
 use thiserror::Error;
 
 /// Errors that can occur during git operations.
 #[derive(Debug, Error)]
 pub enum GitError {
-    /// Wrapper around libgit2 errors.
+    /// Git operation failed.
     #[error("git error: {0}")]
-    Git(#[from] git2::Error),
+    Git(String),
 
     /// Repository not found at the given path.
     #[error("not a git repository: {0}")]
@@ -54,25 +44,22 @@ pub struct RepoInfo {
 
 /// Open a repository and return summary info.
 pub fn repo_info(path: &std::path::Path) -> Result<RepoInfo> {
-    let repo = Repository::open(path)?;
+    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
 
-    let head_branch = repo
-        .head()
-        .ok()
-        .and_then(|h| h.shorthand().map(String::from));
+    let head_branch = repo.head().ok().and_then(|h| h.name().map(String::from));
 
     let head_commit = repo
         .head()
         .ok()
-        .and_then(|h| h.peel_to_commit().ok())
-        .map(|c| c.id().to_string()[..8].to_string());
+        .and_then(|h| h.peel_to_commit_in_os().ok())
+        .map(|c| c.id.to_string()[..8].to_string());
 
-    let is_dirty = !repo.statuses(None)?.is_empty();
+    let is_dirty = repo.status().map(|s| !s.is_clean()).unwrap_or(false);
 
     let remote_url = repo
         .find_remote("origin")
         .ok()
-        .and_then(|r| r.url().map(String::from));
+        .and_then(|r| r.url().map(|u| u.to_string()));
 
     Ok(RepoInfo {
         head_branch,
@@ -84,10 +71,11 @@ pub fn repo_info(path: &std::path::Path) -> Result<RepoInfo> {
 
 /// List changed files (staged + unstaged).
 pub fn changed_files(path: &std::path::Path) -> Result<Vec<String>> {
-    let repo = Repository::open(path)?;
-    let statuses = repo.statuses(None)?;
+    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
+    let statuses = repo.status().map_err(|e| GitError::Git(e.to_string()))?;
     let files: Vec<String> = statuses
-        .iter()
+        .index()
+        .files()
         .filter_map(|entry| entry.path().map(String::from))
         .collect();
     Ok(files)
@@ -95,33 +83,35 @@ pub fn changed_files(path: &std::path::Path) -> Result<Vec<String>> {
 
 /// Get the current branch name (or None if detached HEAD).
 pub fn current_branch(path: &std::path::Path) -> Result<Option<String>> {
-    let repo = Repository::open(path)?;
+    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
     Ok(repo
         .head()
         .ok()
         .filter(|h| h.is_branch())
-        .and_then(|h| h.shorthand().map(String::from)))
+        .and_then(|h| h.name().map(String::from)))
 }
 
 /// Get the latest N commit messages from HEAD.
 pub fn recent_commits(path: &std::path::Path, count: usize) -> Result<Vec<(String, String)>> {
-    let repo = Repository::open(path)?;
-    let mut revwalk = repo.revwalk()?;
-    revwalk.push_head()?;
-    revwalk.set_sorting(git2::Sort::TIME)?;
+    let repo = Repository::open(path).map_err(|e| GitError::NotARepo(e.to_string()))?;
+
+    let mut revwalk = repo
+        .revwalk(gix::refs::namespace::Namespace::from(
+            gix::refs::category::Category::LocalBranches,
+        ))
+        .map_err(|e| GitError::Git(e.to_string()))?;
+    revwalk
+        .push_head()
+        .map_err(|e| GitError::Git(e.to_string()))?;
 
     let mut commits = Vec::new();
     for oid in revwalk.take(count) {
         let oid = oid?;
-        let commit = repo.find_commit(oid)?;
+        let commit = repo
+            .find_commit(oid)
+            .map_err(|e| GitError::Git(e.to_string()))?;
         let short_id = oid.to_string()[..8].to_string();
-        let message = commit
-            .message()
-            .unwrap_or("")
-            .lines()
-            .next()
-            .unwrap_or("")
-            .to_string();
+        let message = commit.message.lines().next().unwrap_or("").to_string();
         commits.push((short_id, message));
     }
     Ok(commits)
@@ -130,7 +120,6 @@ pub fn recent_commits(path: &std::path::Path, count: usize) -> Result<Vec<(Strin
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
 
     /// Find the repo root by searching upward from CARGO_MANIFEST_DIR.
     fn find_repo_root() -> std::path::PathBuf {
@@ -171,7 +160,7 @@ mod tests {
 
     #[test]
     fn not_a_repo() {
-        let result = repo_info(Path::new("/nonexistent-path"));
+        let result = repo_info(std::path::Path::new("/nonexistent-path"));
         assert!(result.is_err());
     }
 }

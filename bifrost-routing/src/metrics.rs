@@ -1,12 +1,11 @@
 // Metrics tracking for LLM providers
 
-use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 /// Cost tracking per provider
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct CostTracker {
     total_cost_usd: Arc<AtomicU64>, // Stored as millionths of USD
     request_count: Arc<AtomicU64>,
@@ -56,7 +55,7 @@ impl Default for CostTracker {
 }
 
 /// Latency tracking per provider
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct LatencyTracker {
     total_latency_ms: Arc<AtomicU64>,
     request_count: Arc<AtomicU64>,

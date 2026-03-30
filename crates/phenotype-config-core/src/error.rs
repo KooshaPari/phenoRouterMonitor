@@ -32,6 +32,9 @@ pub enum ConfigError {
 
     #[error("TOML error: {0}")]
     Toml(#[from] toml::de::Error),
+
+    #[error("YAML error: {0}")]
+    Yaml(String),
 }
 
 /// Configuration error kinds for programmatic handling
@@ -45,6 +48,7 @@ pub enum ConfigErrorKind {
     Io,
     Json,
     Toml,
+    Yaml,
 }
 
 impl ConfigError {
@@ -59,6 +63,7 @@ impl ConfigError {
             Self::Io(_) => ConfigErrorKind::Io,
             Self::Json(_) => ConfigErrorKind::Json,
             Self::Toml(_) => ConfigErrorKind::Toml,
+            Self::Yaml(_) => ConfigErrorKind::Yaml,
         }
     }
 }

@@ -1,0 +1,51 @@
+# Phenotype Router Monitor Configuration
+
+# Listen configuration
+listen_addr = "0.0.0.0"
+listen_port = 3030
+
+# Request limits
+max_body_size = 10485760  # 10 MB
+timeout_ms = 30000         # 30 seconds
+
+# Route definitions
+[[routes]]
+service = "agileplus"
+path_pattern = "^/agileplus/(.*)"
+backends = [
+  "http://agileplus-1:3000",
+  "http://agileplus-2:3000",
+  "http://agileplus-3:3000"
+]
+timeout_ms = 30000
+strategy = "roundrobin"
+
+[[routes]]
+service = "heliosapp"
+path_pattern = "^/heliosapp/(.*)"
+backends = [
+  "http://heliosapp-1:8080",
+  "http://heliosapp-2:8080"
+]
+timeout_ms = 30000
+strategy = "roundrobin"
+
+[[routes]]
+service = "api"
+path_pattern = "^/api/(.*)"
+backends = [
+  "http://api-1:5000",
+  "http://api-2:5000"
+]
+timeout_ms = 30000
+strategy = "random"
+
+[[routes]]
+service = "web"
+path_pattern = "/web/*"
+backends = [
+  "http://web-1:80",
+  "http://web-2:80"
+]
+timeout_ms = 15000
+strategy = "roundrobin"

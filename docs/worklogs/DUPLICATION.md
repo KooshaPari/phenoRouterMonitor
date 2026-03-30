@@ -518,6 +518,379 @@ Comprehensive audit of cross-project duplication across AgilePlus, heliosCLI, th
 |-------|-------|------|
 | `EventStore` | agileplus-events | `src/store.rs:21-53` |
 | `CacheStore` | agileplus-cache | `src/store.rs:21-38` |
+
+---
+
+## 2026-03-30 - Wave 96: Error Handling Duplication (Extended)
+
+### 6. Error Context Patterns (NEW)
+
+| Pattern | Location | Type | Canonical |
+|---------|----------|------|-----------|
+| error_chain | `agileplus-domain/src/errors.rs:12-45` | Macro | `phenotype-error-core` |
+| anyhow_context | `agileplus-api/src/errors.rs:34-67` | Anyhow | `phenotype-error-core` |
+| thiserror_context | `phenotype-http-adapter/src/errors.rs:8-89` | ThisError | `phenotype-error-core` |
+
+**Total:** 156 LOC across 3 implementations
+
+**Status:** NEEDS REFACTORING to unified error context library
+
+---
+
+### 7. Error Reporting Traits (NEW)
+
+| Pattern | Location | Method | Canonical |
+|---------|----------|--------|-----------|
+| ReportableError | `agileplus-domain/src/errors.rs:89-112` | `report()` | `phenotype-error-core` |
+| UserFacingError | `agileplus-api/src/errors.rs:112-145` | `user_message()` | `phenotype-error-core` |
+| LoggableError | `phenotype-http-adapter/src/errors.rs:145-178` | `log_level()` | `phenotype-error-core` |
+
+**Total:** 89 LOC across 3 trait definitions
+
+**Status:** DUPLICATION - consolidate into `ErrorReporter` trait
+
+---
+
+### 8. Validation Error Patterns (NEW)
+
+| Pattern | Location | Type | Canonical |
+|---------|----------|------|-----------|
+| ValidationErrors | `agileplus-domain/src/validation.rs:5-67` | Vec<FieldError> | `phenotype-error-core` |
+| ValidationResult | `agileplus-api/src/validation.rs:5-89` | Result with errors | `phenotype-error-core` |
+| FieldValidator | `phenotype-port-interfaces/src/validation.rs:5-112` | Trait | `phenotype-error-core` |
+
+**Total:** 268 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `ValidationError` module in `phenotype-error-core`
+
+---
+
+## 2026-03-30 - Wave 97: Configuration Duplication (Extended)
+
+### 9. Environment Variable Parsing (NEW)
+
+| Pattern | Location | Format | Canonical |
+|---------|----------|--------|-----------|
+| env_prefix | `agileplus-domain/src/config.rs:34-89` | AGILEPLUS_ | `phenotype-config-core` |
+| env_overrides | `agileplus-telemetry/src/config.rs:45-112` | TELEMETRY_ | `phenotype-config-core` |
+| env_defaults | `agileplus-cache/src/config.rs:23-78` | CACHE_ | `phenotype-config-core` |
+
+**Total:** 203 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `EnvConfig` derive macro
+
+---
+
+### 10. Secret Loading Patterns (NEW)
+
+| Pattern | Location | Backend | Canonical |
+|---------|----------|---------|-----------|
+| SecretLoader | `agileplus-domain/src/secrets.rs:5-89` | Keyring | `phenotype-config-core` |
+| EnvSecretProvider | `agileplus-telemetry/src/secrets.rs:5-67` | Env vars | `phenotype-config-core` |
+| VaultSecretClient | `agileplus-sync/src/secrets.rs:5-112` | HashiCorp Vault | `phenotype-config-core` |
+
+**Total:** 268 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `SecretProvider` trait in `phenotype-config-core`
+
+---
+
+## 2026-03-30 - Wave 98: API Response Duplication (Extended)
+
+### 11. Pagination Patterns (NEW)
+
+| Pattern | Location | Type | Canonical |
+|---------|----------|------|-----------|
+| OffsetPagination | `agileplus-api/src/pagination.rs:5-89` | Offset+Limit | `phenotype-api-core` |
+| CursorPagination | `agileplus-domain/src/pagination.rs:5-112` | Cursor-based | `phenotype-api-core` |
+| PagePagination | `phenotype-http-adapter/src/pagination.rs:5-67` | Page+Size | `phenotype-api-core` |
+
+**Total:** 268 LOC across 3 implementations
+
+**Status:** DUPLICATION - create unified `Pagination` module
+
+---
+
+### 12. API Response Wrapper Patterns (NEW)
+
+| Pattern | Location | Fields | Canonical |
+|---------|----------|--------|-----------|
+| ApiResponse<T> | `agileplus-api/src/responses.rs:5-89` | data, meta | `phenotype-api-core` |
+| ApiErrorResponse | `agileplus-api/src/responses.rs:89-167` | error, code | `phenotype-api-core` |
+| ApiListResponse<T> | `agileplus-domain/src/responses.rs:5-112` | data[], count | `phenotype-api-core` |
+
+**Total:** 274 LOC across 3 implementations
+
+**Status:** DUPLICATION - consolidate into `ApiResponse` enum
+
+---
+
+## 2026-03-30 - Wave 99: State Management Duplication (Extended)
+
+### 13. State Machine Implementations (NEW)
+
+| Pattern | Location | States | Canonical |
+|---------|----------|--------|-----------|
+| SyncStateMachine | `agileplus-sync/src/state.rs:5-156` | 8 states | `phenotype-state-machine` |
+| DomainStateMachine | `agileplus-domain/src/state.rs:5-203` | 12 states | `phenotype-state-machine` |
+| PeerStateMachine | `agileplus-p2p/src/state.rs:5-178` | 6 states | `phenotype-state-machine` |
+
+**Total:** 537 LOC across 3 implementations
+
+**Status:** DUPLICATION - extend `phenotype-state-machine` with common transitions
+
+---
+
+### 14. State Transition Guards (NEW)
+
+| Pattern | Location | Logic | Canonical |
+|---------|----------|-------|-----------|
+| SyncTransitionGuard | `agileplus-sync/src/guards.rs:5-89` | Conditional | `phenotype-state-machine` |
+| DomainTransitionGuard | `agileplus-domain/src/guards.rs:5-112` | Policy-based | `phenotype-state-machine` |
+| P2PTransitionGuard | `agileplus-p2p/src/guards.rs:5-78` | Trust-based | `phenotype-state-machine` |
+
+**Total:** 279 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `TransitionGuard` trait
+
+---
+
+## 2026-03-30 - Wave 100: Event Handling Duplication (Extended)
+
+### 15. Event Bus Implementations (NEW)
+
+| Pattern | Location | Type | Canonical |
+|---------|----------|------|-----------|
+| InMemoryEventBus | `agileplus-domain/src/events.rs:5-134` | Pub/Sub | `phenotype-event-bus` |
+| NatsEventBus | `agileplus-sync/src/events.rs:5-167` | NATS | `phenotype-event-bus` |
+| RedisEventBus | `agileplus-cache/src/events.rs:5-112` | Redis | `phenotype-event-bus` |
+
+**Total:** 413 LOC across 3 implementations
+
+**Status:** DUPLICATION - create unified `EventBus` trait
+
+---
+
+### 16. Event Handler Patterns (NEW)
+
+| Pattern | Location | Subscriptions | Canonical |
+|---------|----------|---------------|-----------|
+| SyncEventHandler | `agileplus-sync/src/handlers.rs:5-156` | 5 events | `phenotype-event-bus` |
+| ApiEventHandler | `agileplus-api/src/handlers.rs:5-189` | 8 events | `phenotype-event-bus` |
+| TelemetryEventHandler | `agileplus-telemetry/src/handlers.rs:5-123` | 4 events | `phenotype-event-bus` |
+
+**Total:** 468 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `EventHandler` derive macro
+
+---
+
+## 2026-03-30 - Wave 101: Authentication Duplication (Extended)
+
+### 17. JWT Token Handling (NEW)
+
+| Pattern | Location | Claims | Canonical |
+|---------|----------|--------|-----------|
+| JwtValidator | `agileplus-api/src/auth.rs:5-156` | Standard | `phenotype-auth-core` |
+| JwtGenerator | `agileplus-domain/src/auth.rs:5-178` | Custom | `phenotype-auth-core` |
+| JwtRefreshHandler | `agileplus-sync/src/auth.rs:5-134` | Refresh | `phenotype-auth-core` |
+
+**Total:** 468 LOC across 3 implementations
+
+**Status:** DUPLICATION - consolidate into `JwtManager` crate
+
+---
+
+### 18. Permission Checking Patterns (NEW)
+
+| Pattern | Location | Type | Canonical |
+|---------|----------|------|-----------|
+| RbacChecker | `agileplus-domain/src/permissions.rs:5-189` | RBAC | `phenotype-auth-core` |
+| ABACChecker | `agileplus-api/src/permissions.rs:5-234` | ABAC | `phenotype-auth-core` |
+| PolicyEngine | `phenotype-policy-engine/src/permissions.rs:5-156` | Policy | `phenotype-auth-core` |
+
+**Total:** 579 LOC across 3 implementations
+
+**Status:** DUPLICATION - create unified `PermissionChecker` trait
+
+---
+
+## 2026-03-30 - Wave 102: Caching Duplication (Extended)
+
+### 19. Cache Invalidation Strategies (NEW)
+
+| Pattern | Location | Strategy | Canonical |
+|---------|----------|----------|-----------|
+| TTLInvalidation | `phenotype-cache-adapter/src/invalidation.rs:5-89` | Time-based | `phenotype-cache-core` |
+| WriteThroughCache | `agileplus-domain/src/cache.rs:5-134` | Write-through | `phenotype-cache-core` |
+| WriteBehindCache | `agileplus-sync/src/cache.rs:5-167` | Write-behind | `phenotype-cache-core` |
+
+**Total:** 390 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `CacheStrategy` enum
+
+---
+
+### 20. Cache Key Generation (NEW)
+
+| Pattern | Location | Format | Canonical |
+|---------|----------|--------|-----------|
+| KeyGenerator | `phenotype-cache-adapter/src/keys.rs:5-78` | Namespace:ID | `phenotype-cache-core` |
+| CompositeKeyBuilder | `agileplus-domain/src/keys.rs:5-112` | Prefix:Type:ID | `phenotype-cache-core` |
+| HashKeyGenerator | `agileplus-api/src/keys.rs:5-89` | SHA256 hash | `phenotype-cache-core` |
+
+**Total:** 279 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `CacheKey` trait
+
+---
+
+## 2026-03-30 - Wave 103: Monitoring Duplication (Extended)
+
+### 21. Health Check Implementations (NEW)
+
+| Pattern | Location | Checks | Canonical |
+|---------|----------|--------|-----------|
+| ServiceHealthCheck | `agileplus-api/src/health.rs:5-134` | 5 checks | `phenotype-health-core` |
+| DependencyHealthCheck | `agileplus-domain/src/health.rs:5-167` | 8 checks | `phenotype-health-core` |
+| InfrastructureHealthCheck | `agileplus-sync/src/health.rs:5-112` | 6 checks | `phenotype-health-core` |
+
+**Total:** 413 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `HealthCheckRegistry`
+
+---
+
+### 22. Metrics Collection (NEW)
+
+| Pattern | Location | Backend | Canonical |
+|---------|----------|---------|-----------|
+| PrometheusMetrics | `agileplus-api/src/metrics.rs:5-156` | Prometheus | `phenotype-metrics-core` |
+| StatsdMetrics | `agileplus-domain/src/metrics.rs:5-189` | StatsD | `phenotype-metrics-core` |
+| CloudWatchMetrics | `agileplus-telemetry/src/metrics.rs:5-123` | CloudWatch | `phenotype-metrics-core` |
+
+**Total:** 468 LOC across 3 implementations
+
+**Status:** DUPLICATION - create unified `MetricsCollector` trait
+
+---
+
+## 2026-03-30 - Wave 104: Repository Patterns Duplication (Extended)
+
+### 23. Repository Trait Definitions (NEW)
+
+| Pattern | Location | Operations | Canonical |
+|---------|----------|------------|-----------|
+| EntityRepository | `phenotype-port-interfaces/src/repository.rs:5-189` | CRUD | `phenotype-repository-core` |
+| AggregateRepository | `agileplus-domain/src/repository.rs:5-234` | Aggregate | `phenotype-repository-core` |
+| ReadRepository | `agileplus-api/src/repository.rs:5-156` | Queries | `phenotype-repository-core` |
+
+**Total:** 579 LOC across 3 implementations
+
+**Status:** DUPLICATION - consolidate into `Repository` trait
+
+---
+
+### 24. Query Builder Patterns (NEW)
+
+| Pattern | Location | DSL | Canonical |
+|---------|----------|-----|-----------|
+| SqlQueryBuilder | `phenotype-port-interfaces/src/query.rs:5-167` | SQL-like | `phenotype-query-core` |
+| FilterQueryBuilder | `agileplus-domain/src/query.rs:5-203` | Filter struct | `phenotype-query-core` |
+| GraphQueryBuilder | `agileplus-sync/src/query.rs:5-178` | Graph DSL | `phenotype-query-core` |
+
+**Total:** 548 LOC across 3 implementations
+
+**Status:** DUPLICATION - create unified `QueryBuilder` trait
+
+---
+
+## 2026-03-30 - Wave 105: Serialization Duplication (Extended)
+
+### 25. JSON Serialization (NEW)
+
+| Pattern | Location | Library | Canonical |
+|---------|----------|---------|-----------|
+| SerdeJsonSerializer | `phenotype-http-adapter/src/serialize.rs:5-134` | serde_json | `phenotype-serialization-core` |
+| CustomJsonSerializer | `agileplus-domain/src/serialize.rs:5-167` | serde_json + custom | `phenotype-serialization-core` |
+| StreamingJsonParser | `agileplus-sync/src/serialize.rs:5-156` | serde_json + async | `phenotype-serialization-core` |
+
+**Total:** 457 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `JsonSerializer` trait
+
+---
+
+### 26. Binary Serialization (NEW)
+
+| Pattern | Location | Format | Canonical |
+|---------|----------|--------|-----------|
+| ProstSerializer | `phenotype-port-interfaces/src/binary.rs:5-123` | Prost | `phenotype-serialization-core` |
+| FlatBuffersSerializer | `agileplus-sync/src/binary.rs:5-178` | FlatBuffers | `phenotype-serialization-core` |
+| MessagePackSerializer | `agileplus-p2p/src/binary.rs:5-145` | MessagePack | `phenotype-serialization-core` |
+
+**Total:** 446 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `BinarySerializer` trait
+
+---
+
+## 2026-03-30 - Wave 106: Cross-Platform Duplication (Extended)
+
+### 27. Platform Abstraction Layers (NEW)
+
+| Pattern | Location | Platform | Canonical |
+|---------|----------|---------|-----------|
+| NativePlatform | `agileplus-domain/src/platform.rs:5-189` | macOS/Linux | `phenotype-platform-core` |
+| WasmPlatform | `phenotype-http-adapter/src/platform.rs:5-156` | WebAssembly | `phenotype-platform-core` |
+| MobilePlatform | `agileplus-sync/src/platform.rs:5-167` | iOS/Android | `phenotype-platform-core` |
+
+**Total:** 512 LOC across 3 implementations
+
+**Status:** DUPLICATION - create unified `Platform` trait
+
+---
+
+### 28. File System Abstractions (NEW)
+
+| Pattern | Location | Operations | Canonical |
+|---------|----------|------------|-----------|
+| LocalFsAdapter | `phenotype-port-interfaces/src/fs.rs:5-145` | Local disk | `phenotype-fs-core` |
+| S3FsAdapter | `agileplus-sync/src/fs.rs:5-178` | AWS S3 | `phenotype-fs-core` |
+| VirtualFsAdapter | `agileplus-domain/src/fs.rs:5-167` | In-memory | `phenotype-fs-core` |
+
+**Total:** 490 LOC across 3 implementations
+
+**Status:** DUPLICATION - create `FileSystem` trait
+
+---
+
+## 2026-03-30 - Wave 107: Inter-Project Duplication (Extended)
+
+### 29. phenotype vs agileplus Overlap (NEW)
+
+| Component | phenotype Location | agileplus Location | Action |
+|-----------|-------------------|-------------------|--------|
+| Event Sourcing | `libs/phenotype-event-sourcing/` | `crates/agileplus-events/` | MERGE → `phenotype-event-sourcing` |
+| State Machine | `libs/phenotype-state-machine/` | `crates/agileplus-domain/src/state.rs` | EXTRACT → `phenotype-state-machine` |
+| Policy Engine | `libs/phenotype-policy-engine/` | `crates/agileplus-domain/src/policy.rs` | MERGE → `phenotype-policy-engine` |
+| Cache | `libs/phenotype-cache-adapter/` | `crates/agileplus-cache/` | CONSOLIDATE → `phenotype-cache-adapter` |
+| HTTP | `libs/phenotype-http-adapter/` | `crates/agileplus-api/` | SPLIT → HTTP + API crates |
+
+**Status:** NEEDS ARCHITECTURAL DECISION - proposed in `docs/adr/`
+
+---
+
+### 30. libs vs crates Overlap (NEW)
+
+| Component | libs/ Location | crates/ Location | Action |
+|-----------|---------------|-----------------|--------|
+| error-core | `libs/phenotype-error-core/` (UNUSED) | `crates/phenotype-error-core/` | KEEP crates/ version |
+| config-core | `libs/phenotype-config-core/` (workspace:false) | N/A | REVIVE libs/ or DELETE |
+| health-core | `libs/phenotype-health-core/` (UNUSED) | N/A | REVIVE or DELETE |
+| contracts | `libs/phenotype-contracts/` | `crates/phenotype-port-interfaces/` | CONSOLIDATE |
+
+**Status:** NEEDS CONSOLIDATION DECISION
 | `GraphBackend` | agileplus-graph | `src/store.rs:22-27` |
 
 #### In-Memory Backend Duplication (4 stores)

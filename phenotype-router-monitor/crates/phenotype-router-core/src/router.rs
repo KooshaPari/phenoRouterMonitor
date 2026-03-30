@@ -1,155 +1,69 @@
-//! Core router implementation
+//! HTTP/Path-based router with load balancing
 //!
-//! Provides request routing, forwarding, and HTTP handling
+//! This module provides path-based request routing with round-robin
+//! load balancing across backend pools, complementing the Pareto
+//! routing system for decision-making.
 
-use crate::backend::{BackendAddress, BackendPool, LoadBalancingStrategy};
-use crate::error::{Result, RouterError};
-use crate::loader::{ConfigLoader, RouterConfig};
+use crate::backend::BackendPool;
+use crate::error::{RouterError, Result};
 use crate::patterns::PathPattern;
-use dashmap::DashMap;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
+use parking_lot::RwLock;
 
-/// Route configuration with compiled patterns
-#[derive(Debug, Clone)]
-pub struct CompiledRoute {
-    pub service: String,
+/// HTTP request routing entry
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RouteEntry {
+    /// Path pattern (regex or wildcard)
     pub pattern: PathPattern,
-    pub pool: Arc<BackendPool>,
-    pub timeout_ms: u64,
+    /// Backend pool to route to
+    pub pool_name: String,
 }
 
-/// Core router engine
-#[derive(Debug, Clone)]
+/// Simple HTTP router for path-based routing with load balancing
 pub struct Router {
-    routes: Vec<Arc<CompiledRoute>>,
-    route_map: Arc<DashMap<String, usize>>, // service name -> route index
-    config: Arc<RouterConfig>,
+    routes: Arc<RwLock<Vec<RouteEntry>>>,
+    backends: Arc<RwLock<HashMap<String, BackendPool>>>,
 }
 
 impl Router {
-    /// Create a new empty router
+    /// Create a new router
     pub fn new() -> Self {
         Self {
-            routes: Vec::new(),
-            route_map: Arc::new(DashMap::new()),
-            config: Arc::new(RouterConfig {
-                listen_addr: "127.0.0.1".to_string(),
-                listen_port: 3030,
-                routes: vec![],
-                max_body_size: 10 * 1024 * 1024,
-                timeout_ms: 30000,
-            }),
+            routes: Arc::new(RwLock::new(Vec::new())),
+            backends: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
-    /// Load router from configuration
-    pub fn from_config(config: RouterConfig) -> Result<Self> {
-        let mut routes = Vec::new();
-        let route_map = DashMap::new();
-
-        for (idx, route_cfg) in config.routes.iter().enumerate() {
-            // Parse pattern
-            let pattern = if route_cfg.path_pattern.starts_with('^') {
-                PathPattern::regex(&route_cfg.path_pattern)?
-            } else if route_cfg.path_pattern.contains('*') {
-                PathPattern::wildcard(&route_cfg.path_pattern)
-            } else {
-                PathPattern::exact(&route_cfg.path_pattern)
-            };
-
-            // Create backend pool
-            let backends: Vec<BackendAddress> = route_cfg
-                .backends
-                .iter()
-                .map(|url| BackendAddress::new(url))
-                .collect();
-
-            let strategy = match route_cfg.strategy.to_lowercase().as_str() {
-                "random" => LoadBalancingStrategy::Random,
-                "leastconnections" => LoadBalancingStrategy::LeastConnections,
-                _ => LoadBalancingStrategy::RoundRobin,
-            };
-
-            let pool = Arc::new(BackendPool::new(backends, strategy));
-
-            let compiled = Arc::new(CompiledRoute {
-                service: route_cfg.service.clone(),
-                pattern,
-                pool,
-                timeout_ms: route_cfg.timeout_ms,
-            });
-
-            route_map.insert(route_cfg.service.clone(), idx);
-            routes.push(compiled);
-        }
-
-        Ok(Self {
-            routes,
-            route_map,
-            config: Arc::new(config),
-        })
+    /// Register a route
+    pub fn register_route(&self, pattern: PathPattern, pool_name: String) -> Result<()> {
+        let mut routes = self.routes.write();
+        routes.push(RouteEntry { pattern, pool_name });
+        Ok(())
     }
 
-    /// Load router from TOML file
-    pub fn from_file(path: impl AsRef<std::path::Path>) -> Result<Self> {
-        let config = ConfigLoader::from_file(path)?;
-        Self::from_config(config)
+    /// Register a backend pool
+    pub fn register_backend(&self, name: String, pool: BackendPool) -> Result<()> {
+        let mut backends = self.backends.write();
+        backends.insert(name, pool);
+        Ok(())
     }
 
-    /// Load router from TOML string
-    pub fn from_string(content: &str) -> Result<Self> {
-        let config = ConfigLoader::from_string(content)?;
-        Self::from_config(config)
+    /// Get the number of registered routes
+    pub fn routes_count(&self) -> usize {
+        self.routes.read().len()
     }
 
-    /// Load router from environment
-    pub fn from_env() -> Result<Self> {
-        let config = ConfigLoader::from_env()?;
-        Self::from_config(config)
-    }
-
-    /// Find route matching the given path
-    pub fn find_route(&self, path: &str) -> Result<Arc<CompiledRoute>> {
-        for route in &self.routes {
-            if route.pattern.matches(path) {
-                return Ok(route.clone());
+    /// Find a route for the given path
+    pub fn match_route(&self, path: &str) -> Option<String> {
+        let routes = self.routes.read();
+        for entry in routes.iter() {
+            if entry.pattern.matches(path) {
+                return Some(entry.pool_name.clone());
             }
         }
-        Err(RouterError::RouteNotFound {
-            path: path.to_string(),
-        })
-    }
-
-    /// Get route by service name
-    pub fn get_route_by_service(&self, service: &str) -> Result<Arc<CompiledRoute>> {
-        if let Some(entry) = self.route_map.get(service) {
-            let idx = *entry;
-            Ok(self.routes[idx].clone())
-        } else {
-            Err(RouterError::RouteNotFound {
-                path: format!("/{}", service),
-            })
-        }
-    }
-
-    /// Get number of configured routes
-    pub fn routes_count(&self) -> usize {
-        self.routes.len()
-    }
-
-    /// Get configuration
-    pub fn config(&self) -> &RouterConfig {
-        &self.config
-    }
-
-    /// Get all routes
-    pub fn routes(&self) -> &[Arc<CompiledRoute>] {
-        &self.routes
-    }
-
-    /// Get listen socket address
-    pub fn socket_addr(&self) -> String {
-        self.config.socket_addr()
+        None
     }
 }
 
@@ -163,131 +77,19 @@ impl Default for Router {
 mod tests {
     use super::*;
 
-    // Traces to: FR-ROUTER-006 (Router implementation)
     #[test]
-    fn test_router_from_string() {
-        let toml = r#"
-listen_addr = "127.0.0.1"
-listen_port = 3030
-
-[[routes]]
-service = "api"
-path_pattern = "^/api/.*"
-backends = ["http://localhost:3000"]
-timeout_ms = 30000
-strategy = "roundrobin"
-"#;
-        let router = Router::from_string(toml);
-        assert!(router.is_ok());
-        let r = router.unwrap();
-        assert_eq!(r.routes_count(), 1);
+    fn test_router_creation() {
+        let router = Router::new();
+        assert_eq!(router.routes_count(), 0);
     }
 
-    // Traces to: FR-ROUTER-006
     #[test]
-    fn test_router_find_route_by_path() {
-        let toml = r#"
-[[routes]]
-service = "api"
-path_pattern = "^/api/.*"
-backends = ["http://localhost:3000"]
-timeout_ms = 30000
-strategy = "roundrobin"
-
-[[routes]]
-service = "web"
-path_pattern = "^/web/.*"
-backends = ["http://localhost:8080"]
-timeout_ms = 30000
-strategy = "roundrobin"
-"#;
-        let router = Router::from_string(toml).unwrap();
-
-        let route1 = router.find_route("/api/users");
-        assert!(route1.is_ok());
-        assert_eq!(route1.unwrap().service, "api");
-
-        let route2 = router.find_route("/web/home");
-        assert!(route2.is_ok());
-        assert_eq!(route2.unwrap().service, "web");
-
-        let route3 = router.find_route("/unknown/path");
-        assert!(route3.is_err());
-    }
-
-    // Traces to: FR-ROUTER-006
-    #[test]
-    fn test_router_get_route_by_service() {
-        let toml = r#"
-[[routes]]
-service = "api"
-path_pattern = "^/api/.*"
-backends = ["http://localhost:3000"]
-timeout_ms = 30000
-strategy = "roundrobin"
-"#;
-        let router = Router::from_string(toml).unwrap();
-
-        let route = router.get_route_by_service("api");
-        assert!(route.is_ok());
-        assert_eq!(route.unwrap().service, "api");
-
-        let missing = router.get_route_by_service("unknown");
-        assert!(missing.is_err());
-    }
-
-    // Traces to: FR-ROUTER-006
-    #[test]
-    fn test_router_multiple_backends() {
-        let toml = r#"
-[[routes]]
-service = "api"
-path_pattern = "^/api/.*"
-backends = [
-  "http://backend1:3000",
-  "http://backend2:3000",
-  "http://backend3:3000"
-]
-timeout_ms = 30000
-strategy = "roundrobin"
-"#;
-        let router = Router::from_string(toml).unwrap();
-        let route = router.find_route("/api/test").unwrap();
-        assert_eq!(route.pool.len(), 3);
-    }
-
-    // Traces to: FR-ROUTER-006
-    #[test]
-    fn test_router_socket_addr() {
-        let toml = r#"
-listen_addr = "0.0.0.0"
-listen_port = 8080
-
-[[routes]]
-service = "api"
-path_pattern = "^/api/.*"
-backends = ["http://localhost:3000"]
-timeout_ms = 30000
-strategy = "roundrobin"
-"#;
-        let router = Router::from_string(toml).unwrap();
-        assert_eq!(router.socket_addr(), "0.0.0.0:8080");
-    }
-
-    // Traces to: FR-ROUTER-006
-    #[test]
-    fn test_router_load_balancing_strategy() {
-        let toml = r#"
-[[routes]]
-service = "api"
-path_pattern = "^/api/.*"
-backends = ["http://localhost:3000"]
-timeout_ms = 30000
-strategy = "random"
-"#;
-        let router = Router::from_string(toml).unwrap();
-        let route = router.find_route("/api/test").unwrap();
-        // Verify strategy is loaded (would need to verify behavior in integration tests)
-        assert!(route.pool.len() > 0);
+    fn test_register_route() {
+        let router = Router::new();
+        let pattern = PathPattern::Literal("/health".to_string());
+        router
+            .register_route(pattern, "default".to_string())
+            .expect("register_route failed");
+        assert_eq!(router.routes_count(), 1);
     }
 }

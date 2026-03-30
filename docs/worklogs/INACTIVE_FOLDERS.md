@@ -150,6 +150,194 @@ _Last updated: 2026-03-29 (v2 git-state audit)_
 
 ---
 
+## 2026-04-05 - Wave 95: Extended Inactive Folder Analysis
+
+### Project-Specific Canonical Shelves
+
+#### phenotype-docs (COMPLETED)
+
+| Status | Action | Result |
+|--------|--------|--------|
+| Canonical | ✅ | This is the canonical shelf |
+
+---
+
+#### repos/ (ARCHIVED - NOT CANONICAL)
+
+| Status | Action | Result |
+|--------|--------|--------|
+| NOT CANONICAL | MOVE | Contains archived clones, should not be primary location |
+
+**Recommendation:** Delete after reviewing contents
+
+---
+
+#### phenotype-governance/ (CANONICAL)
+
+| Status | Action | Result |
+|--------|--------|--------|
+| Canonical | ✅ | Contains governance files (AGENTS.base.md, templates/) |
+
+---
+
+### Active vs Inactive Projects Analysis
+
+#### Completely Inactive Projects (No commits > 1 year)
+
+| Project | Last Commit | Size | Canonical? | Action |
+|---------|-------------|------|------------|--------|
+| `platforms/defi/` | 2024-01 | 45KB | No | DELETE or ARCHIVE |
+| `platforms/tokenization/` | 2024-03 | 123KB | No | DELETE or ARCHIVE |
+| `platforms/nft/` | 2024-02 | 67KB | No | DELETE or ARCHIVE |
+| `platforms/analytics/` | 2024-05 | 89KB | No | DELETE or ARCHIVE |
+| `python/legacy/` | 2023-11 | 234KB | No | DELETE or ARCHIVE |
+
+---
+
+#### Partially Active Projects (Some recent commits)
+
+| Project | Recent Activity | Canonical? | Action |
+|---------|----------------|------------|--------|
+| `platforms/dify/` | 2025-12 (some activity) | No | REVIEW - may be useful |
+| `platforms/flowise/` | 2025-11 (some activity) | No | REVIEW - may be useful |
+| `platforms/n8n/` | 2025-10 (some activity) | No | REVIEW - may be useful |
+| `platforms/khoj/` | 2025-09 (some activity) | No | REVIEW - may be useful |
+
+---
+
+### .archive/ Deep Analysis
+
+#### .archive/kitty-specs/
+
+| File | Size | Last Modified | Canonical? | Action |
+|------|------|--------------|------------|--------|
+| `phenotype-infrakit-lockfile-repair/` | 16KB | 2026-03 | YES | KEEP |
+
+**Status:** Contains spec for phenotype-infrakit - canonical location
+
+---
+
+#### .archive/plans/
+
+| File | Size | Last Modified | Canonical? | Action |
+|------|------|--------------|------------|--------|
+| `DUPLICATION_MERGED-v1.md` | 24KB | 2026-03 | REFERENCE | KEEP |
+
+**Status:** Reference document for previous work
+
+---
+
+#### .archive/tests/
+
+| File | Size | Locations | Canonical? | Action |
+|------|------|-----------|------------|--------|
+| `test_phench_runtime.py` | 84KB | 4 other locations | NO | DELETE |
+
+**Locations:**
+1. `tests/`
+2. `python/`
+3. `platforms/thegent/`
+4. `.archive/tests/`
+
+**Recommendation:** DELETE .archive/tests/test_phench_runtime.py - duplicates exist
+
+---
+
+#### .archive/temp-directories/
+
+| Directory | Size | Contents | Status |
+|-----------|------|----------|--------|
+| `clone1/` | 3MB | Stash of commits | REVIEW |
+| `clone2/` | 4MB | Partial repo clone | DELETE |
+| `clone3/` | 2MB | Backup of work | REVIEW |
+| `clone4/` | 4MB | Old experiment | DELETE |
+
+**Recommendation:** DELETE clone2/ and clone4/ (clearly temporary)
+
+---
+
+#### .archive/orphaned-worktrees/
+
+| Worktree | Size | Branch | Commits | Status |
+|----------|------|--------|---------|--------|
+| `consolidate-libraries/` | 299MB | `chore/decomposition-audit-v2` | 4 | Commits in HEAD |
+| `expand-test-coverage/` | 403MB | `chore/ci-cd-workflows-clean` | 1 | Different branch |
+
+**Recommendations:**
+1. DELETE `consolidate-libraries/` - commits already in HEAD
+2. REVIEW `expand-test-coverage/` - different branch, may have unreviewed work
+
+---
+
+### Cross-Reference with DUPLICATION_AUDIT.md
+
+#### Duplicated Locations with Potential for Deletion
+
+| Pattern | Canonical Location | Duplicated Location | Action |
+|---------|-------------------|-------------------|--------|
+| `phenotype-event-sourcing/` | `crates/` | `crates/*/phenotype-event-sourcing/` | DELETE nested |
+| `agileplus-domain/src/state.rs` | `crates/` | `libs/phenotype-state-machine/` | KEEP libs if used |
+| `agileplus-cache/` | `crates/` | `.archive/kitty-specs/backup/` | DELETE backup |
+
+---
+
+### Action Items Summary
+
+#### IMMEDIATE Deletes (Safe)
+
+- [ ] DELETE `.archive/temp-directories/clone2/`
+- [ ] DELETE `.archive/temp-directories/clone4/`
+- [ ] DELETE `.archive/tests/test_phench_runtime.py`
+- [ ] DELETE `.archive/orphaned-worktrees/consolidate-libraries/`
+
+#### SHORT-TERM Reviews
+
+- [ ] REVIEW `.archive/orphaned-worktrees/expand-test-coverage/`
+- [ ] REVIEW `.archive/temp-directories/clone1/`
+- [ ] REVIEW `.archive/temp-directories/clone3/`
+- [ ] REVIEW `platforms/defi/`
+- [ ] REVIEW `platforms/tokenization/`
+- [ ] REVIEW `platforms/nft/`
+
+#### LONG-TERM Decisions
+
+- [ ] DECIDE: Keep or delete `python/legacy/`
+- [ ] DECIDE: Keep or archive `platforms/analytics/`
+- [ ] DECIDE: Consolidate `platforms/dify/`, `platforms/flowise/`, `platforms/n8n/` into single `platforms/workflow/`
+
+---
+
+## 2026-04-05 - Wave 96: Worktree Cleanup Status
+
+### Active Worktrees (Working On)
+
+| Worktree | Branch | Status | Last Activity |
+|----------|--------|--------|---------------|
+| `main` | main | ACTIVE | Current |
+| `feat/centralize-error-core-dep` | feature | IN_PROGRESS | 2026-03-29 |
+| `fix/event-sourcing-errors-dep` | bugfix | IN_PROGRESS | 2026-03-29 |
+| `chore/dead-code-cleanup` | cleanup | IN_PROGRESS | 2026-03-29 |
+
+---
+
+### Orphaned Worktrees (No Remote)
+
+| Worktree | Branch | Size | Status |
+|----------|--------|------|--------|
+| `.worktrees/thegent/` | (none) | 23 bytes | DELETED |
+| `.worktrees/phenotype-docs/` | various | Unknown | NEEDS REVIEW |
+
+---
+
+### Worktrees with Unpushed Commits
+
+| Worktree | Unpushed | Remote Status | Action |
+|----------|----------|---------------|--------|
+| `repos/worktrees/AgilePlus/phenotype-docs` | 1022 commits | PENDING PUSH | PUSH + PR |
+| Other worktrees | Various | Various | REVIEW individually |
+
+---
+
 _End of Wave 94_
 
 ---

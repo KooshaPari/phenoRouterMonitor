@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
 use crate::error::{BifrostError, BifrostResult};
-use crate::models::{LLMProvider, LLMRequest, LLMResponse, Message, ProviderMetadata};
+use crate::models::{LLMProvider, LLMRequest, LLMResponse, ProviderMetadata};
 use crate::metrics::ProviderMetrics;
 
 /// OpenAI provider configuration

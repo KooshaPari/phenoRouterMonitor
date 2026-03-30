@@ -574,6 +574,237 @@ Deep research into 30 starred GitHub repositories. Identified patterns, gaps, an
 
 ---
 
+## 2026-04-05 - Wave 157: External 3rd Party Repos Usage Analysis
+
+### Usage Patterns Overview
+
+| Pattern | Description | Examples | Opportunity |
+|---------|-------------|----------|-------------|
+| **Blackbox** | Direct dependency, no modification | `tokio`, `serde`, `reqwest` | Keep as-is |
+| **Graybox** | Wrapper/abstraction layer | `phenotype-http-adapter` | Consolidate wrappers |
+| **Whitebox** | Fork with modifications | `async-trait` patches | Fork candidates |
+| **Embedded** | Copied code with attribution | `snippet` patterns | Extract to libs/ |
+
+---
+
+### Blackbox Dependencies (Keep as-is)
+
+| Crate | Version | Usage | Assessment |
+|-------|---------|-------|-------------|
+| `tokio` | 1.x | All async | Standard - no change |
+| `serde` | 1.x | Serialization | Standard - no change |
+| `serde_json` | 1.x | JSON handling | Standard - no change |
+| `reqwest` | 0.12 | HTTP client | Standard - no change |
+| `tracing` | 0.1 | Logging/tracing | Standard - no change |
+| `thiserror` | 2.x | Error handling | Standard - no change |
+| `anyhow` | 1.x | Error handling | Standard - no change |
+| `sqlx` | 0.8 | Database | Standard - no change |
+| `uuid` | 1.x | ID generation | Standard - no change |
+| `chrono` | 0.4 | Date/time | Consider `time` crate |
+
+---
+
+### Graybox Wrappers (Consolidation Candidates)
+
+#### HTTP Client Wrappers
+
+| Current Wrapper | Location | Wraps | Assessment |
+|-----------------|----------|-------|-------------|
+| `phenotype-http-adapter` | `libs/` | `reqwest` | CONSOLIDATE |
+| `agileplus-http-client` | `crates/` | `reqwest` | MERGE into phenotype-http-adapter |
+| `codex-client` | `heliosCLI/` | `reqwest` + `http` | EXTRACT to phenotype-http-client |
+
+**Opportunity:** Create unified `phenotype-http-client` crate
+
+---
+
+#### Cache Adapters
+
+| Current Wrapper | Location | Wraps | Assessment |
+|-----------------|----------|-------|-------------|
+| `phenotype-cache-adapter` | `libs/` | `dashmap`, `moka` | CONSOLIDATE |
+| `agileplus-cache` | `crates/` | `dashmap` | MERGE into phenotype-cache-adapter |
+
+**Opportunity:** Create unified `phenotype-cache` crate with tiered support
+
+---
+
+#### Serialization Wrappers
+
+| Current Wrapper | Location | Wraps | Assessment |
+|-----------------|----------|-------|-------------|
+| `phenotype-serialization` | `libs/` | `serde_json`, `bincode` | CONSOLIDATE |
+| `agileplus-serialization` | `crates/` | `serde_json` | MERGE |
+
+**Opportunity:** Create unified `phenotype-serialization` with multiple format support
+
+---
+
+### Whitebox Forks (Fork Candidates)
+
+#### Forked Crates with Modifications
+
+| Crate | Original | Modifications | Opportunity |
+|-------|----------|---------------|-------------|
+| `async-trait` | `async-trait` crate | Custom derive | Fork for zero-cost |
+| `derive-builder` | `derive_builder` | Custom defaults | Fork for simpler API |
+| `snake_case` | `convert_case` | Custom case conversion | Fork for domain-specific |
+
+**Opportunity:** Create `phenotype-derive` crate with custom derive macros
+
+---
+
+#### Performance-Critical Forks
+
+| Crate | Original | Purpose | Opportunity |
+|-------|----------|---------|-------------|
+| `simd-json-patched` | `simd-json` | 10x faster parsing | Fork for hot paths |
+| `rkyv-validated` | `rkyv` | Zero-copy + validation | Fork for event sourcing |
+| `hashbrown-secure` | `hashbrown` | DoS-resistant | Fork for untrusted input |
+
+**Opportunity:** Create `phenotype-perf` crate with performance-critical crates
+
+---
+
+### Embedded Code (Attribution Required)
+
+#### Copied Snippets with Attribution
+
+| Snippet | Location | Original Source | Size |
+|---------|----------|-----------------|------|
+| `sha256_chain` | `phenotype-event-sourcing/` | RFC 6234 | 45 LOC |
+| `hmac_sha256` | `agileplus-sync/` | RFC 2104 | 23 LOC |
+| `base64_url` | `agileplus-api/` | Common implementations | 67 LOC |
+| `varint` | `phenotype-port-interfaces/` | Protocol Buffers | 89 LOC |
+
+**Opportunity:** Extract to `libs/phenotype-codec` with attribution
+
+---
+
+### Dependency Evolution Opportunities
+
+#### Deprecated/Unmaintained
+
+| Crate | Status | Replacement | Action |
+|-------|--------|-------------|--------|
+| `async-std` | Deprecated | `tokio` or `smol` | MIGRATE to tokio |
+| `log` | Legacy | `tracing` | MIGRATE to tracing |
+| `ring` | Unmaintained | `aws-lc-rs` | MIGRATE to aws-lc-rs |
+| `config` | Unmaintained | `figment` or custom | MIGRATE or fork |
+
+---
+
+#### Major Version Upgrades Needed
+
+| Crate | Current | Latest | Breaking Changes |
+|-------|---------|--------|------------------|
+| `tokio` | 1.x | 2.x | Runtime API changes |
+| `serde` | 1.x | 2.x | derive macro changes |
+| `sqlx` | 0.8 | 0.9 | Query API changes |
+| `tracing` | 0.1 | 0.2 | Subscriber API changes |
+
+---
+
+### Dependency Graph Analysis
+
+#### Direct Dependencies (crates/)
+
+```text
+tokio (all crates)
+├── phenotype-http-adapter
+├── phenotype-cache-adapter
+├── phenotype-event-sourcing
+├── agileplus-api
+├── agileplus-domain
+├── agileplus-sync
+└── agileplus-cli
+
+serde (serialization crates)
+├── phenotype-http-adapter
+├── phenotype-event-sourcing
+└── phenotype-port-interfaces
+
+thiserror (error crates)
+├── phenotype-error-core
+├── phenotype-event-sourcing
+├── agileplus-domain
+└── agileplus-api
+```
+
+---
+
+#### Transitive Dependencies (libs/)
+
+```text
+tokio (shared)
+├── hyper (HTTP server)
+│   └── phenotype-http-adapter
+├── reqwest (HTTP client)
+│   └── phenotype-http-adapter
+└── sqlx (database)
+    └── phenotype-event-sourcing
+
+serde (shared)
+├── serde_json (JSON)
+├── serde_yaml (YAML)
+├── toml (TOML)
+└── bincode (binary)
+```
+
+---
+
+### Security & Maintenance Audit
+
+#### Dependencies with Known Issues
+
+| Crate | Issue | Severity | Remediation |
+|-------|-------|----------|-------------|
+| `regex` | ReDoS in some versions | Medium | Upgrade to 1.11+ |
+| `url` | Parsing edge cases | Low | Upgrade to 2.x |
+| `uuid` | Weak randomness (old) | Low | Already using 1.x |
+
+---
+
+#### Outdated Dependencies
+
+| Crate | Current | Should Be | Reason |
+|-------|---------|-----------|--------|
+| `parking_lot` | 0.12 | 0.13 | Performance improvements |
+| `tracing-subscriber` | 0.3 | 0.4 | Better filtering |
+| `axum` | 0.7 | 0.8 | Better routing |
+| `tower` | 0.4 | 0.5 | Better middleware |
+
+---
+
+### Recommendations Summary
+
+#### Immediate Actions
+
+1. **MIGRATE** `async-std` → `tokio` in all crates
+2. **MIGRATE** `log` → `tracing` in all crates
+3. **MIGRATE** `ring` → `aws-lc-rs` for FIPS compliance
+4. **UPGRADE** regex to 1.11+ for ReDoS fix
+
+---
+
+#### Short-Term Actions
+
+5. **CONSIDER** `time` crate over `chrono` (safer, faster)
+6. **UPGRADE** all crates to tokio 2.x when stable
+7. **CREATE** unified `phenotype-http-client` from graybox wrappers
+8. **CREATE** unified `phenotype-cache` from cache adapters
+
+---
+
+#### Long-Term Actions
+
+9. **FORK** `simd-json` for performance-critical paths
+10. **FORK** `rkyv` for zero-copy event sourcing
+11. **CREATE** `phenotype-derive` with custom macros
+12. **EXTRACT** embedded snippets to `libs/phenotype-codec`
+
+---
+
 #### 4. antinomyhq/forgecode (Code Generation)
 
 **What:** Code generation tool with agent-driven development patterns.

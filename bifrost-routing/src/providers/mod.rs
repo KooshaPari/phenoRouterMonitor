@@ -5,10 +5,11 @@ pub mod anthropic;
 pub mod openrouter;
 pub mod together;
 
-pub use openai::OpenAIProvider;
-pub use anthropic::AnthropicProvider;
-pub use openrouter::OpenRouterProvider;
-pub use together::TogetherProvider;
+// Re-export providers
+pub use openai::{OpenAIProvider, OpenAIConfig};
+pub use anthropic::{AnthropicProvider, AnthropicConfig};
+pub use openrouter::{OpenRouterProvider, OpenRouterConfig};
+pub use together::{TogetherProvider, TogetherConfig};
 
 #[cfg(test)]
 mod tests {

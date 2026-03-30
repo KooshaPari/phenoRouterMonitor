@@ -1,7 +1,6 @@
 // Error types for bifrost-routing
 
 use thiserror::Error;
-use std::fmt;
 
 #[derive(Error, Debug, Clone)]
 pub enum BifrostError {

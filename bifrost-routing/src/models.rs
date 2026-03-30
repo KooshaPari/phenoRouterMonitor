@@ -2,7 +2,6 @@
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
 use uuid::Uuid;
 
 use crate::error::BifrostResult;
