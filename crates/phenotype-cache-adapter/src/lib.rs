@@ -3,14 +3,13 @@
 //! Two-tier cache with L1 (LRU) and L2 (DashMap/Moka).
 
 use chrono::{DateTime, Duration, Utc};
-use dashmap::DashMap;
 use lru::LruCache;
 use moka::sync::Cache as MokaCache;
 use phenotype_error_core::ErrorKind;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 use std::num::NonZeroUsize;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, Mutex};
 
 pub type Result<T> = std::result::Result<T, ErrorKind>;
 

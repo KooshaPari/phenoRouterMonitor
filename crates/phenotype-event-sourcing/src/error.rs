@@ -119,12 +119,12 @@ impl std::error::Error for HashError {}
 
 impl From<EventStoreError> for EventSourcingError {
     fn from(e: EventStoreError) -> Self {
-        Self(e.to_string())
+        Self(ErrorKind::storage(e.to_string()))
     }
 }
 
 impl From<HashError> for EventSourcingError {
     fn from(e: HashError) -> Self {
-        Self(e.to_string())
+        Self(ErrorKind::internal(e.to_string()))
     }
 }
