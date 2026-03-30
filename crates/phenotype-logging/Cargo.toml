@@ -1,0 +1,15 @@
+[package]
+name = "phenotype-logging"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Structured logging setup for the Phenotype ecosystem"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+serde = { version = "1.0", features = ["derive"] }

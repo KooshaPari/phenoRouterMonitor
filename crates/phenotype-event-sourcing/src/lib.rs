@@ -9,6 +9,8 @@ pub mod memory;
 pub mod snapshot;
 pub mod store;
 
-pub use error::EventSourcingError;
+pub use error::{EventSourcingError, EventStoreError, HashError, Result};
 pub use event::EventEnvelope;
-pub use store::EventStore;
+pub use hash::{compute_event_hash, verify_event_hash};
+pub use memory::InMemoryEventStore;
+pub use store::{EventStore, JsonEnvelope};

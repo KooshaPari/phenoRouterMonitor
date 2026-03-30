@@ -1,0 +1,13 @@
+[package]
+name = "phenotype-mcp"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "MCP server for Phenotype"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+anyhow = "1.0"
+# fastmcp = "0.0.0" # TODO: Add when fastmcp v3 is released
