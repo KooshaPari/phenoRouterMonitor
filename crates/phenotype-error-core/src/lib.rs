@@ -327,6 +327,9 @@ impl ErrorExt for ErrorKind {
     }
 }
 
+/// Alias for call sites that import `phenotype_error_core::Error`.
+pub type Error = ErrorKind;
+
 #[cfg(test)]
 mod tests {
     use super::*;
