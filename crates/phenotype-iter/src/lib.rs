@@ -148,7 +148,7 @@ impl<I: Iterator> Iterator for ChunkIter<I> {
 
 impl<I: ExactSizeIterator> ExactSizeIterator for ChunkIter<I> {
     fn len(&self) -> usize {
-        (self.iter.len() + self.size - 1) / self.size
+        self.iter.len().div_ceil(self.size)
     }
 }
 

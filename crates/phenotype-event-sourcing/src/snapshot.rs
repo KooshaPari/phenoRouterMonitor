@@ -1,6 +1,6 @@
 //! Snapshot support.
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub struct SnapshotConfig {

@@ -8,5 +8,5 @@ repository.workspace = true
 description = "Error types for Phenotype"
 
 [dependencies]
-serde = { workspace = true }
-thiserror = { workspace = true }
+serde.workspace = true
+thiserror.workspace = true

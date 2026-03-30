@@ -1,5 +1,7 @@
 [package]
+[package]
 name = "phenotype-event-sourcing"
+<<<<<<< HEAD
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -22,6 +24,19 @@ sha2.workspace = true
 anyhow.workspace = true
 phenotype-error-core.workspace = true
 phenotype-errors.workspace = true
+=======
+edition = "2021"
+license = "MIT"
+description = "Event sourcing for Phenotype"
+>>>>>>> origin/main
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+async-trait = "0.1"
