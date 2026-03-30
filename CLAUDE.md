@@ -2,6 +2,21 @@
 # CLAUDE.md — repos shelf root
 
 ## Identity
+
+This is the **repos shelf** for `CodeProjects/Phenotype/organizational-shelf/repos`.
+A shelf is a top-level organizational unit containing related but independent
+project repositories. Think of it like a `/opt` or `~/code` directory, but
+versioned and synced as a polyrepo (repo of repos).
+
+**NOT AgilePlus.** AgilePlus is one of ~30 projects inside this shelf.
+See `projects/INDEX.md` for the full catalog.
+
+## Structure
+=======
+<<<<<<< HEAD
+# CLAUDE.md — repos shelf root
+
+## Identity
 =======
 <!-- Base: platforms/thegent/dotfiles/governance/CLAUDE.base.md -->
 <!-- Last synced: 2026-03-29 -->
@@ -121,6 +136,7 @@ crates/
 
 This project follows Hexagonal Architecture with clear separation of concerns:
 >>>>>>> origin/main
+>>>>>>> origin/main
 
 ```
 repos/                          # ← YOU ARE HERE (shelf root)
@@ -145,6 +161,9 @@ repos/                          # ← YOU ARE HERE (shelf root)
 ```
 
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 ## Agent Rules
 
 **READ `AGENTS.md` FIRST.** It contains the authoritative agent interaction
@@ -154,8 +173,11 @@ rules for this shelf. Key points:
 - Never assume a project is at shelf root — always verify
 - Test commands must run inside the target project directory, not shelf root
 - File reads should specify the correct relative path from shelf root
+<<<<<<< HEAD
+=======
 =======
 ### Design Principles
+>>>>>>> origin/main
 >>>>>>> origin/main
 
 ## Project Index
@@ -167,6 +189,9 @@ See `projects/INDEX.md` for the full catalog of all projects in this shelf.
 This shelf is part of the **Phenotype Federated Hybrid Architecture**, which provides two complementary chassis systems:
 
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 ### Phenotype Docs Chassis
 
 Provides VitePress configuration, design tokens, and theme components for consistent documentation across the organization.
@@ -195,6 +220,8 @@ Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMEN
 | Cross-project scripts | `scripts/` |
 | Docs Chassis Interface | `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` |
 | Governance Chassis Interface | `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` |
+<<<<<<< HEAD
+=======
 =======
 See `docs/adr/` for architecture decisions.
 
@@ -210,4 +237,5 @@ See thegent governance base for:
 - Worktree Discipline guidelines
 
 Location: `platforms/thegent/dotfiles/governance/CLAUDE.base.md`
+>>>>>>> origin/main
 >>>>>>> origin/main

@@ -2,6 +2,10 @@
 import { defineConfig } from '@playwright/test'
 export default defineConfig({ testDir: './tests/e2e', use: { baseURL: process.env.BASE_URL || 'http://localhost:5173', trace: 'on-first-retry' } })
 =======
+<<<<<<< HEAD
+import { defineConfig } from '@playwright/test'
+export default defineConfig({ testDir: './tests/e2e', use: { baseURL: process.env.BASE_URL || 'http://localhost:5173', trace: 'on-first-retry' } })
+=======
 import { defineConfig, devices } from '@playwright/test'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -31,4 +35,5 @@ export default defineConfig({
         timeout: 120_000,
       },
 })
+>>>>>>> origin/main
 >>>>>>> origin/main

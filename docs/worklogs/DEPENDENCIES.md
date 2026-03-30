@@ -620,6 +620,8 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 - [ ] Plan gix upgrade from 0.71 to 0.79
 
 ---
+<<<<<<< HEAD
+=======
 
 ---
 
@@ -3033,3 +3035,4 @@ grep -r "quote::" crates/ libs/
 # Most common: serde, thiserror, tokio, async-trait
 ```
 
+>>>>>>> origin/main

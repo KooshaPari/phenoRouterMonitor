@@ -1,6 +1,9 @@
 [package]
 name = "phenotype-config-core"
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -24,6 +27,8 @@ tempfile = { workspace = true }
 [lib]
 name = "phenotype_config_core"
 path = "src/lib.rs"
+<<<<<<< HEAD
+=======
 =======
 version = "0.2.0"
 edition = "2021"
@@ -46,4 +51,5 @@ figment = "0.15.0"
 serde_yaml = "0.9"
 schemars = "0.8"
 jsonschema = "0.18"
+>>>>>>> origin/main
 >>>>>>> origin/main

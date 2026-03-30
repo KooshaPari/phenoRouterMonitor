@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 # FR Annotation Guide for Test Files
 
 Quick guide for adding Functional Requirement (FR) ID annotations to AgilePlus test files.
@@ -59,6 +62,8 @@ mod tests {
         // ... test body ...
     }
 }
+<<<<<<< HEAD
+=======
 =======
 # FR Annotation Guide
 
@@ -89,10 +94,13 @@ async fn test_feature_transition() {
 
     // ... test implementation ...
 }
+>>>>>>> origin/main
 ```
 
 ---
 
+<<<<<<< HEAD
+=======
 ## Annotation Format
 
 ### Single FR
@@ -115,6 +123,7 @@ async fn test_feature_transition() {
 ---
 
 <<<<<<< HEAD
+>>>>>>> origin/main
 ## Finding the Right FR IDs
 
 ### Option 1: Use FR_TRACKER.md
@@ -339,6 +348,8 @@ async fn verify_audit_chain_integrity() {
 async fn cycle_state_transitions() {
     // Traces to: FR-DOMAIN-011
     // Verify Cycle state machine (Draft→Active→Completed→Archived)
+<<<<<<< HEAD
+=======
 =======
 ## By Test Type
 
@@ -379,10 +390,13 @@ async fn test_concurrent_event_handling() {
     let handlers: Vec<EventHandler> = (0..100).map(|_| MockHandler::new()).collect();
     // ... test implementation ...
 }
+>>>>>>> origin/main
 ```
 
 ---
 
+<<<<<<< HEAD
+=======
 ## Category Prefixes
 
 | Prefix | Category |
@@ -455,6 +469,7 @@ async fn test_sqlite_event_persistence() {
 ---
 
 <<<<<<< HEAD
+>>>>>>> origin/main
 ## Automated Checking (Future)
 
 Once all tests are annotated, this command can verify coverage:
@@ -502,6 +517,8 @@ done
 - **FUNCTIONAL_REQUIREMENTS.md** - Authoritative requirement specifications
 - **FR_TRACEABILITY_COMPLETION.md** - Completion report and gap analysis
 
+<<<<<<< HEAD
+=======
 =======
 ## Automated Discovery
 
@@ -571,4 +588,5 @@ See also:
 ---
 
 **Last Updated**: 2026-03-30
+>>>>>>> origin/main
 >>>>>>> origin/main

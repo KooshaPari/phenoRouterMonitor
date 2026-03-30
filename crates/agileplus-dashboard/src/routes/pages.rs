@@ -123,6 +123,8 @@ pub async fn home(State(state): State<SharedState>) -> Response {
 
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
 pub async fn dashboard_page(
     State(state): State<SharedState>,
     axum::extract::Query(query): axum::extract::Query<std::collections::HashMap<String, String>>,
@@ -150,6 +152,7 @@ pub async fn hub_page() -> Response {
     })
 }
 
+>>>>>>> origin/main
 >>>>>>> origin/main
 pub async fn settings_page() -> Response {
     render(SettingsPage)
@@ -255,13 +258,20 @@ pub async fn agent_settings_page() -> Response {
         dispatch_mode: "balanced".into(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
         default_provider: "default".into(),
+>>>>>>> origin/main
 >>>>>>> origin/main
     })
 }
 
 pub async fn services_settings_page(State(state): State<SharedState>) -> Response {
     let store = state.read().await;
+<<<<<<< HEAD
+    render(ServicesSettingsPage {
+        services: store.health.clone(),
+=======
 <<<<<<< HEAD
     render(ServicesSettingsPage {
         services: store.health.clone(),
@@ -273,6 +283,7 @@ pub async fn services_settings_page(State(state): State<SharedState>) -> Respons
     render(ServicesSettingsPage {
         services: store.health.clone(),
         configs,
+>>>>>>> origin/main
 >>>>>>> origin/main
     })
 }
@@ -288,6 +299,8 @@ pub async fn time_footer() -> Html<String> {
 pub async fn stream_placeholder() -> StatusCode {
     StatusCode::NO_CONTENT
 }
+<<<<<<< HEAD
+=======
 <<<<<<< HEAD
 =======
 
@@ -455,4 +468,5 @@ pub async fn test_plane_connection(axum::Form(form): axum::Form<super::PlaneSett
         })
     }
 }
+>>>>>>> origin/main
 >>>>>>> origin/main

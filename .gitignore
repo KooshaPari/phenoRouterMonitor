@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 # Documentation assets
 docs/public/assets/demos/*.gif
 docs/public/assets/**/*.js
@@ -15,9 +18,12 @@ docs/docset/
 # Rust build artifacts (1.5GB+)
 crates/target/
 **/target/
+<<<<<<< HEAD
+=======
 =======
 /target
 /sbom-out/
+>>>>>>> origin/main
 >>>>>>> origin/main
 Cargo.lock
 
@@ -130,6 +136,9 @@ __pycache__/
 # Archives
 .archive/
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 archive/
 bloom-wt/
 craft-wt/
@@ -153,6 +162,8 @@ colab/
 archive/
 trace/
 crates/phenotype-cache-adapter/
+<<<<<<< HEAD
+=======
 =======
 docs/plans/
 docs/reports/
@@ -170,6 +181,7 @@ docs/worklogs/LOC_REDUCTION.md
 docs/worklogs/MasterDuplicationAudit20260329.md
 docs/worklogs/TOOLING.md
 docs/worklogs/WorkLog.md
+>>>>>>> origin/main
 >>>>>>> origin/main
 .agileplus/
 kitty-specs/
@@ -222,10 +234,16 @@ crates/phenotype-contracts/
 crates/phenotype-policy-engine/
 crates/phenotype-state-machine/
 =======
+<<<<<<< HEAD
+crates/phenotype-contracts/
+crates/phenotype-policy-engine/
+crates/phenotype-state-machine/
+=======
 EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
 # Non-workspace / legacy crate trees (keep ignored until promoted into the workspace).
 crates/phenotype-ports-canonical/
+>>>>>>> origin/main
 >>>>>>> origin/main
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md
@@ -241,12 +259,17 @@ docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
 docs/worklogs/LOC_REDUCTION.md
 docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 docs/worklogs/TOOLING.md
 tests/doc-sync/
 tests/test_runtime_helpers.py
 EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
 .github/workflows/ci.yml
+<<<<<<< HEAD
+=======
 =======
 docs/worklogs/data/
 tools/
@@ -297,4 +320,5 @@ crates/phenotype-contracts/tests/
 !docs/adoption/INDEX.md
 .hypothesis/
 .hypothesis/
+>>>>>>> origin/main
 >>>>>>> origin/main

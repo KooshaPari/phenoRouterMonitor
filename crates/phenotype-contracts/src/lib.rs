@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 //! # Phenotype Contracts
 //!
 //! Hexagonal architecture ports and contracts for phenotype-infrakit.
@@ -50,6 +53,9 @@ mod tests;
 
 /// Result type alias for contract operations.
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+<<<<<<< HEAD
+=======
 =======
 // phenotype-contracts
+>>>>>>> origin/main
 >>>>>>> origin/main

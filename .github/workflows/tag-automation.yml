@@ -12,6 +12,10 @@ jobs:
       - name: Create release tag
         run: echo "Creating release for ${{ github.ref_name }}"
 =======
+<<<<<<< HEAD
+      - name: Create release tag
+        run: echo "Creating release for ${{ github.ref_name }}"
+=======
         with:
           fetch-depth: 0
 
@@ -70,4 +74,5 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "Pushed v${VERSION}. The Release workflow creates the GitHub Release and assets."
+>>>>>>> origin/main
 >>>>>>> origin/main
