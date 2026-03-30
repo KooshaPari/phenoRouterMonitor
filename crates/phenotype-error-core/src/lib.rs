@@ -91,6 +91,11 @@ impl ErrorKind {
         Self(Box::new(ErrorKindInner::Internal(message.into())))
     }
 
+    /// Create a new `Io` error.
+    pub fn io(err: IoError) -> Self {
+        Self::from(err)
+    }
+
     /// Create a new `Storage` error.
     pub fn storage(message: impl Into<String>) -> Self {
         Self(Box::new(ErrorKindInner::Storage(message.into())))

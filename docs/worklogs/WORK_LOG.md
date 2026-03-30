@@ -757,3 +757,38 @@ cargo check --workspace
 - [ ] Integrate phenotype-event-sourcing back into workspace
 - [ ] Adopt phenotype-* crates in main codebase
 - [ ] Archive unused libs (cipher, gauge, hexagonal-rs)
+
+---
+
+## Wave 101 - 2026-03-30
+
+### Task
+Discover existing MCP implementations
+
+### Findings
+1. **Python MCP (AgilePlus)** ✅ Found
+   - Path: phenotype-docs/python/src/agileplus_mcp/server.py
+   - Uses FastMCP
+   - Implements: elicit_feature, elicit_clarify, sample_triage, sample_governance_check, sample_retrospective
+
+2. **Python MCP (thegent)** ⚠️ Stub
+   - Path: platforms/thegent/src/thegent/mcp/__init__.py
+   - Just a placeholder
+
+3. **Rust MCP** ✅ Created
+   - Path: crates/phenotype-mcp/
+   - Skeleton ready for FastMCP integration
+
+### Actions
+- [x] Document existing Python MCP implementations
+- [x] Create Rust MCP skeleton
+- [x] Verify both compile
+
+### Deliverables
+| Implementation | Path | Status |
+|---------------|------|--------|
+| Python MCP (AgilePlus) | phenotype-docs/python/src/agileplus_mcp/ | Working |
+| Python MCP (thegent) | platforms/thegent/ | Stub |
+| Rust MCP | crates/phenotype-mcp/ | Skeleton |
+
+---

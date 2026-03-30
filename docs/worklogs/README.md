@@ -40,18 +40,18 @@
 | File | Lines | Category | Priority |
 |------|-------|----------|----------|
 | `README.md` | 150 | INDEX | - |
-| `ARCHITECTURE.md` | 1,977 | ARCHITECTURE | P0 |
-| `DEPENDENCIES.md` | 1,746 | DEPENDENCIES | P0 |
-| `DUPLICATION.md` | 2,408 | DUPLICATION | P0 |
-| `RESEARCH.md` | 565 | RESEARCH | P1 |
-| `QUALITY.md` | 473 | QUALITY | P1 |
-| `TOOLING.md` | 623 | TOOLING | P2 |
-| `UX_DX.md` | 906 | UX_DX | P2 |
-| `GOVERNANCE.md` | 401 | GOVERNANCE | P1 |
-| `PERFORMANCE.md` | 174 | PERFORMANCE | P1 |
-| `INTEGRATION.md` | 208 | INTEGRATION | P2 |
+| `ARCHITECTURE.md` | 3,954 | ARCHITECTURE | P0 |
+| `DEPENDENCIES.md` | 3,492 | DEPENDENCIES | P0 |
+| `DUPLICATION.md` | 4,816 | DUPLICATION | P0 |
+| `RESEARCH.md` | 1,130 | RESEARCH | P1 |
+| `QUALITY.md` | 946 | QUALITY | P1 |
+| `TOOLING.md` | 1,246 | TOOLING | P2 |
+| `UX_DX.md` | 1,812 | UX_DX | P2 |
+| `GOVERNANCE.md` | 802 | GOVERNANCE | P1 |
+| `PERFORMANCE.md` | 348 | PERFORMANCE | P1 |
+| `INTEGRATION.md` | 416 | INTEGRATION | P2 |
 
-**Total: ~15,000 lines**
+**Total: ~30,000 lines**
 
 ---
 
