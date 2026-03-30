@@ -5,25 +5,26 @@ members = [
     "crates/agileplus-domain",
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
-    "crates/phenotype-errors",
-    "crates/phenotype-event-sourcing",
-    "crates/phenotype-policy-engine",
-    "crates/phenotype-retry",
-    "crates/phenotype-state-machine",
-    "crates/phenotype-telemetry",
-    "crates/phenotype-test-infra",
-    "libs/phenotype-config-core",
-]
-
-# Crates not yet present or not wired into the workspace build.
-exclude = [
     "crates/phenotype-crypto",
     "crates/phenotype-error-core",
+    "crates/phenotype-errors",
+    "crates/phenotype-event-sourcing",
     "crates/phenotype-iter",
+    "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
+    "crates/phenotype-retry",
+    "crates/phenotype-state-machine",
     "crates/phenotype-string",
+    "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra",
     "crates/phenotype-time",
-    "libs/phenotype-error-core.ARCHIVED",
+    "crates/phenotype-validation",
+    "libs/phenotype-config-core",
+    "crates/phenotype-git-core",
+    "crates/phenotype-health",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-mcp",
 ]
 
 [workspace.package]
@@ -49,11 +50,14 @@ chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 hex = "0.4"
 uuid = { version = "1", features = ["v4", "serde"] }
-async-trait = "0.1"
-anyhow = "1"
 tokio = { version = "1.41", features = ["full"] }
 tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
 regex = "1"
+git2 = "0.20"
+syn = { version = "2", features = ["full", "parsing"] }
+quote = "1"
+proc-macro2 = "1"
 
 [profile.dev]
 opt-level = 0
@@ -64,4 +68,3 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
-    "crates/phenotype-error-core",
