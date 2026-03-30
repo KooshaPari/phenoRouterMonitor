@@ -1,19 +1,46 @@
 //! # Phenotype Git Core
 //!
 //! Git operations via libgit2: repository info, branch, status, log.
+//!
+//! Provides high-level abstractions over libgit2 for working with git repositories:
+//! - Repository information and state introspection
+//! - Commit history navigation
+//! - Branch and status queries
+//!
+//! # Example
+//!
+//! ```rust,no_run
+//! use phenotype_git_core::GitRepository;
+//!
+//! let repo = GitRepository::open(".")?;
+//! if let Some(commit) = repo.head_commit()? {
+//!     println!("HEAD: {} {}", commit.id, commit.message);
+//! }
+//! # Ok::<(), phenotype_git_core::GitError>(())
+//! ```
+
+mod commit;
+mod repository;
+
+pub use commit::GitCommit;
+pub use repository::GitRepository;
 
 use git2::Repository;
 use thiserror::Error;
 
+/// Errors that can occur during git operations.
 #[derive(Debug, Error)]
 pub enum GitError {
+    /// Wrapper around libgit2 errors.
     #[error("git error: {0}")]
     Git(#[from] git2::Error),
 
+    /// Repository not found at the given path.
     #[error("not a git repository: {0}")]
     NotARepo(String),
 }
 
+/// Convenient result type for git operations.
 pub type Result<T> = std::result::Result<T, GitError>;
 
 /// Summary of a git repository's current state.
