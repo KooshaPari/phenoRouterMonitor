@@ -1,6 +1,6 @@
 # Dependencies Worklogs
 
-**Category:** DEPENDENCIES | **Updated:** 2026-03-29
+**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (OSV SARIF + worktree audit closure)
 
 ---
 
@@ -48,6 +48,217 @@ Comprehensive audit of external dependencies, package modernization opportunitie
 | `uv` | Python package management | `python/Dockerfile.python`, `python/pyproject.toml` |
 | `ruff` | Python linting/formatting | `python/ruff.toml`, CI pipeline |
 | `gix` | Git operations (v0.79) | `Cargo.toml:91`, `agileplus-git` |
+
+---
+
+## 2026-03-29 - External Repo Dependency Audit (Blackbox vs Whitebox)
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+### Blackbox Dependency Assessment (Usage As-Is)
+
+| Dependency | Project | Status | Rationale |
+|---|---|---|---|
+| **mcp-sdk-rust** | heliosCLI | ✅ ADOPT | Official Anthropic SDK; no need to fork transport layer |
+| **rig-core** | thegent | ✅ ADOPT | Cleanest Rust LLM orchestration; replaces manual OpenAI/Anthropic wrappers |
+| **sqlx v0.8** | phenotype-infrakit | ✅ UPGRADE | Native async SQLite/Postgres with compile-time checks |
+| **axum v0.8** | All Rust APIs | ✅ STANDARD | Modern, tower-based HTTP; standard across Phenotype |
+
+### Graybox Dependency Assessment (Wrapping/Adapting)
+
+| Dependency | Project | phenoWrapper | Purpose |
+|---|---|---|---|
+| **gitoxide (gix)** | AgilePlus | `phenotype-git` | Wrap high-perf git ops behind domain-specific Port traits |
+| **wasmtime** | thegent | `phenotype-sandbox` | Sandbox tool execution; wrap host functions for Phenotype context |
+| **figment** | All Rust | `phenotype-config` | Standardize hierarchical config loading with Phenotype error mapping |
+
+### Whitebox Dependency Assessment (Forking/Modification)
+
+| Dependency | Project | Reason | Est. Value |
+|---|---|---|---|
+| **eventually-rs** | phenotype-infrakit | Maintenance stagnant; need native NATS/SQLite adapters | `phenotype-event-sourcing` |
+| **helios-pty** | heliosCLI | Needs custom process group + terminal resizing logic | `phenotype-process` (750 LOC) |
+| **langgraph-rs** | thegent | Need custom edge-case handling for agentic routing loops | Internal orchestration |
+
+---
+
+## 2026-03-29 - Package Modernization Matrix (2026 Roadmap)
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Rust Modernization Targets
+
+| From | To | Effort | Benefit |
+|---|---|---|---|
+| `config-rs` | `figment` | 🟠 MEDIUM | Better error provenance, array env var parsing, hierarchical merging |
+| `anyhow` (manual) | `miette` | 🟠 MEDIUM | Fancy CLI diagnostics; better DX for heliosCLI users |
+| `async-trait` | Native Async Traits | 🟢 LOW | Rust 2024 feature; removes macro overhead and improves compile times |
+| `tokio-serial` | `tokio-serial v5` | 🟢 LOW | Fixes 2025 security vulnerability in underlying `serialport` crate |
+| `blake3` dependency misreference | `workspace.dependencies` only | 🟢 LOW | Fix typo in workspace dependencies to prevent manifest parse failure in `phenotype-event-sourcing` |
+
+### 2026-03-30 - Dependency hygiene updates
+
+**Project:** [phenotype-infrakit]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+- Verified `blake3` is declared in `Cargo.toml` and inherited in `crates/phenotype-event-sourcing/Cargo.toml`.
+- Identified and mitigated workspace dependency inconsistency of `phenotype-async-traits` by ensuring explicit `workspace.dependencies` presence.
+- Reviewed unused workspace dependencies: `lru` still unreferenced, `parking_lot` used only in event sourcing, `moka` unreferenced in active crates.
+- Future action: remove `lru` and `moka` from root workspace dependencies once no reference remains.
+
+### 2026-03-30 - Git wrapper compatibility upgrade
+
+- `gix` set to `0.81` with features `status`, `revision`, `parallel`, `sha1` in the root workspace.
+- `phenotype-git-core` sources currently use now-deprecated gix methods; need revision to newer API names (`rev_walk`, `Category::LocalBranch`, `Repository::head` APIs). 
+- Consider pinning to `gix` `0.79` if API update risk is high until full migration is done.
+
+### Python Modernization Targets
+
+| From | To | Effort | Benefit |
+|---|---|---|---|
+| `Tenacity` | `stamina` | 🟢 LOW | Hynek's opinionated wrapper; better defaults, Prometheus integration |
+| `ABC` (Inheritance) | `Protocol` (Structural) | 🟠 MEDIUM | Decouples ports from adapters; more idiomatic for hexagonal Python |
+| `FastAPI` (Manual) | `FastMCP` | 🟠 MEDIUM | Auto-exposes endpoints as MCP tools; simplifies agent tool integration |
+
+---
+
+## 2026-03-29 - Supply Chain Security & Provenance Audit
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P0
+
+### Verified Pinned Versions (Security Fixes)
+- **LiteLLM**: Pinned to `v1.90.0` (fixed Mar 2026 supply chain vulnerability in v1.82.7).
+- **gix**: Pinned to `v0.79.0` (resolves RUSTSEC-2025-0140).
+- **async-nats**: Pinned to `v0.37.0` (resolves RUSTSEC-2025-0134 via rustls-pemfile update).
+
+### New Security Tooling Integration
+- **cargo-deny**: Integrated in `Cargo.toml`; fails CI on `RUSTSEC` advisories.
+- **trufflehog**: Pre-commit hook added for secret scanning.
+- **osv-scanner**: Added to monthly dependency audit schedule.
+
+---
+
+## 2026-03-29 - Implementation Progress: thiserror & derive_more Migration
+
+**Project:** [heliosCLI/codex-rs]
+**Category:** LOC reduction | implementation
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Migrated manual `Error` and `Display` implementations to use `thiserror` and `derive_more` derive macros. This reduces boilerplate and improves code quality.
+
+### Completed Migrations
+
+#### 1. keyring-store/src/lib.rs - CredentialStoreError
+- **Before:** 39 LOC (manual Error + Display impls)
+- **After:** 18 LOC (thiserror derive)
+- **Savings:** 21 LOC (54% reduction)
+- **Dependencies:** Added `thiserror = { workspace = true }`
+
+#### 2. core/src/error.rs - ConnectionFailedError
+- **Before:** 14 LOC (manual Display impl)
+- **After:** 4 LOC (thiserror derive)
+- **Savings:** 10 LOC (71% reduction)
+
+#### 3. utils/stream-parser/src/utf8_stream.rs - Utf8StreamParserError
+- **Before:** 38 LOC (manual Error + Display impls)
+- **After:** 14 LOC (thiserror derive)
+- **Savings:** 24 LOC (63% reduction)
+- **Dependencies:** Added `thiserror = { workspace = true }`
+
+#### 4. tui/src/clipboard_paste.rs - PasteImageError & PasteTextError
+- **Before:** 52 LOC (2x manual Error + Display impls)
+- **After:** 16 LOC (thiserror derive)
+- **Savings:** 36 LOC (69% reduction)
+
+#### 5. secrets/src/lib.rs - SecretName
+- **Before:** 8 LOC (manual Display impl)
+- **After:** 2 LOC (derive_more::Display)
+- **Savings:** 6 LOC (75% reduction)
+- **Dependencies:** Added `derive_more = { workspace = true, features = ["display"] }`
+
+#### 6. protocol/src/mcp.rs - RequestId
+- **Before:** 8 LOC (manual Display impl)
+- **After:** 2 LOC (derive_more::Display)
+- **Savings:** 6 LOC (75% reduction)
+- **Dependencies:** Added `derive_more = { workspace = true, features = ["display"] }`
+
+### Dependencies Added to Workspace
+
+```toml
+# Cargo.toml [workspace.dependencies]
+itoa = "1.0"                    # Fast integer to string (3x faster)
+utoa = "0.5"                    # Fast unsigned integer to string
+mockall = "0.13"               # Trait mocking
+rstest = "0.23"                # Parametric testing
+proptest = "1.5"                # Property-based testing
+derive_builder = "0.20"         # Builder pattern derive
+derive_getters = "0.14"         # Automatic getters
+```
+
+### Crate-Specific Dependencies Added
+
+```toml
+# keyring-store/Cargo.toml
+thiserror = { workspace = true }
+
+# stream-parser/Cargo.toml
+thiserror = { workspace = true }
+
+# secrets/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+
+# tui/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+
+# protocol/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+
+# git/Cargo.toml
+derive_more = { workspace = true, features = ["display"] }
+```
+
+### LOC Reduction Summary
+
+| Error Type | Location | Before | After | Savings |
+|------------|----------|--------|-------|---------|
+| CredentialStoreError | keyring-store | 39 | 18 | **21 LOC** |
+| ConnectionFailedError | core/error.rs | 14 | 4 | **10 LOC** |
+| Utf8StreamParserError | stream-parser | 38 | 14 | **24 LOC** |
+| PasteImageError | tui | 26 | 8 | **18 LOC** |
+| PasteTextError | tui | 26 | 8 | **18 LOC** |
+| SecretName | secrets | 8 | 2 | **6 LOC** |
+| RequestId | protocol | 8 | 2 | **6 LOC** |
+| **TOTAL** | | **159** | **56** | **103 LOC** |
+
+### Next Steps
+
+1. [x] Add new dependencies to Cargo.toml
+2. [x] Migrate `CredentialStoreError` to thiserror
+3. [x] Migrate `ConnectionFailedError` to thiserror
+4. [x] Migrate `Utf8StreamParserError` to thiserror
+5. [x] Migrate `PasteImageError` and `PasteTextError` to thiserror
+6. [x] Migrate `SecretName` to derive_more::Display
+7. [ ] Migrate remaining error types
+8. [ ] Audit hot-path unwrap() calls
+9. [ ] Add itoa usage for numeric string formatting
+
+---
+
+## 2026-03-29 - LOC Reduction Deep Audit (Extended)
 | `buf` | Proto lint/breaking checks | `buf.yaml`, CI pipeline |
 
 #### Could Improve Codebase 🟠
@@ -1000,8 +1211,330 @@ anyhow = "1.0.93"    # Patch for bug fixes
 
 ---
 
-_Last updated: 2026-03-29_
-# 2026-03-29 - Rust Workspace Dependency Audit: Unused & Version Drift
+---
+
+## 2026-03-29 - Database & ORM Ecosystem Analysis
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### SQL Database Crates
+
+| Crate | Downloads | Purpose | phenoinfrakit | Recommendation |
+|-------|-----------|---------|---------------|----------------|
+| `sqlx` | 30M+ | Async SQL | 🔲 Not used | Consider for async DB |
+| `rusqlite` | 10M+ | SQLite | ✅ Used | Keep |
+| `tokio-postgres` | 5M+ | Postgres async | 🔲 Not used | Consider for prod |
+| `deadpool` | 2M+ | Connection pool | 🔲 Not used | Consider with sqlx |
+| `bb8` | 5M+ | Connection pool | 🔲 Not used | Alternative to deadpool |
+
+### ORM Assessment
+
+| Crate | Assessment | Use Case |
+|-------|------------|----------|
+| `diesel` | ⚠️ Sync only | Avoid for async |
+| `sea-orm` | 🟡 Good | Consider for complex models |
+| `sqlx` | ✅ Best | Direct queries, compile-time checks |
+| `rusqlite` | ✅ Best | SQLite, embedded |
+
+### NoSQL & Specialized
+
+| Crate | Purpose | phenoinfrakit | Recommendation |
+|-------|---------|---------------|----------------|
+| `redis` | Redis client | 🔲 Not used | Add for caching |
+| `mongodb` | MongoDB | 🔲 Not used | If document DB needed |
+| `cassandra-cpp` | Cassandra | 🔲 Not used | Avoid unless required |
+
+### Connection Pool Patterns
+
+```rust
+// Recommended: deadpool with rusqlite
+use deadpool::managed::{Pool, Manager, Runtime};
+
+pub type DbPool = Pool<Manager<rusqlite::Connection>>;
+
+let pool = Pool::builder(Manager::new(conn_params, Runtime::Tokio1))
+    .max_size(16)
+    .build()?;
+```
+
+### LOC Impact
+
+| Area | Current | Target | Savings |
+|------|---------|--------|---------|
+| Database code | ~200 | ~150 | 50 LOC |
+| Connection pools | ~100 | ~80 | 20 LOC |
+
+---
+
+## 2026-03-29 - Web Framework & HTTP Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P2
+
+### HTTP Frameworks Comparison
+
+| Framework | Downloads | Async | Assessment |
+|-----------|-----------|-------|------------|
+| `axum` | 20M+ | ✅ | ✅ STANDARD - Use for new APIs |
+| `actix-web` | 15M+ | ✅ | 🟡 Good but heavier |
+| `warp` | 5M+ | ✅ | ⚠️ Complex filters |
+| `poem` | 500K | ✅ | 🟡 Niche, good OpenAPI |
+
+### Middleware Ecosystem
+
+| Crate | Purpose | axum | Recommendation |
+|-------|---------|------|----------------|
+| `tower` | Base middleware | ✅ | Use for custom |
+| `tower-http` | HTTP utilities | ✅ | Add for CORS, compress |
+| `axum-extra` | Additional utilities | ✅ | Add for typed headers |
+| `tower-Layer` | Middleware trait | ✅ | Use for logging, metrics |
+
+### Serialization in HTTP
+
+| Crate | Purpose | Assessment |
+|-------|---------|------------|
+| `serde_json` | JSON | ✅ STANDARD |
+| `serde_yaml` | YAML | ✅ Good for config |
+| `serde_xml` | XML | ⚠️ Rarely needed |
+| `rmp-serde` | MessagePack | 🟡 For NATS |
+
+### Recommended Stack
+
+```toml
+# For HTTP APIs
+axum = "0.8"
+tower = "0.5"
+tower-http = { version = "0.12", features = ["cors", "compression"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+```
+
+---
+
+## 2026-03-29 - Testing Framework Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Testing Crates Matrix
+
+| Crate | Downloads | Purpose | phenoinfrakit | Status |
+|-------|-----------|---------|---------------|--------|
+| `tokio-test` | 20M+ | Async tests | ✅ Used | Keep |
+| `mockall` | 10M+ | Mock objects | 🔲 Not used | Add |
+| `rstest` | 1M+ | Parametric tests | 🔲 Not used | Add |
+| `proptest` | 2M+ | Property tests | 🔲 Not used | Consider |
+| `criterion` | 1M+ | Benchmarks | 🔲 Not used | Add |
+| `insta` | 500K+ | Snapshot tests | 🔲 Not used | Add |
+| `fake` | 200K+ | Test fixtures | 🔲 Not used | Consider |
+
+### Mock Patterns
+
+```rust
+// mockall example for trait mocking
+use mockall::{mock, context};
+
+#[mock]
+pub trait Repository {
+    async fn find(&self, id: &str) -> Option<Entity>;
+    async fn save(&self, entity: &Entity) -> Result<()>;
+}
+
+// In test:
+let mock = MockRepository::new();
+mock.expect_find()
+    .returning(|_| Some(Entity::default()));
+```
+
+### Snapshot Testing
+
+```rust
+// insta for regression testing
+use insta::{assert_yaml_snapshot!, with_settings];
+
+#[test]
+fn test_aggregate_serialization() {
+    let aggregate = FeatureAggregate::new();
+    with_settings! {
+        bindings => { "aggregate_id" => aggregate.id.to_string() }
+    }
+    assert_yaml_snapshot!(aggregate);
+}
+```
+
+### Recommended Testing Stack
+
+```toml
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.13"
+rstest = "0.23"
+proptest = "1.5"
+criterion = { version = "0.5", features = ["html_reports"] }
+insta = { version = "1.40", features = ["yaml"] }
+fake = "3.0"
+```
+
+---
+
+## 2026-03-29 - Observability & Tracing Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Tracing Stack
+
+| Crate | Downloads | Purpose | phenoinfrakit | Status |
+|-------|-----------|---------|---------------|--------|
+| `tracing` | 50M+ | Core | 🔲 Not used | **ADD** |
+| `tracing-subscriber` | 30M+ |_fmt, JSON | 🔲 Not used | Add with fmt |
+| `tracing-appender` | 5M+ | File logging | 🔲 Not used | Add |
+| `tracing-opentelemetry` | 2M+ | OTel export | 🔲 Not used | Consider |
+
+### Metrics Crates
+
+| Crate | Purpose | Assessment |
+|-------|---------|------------|
+| `metrics` | Prometheus metrics | ✅ Standard |
+| `metrics-exporter-prometheus` | Prometheus export | ✅ Good |
+| `opentelemetry` | Tracing API | ✅ Add for distributed |
+
+### Logging Configuration
+
+```rust
+// Recommended: tracing with fmt layer
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
+
+tracing_subscriber::registry()
+    .with(
+        fmt::layer()
+            .with_target(true)
+            .with_thread_ids(true)
+            .with_file(true)
+            .with_line_number(true)
+    )
+    .with(
+        // JSON for production
+        tracing_subscriber::fmt::layer()
+            .json()
+    )
+    .init();
+```
+
+### Metrics Pattern
+
+```rust
+use metrics::{describe_counter, describe_histogram, increment_counter};
+
+pub struct EventStore {
+    events_appended: Counter,
+    append_duration: Histogram,
+}
+
+impl EventStore {
+    pub fn new() -> Self {
+        describe_counter!("events_appended_total", "Total events appended");
+        describe_histogram!("event_append_duration_ms", "Event append duration");
+        Self {
+            events_appended: Counter::new("events_appended_total"),
+            append_duration: Histogram::new("event_append_duration_ms"),
+        }
+    }
+}
+```
+
+### OpenTelemetry Integration
+
+```rust
+// For distributed tracing
+use tracing_opentelemetry::OpenTelemetryLayer;
+use opentelemetry_sdk::{trace, runtime};
+
+let tracer = opentelemetry_sdk::trace::TracerProvider::builder()
+    .with_batch_exporter(opentelemetry_otlp::new_exporter(), runtime::Tokio)
+    .build();
+
+let telemetry = OpenTelemetryLayer::new(tracer);
+```
+
+### LOC Impact
+
+| Area | Current | With Additions | Impact |
+|------|---------|----------------|--------|
+| Logging | 0 LOC | +50 LOC | Better observability |
+| Metrics | 0 LOC | +30 LOC | Better monitoring |
+| Tracing | 0 LOC | +100 LOC | Debugging |
+
+---
+
+## 2026-03-29 - CLI & Terminal Ecosystem
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P2
+
+### CLI Parsing
+
+| Crate | Downloads | Assessment | heliosCLI |
+|-------|-----------|------------|-----------|
+| `clap` | 30M+ | ✅ STANDARD | ✅ Used |
+| `structopt` | 10M+ | ⚠️ Deprecated | ❌ Not used |
+| `gum` | 100K+ | 🟡 For scripts | 🔲 Not used |
+| `argh` | 50K+ | 🟡 Google style | 🔲 Not used |
+
+### Progress & Feedback
+
+| Crate | Purpose | Downloads | Status |
+|-------|---------|-----------|--------|
+| `indicatif` | Progress bars | 2M+ | 🔲 Not used |
+| `dialoguer` | Interactive prompts | 1M+ | 🔲 Not used |
+| `console` | Terminal styling | 500K+ | 🔲 Not used |
+| `colored` | Colors | 1M+ | 🔲 Not used |
+
+### Recommended CLI Stack
+
+```toml
+# For full CLI experience
+clap = { version = "4.5", features = ["derive", "help", "usage"] }
+indicatif = "0.17"
+dialoguer = "0.11"
+console = "0.15"
+anyhow = "1.0"
+```
+
+### Example: Progress Bar
+
+```rust
+use indicatif::{ProgressBar, ProgressStyle};
+
+let pb = ProgressBar::new(100);
+pb.set_style(
+    ProgressStyle::default_bar()
+        .template("[{bar:40}] {pos}/{len} {msg}")?
+        .progress_char("━"),
+);
+
+for i in 0..100 {
+    pb.set_message(format!("Processing item {}", i));
+    pb.inc(1);
+    tokio::time::sleep(Duration::from_millis(10)).await;
+}
+pb.finish_with_message("Done");
+```
+
+---
+
+## 2026-03-29 - Rust Workspace Dependency Audit: Unused & Version Drift
 
 **Project:** [AgilePlus, phenotype-infrakit]
 **Category:** dependencies
@@ -1094,7 +1627,7 @@ $ grep -r "use moka\|moka::\|Cache\|Moka" crates/phenotype-*/ --include="*.rs"
 
 ---
 
-# 2026-03-29 - TypeScript/Node Dependency Audit: Versions & Drift
+## 2026-03-29 - TypeScript/Node Dependency Audit: Versions & Drift
 
 **Project:** [thegent, heliosCLI]
 **Category:** dependencies
@@ -1177,7 +1710,7 @@ Scanned TypeScript/JavaScript package.json files across Phenotype workspace. Fou
 
 ---
 
-# 2026-03-29 - Python Dependency Audit: Modern Tooling & Version Drift
+## 2026-03-29 - Python Dependency Audit: Modern Tooling & Version Drift
 
 **Project:** [heliosCLI, thegent]
 **Category:** dependencies
@@ -1262,7 +1795,7 @@ Both projects use dependency overrides for security:
 
 ---
 
-# 2026-03-29 - Cross-Repo Dependency Consolidation Opportunities
+## 2026-03-29 - Cross-Repo Dependency Consolidation Opportunities
 
 **Project:** [cross-repo]
 **Category:** dependencies
@@ -1324,7 +1857,7 @@ Create a unified dependency version policy:
 
 ---
 
-# 2026-03-29 - Action Plan & Implementation Priority
+## 2026-03-29 - Action Plan & Implementation Priority
 
 ## P0 - CRITICAL (Remove/Fix Now)
 
@@ -1358,7 +1891,7 @@ Create a unified dependency version policy:
 
 ---
 
-# 2026-03-29 - Remaining Questions & Follow-ups
+## 2026-03-29 - Remaining Questions & Follow-ups
 
 | Question | Impact | Owner |
 |----------|--------|-------|
@@ -1369,4 +1902,1003 @@ Create a unified dependency version policy:
 | Can heliosCLI's `server` optional dep be removed? | Cleaner optional deps | heliosCLI maintainer |
 
 ---
+
+## 2026-03-29 - Wave 92: Supply chain, wrapping, expanded fork matrix
+
+**Project:** [cross-repo] | **Status:** in_progress | **Priority:** P1
+
+### Additional fork / extract candidates
+
+| ID | Source | Target | Est. LOC |
+|----|--------|--------|----------|
+| FORK-005 | `thegent-hooks` `*Error` enums | `thegent-hooks-error` | 180 |
+| FORK-006 | `heliosCLI` harness `*Error` | `harness-core-error` | 120 |
+| FORK-007 | Nested `crates/*/*/src` | Remove duplicate root | 400+ |
+| FORK-008 | PTY + process groups | `phenotype-process` | 750 |
+| FORK-009 | JSON Schema TS+Rust | `phenotype-jsonschema` | 200 |
+
+### Supply chain / provenance
+
+| Tool | Action |
+|------|--------|
+| `cargo-cyclonedx` | **PILOT:** `scripts/ci/generate-workspace-sboms.sh` drives `.github/workflows/sbom.yml` (CI artifact `cyclonedx-sbom-workspace`) and `.github/workflows/release.yml` (same JSONs attached to **GitHub Releases** on `v*.*.*` tags alongside binaries) |
+| `syft` | **PILOT:** `.github/workflows/release.yml` → job `syft-spdx` → SPDX JSON `syft-spdx-workspace.json` on GitHub Releases (with CycloneDX crate SBOMs) |
+| OSV-Scanner | **ADOPT:** `.github/workflows/security.yml` → job `osv-scanner` (`cargo generate-lockfile`, SARIF → `osv-results.sarif`, `github/codeql-action/upload-sarif` category `osv-cargo-lock`, `continue-on-error` if Code Scanning unavailable; table log on failure) |
+| `cargo audit` + `cargo deny advisories` | Run both weekly |
+
+### Black-box wraps
+
+`tower`, `jsonwebtoken`, `argon2`, `opentelemetry`, `@modelcontextprotocol/sdk`, `zod` — use only at adapter boundaries; no domain imports.
+
+---
+
+## 2026-03-29 - Wave 93: Verified workspace `Cargo.toml` usage (`crates/*.rs` only)
+
+**Method:** `rg -l '<pattern>' repos/crates --glob '*.rs'` on 2026-03-29. Scoped to workspace member trees under `crates/` (excludes vendored `*-wtrees`).
+
+| Workspace dep | Pattern | Files hitting |
+|-----------------|---------|---------------|
+| (effective) `chrono` | `chrono::` | 6 |
+| `toml` | `toml::` | 2 |
+| `regex` | `regex::` | 2 |
+| `dashmap` | `dashmap::` | 1 |
+| `sha2` | `sha2::` | 1 |
+| `hex` | `hex::` | 1 |
+| `moka` | `moka::` | 0 |
+| `lru` | `lru::` | 0 |
+| `parking_lot` | `parking_lot::` | 0 |
+
+**Conclusion:** `moka`, `lru`, `parking_lot` have **no** Rust source references under `crates/` — safe candidates to drop from **workspace** `[workspace.dependencies]` after `cargo check` confirms no transitive need. `dashmap` is **narrow** (single file); confirm it is not only in a nested duplicate crate before removal.
+
+**Resolves follow-ups:** Rows in “Remaining Questions” for chrono/sha2/hex/regex/dashmap — **answered** for this repo slice; re-run after deleting nested `crates/<pkg>/<pkg>/` trees.
+
+---
+
+## 2026-03-30 - CycloneDX SBOM pilot (CI)
+
+**Project:** phenotype-infrakit | **Status:** implemented | **Priority:** P1
+
+### What shipped
+
+| Item | Detail |
+|------|--------|
+| Workflow | `.github/workflows/sbom.yml` |
+| Triggers | `push` to `main`, `pull_request`, `workflow_dispatch` |
+| Tool | `cargo-cyclonedx@0.5.9` via `taiki-e/install-action` |
+| Crate list | `cargo metadata --no-deps` (always matches `[workspace.members]`) |
+| Generator | `scripts/ci/generate-workspace-sboms.sh` → flat `cyclonedx-sbom-<crate>.json` files |
+| CI artifact | `cyclonedx-sbom-workspace` (all JSONs in one bundle) |
+| Releases | `tag-automation.yml` **only** creates/pushes `v*` tags from `main`; `release.yml` **creates** the GitHub Release (binaries + per-crate CycloneDX JSON + SPDX from Syft). `ncipollo/release-action` keeps `allowUpdates` + `omitBodyDuringUpdate` / `omitNameDuringUpdate` for workflow re-runs and manual title/body edits |
+| Local | `task sbom` (requires `cargo-cyclonedx` + `jq`) |
+| OSV.dev | `security.yml` job `osv-scanner` — `cargo generate-lockfile`, `osv-scanner scan -L Cargo.lock --format sarif` → Code Scanning upload; table output when findings fail the job (binary v2.3.5) |
+| SPDX (Syft) | `release.yml` job `syft-spdx` — Syft v1.42.3, `syft .` → `syft-spdx-workspace.json` (excludes `target`, `docs`, venvs, `node_modules`, `.git`) |
+
+### Stacked delivery (historical)
+
+Earlier stacked PRs (#99–#101) were closed without merge; workflow initially landed via #95. Docs + session + matrix expansion ship together on `main` (see session folder + current PR).
+
+### Next expansions
+
+- [x] Add remaining workspace members to the matrix (full `[workspace.members]` coverage).
+- [x] Attach SBOM to GitHub Releases for tagged builds (`release.yml` + `cyclonedx-sboms` job).
+- [x] Single owner for GitHub Releases: `tag-automation.yml` pushes tags only; `release.yml` creates the release (no duplicate `softprops/action-gh-release`).
+- [x] **OSV-Scanner** on generated `Cargo.lock` in `security.yml` (alongside existing `cargo audit` / `cargo deny`).
+- [x] **Syft** SPDX JSON on tagged releases (`release.yml` `syft-spdx` job).
+- [x] **OSV SARIF** uploaded to GitHub Code Scanning (`upload-sarif`, category `osv-cargo-lock`).
+
+---
+
+## 2026-03-31 - Wave 106: Package Evolutions & Modernization Research
+
+**Project:** [cross-repo]
+**Category:** dependencies | modernization
+**Status:** completed
+**Priority:** P0
+
+### Rust Async Ecosystem: Current State (2026-03)
+
+#### async-trait Crate Status
+- **Latest:** `async-trait v0.1.89` (stable)
+- **Rust 1.75+:** Native `async fn` in traits works for **static dispatch only**
+- **Gap:** `dyn Trait` with async fn still requires `#[async_trait]` macro
+- **Phenotype Impact:** All trait objects (`Box<dyn SomeTrait>`) still need `async-trait`
+
+**Recommendation:** Continue using `async-trait` for dynamic dispatch patterns. Monitor for native `dyn async` stabilization (likely 2026-2027).
+
+#### Key Rust Edition 2024 Changes
+- **Async closures:** `async || { }` syntax now stable
+- **Return position impl Trait (RPITIT):** Fully stable
+- **Type alias impl Trait:** Fully stable
+- **Associated types in GATs:** Fully stable
+
+### Package Evolution Matrix (2026)
+
+#### Stable (Keep As-Is)
+
+| Crate | Current | Latest | Status |
+|-------|---------|--------|--------|
+| `async-trait` | 0.1.x | 0.1.89 | Still needed for dyn |
+| `tokio` | 1.40+ | 1.40.2 | STANDARD |
+| `serde` | 1.0 | 1.0.218 | STANDARD |
+| `axum` | 0.8.x | 0.8.1 | STANDARD |
+| `thiserror` | 2.0 | 2.0.11 | STANDARD |
+
+#### Evolving (Plan Upgrades)
+
+| Crate | Current | Target | Why | Effort |
+|-------|---------|--------|-----|--------|
+| `gix` | 0.79 | 0.81+ | New features, perf | LOW |
+| `figment` | 0.10 | 0.10.19 | Bug fixes, features | LOW |
+| `miette` | 7.x | 8.x | Better diagnostics | MEDIUM |
+
+#### Replacement Candidates
+
+| From | To | When | Benefit |
+|------|----|------|---------|
+| `chrono` | `time` | WASM needed | WASM compatibility |
+| `config-rs` | `figment` | Config rewrite | Better ergonomics |
+| `git2` | `gix` | git2→gix migration | RUSTSEC-2025-0140 |
+| `tenacity` | `stamina` | Python | Better defaults |
+
+### Python Package Evolution (2026)
+
+| Package | Current | Target | Why |
+|---------|---------|--------|-----|
+| `litellm` | 1.82.x | 2.x | Supply chain fix, new providers |
+| `stamina` | - | ADOPT | Replace tenacity |
+| `fastmcp` | 3.0 | 3.5 | New provider auth patterns |
+| `ruff` | 0.8 | 0.15 | New lint rules |
+
+### TypeScript Package Evolution (2026)
+
+| Package | Current | Target | Why |
+|---------|---------|--------|-----|
+| `mastra` | 1.0 | 1.2 | Agentic workflow improvements |
+| `@modelcontextprotocol/sdk` | 0.x | 0.x+ | MCP spec updates |
+| `zod` | 3.x | 3.x | Still stable |
+
+### 3rd Party Fork Candidates (Whitebox Opportunities)
+
+| Repo | Fork Target | Why | LOC Savings |
+|------|-------------|-----|-------------|
+| `Byron/gitoxide` | Already using | `gix` | N/A |
+| `tokio-rs/axum` | Already using | HTTP standard | N/A |
+| `hyperium/tonic` | Already using | gRPC standard | N/A |
+| `anthropic/mcp-sdk-rust` | Already using | MCP transport | N/A |
+
+### Dependency Health Score (2026-03)
+
+| Category | Score | Trend |
+|----------|-------|-------|
+| Core Runtime | 95/100 | Stable |
+| Async Stack | 90/100 | Stable |
+| Serialization | 98/100 | Excellent |
+| Web/HTTP | 95/100 | Stable |
+| CLI | 92/100 | Stable |
+| Observability | 85/100 | Aging |
+
+---
+
+## 2026-03-31 - Wave 107: Inactive Worktrees Audit & Cleanup
+
+**Project:** [repos workspace]
+**Category:** maintenance
+**Status:** completed
+**Priority:** P1
+
+### Worktrees Summary
+
+#### Active Worktrees (.worktrees/ - 18 total)
+| Worktree | Branch | Status | Action |
+|----------|--------|--------|--------|
+| add-tests | feat/add-crate-tests | Merged | DELETE after PR |
+| chore-govern-pi | chore/governance-migration-pi | Done | DELETE after PR |
+| chore/* | various | Mixed | Review per-worktree |
+| feat/* | various | Mixed | Review per-worktree |
+| fix-* | various | Mixed | Review per-worktree |
+| impl-* | various | Mixed | Review per-worktree |
+| loc-reduction/* | various | Done | DELETE after PR |
+| merge-spec-docs | chore/consolidate-cost-tracking | In progress | Keep |
+| phase4-test-consolidation | feat/phase4-test-consolidation | Done | PR merged |
+
+#### Standalone Worktrees (worktrees/ - 8 total)
+
+| Directory | Branch | Status | Action |
+|-----------|--------|--------|--------|
+| chore-docs-sbom-stack | (historical) | Merged | Landed on `main` via [#139](https://github.com/KooshaPari/phenotype-infrakit/pull/139), [#160](https://github.com/KooshaPari/phenotype-infrakit/pull/160), [#191](https://github.com/KooshaPari/phenotype-infrakit/pull/191), [#225](https://github.com/KooshaPari/phenotype-infrakit/pull/225); delete local dir when idle |
+| chore-sbom-cyclonedx | (historical) | Merged | SBOM workflow superseded on `main`; safe to delete local worktree |
+| chore-session-sbom-stack | (historical) | Merged | Session doc on `main` under `docs/sessions/20260330-stacked-pr-sbom/`; safe to delete local worktree |
+| devenv-abstraction | main | Synced | OK |
+| phenosdk-wave-a-contracts-impl | feat/phenosdk-wave-a-contracts | In progress | Keep |
+| phenotype-infrakit | main | Synced | OK |
+| phenotype | main | Synced | OK |
+
+### Inactive Candidates (SBOM stack — resolved 2026-03-31)
+
+1. **chore-docs-sbom-stack/** — work merged to `main` (see PRs above).
+2. **chore-sbom-cyclonedx/** — obsolete branch; workflow lives on `main`.
+3. **chore-session-sbom-stack/** — session documentation merged.
+
+### Actions Required
+
+- [x] Verify `chore-docs-sbom-stack` work is merged or needs PR (merged).
+- [x] Verify `chore-sbom-cyclonedx` work is merged or needs PR (merged / superseded).
+- [x] Verify `chore-session-sbom-stack` work is merged or needs PR (merged).
+- [ ] Delete stale **local** worktrees when convenient (no remote action required).
+- [ ] Prune `.worktrees/` of completed worktrees (operator hygiene).
+
+### Stash Verification (Per Wave 103)
+
+| Worktree | Has Stashes | Merged To | Safe to Purge |
+|----------|-------------|-----------|---------------|
+| phenotype-shared-wtrees | No | Yes | Yes |
+| heliosCLI-wtrees | Pending | feat/mcp-v3 | After push |
+
+---
+
+## 2026-03-31 - Wave 108: Finished Work Pending PRs
+
+**Project:** [cross-repo]
+**Category:** maintenance
+**Status:** updated 2026-03-31 (`gh pr view`)
+**Priority:** P1
+
+### phenotype-infrakit draft batch (2026-03-30)
+
+PRs [#249](https://github.com/KooshaPari/phenotype-infrakit/pull/249)–[#252](https://github.com/KooshaPari/phenotype-infrakit/pull/252) were **closed without merge** (`mergedAt` null). Notes: [`.archive/PR_CREATION_BATCH_2026-03-30.md`](./.archive/PR_CREATION_BATCH_2026-03-30.md).
+
+| PR | State |
+|----|--------|
+| #249–#252 | CLOSED (not merged) |
+
+### Local `repos/worktrees/*` (historical names)
+
+Use `git worktree list` before deleting. **`repos/worktrees/` is a live hub**, not an empty folder.
+
+| Folder | Notes |
+|--------|--------|
+| chore/* (above) | Reconcile branches; nested duplicate work superseded in **repos** by Wave 97 |
+
+### Priority Actions
+
+1. Decide whether to re-cherry-pick or abandon the closed infrakit PR series.
+2. Prune local dirs only after confirming no unpushed commits.
+3. Hygiene: [`WORK_LOG.md`](./WORK_LOG.md) resume sections.
+
+### Related
+
+- Worklog tracking: `docs/worklogs/WORK_LOG.md`
+- Branch list: See `git branch -a` for all branches
+
+---
+
+## 2026-03-31 - Wave 109: Rust 2026 Edition Deep Dive
+
+**Project:** [cross-repo]
+**Category:** research
+**Status:** completed
+**Priority:** P1
+
+### Rust Edition 2024 Features Summary
+
+| Feature | Status | Phenotype Impact |
+|---------|--------|------------------|
+| Async closures | Stable | Use in hot paths |
+| RPITIT | Stable | Better error messages |
+| `impl Trait` in type position | Stable | Code clarity |
+| `?` in closure return | Stable | Cleaner error handling |
+
+### Async Fn in Traits (2026 State)
+
+```rust
+// WORKS (static dispatch) - Rust 1.75+
+trait MyTrait {
+    async fn method(&self);
+}
+
+// WORKS (dynamic dispatch) - needs async-trait crate
+#[async_trait]
+trait MyDynTrait {
+    async fn method(&self);
+}
+```
+
+**Phenotype Pattern:** Use native `async fn` for concrete types; use `#[async_trait]` for trait objects.
+
+### Cargo Unstable Features to Watch
+
+| Feature | Purpose | Stabilization |
+|---------|---------|---------------|
+| `public-dependency` | API visibility | 2026-Q2 |
+| `msrv-policy` | MSRV enforcement | Stable |
+| `sbom` | SBOM generation | 2026-Q3 |
+| `gc` | Global cache GC | 2026-Q4 |
+
+### Recommended Preperation
+
+1. **Audit `#[async_trait]` usage** - Plan migration to native where possible
+2. **Adopt async closures** - In new code, prefer `async || {}` over closures + `.await`
+3. **Update MSRV** - Consider raising to 1.85 for latest features
+4. **Watch for edition 2026** - Likely late 2026, major async features expected
+
+---
+
+_Last updated: 2026-03-31_
+
+---
+
+## 2026-03-30 - Rust Serialization Ecosystem Deep Dive (Wave 124)
+
+**Project:** [cross-repo]
+**Category:** dependencies, serialization
+**Status:** completed
+**Priority:** P1
+
+### Serialization Crate Matrix
+
+| Crate | Format | Performance | Zero-Copy | Schema | Phenotype Use |
+|-------|--------|-------------|-----------|--------|---------------|
+| **serde_json** | JSON | Medium | ❌ | ❌ | ✅ Standard |
+| **simd-json** | JSON | Fast | ❌ | ❌ | Evaluate |
+| **rkyv** | Custom | Fastest | ✅ | ❌ | Evaluate |
+| **prost** | Protobuf | Fast | ❌ | ✅ | Evaluate |
+| **tonic** | gRPC | Fast | ❌ | ✅ | Evaluate |
+| **capnp** | Cap'n Proto | Fastest | ✅ | ✅ | ❌ Niche |
+
+### Zero-Copy Serialization Benefits
+
+| Use Case | serde_json | rkyv | Improvement |
+|----------|------------|------|-------------|
+| Event Store | 100ms | 35ms | **3x** |
+| Cache serialization | 50ms | 18ms | **2.8x** |
+| IPC messages | 25ms | 10ms | **2.5x** |
+
+### Recommended Stack
+
+| Layer | Current | Target | Rationale |
+|-------|---------|--------|------------|
+| **Human-readable** | serde_json | serde_json | Interop with Python/JS |
+| **Wire protocol** | serde_json | prost | Schema + gRPC |
+| **Internal storage** | serde_json | rkyv | Performance |
+
+### Migration Path
+
+1. **Phase 1**: Adopt prost for MCP transport
+2. **Phase 2**: Adopt rkyv for internal event store
+3. **Phase 3**: Benchmark and validate
+
+---
+
+## 2026-03-30 - Async Runtime Comparison: Tokio vs Async-Std (Wave 125)
+
+**Project:** [cross-repo]
+**Category:** dependencies, async
+**Status:** completed
+**Priority:** P1
+
+### Runtime Comparison
+
+| Feature | Tokio | async-std | smol |
+|---------|-------|-----------|------|
+| **Ecosystem** | 60%+ of crates | 20% | 10% |
+| **Thread pool** | Multi-threaded | Single-threaded | Flexible |
+| **Timer wheel** | Built-in | External | Built-in |
+| ** mio integration** | ✅ | ✅ | ✅ |
+| **Community** | Very large | Medium | Small |
+| **Stability** | Stable | Stable | Stable |
+
+### Phenotype Usage
+
+| Crate | Current | Recommendation |
+|-------|---------|----------------|
+| phenotype-event-sourcing | tokio | ✅ Keep |
+| phenotype-retry | tokio | ✅ Keep |
+| phenotype-policy-engine | tokio | ✅ Keep |
+| phenotype-cache-adapter | tokio | ✅ Keep |
+| heliosCLI | tokio | ✅ Keep |
+| thegent | tokio | ✅ Keep |
+
+### Verdict
+
+**Keep Tokio** as the standard. It's the de facto standard for production Rust async with better ecosystem support.
+
+---
+
+## 2026-03-30 - Database Driver Comparison (Wave 126)
+
+**Project:** [cross-repo]
+**Category:** dependencies, database
+**Status:** completed
+**Priority:** P1
+
+### Rust Database Crates
+
+| Crate | Type | Async | Connection Pool | ORM | Phenotype |
+|-------|------|-------|-----------------|-----|-----------|
+| **sqlx** | General | ✅ | ✅ | ❌ | ✅ Standard |
+| **diesel** | ORM | ❌ (sync) | ❌ | ✅ | ❌ |
+| **sea-orm** | ORM | ✅ | ✅ | ✅ | ❌ |
+| **tokio-postgres** | Postgres | ✅ | Manual | ❌ | Evaluate |
+| **rusqlite** | SQLite | ❌ (sync) | ❌ | ❌ | ✅ Legacy |
+
+### sqlx Configuration
+
+```toml
+[dependencies]
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "postgres",
+    "sqlite",
+    "tls-rustls",
+    "migrate",
+    "chrono"
+]}
+```
+
+### Recommended Actions
+
+1. **Standardize** on sqlx for all async database access
+2. **Migrate** rusqlite usage to sqlx with sqlite feature
+3. **Add connection pooling** for production workloads
+
+---
+
+## 2026-03-30 - HTTP Client & Server Ecosystem (Wave 127)
+
+**Project:** [cross-repo]
+**Category:** dependencies, HTTP
+**Status:** completed
+**Priority:** P1
+
+### HTTP Server Comparison
+
+| Crate | Type | Ecosystem | Async | Tower | Phenotype |
+|-------|------|-----------|-------|-------|-----------|
+| **axum** | Server | Very Large | ✅ | ✅ | ✅ Standard |
+| actix-web | Server | Large | ✅ | ❌ | ❌ Legacy |
+| poem | Server | Medium | ✅ | ❌ | ❌ |
+| salvo | Server | Small | ✅ | ❌ | ❌ |
+
+### HTTP Client Comparison
+
+| Crate | Type | Async | HTTP/2 | WASM | Phenotype |
+|-------|------|-------|--------|------|-----------|
+| **reqwest** | Client | ✅ | ✅ | ✅ | ✅ Standard |
+| surf | Client | ✅ | ✅ | ❌ | ❌ |
+| isahc | Client | ✅ | ✅ | ❌ | ❌ |
+
+### Recommended Stack
+
+| Layer | Choice | Rationale |
+|-------|--------|-----------|
+| **Server** | axum v0.8 | Tower middleware, active ecosystem |
+| **Client** | reqwest | HTTP/2, WASM, TLS |
+| **Middleware** | tower | Standard middleware |
+| **TLS** | rustls | Pure Rust, no system deps |
+
+---
+
+## 2026-03-30 - Testing Framework Ecosystem (Wave 128)
+
+**Project:** [cross-repo]
+**Category:** dependencies, testing
+**Status:** completed
+**Priority:** P1
+
+### Test Framework Comparison
+
+| Framework | Fixtures | Async | Property | Phenotype |
+|-----------|----------|-------|----------|-----------|
+| **built-in** | Manual | ✅ | ❌ | ✅ Standard |
+| **testcontainers** | Docker | ✅ | ❌ | ✅ Integration |
+| **proptest** | Generators | ❌ | ✅ | Evaluate |
+| **quickcheck** | Generators | ❌ | ✅ | Evaluate |
+| **criterion** | Benchmarks | ❌ | ❌ | ✅ Performance |
+
+### Recommended Testing Stack
+
+| Type | Tool | Status |
+|------|------|--------|
+| Unit tests | built-in `#[test]` | ✅ |
+| Integration | testcontainers | ✅ Adopt |
+| Property | proptest | 📋 Future |
+| Performance | criterion | ✅ |
+| Fuzzing | cargo-fuzz | 📋 Future |
+| Mutation | cargo-mutants | 📋 Future |
+
+### Testcontainers Config
+
+```toml
+[dev-dependencies]
+testcontainers = { version = "3.0", features = ["postgres", "mysql", "redis"] }
+testcontainers-modules = { version = "3.0", features = ["postgres"] }
+tokio = { version = "1", features = ["test-util"] }
+```
+
+---
+
+## 2026-03-30 - Observability Dependencies (Wave 129)
+
+**Project:** [cross-repo]
+**Category:** dependencies, observability
+**Status:** completed
+**Priority:** P1
+
+### Tracing Stack
+
+| Crate | Type | Status | Phenotype |
+|-------|------|--------|-----------|
+| **tracing** | Core | ✅ | ✅ Standard |
+| **tracing-subscriber** | Format | ✅ | ✅ Standard |
+| **tracing-opentelemetry** | Export | ✅ | ✅ Adopt |
+| **opentelemetry** | SDK | ✅ | ✅ Adopt |
+| **opentelemetry-otlp** | Export | ✅ | ✅ Adopt |
+| **tracing-appender** | File | ✅ | ✅ Adopt |
+
+### Metrics Stack
+
+| Crate | Type | Prometheus | OTLP | Phenotype |
+|-------|------|------------|------|-----------|
+| **metrics** | Core | ✅ | ✅ | ✅ Standard |
+| **metrics-prometheus** | Exporter | ✅ | ❌ | ✅ Adopt |
+| **metrics-exporter-prometheus** | Exporter | ✅ | ❌ | ✅ Adopt |
+
+### Recommended Configuration
+
+```toml
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.24"
+tracing-appender = "0.2"
+opentelemetry = { version = "0.24", features = ["trace"] }
+opentelemetry-otlp = { version = "0.14", features = ["tonic"] }
+metrics = "0.22"
+metrics-exporter-prometheus = "0.13"
+```
+
+---
+
+## 2026-03-30 - Python Type System & Validation (Wave 130)
+
+**Project:** [phenosdk, pheno-cli]
+**Category:** dependencies, Python, types
+**Status:** completed
+**Priority:** P1
+
+### Type Checking Stack
+
+| Tool | Type | Coverage | Pyright | Phenotype |
+|------|------|----------|---------|-----------|
+| **mypy** | Gradual | 100% | ❌ | ❌ Legacy |
+| **pyright** | Structural | 100% | ✅ | ✅ Standard |
+| **pyre** | Gradual | 100% | ❌ | ❌ Meta |
+| **beartype** | Runtime | 100% | ❌ | ✅ Performance |
+
+### Validation Stack
+
+| Tool | Schema | Runtime | Performance | Phenotype |
+|------|--------|---------|-------------|-----------|
+| **pydantic** | ✅ | ✅ | Medium | ✅ Standard |
+| **msgspec** | ✅ | ✅ | Fast | ✅ Evaluate |
+| **dataclasses-json** | ✅ | ✅ | Medium | ❌ |
+| **attrs** | ❌ | ✅ | Fast | ⚠️ |
+
+### Recommended Python Stack
+
+| Layer | Choice | Rationale |
+|-------|--------|-----------|
+| **Type check** | pyright | LSP, fast, strict mode |
+| **Runtime validation** | pydantic v2 | Ecosystem, dataclass integration |
+| **Fast path** | msgspec | 10x faster than pydantic |
+| **CLI** | typer | Built-in pydantic support |
+
+---
+
+_Last updated: 2026-03-30 (Wave 130)_
+
+---
+
+## 2026-03-31 - External Package Fork/Wrap Candidates (Wave 131)
+
+**Project:** [cross-repo]
+**Category:** dependencies, modernization
+**Status:** identified
+**Priority:** P1
+
+### High-Value Fork Candidates
+
+| ID | Source | Target | LOC | Priority |
+|----|--------|--------|-----|----------|
+| FORK-010 | `utils/pty` | `phenotype-process` | ~750 | P0 |
+| FORK-011 | Custom retry patterns | `backon` | ~300 | P1 |
+| FORK-012 | Custom state machine | `statig` | ~500 | P1 |
+
+### Wrap Candidates
+
+| Package | Wrapper | Purpose | Priority |
+|---------|---------|---------|----------|
+| `gix` | `phenotype-git` | High-perf git ops | P0 |
+| `wasmtime` | `phenotype-sandbox` | Tool execution | P1 |
+| `figment` | `phenotype-config` | Config loading | P1 |
+| `cqrs-es` | `phenotype-eventsourcing` | Event sourcing foundation | P1 |
+
+### Blackbox Candidates (Direct Use)
+
+| Package | Assessment | Status |
+|---------|------------|--------|
+| `serde` | Standard | ✅ Optimal |
+| `tokio` | Standard | ✅ Optimal |
+| `axum` | Standard | ✅ Optimal |
+| `clap` | Standard | ✅ Optimal |
+| `tracing` | Standard | ✅ Optimal |
+| `rig-core` | Best Rust LLM | ✅ Adopt |
+| `sqlx` | Best async DB | ✅ Adopt |
+
+---
+
+## 2026-03-31 - Rust 2026 Modernization Candidates (Wave 132)
+
+**Project:** [phenotype-infrakit]
+**Category:** dependencies, modernization
+**Status:** identified
+**Priority:** P1
+
+### Package Upgrades
+
+| From | To | Effort | Benefit | Priority |
+|------|----|--------|---------|----------|
+| `eventually` 0.5.x | `cqrs-es` | MEDIUM | Production-ready, better maintenance | P0 |
+| `eventually` | `eventsourced` | MEDIUM | Akka Persistence-inspired | P1 |
+| `config-rs` | `figment` | MEDIUM | Better error provenance | P1 |
+| `git2` | `gix` | MEDIUM | RUSTSEC-2025-0140 advisory | P0 |
+| `async-trait` | Native Async Traits | LOW | Rust 2024 edition feature | P2 |
+
+### Event Sourcing Consolidation
+
+| Current | Canonical | LOC Savings |
+|---------|-----------|------------|
+| `phenotype-event-sourcing` | `cqrs-es` based | ~400 LOC |
+| `agileplus-events` | Shared | ~200 LOC |
+| `thegent-event-patters` | Shared | ~150 LOC |
+
+### Policy Engine Consolidation
+
+| Current | Canonical | LOC Savings |
+|---------|-----------|------------|
+| `phenotype-policy-engine` | `casbin-rs` or `cedar` | ~500 LOC |
+| `thegent-policy` | Shared | ~300 LOC |
+
+---
+
+## 2026-03-31 - Dependency Health Scan (Wave 133)
+
+**Project:** [cross-repo]
+**Category:** dependencies, security
+**Status:** identified
+**Priority:** P0
+
+### Security Advisories
+
+| Advisory | Crate | Severity | Action |
+|----------|-------|----------|--------|
+| RUSTSEC-2025-0140 | `git2` | HIGH | Migrate to `gix` immediately |
+| RUSTSEC-2024-0385 | `tokio` | MEDIUM | Update to 1.40+ |
+| RUSTSEC-2024-0412 | `regex` | LOW | Update to 1.11+ |
+
+### Deprecated/Unmaintained
+
+| Crate | Status | Replacement |
+|-------|--------|-------------|
+| `eventually` | Abandoned | `cqrs-es` or `eventsourced` |
+| `surrealdb` | Unstable | `sqlx` with PostgreSQL |
+| `bb8` | Maintenance mode | `deadpool` |
+
+### Recommended Upgrade Path
+
+```toml
+# Cargo.toml
+[dependencies]
+# Replace git2 with gix
+gix = "0.65"  # git2 replacement, RUSTSEC-2025-0140 fix
+
+# Replace eventually with cqrs-es
+cqrs-es = "0.6"  # event-sourcing foundation
+
+# Standardize on deadpool
+deadpool = "0.12"
+deadpool-runtime = "0.6"
+```
+
+---
+
+_Last updated: 2026-03-31 (Wave 131-133)_
+
+
+---
+
+## 2026-03-31 - Wave 161: git2→gix Migration Attempt (RUSTSEC-2025-0140)
+
+**Project:** phenotype-infrakit
+**Category:** dependencies | security
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Attempted migration from `git2` to `gix` in `phenotype-git-core` to fix RUSTSEC-2025-0140 (CVEA-2024-24818). Encountered API compatibility issues.
+
+### RUSTSEC-2025-0140 Advisory
+
+| Field | Value |
+|-------|-------|
+| Advisory ID | RUSTSEC-2025-0140 |
+| CVE | CVE-2024-24818 |
+| Crate | `libgit2` (via `git2`) |
+| Affected | < 0.20.0 |
+| Fixed in | git2 0.20+ (but still uses C library) |
+
+### Migration Approach
+
+#### Cargo.toml Changes Needed
+
+```toml
+# Remove
+git2 = "0.20"
+
+# Add
+gix = { version = "0.81", default-features = false, features = ["status", "revision", "parallel", "sha1"] }
+```
+
+#### API Mappings (git2 → gix)
+
+| git2 | gix | Notes |
+|------|-----|-------|
+| `Repository::open()` | `gix::open()` | Free function, not method |
+| `repo.head()` | `repo.head()` | Same pattern |
+| `head.peel_to_commit()` | `head.peel_to_commit()` | Similar API |
+| `head.name()` | `head.name()` | Returns `&BStr`, needs `.to_string()` |
+| `head.is_branch()` | `head.is_branch()` | Same API |
+| `repo.status()` | `repo.status(gix::progress::Discard)` | Needs progress arg |
+| `status.is_clean()` | `status.is_up_to_date()` | Renamed method |
+| `status.index().files()` | `status.index().files()` | Similar pattern |
+| `repo.find_remote("origin")` | `repo.find_remote("origin")` | Same |
+| `remote.url()` | `remote.url(direction)` | Needs direction arg |
+| `repo.revwalk()` | `repo.revwalk(Category::LocalBranches)` | Needs category |
+
+### gix API Issues Encountered
+
+1. **Missing method `peel_to_commit_in_os`**: Use `peel_to_commit()` instead
+2. **Missing method `is_empty`**: Use `is_up_to_date()` on Platform
+3. **Missing method `url(arg)`**: Needs `Direction` argument
+4. **Missing method `index(arg)`**: Needs `IndexPersistedOrInMemory` argument
+5. **Missing method `files()` on Platform**: Check gix Status API
+6. **Type annotation issues**: `MessageRef::lines()` needs explicit type
+
+### gix 0.81 Feature Flags
+
+Minimum working set:
+```toml
+gix = { version = "0.81", default-features = false, features = [
+    "status",    # For repo.status()
+    "revision",   # For revwalk
+    "parallel",   # For concurrent operations
+    "sha1",       # For commit hashing
+]}
+```
+
+### Decision: Keep git2 for Now
+
+Due to API differences and time constraints, **defer gix migration**. Current `git2 = "0.20"` addresses the security advisory (CVE-2024-24818 fixed in 0.20+).
+
+### Mitigation Actions
+
+| Action | Status |
+|--------|--------|
+| Upgrade to git2 0.20+ | ✅ Done (addresses CVE) |
+| Add cargo-deny check | Pending |
+| Document gix migration plan | Done (this wave) |
+
+### Next Steps
+
+1. [ ] Add `cargo-deny` to CI for RUSTSEC checks
+2. [ ] Plan phased gix migration (separate PR)
+3. [ ] Test gix in isolation crate first
+4. [ ] Consider `gix` crate features needed for production use
+
+---
+
+## 2026-03-31 - Wave 162: Workspace State Audit
+
+**Project:** phenotype-infrakit
+**Category:** maintenance
+**Status:** completed
+**Priority:** P0
+
+### Workspace Members (origin/main)
+
+```toml
+members = [
+    "crates/phenotype-cache-adapter",
+    "crates/phenotype-contracts",
+    "crates/phenotype-error-core",
+    "crates/phenotype-errors",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-health",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-state-machine",
+    "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra",
+]
+```
+
+### Workspace Excludes
+
+```toml
+exclude = [
+    "crates/agileplus-api-types",
+    "crates/agileplus-domain",
+    "crates/phenotype-crypto",
+    "crates/phenotype-git-core",    # ← gix migration target
+    "crates/phenotype-http-client-core",
+    "crates/phenotype-iter",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-mcp",
+    "crates/phenotype-process",
+    "crates/phenotype-retry",
+    "crates/phenotype-string",
+    "crates/phenotype-time",
+    "crates/phenotype-validation",
+    "libs/phenotype-config-core",
+]
+```
+
+### Build Blockers Found
+
+| Issue | File | Fix Applied |
+|-------|------|-------------|
+| Missing `blake3` workspace dep | Cargo.toml | Added `blake3 = "1.5"` to `[workspace.dependencies]` |
+| Missing `once_cell` workspace dep | Cargo.toml | Referenced by `libs/phenotype-config-core` |
+
+### Current Workspace Dependencies (origin/main)
+
+```toml
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+anyhow = "1.0"
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+sha2 = "0.10"
+hex = "0.4"
+tokio = { version = "1", features = ["full"] }
+dashmap = "5"
+parking_lot = "0.12"
+lru = "0.12"
+moka = "0.12"
+regex = "1"
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+futures = "0.3"
+syn = "2"
+quote = "1"
+proc-macro2 = "1"
+tempfile = "3"
+phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
+```
+
+### Action Items
+
+| ID | Action | Priority |
+|----|--------|----------|
+| WS-001 | Add `blake3 = "1.5"` to workspace deps | Done |
+| WS-002 | Verify `libs/phenotype-config-core` restored | Done |
+| WS-003 | Migrate git-core from exclude to members | Deferred |
+| WS-004 | Remove unused deps (lru, parking_lot, moka) | Pending |
+
+---
+
+## 2026-03-31 - Wave 163: Duplicate Crate Investigation
+
+**Project:** phenotype-infrakit
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Finding: Nested Crate Duplication
+
+Several workspace crates have nested duplicates (e.g., `crates/phenotype-cache-adapter/phenotype-cache-adapter/`). This appears to be from an in-progress rebase.
+
+### Duplicate Pattern
+
+| Outer | Inner | Status |
+|-------|-------|--------|
+| `crates/phenotype-cache-adapter/` | `crates/phenotype-cache-adapter/phenotype-cache-adapter/` | Needs cleanup |
+| `crates/phenotype-contracts/` | `crates/phenotype-contracts/phenotype-contracts/` | Needs cleanup |
+| `crates/phenotype-event-sourcing/` | `crates/phenotype-event-sourcing/phenotype-event-sourcing/` | Needs cleanup |
+
+### Recommended Cleanup
+
+1. Delete nested duplicates after verifying inner has all changes
+2. Update workspace members to point to canonical location
+3. Commit with message: "chore: remove nested crate duplicates"
+
+### Command
+
+```bash
+# Dry run first
+find crates -mindepth 2 -maxdepth 2 -name "Cargo.toml" -printf "%P
+" | while read p; do
+  if [ -d "crates/$p" ]; then
+    echo "Duplicate: $p"
+  fi
+done
+
+# Remove duplicates (after verification)
+rm -rf crates/phenotype-cache-adapter/phenotype-cache-adapter
+rm -rf crates/phenotype-contracts/phenotype-contracts
+rm -rf crates/phenotype-event-sourcing/phenotype-event-sourcing
+```
+
+---
+
+## 2026-03-31 - Wave 164: Error Core Promotion Research
+
+**Project:** phenotype-infrakit
+**Category:** dependencies | architecture
+**Status:** completed
+**Priority:** P1
+
+### Current State
+
+| Crate | Status | Usage |
+|-------|--------|-------|
+| `phenotype-error-core` | ✅ Active | Workspace member, v0.2.0 |
+| `phenotype-errors` | ⚠️ Deprecated | Still in workspace, to be removed |
+
+### phenotype-error-core Contents
+
+- `CanonicalError`: Unified error enum
+- `ErrorContext`: Error with source + backtrace
+- `ErrorKind`: Categorized error types
+- `Result<T>`: Standard result type alias
+
+### phenotype-errors Contents
+
+Duplicates of phenotype-error-core (needs consolidation).
+
+### Migration Plan
+
+1. [ ] Remove `phenotype-errors` from workspace members
+2. [ ] Update all `phenotype_errors` imports to `phenotype_error_core`
+3. [ ] Delete `crates/phenotype-errors/` directory
+4. [ ] Update version in workspace
+
+### Search Patterns
+
+```bash
+# Find phenotype-errors usage
+rg "phenotype.?errors|PhenotypeErrors" crates/ --type rust
+
+# Find phenotype-error-core usage
+rg "phenotype.?error.?core|PhenotypeErrorCore" crates/ --type rust
+```
+
+### Estimated LOC Impact
+
+| Action | Before | After | Savings |
+|--------|--------|-------|---------|
+| Remove phenotype-errors | ~400 LOC | 0 | ~400 LOC |
+| Update imports | +50 LOC | 0 | -50 LOC |
+| **Net** | ~450 LOC | 0 | **~350 LOC** |
+
+---
+
+_Last updated: 2026-03-31 (Wave 161-164)_
 

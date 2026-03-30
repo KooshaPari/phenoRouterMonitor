@@ -399,3 +399,155 @@ All major repos have CODEOWNERS. Single owner `@KooshaPari` for all paths.
 - ADRs: `docs/governance/`
 
 ---
+
+---
+
+## 2026-03-30 - Release Management & Versioning Policy (Wave 151)
+
+**Project:** [cross-repo]
+**Category:** governance, release
+**Status:** in_progress
+**Priority:** P1
+
+### Release Strategy
+
+| Type | Frequency | Versioning | Scope |
+|------|-----------|------------|-------|
+| **Stable** | Monthly | Semver | Breaking changes only |
+| **Beta** | Bi-weekly | Semver | Feature freeze |
+| **Alpha** | Weekly | Semver | Active development |
+| **Nightly** | Daily | Timestamp | Testing only |
+
+### Cargo.toml Policy
+
+```toml
+[package]
+version = "0.4.0"  # Always use precise versions
+
+[dependencies]
+# Pin to exact versions in production
+tokio = "=1.40.0"
+serde = "=1.0.217"
+
+# Use range for dev-dependencies only
+[dev-dependencies]
+tokio-test = "1.40"  # Allow patch updates
+```
+
+### Release Checklist
+
+- [ ] All tests pass (`cargo test --workspace`)
+- [ ] No clippy warnings (`cargo clippy --workspace -- -D warnings`)
+- [ ] Changelog updated (`git cliff --unreleased`)
+- [ ] Version bumped (`cargo release`)
+- [ ] Tag pushed (`git push --tags`)
+- [ ] GitHub Release created
+- [ ] SBOM generated (`cargo sbom`)
+- [ ] crates.io published (`cargo publish`)
+
+---
+
+## 2026-03-30 - Code Review Standards (Wave 152)
+
+**Project:** [cross-repo]
+**Category:** governance, code review
+**Status:** in_progress
+**Priority:** P1
+
+### Review Checklist
+
+| Category | Item | Priority |
+|----------|------|----------|
+| **Correctness** | Tests cover new code | Required |
+| **Correctness** | Edge cases handled | Required |
+| **Correctness** | No panics on invalid input | Required |
+| **Performance** | No obvious O(n²) patterns | High |
+| **Security** | No new `unsafe` blocks | High |
+| **Security** | Input validation | Required |
+| **Maintainability** | Code is self-documenting | High |
+| **Maintainability** | No magic numbers | Medium |
+| **Maintainability** | Error messages are actionable | Medium |
+
+### Review SLAs
+
+| PR Size | Target Time | Max Time |
+|---------|-------------|----------|
+| XS (< 10 lines) | 4 hours | 24 hours |
+| S (10-50 lines) | 8 hours | 48 hours |
+| M (50-200 lines) | 24 hours | 72 hours |
+| L (200-500 lines) | 48 hours | 1 week |
+| XL (> 500 lines) | 1 week | 2 weeks |
+
+### Merge Requirements
+
+- **Minimum 1 approval** from maintainer
+- **All CI checks passing**
+- **No unresolved conversations**
+- **Linear history** (squash merge)
+- **Conventional commit message**
+
+---
+
+## 2026-03-30 - Dependency Governance (Wave 153)
+
+**Project:** [cross-repo]
+**Category:** governance, dependencies
+**Status:** in_progress
+**Priority:** P0
+
+### Dependency Policy
+
+| Type | Policy | Audit Frequency |
+|------|--------|-----------------|
+| **Direct** | Review required | Per PR |
+| **Indirect** | Reviewed quarterly | Monthly |
+| **Dev-only** | No prod impact | Quarterly |
+| **Build-only** | No runtime impact | Quarterly |
+
+### Dependabot Configuration
+
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      rust-core:
+        patterns:
+          - tokio
+          - serde
+          - tracing
+      async-libs:
+        patterns:
+          - sqlx
+          - axum
+          - reqwest
+    labels:
+      - dependencies
+      - rust
+
+  - package-ecosystem: pip
+    directory: /python
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - python
+```
+
+### Security Advisory Response
+
+| Severity | Response Time | Action |
+|----------|---------------|--------|
+| Critical | 24 hours | Patch release |
+| High | 1 week | Next minor |
+| Medium | 1 month | Next release |
+| Low | Quarterly | Backlog |
+
+---
+
+_Last updated: 2026-03-30 (Wave 153)_

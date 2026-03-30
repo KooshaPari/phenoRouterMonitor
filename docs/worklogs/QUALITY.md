@@ -471,3 +471,291 @@ Establishing continuous quality gates for automated quality enforcement.
 - `PLAN.md#Phase-10-Testing--Quality-Infrastructure`
 
 ---
+
+---
+
+## 2026-03-30 - Code Review Automation (Wave 131)
+
+**Project:** [cross-repo]
+**Category:** quality, automation
+**Status:** in_progress
+**Priority:** P1
+
+### Code Review Tool Comparison
+
+| Tool | Linting | Formatting | Security | Coverage | Phenotype |
+|------|---------|------------|----------|----------|-----------|
+| **ruff** | ✅ | ✅ | ✅ (safety) | ❌ | ✅ Standard |
+| **clippy** | ✅ | ❌ | ⚠️ | ❌ | ✅ Standard |
+| **cargo-audit** | ❌ | ❌ | ✅ | ❌ | ✅ Standard |
+| **cargo-deny** | ❌ | ❌ | ✅ | ❌ | ✅ Standard |
+| **trufflehog** | ❌ | ❌ | ✅ | ❌ | ✅ Standard |
+| **semgrep** | ✅ | ❌ | ✅ | ❌ | 📋 Evaluate |
+| **SonarQube** | ✅ | ❌ | ✅ | ✅ | ❌ Enterprise |
+
+### Pre-Commit Configuration
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.0
+    hooks:
+      - id: ruff
+      - id: ruff-format
+
+  - repo: https://github.com/trufflehog/trufflehog
+    rev: main
+    hooks:
+      - id: trufflehog
+        args: ['--only-verified']
+
+  - repo: local
+    hooks:
+      - id: cargo-clippy
+        name: cargo clippy
+        entry: cargo clippy --workspace -- -D warnings
+        language: system
+        pass_filenames: false
+```
+
+### CI Integration Checklist
+
+- [ ] Ruff format check in CI (fail on diff)
+- [ ] Clippy with `-- -D warnings` in CI
+- [ ] cargo-audit weekly schedule
+- [ ] trufflehog on all commits
+- [ ] GitHub Advanced Security (Dependabot alerts)
+
+---
+
+## 2026-03-30 - Property-Based Testing Adoption (Wave 132)
+
+**Project:** [phenotype-infrakit]
+**Category:** quality, testing
+**Status:** proposed
+**Priority:** P2
+
+### Property Testing Framework Comparison
+
+| Framework | Generators | Shrinking | Async | Phenotype |
+|-----------|-----------|-----------|-------|-----------|
+| **proptest** | ✅ | ✅ | ❌ | ✅ Standard |
+| **quickcheck** | ✅ | ✅ | ❌ | ⚠️ Older |
+| **fastrand** | ✅ | ❌ | ❌ | ⚠️ Lightweight |
+| **cbolts** | ✅ | ✅ | ❌ | ❌ Niche |
+
+### proptest Integration
+
+```rust
+use proptest::prelude::*;
+
+proptest! {
+    #[test]
+    fn test_hash_chain_append_random(content in ".*") {
+        let entity_id = Uuid::new_v4();
+        let mut chain = HashChain::new(entity_id);
+        chain.append(content.as_bytes()).unwrap();
+        prop_assert!(chain.verify().unwrap());
+    }
+
+    #[test]
+    fn test_repository_crud_roundtrip(id in "[a-z]{8}", value in "[a-z0-9]{1,100}") {
+        let repo = InMemoryRepository::new();
+        let entity = Entity::new(id, value);
+        repo.save(entity.clone()).unwrap();
+        let retrieved = repo.find_by_id(&id).unwrap();
+        prop_assert_eq!(retrieved, Some(entity));
+    }
+}
+```
+
+### Recommended Adoption Path
+
+1. **Phase 1**: Add proptest to `phenotype-event-sourcing` tests
+2. **Phase 2**: Add to `phenotype-policy-engine` for rule validation
+3. **Phase 3**: Add to `phenotype-cache-adapter` for eviction logic
+4. **Phase 4**: Standardize across all crates
+
+### LOC Investment
+
+- **Setup**: ~20 LOC per crate (dependencies + config)
+- **Tests**: ~50-100 LOC per property (but 100s of test cases)
+- **Coverage gain**: 10x more edge cases covered
+
+---
+
+## 2026-03-30 - Mutation Testing Adoption (Wave 133)
+
+**Project:** [cross-repo]
+**Category:** quality, testing
+**Status:** proposed
+**Priority:** P2
+
+### Mutation Testing Tools
+
+| Tool | Language | Speed | Ecosystem | Phenotype |
+|------|----------|-------|-----------|-----------|
+| **cargo-mutants** | Rust | Medium | Growing | ✅ Evaluate |
+| **mutmut** | Python | Fast | Large | ✅ Evaluate |
+| **cosmic-ray** | Python | Slow | Medium | ❌ |
+| **mutant** | Elixir | Fast | Niche | ❌ |
+
+### cargo-mutants Configuration
+
+```toml
+# .cargo/config.toml or cargo.toml
+[profile.mutants]
+timeout-ms = 5000
+dir = "target/mutants"
+visited-only = true
+```
+
+### CI Integration
+
+```yaml
+# .github/workflows/mutation.yml
+- name: Run mutation tests
+  run: |
+    cargo mutants -- fail-on-mutations -- ci-mode
+  timeout-minutes: 60
+```
+
+### Benefits
+
+- **Detect dead code**: Mutations that don't affect test outcomes
+- **Improve coverage**: Find gaps in test assertions
+- **Validate assertions**: Ensure tests actually catch bugs
+
+### Risks
+
+- **Time**: Mutation testing is slow (10-100x normal tests)
+- **Noise**: Some mutations may be semantically equivalent
+- **Strategy**: Run nightly, not per-PR
+
+---
+
+## 2026-03-30 - Contract Testing (Wave 134)
+
+**Project:** [cross-repo]
+**Category:** quality, testing, contracts
+**Status:** proposed
+**Priority:** P2
+
+### Contract Testing Scenarios
+
+| Scenario | Tool | Phenotype Use |
+|----------|------|---------------|
+| API contracts | Pact | microservices |
+| Protocol contracts | OpenAPI validator | HTTP APIs |
+| Data contracts | JSON Schema | event schemas |
+| MCP contracts | MCP spec validator | tool definitions |
+
+### Pact Consumer Contract
+
+```rust
+// consumer test
+#[tokio::test]
+async fn test_phenotype_api_contract() {
+    let mock_server = MockServer::start().await;
+    
+    // Define expected interactions
+    Mock::given(method("POST"))
+        .and(path("/api/events"))
+        .and(header("Authorization", regex::regex(r"Bearer .+")))
+        .and(body_json(json!({
+            "event_type": "user.action",
+            "payload": { "user_id": ".*", "action": ".*" }
+        })))
+        .respond_with(ResponseTemplate::new(201))
+        .mount(&mock_server)
+        .await;
+    
+    // Run consumer test
+    let client = ApiClient::new(&mock_server.uri());
+    let result = client.emit_event("user.action", payload).await;
+    
+    assert!(result.is_ok());
+    verify(&mock_server).await;
+}
+```
+
+### Recommended Adoption
+
+1. **API tests**: Add Pact for AgilePlus API consumer tests
+2. **MCP tests**: Validate tool definitions against MCP spec
+3. **Event schemas**: JSON Schema validation in tests
+
+---
+
+## 2026-03-30 - Documentation Quality (Wave 135)
+
+**Project:** [cross-repo]
+**Category:** quality, documentation
+**Status:** in_progress
+**Priority:** P1
+
+### Documentation Tools
+
+| Tool | Type | Output | Phenotype |
+|------|------|--------|-----------|
+| **cargo-doc** | API | HTML | ✅ |
+| **rustdoc** | API | HTML | ✅ |
+| **mdbook** | Markdown | HTML | ✅ |
+| **VitePress** | Markdown | HTML | ✅ Adopted |
+| **Docusaurus** | Markdown | HTML | ❌ |
+| **docs.rs** | Hosting | Web | ✅ |
+
+### Documentation Checklist
+
+| Item | Status | Tool |
+|------|--------|------|
+| API docs | ✅ | rustdoc |
+| Architecture | ✅ | VitePress |
+| ADR process | ✅ | docs/adr/ |
+| API reference | ⚠️ Partial | VitePress |
+| Examples | ⚠️ Missing | - |
+| Tutorials | ❌ None | - |
+
+### Recommended Actions
+
+1. **Add examples** to all public API items (#[example])
+2. **Create tutorials** for key workflows
+3. **Auto-generate** API reference from VitePress
+4. **Validate links** in CI (lychee-cli)
+
+### Example Template
+
+```rust
+/// Calculates the SHA-256 hash of the input data and appends it to the chain.
+///
+/// # Arguments
+/// * `data` - The raw bytes to hash
+///
+/// # Returns
+/// * `Ok(())` if hashing succeeds
+/// * `Err(EventStoreError::HashError)` if hashing fails
+///
+/// # Example
+/// ```
+/// # use phenotype_event_sourcing::{HashChain, Uuid};
+/// # let id = Uuid::new_v4();
+/// # let mut chain = HashChain::new(id);
+/// chain.append(b"hello world").unwrap();
+/// assert!(chain.verify().unwrap());
+/// ```
+pub async fn append(&mut self, data: &[u8]) -> Result<(), EventStoreError> {
+    // implementation
+}
+```
+
+---
+
+_Last updated: 2026-03-30 (Wave 135)_

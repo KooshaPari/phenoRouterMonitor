@@ -1,0 +1,30 @@
+{
+  "name": "@phenotype/pheno-llm",
+  "version": "0.1.0",
+  "description": "LLM provider abstraction and prompt management for Phenotype ecosystem",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" },
+    "./providers": { "import": "./dist/providers/index.js", "types": "./dist/providers/index.d.ts" },
+    "./prompts": { "import": "./dist/prompts/index.js", "types": "./dist/prompts/index.d.ts" }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "test": "vitest run",
+    "lint": "oxlint ."
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "repository": { "type": "git", "url": "https://github.com/KooshaPari/phenotype-infrakit" },
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}

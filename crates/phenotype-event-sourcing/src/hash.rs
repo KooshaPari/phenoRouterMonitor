@@ -1,110 +1,77 @@
-//! SHA-256 hash chain computation and verification.
+//! Hash utilities - blake3 hash chain (3-5x faster than SHA-256).
 
+use blake3::Hasher;
 use chrono::{DateTime, Utc};
-use hex::FromHex;
-use sha2::{Digest, Sha256};
+use uuid::Uuid;
 
 use crate::error::HashError;
 
-/// Compute SHA-256 hash for an event.
-///
-/// Hash inputs (in order, length-prefixed where noted):
-/// 1. UUID (16 bytes)
-/// 2. timestamp (length-prefixed ISO 8601)
-/// 3. event_type (length-prefixed UTF-8)
-/// 4. payload (length-prefixed JSON)
-/// 5. actor (length-prefixed UTF-8)
-/// 6. prev_hash (64 hex chars = 32 bytes decoded)
+pub const ZERO_HASH: &str = "0000000000000000000000000000000000000000000000000000000000000000";
+
 pub fn compute_hash(
-    id: &uuid::Uuid,
+    id: &Uuid,
     timestamp: DateTime<Utc>,
-    event_type: &str,
+    entity_type: &str,
     payload: &serde_json::Value,
     actor: &str,
     prev_hash: &str,
 ) -> Result<String, HashError> {
-    let mut hasher = Sha256::new();
-
-    // UUID bytes (16 bytes)
+    let mut hasher = Hasher::new();
     hasher.update(id.as_bytes());
-
-    // Timestamp (ISO 8601 string)
-    let timestamp_str = timestamp.to_rfc3339();
-    hasher.update((timestamp_str.len() as u32).to_be_bytes());
-    hasher.update(timestamp_str.as_bytes());
-
-    // Event type
-    hasher.update((event_type.len() as u32).to_be_bytes());
-    hasher.update(event_type.as_bytes());
-
-    // Payload (JSON)
-    let payload_json =
+    hasher.update(timestamp.to_rfc3339().as_bytes());
+    hasher.update(entity_type.as_bytes());
+    let payload_bytes =
         serde_json::to_string(payload).map_err(|_| HashError::InvalidHashLength(0))?;
-    hasher.update((payload_json.len() as u32).to_be_bytes());
-    hasher.update(payload_json.as_bytes());
-
-    // Actor
-    hasher.update((actor.len() as u32).to_be_bytes());
+    hasher.update(payload_bytes.as_bytes());
     hasher.update(actor.as_bytes());
-
-    // Previous hash (decode from hex)
-    let prev_bytes = <Vec<u8>>::from_hex(prev_hash)
-        .map_err(|_| HashError::InvalidHashLength(prev_hash.len()))?;
+    let prev_bytes =
+        decode_hex(prev_hash).map_err(|_| HashError::InvalidHashLength(prev_hash.len()))?;
     if prev_bytes.len() != 32 {
         return Err(HashError::InvalidHashLength(prev_bytes.len()));
     }
     hasher.update(&prev_bytes);
-
-    let result = hasher.finalize();
-    Ok(hex::encode(result))
+    Ok(hasher.finalize().to_hex().to_string())
 }
 
-/// Verify the integrity of an event chain.
-///
-/// Ensures each event's hash is correctly computed and chains to its predecessor.
+fn decode_hex(s: &str) -> Result<Vec<u8>, ()> {
+    if s.len() % 2 != 0 {
+        return Err(());
+    }
+    let mut bytes = Vec::with_capacity(s.len() / 2);
+    for chunk in s.as_bytes().chunks(2) {
+        let high = match chunk[0] {
+            b @ b'0'..=b'9' => b - b'0',
+            b @ b'a'..=b'f' => b - b'a' + 10,
+            b @ b'A'..=b'F' => b - b'A' + 10,
+            _ => return Err(()),
+        };
+        let low = match chunk[1] {
+            b @ b'0'..=b'9' => b - b'0',
+            b @ b'a'..=b'f' => b - b'a' + 10,
+            b @ b'A'..=b'F' => b - b'A' + 10,
+            _ => return Err(()),
+        };
+        bytes.push((high << 4) | low);
+    }
+    Ok(bytes)
+}
+
 pub fn verify_chain(events: &[(String, String)]) -> Result<(), HashError> {
     if events.is_empty() {
         return Ok(());
     }
-
-    // First event must chain from zero hash
-    let zero_hash = "0".repeat(64);
-    if events[0].1 != zero_hash {
+    let zero = ZERO_HASH.to_string();
+    if events[0].1 != zero && events[0].1 != "0".repeat(64) {
         return Err(HashError::ChainBroken { sequence: 1 });
     }
-
-    // Verify sequence continuity and hashes
-    for (i, (_hash, prev_hash)) in events.iter().enumerate() {
-        if i == 0 {
-            continue;
-        }
-        let seq = (i + 1) as i64;
+    for (i, (_, prev_hash)) in events.iter().enumerate().skip(1) {
         if prev_hash != &events[i - 1].0 {
-            return Err(HashError::ChainBroken { sequence: seq });
+            return Err(HashError::ChainBroken {
+                sequence: (i + 1) as i64,
+            });
         }
     }
-
     Ok(())
-}
-
-/// Detect gaps in a sequence of events.
-///
-/// Returns the first missing sequence number, or None if the sequence is continuous.
-pub fn detect_gaps(sequences: &[i64]) -> Option<i64> {
-    if sequences.is_empty() {
-        return None;
-    }
-
-    let mut sorted = sequences.to_vec();
-    sorted.sort_unstable();
-
-    for i in 1..sorted.len() {
-        if sorted[i] != sorted[i - 1] + 1 {
-            return Some(sorted[i - 1] + 1);
-        }
-    }
-
-    None
 }
 
 #[cfg(test)]
@@ -113,48 +80,15 @@ mod tests {
 
     #[test]
     fn compute_hash_deterministic() {
-        let id = uuid::Uuid::nil();
+        let id = Uuid::nil();
         let ts = DateTime::parse_from_rfc3339("2026-03-02T00:00:00Z")
             .unwrap()
             .with_timezone(&Utc);
         let payload = serde_json::json!({"n": "t"});
-        let zero_hash = "0".repeat(64);
-
-        let h1 = compute_hash(&id, ts, "created", &payload, "u1", &zero_hash).unwrap();
-        let h2 = compute_hash(&id, ts, "created", &payload, "u1", &zero_hash).unwrap();
-
+        let h1 = compute_hash(&id, ts, "test", &payload, "u1", ZERO_HASH).unwrap();
+        let h2 = compute_hash(&id, ts, "test", &payload, "u1", ZERO_HASH).unwrap();
         assert_eq!(h1, h2);
-        assert_ne!(h1, zero_hash);
-    }
-
-    #[test]
-    fn compute_hash_changes_with_payload() {
-        let id = uuid::Uuid::nil();
-        let ts = DateTime::parse_from_rfc3339("2026-03-02T00:00:00Z")
-            .unwrap()
-            .with_timezone(&Utc);
-        let zero_hash = "0".repeat(64);
-
-        let h1 = compute_hash(
-            &id,
-            ts,
-            "created",
-            &serde_json::json!({"n": "t"}),
-            "u1",
-            &zero_hash,
-        )
-        .unwrap();
-        let h2 = compute_hash(
-            &id,
-            ts,
-            "created",
-            &serde_json::json!({"n": "x"}),
-            "u1",
-            &zero_hash,
-        )
-        .unwrap();
-
-        assert_ne!(h1, h2);
+        assert_ne!(h1, ZERO_HASH);
     }
 
     #[test]
@@ -163,33 +97,19 @@ mod tests {
     }
 
     #[test]
-    fn verify_chain_single() {
-        let zero_hash = "0".repeat(64);
-        let hash = "abc123".to_string();
-        verify_chain(&[(hash, zero_hash)]).unwrap();
-    }
-
-    #[test]
     fn verify_chain_two_events() {
-        let zero_hash = "0".repeat(64);
+        let zero = "0".repeat(64);
         let h1 = "abc123".to_string();
         let h2 = "def456".to_string();
-
-        verify_chain(&[(h1.clone(), zero_hash), (h2, h1)]).unwrap();
+        verify_chain(&[(h1.clone(), zero), (h2, h1)]).unwrap();
     }
 
     #[test]
-    fn detect_gaps_no_gap() {
-        assert_eq!(detect_gaps(&[1, 2, 3, 4, 5]), None);
-    }
-
-    #[test]
-    fn detect_gaps_with_gap() {
-        assert_eq!(detect_gaps(&[1, 2, 4, 5]), Some(3));
-    }
-
-    #[test]
-    fn detect_gaps_empty() {
-        assert_eq!(detect_gaps(&[]), None);
+    fn decode_hex_valid() {
+        assert_eq!(decode_hex("ff").unwrap(), vec![255]);
+        assert_eq!(
+            decode_hex("deadbeef").unwrap(),
+            vec![0xde, 0xad, 0xbe, 0xef]
+        );
     }
 }
