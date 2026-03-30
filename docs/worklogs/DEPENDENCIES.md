@@ -2588,3 +2588,292 @@ deadpool-runtime = "0.6"
 ---
 
 _Last updated: 2026-03-31 (Wave 131-133)_
+
+
+---
+
+## 2026-03-31 - Wave 161: git2→gix Migration Attempt (RUSTSEC-2025-0140)
+
+**Project:** phenotype-infrakit
+**Category:** dependencies | security
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Attempted migration from `git2` to `gix` in `phenotype-git-core` to fix RUSTSEC-2025-0140 (CVEA-2024-24818). Encountered API compatibility issues.
+
+### RUSTSEC-2025-0140 Advisory
+
+| Field | Value |
+|-------|-------|
+| Advisory ID | RUSTSEC-2025-0140 |
+| CVE | CVE-2024-24818 |
+| Crate | `libgit2` (via `git2`) |
+| Affected | < 0.20.0 |
+| Fixed in | git2 0.20+ (but still uses C library) |
+
+### Migration Approach
+
+#### Cargo.toml Changes Needed
+
+```toml
+# Remove
+git2 = "0.20"
+
+# Add
+gix = { version = "0.81", default-features = false, features = ["status", "revision", "parallel", "sha1"] }
+```
+
+#### API Mappings (git2 → gix)
+
+| git2 | gix | Notes |
+|------|-----|-------|
+| `Repository::open()` | `gix::open()` | Free function, not method |
+| `repo.head()` | `repo.head()` | Same pattern |
+| `head.peel_to_commit()` | `head.peel_to_commit()` | Similar API |
+| `head.name()` | `head.name()` | Returns `&BStr`, needs `.to_string()` |
+| `head.is_branch()` | `head.is_branch()` | Same API |
+| `repo.status()` | `repo.status(gix::progress::Discard)` | Needs progress arg |
+| `status.is_clean()` | `status.is_up_to_date()` | Renamed method |
+| `status.index().files()` | `status.index().files()` | Similar pattern |
+| `repo.find_remote("origin")` | `repo.find_remote("origin")` | Same |
+| `remote.url()` | `remote.url(direction)` | Needs direction arg |
+| `repo.revwalk()` | `repo.revwalk(Category::LocalBranches)` | Needs category |
+
+### gix API Issues Encountered
+
+1. **Missing method `peel_to_commit_in_os`**: Use `peel_to_commit()` instead
+2. **Missing method `is_empty`**: Use `is_up_to_date()` on Platform
+3. **Missing method `url(arg)`**: Needs `Direction` argument
+4. **Missing method `index(arg)`**: Needs `IndexPersistedOrInMemory` argument
+5. **Missing method `files()` on Platform**: Check gix Status API
+6. **Type annotation issues**: `MessageRef::lines()` needs explicit type
+
+### gix 0.81 Feature Flags
+
+Minimum working set:
+```toml
+gix = { version = "0.81", default-features = false, features = [
+    "status",    # For repo.status()
+    "revision",   # For revwalk
+    "parallel",   # For concurrent operations
+    "sha1",       # For commit hashing
+]}
+```
+
+### Decision: Keep git2 for Now
+
+Due to API differences and time constraints, **defer gix migration**. Current `git2 = "0.20"` addresses the security advisory (CVE-2024-24818 fixed in 0.20+).
+
+### Mitigation Actions
+
+| Action | Status |
+|--------|--------|
+| Upgrade to git2 0.20+ | ✅ Done (addresses CVE) |
+| Add cargo-deny check | Pending |
+| Document gix migration plan | Done (this wave) |
+
+### Next Steps
+
+1. [ ] Add `cargo-deny` to CI for RUSTSEC checks
+2. [ ] Plan phased gix migration (separate PR)
+3. [ ] Test gix in isolation crate first
+4. [ ] Consider `gix` crate features needed for production use
+
+---
+
+## 2026-03-31 - Wave 162: Workspace State Audit
+
+**Project:** phenotype-infrakit
+**Category:** maintenance
+**Status:** completed
+**Priority:** P0
+
+### Workspace Members (origin/main)
+
+```toml
+members = [
+    "crates/phenotype-cache-adapter",
+    "crates/phenotype-contracts",
+    "crates/phenotype-error-core",
+    "crates/phenotype-errors",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-health",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-state-machine",
+    "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra",
+]
+```
+
+### Workspace Excludes
+
+```toml
+exclude = [
+    "crates/agileplus-api-types",
+    "crates/agileplus-domain",
+    "crates/phenotype-crypto",
+    "crates/phenotype-git-core",    # ← gix migration target
+    "crates/phenotype-http-client-core",
+    "crates/phenotype-iter",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-mcp",
+    "crates/phenotype-process",
+    "crates/phenotype-retry",
+    "crates/phenotype-string",
+    "crates/phenotype-time",
+    "crates/phenotype-validation",
+    "libs/phenotype-config-core",
+]
+```
+
+### Build Blockers Found
+
+| Issue | File | Fix Applied |
+|-------|------|-------------|
+| Missing `blake3` workspace dep | Cargo.toml | Added `blake3 = "1.5"` to `[workspace.dependencies]` |
+| Missing `once_cell` workspace dep | Cargo.toml | Referenced by `libs/phenotype-config-core` |
+
+### Current Workspace Dependencies (origin/main)
+
+```toml
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+anyhow = "1.0"
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+sha2 = "0.10"
+hex = "0.4"
+tokio = { version = "1", features = ["full"] }
+dashmap = "5"
+parking_lot = "0.12"
+lru = "0.12"
+moka = "0.12"
+regex = "1"
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+futures = "0.3"
+syn = "2"
+quote = "1"
+proc-macro2 = "1"
+tempfile = "3"
+phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
+```
+
+### Action Items
+
+| ID | Action | Priority |
+|----|--------|----------|
+| WS-001 | Add `blake3 = "1.5"` to workspace deps | Done |
+| WS-002 | Verify `libs/phenotype-config-core` restored | Done |
+| WS-003 | Migrate git-core from exclude to members | Deferred |
+| WS-004 | Remove unused deps (lru, parking_lot, moka) | Pending |
+
+---
+
+## 2026-03-31 - Wave 163: Duplicate Crate Investigation
+
+**Project:** phenotype-infrakit
+**Category:** duplication
+**Status:** completed
+**Priority:** P1
+
+### Finding: Nested Crate Duplication
+
+Several workspace crates have nested duplicates (e.g., `crates/phenotype-cache-adapter/phenotype-cache-adapter/`). This appears to be from an in-progress rebase.
+
+### Duplicate Pattern
+
+| Outer | Inner | Status |
+|-------|-------|--------|
+| `crates/phenotype-cache-adapter/` | `crates/phenotype-cache-adapter/phenotype-cache-adapter/` | Needs cleanup |
+| `crates/phenotype-contracts/` | `crates/phenotype-contracts/phenotype-contracts/` | Needs cleanup |
+| `crates/phenotype-event-sourcing/` | `crates/phenotype-event-sourcing/phenotype-event-sourcing/` | Needs cleanup |
+
+### Recommended Cleanup
+
+1. Delete nested duplicates after verifying inner has all changes
+2. Update workspace members to point to canonical location
+3. Commit with message: "chore: remove nested crate duplicates"
+
+### Command
+
+```bash
+# Dry run first
+find crates -mindepth 2 -maxdepth 2 -name "Cargo.toml" -printf "%P
+" | while read p; do
+  if [ -d "crates/$p" ]; then
+    echo "Duplicate: $p"
+  fi
+done
+
+# Remove duplicates (after verification)
+rm -rf crates/phenotype-cache-adapter/phenotype-cache-adapter
+rm -rf crates/phenotype-contracts/phenotype-contracts
+rm -rf crates/phenotype-event-sourcing/phenotype-event-sourcing
+```
+
+---
+
+## 2026-03-31 - Wave 164: Error Core Promotion Research
+
+**Project:** phenotype-infrakit
+**Category:** dependencies | architecture
+**Status:** completed
+**Priority:** P1
+
+### Current State
+
+| Crate | Status | Usage |
+|-------|--------|-------|
+| `phenotype-error-core` | ✅ Active | Workspace member, v0.2.0 |
+| `phenotype-errors` | ⚠️ Deprecated | Still in workspace, to be removed |
+
+### phenotype-error-core Contents
+
+- `CanonicalError`: Unified error enum
+- `ErrorContext`: Error with source + backtrace
+- `ErrorKind`: Categorized error types
+- `Result<T>`: Standard result type alias
+
+### phenotype-errors Contents
+
+Duplicates of phenotype-error-core (needs consolidation).
+
+### Migration Plan
+
+1. [ ] Remove `phenotype-errors` from workspace members
+2. [ ] Update all `phenotype_errors` imports to `phenotype_error_core`
+3. [ ] Delete `crates/phenotype-errors/` directory
+4. [ ] Update version in workspace
+
+### Search Patterns
+
+```bash
+# Find phenotype-errors usage
+rg "phenotype.?errors|PhenotypeErrors" crates/ --type rust
+
+# Find phenotype-error-core usage
+rg "phenotype.?error.?core|PhenotypeErrorCore" crates/ --type rust
+```
+
+### Estimated LOC Impact
+
+| Action | Before | After | Savings |
+|--------|--------|-------|---------|
+| Remove phenotype-errors | ~400 LOC | 0 | ~400 LOC |
+| Update imports | +50 LOC | 0 | -50 LOC |
+| **Net** | ~450 LOC | 0 | **~350 LOC** |
+
+---
+
+_Last updated: 2026-03-31 (Wave 161-164)_
+

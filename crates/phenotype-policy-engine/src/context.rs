@@ -120,7 +120,7 @@ mod tests {
             "name": "test_agent",
             "config": {"timeout": 30}
         });
-        let _ctx = EvaluationContext::from_json(&json);
+        let _ctx = EvaluationContext::from_json(value);
     }
     #[test]
     fn test_set_and_get_string() {

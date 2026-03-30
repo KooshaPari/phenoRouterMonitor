@@ -65,7 +65,9 @@ syn = "2"
 quote = "1"
 proc-macro2 = "1"
 tempfile = "3"
+blake3 = "1.3"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
+phenotype-async-traits = { path = "crates/phenotype-async-traits" }
 
 [profile.dev]
 opt-level = 0
