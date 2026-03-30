@@ -1710,7 +1710,7 @@ Create a unified dependency version policy:
 
 | Tool | Action |
 |------|--------|
-| `cargo-cyclonedx` | **PILOT:** `.github/workflows/sbom.yml` → artifact `cyclonedx-sbom-phenotype-error-core` (crate `phenotype-error-core`, JSON spec 1.5) |
+| `cargo-cyclonedx` | **PILOT:** `.github/workflows/sbom.yml` → artifacts `cyclonedx-sbom-<crate>` per matrix member (JSON spec 1.5); includes `phenotype-error-core`, contracts, errors, event-sourcing, policy-engine, cache-adapter, `phenotype-config-core` |
 | `syft` | WRAP in release pipeline |
 | OSV-Scanner | ADOPT for batch triage |
 | `cargo audit` + `cargo deny advisories` | Run both weekly |
@@ -1754,18 +1754,17 @@ Create a unified dependency version policy:
 | Workflow | `.github/workflows/sbom.yml` |
 | Triggers | `push` to `main`, `pull_request`, `workflow_dispatch` |
 | Tool | `cargo-cyclonedx@0.5.9` via `taiki-e/install-action` |
-| Pilot crate | `crates/phenotype-error-core` (minimal dependency surface) |
-| Output | `crates/phenotype-error-core/sbom-phenotype-error-core.json` |
-| Artifact name | `cyclonedx-sbom-phenotype-error-core` |
+| Scope | Matrix of workspace members (see workflow `matrix.include`) |
+| Output | One `sbom-<crate-id>.json` next to each crate manifest |
+| Artifact names | `cyclonedx-sbom-<crate-id>` (one upload per matrix row) |
 
-### Stacked delivery
+### Stacked delivery (historical)
 
-1. **PR A** — workflow only (`chore/sbom-cyclonedx-pilot` → `main`).
-2. **PR B** — this doc update (`chore/docs-tooling-sbom-stack` → `chore/sbom-cyclonedx-pilot`). Merge **A** first, then retarget **B** to `main` or merge **B** after **A** lands.
+Earlier stacked PRs (#99–#101) were closed without merge; workflow initially landed via #95. Docs + session + matrix expansion ship together on `main` (see session folder + current PR).
 
 ### Next expansions
 
-- [ ] Add additional workspace members or a matrix once pilot is stable.
+- [ ] Add remaining workspace members to the matrix (`agileplus-api-types`, crypto, iter, port-traits, state-machine, string, telemetry, test-infra, time).
 - [ ] Attach SBOM to GitHub Releases for tagged builds (release workflow).
 
 ---
