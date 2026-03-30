@@ -1,7 +1,7 @@
 # Error Core Extraction Plan
 
 **Created:** 2026-03-29
-**Status:** Planned
+**Status:** Phase 1 done in `phenotype-infrakit` — `crates/agileplus-error-core` is a workspace member and maps AgilePlus enums to `phenotype-error-core::ErrorKind`. Phase 3+ (migrate other crates / excluded agileplus packages) still planned.
 **Priority:** P0 (Critical)
 **Estimated LOC Savings:** ~400 lines
 

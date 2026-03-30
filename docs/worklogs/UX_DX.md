@@ -691,3 +691,216 @@ apcheck() {
 - Developer setup docs
 
 ---
+
+---
+
+## 2026-03-29 - Developer Experience (DX) Patterns (Extended)
+
+**Project:** [cross-repo]
+**Category:** ux_dx
+**Status:** completed
+**Priority:** P1
+
+### 1. CLI UX Best Practices
+
+#### Progress Indicators
+
+```rust
+use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
+
+pub fn create_progress_bar(total: u64, message: &str) -> ProgressBar {
+    let pb = ProgressBar::new(total);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed_precise}] {bar:40.cyan/blue} {pos}/{len} {msg}")
+            .unwrap()
+            .progress_chars("=>-"),
+    );
+    pb.set_message(message.to_string());
+    pb
+}
+```
+
+#### Interactive Prompts
+
+```rust
+use dialoguer::{Confirm, Input, Select, MultiSelect};
+
+pub fn prompt_confirm(message: &str) -> bool {
+    Confirm::new()
+        .with_prompt(message)
+        .default(true)
+        .interact()
+        .unwrap_or(false)
+}
+
+pub fn prompt_choice<T: Clone + std::fmt::Display>(
+    message: &str,
+    items: &[T],
+) -> Option<usize> {
+    Select::new()
+        .with_prompt(message)
+        .items(items)
+        .default(0)
+        .interact()
+        .ok()
+}
+```
+
+---
+
+### 2. Error Output Patterns
+
+```rust
+use color_eyre::{Report, Help, Section};
+use miette::{Diagnostic, LabeledSpan};
+
+pub fn pretty_error<E: Diagnostic>(err: E) {
+    eprintln!("{:?}", err);
+}
+
+pub fn error_with_context(err: anyhow::Error, context: &str) -> Report {
+    Report::new(err)
+        .with_section(move || {
+            Help::new().text(context)
+        })
+        .note("See logs for more details")
+}
+```
+
+---
+
+### 3. Structured Logging
+
+```rust
+use tracing::{info, warn, error, instrument};
+
+#[instrument(skip(data), fields(data_len = data.len()))]
+pub async fn process_data(data: Vec<u8>) -> Result<()> {
+    info!("Starting data processing");
+    
+    if data.is_empty() {
+        warn!("Empty data received");
+        return Ok(());
+    }
+    
+    info!(records = data.len(), "Processing records");
+    
+    // Process...
+    
+    Ok(())
+}
+```
+
+---
+
+### 4. Configuration UX
+
+```rust
+use clap::{Parser, ValueHint};
+use figment::{Figment, providers::{Format, Toml, Env, Namespace}};
+
+#[derive(Parser, Debug)]
+#[command(name = "phenotype")]
+#[command(about = "Phenotype CLI", long_about = None)]
+struct Args {
+    /// Config file path
+    #[arg(short, long, value_hint = ValueHint::FilePath)]
+    config: Option<PathBuf>,
+    
+    /// Verbose output
+    #[arg(short, long)]
+    verbose: bool,
+    
+    /// Log level
+    #[arg(long, default_value = "info")]
+    log_level: String,
+}
+
+impl Args {
+    pub fn figment(&self) -> Figment {
+        let mut figment = Figment::new();
+        
+        // File config
+        if let Some(config) = &self.config {
+            figment = figment.merge(Toml::file(config));
+        }
+        
+        // Environment
+        figment = figment.merge(Env::prefixed("PHENOTYPE_"));
+        
+        // CLI args
+        figment = figment.merge(Namespace::from(self));
+        
+        figment
+    }
+}
+```
+
+---
+
+### 5. Shell Completion
+
+```rust
+use clap_complete::{Generator, Shell};
+
+pub fn generate_completion<G: Generator>(gen: G, name: &str, cmd: &mut Command) {
+    clap_complete::generate(
+        gen,
+        cmd,
+        name,
+        &mut std::io::stdout(),
+    );
+}
+
+pub fn register_completions() {
+    clap_complete::generate(
+        clap_complete::Shell::Bash,
+        &mut cmd(),
+        "phenotype",
+        &mut std::io::stdout(),
+    );
+}
+```
+
+---
+
+### 6. Tutorial/Onboarding
+
+```rust
+pub struct Onboarding {
+    steps: Vec<OnboardingStep>,
+}
+
+pub struct OnboardingStep {
+    pub title: String,
+    pub description: String,
+    pub action: Box<dyn Fn() -> Result<()>>,
+    pub validation: Box<dyn Fn() -> bool>,
+}
+
+impl Onboarding {
+    pub fn new() -> Self {
+        Self {
+            steps: vec![
+                OnboardingStep {
+                    title: "Configure Git".into(),
+                    description: "Set up your git identity".into(),
+                    action: Box::new(|| configure_git()),
+                    validation: Box::new(|| validate_git_config()),
+                },
+                OnboardingStep {
+                    title: "Initialize workspace".into(),
+                    description: "Create Phenotype workspace".into(),
+                    action: Box::new(|| init_workspace()),
+                    validation: Box::new(|| check_workspace()),
+                },
+            ],
+        }
+    }
+}
+```
+
+---
+
+_Last updated: 2026-03-29_

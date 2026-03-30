@@ -322,7 +322,7 @@ If `config-rs` is not adopted:
 ### Phase 3: Port/Trait
 
 - [ ] PORT-001: Migrate hexagonal-rs to edition 2024
-- [ ] PORT-002: Create Repository<E> trait
+- [ ] PORT-002: Create `Repository<E>` trait
 - [ ] PORT-003: Consolidate Repository ↔ StoragePort
 - [ ] PORT-004: Consolidate Logger ↔ ObservabilityPort
 - [ ] Verify: All trait implementations work
