@@ -12,22 +12,12 @@ repository.workspace = true
 description = "Retry patterns for Phenotype"
 
 [dependencies]
-# Retry library with backoff
-tenacity = { version = "0.3", features = ["nightly"] }
-
-# Async runtime
-tokio = { workspace = true, features = ["time"] }
-
-# Logging
+tokio = { workspace = true, features = ["time", "macros", "rt-multi-thread"] }
+thiserror.workspace = true
 tracing.workspace = true
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["test-util", "macros"] }
+tokio = { workspace = true, features = ["test-util", "macros", "rt-multi-thread"] }
 
 [lib]
 path = "src/lib.rs"
-
-[[bin]]
-name = "retry-example"
-path = "examples/retry_example.rs"
-required-features = []
