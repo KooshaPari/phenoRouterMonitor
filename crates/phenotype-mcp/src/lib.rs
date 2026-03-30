@@ -1,21 +1,65 @@
-//! Phenotype MCP Server
+//! # Phenotype MCP
 //!
-//! MCP (Model Context Protocol) server for Phenotype tools.
+//! MCP (Model Context Protocol) types and tool definitions for Phenotype.
+//! Provides the data structures for registering tools, resources, and prompts.
 
 pub mod tools;
 
-use fastmcp::{Server, Tool, ToolInput, ToolResult};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
-/// MCP Server configuration
+/// MCP tool definition.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {
+pub struct ToolDef {
+    pub name: String,
+    pub description: String,
+    pub input_schema: serde_json::Value,
+}
+
+/// MCP tool result.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolResult {
+    pub content: Vec<ContentBlock>,
+    pub is_error: bool,
+}
+
+/// Content block in a tool result.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ContentBlock {
+    #[serde(rename = "text")]
+    Text { text: String },
+    #[serde(rename = "image")]
+    Image { data: String, mime_type: String },
+}
+
+impl ToolResult {
+    pub fn text(content: impl Into<String>) -> Self {
+        Self {
+            content: vec![ContentBlock::Text {
+                text: content.into(),
+            }],
+            is_error: false,
+        }
+    }
+
+    pub fn error(message: impl Into<String>) -> Self {
+        Self {
+            content: vec![ContentBlock::Text {
+                text: message.into(),
+            }],
+            is_error: true,
+        }
+    }
+}
+
+/// MCP server configuration.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServerConfig {
     pub name: String,
     pub version: String,
 }
 
-impl Default for Config {
+impl Default for ServerConfig {
     fn default() -> Self {
         Self {
             name: "phenotype".into(),
@@ -24,92 +68,28 @@ impl Default for Config {
     }
 }
 
-/// Create the Phenotype MCP server
-pub fn create_server(config: Config) -> Server {
-    let mut server = Server::new(&config.name);
-    
-    // Register AgilePlus tools
-    server.add_tool(Tool::new(
-        "agileplus_create_feature",
-        "Create a feature specification",
-        |input: ToolInput| {
-            let title = input.arguments.get("title")
-                .and_then(|v| v.as_str())
-                .unwrap_or("Untitled");
-            ToolResult::success(serde_json::json!({
-                "feature_id": format!("feat_{}", uuid::Uuid::new_v4()),
-                "title": title,
-                "status": "created"
-            }))
-        },
-    ));
-    
-    server.add_tool(Tool::new(
-        "agileplus_validate",
-        "Validate a feature against governance rules",
-        |input: ToolInput| {
-            let feature_id = input.arguments.get("feature_id")
-                .and_then(|v| v.as_str())
-                .unwrap_or("unknown");
-            ToolResult::success(serde_json::json!({
-                "valid": true,
-                "feature_id": feature_id,
-                "checks_passed": 5,
-                "checks_total": 5
-            }))
-        },
-    ));
-    
-    server.add_tool(Tool::new(
-        "agileplus_status",
-        "Update work package status",
-        |input: ToolInput| {
-            let wp_id = input.arguments.get("wp_id")
-                .and_then(|v| v.as_str())
-                .unwrap_or("unknown");
-            let state = input.arguments.get("state")
-                .and_then(|v| v.as_str())
-                .unwrap_or("unknown");
-            ToolResult::success(serde_json::json!({
-                "wp_id": wp_id,
-                "state": state,
-                "updated": true
-            }))
-        },
-    ));
-    
-    // Register Phenotype tools
-    server.add_tool(Tool::new(
-        "phenotype_parse_spec",
-        "Parse and validate specifications",
-        |input: ToolInput| {
-            let content = input.arguments.get("spec_content")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
-            ToolResult::success(serde_json::json!({
-                "valid": true,
-                "lines": content.lines().count()
-            }))
-        },
-    ));
-    
-    // Register Agent tools
-    server.add_tool(Tool::new(
-        "agent_dispatch",
-        "Dispatch a task to an AI agent",
-        |input: ToolInput| {
-            let task = input.arguments.get("task")
-                .and_then(|v| v.as_str())
-                .unwrap_or("");
-            ToolResult::success(serde_json::json!({
-                "task_id": format!("task_{}", uuid::Uuid::new_v4()),
-                "task": task,
-                "status": "dispatched"
-            }))
-        },
-    ));
-    
-    server
+/// Registry of available MCP tools.
+#[derive(Debug, Default)]
+pub struct ToolRegistry {
+    tools: Vec<ToolDef>,
+}
+
+impl ToolRegistry {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn register(&mut self, tool: ToolDef) {
+        self.tools.push(tool);
+    }
+
+    pub fn list(&self) -> &[ToolDef] {
+        &self.tools
+    }
+
+    pub fn find(&self, name: &str) -> Option<&ToolDef> {
+        self.tools.iter().find(|t| t.name == name)
+    }
 }
 
 #[cfg(test)]
@@ -117,8 +97,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_server_creation() {
-        let server = create_server(Config::default());
-        assert_eq!(server.name(), "phenotype");
+    fn tool_result_text() {
+        let r = ToolResult::text("hello");
+        assert!(!r.is_error);
+        assert_eq!(r.content.len(), 1);
+    }
+
+    #[test]
+    fn tool_result_error() {
+        let r = ToolResult::error("oops");
+        assert!(r.is_error);
+    }
+
+    #[test]
+    fn tool_registry() {
+        let mut reg = ToolRegistry::new();
+        reg.register(ToolDef {
+            name: "test_tool".into(),
+            description: "A test tool".into(),
+            input_schema: serde_json::json!({}),
+        });
+        assert_eq!(reg.list().len(), 1);
+        assert!(reg.find("test_tool").is_some());
+        assert!(reg.find("missing").is_none());
     }
 }
