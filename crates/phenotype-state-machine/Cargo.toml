@@ -12,6 +12,11 @@ description = "TODO"
 path = "src/lib.rs"
 
 [dependencies]
+<<<<<<< HEAD
+thiserror = { workspace = true }
+phenotype-error-core = { version = "0.1.0", path = "../phenotype-error-core" }
+=======
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+>>>>>>> origin/main
