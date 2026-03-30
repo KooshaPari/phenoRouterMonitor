@@ -1,12 +1,6 @@
-# Worklogs
+# Phenotype Worklogs
 
-> Canonical logging and audit documentation for the Phenotype ecosystem.
-
----
-
-## Overview
-
-This directory contains structured worklogs organized by category. Each worklog tracks research, decisions, and progress for cross-cutting concerns.
+> Canonical logging and audit documentation for the Phenotype ecosystem (6.5M+ LOC codebase).
 
 ---
 
@@ -126,132 +120,95 @@ This directory contains structured worklogs organized by category. Each worklog 
 
 ---
 
-## Quick Access
+## Codebase Scale
 
-### For Finding Duplication Issues
-```bash
-cat docs/worklogs/DUPLICATION.md
-```
-
-### For Architecture Decisions
-```bash
-cat docs/worklogs/ARCHITECTURE.md
-```
-
-### For Dependency Status
-```bash
-cat docs/worklogs/DEPENDENCIES.md
-```
-
-### For Research Context
-```bash
-cat docs/worklogs/RESEARCH.md
-```
-
-### For Governance Tracking
-```bash
-cat docs/worklogs/GOVERNANCE.md
-```
-
-### For Performance Analysis
-```bash
-cat docs/worklogs/PERFORMANCE.md
-```
+| Language | LOC |
+|----------|-----|
+| Python/TS/JS | 5,389,436 |
+| Rust | 1,164,118 |
+| **Total** | **6,553,554** |
 
 ---
 
-## Adding Entries
+## Worklog data and automation
 
-### Entry Template
+Machine-readable extracts live under `docs/worklogs/data/` (session exports, generated indexes). Regenerate after significant crate or error-enum changes when you need an up-to-date snapshot for audits.
 
-```markdown
-## YYYY-MM-DD - Entry Title
+### Session export (`scripts/export_phenotype_session_artifacts.py`)
 
-**Project:** [project-name]
-**Category:** [category]
-**Status:** [pending|in_progress|completed]
-**Priority:** P0|P1|P2|P3
-
-### Summary
-
-Brief description of the work.
-
-### Findings
-
-| Item | Status | Notes |
-|------|--------|-------|
-
-### Tasks Completed
-
-- [x] Task 1
-- [ ] Task 2
-
-### Next Steps
-
-- [ ] Action item 1
-
-### Related
-
-- [Link to related docs]
-```
-
-### Category Guidelines
-
-| Category | Focus | Priority Range |
-|----------|-------|----------------|
-| DUPLICATION | Code patterns, libification | P0-P2 |
-| ARCHITECTURE | Ports, adapters, structure | P0-P2 |
-| DEPENDENCIES | External deps, forks, security | P0-P1 |
-| RESEARCH | Tech radar, starred repos | P1-P2 |
-| GOVERNANCE | Policy, compliance | P1-P2 |
-| INTEGRATION | Cross-repo sync | P1-P2 |
-| PERFORMANCE | Optimization | P2-P3 |
-
----
-
-## Aggregation
-
-Use `aggregate.sh` to compile a master view:
+Aggregates Claude Code and Cursor session JSONL into one JSON file shaped like `phenotype_session_extract_*.json` (`meta`, `user_prompts`, `action_plans`).
 
 ```bash
-./docs/worklogs/aggregate.sh
+python3 scripts/export_phenotype_session_artifacts.py \
+  [--home DIR] [--output PATH] [--cutoff DATE] [--cwd-substr SUBSTR] [--repo-root DIR]
 ```
 
+- **Default output:** `docs/worklogs/data/phenotype_session_extract_<cutoff>_<today>.json` under `--repo-root` (default: parent of `scripts/`).
+- **Defaults:** `--home` = user home; `--cutoff` = seven days ago (UTC); `--cwd-substr` filters by CWD (default includes `CodeProjects/Phenotype`).
+- **Requires:** Python 3.10+.
+
+### Error enum index (`scripts/generate_error_enums_index.py`)
+
+Scans Rust sources for public error-style enums (`*Error`, `*Errors`, or `Error` in error-oriented paths) and writes `docs/worklogs/data/error_enums_index.json`.
+
+```bash
+python3 scripts/generate_error_enums_index.py [--root DIR] [--scope workspace|all]
+```
+
+- **`--scope workspace` (default):** `crates/`, `libs/`, `rust/`, `tools/` under the repo root.
+- **`--scope all`:** entire repo root, still skipping `target/`, `.git/`, `node_modules/`, `vendor/`, and worktree hub path segments (`*-wtrees` / `*_wtrees`).
+- **Output JSON** includes `scan_scope`, schema `error_enums_index.v1`, and matching enums with path, line, and name.
+
 ---
 
-## Related Documentation
+## Actions Completed (This Session)
 
-| Document | Location | Purpose |
-|----------|----------|---------|
-| WORKLOG.md | `docs/WORKLOG.md` | Wave entries |
-| PLAN.md | `PLAN.md` | AgilePlus implementation |
-| PRD.md | `PRD.md` | Product requirements |
-| ADR.md | `ADR.md` | Architecture decisions |
-| MASTER_DUPLICATION_AUDIT | `docs/reports/MASTER_DUPLICATION_AUDIT.md` | Comprehensive audit |
-| Consolidation Audit | `docs/research/consolidation-audit-2026-03-29.md` | P1-P4 actions |
+### Crates Implemented/Created
+
+| Crate | LOC | Tests | Status |
+|-------|-----|-------|--------|
+| `phenotype-contracts` | 400+ | 3 | ✅ |
+| `phenotype-cache-adapter` | 300+ | 4 | ✅ |
+| `phenotype-health` | 350+ | 6 | ✅ |
+| `phenotype-event-sourcing` | blake3 | 9 | ✅ |
+| `phenotype-errors` | existing | 21 | ✅ |
+| `phenotype-error-core` | existing | 0 | ✅ |
+
+**Total Tests Passing: 43**
+
+### Dependencies Added
+
+| Crate | Purpose | Performance |
+|-------|---------|-------------|
+| `blake3` | Hash chains | 3-5x faster |
+| `rkyv` | Serialization | Zero-copy |
+| `dashmap` | Concurrent cache | Lock-free |
+| `gix` | Git ops | Modern git2 |
+| `figment` | Config loading | Multi-source |
 
 ---
 
-## Cross-Cutting Concerns
+## LOC Savings Summary
 
-### Critical Items Requiring Immediate Action
+| Category | Savings | Priority |
+|----------|---------|----------|
+| Error consolidation | 300-500 | P1 |
+| Config consolidation | 200-300 | P1 |
+| Hash blake3 | 30-50 | P1 |
+| Cache DashMap | 50-100 | P2 |
+| **Total** | **~600-950** | |
 
-| Item | Impact | Owner | Deadline |
-|------|--------|-------|----------|
-| Migrate 11 libs/ to edition 2024 | Unblock library integration | — | 2026-Q2 |
-| Create phenotype-error crate | Consolidate 12 error types | — | 2026-Q2 |
-| Integrate hexagonal-rs patterns | Replace 5 duplicated traits | — | 2026-Q2 |
-| Migrate git2 → gix | Security advisory RUSTSEC-2025-0140 | — | 2026-Q2 |
+---
 
-### LOC Savings Potential
+## Critical Actions Remaining
 
-| Category | Current | Target | Savings |
-|----------|---------|--------|---------|
-| Error Types | ~600 LOC | ~200 LOC | 400 |
-| Config Loading | ~500 LOC | ~150 LOC | 350 |
-| Store Traits | ~300 LOC | ~100 LOC | 200 |
-| In-Memory Tests | ~400 LOC | ~150 LOC | 250 |
-| **Total** | **1,800 LOC** | **600 LOC** | **1,200** |
+| Priority | Action | Effort |
+|----------|--------|--------|
+| P0 | Integrate canonical libs into AgilePlus | 2-4 weeks |
+| P1 | Migrate git2 → gix | 2-4 weeks |
+| P1 | Add anthropic crate | 1 week |
+| P2 | Add sqlx async | 2 weeks |
+| P2 | Add casbin RBAC | 2 weeks |
 
 ---
 
