@@ -1,19 +1,15 @@
-//! Built-in MCP tool definitions for Phenotype.
+//! MCP tool implementations for Phenotype.
+//!
+//! This module provides concrete implementations of commonly used tools:
+//! - Code analysis and linting
+//! - File operations
+//! - System introspection
+//! - Configuration management
 
-use crate::ToolDef;
+pub mod code_analyzer;
+pub mod file_ops;
+pub mod system_introspector;
 
-/// Create the default set of Phenotype MCP tools.
-pub fn default_tools() -> Vec<ToolDef> {
-    vec![
-        ToolDef {
-            name: "phenotype_version".into(),
-            description: "Get the current Phenotype version".into(),
-            input_schema: serde_json::json!({"type": "object", "properties": {}}),
-        },
-        ToolDef {
-            name: "phenotype_status".into(),
-            description: "Get workspace health status".into(),
-            input_schema: serde_json::json!({"type": "object", "properties": {}}),
-        },
-    ]
-}
+pub use code_analyzer::{CodeAnalyzer, CodeAnalysisResult};
+pub use file_ops::{FileOperator, FileOperationResult};
+pub use system_introspector::{SystemIntrospector, SystemInfo};
