@@ -1,10 +1,75 @@
 //! Error types for the event sourcing system.
 //!
 //! Uses phenotype-error-core for foundational error types.
+//! Error types for phenotype-event-sourcing
+//!
+//! These error types are specific to event sourcing operations.
+//! They can be converted to the unified `PhenotypeError` using `From` implementations.
 
-use phenotype_error_core::CoreError;
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
-/// Result type for event sourcing operations.
+/// Result type for event sourcing operations
+pub type Result<T> = std::result::Result<T, EventSourcingError>;
+
+/// Event sourcing errors
+#[derive(Debug, Error, Serialize, Deserialize, Clone)]
+pub enum EventSourcingError {
+    #[error("aggregate not found: {0}")]
+    AggregateNotFound(String),
+    
+    #[error("event not found: {0}")]
+    EventNotFound(String),
+    
+    #[error("serialization error: {0}")]
+    Serialization(String),
+    
+    #[error("hash mismatch")]
+    HashMismatch,
+    
+    #[error("snapshot error: {0}")]
+    Snapshot(String),
+    
+    #[error("replay error: {0}")]
+    Replay(String),
+    
+    #[error("version conflict")]
+    VersionConflict,
+    
+    #[error("invalid event sequence")]
+    InvalidEventSequence,
+    
+    #[error("internal error: {0}")]
+    Internal(String),
+}
+
+// Conversion to unified PhenotypeError (when phenotype_errors is available)
+#[cfg(feature = "with-phenotype-errors")]
+impl From<EventSourcingError> for phenotype_errors::PhenotypeError {
+    fn from(err: EventSourcingError) -> Self {
+        use phenotype_errors::PhenotypeError as PE;
+        match err {
+            EventSourcingError::AggregateNotFound(id) => 
+                PE::NotFound(format!("aggregate: {}", id)),
+            EventSourcingError::EventNotFound(id) => 
+                PE::NotFound(format!("event: {}", id)),
+            EventSourcingError::Serialization(msg) => 
+                PE::Serialization(msg),
+            EventSourcingError::HashMismatch => 
+                PE::InvalidState("hash mismatch".into()),
+            EventSourcingError::Snapshot(msg) => 
+                PE::InvalidState(format!("snapshot: {}", msg)),
+            EventSourcingError::Replay(msg) => 
+                PE::InvalidState(format!("replay: {}", msg)),
+            EventSourcingError::VersionConflict => 
+                PE::Conflict("version conflict".into()),
+            EventSourcingError::InvalidEventSequence => 
+                PE::InvalidState("invalid event sequence".into()),
+            EventSourcingError::Internal(msg) => 
+                PE::Internal(msg),
+        }
+    }
+}
 pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
 /// Wrapper error type for event sourcing operations.
