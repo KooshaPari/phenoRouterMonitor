@@ -234,131 +234,323 @@ Plan for tracking DORA (DevOps Research and Assessment) metrics.
 - Metrics: `crates/agileplus-telemetry/`
 
 ---
+<<<<<<< HEAD
+=======
+
+## 2026-03-29 - Cross-Repo Governance Deep Audit (v2)
+
+**Project:** [cross-repo]
+**Category:** governance
+**Status:** completed
+**Priority:** P0
+
+### Executive Summary
+
+~70% governance maturity. Strong Rust/Python quality gates but weak cross-repo consistency. Critical gap: AgilePlus (core platform) has zero CI/CD.
 
 ---
 
-## 2026-03-29 SAGE Audit: Governance Infrastructure (Built But Not Used)
+### CLAUDE.md Coverage (18 files found)
 
-**Session:** SAGE-audit-2026-03-29
-**Category:** governance
-**Status:** documented
-**Priority:** P0
+| Location | Status | Gap |
+|----------|--------|-----|
+| `/repos/CLAUDE.md` | ✅ Active | — |
+| `/repos/heliosCLI/CLAUDE.md` | ✅ Active | Missing vale/ruff refs |
+| `/platforms/thegent/CLAUDE.md` | ✅ Active | Most complete |
+| Worktree copies | ✅ 5 files | — |
+| Templates | ✅ scaffolding | — |
 
-### Summary
+**Rules enforced everywhere:** AgilePlus mandate, branch discipline, CI completeness, non-destructive protocol
 
-Conducted comprehensive audit of governance infrastructure. Found **significant built-but-not-used components** that should be consolidated into `phenotype-governance/` repository.
+**Inconsistencies:**
+- `vale + ruff` enforcement: thegent only (not AgilePlus, heliosCLI)
+- `UTF-8 validation`: 2/3 primary projects
+- `impeccable CSS baseline`: thegent only
+- `gitleaks`: 2/3 projects
+- `type checking` (mypy/basedpyright): thegent only
 
-### Built But Not Used Infrastructure
+**Conflicts:**
+- heliosCLI CLAUDE.md references undefined "phenotype CLIProxy model-check" task
+- thegent pre-commit has 157 hooks not documented in CLAUDE.md
 
-| Component | Location | Status | Action Required |
-|-----------|----------|--------|----------------|
-| `security-guard.yml` | `infra/agentops-policy-federation/template-commons/security/` | Built, not used | Migrate to `phenotype-governance/.github/workflows/` |
-| Policy Federation Code | `infra/agentops-policy-federation/` | Built | Extract policy/ to governance |
-| OPA Policies | `infra/agent-devops-setups/policies/` | Built | Consolidate |
-| WP10 CI Workflows | `docs/specs/002-org-wide-release-governance-dx-automation/tasks/WP10-*.md` | Planned (651 lines spec) | Implement in `phenotypeActions` |
+---
 
-### security-guard.yml Details
+### CI/CD Inventory
 
-```yaml
-# Location: infra/agentops-policy-federation/template-commons/security/security-guard.yml
-name: Security Guard
-on:
-  workflow_call:  # Reusable workflow!
+| Repo | Workflows | Format | Lint | Test | Audit | CodeQL | License |
+|------|-----------|--------|------|------|-------|--------|---------|
+| heliosCLI | 47 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| thegent | 14 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| phenotype-infrakit | 4 | — | — | — | — | ✅ | — |
+| **AgilePlus** | **0** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-jobs:
-  ggshield-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-      - name: Install ggshield
-        run: pip install ggshield
-      - name: Scan repository workspace
-        env:
-          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
-        run: ggshield secret scan path . --recursive
-```
+**Critical:** AgilePlus (core platform) has ZERO CI/CD configured.
 
-### Current Root Config Duplication
+---
 
-| Config | Location | Should Be |
-|--------|----------|-----------|
-| `_typos.toml` | Root | `phenotype-governance/configs/_typos.toml` |
-| `clippy.toml` | Root | `phenotype-governance/configs/clippy.toml` |
-| `deny.toml` | Root | `phenotype-governance/configs/deny.toml` |
-| `buf.yaml` | Root | `phenotype-governance/configs/buf.yaml` |
-| `oxlint.config.json` | Root | `phenotype-governance/configs/oxlint.config.json` |
-| `Taskfile.yml` | Root | `phenotype-governance/templates/Taskfile.yml` |
+### License Compliance (deny.toml)
 
-### Missing: GitHub Actions CI/CD
+**Allowed permissive:** MIT, Apache-2.0, BSD-*, CC0-1.0, ISC, Unlicense ✅
 
-Currently **no `.github/workflows/`** directory exists in AgilePlus. All CI is local via `task quality`.
+**Allowed — POLICY CONCERN:**
+- `GPL-3.0-only` is PERMITTED in deny.toml but GOVERNANCE.md says "Avoid"
+- **Action:** Change to deny; audit current transitive deps
 
-### Proposed: phenotype-governance/ Structure
+**3 ignored RUSTSEC advisories:**
+- RUSTSEC-2025-0134 — rustls-pemfile deprecated (blocked by async-nats)
+- RUSTSEC-2025-0140 — gix 0.71 pinned old version
+- RUSTSEC-2026-0049 — rustls-webpki via async-nats
 
-```
-phenotype-governance/
-├── .github/
-│   └── workflows/
-│       ├── ci.yml              # Main orchestrator
-│       ├── rust-quality.yml   # Rust checks
-│       ├── python-quality.yml # Python checks
-│       ├── proto-contract.yml # gRPC contract
-│       ├── docs-quality.yml  # Markdown linting
-│       ├── security-guard.yml # Secret scanning (MIGRATED)
-│       └── release.yml    # Publish workflow
-├── configs/           # Quality configs (MIGRATED)
-├── policy/           # OPA/Rego policies (MIGRATED)
-└── templates/        # Repo templates
-```
+**No SBOM generation** (CycloneDX/SPDX) anywhere.
 
-### WP10 Workflow Spec (From docs/specs/)
+---
 
-| Workflow | Purpose | Inputs | Outputs | Spec Location |
-|----------|---------|--------|---------|--------------|
-| `publish.yml` | Build & publish packages | language, registry, version | published | WP10 T057 |
-| `gate-check.yml` | Evaluate quality gates | language, channel, risk_profile | passed, results | WP10 T058 |
-| `promote.yml` | Gate → Publish chain | language, registry, from/to_channel | promotion_status | WP10 T059 |
-| `changelog.yml` | Generate CHANGELOG.md | version | release_created | WP10 T060 |
-| `audit.yml` | Scheduled audit | (scheduled) | audit_results | WP10 T061 |
+### Secret Detection
 
-### Immediate Actions
+| Project | gitleaks CI | Custom Scripts | Status |
+|---------|------------|----------------|--------|
+| heliosCLI | ❌ | ✅ security-guard.sh | Partial |
+| thegent | ✅ pre-commit | ✅ security-guard.sh | Good |
+| AgilePlus | ❌ | ❌ | NONE |
 
-| # | Action | Source | Target | Effort | Status |
-|---|--------|--------|--------|--------|--------|
-| 1 | Create `phenotype-governance/` repo | - | New | 1hr | TODO |
-| 2 | Migrate `security-guard.yml` | `infra/.../template-commons/` | `.github/workflows/` | 15min | TODO |
-| 3 | Migrate quality configs | Root | `configs/` | 30min | TODO |
-| 4 | Migrate policy files | `infra/agentops-policy-federation/` | `policy/` | 30min | TODO |
-| 5 | Implement WP10 workflows | `docs/specs/WP10-*.md` | `.github/workflows/` | 8hr | TODO |
-| 6 | Add CI to AgilePlus | - | `.github/workflows/ci.yml` | 1hr | TODO |
+No `.gitleaks.toml` at repo root.
 
-### Repo Consumption Pattern
+---
 
-```yaml
-# agileplus/.github/workflows/ci.yml
-name: CI
+### Pre-commit Hook Coverage
 
-on: [push, pull_request]
+| Repo | Config | Lines | Key Hooks |
+|------|--------|-------|-----------|
+| thegent | `.pre-commit-config.yaml` | 157 | ruff, gitleaks, ty, basedpyright, VitePress build, DX audit |
+| heliosCLI | `.pre-commit-config.yaml` | 22 | base hooks, security-guard.sh |
+| AgilePlus | ❌ NONE | — | — |
 
-jobs:
-  rust-quality:
-    uses: KooshaPari/phenotype-governance/.github/workflows/rust-quality.yml@v1
+---
 
-  security:
-    uses: KooshaPari/phenotype-governance/.github/workflows/security-guard.yml@v1
-```
+### Security Policy
 
-### Evidence References
+| Repo | SECURITY.md | Reporting | SLA |
+|------|------------|-----------|-----|
+| heliosCLI | ✅ | Private email | 24h–30d by severity |
+| thegent | ❌ | — | — |
+| AgilePlus | ❌ | — | — |
 
-- security-guard.yml: `infra/agentops-policy-federation/template-commons/security/security-guard.yml`
-- WP10 spec: `docs/specs/002-org-wide-release-governance-dx-automation/tasks/WP10-centralized-ci-workflows.md`
-- Quality configs: `_typos.toml`, `clippy.toml`, `deny.toml`, `buf.yaml`, `oxlint.config.json`
-- OPA policies: `infra/agent-devops-setups/policies/`
+---
+
+### CODEOWNERS Coverage
+
+All major repos have CODEOWNERS. Single owner `@KooshaPari` for all paths.
+**Gap:** No granular path ownership, no fallback/escalation owners.
+
+---
+
+### ADR Status
+
+**1 ADR exists:** `docs/governance/ADR-001-external-package-adoption.md` (Accepted, 2026-03-29)
+
+**Gap:** Architectural decisions for hexagonal migration, event sourcing, plugin architecture not recorded.
+
+---
+
+### Compliance Matrix
+
+| Area | heliosCLI | thegent | AgilePlus |
+|------|-----------|---------|-----------|
+| CI/CD | ✅ | ✅ | ❌ |
+| License check | ✅ | ❌ | ❌ |
+| Secret detection | ⚠️ | ✅ | ❌ |
+| Pre-commit | ✅ | ✅ | ❌ |
+| Security policy | ✅ | ❌ | ❌ |
+| Type checking | — | ✅ | ❌ |
+| Coverage report | ❌ | ⚠️ | ❌ |
+| ADRs | ❌ | ❌ | ❌ |
+
+**Overall maturity: ~40%**
+
+---
+
+### Action Items (Prioritized)
+
+#### P0 — Critical
+- [ ] Create AgilePlus `.github/workflows/ci.yml` (fmt, clippy, test, audit)
+- [ ] Fix `GPL-3.0-only` in deny.toml → move to deny list
+- [ ] Add root `.gitleaks.toml` + CI integration for AgilePlus
+
+#### P1 — High
+- [ ] Add `pip-audit` to thegent Python CI
+- [ ] Fix undefined task/tool references in AgilePlus CLAUDE.md
+- [ ] Create incident runbooks: `docs/runbooks/db-outage.md`, `security-breach.md`
+
+#### P2 — Medium
+- [ ] Unify pre-commit config across all repos
+- [ ] Add tarpaulin (Rust) + coverage.py (Python) + Codecov upload
+- [ ] Expand CODEOWNERS with per-crate ownership + fallback team
+- [ ] Create `docs/governance/ADR-002` for hexagonal migration decision
+- [ ] Add `cargo deny` license check to thegent CI
+
+#### P3 — Low
+- [ ] Document ADR numbering scheme
+- [ ] Create cross-project governance charter
+- [ ] Set policy review cadence (quarterly)
 
 ### Related
 
-- DUPLICATION.md: Config loading duplication
-- DEPENDENCIES.md: External dependency governance
+- Compliance framework: `docs/worklogs/GOVERNANCE.md`
+- Security policies: `heliosCLI/SECURITY.md`
+- License config: `deny.toml`
+- ADRs: `docs/governance/`
+
+---
+
+---
+
+## 2026-03-30 - Release Management & Versioning Policy (Wave 151)
+
+**Project:** [cross-repo]
+**Category:** governance, release
+**Status:** in_progress
+**Priority:** P1
+
+### Release Strategy
+
+| Type | Frequency | Versioning | Scope |
+|------|-----------|------------|-------|
+| **Stable** | Monthly | Semver | Breaking changes only |
+| **Beta** | Bi-weekly | Semver | Feature freeze |
+| **Alpha** | Weekly | Semver | Active development |
+| **Nightly** | Daily | Timestamp | Testing only |
+
+### Cargo.toml Policy
+
+```toml
+[package]
+version = "0.4.0"  # Always use precise versions
+
+[dependencies]
+# Pin to exact versions in production
+tokio = "=1.40.0"
+serde = "=1.0.217"
+
+# Use range for dev-dependencies only
+[dev-dependencies]
+tokio-test = "1.40"  # Allow patch updates
+```
+
+### Release Checklist
+
+- [ ] All tests pass (`cargo test --workspace`)
+- [ ] No clippy warnings (`cargo clippy --workspace -- -D warnings`)
+- [ ] Changelog updated (`git cliff --unreleased`)
+- [ ] Version bumped (`cargo release`)
+- [ ] Tag pushed (`git push --tags`)
+- [ ] GitHub Release created
+- [ ] SBOM generated (`cargo sbom`)
+- [ ] crates.io published (`cargo publish`)
+
+---
+
+## 2026-03-30 - Code Review Standards (Wave 152)
+
+**Project:** [cross-repo]
+**Category:** governance, code review
+**Status:** in_progress
+**Priority:** P1
+
+### Review Checklist
+
+| Category | Item | Priority |
+|----------|------|----------|
+| **Correctness** | Tests cover new code | Required |
+| **Correctness** | Edge cases handled | Required |
+| **Correctness** | No panics on invalid input | Required |
+| **Performance** | No obvious O(n²) patterns | High |
+| **Security** | No new `unsafe` blocks | High |
+| **Security** | Input validation | Required |
+| **Maintainability** | Code is self-documenting | High |
+| **Maintainability** | No magic numbers | Medium |
+| **Maintainability** | Error messages are actionable | Medium |
+
+### Review SLAs
+
+| PR Size | Target Time | Max Time |
+|---------|-------------|----------|
+| XS (< 10 lines) | 4 hours | 24 hours |
+| S (10-50 lines) | 8 hours | 48 hours |
+| M (50-200 lines) | 24 hours | 72 hours |
+| L (200-500 lines) | 48 hours | 1 week |
+| XL (> 500 lines) | 1 week | 2 weeks |
+
+### Merge Requirements
+
+- **Minimum 1 approval** from maintainer
+- **All CI checks passing**
+- **No unresolved conversations**
+- **Linear history** (squash merge)
+- **Conventional commit message**
+
+---
+
+## 2026-03-30 - Dependency Governance (Wave 153)
+
+**Project:** [cross-repo]
+**Category:** governance, dependencies
+**Status:** in_progress
+**Priority:** P0
+
+### Dependency Policy
+
+| Type | Policy | Audit Frequency |
+|------|--------|-----------------|
+| **Direct** | Review required | Per PR |
+| **Indirect** | Reviewed quarterly | Monthly |
+| **Dev-only** | No prod impact | Quarterly |
+| **Build-only** | No runtime impact | Quarterly |
+
+### Dependabot Configuration
+
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      rust-core:
+        patterns:
+          - tokio
+          - serde
+          - tracing
+      async-libs:
+        patterns:
+          - sqlx
+          - axum
+          - reqwest
+    labels:
+      - dependencies
+      - rust
+
+  - package-ecosystem: pip
+    directory: /python
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - python
+```
+
+### Security Advisory Response
+
+| Severity | Response Time | Action |
+|----------|---------------|--------|
+| Critical | 24 hours | Patch release |
+| High | 1 week | Next minor |
+| Medium | 1 month | Next release |
+| Low | Quarterly | Backlog |
+
+---
+
+_Last updated: 2026-03-30 (Wave 153)_
+>>>>>>> origin/main

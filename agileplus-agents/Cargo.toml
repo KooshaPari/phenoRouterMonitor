@@ -1,0 +1,59 @@
+[workspace]
+members = [
+    "crates/agileplus-agent-dispatch",
+    "crates/agileplus-agent-review",
+    "crates/agileplus-agent-service",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/phenotype/agileplus-agents"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+
+# gRPC / proto
+tonic = { version = "0.12", features = ["transport"] }
+tonic-health = "0.12"
+prost = "0.13"
+
+# Concurrency utilities
+dashmap = "6"
+uuid = { version = "1", features = ["v4"] }
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Regex
+regex = "1"
+
+# Futures helpers
+futures = "0.3"
+
+# Async trait support
+async-trait = "0.1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Testing
+tokio-test = "0.4"
+tempfile = "3"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"

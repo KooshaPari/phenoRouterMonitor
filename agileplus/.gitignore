@@ -1,0 +1,6 @@
+../*
+../.*
+*.toml
+*.yaml
+*.json
+!pyproject.toml
