@@ -8,8 +8,9 @@ Land supply-chain automation as **small, reviewable PRs** (stacked / layered). *
 
 - Workflow `.github/workflows/sbom.yml` is on `main` from **[#95](https://github.com/KooshaPari/phenotype-infrakit/pull/95)** (earlier SBOM PR).
 - Stacked PRs **[#99](https://github.com/KooshaPari/phenotype-infrakit/pull/99)**–**[#101](https://github.com/KooshaPari/phenotype-infrakit/pull/101)** were **closed without merge**; this session doc and `DEPENDENCIES.md` pilot section were not on `main` until a **consolidated follow-up PR** (`chore/sbom-docs-session`) rebased onto current `main`.
-- **Consolidated PR** adds: `DEPENDENCIES.md` pilot documentation, this session note, and a **matrix** of CycloneDX jobs for seven workspace members (replacing the single-crate job while keeping the same workflow file).
-- **2026-03-31 follow-up:** matrix expanded to **all** `[workspace.members]` (16 CycloneDX jobs + matching artifacts).
+- **Consolidated PR** ([#139](https://github.com/KooshaPari/phenotype-infrakit/pull/139)) adds: `DEPENDENCIES.md` pilot documentation, this session note, and an expanded CycloneDX workflow (later superseded by script-driven generation + release assets).
+- **2026-03-31 follow-up:** matrix expanded to **all** `[workspace.members]` (16 CycloneDX jobs + matching artifacts); see [#160](https://github.com/KooshaPari/phenotype-infrakit/pull/160).
+- **2026-03-31 (continued):** `scripts/ci/generate-workspace-sboms.sh` replaces duplicated workflow matrix; `sbom.yml` uploads one bundle; `release.yml` attaches the same CycloneDX JSON files to **GitHub Releases** for `v*.*.*` tags (with safe `allowUpdates` when `tag-automation.yml` created the release first).
 
 ## Stack (original plan — historical)
 
@@ -33,8 +34,8 @@ gh pr create --base main --head chore/sbom-docs-session --fill
 
 ## Success criteria
 
-- [x] `sbom.yml` on `main` generates CycloneDX JSON (matrix); workflow runs when Actions billing allows.
-- [x] Artifacts `cyclonedx-sbom-<crate-id>` for each matrix row.
+- [x] `sbom.yml` on `main` generates CycloneDX JSON for every workspace member; workflow runs when Actions billing allows.
+- [x] CI artifact bundle `cyclonedx-sbom-workspace`; tagged releases include the same JSON files as downloadable assets.
 - [x] `DEPENDENCIES.md` and session doc aligned with workflow behavior.
 
 ---

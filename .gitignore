@@ -1,4 +1,5 @@
 /target
+/sbom-out/
 Cargo.lock
 *.swp
 *.swo
