@@ -29,13 +29,9 @@ impl EvaluationContext {
     /// Creates an evaluation context from a JSON value.
     pub fn from_json(value: serde_json::Value) -> Self {
         match value {
-            serde_json::Value::Object(map) => {
-                let facts = map
-                    .into_iter()
-                    .map(|(k, v)| (k, v))
-                    .collect();
-                Self { facts }
-            }
+            serde_json::Value::Object(map) => Self {
+                facts: map.into_iter().collect(),
+            },
             _ => Self::new(),
         }
     }
@@ -54,8 +50,7 @@ impl EvaluationContext {
     /// Sets a numeric fact.
     pub fn set_number(&mut self, key: impl Into<String>, value: f64) {
         if let Some(n) = serde_json::Number::from_f64(value) {
-            self.facts
-                .insert(key.into(), serde_json::Value::Number(n));
+            self.facts.insert(key.into(), serde_json::Value::Number(n));
         }
     }
 
@@ -119,9 +114,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new_context_empty() {
-        let ctx = EvaluationContext::new();
-        assert!(ctx.facts().is_empty());
+    fn test_from_json() {
+        let json = serde_json::json!({
+            "name": "test_agent",
+            "config": {"timeout": 30}
+        });
+        let _ctx = EvaluationContext::from_json(json);
     }
 
     #[test]

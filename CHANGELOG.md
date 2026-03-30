@@ -2,5 +2,975 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-- Initial synchronization with Phenotype enterprise governance and release standards.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.0] - 2026-03-29
+
+### Auto
+- Sync and evaluate chore/dotagents-setup (#115)
+
+### Bug Fixes
+- Gate integration-only imports behind cfg(feature = "integration")
+- Remove hx-trigger load to prevent Alpine scope loss on kanban board (#20)
+- Replace fake SpecKitty project with real Phenotype org repos (#21)
+- Add missing project_for_feature and feature_counts_for_project methods (#22)
+- Bump time crate for security (#32)
+- Resolve Rust compilation errors across workspace (#33)
+- Resolve dependabot security alerts (#55)
+- Ignore RUSTSEC-2026-0049 in cargo-deny config
+- Bump time crate for security
+- Resolve clippy warnings in dashboard and git snapshot
+- Remove hx-trigger load to prevent Alpine scope loss on kanban board (#94)
+- Remove duplicated permissions key in buf job
+- Unblock Rust/Python CI by removing buf dependency chain
+- Add missing git provenance fields to all Feature/WorkPackage constructors
+- Resolve clippy warnings in dashboard and git snapshot
+- Downgrade tonic/tonic-build to 0.12 for proto compilation compatibility
+- Rust compile errors and security audit (#155)
+- Resolve compilation errors and apply formatting standards (#154)
+- Stabilize agileplus and sync with main
+- Stabilize CI for AgilePlus (lint and tests) (#162)
+- Grant pull-requests write permission to buf job
+- Resolve linting, syntax errors, and formatting issues in CI
+- Grant pull-requests write permission to buf job (#168)
+- Add #[default] to BacklogStatus enum for Rust 2024
+- Resolve all compiler errors in agileplus-dashboard (#186)
+- Resolve all compiler errors in agileplus-dashboard (#187)
+- Align AgilePlus dashboard expectations and template comparisons
+- Populate event timeline links from WorkPackage data (#182)
+- Replace stub implementations with working service controls and settings (#183)
+- Format agileplus dashboard hub projects block
+- Replace stub implementations with working code (#193)
+- Populate event timeline links from WorkPackage data (#194)
+- Repair VitePress Pages and Release Drafter workflows (#196)
+- Implement service controls and agent settings UI (#198)
+- Implement missing StoragePort methods in test MockStorage impls (#204)
+- Fix VitePress Pages deployment workflow (#205)
+- Dashboard service control integration + safe restart command registry + governance docs
+- Post-merge seed bridge, MockStorage, and dashboard compilation fixes
+- Restore .gitignore with proper colab service exclusions
+- Remove --frozen-lockfile from bun install
+- Upload-pages-artifact v3 -> v4
+- Update phench import paths from thegent to phench
+- Gitleaks hook grep - case-insensitive 'no leaks found' match
+- Gitleaks hooks use exit code instead of grep
+- Update phench import paths from thegent to phench
+- Remove incorrect AgilePlus remote from repos shelf
+
+### CI/CD
+- Mark quality-gate.sh executable for GitHub Actions
+- Add release-drafter config
+- Remove duplicate pages-deploy workflow (deploy.yml handles VitePress)
+
+### Documentation
+- Add comprehensive comparison matrix for AgilePlus ecosystem (#163)
+- Add AgilePlus worklog reference
+- Add ADR-012 plugin architecture
+- Add USER_JOURNEYS.md with 5 key user journeys
+- Expand FUNCTIONAL_REQUIREMENTS with 63 real FRs from codebase analysis (#191)
+- Expand and complete PRD, FR, ADR, and PLAN spec documents (#200)
+- Add docs-site scaffold and verification harness
+- Add Wave 87 - MUSE Phase 2 complete
+- Add Wave 79 test remediation status
+
+### Features
+- Multi-project dashboard, Plane.so integration, dogfood seeding (#17)
+- Merge responsive Plane and filter updates
+- Darken BG to #090a0c, add proper light mode, standardize keycap palette (#38)
+- Add responsive layout, overflow handling, and mobile support (#23)
+- Merge responsive Plane and filter updates
+- Add git-aware SSOT architecture (L1-L6)
+- Modernize AgilePlus tooling (axum 0.8, reqwest 0.13, workspace deps)
+- Add completion specs for heliosApp, heliosCLI, thegent
+- Add architecture patterns section to platform spec
+- Add plugin architecture with SQLite and Git adapters
+- Integrate @phenotype/docs shared theme into VitePress docs (#173)
+- Add plugin integration layer to agileplus-domain
+- Real agent activity, config forms, evidence viewer, clickable timeline, rich UI (#178)
+- Add project batch import support (#181)
+- Add /hub ecosystem services page to AgilePlus dashboard (#184)
+- Rich UI overhaul - lightbox, settings endpoints, media gallery (#180)
+- Add OrbStack Plane.so + Dragonfly compose and docs (#189)
+- Add standard docs/ subdirectory structure (#201)
+- Add real evidence bundle infrastructure (#199)
+- Add process-compose unified dev stack with OrbStack containers (#202)
+- Add process-compose unified dev stack with OrbStack containers
+- Overhaul UI — lightbox keyboard nav, settings sections, timeline link pills, agent activity clarity
+- Implement feature events and media endpoints
+- Add ECO features to evidence ledger
+- Add project seeding script for all Phenotype ecosystem repos (#212)
+- Add list command for feature database query (#213)
+- Add service registry and discovery library
+- Add main.yml workflow definition (#221)
+- Add module manifest and snapshot tests to phench runtime test
+- Add phenosdk-sanitize-atoms spec
+- Add phenosdk-decompose-mcp spec
+- Add phenosdk-decompose-llm spec
+- Add phenosdk decompose-llm, decompose-mcp, sanitize-atoms specs (#226)
+- Add phenosdk-sanitize-atoms spec
+- Add phenosdk-decompose-mcp spec
+- Add phenosdk-decompose-llm spec
+- Baseline specs, GetLogs/GetMetrics, local Docker provider
+
+### Miscellaneous
+- Bump authlib (#18)
+- Add dotagents for agent configuration management (#30)
+- Bump actions/upload-artifact from 4 to 7 (#35)
+- Bump actions/github-script from 7 to 8 (#50)
+- Add worktrees/ and agent directories to gitignore (#52)
+- Update tonic requirement from 0.12 to 0.14 in /rust (#48)
+- Dotagents setup (#43)
+- Bump actions/upload-pages-artifact from 3 to 4 (#37)
+- Update tonic-build requirement from 0.12 to 0.14 in /rust (#49)
+- Bump actions/setup-python from 5 to 6 (#34)
+- Bump jdx/mise-action from 2 to 3 (#44)
+- Modernize tooling - remove Makefiles, add Taskfile.yml, Python 3.14
+- Modernize tooling - remove Makefiles, add Taskfile.yml, Python 3.14 (#63)
+- Bump actions/upload-pages-artifact from 3 to 4 (#121)
+- Bump actions/github-script from 7 to 8 (#120)
+- Update tonic-build requirement from 0.12 to 0.14 in /rust (#119)
+- Bump version to 0.1.1 and update CHANGELOG
+- Add spec documentation (PRD, ADR, FR, PLAN, trackers)
+- Bump version to 0.1.2 and update changelog (#165)
+- Remove obsolete AgilePlus worktrees
+- Add cargo-deny configuration and fix security dependencies
+- Modernize tooling (#176)
+- Update ADR, process docs, and kitty-specs
+- Migrate kitty-specs to AgilePlus format, archive BMAD refs (#190)
+- Migrate kitty-specs to docs/specs (AgilePlus format) (#203)
+- Migrate kitty-specs to docs/specs (AgilePlus format)
+- Commit prior-agent seed_bridge refactor and import fix
+- Update docs and configs
+- Sync
+- Sync
+- Sync
+- Sync
+- Sync
+- Refresh repo manifest — clone 6 ghost repos, fix 30+ stale paths, remove forensics/simpJobs
+- Clone 3 more ghost repos — template-commons, tokenledger, trash-cli
+- Add 4 ghost repos — phenotype-gauge, phenotype-go-kit, phenotype-nexus, phenotype-shared
+- Fix heliosApp path to correct location
+- Fix thegent path — final manifest state
+- Add portfolio-audit-kooshapari-2026 kitty-specs
+- Fix template-commons and tokenledger paths — final state
+- Update gitignore with all untracked dirs
+- Ignore template-commons
+- Update WORKLOG and evidence ledger with cliproxy session closure
+- Update Cargo.lock for forge workspace member
+- Add workspace members - hexagonal-rs, hexkit, cipher, gauge, logger, metrics, tracing, cli-framework, config-core, xdd-lib-rs
+- Add ghost files and worktrees to gitignore
+- Update Cargo.lock with cipher crate and record WL-006 evidence
+- Ignore .serena/ tool directory
+- Update evidence ledger and WORKLOG - waves 86-87, wl006 complete, forge session harmonization
+- Resolve evidence ledger merge conflict, keep both forge and muse session entries
+- Ignore sibling workspace files
+- Ignore phenotype-config-wtrees workspace directory
+- Sync evidence ledger and session docs
+- Ignore forked repos and worktrees for reference/research
+- Ignore session artifact files
+- Ignore session artifact files
+- Rescue stashed WIP changes (CLI branch command + worklog) (#227)
+- Merge sync-kitty-specs
+- Update execution status for eco-001 to eco-004
+- Ignore cloned fork repos and worktrees
+
+### Refactoring
+- Trim dead exports from local module filter
+- Reorganize temp files to scripts/ directory
+- Extract plugin crates to separate git repos
+
+### Testing
+- Add 35 unit tests for routes helpers and process detector
+
+### Cleanup
+- Spec-kitty files (#36)
+
+### Security
+- Add .env to gitignore, gitleaks config, and secret-scanning hooks
+
+### Style
+- Apply cargo fmt to core workspace
+- Apply nightly rustfmt to dashboard routes
+## [2026.03A.0] - 2026-03-16
+
+### Bug Fixes
+- Correct module import paths for audit and matrix commands
+- Add cross-platform Python CI, remove redundant prost-build
+- Add missing Serialize/Deserialize derives on StateTransition, TransitionResult, WpDependency
+- Add path traversal guard and validate worktree WP IDs
+- Add TransitionResult, FromStr for FeatureState, fix test case assertions
+- Add missing fields to pact_schema test after WP01 domain model extensions
+- Update API mock storage for module/cycle StoragePort methods
+- Wire dashboard/platform CLI subcommands, fix BDD test fields and race condition - 622 tests passing
+- Resolve CI failures for buf format, taplo format, and buf lint
+- Resolve npm dependency security vulnerabilities
+- Remove broken submodule refs and disable buf breaking check
+- Resolve CI failures for domain deps, MSRV, fmt, audit, and machete
+- Resolve CI failures for clippy, typos, ruff, and audit
+- Commit Cargo.lock and suppress result_large_err clippy lint
+- Resolve nightly clippy manual_checked_ops, CI audit permissions, and protoc rate limits
+- Resolve remaining CI failures (time crate, unused var, Windows build)
+- Add missing template pages and exclude minified JS from typos
+- Unused import in pact_schema test and cargo-deny config path
+- Windows unused import, grpc test unused import, cargo-deny flag
+- Rustfmt extra blank line and update deny.toml to v2 format
+- Unused chrono import, deny.toml licenses and wildcards
+- Rustfmt blank line and ignore rustls-pemfile unmaintained advisory
+- Sync_plane_contract test uses correct method names
+- Rename from_sequence to after_sequence and remove unused EventError import
+- Rename to_sequence to end_sequence in api_events_contract test
+
+### Documentation
+- Mark subtasks as done
+- Expand all 50+ doc pages with comprehensive content, mermaid diagrams
+- Expand all 50+ doc pages with comprehensive content, mermaid diagrams
+
+### Features
+- Darken BG to #090a0c, add proper light mode, standardize keycap palette (#4)
+- CLI scaffold with adapter interface, version calculator, and language detector
+- Crates.io adapter with workspace detection, topo sort, and publish
+- Go proxy adapter, pre-wired stubs (Hex/Zig/Mojo), and adapter registry
+- Gate evaluation engine with risk-based promotion rules
+- Gate evaluation engine with risk-based promotion rules
+- Publish and promote CLI commands with config and orchestration
+- Audit and matrix CLI commands with repo discovery
+- Audit and matrix CLI commands with repo discovery
+- Bootstrap command with embedded templates for DX scaffolding
+- Bootstrap command with embedded templates for DX scaffolding
+- Centralized reusable GitHub Actions workflows for publish, gate, promote, changelog, audit
+- Centralized reusable GitHub Actions workflows
+- Task runner standardization with mise reference configs and validator
+- Pre-commit and pre-push hooks with conventional commit validation
+- Pilot rollout documentation and validation for 4 repos
+- Org-wide rollout automation with manifest and bulk bootstrap
+- Documentation, governance model docs, error messages, and ADRs
+- Scaffold agileplus-proto repository
+- Scaffold agileplus-core Rust workspace with 7 crates
+- Python MCP service scaffold with FastMCP 3.0
+- Implement SQLite adapter with full StoragePort trait
+- Implement Git adapter with full VcsPort trait
+- Agent dispatch service with Claude/Codex harnesses
+- Code review adapter with Coderabbit integration
+- Telemetry adapter with OpenTelemetry integration
+- Implement CLI specify & research commands
+- Implement CLI plan & implement commands
+- Implement CLI validate, ship, and retrospective commands
+- GRPC server and MCP integration bridging Rust and Python
+- API layer and credential management
+- Add agileplus-triage crate with classifier, backlog, and router
+- Add agileplus-plane crate for Plane.so sync
+- Add agileplus-github crate for GitHub Issues sync
+- Add agileplus-subcmds crate with 25 hidden sub-commands
+- Add triage/queue CLI commands and seed 25 prompt files
+- Add domain model extensions for platform completion
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Add agileplus-nats crate with NATS event bus abstraction
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Add process-compose orchestration and env config
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add agileplus-sync crate with conflict detection, resolution, and NATS integration
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add sync push/pull/auto/status/resolve CLI commands
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add REST API, API key auth, SSE streaming, and health endpoint
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add REST API, API key auth, SSE streaming, and health endpoint
+- Add agileplus-dashboard crate with Askama templates and htmx integration
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add REST API, API key auth, SSE streaming, and health endpoint
+- Add agileplus-dashboard crate with Askama templates and htmx integration
+- Add SSE, drag-drop, state transitions, agent activity, toasts
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add sync push/pull/auto/status/resolve CLI commands
+- Add platform up/down/status/logs, events query, and dashboard CLI commands
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add REST API, API key auth, SSE streaming, and health endpoint
+- Add OpenTelemetry OTLP traces, custom metrics, and structured JSON logs
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add agileplus-sync crate with conflict detection, resolution, and NATS integration
+- Add agileplus-p2p crate with Tailscale peer discovery and vector clock sync
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add agileplus-sync crate with conflict detection, resolution, and NATS integration
+- Add agileplus-p2p crate with Tailscale peer discovery and vector clock sync
+- Add git-backed state export, import, and merge conflict resolution
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add agileplus-sync crate with conflict detection, resolution, and NATS integration
+- Add agileplus-p2p crate with Tailscale peer discovery and vector clock sync
+- Add device discover, sync, and status CLI commands
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add sync push/pull/auto/status/resolve CLI commands
+- Add platform up/down/status/logs, events query, and dashboard CLI commands
+- Add E2E integration test harness and test suites
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add sync push/pull/auto/status/resolve CLI commands
+- Add platform up/down/status/logs, events query, and dashboard CLI commands
+- Add contract tests for crate boundaries
+- Add domain model extensions for platform completion
+- Add agileplus-events crate with event sourcing engine
+- Add SQLite schema extensions for event sourcing
+- Add agileplus-cache crate with Dragonfly/Redis support
+- Add agileplus-graph crate with Neo4j graph layer
+- Implement Plane.so bidirectional sync with state mapping, webhooks, and retry queue
+- Add sync push/pull/auto/status/resolve CLI commands
+- Add platform up/down/status/logs, events query, and dashboard CLI commands
+- Add criterion performance benchmarks for all subsystems
+- BDD acceptance tests and integration suite
+- Npm adapter with detect, version, build, publish, verify
+- PyPI adapter with TOML detection, PEP 440 versioning, and twine publish
+- Implement Module & Cycle domain entities (WP01)
+- Implement StoragePort + SQLite adapter for Modules & Cycles (WP02)
+- Add CLI module subcommands (WP03)
+- Add CLI cycle subcommands (WP04)
+- Add Modules & Cycles integration tests (WP07)
+- Modules & Cycles MVP implementation
+- Add dashboard Module & Cycle views (WP05)
+- Merge WP05 - dashboard Module & Cycle views
+- Add Plane.so Module & Cycle sync (WP06)
+- Merge WP06 - Plane.so Module & Cycle sync
+- Wire dashboard routes and update template assets
+
+### Miscellaneous
+- Planning artifacts for 002-org-wide-release-governance-dx-automation
+- WP01 claimed for implementation
+- Start WP01 implementation [claude-opus]
+- Mark T001 as done on spec 002
+- Mark T002 as done on spec 002
+- Mark T003 as done on spec 002
+- Mark T004 as done on spec 002
+- Mark T005 as done on spec 002
+- Mark T006 as done on spec 002
+- Move WP01 to for_review on spec 002 [claude-opus]
+- Start WP01 review [claude-review]
+- Move WP01 to done on spec 002 [claude-review]
+- WP02 claimed for implementation
+- Start WP02 implementation [claude-impl]
+- Mark T007 as done on spec 002
+- Mark T008 as done on spec 002
+- Mark T009 as done on spec 002
+- Mark T010 as done on spec 002
+- Mark T011 as done on spec 002
+- Mark T012 as done on spec 002
+- Move WP02 to for_review on spec 002 [claude-impl]
+- Move WP02 to done on spec 002 [claude-impl]
+- WP03 claimed for implementation
+- Start WP03 implementation [claude-impl]
+- Mark T013 as done on spec 002
+- Mark T014 as done on spec 002
+- Mark T015 as done on spec 002
+- Mark T016 as done on spec 002
+- Mark T017 as done on spec 002
+- Mark T018 as done on spec 002
+- Move WP03 to for_review on spec 002 [claude-impl]
+- Move WP03 to done on spec 002 [claude-impl]
+- WP04 claimed for implementation
+- Start WP04 implementation [claude-impl]
+- Mark T019 as done on spec 002
+- Mark T020 as done on spec 002
+- Mark T021 as done on spec 002
+- Mark T022 as done on spec 002
+- Mark T023 as done on spec 002
+- Mark T024 as done on spec 002
+- Move WP04 to for_review on spec 002 [claude-impl]
+- Move WP04 to done on spec 002 [claude-impl]
+- WP05 claimed for implementation
+- Start WP05 implementation [claude-impl]
+- Mark T025 as done on spec 002
+- Mark T026 as done on spec 002
+- Mark T027 as done on spec 002
+- Mark T028 as done on spec 002
+- Mark T029 as done on spec 002
+- Mark T030 as done on spec 002
+- Mark T031 as done on spec 002
+- Move WP05 to for_review on spec 002 [claude-impl]
+- Move WP05 to done on spec 002 [claude-impl]
+- WP06 claimed for implementation
+- Start WP06 implementation [wp06-agent]
+- WP08 claimed for implementation
+- Start WP08 implementation [wp08-audit]
+- Mark T057 as done on spec 002
+- Mark T058 as done on spec 002
+- Mark T059 as done on spec 002
+- Mark T060 as done on spec 002
+- Mark T061 as done on spec 002
+- Mark T062 as done on spec 002
+- Mark T063 as done on spec 002
+- Mark T038 as done on spec 002
+- Mark T039 as done on spec 002
+- Mark T040 as done on spec 002
+- Mark T041 as done on spec 002
+- Mark T042 as done on spec 002
+- Mark T043 as done on spec 002
+- Mark T032 as done on spec 002
+- Move WP07 to for_review on spec 002 [wp07-publish]
+- Mark T034 as done on spec 002
+- Mark T035 as done on spec 002
+- Mark T036 as done on spec 002
+- Mark T044 as done on spec 002
+- Mark T045 as done on spec 002
+- Mark T046 as done on spec 002
+- Mark T062 as done on spec 002
+- Mark T040 as done on spec 002
+- Move WP06 to for_review on spec 002 [wp06-agent]
+- Move WP07 to for_review on spec 002 [wp07-publish]
+- Move WP06 to for_review on spec 002 [wp06-agent]
+- Move WP08 to for_review on spec 002 [wp08-audit]
+- Mark T049 as done on spec 002
+- Mark T050 as done on spec 002
+- Mark T051 as done on spec 002
+- Mark T052 as done on spec 002
+- Mark T053 as done on spec 002
+- Mark T054 as done on spec 002
+- Mark T055 as done on spec 002
+- Mark T056 as done on spec 002
+- Move WP09 to for_review on spec 002 [wp09-bootstrap]
+- Move WP08 to for_review on spec 002 [wp08-audit]
+- Move WP10 to for_review on spec 002 [wp10-ci]
+- Start WP10 review [reviewer]
+- Move WP10 to planned on spec 002 [reviewer]
+- Move WP10 to for_review on spec 002 [reviewer]
+- Move WP06 to done on spec 002 [wp06-agent]
+- Move WP07 to done on spec 002 [wp07-publish]
+- Move WP08 to done on spec 002 [wp08-audit]
+- Move WP09 to done on spec 002 [wp09-bootstrap]
+- Move WP10 to done on spec 002 [reviewer]
+- WP11 claimed for implementation
+- Start WP11 implementation [wp11-impl]
+- WP13 claimed for implementation
+- Start WP13 implementation [wp13-impl]
+- WP15 claimed for implementation
+- Start WP15 implementation [wp15-impl]
+- Mark T077 as done on spec 002
+- Mark T078 as done on spec 002
+- Mark T079 as done on spec 002
+- Mark T080 as done on spec 002
+- Mark T081 as done on spec 002
+- Mark T082 as done on spec 002
+- Mark T064 as done on spec 002
+- Mark T065 as done on spec 002
+- Mark T066 as done on spec 002
+- Mark T067 as done on spec 002
+- Mark T068 as done on spec 002
+- Mark T069 as done on spec 002
+- Mark T070 as done on spec 002
+- Move WP13 to for_review on spec 002 [wp13-impl]
+- Move WP11 to for_review on spec 002 [wp11-impl]
+- WP14 claimed for implementation
+- Start WP14 implementation [wp14-impl]
+- Mark T088 as done on spec 002
+- Mark T089 as done on spec 002
+- Mark T090 as done on spec 002
+- Mark T091 as done on spec 002
+- Mark T092 as done on spec 002
+- Mark T093 as done on spec 002
+- WP12 claimed for implementation
+- Start WP12 implementation [wp12-impl]
+- Move WP15 to for_review on spec 002 [wp15-impl]
+- Move WP11 to done on spec 002 [wp11-impl]
+- Move WP13 to done on spec 002 [wp13-impl]
+- Move WP15 to done on spec 002 [wp15-impl]
+- Mark T071 as done on spec 002
+- Mark T072 as done on spec 002
+- Mark T073 as done on spec 002
+- Mark T074 as done on spec 002
+- Mark T075 as done on spec 002
+- Mark T076 as done on spec 002
+- Move WP12 to for_review on spec 002 [wp12-impl]
+- Move WP12 to done on spec 002 [wp12-impl]
+- Mark T083 as done on spec 002
+- Mark T084 as done on spec 002
+- Mark T085 as done on spec 002
+- Mark T086 as done on spec 002
+- Mark T087 as done on spec 002
+- Move WP14 to for_review on spec 002 [wp14-impl]
+- Move WP14 to done on spec 002 [wp14-impl]
+- Add sparse-checkout exclusion to gitignore
+- WP02 claimed for implementation
+- Start WP02 implementation [s1-wp02]
+- WP08 claimed for implementation
+- Start WP08 implementation [s1-wp08]
+- WP10 claimed for implementation
+- Start WP10 implementation [s1-wp10]
+- Mark T007 as done on spec 001
+- Mark T008 as done on spec 001
+- Mark T009 as done on spec 001
+- Mark T010 as done on spec 001
+- Mark T011 as done on spec 001
+- Mark T011b as done on spec 001
+- Move WP02 to for_review on spec 001 [s1-wp02]
+- Move WP02 to done on spec 001 [s1-wp02]
+- Mark T055 as done on spec 001
+- Mark T056 as done on spec 001
+- Mark T057 as done on spec 001
+- Mark T058 as done on spec 001
+- Mark T059 as done on spec 001
+- Move WP10 to for_review on spec 001 [s1-wp10]
+- Move WP10 to done on spec 001 [s1-wp10]
+- Mark T044 as done on spec 001
+- Mark T044b as done on spec 001
+- Mark T045 as done on spec 001
+- Mark T046 as done on spec 001
+- Mark T047 as done on spec 001
+- Mark T048 as done on spec 001
+- Mark T049 as done on spec 001
+- Mark T049b as done on spec 001
+- Move WP08 to for_review on spec 001 [s1-wp08]
+- Move WP08 to done on spec 001 [s1-wp08]
+- WP09 claimed for implementation
+- Start WP09 implementation [s1-wp09]
+- WP14 claimed for implementation
+- Start WP14 implementation [s1-wp14]
+- Mark T079 as done on spec 001
+- Mark T080 as done on spec 001
+- Mark T080b as done on spec 001
+- Mark T081 as done on spec 001
+- Mark T082 as done on spec 001
+- Mark T083 as done on spec 001
+- Mark T084 as done on spec 001
+- Mark T084b as done on spec 001
+- Mark T084c as done on spec 001
+- Mark T084d as done on spec 001
+- Move WP14 to for_review on spec 001 [s1-wp14]
+- Move WP14 to done on spec 001 [s1-wp14]
+- WP15 claimed for implementation
+- Start WP15 implementation [s1-wp15]
+- Mark T085 as done on spec 001
+- Mark T086 as done on spec 001
+- Mark T087 as done on spec 001
+- Mark T088 as done on spec 001
+- Mark T089 as done on spec 001
+- Mark T090 as done on spec 001
+- Move WP15 to for_review on spec 001 [s1-wp15]
+- Move WP15 to done on spec 001 [s1-wp15]
+- WP16 claimed for implementation
+- Start WP16 implementation [s1-wp16]
+- Mark T050 as done on spec 001
+- Mark T051 as done on spec 001
+- Mark T052 as done on spec 001
+- Mark T053 as done on spec 001
+- Mark T054 as done on spec 001
+- Move WP09 to for_review on spec 001 [s1-wp09]
+- Move WP09 to done on spec 001 [s1-wp09]
+- Mark T091 as done on spec 001
+- Mark T092 as done on spec 001
+- Mark T093 as done on spec 001
+- Mark T094 as done on spec 001
+- Mark T095 as done on spec 001
+- Mark T096 as done on spec 001
+- Mark T097 as done on spec 001
+- Move WP16 to for_review on spec 001 [s1-wp16]
+- Move WP16 to done on spec 001 [s1-wp16]
+- Add Python uv.lock
+- Add full CI/CD, pre-commit, and QA tooling
+- Ignore ralph-loop state file
+- Update gitignore
+- Add agileplus-agents/target to .gitignore
+- WP01 claimed for implementation
+- Start WP01 implementation [claude-opus]
+- Mark T001 as done on spec 003
+- Mark T002 as done on spec 003
+- Mark T003 as done on spec 003
+- Mark T004 as done on spec 003
+- Mark T005 as done on spec 003
+- Mark T006 as done on spec 003
+- Mark T007 as done on spec 003
+- Move WP01 to for_review on spec 003 [claude-opus]
+- WP02 claimed for implementation
+- Start WP02 implementation [claude-opus]
+- Mark T008 as done on spec 003
+- Mark T009 as done on spec 003
+- Mark T010 as done on spec 003
+- Mark T011 as done on spec 003
+- Mark T012 as done on spec 003
+- Mark T013 as done on spec 003
+- Mark T014 as done on spec 003
+- Move WP02 to for_review on spec 003 [claude-opus]
+- WP03 claimed for implementation
+- Start WP03 implementation [claude-opus]
+- Mark T015 as done on spec 003
+- Mark T016 as done on spec 003
+- Mark T017 as done on spec 003
+- Mark T018 as done on spec 003
+- Mark T019 as done on spec 003
+- Mark T020 as done on spec 003
+- Mark T021 as done on spec 003
+- Move WP03 to for_review on spec 003 [claude-opus]
+- WP04 claimed for implementation
+- Start WP04 implementation [claude-opus]
+- Mark T022 as done on spec 003
+- Mark T023 as done on spec 003
+- Mark T024 as done on spec 003
+- Mark T025 as done on spec 003
+- Mark T026 as done on spec 003
+- Mark T027 as done on spec 003
+- Move WP04 to for_review on spec 003 [claude-opus]
+- WP05 claimed for implementation
+- Start WP05 implementation [claude-opus]
+- Mark T028 as done on spec 003
+- Mark T029 as done on spec 003
+- Mark T030 as done on spec 003
+- Mark T031 as done on spec 003
+- Mark T032 as done on spec 003
+- Mark T033 as done on spec 003
+- Move WP05 to for_review on spec 003 [claude-opus]
+- WP06 claimed for implementation
+- Start WP06 implementation [claude-opus]
+- WP07 claimed for implementation
+- Start WP07 implementation [claude-opus]
+- WP08 claimed for implementation
+- Start WP08 implementation [claude-opus]
+- Mark 6 subtasks as done on spec 003
+- Move WP07 to for_review on spec 003 [claude-opus]
+- Mark 6 subtasks as done on spec 003
+- Move WP06 to for_review on spec 003 [claude-opus]
+- Mark 7 subtasks as done on spec 003
+- Move WP08 to for_review on spec 003 [claude-opus]
+- WP09 claimed for implementation
+- Start WP09 implementation [claude-opus]
+- WP10 claimed for implementation
+- Start WP10 implementation [claude-opus]
+- WP11 claimed for implementation
+- Start WP11 implementation [claude-opus]
+- Mark 5 subtasks as done on spec 003
+- Move WP10 to for_review on spec 003 [claude-opus]
+- Mark 6 subtasks as done on spec 003
+- Move WP09 to for_review on spec 003 [claude-opus]
+- Mark 7 subtasks as done on spec 003
+- Move WP11 to for_review on spec 003 [claude-opus]
+- Move WP09 to for_review on spec 003 [claude-opus]
+- Move WP10 to for_review on spec 003 [claude-opus]
+- Move WP11 to for_review on spec 003 [claude-opus]
+- WP12 claimed for implementation
+- Start WP12 implementation [claude-opus]
+- WP14 claimed for implementation
+- Start WP14 implementation [claude-opus]
+- WP15 claimed for implementation
+- Start WP15 implementation [claude-opus]
+- WP16 claimed for implementation
+- Start WP16 implementation [claude-opus]
+- Mark 6 subtasks as done on spec 003
+- Move WP14 to for_review on spec 003 [claude-opus]
+- Mark 5 subtasks as done on spec 003
+- Move WP16 to for_review on spec 003 [claude-opus]
+- WP17 claimed for implementation
+- Start WP17 implementation [claude-opus]
+- Mark 7 subtasks as done on spec 003
+- Mark 5 subtasks as done on spec 003
+- Planning artifacts for 003-agileplus-platform-completion
+- WP13 claimed for implementation
+- Start WP13 implementation [claude-opus]
+- WP18 claimed for implementation
+- Start WP18 implementation [claude-opus]
+- WP19 claimed for implementation
+- Start WP19 implementation [claude-opus]
+- Mark 4 subtasks as done on spec 003
+- Move WP17 to for_review on spec 003 [claude-opus]
+- Mark 6 subtasks as done on spec 003
+- Mark 3 subtasks as done on spec 003
+- Move WP13 to for_review on spec 003 [claude-opus]
+- Move WP18 to for_review on spec 003 [claude-opus]
+- WP20 claimed for implementation
+- Start WP20 implementation [claude-opus]
+- WP21 claimed for implementation
+- Start WP21 implementation [claude-opus]
+- Mark 5 subtasks as done on spec 003
+- Mark 4 subtasks as done on spec 003
+- Mark 5 subtasks as done on spec 003
+- Move WP19 to for_review on spec 003 [claude-opus]
+- Move WP20 to for_review on spec 003 [claude-opus]
+- Move WP21 to for_review on spec 003 [claude-opus]
+- Move WP01 to done on spec 003 [claude-opus]
+- Move WP02 to done on spec 003 [claude-opus]
+- Move WP03 to done on spec 003 [claude-opus]
+- Move WP04 to done on spec 003 [claude-opus]
+- Move WP05 to done on spec 003 [claude-opus]
+- Move WP06 to done on spec 003 [claude-opus]
+- Move WP07 to done on spec 003 [claude-opus]
+- Move WP08 to done on spec 003 [claude-opus]
+- Move WP09 to done on spec 003 [claude-opus]
+- Move WP10 to done on spec 003 [claude-opus]
+- Move WP11 to done on spec 003 [claude-opus]
+- Move WP12 to done on spec 003 [claude-opus]
+- Move WP13 to done on spec 003 [claude-opus]
+- Move WP14 to done on spec 003 [claude-opus]
+- Move WP15 to done on spec 003 [claude-opus]
+- Move WP16 to done on spec 003 [claude-opus]
+- Move WP17 to done on spec 003 [claude-opus]
+- Move WP18 to done on spec 003 [claude-opus]
+- Move WP19 to done on spec 003 [claude-opus]
+- Move WP20 to done on spec 003 [claude-opus]
+- Move WP21 to done on spec 003 [claude-opus]
+- Add workspace configs, security hooks, research docs, and project metadata
+- Add unified worklog with cross-project audit (36 goals, 45 repos)
+- Add git lock cleanup utility script
+- Move WP01 to done on spec 002 [claude-review]
+- WP02 claimed for implementation
+- Start WP02 implementation [claude-impl]
+- Mark T007 as done on spec 002
+- Mark T008 as done on spec 002
+- Mark T009 as done on spec 002
+- Mark T010 as done on spec 002
+- Mark T011 as done on spec 002
+- Mark T012 as done on spec 002
+- WP01 claimed for implementation
+- Start WP01 implementation [claude-wp01]
+- Fix duplicate workspace member, add agileplus-github, clean unused imports
+- Cleanup workspace packaging and warnings
+- Bump actions/checkout from 4 to 6
+- Bump dtolnay/rust-toolchain from 1.85.0 to 1.100.0
+- Bump jdx/mise-action from 2 to 4
+
+### Build
+- Include pheno-cli with workflow integration
+
+### Merge
+- Combine WP03 (module CLI) + WP04 (cycle CLI) into WP07 branch
+
+### Plan
+- Spec-003 implementation plan with 21 work packages across 7 groups
+
+### Research
+- Complete spec-003 research phase with technology decisions
+
+### Spec
+- AgilePlus platform completion specification
+- Clarify security, dashboard, NATS, observability, scale
+- Add Modules & Cycles domain model specification
+
+### Tasks
+- Generate 21 work packages with 120 subtasks for spec-003
+- Generate 7 WPs for Modules & Cycles (38 subtasks)
+## [2026.02A.0] - 2026-03-01
+
+### Features
+- Redesign docs — Geist-like theme, expanded content, bun
+- Major docs overhaul — 48 pages, module switcher, mermaid, workflow phases (#2)
+- Wire sidebar filtering, update homepage, add PhenoDocs doc-system (#3)
+
+### Miscellaneous
+- Planning artifacts for 001-spec-driven-development-engine
+- WP00 claimed for implementation
+- Start WP00 implementation [claude-opus]
+- Mark 8 subtasks as done on spec 001
+- Move WP00 to for_review on spec 001 [claude-opus]
+- Start WP00 review [claude-opus-reviewer]
+- Move WP00 to done on spec 001 [claude-opus-reviewer]
+- WP01 claimed for implementation
+- Start WP01 implementation [claude-opus]
+- Mark 9 subtasks as done on spec 001
+- Move WP01 to for_review on spec 001 [claude-opus]
+- Start WP01 review [claude-opus-reviewer]
+- Move WP01 to done on spec 001 [claude-opus-reviewer]
+- WP03 claimed for implementation
+- Start WP03 implementation [claude-wp03]
+- WP04 claimed for implementation
+- Start WP04 implementation [claude-wp04]
+- Mark 7 subtasks as done on spec 001
+- Mark T017c as done on spec 001
+- Move WP03 to for_review on spec 001 [claude-wp03]
+- Mark 8 subtasks as done on spec 001
+- Mark 2 subtasks as done on spec 001
+- Move WP04 to for_review on spec 001 [claude-wp04]
+- Move WP03 to done on spec 001 [claude-wp03]
+- Move WP04 to done on spec 001 [claude-wp04]
+- WP05 claimed for implementation
+- Start WP05 implementation [claude-wp05]
+- Mark 6 subtasks as done on spec 001
+- Move WP05 to for_review on spec 001 [claude-wp05]
+- Move WP05 to done on spec 001 [claude-wp05]
+- WP06 claimed for implementation
+- Start WP06 implementation [claude-wp06]
+- WP07 claimed for implementation
+- Start WP07 implementation [claude-wp07]
+- Mark T038 as done on spec 001
+- Mark T039 as done on spec 001
+- Mark T040 as done on spec 001
+- Mark T041 as done on spec 001
+- Mark T042 as done on spec 001
+- Mark T043 as done on spec 001
+- Move WP07 to for_review on spec 001 [claude-wp07]
+- Move WP07 to done on spec 001 [claude-wp07]
+- Mark T031 as done on spec 001
+- Mark T032 as done on spec 001
+- Mark T033 as done on spec 001
+- Mark T034 as done on spec 001
+- Mark T035 as done on spec 001
+- Mark T036 as done on spec 001
+- Mark T037 as done on spec 001
+- Move WP06 to for_review on spec 001 [claude-wp06]
+- Move WP06 to done on spec 001 [claude-wp06]
+- WP11 claimed for implementation
+- Start WP11 implementation [claude-wp11]
+- Mark T061 as done on spec 001
+- Mark T062 as done on spec 001
+- Mark T063 as done on spec 001
+- Mark T064 as done on spec 001
+- Mark T065 as done on spec 001
+- Mark T060 as done on spec 001
+- Move WP11 to for_review on spec 001 [claude-wp11]
+- Move WP11 to done on spec 001 [claude-wp11]
+- WP12 claimed for implementation
+- Start WP12 implementation [claude-wp12]
+- Mark T066 as done on spec 001
+- Mark T067 as done on spec 001
+- Mark T068 as done on spec 001
+- Mark T069 as done on spec 001
+- Mark T070 as done on spec 001
+- Mark T071 as done on spec 001
+- Mark T072 as done on spec 001
+- Move WP12 to done on spec 001 [claude-wp12]
+- WP13 claimed for implementation
+- Start WP13 implementation [claude-wp13]
+- Mark T073 as done on spec 001
+- Mark T074 as done on spec 001
+- Mark T075 as done on spec 001
+- Mark T076 as done on spec 001
+- Mark T077 as done on spec 001
+- Mark T078 as done on spec 001
+- Move WP13 to done on spec 001 [claude-wp13]
+- WP17 claimed for implementation
+- Start WP17 implementation [claude-opus]
+- Mark T098 as done on spec 001
+- Mark T099 as done on spec 001
+- Mark T100 as done on spec 001
+- Mark T101 as done on spec 001
+- Mark T102 as done on spec 001
+- Mark T103 as done on spec 001
+- Move WP17 to for_review on spec 001 [claude-opus]
+- WP18 claimed for implementation
+- Start WP18 implementation [claude-opus]
+- WP19 claimed for implementation
+- Start WP19 implementation [claude-opus]
+- Mark T104 as done on spec 001
+- Mark T105 as done on spec 001
+- Mark T106 as done on spec 001
+- Mark T107 as done on spec 001
+- Mark T108 as done on spec 001
+- Move WP18 to for_review on spec 001 [claude-opus]
+- Mark T109 as done on spec 001
+- Mark T110 as done on spec 001
+- Mark T111 as done on spec 001
+- Mark T112 as done on spec 001
+- Mark T113 as done on spec 001
+- Move WP19 to for_review on spec 001 [claude-opus]
+- WP20 claimed for implementation
+- Mark T114 as done on spec 001
+- Mark T115 as done on spec 001
+- Mark T116 as done on spec 001
+- Mark T117 as done on spec 001
+- Mark T118 as done on spec 001
+- Mark T119 as done on spec 001
+- Mark T120 as done on spec 001
+- Move WP20 to for_review on spec 001
+- WP21 claimed for implementation
+- Start WP21 implementation [claude-opus]
+- Mark T121 as done on spec 001
+- Mark T122 as done on spec 001
+- Mark T123 as done on spec 001
+- Mark T124 as done on spec 001
+- Mark T125 as done on spec 001
+- Mark T126 as done on spec 001
+- Mark T127 as done on spec 001
+- Move WP21 to for_review on spec 001 [claude-opus]
+- Start WP17 review [claude-opus]
+- Move WP17 to done on spec 001 [claude-opus]
+- Start WP18 review [claude-opus]
+- Move WP18 to done on spec 001 [claude-opus]
+- Start WP19 review [claude-opus]
+- Move WP19 to done on spec 001 [claude-opus]
+- Start WP20 review [claude-opus]
+- Move WP20 to done on spec 001 [claude-opus]
+- Start WP21 review [claude-opus]
+- Move WP21 to done on spec 001 [claude-opus]
+- Add DX/AX/UX scaffold — VitePress docs, CI, governance, README
+
+### Style
+- Apply keycap color palette to docs theme
+
