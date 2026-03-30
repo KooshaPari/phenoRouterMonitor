@@ -74,48 +74,30 @@ impl From<serde_json::Error> for EventSourcingError {
 }
 
 /// Event store errors
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum EventStoreError {
+    #[error("event not found: {0}")]
     NotFound(String),
+
+    #[error("storage error: {0}")]
     StorageError(String),
+
+    #[error("sequence gap: expected {expected}, got {actual}")]
     SequenceGap { expected: i64, actual: i64 },
 }
 
-impl std::fmt::Display for EventStoreError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::NotFound(s) => write!(f, "event not found: {s}"),
-            Self::StorageError(s) => write!(f, "storage error: {s}"),
-            Self::SequenceGap { expected, actual } => {
-                write!(f, "sequence gap: expected {expected}, got {actual}")
-            }
-        }
-    }
-}
-
-impl std::error::Error for EventStoreError {}
-
 /// Hash verification errors
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum HashError {
+    #[error("hash chain broken at sequence {sequence}")]
     ChainBroken { sequence: i64 },
+
+    #[error("invalid hash length: expected 64 hex chars, got {0}")]
     InvalidHashLength(usize),
+
+    #[error("hash mismatch at sequence {sequence}")]
     HashMismatch { sequence: i64 },
 }
-
-impl std::fmt::Display for HashError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::ChainBroken { sequence } => write!(f, "hash chain broken at sequence {sequence}"),
-            Self::InvalidHashLength(len) => {
-                write!(f, "invalid hash length: expected 64 hex chars, got {len}")
-            }
-            Self::HashMismatch { sequence } => write!(f, "hash mismatch at sequence {sequence}"),
-        }
-    }
-}
-
-impl std::error::Error for HashError {}
 
 impl From<EventStoreError> for EventSourcingError {
     fn from(e: EventStoreError) -> Self {
