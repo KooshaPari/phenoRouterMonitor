@@ -2007,3 +2007,47 @@ tower = { version = "0.5", features = ["limit"] }
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Round 13: Edge-First Deployment Architecture
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P2
+
+### Summary
+Architecture for deploying Phenotype agents to edge locations (CDN nodes, local branch offices) to ensure low-latency response for high-frequency user interactions.
+
+### Edge Node Components
+1. **Lightweight Runtime:** WASM or Firecracker microVMs.
+2. **Local State:** SQLite or Sled for transient data.
+3. **Upstream Sync:** NATS JetStream for asynchronous state propagation to the "Home" region.
+
+### Connectivity Topography
+- **Edge-to-Cloud:** Persistent gRPC stream for real-time control.
+- **Edge-to-Edge:** Peer-to-peer gossip (future) for local discovery.
+
+---
+
+## 2026-03-29 - Round 13: Collaborative State Architecture (CRDT)
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** proposed
+**Priority:** P3
+
+### Summary
+Architecture for multi-agent and multi-user collaborative editing of shared state (e.g., project boards, policy docs) using Conflict-free Replicated Data Types (CRDTs).
+
+### Implementation Layers
+1. **Model Layer:** `Automerge` or `Yjs` structures.
+2. **Persistence Layer:** Storing CRDT change logs in the `evidence-ledger`.
+3. **Network Layer:** WebSockets via the `phenotype-gateway` for real-time update broadcasts.
+
+### Key Benefits
+- **No Merge Conflicts:** Automatic deterministic merging of state.
+- **Offline Support:** Agents can continue working during network outages and sync later.
+
+_Last updated: 2026-03-29 (Round 13)_
