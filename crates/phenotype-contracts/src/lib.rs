@@ -1,11 +1,13 @@
-//! Hexagonal architecture ports and domain model contracts for Phenotype.
-
-pub mod error;
+//! Traits.
 pub mod inbound;
-pub mod models;
 pub mod outbound;
 
-pub use error::{ContractError, Result};
-pub use inbound::{CommandHandler, EventHandler, QueryHandler, UseCase};
-pub use models::{AggregateRoot, DomainEntity, DomainEvent, ValueObject};
-pub use outbound::{CachePort, ConfigLoader, EventBus, Repository, SecretManager};
+// Inbound ports - application core exposes these to the outside world
+pub mod inbound {
+    // Add inbound port traits here
+}
+
+// Outbound ports - application core requires these from the outside
+pub mod outbound {
+    // Add outbound port traits here
+}
