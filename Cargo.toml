@@ -3,19 +3,21 @@ resolver = "2"
 members = [
     "crates/phenotype-cache-adapter",
     "crates/phenotype-contracts",
+    "crates/agileplus-error-core",
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-policy-engine",
     "crates/phenotype-state-machine",
     "crates/phenotype-telemetry",
     "crates/phenotype-test-infra",
-    "libs/phenotype-config-core",
+    "crates/phenotype-cost-core",
 ]
 
-exclude = [
     "crates/phenotype-crypto",
     "crates/phenotype-git-core",
     "crates/phenotype-http-client-core",
