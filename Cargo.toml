@@ -16,6 +16,7 @@ members = [
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
+    "crates/phenotype-iter",
     "crates/phenotype-port-traits",
     "crates/phenotype-policy-engine",
     "crates/phenotype-state-machine",
