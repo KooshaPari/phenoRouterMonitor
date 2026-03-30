@@ -3,8 +3,11 @@ name = "phenotype-contracts"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+authors.workspace = true
 repository.workspace = true
+description = "Hexagonal architecture ports and domain model contracts"
 
 [dependencies]
-serde = { workspace = true }
-async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+async-trait.workspace = true
+thiserror.workspace = true
