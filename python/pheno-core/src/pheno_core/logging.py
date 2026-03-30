@@ -3,7 +3,7 @@
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 import structlog
 
@@ -90,7 +90,7 @@ def get_logger(name: str) -> Logger:
 def setup_console_logging(
     name: str,
     level: str = "INFO",
-    format: Optional[str] = None,
+    format: str | None = None,
 ) -> Logger:
     """
     Set up console (stdout) logging.
@@ -149,9 +149,9 @@ def setup_json_logging(
 
 def setup_file_logging(
     name: str,
-    filepath: Union[str, Path],
+    filepath: str | Path,
     level: str = "INFO",
-    format: Optional[str] = None,
+    format: str | None = None,
     max_bytes: int = 10485760,  # 10MB
     backup_count: int = 5,
 ) -> Logger:
@@ -201,7 +201,7 @@ def setup_file_logging(
 def setup_syslog_logging(
     name: str,
     level: str = "INFO",
-    facility: Optional[int] = None,
+    facility: int | None = None,
 ) -> Logger:
     """
     Set up syslog logging.

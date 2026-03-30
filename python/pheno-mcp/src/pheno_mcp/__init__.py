@@ -27,15 +27,16 @@ Example:
     >>> # Orchestrate agents
     >>> orchestrator = AgentOrchestrator()
     >>> orchestrator.add_agent(Agent(role=AgentRole.WORKER, name="worker"))
+
 """
 
 __version__ = "1.0.0"
 __author__ = "Phenotype Team"
 __license__ = "MIT"
 
+from .agents import Agent, AgentOrchestrator, AgentRole, TaskDefinition
 from .mcp import MCPEntryPoint, MCPServer
 from .tools import mcp_tool, tool_registry
-from .agents import Agent, AgentRole, TaskDefinition, AgentOrchestrator
 
 __all__ = [
     "MCPEntryPoint",

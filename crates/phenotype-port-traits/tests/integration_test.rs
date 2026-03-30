@@ -1,13 +1,13 @@
 //! Integration tests for phenotype-port-traits.
 
 use async_trait::async_trait;
-use phenotype_port_traits::inbound::{CommandHandler, QueryHandler, UseCase, UseCaseError, UseCaseResult};
+use phenotype_port_traits::inbound::{UseCase, UseCaseError, UseCaseResult};
 use phenotype_port_traits::models::{Entity, ValueObject};
-use phenotype_port_traits::outbound::{Repository, Logger, PortResult};
+use phenotype_port_traits::outbound::{Logger, PortError, PortResult, Repository};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 struct UserId(String);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -59,13 +59,13 @@ impl Repository for InMemoryUserRepository {
         storage
             .get(id)
             .cloned()
-            .ok_or_else(|| phenotype_port_traits::PortError::NotFound(format!("User not found: {}", id.0)))
+            .ok_or_else(|| PortError::NotFound(format!("User not found: {}", id.0)))
     }
 
     async fn delete(&self, id: &Self::Id) -> PortResult<()> {
         let mut storage = self.storage.lock().unwrap();
         if storage.remove(id).is_none() {
-            Err(phenotype_port_traits::PortError::NotFound(format!("User not found: {}", id.0)))
+            Err(PortError::NotFound(format!("User not found: {}", id.0)))
         } else {
             Ok(())
         }

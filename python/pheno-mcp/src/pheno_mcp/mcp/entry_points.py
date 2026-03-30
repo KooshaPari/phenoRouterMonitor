@@ -4,7 +4,7 @@ This module provides entry point definitions for Model Context Protocol integrat
 Generalized to work with any MCP server, not atoms-specific.
 """
 
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 class MCPEntryPoint:
@@ -20,6 +20,7 @@ class MCPEntryPoint:
         Args:
             name: The name of the MCP endpoint
             version: Version string (default: 1.0.0)
+
         """
         self.name = name
         self.version = version
@@ -32,6 +33,7 @@ class MCPEntryPoint:
 
         Args:
             api_key: API key for MCP server integration
+
         """
         self.api_key = api_key
 
@@ -40,6 +42,7 @@ class MCPEntryPoint:
 
         Args:
             url: The MCP server endpoint URL
+
         """
         self.server_url = url
 
@@ -48,6 +51,7 @@ class MCPEntryPoint:
 
         Returns:
             The configured endpoint URL or None if not set
+
         """
         return self.server_url
 
@@ -57,6 +61,7 @@ class MCPEntryPoint:
         Args:
             key: Metadata key
             value: Metadata value
+
         """
         self._metadata[key] = value
 
@@ -69,6 +74,7 @@ class MCPEntryPoint:
 
         Returns:
             Metadata value or default
+
         """
         return self._metadata.get(key, default)
 
@@ -77,6 +83,7 @@ class MCPEntryPoint:
 
         Returns:
             Dictionary representation of the entry point
+
         """
         return {
             "name": self.name,
@@ -98,6 +105,7 @@ class MCPServer:
 
         Args:
             entry_point: The MCPEntryPoint to use
+
         """
         self.entry_point = entry_point
         self._is_running = False
@@ -109,6 +117,7 @@ class MCPServer:
         Args:
             tool_name: Name of the tool
             tool_callable: Callable that implements the tool
+
         """
         self._tools.append({"name": tool_name, "callable": tool_callable})
 
@@ -117,6 +126,7 @@ class MCPServer:
 
         Returns:
             List of registered tools
+
         """
         return self._tools
 
@@ -125,6 +135,7 @@ class MCPServer:
 
         Returns:
             Health status dictionary
+
         """
         return {
             "status": "healthy" if self.entry_point.get_endpoint_url() else "unconfigured",
@@ -139,6 +150,7 @@ class MCPServer:
 
         Raises:
             ValueError: If endpoint URL is not configured
+
         """
         if not self.entry_point.get_endpoint_url():
             raise ValueError("Endpoint URL must be configured before starting server")
@@ -153,5 +165,6 @@ class MCPServer:
 
         Returns:
             True if server is running, False otherwise
+
         """
         return self._is_running

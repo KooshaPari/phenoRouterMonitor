@@ -3,11 +3,9 @@
 Traces to: FR-MCP-003 - CrewAI Agent Orchestration Adapter
 """
 
-import pytest
-from typing import Optional
 from pheno_mcp.agents import (
-    AgentOrchestrator,
     Agent,
+    AgentOrchestrator,
     AgentRole,
     TaskDefinition,
 )

@@ -3,8 +3,6 @@
 Traces to: FR-MCP-001 - MCP Entry Point Configuration
 """
 
-import pytest
-from unittest.mock import Mock, patch
 
 from pheno_mcp.mcp import MCPEntryPoint, MCPServer
 

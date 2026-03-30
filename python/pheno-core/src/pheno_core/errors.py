@@ -1,6 +1,6 @@
 """Error hierarchy for Phenotype Core."""
 
-from typing import Any, Optional
+from typing import Any
 
 
 class ZenMCPError(Exception):
@@ -13,8 +13,8 @@ class ZenMCPError(Exception):
     def __init__(
         self,
         message: str,
-        code: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
+        code: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize ZenMCPError.

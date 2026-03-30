@@ -155,7 +155,7 @@ impl AppConfigLoader {
     /// Load configuration from a specific file path
     pub fn load_from_file<T: DeserializeOwned>(path: &Path) -> Result<T> {
         let content = std::fs::read_to_string(path)?;
-        toml::from_str(&content).map_err(|e| ConfigLoaderError::Toml(e))
+        toml::from_str(&content).map_err(ConfigLoaderError::Toml)
     }
 
     /// Get the default search paths in order of precedence (ascending)

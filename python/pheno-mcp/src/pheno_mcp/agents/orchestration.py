@@ -4,9 +4,9 @@ Provides a generic agent orchestration layer that works with CrewAI and other
 agent frameworks. Not atoms-specific - generalized for any MCP-compatible use.
 """
 
-from enum import Enum
-from typing import Any, List, Optional, Dict
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class AgentRole(Enum):
@@ -38,6 +38,7 @@ class Agent:
 
         Args:
             tool_name: Name of the tool to add
+
         """
         if tool_name not in self.tools:
             self.tools.append(tool_name)
@@ -47,6 +48,7 @@ class Agent:
 
         Args:
             tool_name: Name of the tool to remove
+
         """
         if tool_name in self.tools:
             self.tools.remove(tool_name)
@@ -56,6 +58,7 @@ class Agent:
 
         Returns:
             List of tool names
+
         """
         return self.tools.copy()
 
@@ -65,6 +68,7 @@ class Agent:
         Args:
             key: Metadata key
             value: Metadata value
+
         """
         self.metadata[key] = value
 
@@ -77,6 +81,7 @@ class Agent:
 
         Returns:
             Metadata value or default
+
         """
         return self.metadata.get(key, default)
 
@@ -100,6 +105,7 @@ class TaskDefinition:
 
         Args:
             task: Task that must complete before this task
+
         """
         if task not in self.depends_on:
             self.depends_on.append(task)
@@ -109,6 +115,7 @@ class TaskDefinition:
 
         Returns:
             List of dependent tasks
+
         """
         return self.depends_on.copy()
 
@@ -118,6 +125,7 @@ class TaskDefinition:
         Args:
             key: Metadata key
             value: Metadata value
+
         """
         self.metadata[key] = value
 
@@ -139,6 +147,7 @@ class AgentOrchestrator:
 
         Args:
             agent: Agent to add
+
         """
         if agent not in self._agents:
             self._agents.append(agent)
@@ -148,6 +157,7 @@ class AgentOrchestrator:
 
         Args:
             agent: Agent to remove
+
         """
         if agent in self._agents:
             self._agents.remove(agent)
@@ -157,6 +167,7 @@ class AgentOrchestrator:
 
         Returns:
             List of agents
+
         """
         return self._agents.copy()
 
@@ -165,6 +176,7 @@ class AgentOrchestrator:
 
         Args:
             task: Task to add
+
         """
         if task not in self._tasks:
             self._tasks.append(task)
@@ -174,6 +186,7 @@ class AgentOrchestrator:
 
         Args:
             task: Task to remove
+
         """
         if task in self._tasks:
             self._tasks.remove(task)
@@ -183,6 +196,7 @@ class AgentOrchestrator:
 
         Returns:
             List of tasks
+
         """
         return self._tasks.copy()
 
@@ -191,6 +205,7 @@ class AgentOrchestrator:
 
         Returns:
             Execution results dictionary
+
         """
         result = {
             "agents_count": len(self._agents),
@@ -219,6 +234,7 @@ class AgentOrchestrator:
 
         Returns:
             Agent with the specified role, or None if not found
+
         """
         for agent in self._agents:
             if agent.role == role:
@@ -233,6 +249,7 @@ class AgentOrchestrator:
 
         Returns:
             List of agents with the specified role
+
         """
         return [agent for agent in self._agents if agent.role == role]
 
@@ -244,6 +261,7 @@ class AgentOrchestrator:
 
         Returns:
             Task with the specified name, or None if not found
+
         """
         for task in self._tasks:
             if task.name == name:
@@ -255,6 +273,7 @@ class AgentOrchestrator:
 
         Returns:
             Validation results dictionary
+
         """
         errors = []
         warnings = []
@@ -291,6 +310,7 @@ class AgentOrchestrator:
 
         Returns:
             True if circular dependency found, False otherwise
+
         """
         if rec_stack is None:
             rec_stack = set()

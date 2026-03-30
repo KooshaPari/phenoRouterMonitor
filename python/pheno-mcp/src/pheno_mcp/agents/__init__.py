@@ -5,9 +5,9 @@ Provides CrewAI agent orchestration abstraction.
 
 from .orchestration import (
     Agent,
+    AgentOrchestrator,
     AgentRole,
     TaskDefinition,
-    AgentOrchestrator,
 )
 
 __all__ = [
