@@ -54,27 +54,11 @@ struct Transition {
 pub struct StateMachine {
     current: RwLock<String>,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<StateCallback>>,
-    on_exit: HashMap<String, Vec<StateCallback>>,
-}
-
-impl Default for StateMachine {
-    fn default() -> Self {
-        Self::new()
-    }
+    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
 }
 
 impl StateMachine {
-    /// Create a new empty state machine.
-    pub fn new() -> Self {
-        Self {
-            current: RwLock::new(String::new()),
-            transitions: HashMap::new(),
-            on_enter: HashMap::new(),
-            on_exit: HashMap::new(),
-        }
-    }
-
     /// Get the current state.
     pub fn current(&self) -> String {
         self.current.read().unwrap().clone()
@@ -157,8 +141,8 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<StateCallback>>,
-    on_exit: HashMap<String, Vec<StateCallback>>,
+    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
 }
 
 impl StateMachineBuilder {
@@ -178,7 +162,6 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
-                to_ordinal: self.state_ordinals.len() as u32,
                 guard: None,
             },
         );
@@ -198,7 +181,6 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
-                to_ordinal: self.state_ordinals.len() as u32,
                 guard: Some(Arc::new(guard)),
             },
         );
@@ -231,12 +213,6 @@ impl StateMachineBuilder {
         self
     }
 
-    /// Enable forward-only mode. Transitions to states with lower ordinals are rejected.
-    pub fn forward_only(mut self) -> Self {
-        self.forward_only = true;
-        self
-    }
-
     /// Build the state machine.
     pub fn build(self) -> Result<StateMachine> {
         if self.initial.is_empty() {
@@ -244,9 +220,8 @@ impl StateMachineBuilder {
                 "initial state cannot be empty".into(),
             ));
         }
-
         Ok(StateMachine {
-            current: RwLock::new(self.initial.clone()),
+            current: RwLock::new(self.initial),
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,

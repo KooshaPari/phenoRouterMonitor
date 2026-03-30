@@ -1,21 +1,12 @@
 [package]
 name = "phenotype-test-infra"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
-repository.workspace = true
-description = "Test infrastructure for Phenotype"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-phenotype-error-core.workspace = true
-phenotype-errors.workspace = true
-tracing.workspace = true
-tracing-subscriber.workspace = true
-serde.workspace = true
-serde_json.workspace = true
-uuid.workspace = true
-chrono.workspace = true
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"

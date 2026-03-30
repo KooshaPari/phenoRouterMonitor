@@ -2,7 +2,7 @@
 //!
 //! Traces to: FR-PHENO-ITER-001, FR-PHENO-ITER-002, FR-PHENO-ITER-003
 
-use phenotype_iter::{Batch, Chunk, Window};
+use phenotype_iter::{Batch, Chunk, Window, Windowed};
 
 // ============================================================================
 // Window Iterator Tests

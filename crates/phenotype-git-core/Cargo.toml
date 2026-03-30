@@ -1,16 +1,16 @@
 [package]
 name = "phenotype-git-core"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Git operations for Phenotype via gitoxide (pure Rust) - fixes RUSTSEC-2025-0140"
-
-[dependencies]
-# gix (gitoxide) - pure Rust git implementation
-# Replaces libgit2 to fix RUSTSEC-2025-0140 (CVE-2024-24818)
-gix.workspace = true
-thiserror.workspace = true
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+gix = "0.71"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
