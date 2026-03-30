@@ -10,7 +10,7 @@ pub mod rule;
 
 pub use context::EvaluationContext;
 pub use engine::PolicyEngine;
-pub use error::{PolicyEngineError, ErrorKind};
+pub use error::{ErrorKind, PolicyEngineError};
 pub use loader::PolicyLoader;
 pub use policy::{EvaluablePolicy, Policy};
 pub use result::{PolicyResult, Severity, Violation};

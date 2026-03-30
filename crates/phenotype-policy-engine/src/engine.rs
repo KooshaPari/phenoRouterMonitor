@@ -136,11 +136,14 @@ impl Default for PolicyEngine {
     }
 }
 
+/// Tests for PolicyEngine.
+/// Traces to: FR-POL-004
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::rule::{Rule, RuleType};
 
+    // Traces to: FR-POL-004
     #[test]
     fn test_engine_new() {
         let engine = PolicyEngine::new();

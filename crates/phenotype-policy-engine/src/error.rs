@@ -17,15 +17,28 @@ pub enum PolicyEngineError {
     #[error("Policy not found: {name}")]
     PolicyNotFound { name: String },
     #[error("Failed to parse TOML")]
-    ConfigParseError { #[source] source: toml::de::Error },
+    ConfigParseError {
+        #[source]
+        source: toml::de::Error,
+    },
     #[error("Failed to compile regex pattern '{pattern}'")]
-    RegexCompilationError { pattern: String, #[source] source: regex::Error },
+    RegexCompilationError {
+        pattern: String,
+        #[source]
+        source: regex::Error,
+    },
     #[error("Serialization error")]
-    SerializationError { #[source] source: serde_json::Error },
+    SerializationError {
+        #[source]
+        source: serde_json::Error,
+    },
     #[error("Invalid rule configuration: {message}")]
     RuleValidationError { message: String },
     #[error("IO error")]
-    IoError { #[source] source: std::io::Error },
+    IoError {
+        #[source]
+        source: std::io::Error,
+    },
 }
 
 impl PolicyEngineError {
@@ -43,7 +56,10 @@ impl PolicyEngineError {
 
 impl From<regex::Error> for PolicyEngineError {
     fn from(source: regex::Error) -> Self {
-        Self::RegexCompilationError { pattern: String::new(), source }
+        Self::RegexCompilationError {
+            pattern: String::new(),
+            source,
+        }
     }
 }
 
@@ -65,7 +81,9 @@ mod tests {
 
     #[test]
     fn policy_not_found_error() {
-        let err = PolicyEngineError::PolicyNotFound { name: "test".to_string() };
+        let err = PolicyEngineError::PolicyNotFound {
+            name: "test".to_string(),
+        };
         assert_eq!(err.kind(), ErrorKind::PolicyNotFound);
     }
 
