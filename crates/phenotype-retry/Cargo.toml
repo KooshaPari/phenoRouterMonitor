@@ -11,7 +11,6 @@ description = "Retry patterns for Phenotype"
 tokio = { workspace = true, features = ["time", "macros", "rt-multi-thread"] }
 thiserror.workspace = true
 tracing.workspace = true
-tokio = { workspace = true, features = ["full", "time"] }
 tenacity = { version = "0.4", features = ["tokio"] }
 
 [dev-dependencies]
