@@ -1,6 +1,4 @@
 //! # Phenotype Infrakit
-//!
-//! Shared infrastructure crates for the Phenotype ecosystem.
 
 pub mod error;
 

@@ -1975,3 +1975,225 @@ tower = { version = "0.5", features = ["limit"] }
 ---
 
 _Last updated: 2026-03-29_
+
+---
+
+## 2026-03-29 - Generic/Extensible Crate Design Review
+
+**Project:** [cross-repo]
+**Category:** architecture
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Analysis of crate design patterns across Phenotype ecosystem revealing that many crates are tightly coupled to parent projects rather than designed as generic, extensible systems.
+
+### Problem Statement
+
+**Observation:** Multiple `phenotype-*` crates contain project-specific logic that limits reusability across the ecosystem.
+
+### Affected Crate Patterns
+
+#### 1. phenotype-event-sourcing
+
+| Aspect | Current | Target |
+|--------|---------|--------|
+| Event types | Project-specific | Generic `Event<T>` |
+| Aggregate ID | `Uuid` | Generic `Id: Clone + Hash` |
+| Persistence | SQLite | `trait EventStore` |
+| Serialization | JSON | `trait Serializable` |
+
+**Current coupling:**
+```rust
+// Current: Project-specific
+pub enum FeatureEvent {
+    Created(FeatureCreated),
+    Updated(FeatureUpdated),
+    Deleted(FeatureDeleted),
+}
+
+// Target: Generic
+pub enum Event<T: EventData> {
+    Metadata(EventMetadata),
+    Data(T),
+}
+```
+
+#### 2. phenotype-cache-adapter
+
+| Aspect | Current | Target |
+|--------|---------|--------|
+| Backend | Hardcoded DashMap/Moka | `trait CacheBackend` |
+| Key type | `String` | Generic `K: Hash` |
+| Value type | `Vec<u8>` | Generic `V: Serialize` |
+| TTL | `Duration` | `trait ExpirationPolicy` |
+
+#### 3. phenotype-policy-engine
+
+| Aspect | Current | Target |
+|--------|---------|--------|
+| Rule format | TOML | `trait RuleFormat` |
+| Context type | Project-specific | Generic `Ctx` |
+| Evaluation | Synchronous | `async fn evaluate(&self, ctx: &Ctx) -> bool` |
+
+#### 4. phenotype-state-machine
+
+| Aspect | Current | Target |
+|--------|---------|--------|
+| State type | Hardcoded enum | Generic `S: State` |
+| Event type | Hardcoded enum | Generic `E: Event` |
+| Transitions | Inline | `trait Transition<S, E>` |
+
+### Design Anti-Patterns
+
+#### Anti-Pattern 1: Project-Specific Error Types
+
+```rust
+// Current: Tied to agileplus
+#[derive(Error, Debug)]
+pub enum AgilesPlusError {
+    #[error("Feature not found: {0}")]
+    FeatureNotFound(String),
+    #[error("Invalid status transition: {0} -> {1}")]
+    InvalidTransition(String, String),
+}
+
+// Better: Generic
+#[derive(Error, Debug)]
+pub enum EventSourcingError {
+    #[error("Aggregate not found: {id}")]
+    AggregateNotFound { id: String },
+    #[error("Concurrency conflict: expected v{expected}, got v{actual}")]
+    ConcurrencyConflict { expected: u64, actual: u64 },
+}
+```
+
+#### Anti-Pattern 2: Concrete Dependencies
+
+```rust
+// Current: Concrete dependency
+pub struct EventStore {
+    pool: SqlitePool,  // Tied to SQLite
+}
+
+// Better: Abstracted
+pub struct EventStore<B: Backend> {
+    backend: Arc<B>,
+}
+```
+
+#### Anti-Pattern 3: Hardcoded Serialization
+
+```rust
+// Current: JSON only
+pub fn serialize(event: &Event) -> Vec<u8> {
+    serde_json::to_vec(event).unwrap()
+}
+
+// Better: Pluggable
+pub trait Serializer {
+    fn serialize<T: Serialize>(&self, value: &T) -> Result<Vec<u8>, Error>;
+    fn deserialize<T: DeserializeOwned>(&self, bytes: &[u8]) -> Result<T, Error>;
+}
+```
+
+### Recommendations
+
+#### 1. Extract Trait Boundaries
+
+```rust
+// Define traits before implementation
+pub trait EventStore: Send + Sync {
+    type Event: DomainEvent;
+    type Error: std::error::Error;
+
+    async fn append(&self, aggregate_id: &str, events: Vec<Self::Event>) -> Result<u64, Self::Error>;
+    async fn get_events(&self, aggregate_id: &str) -> Result<Vec<Self::Event>, Self::Error>;
+    async fn get_events_since(&self, aggregate_id: &str, version: u64) -> Result<Vec<Self::Event>, Self::Error>;
+}
+```
+
+#### 2. Use Associated Types
+
+```rust
+// Instead of generics everywhere
+pub trait Aggregate {
+    type Event: DomainEvent;
+    type State: Clone;
+
+    fn apply(state: &mut Self::State, event: Self::Event);
+}
+```
+
+#### 3. Provide Default Implementations
+
+```rust
+pub trait CacheBackend {
+    fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>, Error> {
+        Ok(None)  // Default: cache miss
+    }
+
+    fn set(&self, key: Vec<u8>, value: Vec<u8>, ttl: Option<Duration>) -> Result<(), Error> {
+        Ok(())  // Default: no-op
+    }
+}
+```
+
+#### 4. Feature-Gated Implementations
+
+```rust
+// Main crate: traits only
+pub mod traits {
+    pub trait CacheBackend { ... }
+}
+
+// feature = "rusqlite"
+#[cfg(feature = "rusqlite")]
+mod rusqlite_impl;
+
+// feature = "redis"
+#[cfg(feature = "redis")]
+mod redis_impl;
+```
+
+### Migration Path
+
+#### Phase 1: Identify Coupled Code
+- [ ] Audit `phenotype-*` crates for project-specific types
+- [ ] Document trait boundaries
+- [ ] Create trait-first designs
+
+#### Phase 2: Extract Traits
+- [ ] Define traits in crate root
+- [ ] Move implementations to modules
+- [ ] Add feature flags
+
+#### Phase 3: Test Extensibility
+- [ ] Write integration tests with mock implementations
+- [ ] Document extension patterns
+- [ ] Add examples for common use cases
+
+### Whitebox vs Blackbox Architecture
+
+| Approach | Pros | Cons | Use Case |
+|---------|------|------|----------|
+| **Whitebox** | Full control, customization | Tight coupling, harder to maintain | Internal tools |
+| **Blackbox** | Reusable, composable | Less control | Shared libraries |
+| **Graybox** | Balance | Complexity | Phenotype target |
+
+**Recommendation:** Graybox architecture with well-defined extension points.
+
+### Tasks
+
+- [ ] ARCH-001: Audit phenotype-event-sourcing for generic design
+- [ ] ARCH-002: Audit phenotype-cache-adapter for backend abstraction
+- [ ] ARCH-003: Audit phenotype-policy-engine for rule format abstraction
+- [ ] ARCH-004: Create trait-first design templates
+- [ ] ARCH-005: Add feature-gated backend implementations
+- [ ] ARCH-006: Document extension patterns
+
+---
+
+_Last updated: 2026-03-29_
+

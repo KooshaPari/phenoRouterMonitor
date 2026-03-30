@@ -1,12 +1,3 @@
-[workspace.package]
-version = "0.2.0"
-edition = "2021"
-license = "MIT OR Apache-2.0"
-rust-version = "1.75"
-description = "Phenotype Infrastructure Kit"
-authors = ["Phenotype Team"]
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
-
 [workspace]
 resolver = "2"
 members = [
@@ -14,45 +5,53 @@ members = [
     "crates/phenotype-contracts",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
+    "crates/phenotype-health",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-state-machine",
+    "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra"
+]
+exclude = [
+    "crates/phenotype-mcp",
+    "crates/phenotype-macros",
+    "crates/phenotype-retry",
+    "crates/phenotype-validation",
+    "crates/phenotype-string",
+    "crates/phenotype-time",
+    "crates/phenotype-git-core",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-error-core",
+    "crates/phenotype-iter",
+    "crates/phenotype-crypto",
+    "crates/agileplus-api-types",
+    "crates/agileplus-domain"
 ]
 
-[package]
-name = "phenotype-infrakit"
-version.workspace = true
-edition.workspace = true
-description.workspace = true
-license.workspace = true
-authors.workspace = true
-repository.workspace = true
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.75"
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
-[lib]
-path = "src/lib.rs"
-
+[workspace.dependencies]
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
-anyhow = "1.0"
-async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1", features = ["v4", "serde"] }
 sha2 = "0.10"
 hex = "0.4"
-tokio = { version = "1", features = ["full"] }
-dashmap = "5"
-parking_lot = "0.12"
-lru = "0.12"
-regex = "1"
-toml = "0.8"
-reqwest = { version = "0.12", features = ["json"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+async-trait = "0.1"
+anyhow = "1"
+tokio = { version = "1.41", features = ["full"] }
 tracing = "0.1"
-tracing-subscriber = "0.3"
-futures = "0.3"
-syn = "2"
-quote = "1"
-proc-macro2 = "1"
-tempfile = "3"
-git2 = "0.19"
+regex = "1"
+tenacity = "0.5"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+dirs = "6.0"
 
 [profile.dev]
 opt-level = 0
