@@ -2,8 +2,6 @@
 //!
 //! Unified error types for the Phenotype ecosystem.
 
-use std::fmt;
-
 /// Result type alias
 pub type Result<T> = std::result::Result<T, Error>;
 

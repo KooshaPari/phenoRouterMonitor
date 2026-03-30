@@ -2,6 +2,9 @@
 
 use thiserror::Error;
 
+/// Result type for event sourcing operations.
+pub type Result<T> = std::result::Result<T, EventSourcingError>;
+
 /// Event sourcing errors
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum EventSourcingError {
@@ -66,21 +69,20 @@ pub enum HashError {
     HashMismatch { sequence: i64 },
 }
 
-impl From<EventSourcingError> for phenotype_errors::PhenotypeError {
+impl From<EventSourcingError> for phenotype_errors::Error {
     fn from(err: EventSourcingError) -> Self {
-        use phenotype_errors::PhenotypeError;
         match err {
-            EventSourcingError::AggregateNotFound(s) => PhenotypeError::not_found(s),
-            EventSourcingError::EventNotFound(s) => PhenotypeError::not_found(s),
-            EventSourcingError::Serialization(s) => PhenotypeError::serialization(s),
-            EventSourcingError::HashMismatch => PhenotypeError::internal("hash mismatch"),
-            EventSourcingError::Snapshot(s) => PhenotypeError::internal(s),
-            EventSourcingError::VersionConflict => PhenotypeError::conflict("version conflict"),
+            EventSourcingError::AggregateNotFound(s) => phenotype_errors::Error::not_found(s),
+            EventSourcingError::EventNotFound(s) => phenotype_errors::Error::not_found(s),
+            EventSourcingError::Serialization(s) => phenotype_errors::Error::internal(format!("serialization error: {}", s)),
+            EventSourcingError::HashMismatch => phenotype_errors::Error::internal("hash mismatch"),
+            EventSourcingError::Snapshot(s) => phenotype_errors::Error::internal(s),
+            EventSourcingError::VersionConflict => phenotype_errors::Error::conflict("version conflict"),
             EventSourcingError::InvalidEventSequence => {
-                PhenotypeError::internal("invalid event sequence")
+                phenotype_errors::Error::internal("invalid event sequence")
             }
-            EventSourcingError::Internal(s) => PhenotypeError::internal(s),
-            EventSourcingError::Replay(s) => PhenotypeError::internal(s),
+            EventSourcingError::Internal(s) => phenotype_errors::Error::internal(s),
+            EventSourcingError::Replay(s) => phenotype_errors::Error::internal(s),
         }
     }
 }

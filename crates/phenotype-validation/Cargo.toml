@@ -8,3 +8,7 @@ description = "Phenotype Validation"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+regex.workspace = true
+thiserror.workspace = true
