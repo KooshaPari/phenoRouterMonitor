@@ -1,18 +1,10 @@
 [package]
 name = "phenotype-policy-engine"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Generic policy evaluation engine for Phenotype, supporting rule-based policy decision-making across all domains"
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Team"]
+license = "MIT"
+description = "Phenotype Policy-engine"
 
-[dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace = true
-dashmap.workspace = true
-toml.workspace = true
-regex.workspace = true
-
-[dev-dependencies]
-tempfile = "3"
+[lib]
+path = "src/lib.rs"
