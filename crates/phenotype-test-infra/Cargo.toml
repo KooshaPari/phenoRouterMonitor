@@ -8,7 +8,6 @@ repository.workspace = true
 [dependencies]
 phenotype-errors = { path = "../phenotype-errors", version = "0.2" }
 dashmap.workspace = true
-parking_lot.workspace = true
 tempfile = "3.10"
 uuid = { workspace = true, features = ["v4"] }
 serde = { workspace = true, optional = true }
