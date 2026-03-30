@@ -1883,3 +1883,88 @@ Earlier stacked PRs (#99–#101) were closed without merge; workflow initially l
 ---
 
 _Last updated: 2026-03-31_
+
+---
+
+## 2026-03-29 - Generic/Extensible Design Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P1
+
+### Summary
+
+Dependencies that enable generic, extensible crate design patterns.
+
+### Type Erasure Crates
+
+| Crate | Purpose | Downloads | Recommendation |
+|-------|---------|-----------|---------------|
+| `async-trait` | Async trait methods | 5M+ | ✅ ADOPT |
+| `dyn-clone` | Dynamic Clone | 500K+ | ✅ ADOPT |
+| `dyn-upcast` | Trait upcasting | 200K+ | 🟡 EVALUATE |
+| `erasable` | Full type erasure | 100K+ | 🟡 EVALUATE |
+| `erased-serde` | Type-erased serde | 500K+ | 🟡 EVALUATE |
+
+### Generic Programming Crates
+
+| Crate | Purpose | Downloads | Recommendation |
+|-------|---------|-----------|---------------|
+| `generic-array` | Generic array types | 1M+ | 🟡 EVALUATE |
+| `smallvec` | Small vector optimization | 2M+ | ✅ ADOPT |
+| `smallbox` | Small box optimization | 100K+ | 🟡 EVALUATE |
+| `triomphe` | Enum type IDs | 50K+ | 🟡 EVALUATE |
+
+### Trait Object Patterns
+
+#### async-trait Usage
+
+```rust
+use async_trait::async_trait;
+
+#[async_trait]
+pub trait EventStore: Send + Sync {
+    async fn append(&self, aggregate_id: &str, events: Vec<Event>) -> Result<u64>;
+    async fn get_events(&self, aggregate_id: &str) -> Result<Vec<Event>>;
+}
+```
+
+#### dyn-clone Usage
+
+```rust
+use dyn_cloner::DynClone;
+
+pub trait Repository: Send + Sync + DynCloner {
+    async fn find(&self, id: &str) -> Result<Option<Entity>>;
+}
+
+pub type DynRepository = Arc<dyn Repository>;
+```
+
+### Feature-Gated Dependencies
+
+```toml
+[features]
+default = ["rusqlite"]
+rusqlite = ["dep:rusqlite"]
+postgres = ["dep:sqlx"]
+redis = ["dep:redis"]
+
+[dependencies]
+rusqlite = { version = "0.32", optional = true }
+sqlx = { version = "0.8", optional = true }
+redis = { version = "0.27", optional = true }
+```
+
+### Tasks
+
+- [ ] GEN-DEP-001: Add async-trait to phenotype-event-sourcing
+- [ ] GEN-DEP-002: Evaluate dyn-clone for Repository trait
+- [ ] GEN-DEP-003: Add feature flags for backend selection
+- [ ] GEN-DEP-004: Add smallvec for memory optimization
+
+---
+
+_Last updated: 2026-03-29_
+
