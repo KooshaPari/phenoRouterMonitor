@@ -9,6 +9,7 @@ Land supply-chain automation as **small, reviewable PRs** (stacked / layered). *
 - Workflow `.github/workflows/sbom.yml` is on `main` from **[#95](https://github.com/KooshaPari/phenotype-infrakit/pull/95)** (earlier SBOM PR).
 - Stacked PRs **[#99](https://github.com/KooshaPari/phenotype-infrakit/pull/99)**–**[#101](https://github.com/KooshaPari/phenotype-infrakit/pull/101)** were **closed without merge**; this session doc and `DEPENDENCIES.md` pilot section were not on `main` until a **consolidated follow-up PR** (`chore/sbom-docs-session`) rebased onto current `main`.
 - **Consolidated PR** adds: `DEPENDENCIES.md` pilot documentation, this session note, and a **matrix** of CycloneDX jobs for seven workspace members (replacing the single-crate job while keeping the same workflow file).
+- **2026-03-31 follow-up:** matrix expanded to **all** `[workspace.members]` (16 CycloneDX jobs + matching artifacts).
 
 ## Stack (original plan — historical)
 
@@ -38,4 +39,4 @@ gh pr create --base main --head chore/sbom-docs-session --fill
 
 ---
 
-_Last updated: 2026-03-30_
+_Last updated: 2026-03-31_
