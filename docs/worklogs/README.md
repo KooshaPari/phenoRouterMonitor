@@ -71,7 +71,9 @@
 | Cache DashMap | 50-100 | P2 |
 | **Total** | **~600-950** | |
 
----
+- **Default output:** `docs/worklogs/data/phenotype_session_extract_<cutoff>_<today>.json` under `--repo-root` (default: parent of `scripts/`).
+- **Defaults:** `--home` = user home; `--cutoff` = seven days ago (UTC); `--cwd-substr` filters by CWD (default includes `CodeProjects/Phenotype`).
+- **Requires:** Python 3.10+.
 
 ## Critical Actions Remaining
 

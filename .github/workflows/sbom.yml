@@ -1,0 +1,70 @@
+# CycloneDX SBOM — workspace members (supply-chain artifacts).
+name: SBOM (CycloneDX pilot)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cyclonedx:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: phenotype-error-core
+            manifest: crates/phenotype-error-core/Cargo.toml
+            sbom_path: crates/phenotype-error-core/sbom-phenotype-error-core.json
+          - id: phenotype-contracts
+            manifest: crates/phenotype-contracts/Cargo.toml
+            sbom_path: crates/phenotype-contracts/sbom-phenotype-contracts.json
+          - id: phenotype-errors
+            manifest: crates/phenotype-errors/Cargo.toml
+            sbom_path: crates/phenotype-errors/sbom-phenotype-errors.json
+          - id: phenotype-event-sourcing
+            manifest: crates/phenotype-event-sourcing/Cargo.toml
+            sbom_path: crates/phenotype-event-sourcing/sbom-phenotype-event-sourcing.json
+          - id: phenotype-policy-engine
+            manifest: crates/phenotype-policy-engine/Cargo.toml
+            sbom_path: crates/phenotype-policy-engine/sbom-phenotype-policy-engine.json
+          - id: phenotype-cache-adapter
+            manifest: crates/phenotype-cache-adapter/Cargo.toml
+            sbom_path: crates/phenotype-cache-adapter/sbom-phenotype-cache-adapter.json
+          - id: phenotype-config-core
+            manifest: libs/phenotype-config-core/Cargo.toml
+            sbom_path: libs/phenotype-config-core/sbom-phenotype-config-core.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-cyclonedx
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-cyclonedx@0.5.9
+
+      - name: Generate CycloneDX JSON
+        run: |
+          cargo cyclonedx \
+            --manifest-path "${{ matrix.manifest }}" \
+            -f json \
+            --spec-version 1.5 \
+            --override-filename "sbom-${{ matrix.id }}"
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyclonedx-sbom-${{ matrix.id }}
+          path: ${{ matrix.sbom_path }}
+          if-no-files-found: error

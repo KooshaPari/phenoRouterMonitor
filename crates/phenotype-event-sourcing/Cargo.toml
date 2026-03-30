@@ -3,11 +3,12 @@ name = "phenotype-event-sourcing"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+rust-version.workspace = true
 repository.workspace = true
-description = "Phenotype shared crate"
+description = "Event sourcing patterns for Phenotype"
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
+serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 chrono = { workspace = true }
@@ -15,5 +16,5 @@ sha2.workspace = true
 hex.workspace = true
 uuid = { workspace = true }
 
-[dev-dependencies]
-serde_json.workspace = true
+[lib]
+path = "src/lib.rs"

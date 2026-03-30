@@ -2702,3 +2702,285 @@ Before merge, for PRs touching the areas above:
 ---
 
 _Last updated: 2026-03-30 (Wave 93 appendix)_
+
+---
+
+## 2026-03-29 - Authentication & Authorization Duplication Analysis
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** in_progress
+**Priority:** P1
+
+### Current Auth Implementations
+
+| Service | Auth Method | Implementation | LOC |
+|---------|------------|---------------|-----|
+| `agileplus-api` | JWT | Custom middleware | 400 |
+| `agileplus-worker` | JWT | Custom middleware | 200 |
+| `thegent` | Session | Session-based | 300 |
+| `helios-server` | OAuth | Passport.js | 250 |
+
+### Duplicated Auth Patterns
+
+```rust
+// Pattern A: agileplus-api/src/auth.rs
+pub async fn validate_jwt(token: &str) -> Result<Claims> {
+    let key = KEY_PAIR.public_key_from_pem()?;
+    let validation = Validation::new(JWT_ALG);
+    let token = Jose::decode(token, &validation, &key)?;
+    Ok(token.claims())
+}
+
+// Pattern B: agileplus-worker/src/auth.rs
+pub async fn verify_token(token: &str) -> Result<UserId> {
+    let key = decode_pem_public_key(JWT_PUBLIC_KEY)?;
+    let validation = Validation::new(JWT_ALG);
+    let claims = Claims::decode(token, &validation, &key)?;
+    Ok(UserId::from(claims.subject))
+}
+
+// Duplication: Both have JWT validation logic
+```
+
+### Extraction Candidate: `phenotype-auth`
+
+```rust
+// crates/phenotype-auth/src/lib.rs
+
+pub mod jwt;
+pub mod session;
+pub mod middleware;
+pub mod permissions;
+
+pub use jwt::{JwtValidator, JwtClaims};
+pub use session::{SessionManager, Session};
+pub use middleware::auth_middleware;
+
+pub struct AuthConfig {
+    pub jwt_public_key: String,
+    pub jwt_algorithm: Algorithm,
+    pub session_ttl: Duration,
+}
+
+impl AuthConfig {
+    pub fn jwt_validator(&self) -> JwtValidator {
+        JwtValidator::new(&self.jwt_public_key, self.jwt_algorithm)
+    }
+}
+```
+
+### Tasks
+
+- [ ] AUTH-001: Create `phenotype-auth` crate
+- [ ] AUTH-002: Extract JWT validation logic
+- [ ] AUTH-003: Add session management
+- [ ] AUTH-004: Implement RBAC middleware
+
+---
+
+## 2026-03-29 - Rate Limiting & Throttling Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** pending
+**Priority:** P2
+
+### Current Rate Limiting Implementations
+
+| Service | Implementation | Strategy | Assessment |
+|---------|---------------|----------|------------|
+| `agileplus-api` | Token bucket | Per-IP | Custom |
+| `agileplus-worker` | None | N/A | Missing |
+| `thegent` | Token bucket | Per-user | Custom |
+| `helios-server` | Redis-based | Per-tenant | Good |
+
+### Duplicated Rate Limiting Logic
+
+```rust
+// Pattern A: agileplus-api/src/rate_limit.rs
+struct TokenBucket {
+    tokens: f64,
+    max_tokens: f64,
+    refill_rate: f64,
+    last_refill: Instant,
+}
+
+impl TokenBucket {
+    pub fn try_acquire(&mut self) -> bool {
+        self.refill();
+        if self.tokens >= 1.0 {
+            self.tokens -= 1.0;
+            true
+        } else {
+            false
+        }
+    }
+}
+
+// Pattern B: thegent/src/throttle.rs
+struct RateLimiter {
+    count: AtomicU64,
+    window: Duration,
+    last_reset: Atomic<Instant>,
+}
+
+// Duplication: Both implement token bucket
+```
+
+### Extraction Candidate: `phenotype-rate-limit`
+
+```rust
+// crates/phenotype-rate-limit/src/lib.rs
+
+pub mod token_bucket;
+pub mod sliding_window;
+pub mod leaky_bucket;
+
+pub use token_bucket::TokenBucketLimiter;
+pub use sliding_window::SlidingWindowLimiter;
+
+pub trait RateLimiter: Send + Sync {
+    fn try_acquire(&self, key: &str) -> bool;
+    fn reset(&self, key: &str);
+}
+
+pub struct RateLimitConfig {
+    pub requests_per_second: u64,
+    pub burst_size: u64,
+}
+```
+
+### Tasks
+
+- [ ] RATE-001: Create `phenotype-rate-limit` crate
+- [ ] RATE-002: Implement token bucket
+- [ ] RATE-003: Add sliding window
+- [ ] RATE-004: Integrate with Redis
+
+---
+
+## 2026-03-29 - Caching Strategy Duplication
+
+**Project:** [cross-repo]
+**Category:** duplication
+**Status:** pending
+**Priority:** P2
+
+### Current Caching Implementations
+
+| Service | Backend | TTL | Strategy | Assessment |
+|---------|---------|-----|----------|------------|
+| `agileplus-api` | DashMap | 60s | Cache-aside | Custom |
+| `agileplus-worker` | None | N/A | No cache | Missing |
+| `thegent` | Redis | 300s | Write-through | Good |
+| `helios-server` | Redis | 120s | Cache-aside | Good |
+
+### Duplicated Caching Logic
+
+```rust
+// Pattern A: agileplus-api/src/cache.rs
+pub async fn get_or_insert<K, V, F>(
+    cache: &Cache<K, V>,
+    key: K,
+    fetcher: F,
+) -> Result<V>
+where
+    K: Hash + Eq,
+    F: FnOnce() -> Result<V>,
+{
+    if let Some(cached) = cache.get(&key) {
+        return Ok(cached);
+    }
+
+    let value = fetcher()?;
+    cache.insert(key, value.clone());
+    Ok(value)
+}
+
+// Pattern B: thegent/src/cache.rs
+pub async fn with_cache<K, V, Fut>(
+    key: &str,
+    cache: &RedisCache,
+    future: Fut,
+) -> Result<V>
+where
+    K: Serialize,
+    V: DeserializeOwned,
+    Fut: Future<Output = Result<V>>,
+{
+    if let Some(cached) = cache.get(key).await? {
+        return Ok(cached);
+    }
+
+    let value = future.await?;
+    cache.set(key, &value).await?;
+    Ok(value)
+}
+```
+
+### Extraction Candidate: `phenotype-cache`
+
+```rust
+// crates/phenotype-cache/src/lib.rs
+
+pub mod in_memory;
+pub mod redis;
+pub mod layer;
+
+pub use in_memory::InMemoryCache;
+pub use redis::RedisCache;
+
+pub trait Cache<K, V>: Send + Sync {
+    fn get(&self, key: &K) -> Result<Option<V>>;
+    fn set(&self, key: K, value: V, ttl: Option<Duration>) -> Result<()>;
+    fn invalidate(&self, key: &K) -> Result<()>;
+}
+
+pub struct CacheLayer<K, V> {
+    l1: Box<dyn Cache<K, V>>,
+    l2: Option<Box<dyn Cache<K, V>>>,
+}
+
+impl<K, V> CacheLayer<K, V> {
+    pub async fn get_or_fetch<F, Fut>(&self, key: K, fetcher: F) -> Result<V>
+    where
+        K: Hash + Eq + Clone,
+        V: Clone,
+        F: FnOnce() -> Fut,
+        Fut: Future<Output = Result<V>>,
+    {
+        // L1 check
+        if let Some(v) = self.l1.get(&key)? {
+            return Ok(v);
+        }
+
+        // L2 check
+        if let Some(l2) = &self.l2 {
+            if let Some(v) = l2.get(&key)? {
+                self.l1.set(key.clone(), v.clone(), None)?;
+                return Ok(v);
+            }
+        }
+
+        // Fetch and populate
+        let value = fetcher().await?;
+        self.l1.set(key.clone(), value.clone(), None)?;
+        if let Some(l2) = &self.l2 {
+            l2.set(key, value.clone(), None)?;
+        }
+        Ok(value)
+    }
+}
+```
+
+### Tasks
+
+- [ ] CACHE-001: Create `phenotype-cache` crate
+- [ ] CACHE-002: Implement L1/L2 cache layers
+- [ ] CACHE-003: Add Redis backend
+- [ ] CACHE-004: Add cache invalidation strategies
+
+---
+
+_Last updated: 2026-03-29 (Round 7)_
