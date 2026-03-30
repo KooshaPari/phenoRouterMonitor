@@ -12,6 +12,7 @@ serde.workspace = true
 chrono.workspace = true
 uuid.workspace = true
 async-trait.workspace = true
+agileplus-error-core.workspace = true
 
 [lib]
 path = "src/lib.rs"

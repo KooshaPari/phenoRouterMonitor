@@ -28,7 +28,7 @@ impl<T> Default for InMemoryEventStore<T> {
 }
 
 #[async_trait]
-impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> super::EventStore<T>
+impl<T: Clone + Send + Sync + Serialize + DeserializeOwned + 'static> crate::store::EventStore<T>
     for InMemoryEventStore<T>
 {
     async fn append(

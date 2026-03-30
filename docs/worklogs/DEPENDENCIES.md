@@ -2588,3 +2588,244 @@ deadpool-runtime = "0.6"
 ---
 
 _Last updated: 2026-03-31 (Wave 131-133)_
+
+---
+
+## 2026-03-30 - Dependency Modernization Wave 4 (Extended)
+
+**Project:** [Phenotype/repos]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Extended dependency analysis with specific upgrade paths, security advisory tracking, and workspace dependency consolidation opportunities.
+
+### Workspace Dependency Audit Results
+
+#### Already Optimized (No Changes Needed)
+
+| Dependency | Version | Status | Notes |
+|------------|---------|--------|-------|
+| `thiserror` | 2.x | ✅ OPTIMAL | Already using modern thiserror 2.0 |
+| `serde` | 1.x | ✅ OPTIMAL | Well-configured with derive feature |
+| `tokio` | 1.x | ✅ OPTIMAL | Full features enabled |
+| `tracing` | 0.1.x | ✅ OPTIMAL | Standard configuration |
+| `blake3` | 1.x | ✅ OPTIMAL | Using latest with SIMD |
+| `sha2` | 0.10.x | ✅ OPTIMAL | Standard crypto setup |
+| `uuid` | 1.x | ✅ OPTIMAL | With v4 and v7 features |
+
+#### Recommended Additions (P0)
+
+| Crate | Version | Downloads | Purpose | LOC Savings |
+|-------|---------|-----------|---------|-------------|
+| `backon` | 1.0+ | ~5M+ | Retry logic | 200 LOC (replace phenotype-retry) |
+| `figment` | 0.10+ | ~50M+ | Config loading | 634 LOC (integrate phenotype-config-core) |
+| `derive_more` | 1.0+ | ~40M+ | Already in workspace | N/A |
+| `strum` | 0.26+ | ~20M+ | Already in workspace | N/A |
+| `bon` | 3.0+ | ~500K | Builder patterns | 175 LOC |
+
+#### Recommended Replacements
+
+| Current | Replacement | Reason | Risk |
+|---------|-------------|--------|------|
+| `phenotype-retry` | `backon` | Modern, well-maintained | Low |
+| `phenotype-config-core` custom | `figment` | Already in workspace | Medium |
+| Custom Display impls | `derive_more` | Already in workspace | Low |
+| Nested FSM | `smlang` or `statig` | External maintenance | High |
+
+---
+
+### Security Advisory Status (2026-03-30)
+
+| Advisory | Affected | Status | Resolution |
+|----------|----------|--------|------------|
+| `RUSTSEC-2025-0134` | async-nats | ❌ Still ignored | Awaiting async-nats 0.35+ |
+| `RUSTSEC-2026-0049` | async-nats | ❌ Still ignored | Awaiting async-nats 0.35+ |
+| `RUSTSEC-2026-0002` | lru | ❌ Still ignored | Awaiting lru 0.13+ |
+| `RUSTSEC-2025-0140` | gix | ✅ **RESOLVED** | gix 0.71 → 0.81 |
+
+### Upgrade Paths
+
+#### async-nats (RUSTSEC-2025-0134, RUSTSEC-2026-0049)
+
+**Current**: `async-nats` 0.22 (affected)
+
+**Target**: `async-nats` 0.35+ (fixed)
+
+**Migration Notes**:
+- Breaking changes in 0.25+ API
+- JetStream API redesigned
+- Consumer creation changed
+
+**Recommended Action**: Plan migration in next sprint.
+
+#### lru (RUSTSEC-2026-0002)
+
+**Current**: `lru` 0.12 (affected)
+
+**Target**: `lru` 0.13+ (when released)
+
+**Recommended Action**: Monitor crates.io for release.
+
+---
+
+### Workspace Dependency Consolidation
+
+#### Current State
+
+```toml
+# Cargo.toml workspace dependencies
+[workspace.dependencies]
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+blake3 = "1.0"
+sha2 = "0.10"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+reqwest = { version = "0.12", features = ["json"] }
+tempfile = "3"
+moka = { version = "0.12", features = ["sync", "future"] }
+lru = "0.12"
+chrono = { version = "0.4", features = ["serde"] }
+figment = { version = "0.10", features = ["toml"] }
+derive_more = "1.0"
+strum = "0.26"
+```
+
+#### Recommended Additions
+
+```toml
+# Add to [workspace.dependencies]
+backon = "1.0"           # Retry logic - replace phenotype-retry
+bon = "3.0"             # Builder patterns
+miette = "7.0"          # Fancy diagnostics
+opentelemetry = "1.0"   # Telemetry
+opentelemetry-otlp = "0.15"  # OTLP export
+```
+
+---
+
+### Crate-Level Dependency Analysis
+
+#### phenotype-cache-adapter
+
+```toml
+# Current
+lru = "0.12"
+moka = { version = "0.12", features = ["sync", "future"] }
+chrono.workspace = true
+phenotype-error-core.workspace = true
+serde.workspace = true
+tokio.workspace = true
+
+# Status: ✅ OPTIMAL - Already using workspace deps
+```
+
+#### phenotype-http-client-core
+
+```toml
+# Current
+reqwest.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+# Status: ✅ OPTIMAL - Already using workspace deps
+# Note: Consider adding backon for retry logic
+```
+
+#### phenotype-policy-engine
+
+```toml
+# Current
+tempfile.workspace = true
+toml = "0.8"
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+
+# Status: ✅ OPTIMAL - Already using workspace deps
+# Note: Already uses figment indirectly
+```
+
+#### phenotype-event-sourcing
+
+```toml
+# Current
+blake3.workspace = true
+serde.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+
+# Status: ✅ OPTIMAL - Clean dependencies
+```
+
+#### phenotype-macros
+
+```toml
+# Current
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+synstructure.workspace = true
+thiserror.workspace = true
+
+# Status: ✅ OPTIMAL - Standard proc-macro setup
+```
+
+---
+
+### Dependency Update Strategy
+
+#### Weekly Updates (Renovate/Dependabot)
+
+```toml
+# .github/renovate.json5 (recommended)
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 2,
+  "schedule": ["before 6am on Monday"],
+  "cargo": {
+    "fileMatch": ["(^|/)Cargo\\.toml$"]
+  }
+}
+```
+
+#### Monthly Major Upgrades
+
+| Month | Focus | Crates |
+|-------|-------|--------|
+| April | Error handling | Migrate to thiserror 2.x fully |
+| May | Telemetry | Add opentelemetry-otlp |
+| June | Config | Integrate figment fully |
+| July | Retry | Replace phenotype-retry with backon |
+
+---
+
+### Third-Party Dependency Recommendations
+
+#### For Fork/Adoption Consideration
+
+| Crate | Fork Candidate | Purpose | Rationale |
+|-------|---------------|---------|-----------|
+| `cqrs-es` | EVALUATE | Event sourcing foundation | Industry standard CQRS |
+| `statig` | EVALUATE | State machines | Hierarchical states |
+| `smlang` | EVALUATE | State machines | Mermaid export |
+
+#### For Wrapping
+
+| Crate | Wrapper Purpose | Complexity |
+|-------|-----------------|------------|
+| `opentelemetry` | Unified telemetry | Medium |
+| `opentelemetry-otlp` | OTLP export | Low |
+
+---
+
+_Last updated: 2026-03-30 (Wave 4 entries appended)_

@@ -1,5 +1,6 @@
 //! Shared API types for AgilePlus.
 
+use agileplus_error_core::ApiError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,6 +23,19 @@ impl<T> ApiResponse<T> {
             error: Some(msg.into()),
         }
     }
+
+    /// Build an error envelope from the shared [`ApiError`] type (stable message text).
+    pub fn from_api_error(err: ApiError) -> Self {
+        Self {
+            data: None,
+            error: Some(err.to_string()),
+        }
+    }
+
+    /// Map any value that converts to the canonical API error type.
+    pub fn from_api_error_ref(err: &ApiError) -> Self {
+        Self::from_api_error(err.clone())
+    }
 }
 
 #[cfg(test)]
@@ -42,6 +56,18 @@ mod tests {
         let resp = ApiResponse::<i32>::error("not found");
         assert!(resp.data.is_none());
         assert_eq!(resp.error.as_deref(), Some("not found"));
+    }
+
+    // Traces to: FR-AGILE-001
+    #[test]
+    fn from_api_error_matches_display() {
+        let e = ApiError::NotFound("feature/x".into());
+        let resp = ApiResponse::<()>::from_api_error(e);
+        assert!(resp.data.is_none());
+        assert_eq!(
+            resp.error.as_deref(),
+            Some("not found: feature/x")
+        );
     }
 
     // Traces to: FR-AGILE-001

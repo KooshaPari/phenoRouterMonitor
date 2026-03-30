@@ -457,6 +457,8 @@ mod tests {
             .transition("red", "next", "green")
             .transition("green", "next", "yellow")
             .transition("yellow", "next", "red")
+            // Non-sequential jump (used to assert SkipTransitionRejected when not allowlisted)
+            .transition("green", "jump_to_red", "red")
             // Skip: red → yellow (bypass green) via a different event
             .transition("red", "skip_to_yellow", "yellow")
             .skip_transition("red", "yellow")
