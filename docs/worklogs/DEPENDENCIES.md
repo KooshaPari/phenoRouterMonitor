@@ -1,6 +1,52 @@
 # Dependencies Worklogs
 
-**Category:** DEPENDENCIES | **Updated:** 2026-03-31 (OSV SARIF + worktree audit closure)
+**Category:** DEPENDENCIES | **Updated:** 2026-03-30 (workspace dependency consolidation)
+
+---
+
+## 2026-03-30 - Workspace Dependency Consolidation
+
+**Project:** [Phenotype/repos]
+**Category:** dependencies
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Consolidated workspace dependencies, added missing deps to workspace, and removed outdated security advisory ignores.
+
+### Changes Made
+
+| File | Change | Reason |
+|------|--------|--------|
+| `Cargo.toml` | Added `reqwest` to workspace deps | Previously only used by `phenotype-http-client-core` directly |
+| `Cargo.toml` | Added `tempfile` to workspace deps | Required by `phenotype-policy-engine` |
+| `Cargo.toml` | Updated `moka` with features `["sync", "future"]` | Required for sync/future cache support |
+| `Cargo.toml` | Added explicit `lru` to workspace deps | Required by `phenotype-cache-adapter` |
+| `crates/phenotype-http-client-core/Cargo.toml` | Changed to use `reqwest.workspace = true` | Consistent with workspace pattern |
+| `crates/phenotype-cache-adapter/Cargo.toml` | Added `chrono.workspace = true` | Was missing despite `chrono::Utc` usage |
+| `deny.toml` | Removed `RUSTSEC-2025-0140` ignore for `gix` | Workspace now uses `gix 0.81` which is safe |
+
+### Verification
+
+```bash
+cargo check --workspace  # ✅ Passes
+cargo deny check        # ✅ Passes (removed outdated gix advisory)
+```
+
+### Security Advisory Status
+
+| Advisory | Status | Resolution |
+|----------|--------|------------|
+| `RUSTSEC-2025-0134` | ❌ Still ignored | Awaiting async-nats update |
+| `RUSTSEC-2025-0140` | ✅ **RESOLVED** | Removed (gix 0.71 → 0.81) |
+| `RUSTSEC-2026-0049` | ❌ Still ignored | Awaiting async-nats update |
+| `RUSTSEC-2026-0002` | ❌ Still ignored | Awaiting lru 0.13+ |
+
+### Next Steps
+
+- [ ] Plan `async-nats` upgrade to resolve `RUSTSEC-2025-0134` and `RUSTSEC-2026-0049`
+- [ ] Monitor `lru` for 0.13+ release to resolve `RUSTSEC-2026-0002`
 
 ---
 
