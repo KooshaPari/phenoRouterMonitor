@@ -160,6 +160,12 @@ tasks:
       - bun run docs:build
     dir: docs
 
+  docs:check:
+    desc: Build VitePress docs and run unit, component, and e2e tests
+    cmds:
+      - bun run docs:check
+    dir: docs
+
   docs:dev:
     desc: Start VitePress dev server
     cmds:
@@ -180,6 +186,7 @@ tasks:
       - task: lint
       - task: python:lint
       - task: docs:lint
+      - task: docs:build
       - task: test
       - task: python:test
 

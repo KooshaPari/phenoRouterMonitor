@@ -6,12 +6,13 @@ license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 authors.workspace = true
-description = "TODO"
+description = "State machine implementation"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
+thiserror.workspace = true
+phenotype-error-core.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-thiserror.workspace = true

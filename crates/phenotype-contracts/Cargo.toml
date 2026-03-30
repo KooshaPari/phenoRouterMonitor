@@ -8,11 +8,24 @@ repository.workspace = true
 authors.workspace = true
 description = "TODO"
 
-[lib]
-path = "src/lib.rs"
+phenotype-errors.workspace = true
 
 [dependencies]
+<<<<<<< HEAD
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 phenotype-async-traits.workspace = true
+=======
+chrono = { workspace = true }
+uuid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+phenotype-error-core.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true }
+serde_json = { workspace = true }
+>>>>>>> origin/main

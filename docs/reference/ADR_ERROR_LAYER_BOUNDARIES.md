@@ -32,7 +32,7 @@ Multiple crates defined overlapping error enums (`NotFound`, `Serialization`, `I
 
 ## Implementation references
 
-- `crates/phenotype-error-core/src/lib.rs`: `ErrorKind`
-- `crates/agileplus-error-core/src/domain.rs`: `Into<ErrorKind>`
-- `crates/phenotype-contracts/src/error.rs`: `ContractError` and `ErrorKind`
-- `crates/phenotype-event-sourcing/src/error.rs`, `crates/phenotype-policy-engine/src/error.rs`: `From<crate::Error> for ErrorKind`
+- `crates/phenotype-error-core/src/lib.rs` — `ErrorKind`
+- `crates/agileplus-error-core/src/domain.rs` — `Into<ErrorKind>`
+- `crates/phenotype-contracts/src/error.rs` — `ContractError` bidirectional story with `ErrorKind`
+- `crates/phenotype-event-sourcing/src/error.rs`, `crates/phenotype-policy-engine/src/error.rs` — `From<crate::Error> for ErrorKind`

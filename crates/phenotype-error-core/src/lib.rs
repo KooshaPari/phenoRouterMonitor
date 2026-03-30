@@ -4,7 +4,11 @@ use thiserror::Error;
 
 /// Core error type for the Phenotype ecosystem.
 #[derive(Debug, Error)]
+<<<<<<< HEAD
 pub enum ErrorKind {
+=======
+pub enum CoreError {
+>>>>>>> origin/main
     #[error("not found: {0}")]
     NotFound(String),
 
@@ -42,6 +46,7 @@ pub enum ErrorKind {
     Io(#[from] std::io::Error),
 }
 
+<<<<<<< HEAD
 /// Result type alias using ErrorKind.
 pub type Result<T> = std::result::Result<T, ErrorKind>;
 
@@ -67,6 +72,12 @@ impl ErrorKind {
         }
     }
 
+=======
+/// Result type alias using CoreError.
+pub type Result<T> = std::result::Result<T, CoreError>;
+
+impl CoreError {
+>>>>>>> origin/main
     /// Create a not found error.
     pub fn not_found(entity: impl Into<String>) -> Self {
         Self::NotFound(entity.into())
@@ -82,11 +93,14 @@ impl ErrorKind {
         Self::Validation(msg.into())
     }
 
+<<<<<<< HEAD
     /// Create a conflict error.
     pub fn conflict(msg: impl Into<String>) -> Self {
         Self::Conflict(msg.into())
     }
 
+=======
+>>>>>>> origin/main
     /// Create a timeout error.
     pub fn timeout(msg: impl Into<String>) -> Self {
         Self::Timeout(msg.into())
@@ -102,6 +116,7 @@ impl ErrorKind {
         Self::Network(msg.into())
     }
 
+<<<<<<< HEAD
     /// Create a configuration error.
     pub fn configuration(msg: impl Into<String>) -> Self {
         Self::Configuration(msg.into())
@@ -112,16 +127,21 @@ impl ErrorKind {
         Self::Permission(msg.into())
     }
 
+=======
+>>>>>>> origin/main
     /// Create an internal error.
     pub fn internal(msg: impl Into<String>) -> Self {
         Self::Internal(msg.into())
     }
 
+<<<<<<< HEAD
     /// Create an invalid input error.
     pub fn invalid_input(msg: impl Into<String>) -> Self {
         Self::InvalidInput(msg.into())
     }
 
+=======
+>>>>>>> origin/main
     /// Create an IO error.
     pub fn io(err: std::io::Error) -> Self {
         Self::from(err)
@@ -134,14 +154,22 @@ mod tests {
 
     #[test]
     fn test_error_display() {
+<<<<<<< HEAD
         let err = ErrorKind::not_found("User");
         assert_eq!(err.to_string(), "not found: User");
 
         let err = ErrorKind::validation("invalid email");
+=======
+        let err = CoreError::not_found("User");
+        assert_eq!(err.to_string(), "not found: User");
+
+        let err = CoreError::validation("invalid email");
+>>>>>>> origin/main
         assert_eq!(err.to_string(), "validation error: invalid email");
     }
 
     #[test]
+<<<<<<< HEAD
     fn test_kind_name() {
         assert_eq!(ErrorKind::not_found("User").kind(), "NotFound");
         assert_eq!(ErrorKind::network("timeout").kind(), "Network");
@@ -151,6 +179,11 @@ mod tests {
     fn test_result_usage() {
         fn fallible() -> Result<i32> {
             Err(ErrorKind::not_found("item"))
+=======
+    fn test_result_usage() {
+        fn fallible() -> Result<i32> {
+            Err(CoreError::not_found("item"))
+>>>>>>> origin/main
         }
 
         let result = fallible();
