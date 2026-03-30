@@ -8,7 +8,7 @@
 7: | Log | Purpose | Last Updated | Status |
 8: |---|---|---|---|
 9: | [RESEARCH.md](./RESEARCH.md) | Ecosystem research, 3rd party repos, modernization targets | 2026-03-29 | Wave 105 appended |
-10: | [DEPENDENCIES.md](./DEPENDENCIES.md) | Package audit, fork candidates, security provenance | 2026-03-29 | Wave 101-103 appended |
+10: | [DEPENDENCIES.md](./DEPENDENCIES.md) | Package audit, fork candidates, security provenance | 2026-03-31 | Wave 106-109 appended |
 11: | [DUPLICATION.md](./DUPLICATION.md) | Code duplication hotspots, patterns, libification plans | 2026-03-29 | Wave 102 expansion |
 12: | [WORK_LOG.md](./WORK_LOG.md) | Master session history and task execution log | 2026-03-31 | Active |
 13: 
