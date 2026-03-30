@@ -1,10 +1,14 @@
 [package]
 name = "phenotype-string"
-version = "0.2.0"
-edition = "2021"
-authors = ["Phenotype Team"]
-license = "MIT"
-description = "String for Phenotype"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "String utilities for Phenotype — slugify, truncate, case conversion"
+
+[dependencies]
+regex.workspace = true
 
 [lib]
 path = "src/lib.rs"
