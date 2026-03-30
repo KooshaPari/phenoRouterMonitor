@@ -2,16 +2,10 @@
 //!
 //! Two-tier cache with L1 (LRU) and L2 (DashMap/Moka).
 
-use chrono::{DateTime, Duration, Utc};
-use lru::LruCache;
-use moka::sync::Cache as MokaCache;
-use phenotype_error_core::ErrorKind;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
-use std::num::NonZeroUsize;
-use std::sync::{Arc, Mutex};
 
-pub type Result<T> = std::result::Result<T, ErrorKind>;
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 /// Metrics hook for observability.
 pub trait MetricsHook: Send + Sync + Debug {
@@ -20,139 +14,56 @@ pub trait MetricsHook: Send + Sync + Debug {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-struct CacheEntry<T> {
-    value: T,
-    expiry: Option<DateTime<Utc>>,
-}
-
-impl<T> CacheEntry<T> {
-    fn is_expired(&self) -> bool {
-        if let Some(expiry) = self.expiry {
-            return expiry < Utc::now();
-        }
-        false
-    }
+struct CacheEntry<V> {
+    value: V,
 }
 
 /// Two-tier cache implementation.
 pub struct TwoTierCache<K, V>
 where
     K: Clone + Eq + std::hash::Hash + Send + Sync + Debug + 'static,
-    V: Clone + Serialize + DeserializeOwned + Send + Sync + Debug + 'static,
+    V: Clone + Send + Sync + Debug + 'static,
 {
-    l1: Arc<Mutex<LruCache<K, CacheEntry<V>>>>,
-    l2: MokaCache<K, CacheEntry<V>>,
-    metrics: Option<Arc<dyn MetricsHook>>,
+    l1: std::sync::Arc<std::sync::Mutex<lru::LruCache<K, CacheEntry<V>>>>,
+    l2: moka::sync::Cache<K, CacheEntry<V>>,
 }
 
 impl<K, V> TwoTierCache<K, V>
 where
     K: Clone + Eq + std::hash::Hash + Send + Sync + Debug + 'static,
-    V: Clone + Serialize + DeserializeOwned + Send + Sync + Debug + 'static,
+    V: Clone + Send + Sync + Debug + 'static,
 {
     pub fn new(l1_cap: usize, l2_cap: u64) -> Self {
         Self {
-            l1: Arc::new(Mutex::new(LruCache::new(
-                NonZeroUsize::new(l1_cap).unwrap_or(NonZeroUsize::new(100).unwrap()),
+            l1: std::sync::Arc::new(std::sync::Mutex::new(lru::LruCache::new(
+                std::num::NonZeroUsize::new(l1_cap).unwrap_or(std::num::NonZeroUsize::new(100).unwrap()),
             ))),
-            l2: MokaCache::builder().max_capacity(l2_cap).build(),
-            metrics: None,
+            l2: moka::sync::Cache::builder()
+                .max_capacity(l2_cap)
+                .build(),
         }
-    }
-
-    pub fn with_metrics(mut self, metrics: Arc<dyn MetricsHook>) -> Self {
-        self.metrics = Some(metrics);
-        self
     }
 
     pub fn get(&self, key: &K) -> Option<V> {
-        // L1 Check
-        {
-            let mut l1 = self.l1.lock().unwrap();
-            if let Some(entry) = l1.get(key) {
-                if !entry.is_expired() {
-                    if let Some(ref m) = self.metrics {
-                        m.record_hit("L1");
-                    }
-                    return Some(entry.value.clone());
-                } else {
-                    l1.pop(key);
-                }
-            }
+        let mut l1 = self.l1.lock().unwrap();
+        if let Some(entry) = l1.get(key) {
+            return Some(entry.value.clone());
         }
-        if let Some(ref m) = self.metrics {
-            m.record_miss("L1");
-        }
-
-        // L2 Check
+        drop(l1);
+        
         if let Some(entry) = self.l2.get(key) {
-            if !entry.is_expired() {
-                if let Some(ref m) = self.metrics {
-                    m.record_hit("L2");
-                }
-                // Backfill L1
-                let mut l1 = self.l1.lock().unwrap();
-                l1.put(key.clone(), entry.value.clone().into_entry(entry.expiry));
-                return Some(entry.value);
-            } else {
-                self.l2.invalidate(key);
-            }
+            let value = entry.value.clone();
+            let mut l1 = self.l1.lock().unwrap();
+            l1.put(key.clone(), CacheEntry { value: value.clone() });
+            return Some(value);
         }
-        if let Some(ref m) = self.metrics {
-            m.record_miss("L2");
-        }
-
         None
     }
 
-    pub fn insert(&self, key: K, value: V, ttl: Option<Duration>) {
-        let expiry = ttl.map(|d| Utc::now() + d);
-        let entry = CacheEntry {
-            value: value.clone(),
-            expiry,
-        };
-
-        // Update both tiers
+    pub fn put(&self, key: K, value: V) {
         let mut l1 = self.l1.lock().unwrap();
-        l1.put(key.clone(), entry.clone());
-        self.l2.insert(key, entry);
-    }
-
-    pub fn remove(&self, key: &K) {
-        let mut l1 = self.l1.lock().unwrap();
-        l1.pop(key);
-        self.l2.invalidate(key);
-    }
-}
-
-trait ToEntry<V> {
-    fn into_entry(self, expiry: Option<DateTime<Utc>>) -> CacheEntry<V>;
-}
-
-impl<V> ToEntry<V> for V {
-    fn into_entry(self, expiry: Option<DateTime<Utc>>) -> CacheEntry<V> {
-        CacheEntry {
-            value: self,
-            expiry,
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_cache_roundtrip() {
-        let cache = TwoTierCache::<String, String>::new(10, 100);
-        cache.insert("foo".into(), "bar".into(), None);
-        assert_eq!(cache.get(&"foo".into()), Some("bar".into()));
-    }
-
-    #[test]
-    fn test_cache_expiry() {
-        let cache = TwoTierCache::<String, String>::new(10, 100);
-        cache.insert("foo".into(), "bar".into(), Some(Duration::milliseconds(-1)));
-        assert_eq!(cache.get(&"foo".into()), None);
+        l1.put(key.clone(), CacheEntry { value: value.clone() });
+        drop(l1);
+        self.l2.insert(key, CacheEntry { value });
     }
 }

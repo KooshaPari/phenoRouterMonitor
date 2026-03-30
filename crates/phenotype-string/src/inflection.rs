@@ -186,6 +186,7 @@ fn ends_with_any(word: &str, suffixes: &[&str]) -> bool {
 mod tests {
     use super::*;
 
+    // FR-PHENO-STR-003: Inflection - pluralize regular nouns
     #[test]
     fn test_pluralize_regular() {
         assert_eq!(pluralize("cat"), "cats");
@@ -193,6 +194,7 @@ mod tests {
         assert_eq!(pluralize("book"), "books");
     }
 
+    // FR-PHENO-STR-003: Inflection - pluralize sibilants
     #[test]
     fn test_pluralize_sibilants() {
         assert_eq!(pluralize("box"), "boxes");
@@ -201,18 +203,21 @@ mod tests {
         assert_eq!(pluralize("brush"), "brushes");
     }
 
+    // FR-PHENO-STR-003: Inflection - pluralize consonant-y words
     #[test]
     fn test_pluralize_consonant_y() {
         assert_eq!(pluralize("baby"), "babies");
         assert_eq!(pluralize("city"), "cities");
     }
 
+    // FR-PHENO-STR-003: Inflection - pluralize f/fe words
     #[test]
     fn test_pluralize_f_fe() {
         assert_eq!(pluralize("leaf"), "leaves");
         assert_eq!(pluralize("knife"), "knives");
     }
 
+    // FR-PHENO-STR-003: Inflection - pluralize irregular nouns
     #[test]
     fn test_pluralize_irregular() {
         assert_eq!(pluralize("child"), "children");
@@ -224,6 +229,7 @@ mod tests {
         assert_eq!(pluralize("mouse"), "mice");
     }
 
+    // FR-PHENO-STR-003: Inflection - singularize regular nouns
     #[test]
     fn test_singularize_regular() {
         assert_eq!(singularize("cats"), "cat");
@@ -231,6 +237,7 @@ mod tests {
         assert_eq!(singularize("books"), "book");
     }
 
+    // FR-PHENO-STR-003: Inflection - singularize sibilants
     #[test]
     fn test_singularize_sibilants() {
         assert_eq!(singularize("boxes"), "box");
@@ -238,18 +245,21 @@ mod tests {
         assert_eq!(singularize("churches"), "church");
     }
 
+    // FR-PHENO-STR-003: Inflection - singularize ies words
     #[test]
     fn test_singularize_ies() {
         assert_eq!(singularize("babies"), "baby");
         assert_eq!(singularize("cities"), "city");
     }
 
+    // FR-PHENO-STR-003: Inflection - singularize ves words
     #[test]
     fn test_singularize_ves() {
         assert_eq!(singularize("knives"), "knife");
         assert_eq!(singularize("wives"), "wife");
     }
 
+    // FR-PHENO-STR-003: Inflection - singularize irregular nouns
     #[test]
     fn test_singularize_irregular() {
         assert_eq!(singularize("children"), "child");
@@ -261,24 +271,28 @@ mod tests {
         assert_eq!(singularize("mice"), "mouse");
     }
 
+    // FR-PHENO-STR-003: Inflection - builder pattern pluralize
     #[test]
     fn test_inflection_pluralize() {
         assert_eq!(Inflection::new("cat").pluralize(), "cats");
         assert_eq!(Inflection::new("box").pluralize(), "boxes");
     }
 
+    // FR-PHENO-STR-003: Inflection - builder pattern singularize
     #[test]
     fn test_inflection_singularize() {
         assert_eq!(Inflection::new("cats").singularize(), "cat");
         assert_eq!(Inflection::new("boxes").singularize(), "box");
     }
 
+    // FR-PHENO-STR-003: Inflection - is_plural predicate
     #[test]
     fn test_inflection_is_plural() {
         assert!(Inflection::new("cats").is_plural());
         assert!(!Inflection::new("cat").is_plural());
     }
 
+    // FR-PHENO-STR-003: Inflection - is_singular predicate
     #[test]
     fn test_inflection_is_singular() {
         assert!(Inflection::new("cat").is_singular());

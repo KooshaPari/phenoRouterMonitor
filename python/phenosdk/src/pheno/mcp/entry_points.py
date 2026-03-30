@@ -60,11 +60,11 @@ class MCPCLI:
         """Initialize the MCP CLI."""
         self.entry_point = MCPEntryPoint("mcp-cli")
 
-    def deploy_mcp(self, config: Optional[dict] = None) -> bool:
+    def deploy_mcp(self, _config: Optional[dict] = None) -> bool:
         """Deploy MCP server with given configuration.
 
         Args:
-            config: Configuration dictionary for deployment
+            _config: Configuration dictionary for deployment
 
         Returns:
             True if deployment succeeds

@@ -1,7 +1,7 @@
 // Domain Model Base Types
 // wraps: phenotype-contracts Rust crate model definitions
 
-import type { DomainEvent } from '../ports/index.js';
+import type { DomainEvent } from '../ports/index';
 
 // ============================================================================
 // ENTITY TYPES
