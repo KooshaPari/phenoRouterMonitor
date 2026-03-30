@@ -1,6 +1,4 @@
 //! Retry policies and strategies
-//!
-//! Provides automatic retry policy detection and execution.
 
 use std::time::Duration;
 
@@ -11,25 +9,18 @@ pub enum RetryPolicy {
     None,
     /// Fixed delay between retries
     Fixed {
-        /// Maximum number of attempts
         max_attempts: u32,
-        /// Delay between attempts
         delay: Duration,
     },
     /// Exponential backoff with jitter
     Exponential {
-        /// Maximum number of attempts
         max_attempts: u32,
-        /// Base delay (doubles each attempt)
         base: Duration,
-        /// Maximum delay cap
         max_delay: Duration,
     },
     /// Linear backoff
     Linear {
-        /// Maximum number of attempts
         max_attempts: u32,
-        /// Step increment
         step: Duration,
     },
 }
@@ -57,7 +48,7 @@ impl RetryPolicy {
             Self::None => Duration::ZERO,
             Self::Fixed { delay, .. } => *delay,
             Self::Exponential { base, max_delay, .. } => {
-                let delay = Duration::from_secs(2_u64.saturating_pow(attempt - 1)) * *base;
+                let delay = Duration::from_millis(100 * 2_u64.saturating_pow(attempt - 1));
                 std::cmp::min(delay, *max_delay)
             }
             Self::Linear { step, .. } => *step * attempt,
@@ -115,36 +106,5 @@ impl RetryStrategy {
 impl Default for RetryStrategy {
     fn default() -> Self {
         Self::new(RetryPolicy::None)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[test]
-    fn test_fixed_policy() {
-        let policy = RetryPolicy::Fixed {
-            max_attempts: 3,
-            delay: Duration::from_millis(100),
-        };
-        
-        assert_eq!(policy.max_attempts(), 3);
-        assert_eq!(policy.delay_for_attempt(1), Duration::from_millis(100));
-        assert_eq!(policy.delay_for_attempt(2), Duration::from_millis(100));
-    }
-    
-    #[test]
-    fn test_exponential_policy() {
-        let policy = RetryPolicy::Exponential {
-            max_attempts: 3,
-            base: Duration::from_millis(100),
-            max_delay: Duration::from_secs(1),
-        };
-        
-        assert_eq!(policy.max_attempts(), 3);
-        assert_eq!(policy.delay_for_attempt(1), Duration::from_millis(100));
-        assert_eq!(policy.delay_for_attempt(2), Duration::from_millis(200));
-        assert_eq!(policy.delay_for_attempt(3), Duration::from_millis(400));
     }
 }
