@@ -89,6 +89,39 @@ jobs:
           if-no-files-found: error
           retention-days: 5
 
+  # ─── Syft SPDX (complements CycloneDX per-crate JSON) ─────────────────
+  syft-spdx:
+    name: Syft SPDX (workspace)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Syft
+        env:
+          SYFT_SEMVER: 1.42.3
+        run: |
+          curl -fsSL "https://github.com/anchore/syft/releases/download/v${SYFT_SEMVER}/syft_${SYFT_SEMVER}_linux_amd64.tar.gz" | tar xz
+          sudo install -m 0755 syft /usr/local/bin/syft
+
+      - name: Generate SPDX JSON (repo tree)
+        run: |
+          mkdir -p sbom-out
+          syft . \
+            -o spdx-json=sbom-out/syft-spdx-workspace.json \
+            --exclude './target/**' \
+            --exclude './docs/**' \
+            --exclude './**/.venv/**' \
+            --exclude './**/node_modules/**' \
+            --exclude './.git/**'
+
+      - name: Upload SPDX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: syft-spdx-workspace
+          path: sbom-out/syft-spdx-workspace.json
+          if-no-files-found: error
+          retention-days: 5
+
   # ─── Create GitHub Release ────────────────────────────────────────────
   create-release:
     name: Create GitHub Release
@@ -96,6 +129,7 @@ jobs:
     needs:
       - build-release
       - cyclonedx-sboms
+      - syft-spdx
     permissions:
       contents: write
     steps:
@@ -124,6 +158,12 @@ jobs:
             done
             shopt -u nullglob
           fi
+          syft_dir="./binaries/syft-spdx-workspace"
+          if [ -d "$syft_dir" ]; then
+            for f in "$syft_dir"/*.json; do
+              [ -f "$f" ] && cp "$f" ./release-assets/
+            done
+          fi
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
@@ -132,6 +172,7 @@ jobs:
           draft: false
           prerelease: false
           generateReleaseNotes: true
+          # Re-runs / human-edited releases: keep title & body; still refresh assets list.
           allowUpdates: true
           omitBodyDuringUpdate: true
           omitNameDuringUpdate: true

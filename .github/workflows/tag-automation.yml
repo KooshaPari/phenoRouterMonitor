@@ -67,15 +67,11 @@ jobs:
           git push origin "$TAG"
           echo "Created and pushed tag: $TAG"
 
-      - name: Create release
+      # GitHub Release (binaries + CycloneDX SBOMs) is owned solely by
+      # .github/workflows/release.yml on tag push — avoids racing softprops here.
+      - name: Release workflow will run for new tag
         if: steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: Release v${{ steps.version.outputs.version }}
-          body: |
-            Automated release for version ${{ steps.version.outputs.version }}
-          draft: false
-          prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "Pushed v${VERSION}. The Release workflow creates the GitHub Release and assets."
