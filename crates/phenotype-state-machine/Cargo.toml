@@ -7,5 +7,7 @@ repository.workspace = true
 description = "Phenotype shared crate"
 
 [dependencies]
+thiserror.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+parking_lot.workspace = true

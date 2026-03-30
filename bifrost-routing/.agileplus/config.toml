@@ -1,0 +1,52 @@
+# AgilePlus Configuration for bifrost-routing
+
+[project]
+name = "bifrost-routing"
+version = "0.1.0"
+description = "LLM routing infrastructure with model selection and cost optimization"
+created_date = "2026-03-30"
+
+[agileplus]
+# Specs location: local .agileplus/specs/
+specs_location = ".agileplus/specs/"
+spec_format = "markdown"
+tracker_enabled = true
+
+[providers]
+# List of enabled provider extensions
+enabled = [
+  "phenotype-rust-crate",
+  "agileplus-wp",
+  "xdd-test"
+]
+
+[providers."phenotype-rust-crate"]
+template = "hexagonal"
+description = "Phenotype hexagonal Rust crate scaffolding"
+
+[providers."agileplus-wp"]
+template = "work-package"
+description = "AgilePlus work package YAML generator"
+
+[providers."xdd-test"]
+template = "bdd-test"
+description = "xDD test scaffold generator with traceability"
+
+[testing]
+# Test framework settings
+framework = "cargo"
+coverage_tool = "tarpaulin"
+lint_tools = ["clippy"]
+
+[ci-cd]
+# GitHub Actions / CI pipeline integration
+pipeline_enabled = true
+evidence_collection = true
+artifact_upload = true
+
+[workspace]
+# Workspace configuration
+root_path = "/Users/kooshapari/CodeProjects/Phenotype/repos/bifrost-routing"
+target_monorepo = "/Users/kooshapari/CodeProjects/Phenotype/repos"
+artifacts_dir = "./artifacts"
+evidence_dir = "./evidence"

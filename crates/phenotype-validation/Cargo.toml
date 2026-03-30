@@ -1,0 +1,11 @@
+[package]
+name = "phenotype-validation"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+description = "Phenotype Validation Rule System"
+
+[dependencies]
+regex = "1"
+thiserror = "2.0"

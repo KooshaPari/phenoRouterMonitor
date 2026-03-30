@@ -1,0 +1,32 @@
+{
+  "id": "phenotype-error-core",
+  "title": "Extract phenotype-error-core Shared Error Library",
+  "description": "Consolidate duplicated error types from 4 crates (442 LOC, 15+ overlapping variants) into a single phenotype-error-core library",
+  "category": "libification",
+  "status": "specified",
+  "created_at": "2026-03-29",
+  "priority": "high",
+  "effort_estimate_minutes": 15,
+  "expected_loc_reduction": 180,
+  "affected_crates": [
+    "phenotype-contracts",
+    "phenotype-event-sourcing",
+    "phenotype-policy-engine",
+    "phenotype-cache-adapter"
+  ],
+  "tags": [
+    "error-handling",
+    "code-consolidation",
+    "libification",
+    "shared-library",
+    "technical-debt"
+  ],
+  "metrics": {
+    "error_enums_found": 5,
+    "total_error_loc": 442,
+    "common_variants": 11,
+    "target_loc_reduction": 180,
+    "reduction_percentage": 49
+  },
+  "owner": "agent"
+}

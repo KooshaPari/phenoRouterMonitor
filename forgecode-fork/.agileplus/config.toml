@@ -1,0 +1,83 @@
+# AgilePlus Configuration for forgecode-fork
+
+[fork]
+name = "forgecode-fork"
+version = "0.1.0"
+upstream = "https://github.com/forgecode/forgecode"
+description = "Custom Phenotype fork with subagent integration and custom providers"
+created_date = "2026-03-30"
+
+[agileplus]
+# Specs location: can be local (.agileplus/specs/) or external (../kitty-specs/forgecode-fork/)
+specs_location = "../kitty-specs/forgecode-fork/"
+spec_format = "markdown"
+tracker_enabled = true
+
+[providers]
+# List of enabled provider extensions
+enabled = [
+  "phenotype-rust-crate",
+  "agileplus-wp",
+  "xdd-test"
+]
+
+[providers."phenotype-rust-crate"]
+template = "hexagonal"
+description = "Phenotype hexagonal Rust crate scaffolding"
+
+[providers."agileplus-wp"]
+template = "work-package"
+description = "AgilePlus work package YAML generator"
+
+[providers."xdd-test"]
+template = "bdd-test"
+description = "xDD test scaffold generator with traceability"
+
+[subagent]
+# Subagent coordination settings
+registry_url = "http://localhost:9999/registry"
+coordinator_enabled = true
+coordinator_timeout_ms = 30000
+max_concurrent_agents = 10
+
+[subagent.extensions]
+enabled = [
+  "multi-agent-coordinator",
+  "evidence-generator",
+  "conflict-resolver"
+]
+
+[dashboard]
+# AgilePlus dashboard integration
+api_endpoint = "http://localhost:3000/api"
+ui_components = [
+  "provider-gallery",
+  "evidence-timeline",
+  "agent-work-distribution"
+]
+
+[ci-cd]
+# GitHub Actions / CI pipeline integration
+pipeline_enabled = true
+evidence_collection = true
+artifact_upload = true
+
+[testing]
+# Test framework settings
+framework = "pytest"  # Can be expanded to support Rust cargo test, Jest, etc.
+coverage_tool = "coverage"
+lint_tools = ["pylint", "clippy"]
+
+[git]
+# Fork maintenance settings
+upstream_sync_enabled = true
+upstream_sync_interval_days = 30
+cherry_pick_bugfixes = true
+preserve_custom_patches = true
+
+[workspace]
+# Workspace configuration
+root_path = "/Users/kooshapari/CodeProjects/Phenotype/repos/forgecode-fork"
+target_monorepo = "/Users/kooshapari/CodeProjects/Phenotype/repos"
+artifacts_dir = "./artifacts"
+evidence_dir = "./evidence"

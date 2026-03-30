@@ -1,0 +1,1658 @@
+{
+  "generated_at": "2026-03-29T17:23:41.437774+00:00",
+  "comparison_index": null,
+  "total_documents": 235,
+  "actions": [
+    {
+      "path": "CI-CD-IMPLEMENTATION-SUMMARY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "cfcc52e641fc0513b29d9e71e7049b51b6d4b5dda437cd845e1bcaac0d95e21a"
+    },
+    {
+      "path": "LOCAL_FIRST_DEPLOYMENT_GUIDE.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "586782b4fa1842e70a433d4ac5545be0bb7e0fa25769bbe26a3e8f4963028ef0"
+    },
+    {
+      "path": "LOCAL_FIRST_EXAMPLE_IMPLEMENTATION.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "bb6579aa10124fc76ed75e529b9a13ce0a79caccc69369f2f2f67e0fd6fb0729"
+    },
+    {
+      "path": "LOCAL_FIRST_INDEX.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2c99506feb460d584a8b3887ff0e9e44e385c8ad41d707740be135e289cd38da"
+    },
+    {
+      "path": "LOCAL_FIRST_TECH_RESEARCH.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a3920f52a632361f060918be6c13c6f96281272ffc6e93ed824620e4b4aea42b"
+    },
+    {
+      "path": "WORKLOG.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7e0f53ed6f1cac1478fcd035be8e53cc17977fe9de9eca3c27fa494902bc2f32"
+    },
+    {
+      "path": "adr/001-task-runner-selection.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "493669817db2806f8da032d6f45098d3b038e6bfaee37a75a09fe238a71a2fa9"
+    },
+    {
+      "path": "adr/002-registry-adapter-architecture.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d6799b3869f6ccf1dc486a28355ebf43fe4e3f6ac3b311ff4730351d75716a00"
+    },
+    {
+      "path": "adr/ADR-012-plugin-architecture.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7a302699b015cac8bdab9c0c148a425c633436d36a6df6d63a213bddc9c3290a"
+    },
+    {
+      "path": "adr/ARCHITECTURE.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e9d2f5ea68194ed74352a5e19bc8a3456fbaf7ccc8998dd58d447bde6d3f3d1b"
+    },
+    {
+      "path": "agents/governance-constraints.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ceae5f06846edae90dbf18c7d1d3066b926e524943d5d9fa7a22c589eb6a370b"
+    },
+    {
+      "path": "agents/harness-integration.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "dcac909130776cc5321d23b550c170b03ab4d06e78deea7a76fa8f6afb43b5a0"
+    },
+    {
+      "path": "agents/prompt-format.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f69cd2bf586464d7719b0cdda0422f813d02cd846a56d9e9806c40160afa9d22"
+    },
+    {
+      "path": "agents/subcommand-reference.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "12152f0ed3af771fa9bab5638e51db0d955af9f9ca2590787ee2ae92c4801a69"
+    },
+    {
+      "path": "architecture/domain-model.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a780808cef8045abc655c24abe85d14cea55f0c53b89f696890e42e58fadf6e5"
+    },
+    {
+      "path": "architecture/overview.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7ca61f49a5306b6dd3b9bb9261f69252385a722570e4b71b9487aaed85d427c1"
+    },
+    {
+      "path": "architecture/ports.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3762532a8f39a973f7a13ff2d6893b74037c5d60bd6c3f123da160bc9a9b0d3b"
+    },
+    {
+      "path": "concepts/agent-dispatch.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ca7fa38ce57e4014d84bd12ac5c7e9df06a73eb53d146dbf76f03b0c7d729c45"
+    },
+    {
+      "path": "concepts/feature-lifecycle.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b2ce77877ee9c36783868c97bd6d7d693fa7a3b861c316c3c37018bd7070ae3e"
+    },
+    {
+      "path": "concepts/governance.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "864403de8af0ddd6947a875a13638ae0b2a1f506187418177be37ebdd24a70fc"
+    },
+    {
+      "path": "concepts/local-first-tech-research.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b6788a9ba3d0ff1170a87f4f27242af66390d06cab1d273cbbe65211cce06543"
+    },
+    {
+      "path": "concepts/spec-driven-dev.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f3603864b93436a986efcb6e5a94bf77695d77ca04f403a7e01612775b24ab3c"
+    },
+    {
+      "path": "developers/contributing.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "01a9c809db41deacbd7450568580c90e85ebc51fd3378e2c268efbb56e79fcc6"
+    },
+    {
+      "path": "developers/extending.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "9f34329751e6cdc57611662f9b9828d1ebea1de69c127e2a37e5ea3c0ca34152"
+    },
+    {
+      "path": "developers/testing.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "1ea667e5f3c377fc31f32a8e4b11151595bd6d680b1c6b6a7b73c9066212e14c"
+    },
+    {
+      "path": "doc-system/federation.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "69dc648e6f688ae9d6079379acf14f98043a9922ff8048df24b9bf6524eed646"
+    },
+    {
+      "path": "doc-system/frontmatter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3969d56b87d64b4e648bb9bb43651487a2a576723284ee6cedae86a1aa68e3cb"
+    },
+    {
+      "path": "doc-system/layers.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b3606b1c04014924e75e93b9894eebe352948a2611b8de0cd4896c503fe3f45d"
+    },
+    {
+      "path": "examples/agent-integration.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2ae7a0a00e7f6126961ee5c348df3c1430178a73bcfed41cb31c7df705e783ea"
+    },
+    {
+      "path": "examples/full-pipeline.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c297766bbe5dc803a120b5e17fa5492790f8f1003c77d50ae3e991c1151d3356"
+    },
+    {
+      "path": "examples/local-first-example.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "4588992e26c02f0778d2d1f92cd270ec0e4bfa5521213d38275eba87a8e1d5ec"
+    },
+    {
+      "path": "examples/triage-workflow.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "be78888a798f2702a6e5aa9deb5135caff36118db6b006faeb8182d0d44e7932"
+    },
+    {
+      "path": "fa-Latn/index.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "773f1e8f4709d1db62956566e34b7cdde341344a123f2fd9ce8872a0aced9331"
+    },
+    {
+      "path": "fa/index.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "81f32b6e82dea09d0af8c0ede666d31846c67518c0f54bde339fa2a9ade5a1e0"
+    },
+    {
+      "path": "guide/configuration.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6bdfaa0a109e9418c34295beb58b80aea610c419e4283f148a8ffd184b163439"
+    },
+    {
+      "path": "guide/getting-started.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "726b9c0725a6c1890631ca2eee954dc6e2f342a766b6f2e4662dcd4d94388df5"
+    },
+    {
+      "path": "guide/init.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2979e4b536a38f2b7146e13e9760fa55772b969d3341029c24dd31570914ed8f"
+    },
+    {
+      "path": "guide/local-first-deployment.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "586782b4fa1842e70a433d4ac5545be0bb7e0fa25769bbe26a3e8f4963028ef0"
+    },
+    {
+      "path": "guide/quick-start.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8b30b7853c0f7dc3e93d861a008247ff5d91469ffabfbb9b5233a5cb440a2ec2"
+    },
+    {
+      "path": "guide/sync.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8cbf7fe9e529f4767ac4baaad38c398ea590800b4cd66927a4255c58a7a473e5"
+    },
+    {
+      "path": "guide/triage.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "10207b2b9d62cdd71e99d35657214f1ff26c820898289d0359c663eb0a409dfa"
+    },
+    {
+      "path": "guide/workflow.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "16a0f0a33bee70eaee2fd97e2b2a9a3c2a1825b7f581a70c8d07fa197fdbe3a7"
+    },
+    {
+      "path": "guides/DEV_STACK.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "593f079d646cb26ca1e353aff3dfa68de49f588d374a7676964f852df1a9a5cd"
+    },
+    {
+      "path": "guides/FR_ANNOTATION_GUIDE.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5edca3ad499b0d4c07c22f5149bb03befe2fead870dd96d19fe8339fa5e9c8de"
+    },
+    {
+      "path": "index.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7eccbb7fc84440acbc5054c62c1c367d181c67c3561599575203956fc63fd829"
+    },
+    {
+      "path": "pilot/README.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f8f1cde2a5a47e3268bed1355b5bd8112cda64677b659766e6433f5fb05b2f11"
+    },
+    {
+      "path": "pilot/agentapi-plusplus.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "eecfe33e5906a9ce8a3bb7c6ff15082b21c1a671444de84d6c26189e96d8ad9d"
+    },
+    {
+      "path": "pilot/agilePlus.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "89c6264f327355dff4bd81cc52a0ea6149abe06c50b482ba0b4d05c38a57be29"
+    },
+    {
+      "path": "pilot/thegent.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "40d496f0994ed22a169fae5a055638086c3669895040162313803a6d1fd436e2"
+    },
+    {
+      "path": "pilot/tokenledger.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "28d4193acc71468b6dcf8a926d076c7ed38cd0136f47f956b12e027f4ee3ba9a"
+    },
+    {
+      "path": "process/analyze.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ee6351b069481886c7bb785f70df3bdd4c626911ba25bd2f46be5a27d4d8a833"
+    },
+    {
+      "path": "process/checklists.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3ec4009412c3112e605a1b53366000ad6276c0e03df1ad8368763849e1d9998d"
+    },
+    {
+      "path": "process/constitution.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b2d02ce350de7e1f3de97d818dd93d7b226ded908d1e319bdacfefe224d1f9ca"
+    },
+    {
+      "path": "process/governance.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3f4c97d98ba79e831259039a266b4d12ae2e3c40b8170f0c671402bc90eb554e"
+    },
+    {
+      "path": "process/retrospective.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c0b3e5b3ae6d699451ae25931a56fcc78d2bc74e14df4ca5d96105ff5060adf3"
+    },
+    {
+      "path": "process/status-dashboard.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6a9f85839b3fb106cc959f6b3f4e5db5dc768fa6ecb4fd2effe46e2fdcc3a4fe"
+    },
+    {
+      "path": "process/versioning.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "4f61de7bc7fcca18ffde49a6f999ceb0c4790dcc26a81e7472209c9ae8ffc8bb"
+    },
+    {
+      "path": "reference/CODE_ENTITY_MAP.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "4a85b727da76b3f989cce02f8fd5964debaa69f5b36c07075a7fa0e7d9b4fc06"
+    },
+    {
+      "path": "reference/FR_TRACKER.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6d1e2bb2c6ae43e012458e7bb21c56ab02423f40d33f7f1843bb5034fdbc241f"
+    },
+    {
+      "path": "reference/GAP_SWEEP_INDEX.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "4514e69dbd88ec317895a94f31a0e23828b2ad8fbed3eddd4a61afcc99ccd4fe"
+    },
+    {
+      "path": "reference/GAP_SWEEP_MISSION_SUMMARY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3697dbc47283be9353a3ab89058cedeb0730f740c05bafef67efac480524f436"
+    },
+    {
+      "path": "reference/PHASE_1_BLOCKER_DECISIONS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f55786fd5f2688704599dd4028e9502d20e2013ecb1f8e2bc90f0b505b95ef36"
+    },
+    {
+      "path": "reference/PHASE_1_COMPLETION_REPORT.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "acb946900546e8cc7e0fbe18a1ac8ff7175bc6257b25c9913be5e31cf39c2450"
+    },
+    {
+      "path": "reference/PHASE_1_FINAL_SUMMARY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e2d04ff6b2403a9297be2680e64c6806dd282f55d35d2b4a928d5ba358642c31"
+    },
+    {
+      "path": "reference/PHASE_1_READINESS_CHECKLIST.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "40e55e3c33ed1db5ebb4badf57155411454c07aaf1da02077765678987791d50"
+    },
+    {
+      "path": "reference/SPEC_COMPLETENESS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "efda487c1882c5b707dd766076f4a21a0170cfdc11df52ba6d477c75c4a0a5bf"
+    },
+    {
+      "path": "reference/cli.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "cb1e0cfdda4fc2b0b28ac4c1c044d51e80b566ca8c4db854fee2d37c5e4106ec"
+    },
+    {
+      "path": "reference/crates.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "1c4e5880880e724424683c4e292ee90e3cf3f3ef7359c97faedf97166b2e5bee"
+    },
+    {
+      "path": "reference/env-vars.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d1cadfa2889d823c148b099ad407192034c682353c33afa28f77924c2363fbc3"
+    },
+    {
+      "path": "reference/local-first-quick-reference.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2e65efa44b035ea12b6c6efb968931a2e526fc99c76b6bff7462af9973cbc5f4"
+    },
+    {
+      "path": "reference/subcommands.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3caa231782e620146814207f048c6c25a43186b560c876c17aea78376d6b33e0"
+    },
+    {
+      "path": "reports/ERROR_CORE_EXTRACTION_INDEX.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d59ede1f8abdbc39d374670cf6fd55170996b8f0582990ebd263f08ee5ec8d32"
+    },
+    {
+      "path": "reports/EXTRACTION_TASK_COMPLETION_REPORT.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b44a88aa5114500fd797aad52e31333024b19b6ed9b59b9abdc1f8c7bb0f9839"
+    },
+    {
+      "path": "reports/FR_TRACEABILITY_COMPLETION.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "056897f9185b855edbba0fd8182ac4f6cb74ac0613f498e2f6754cd133c7c2fe"
+    },
+    {
+      "path": "reports/PHASE_1_COMPLETION_REPORT.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e8bc693e08e14978972560b9bff70a006ca85fd139d6b92162e21bcacd1b17f3"
+    },
+    {
+      "path": "reports/PHENOTYPE_ERROR_CORE_ANALYSIS_SUMMARY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b41b654aca0ccc7d584e748724e15aa5d63ad0c325858c81d52c91502ef4d6c5"
+    },
+    {
+      "path": "roadmap/index.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d3ec35ca183e913dfe3f7b2f21d36cfedc295c59fd58fa1968f9bce68b8493af"
+    },
+    {
+      "path": "roadmap/release-notes.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "cbad760894a49bb30ea4fb81a68100153fcc916cea4d8992cdab5838fae379d1"
+    },
+    {
+      "path": "sdk/grpc-api.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b526f1b3aec03ef30b5e4e3cca55cae0dd877f8f078873f23577ed66ab535c0a"
+    },
+    {
+      "path": "sdk/mcp-runtime.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "10ff64284d024f201967eaed704aeb4212ae32ae72f15d071a621917dd4a0d8c"
+    },
+    {
+      "path": "sdk/mcp-tools.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b50b26ee0aedaeb7294cf860803b928252a5026fc4292d723184e24752f1f0f0"
+    },
+    {
+      "path": "sdk/storage-port.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "fb9ee0562034b38df072ab32d19a776b44ac10a3625ea43c3c15a98a0b31a774"
+    },
+    {
+      "path": "sdk/vcs-port.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c301d43e3d4be845b4446eeaacc5ecaff17274bf02578b366f63c2caaac34dd6"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/00_SESSION_OVERVIEW.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ff42fe063577125c22307795cdf0a2e9d8347c7ca375d6ee009773b374aa7484"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/01_RESEARCH.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "bed7a252a5db4229e75e9bd93a7992341e6c541ab86a0bfb773481d2b6c68bd2"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/02_SPECIFICATIONS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f23008e5beac2a796c1b338ebc814dc04328de66310618863e56e47125092188"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/03_DAG_WBS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ed34e309993ed5611b84499a7cb061e1ac78a31ea650725a3dee4f470b61fb23"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/04_IMPLEMENTATION_STRATEGY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0f718a4ef42a69356c97934f4c45b0eb3e6d1f714aea1b942f5200940aebb582"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/05_KNOWN_ISSUES.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "008ba8be425da110390fe7f3e2eb654f223342c9788d614d9d2cb88e7e64068b"
+    },
+    {
+      "path": "sessions/20260323-backlog-parity/06_TESTING_STRATEGY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b92b612e548e0a03bac0db91d82e20dce30db0ddf210bcd185f8cf689898d315"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/00_SESSION_OVERVIEW.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "b0b52548ce702df5e287d195de939111878e8eb7252d81cdbe1956a0021aab89"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/01_RESEARCH.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "36765fb432498d34b21e49db8b86014960d68a7540af9b2fe39b835045da2f08"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/02_SPECIFICATIONS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "fb73535026a7613d729b499c1965fd90334cf326f9b332b8a6e7bdeefe10d306"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/03_DAG_WBS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f8ba9b0861863f3561a5c322f303c2b28a4dd01c1f50defacfc52150a562afd6"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/04_IMPLEMENTATION_STRATEGY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "927ad33cb4183aa51bcc02a1c42c1690abb8b9deb370167f514ee4895ba5c345"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/05_KNOWN_ISSUES.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7306a49dcfbb0ad717f56f9815b95e9e290f8416240d2efc7e3131433ab96974"
+    },
+    {
+      "path": "sessions/20260323-config-module-split/06_TESTING_STRATEGY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "04a68a76e519cb636c514cf75f569b144ed3de2a6c64a2d5c01defe4a5a925d3"
+    },
+    {
+      "path": "sessions/20260327-open-work-ledger/00_SESSION_OVERVIEW.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "46389437108b0a8a5b8a0eeed30a133eb45ea56338618f727ed68396e7a45c30"
+    },
+    {
+      "path": "sessions/20260327-open-work-ledger/03_DAG_WBS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c4ffe3c4d442f353edd5e3412c8e42ff7709bad95167c39de3319a499fb8dad0"
+    },
+    {
+      "path": "sessions/20260327-open-work-ledger/05_KNOWN_ISSUES.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e5c9c7b425302f79303795db1d2302e12637d43a81be49ecc0ba19bf81f00224"
+    },
+    {
+      "path": "sessions/20260327-open-work-ledger/06_TESTING_STRATEGY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "824cae72dbb4785e12e73b0d2e18643f7c4c29ed5d5eeb4b56b3bcf071568ac6"
+    },
+    {
+      "path": "sessions/20260327-plane-fork-pm-substrate/00_SESSION_OVERVIEW.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7c0bff91967c15ebafb3a11bf85078690ba2ac355f29bb1aca9be627a7bb1eb3"
+    },
+    {
+      "path": "sessions/20260327-plane-fork-pm-substrate/01_RESEARCH.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "718248f22c4ee57eee370a7c038321b1e3735f73b2fb59f9c265c942abb1fa2e"
+    },
+    {
+      "path": "sessions/20260327-plane-fork-pm-substrate/03_DAG_WBS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "700c9107c1f03e3e31437072dd34cb1abb31a1b35569cf47c66ab1262c5130dd"
+    },
+    {
+      "path": "sessions/20260327-plane-fork-pm-substrate/05_KNOWN_ISSUES.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e87f60cf7d1274d63eefcb0e1862fa006d51856aa2a17af9b82f6a34381e123c"
+    },
+    {
+      "path": "sessions/20260327-plane-fork-pm-substrate/06_TESTING_STRATEGY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d28dea477248f70c5f3a737864e167aa452e7304fea9b318f5ca98223e15c92b"
+    },
+    {
+      "path": "sessions/20260329-wave92-deep-audit/00_SESSION_OVERVIEW.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d1a85126b414bedc0f10ba381021a65a625baaee5219c53960f50eea184c4a1b"
+    },
+    {
+      "path": "sessions/20260329-wave92-deep-audit/01_RESEARCH.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "236a4c8e412d584825d34103f7be7cc78a2a4527401f9f651ba28181336b7166"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/checklists/requirements.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a771f5f83195157d24dd278f37106202bfc011e2ffbe0e0d7ba86fa34997c355"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/data-model.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2c9001e5af2142bb659b94cb3652c3866c6727ad9383d66b1de0118368d5af15"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6caf0be0ec55586aa801b23a079dd8a7ebf1d1c20fe684c4a2b8e4cddc19b08a"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/research.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c762a381a533c84ecabe4dee3d4f8bf1a7b89d5d9c039b3b690bc27dac526425"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "79fce8ffc88ff246213225f771f1027d049c29ad22ea9a93a6554f23001a8255"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d51a055df1828b18137150f0f89395a79bdd928dcf9a2c1a0605ba42b8187736"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/README.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5ec285a6e3f205f0152a3a69bf0234075a1d7961d123d00843a4478201f058d4"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP00-proto-scaffold.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "9148cfe70204e5fa91f052b33904b7e8e24ecbca63569b342243068abca3fd40"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP01-rust-workspace-scaffold.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e1d66ede61edca6523865f3a21481e2cbd031b085fab00a984e1994eb2c77401"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP02-python-mcp-scaffold.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5248184ca5a69a85cbf24893ce92a76815b8da80da5b76a41ab8813fa20b27ea"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP03-domain-feature-state-machine.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0304bb31b07e6de103e6f6145e9c0b699251dccffb2167eb281411a49a821b42"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP04-domain-governance-audit.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "89c4234b3704d27c614dcbf8d40cc67551527a46af6df892e0b919c1e977e44e"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP05-port-traits.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "1a621b59c2bb8a19cb0419dbc87df6938cdacf4d19f8a04ab36787abbc4ce62d"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP06-sqlite-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "242901e41e2e3a6ed5da9fd37a538112ba28d2350732d1ba963c4e3574ecbd67"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP07-git-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "fc601d0298286cd2bf6ee3f86ab7f903dd307645e70b8752c39dccecc993a777"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP08-agent-dispatch-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "05d603cf5ee43354cfedf3646b4d9dde047bbaf69390b0b16fd585d1b422943f"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP09-review-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6f62b0d6990a5c75f340d7a4fb96b42352cef1e76b492e13f962df1baf772b17"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP10-telemetry-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "9a12bf9ef866034e78d8b89afb7b3af4e522c5808b99cb4b420be0a4460a9d41"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP11-cli-specify-research.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e3918bad9fe02243069844bd825ac1fdf1c9f62c04d99f43d3c7ecaf0bcdcfe1"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP12-cli-plan-implement.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "88a39b23ad86a7c3c7620e4254ec3cc879dbc2ac4fa5cdee4cf3a3552bd0b1d4"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP13-cli-validate-ship-retro.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "aa34ced18ac0259516189875a3b92a3665846b0168e3e71e9f7f9412d8e53377"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP14-grpc-mcp-integration.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8ec776c165822898d2a27e4c5fe29ca56dff7368d02e22d28cca4044e68e707c"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP15-api-credentials.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "321780aebeebb6f68a642d05ebb3f2b06e7a0e1ec0d69a15c3a468afe4532fa4"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP16-bdd-integration-tests.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "1a26e672bbe89a5114bc142f3dd7dc6eae1b7397e9bf4a0adae2b51ec32d5190"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP17-triage-backlog-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d01b80653bd47075e8f3191f13ac2ba4cdfe346d8baa516f2d8b4b42dc6cc595"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP18-plane-sync-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "113cacef4e3e54dca8fa95e5afcdf01d158887945416854c7d3d4b286243b6b9"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP19-github-sync-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "9b543e29fbdee61aa4076c6b85cb1ee616bd238d0e9bd8152b438efad3460a6a"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP20-hidden-subcommands.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c1a008af8a715405ee8bbb917b13fa5d2af67a9437d1bf6c2f6fe92ecd4737f4"
+    },
+    {
+      "path": "specs/001-spec-driven-development-engine/tasks/WP21-cli-triage-queue.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f5b6af308cfe10d5d495c24eba418eff11a8c02ec42edb518313508f2994d0a3"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/checklists/requirements.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "dcbe606e8771ef2bf10d2a1ce2289d032520571bc9031508b392a38d801671cb"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/contracts/registry-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8415986b076f9af50e41a59c599b0e646fff86a58e476e443c8388f65a32a174"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/data-model.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "81b3001cece983a937174adb332a786292d2cde0ce91ccc4a93f347cac683896"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "da16e2e18463f19b43c697f792c619dd40d1706fade97460f9c8d004100b9879"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/research.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "85621141b831fda4d968671386137e0d2fa8773ec7e5ef5346f4d5e7df1ba296"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "906b551265d4e73f5accc38f5e5379bacee8eb3e9c9b7c9550a4c659867f46d3"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a5ccbd40574afc48b85bff34de57be28d33153a0bd26719e324dfaf78755c929"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/README.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5ec285a6e3f205f0152a3a69bf0234075a1d7961d123d00843a4478201f058d4"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP01-cli-scaffold-adapter-interface.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8e1d73d789d25a5bc2e61d1e13f742cceaaa56b6113f5318dd86b1c9e4ff12cc"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP02-npm-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "940c61af39266696afd51bb87b6f526e7a74ef45a137ab9d81b4191394490975"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP03-pypi-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6bf3041863bdadfbc788de02ee481ca48a7d90da14df1a5d29619be7769e77d7"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP04-crates-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "4823d9321cd674d274619136cfda93f1db24feed666278f58082576a033a0b8b"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP05-go-proxy-prewired-adapters.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "10c12beca1bef2d5fc4b23cba60e88d8cb3541923bd76f73957ab56aabfd1842"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP06-gate-evaluation-engine.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "29787ba85c644b6e6a7c456275ff759dee2f221ef1184e766c4baa374d035b61"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP07-cli-publish-promote.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "33910298297cd02fe95a4bcbd2326fdcd46d614a7c0998eb68f12c9d1824a1cb"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP08-cli-audit-matrix.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "81a79d65f6cf0c16310cc1bda74cbb209f44401b8e3e2e3d4cb41ba72a4ed182"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP09-cli-bootstrap.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "12e5aeb5fc99cd8fa86d149f294ae0d55527a5c8afe9573284088ec40b76d212"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP10-centralized-ci-workflows.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "122178658d75feeac28762df0a423b0979ab485b6f77966c18fe236388e066d0"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP11-task-runner-standardization.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "97b56fc2ebc652933bfbd57fe94decc34e815866cbbb3587896808fe4c5cefdf"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP12-pre-commit-pre-push-hooks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ab7c7ab54da5454f31b590aa0ae6fb148e33153110f4ed2f578df8783be09536"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP13-pilot-rollout.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "21b0b33a0176f05c96804afd66285745f1f3ded61e342c9ef0505d216eb5c7b5"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP14-org-wide-rollout.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8ec4b90863f0b68e08bb19f6831fd2ee1857e3cdbf9287b09795a9b594732927"
+    },
+    {
+      "path": "specs/002-org-wide-release-governance-dx-automation/tasks/WP15-documentation-polish.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c21921a8a63e0f9d666b2173dd26ec96d6218bdba19a2d303fc512a38b27d978"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/checklists/requirements.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "16d0eeefeae4726f80e1218d533826c4a6bd0b713c3848e63103914606237620"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/data-model.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "765a9f6232c5347674722466346c8fe6981bdddfe0a1e8953cc6a94b65124f48"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "faf18182b59e1142e91ad273f975c585af8702bbba062f95fb9ab5158eb04c91"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/research.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "4e7912cd11291c22f91f5a6b9acf79a7ed372237855d98ea87bcb6b05f11709e"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2aa3973aeddbb357c815c8b6f3692233d97a51d8bedbfcac742718e45b723d04"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "445318182579354dc9b77e38063147be35e24bb3a2298c8ee32f963be3850ac1"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/README.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5ec285a6e3f205f0152a3a69bf0234075a1d7961d123d00843a4478201f058d4"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP01-domain-model-extensions.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2c81515dcc013baa6ab4aa22888fbdf863fdd3f42f33beeca2369125b0b5a95b"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP02-event-sourcing-engine.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0db89fc8650a943f3400788dcf606affe3b770ed74b8c8fca900cced6644536d"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP03-sqlite-schema-extensions.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "87ba3b18e254ab88a39553ac37fbd00af802faa08b6cedb42f3af09399fc4577"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP04-cache-layer-dragonfly.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0042576af6cce4317ed0e7e45efe42dc7de52e972c4ca5c8ae7e590485654531"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP05-graph-layer-neo4j.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "302bb7cb4484515f2ac7b39db1e751f13917fcfa8045ee1d3799165211d45350"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP06-artifact-storage-minio.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "fa3ef19791a611139cc6153a9a327ad84757d0687d2b14e6cf434df006fa6d1a"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP07-process-compose-config.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "91ca95e7533dbac6e97e51a580785425fb29df95f94161738050d467e565ab3b"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP08-plane-bidirectional-sync.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "53d679b278eb46667b3bb25bfe42cb4cf0ac0c367d545455346ee3b7b13fbf07"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP09-sync-orchestrator.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5526794589bb097954b873c964c63c35fc87f4176b0e329f571b317ff39c73a2"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP10-cli-sync-commands.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "cbbff159e35384918f6c5a09c268cd7b1b5e1c91e4b08f9e52e25180c683dc2b"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP11-api-extensions.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7b3f667719d9efe4e0c93abb753e45d95f6a66fcd0729f41f212eef0e4e59caf"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP12-dashboard-templates.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "bafad4da61ba2c8b14232afff3ec6a17b5f8e1d99503efff661c397e2c4c0a73"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP13-dashboard-interactivity.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c687166b3c56b77af04cc42616bf03fcc631f3a31b9ad9572677949a34fcdd7a"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP14-cli-platform-commands.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0eeed708b413e5b089c616008e7c478158a0f171e15316be9af54e6a783c3d73"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP15-opentelemetry-integration.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "65cc69664a2e62cd7ad289a280af0e71e126f07ff8c4bacf2f163cf7d6720ddc"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP16-p2p-sync-tailscale.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "689c34da905365d542062711cd0c50bec20ce0f53fb33be292b75c6f4088a81b"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP17-git-backed-state.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7b3bc2647cc12b95c1f4ff14eb7c5856226434aad7933cb6fff8afac11240658"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP18-cli-device-commands.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c8a300455e4ee2ba32dbc3f0dc40235d11f6cfebe9aec9de948b928a777490a5"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP19-e2e-integration-tests.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "17d57823b94c8aeae843883b6802fbafe757a08bb59f93a29a3ab9ebe94fdd09"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP20-contract-tests.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "542f4b09186a23dddc2d0384050cd2c07abae2b54259ab257c0de0f4e037e5fa"
+    },
+    {
+      "path": "specs/003-agileplus-platform-completion/tasks/WP21-performance-benchmarks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "6772c56d2ffbadf7b3dbbde641a14b8fe72839af8ff31a930545b324b082c4e6"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/checklists/requirements.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "29e44ae9a119f6f8166df123cea3e57ce2851cb37e7df3eb59b1170d30626205"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/data-model.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "35e1fcd7fd944e938aae69816b1eb12976b1fa6a9f40d07c5a7f94d5175ceec4"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "09edf609aacd04cc5624e359516ead635a801201dc13fa7bfe27e6b08fbe5470"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ba9f52e16ee9c0723f33ba1ea7d1441f3aae642a18000a7dd2148767f3cfff24"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2f9284f732f847be4d039be346f4b765a453346b697ba2ce605094c59894097b"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/README.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5ec285a6e3f205f0152a3a69bf0234075a1d7961d123d00843a4478201f058d4"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP01-domain-entities.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "408057791d4ad88062b3520b690c371f328a6bb45103d6fba9df6b5f5f058ec2"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP02-storage-adapter.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a915e64505ea28e8874b4ad3533d2ed949b047cad6a377bda23eec104f92e03a"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP03-cli-module.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "fd42bb99a09b43c0dcd002bbe456d0adeb087e8403c51d85580761dec2fcf5b6"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP04-cli-cycle.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ebd1d45bc6df08c150d30b0844e134938bef61f31545478b4f274d0826f8f820"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP05-dashboard-views.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "e572d17b4a1cb85b7265e53b2e3fa6c63fb886112a3f7b15e1fbd438c64c9179"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP06-plane-sync.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5478c09c76ed47db139e57fb5be8195df3975f23b950ce6dc743c1bf8bc61191"
+    },
+    {
+      "path": "specs/004-modules-and-cycles/tasks/WP07-integration-tests.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c92a44979df2a9f1374b2c7df07d0e84cfd3947c49f5bf7f9396bd4ee9a9b9f0"
+    },
+    {
+      "path": "specs/005-heliosapp-completion/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "c40cb276f65d1ef1492b6103091428bb6ccb7d0619291914c94d2140fad0e87d"
+    },
+    {
+      "path": "specs/005-heliosapp-completion/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "04da13bc53a686e7a7d766c53baa7a6139f61ab112a2156cd42c58d298301415"
+    },
+    {
+      "path": "specs/005-heliosapp-completion/tasks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8b563e0dd9c24bccb171a379189766783841ac1dbe1ac02d6c2a89169d40d55e"
+    },
+    {
+      "path": "specs/006-helioscli-completion/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "8dc050727b692bbb90dadf84381ec7a3a10b6da7c7e6b86f88c5530f77ca753a"
+    },
+    {
+      "path": "specs/007-thegent-completion/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "74284ee85153a334ded319d3669374999dd066e1fb05b3237be6cd8c7700c5dc"
+    },
+    {
+      "path": "specs/007-thegent-completion/spec.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "cee1cfc8cf5c4655e7de4ed64757c59d3746877e0cbcd25cd3e7f527d5f77eaf"
+    },
+    {
+      "path": "workflow/accept.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7a6fe91836015e88071dd376340cba96d0a5b665d56216213a1442198f892775"
+    },
+    {
+      "path": "workflow/clarify.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7c5d0b25c8b03c380d38c37938d023820fcd6cb73ca45e3de91a9fcdda08da4d"
+    },
+    {
+      "path": "workflow/implement.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a001c0e26fe831903e175d57cb450485077bdefc23a8f6b9f9fea883b2b8b4db"
+    },
+    {
+      "path": "workflow/merge.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "05dcfaf3acd262142ed9cb89ad2dc93acd1a00afe8a7a218aee81614e518b7c0"
+    },
+    {
+      "path": "workflow/plan.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0a499006a5834a704f999016e28fdf71e8a224d0ceb8f19fd880fc8bc4c8c049"
+    },
+    {
+      "path": "workflow/research.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d97fac6c81b0c5da10d0e76194c0987b1bb7e0a1e2e22801e2eecd0befb60536"
+    },
+    {
+      "path": "workflow/review.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0e10441213ac9cadd56ed74827dd801eebb681f1251b80e5a7fd23904950d0ae"
+    },
+    {
+      "path": "workflow/specify.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "fc4077d70d01c1bf1942a865ed4f5f2fe69a5e32c337f23e518f24121680f15f"
+    },
+    {
+      "path": "workflow/tasks.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f60bb63b7486495400305287a34355c94a78cc91bab3d028f39c9dbdabe1e6bd"
+    },
+    {
+      "path": "worklogs/AGENT_ONBOARDING.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "25c04c0cfc0c4855a82dcd3397ffc757356c7718c73b455d55485abc9289750e"
+    },
+    {
+      "path": "worklogs/ARCHITECTURE.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "ec07f1f57ace66482e762faaab460ded7d1db9b9af38633702d82d774ed2ccc8"
+    },
+    {
+      "path": "worklogs/DEPENDENCIES.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "7284df38c2a8268c7aa9772b1376d767c4015a2356c0914d2c44fd92e1017848"
+    },
+    {
+      "path": "worklogs/DUPLICATION.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "13481ae91acf0f5c6c998cebcad94135a9ab010e3a35f5cc566935c2ffd29ad1"
+    },
+    {
+      "path": "worklogs/GOVERNANCE.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "84f2f52c7d0a95bc57e19ba9328c4ac10326613a9b14dbd614143246de97bd99"
+    },
+    {
+      "path": "worklogs/INTEGRATION.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "87afa45a273493656c734e069a8d5d5908060a6663d248a47fa553c12c5cad0f"
+    },
+    {
+      "path": "worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "bf60035c2a1da43467b98fa12526598614045e8d57d2083dae32ee2c96ccaba7"
+    },
+    {
+      "path": "worklogs/LOC_REDUCTION.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "f7e91ef048e3fb5bb48b65c616da7bdbd3bbd5990f5d99cee4ffb12cd9dcc855"
+    },
+    {
+      "path": "worklogs/PERFORMANCE.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "d4c64ecd7597ce870b799e42cc8837201582895d387c9fe150a9f01660af8272"
+    },
+    {
+      "path": "worklogs/PHASE2_COMPLETION_SUMMARY.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "22fca2bd69d697fad9a9a4c1da84c045311d7a4dec902eed63a64c8abe8f4ba4"
+    },
+    {
+      "path": "worklogs/PROJECTS.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "a627f055522df7c0d4e89a850f1701ed2ba09b12f2efe290ac7d068a76cc46f9"
+    },
+    {
+      "path": "worklogs/PROJECTS_heliosCLI.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "2ad393df7a81c263a39cb751393d8b155cdb1e2dc1d9669d469db8ccbc66c2a3"
+    },
+    {
+      "path": "worklogs/PROJECTS_thegent.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5d700c88c07de3fea9fcbb82a04d683013da237bef7fb5b5d33e23adbb85634a"
+    },
+    {
+      "path": "worklogs/README.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "3c679a49d3b31ff8a5bffae03e035e606f0ac9b5dba147ddfa3fc8db72e2304f"
+    },
+    {
+      "path": "worklogs/RESEARCH.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "39f12a79215edbd8473c83dffb4c7aa34573f1406c4cf5d832684aac7f23a46b"
+    },
+    {
+      "path": "worklogs/TOOLING.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "20fbc8e528cea33db1b30f19fb74763fe8c7bab99de8552047e8c92af0c572a4"
+    },
+    {
+      "path": "worklogs/WORK_LOG.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "5607d4d082adf47c997c763452d5afab86d08a8110eb6b45a67b0514e22ee3bc"
+    },
+    {
+      "path": "zh-CN/index.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "0791f67c1373482140a208ce0eaeadcf7256d6e0f4d399a3f95ff4a530ff0f83"
+    },
+    {
+      "path": "zh-TW/index.md",
+      "action": "add",
+      "reason": "baseline ingestion",
+      "old_hash": null,
+      "new_hash": "35f7f079756d8270da66ecd5492589f16f421be1f8ed5ee3d952096d18a93c38"
+    }
+  ],
+  "summary": {
+    "added": 235,
+    "updated": 0,
+    "unchanged": 0,
+    "deleted": 0
+  }
+}

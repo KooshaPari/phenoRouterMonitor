@@ -409,3 +409,68 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 - [ ] Plan gix upgrade from 0.71 to 0.79
 
 ---
+
+---
+
+## 2026-03-29 - Error Handling & Propagation Dependencies
+
+**Project:** [cross-repo]
+**Category:** dependencies
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+Dependencies for unified error handling across the Phenotype ecosystem.
+
+### Error Crate Comparison
+
+| Crate | Purpose | Downloads | Assessment |
+|-------|---------|-----------|------------|
+| `anyhow` | Context-rich errors | 50M+ | ✅ ADOPT - Error handling |
+| `thiserror` | Derive-based errors | 30M+ | ✅ ADOPT - Error types |
+| `color-eyre` | Pretty-printed errors | 1M+ | 🟡 EVALUATE - UX |
+| `tracing-error` | Error spans | Built-in | ✅ ADOPT - Tracing |
+
+### Recommended Stack
+
+```toml
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+color-eyre = "0.26"
+```
+
+### Error Propagation Pattern
+
+```rust
+use anyhow::{Context, Result};
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum PhenotypeError {
+    #[error("entity not found: {id}")]
+    NotFound { id: String },
+    
+    #[error("validation failed: {context}")]
+    Validation { context: String },
+    
+    #[error(transparent)]
+    Internal(#[from] anyhow::Error),
+}
+
+// Propagation with context
+pub fn load_config(path: &Path) -> Result<Config> {
+    let contents = std::fs::read_to_string(path)
+        .with_context(|| format!("failed to read {:?}", path))?;
+    toml::from_str(&contents)
+        .context("failed to parse config")
+}
+```
+
+### Tasks
+
+- [ ] ERROR-001: Migrate all `anyhow::Error` usage to typed errors where possible
+- [ ] ERROR-002: Add `color-eyre` for development error formatting
+- [ ] ERROR-003: Standardize error codes across all services
+
+_Last updated: 2026-03-29_
