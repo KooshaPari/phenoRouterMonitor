@@ -71,8 +71,6 @@ impl EventStore for InMemoryEventStore {
         let entity_map = store.entry(entity_type.to_string()).or_insert_with(std::collections::BTreeMap::new);
         let events = entity_map.entry(entity_id.to_string()).or_insert_with(Vec::new);
 
-        println!("DEBUG: append entity_type={} entity_id={} existing={} sequenceKey active", entity_type, entity_id, events.len());
-
         let sequence = if events.is_empty() { 1 } else { events.last().unwrap().sequence + 1 };
         let prev_hash = if events.is_empty() {
             "0".repeat(64)
@@ -223,7 +221,8 @@ impl EventStore for InMemoryEventStore {
             .map(|e| (e.hash.clone(), e.prev_hash.clone()))
             .collect();
 
-        Ok(hash::verify_chain(&chain).map_err(|e| EventStoreError::InvalidHash(e.to_string()))?)
+        hash::verify_chain(&chain).map_err(|e| EventStoreError::InvalidHash(e.to_string()))?;
+        Ok(())
     }
 }
 
