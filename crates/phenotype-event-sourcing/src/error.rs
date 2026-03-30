@@ -1,38 +1,37 @@
 //! Error types for phenotype-event-sourcing
 
+use thiserror::Error;
+
 /// Event sourcing errors
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum EventSourcingError {
+    #[error("aggregate not found: {0}")]
     AggregateNotFound(String),
+
+    #[error("event not found: {0}")]
     EventNotFound(String),
 
-    #[error("hash mismatch: expected {expected}, got {actual}")]
-    HashMismatch { expected: String, actual: String },
+    #[error("serialization error: {0}")]
+    Serialization(String),
 
-    #[error("version conflict: expected {expected}, got {actual}")]
-    VersionConflict { expected: u64, actual: u64 },
+    #[error("hash mismatch")]
+    HashMismatch,
+
+    #[error("snapshot error: {0}")]
+    Snapshot(String),
+
+    #[error("replay error: {0}")]
+    Replay(String),
+
+    #[error("version conflict")]
+    VersionConflict,
+
+    #[error("invalid event sequence")]
+    InvalidEventSequence,
 
     #[error("internal error: {0}")]
     Internal(String),
 }
-
-impl std::fmt::Display for EventSourcingError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::AggregateNotFound(s) => write!(f, "aggregate not found: {}", s),
-            Self::EventNotFound(s) => write!(f, "event not found: {}", s),
-            Self::Serialization(s) => write!(f, "serialization error: {}", s),
-            Self::HashMismatch => write!(f, "hash mismatch"),
-            Self::Snapshot(s) => write!(f, "snapshot error: {}", s),
-            Self::Replay(s) => write!(f, "replay error: {}", s),
-            Self::VersionConflict => write!(f, "version conflict"),
-            Self::InvalidEventSequence => write!(f, "invalid event sequence"),
-            Self::Internal(s) => write!(f, "internal error: {}", s),
-        }
-    }
-}
-
-impl std::error::Error for EventSourcingError {}
 
 impl EventSourcingError {
     pub fn aggregate_not_found(id: impl Into<String>) -> Self { Self::AggregateNotFound(id.into()) }
@@ -67,35 +66,21 @@ pub enum HashError {
     HashMismatch { sequence: i64 },
 }
 
-// Conversion to unified phenotype error hierarchy
 impl From<EventSourcingError> for phenotype_errors::PhenotypeError {
     fn from(err: EventSourcingError) -> Self {
+        use phenotype_errors::PhenotypeError;
         match err {
-            EventSourcingError::AggregateNotFound(s) => {
-                phenotype_errors::PhenotypeError::NotFound(s)
-            }
-            EventSourcingError::EventNotFound(s) => {
-                phenotype_errors::PhenotypeError::NotFound(s)
-            }
-            EventSourcingError::Serialization(s) => {
-                phenotype_errors::PhenotypeError::Serialization(s)
-            }
-            EventSourcingError::HashMismatch => {
-                phenotype_errors::PhenotypeError::InvalidState("hash mismatch".to_string())
-            }
-            EventSourcingError::Snapshot(s) => {
-                phenotype_errors::PhenotypeError::InvalidState(s)
-            }
-            EventSourcingError::VersionConflict => {
-                phenotype_errors::PhenotypeError::Conflict("version conflict".to_string())
-            }
+            EventSourcingError::AggregateNotFound(s) => PhenotypeError::not_found(s),
+            EventSourcingError::EventNotFound(s) => PhenotypeError::not_found(s),
+            EventSourcingError::Serialization(s) => PhenotypeError::serialization(s),
+            EventSourcingError::HashMismatch => PhenotypeError::internal("hash mismatch"),
+            EventSourcingError::Snapshot(s) => PhenotypeError::internal(s),
+            EventSourcingError::VersionConflict => PhenotypeError::conflict("version conflict"),
             EventSourcingError::InvalidEventSequence => {
-                phenotype_errors::PhenotypeError::InvalidState("invalid event sequence".to_string())
+                PhenotypeError::internal("invalid event sequence")
             }
-            EventSourcingError::Internal(s) => phenotype_errors::PhenotypeError::Internal(s),
-            EventSourcingError::Replay(s) => {
-                phenotype_errors::PhenotypeError::InvalidState(s)
-            }
+            EventSourcingError::Internal(s) => PhenotypeError::internal(s),
+            EventSourcingError::Replay(s) => PhenotypeError::internal(s),
         }
     }
 }
