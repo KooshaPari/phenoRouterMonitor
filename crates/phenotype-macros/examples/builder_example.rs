@@ -56,9 +56,7 @@ fn main() {
     );
 
     // Example 4: Demonstrating missing field error
-    let result = PersonBuilder::new()
-        .name("Charlie".to_string())
-        .build();
+    let result = PersonBuilder::new().name("Charlie".to_string()).build();
 
     match result {
         Ok(_) => println!("Unexpectedly succeeded"),
