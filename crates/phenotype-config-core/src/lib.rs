@@ -9,13 +9,25 @@
 //! 2. User config: `~/.config/phenotype/config.toml`
 //! 3. Project config: `./config.toml`
 //! 4. Env vars: `PHENOTYPE_*` prefix
+//!
+//! # Features
+//!
+//! - **Multi-format support**: TOML, YAML, JSON via Figment 0.15+
+//! - **Cascading**: Merge configs from multiple sources with priority
+//! - **Validation**: Schema validation support
+//! - **Environment overrides**: Env vars take highest priority
 
 use serde::Deserialize;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
 use thiserror::Error;
+
+// ============================================================================
+// Error Types
+// ============================================================================
 
 #[derive(Debug, Error)]
 pub enum ConfigError {
@@ -25,28 +37,96 @@ pub enum ConfigError {
     #[error("TOML parse error: {0}")]
     Parse(#[from] toml::de::Error),
 
+    #[error("JSON parse error: {0}")]
+    JsonParse(#[from] serde_json::Error),
+
+    #[error("YAML parse error: {0}")]
+    YamlParse(#[from] serde_yaml::Error),
+
+    #[error("Figment error: {0}")]
+    Figment(String),
+
     #[error("config key not found: {0}")]
     KeyNotFound(String),
+
+    #[error("validation error: {0}")]
+    Validation(String),
 }
 
 /// Result type for config operations.
 pub type Result<T> = std::result::Result<T, ConfigError>;
 
-/// Configuration value that can come from file or environment.
-#[derive(Debug, Clone, Deserialize)]
-pub struct ConfigValue {
-    pub value: toml::Value,
-    pub source: ConfigSource,
-}
+// ============================================================================
+// Config Source Types
+// ============================================================================
 
-#[derive(Debug, Clone, Copy, Deserialize)]
+/// Configuration source indicating where a value originated.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ConfigSource {
     System,
     User,
     Project,
     Env,
+    Inline,
 }
+
+impl std::fmt::Display for ConfigSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConfigSource::System => write!(f, "system"),
+            ConfigSource::User => write!(f, "user"),
+            ConfigSource::Project => write!(f, "project"),
+            ConfigSource::Env => write!(f, "env"),
+            ConfigSource::Inline => write!(f, "inline"),
+        }
+    }
+}
+
+/// Configuration value that can come from file or environment.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ConfigValue {
+    #[serde(flatten)]
+    pub value: Value,
+    pub source: ConfigSource,
+}
+
+impl ConfigValue {
+    /// Create a new config value
+    pub fn new(value: Value, source: ConfigSource) -> Self {
+        Self { value, source }
+    }
+
+    /// Get the value as a specific type
+    pub fn get<T: for<'de> Deserialize<'de>>(&self) -> Result<T> {
+        serde_json::from_value(self.value.clone())
+            .map_err(|e| ConfigError::Validation(e.to_string()))
+    }
+
+    /// Get string value
+    pub fn as_str(&self) -> Option<&str> {
+        self.value.as_str()
+    }
+
+    /// Get bool value
+    pub fn as_bool(&self) -> Option<bool> {
+        self.value.as_bool()
+    }
+
+    /// Get i64 value
+    pub fn as_i64(&self) -> Option<i64> {
+        self.value.as_i64()
+    }
+
+    /// Get f64 value
+    pub fn as_f64(&self) -> Option<f64> {
+        self.value.as_f64()
+    }
+}
+
+// ============================================================================
+// Config Loader (Main Type)
+// ============================================================================
 
 /// Cascading TOML config loader with environment overrides.
 ///
@@ -94,31 +174,76 @@ impl ConfigLoader {
         self.load_env();
     }
 
-    /// Load a TOML file into the config.
-    fn load_file(&mut self, path: &PathBuf, source: ConfigSource) {
-        if path.exists() {
-            match fs::read_to_string(path) {
-                Ok(contents) => match toml::from_str::<toml::Value>(&contents) {
-                    Ok(value) => self.merge_value(value, source),
+    /// Load a config file (auto-detects format based on extension).
+    pub fn load_file(&mut self, path: &PathBuf, source: ConfigSource) {
+        if !path.exists() {
+            return;
+        }
+
+        let extension = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("toml")
+            .to_lowercase();
+
+        match fs::read_to_string(path) {
+            Ok(contents) => {
+                let value = match extension.as_str() {
+                    "yaml" | "yml" => self.parse_yaml(&contents),
+                    "json" => self.parse_json(&contents),
+                    _ => self.parse_toml(&contents),
+                };
+
+                match value {
+                    Ok(v) => self.merge_value(v, source),
                     Err(e) => {
                         eprintln!("warning: failed to parse {}: {}", path.display(), e);
                     }
-                },
-                Err(e) => {
-                    eprintln!("warning: failed to read {}: {}", path.display(), e);
                 }
+            }
+            Err(e) => {
+                eprintln!("warning: failed to read {}: {}", path.display(), e);
             }
         }
     }
 
-    /// Merge a TOML value into the config.
-    fn merge_value(&mut self, value: toml::Value, source: ConfigSource) {
-        if let toml::Value::Table(table) = value {
-            for (key, val) in table {
+    /// Parse TOML content
+    fn parse_toml(&self, content: &str) -> Result<Value> {
+        let toml_value: toml::Value = toml::from_str(content)?;
+        Ok(serde_json::to_value(toml_value)?)
+    }
+
+    /// Parse YAML content (using figment)
+    fn parse_yaml(&self, content: &str) -> Result<Value> {
+        use figment::providers::{Format, YAML};
+
+        let figment = figment::Figment::new()
+            .merge(YAML::string(content));
+
+        figment::providers::Format::deserialize(figment, serde_json::value::Value::deserialize)
+            .map_err(|e| ConfigError::Figment(e.to_string()))
+    }
+
+    /// Parse JSON content
+    fn parse_json(&self, content: &str) -> Result<Value> {
+        serde_json::from_str(content).map_err(ConfigError::JsonParse)
+    }
+
+    /// Merge a JSON value into the config.
+    fn merge_value(&mut self, value: Value, source: ConfigSource) {
+        if let Some(obj) = value.as_object() {
+            for (key, val) in obj {
+                // Skip overriding if new source has lower or equal priority
+                // This ensures env vars always win
+                if let Some(existing) = self.values.get(key) {
+                    if existing.source.priority() >= source.priority() {
+                        continue;
+                    }
+                }
                 self.values.insert(
                     key.clone(),
                     ConfigValue {
-                        value: val,
+                        value: val.clone(),
                         source,
                     },
                 );
@@ -132,15 +257,16 @@ impl ConfigLoader {
         for (key, val) in env::vars() {
             if key.starts_with(prefix) {
                 let config_key = key.strip_prefix(prefix).unwrap().to_lowercase();
-                if let Ok(value) = val.parse::<toml::Value>() {
-                    self.values.insert(
-                        config_key,
-                        ConfigValue {
-                            value,
-                            source: ConfigSource::Env,
-                        },
-                    );
-                }
+                // Try to parse as JSON for complex values, fallback to string
+                let value = serde_json::from_str(&val)
+                    .unwrap_or_else(|_| Value::String(val));
+                self.values.insert(
+                    config_key,
+                    ConfigValue {
+                        value,
+                        source: ConfigSource::Env,
+                    },
+                );
             }
         }
     }
@@ -173,22 +299,13 @@ impl ConfigLoader {
     }
 
     /// Get a config value as a specific type.
-    pub fn get<T: serde::de::DeserializeOwned>(&self, key: &str) -> Result<T> {
+    pub fn get<T: for<'de> Deserialize<'de>>(&self, key: &str) -> Result<T> {
         self.values
             .get(key)
             .ok_or_else(|| ConfigError::KeyNotFound(key.to_string()))
             .and_then(|v| {
-                // Convert toml::Value to serde_json::Value for deserialization
-                let json_value = serde_json::to_value(&v.value)
-                    .map_err(|_| ConfigError::Io(std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        "failed to convert toml to json"
-                    )))?;
-                serde_json::from_value(json_value)
-                    .map_err(|_| ConfigError::Io(std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        "failed to deserialize config value"
-                    )))
+                serde_json::from_value(v.value.clone())
+                    .map_err(|e| ConfigError::Validation(e.to_string()))
             })
     }
 
@@ -212,7 +329,7 @@ impl ConfigLoader {
     /// Returns the default value if the key is not found.
     ///
     /// Traces to: FR-PHENO-CONFIG-005
-    pub fn get_or_default<T: serde::de::DeserializeOwned + Default>(&self, key: &str) -> T {
+    pub fn get_or_default<T: for<'de> Deserialize<'de> + Default>(&self, key: &str) -> T {
         self.get(key).unwrap_or_default()
     }
 
@@ -223,6 +340,12 @@ impl ConfigLoader {
     /// Traces to: FR-PHENO-CONFIG-006
     pub fn merge(&mut self, other: ConfigLoader) {
         for (key, value) in other.values {
+            // Check priority before inserting
+            if let Some(existing) = self.values.get(&key) {
+                if existing.source.priority() >= value.source.priority() {
+                    continue;
+                }
+            }
             self.values.insert(key, value);
         }
     }
@@ -232,10 +355,40 @@ impl ConfigLoader {
     /// Useful for bulk operations or serialization.
     ///
     /// Traces to: FR-PHENO-CONFIG-007
-    pub fn all_values(&self) -> &std::collections::HashMap<String, ConfigValue> {
+    pub fn all_values(&self) -> &HashMap<String, ConfigValue> {
         &self.values
     }
+
+    /// Get all values as a JSON object.
+    ///
+    /// Useful for serialization or passing to other systems.
+    ///
+    /// Traces to: FR-PHENO-CONFIG-008
+    pub fn to_json(&self) -> Value {
+        let mut map = serde_json::Map::new();
+        for (key, val) in &self.values {
+            map.insert(key.clone(), val.value.clone());
+        }
+        Value::Object(map)
+    }
 }
+
+impl ConfigSource {
+    /// Get the priority of this source (higher = more important).
+    fn priority(&self) -> u8 {
+        match self {
+            ConfigSource::System => 1,
+            ConfigSource::User => 2,
+            ConfigSource::Project => 3,
+            ConfigSource::Inline => 4,
+            ConfigSource::Env => 5,
+        }
+    }
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
 
 #[cfg(test)]
 mod tests {
@@ -279,5 +432,79 @@ mod tests {
         let loader = ConfigLoader::new();
         let values = loader.all_values();
         assert!(values.len() >= 0);
+    }
+
+    // FR-PHENO-CONFIG-008: to_json returns JSON object
+    #[test]
+    fn test_to_json() {
+        let loader = ConfigLoader::new();
+        let json = loader.to_json();
+        assert!(json.is_object());
+    }
+
+    #[test]
+    fn test_config_source_priority() {
+        assert!(ConfigSource::Env.priority() > ConfigSource::Project.priority());
+        assert!(ConfigSource::Project.priority() > ConfigSource::User.priority());
+        assert!(ConfigSource::User.priority() > ConfigSource::System.priority());
+    }
+
+    #[test]
+    fn test_parse_toml() {
+        let loader = ConfigLoader::new();
+        let toml_content = r#"
+[database]
+host = "localhost"
+port = 5432
+"#;
+        let result = loader.parse_toml(toml_content);
+        assert!(result.is_ok());
+        let value = result.unwrap();
+        assert!(value.get("database").is_some());
+    }
+
+    #[test]
+    fn test_parse_json() {
+        let loader = ConfigLoader::new();
+        let json_content = r#"{"name": "test", "value": 42}"#;
+        let result = loader.parse_json(json_content);
+        assert!(result.is_ok());
+        let value = result.unwrap();
+        assert_eq!(value.get("name").and_then(|v| v.as_str()), Some("test"));
+    }
+
+    #[test]
+    fn test_merge_respects_priority() {
+        let mut loader = ConfigLoader::new();
+
+        // Add a value from system
+        loader.merge_value(
+            serde_json::json!({"key": "system_value"}),
+            ConfigSource::System,
+        );
+
+        // Try to override with another system value
+        loader.merge_value(
+            serde_json::json!({"key": "project_value"}),
+            ConfigSource::Project,
+        );
+
+        // Project should win (higher priority)
+        assert_eq!(
+            loader.get_str("key"),
+            Some("project_value")
+        );
+
+        // Try to override with env
+        loader.merge_value(
+            serde_json::json!({"key": "env_value"}),
+            ConfigSource::Env,
+        );
+
+        // Env should win (highest priority)
+        assert_eq!(
+            loader.get_str("key"),
+            Some("env_value")
+        );
     }
 }

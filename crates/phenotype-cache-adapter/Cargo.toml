@@ -6,19 +6,16 @@ license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
 authors.workspace = true
-description = "Cache adapter implementations for Phenotype ecosystem"
+description = "TODO"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
+serde.workspace = true
 serde_json.workspace = true
-chrono.workspace = true
-dashmap.workspace = true
-async-trait.workspace = true
 thiserror.workspace = true
-tokio = { workspace = true, features = ["sync"] }
 lru.workspace = true
 moka.workspace = true
-phenotype-error-core.workspace = true
+uuid.workspace = true
+tokio.workspace = true

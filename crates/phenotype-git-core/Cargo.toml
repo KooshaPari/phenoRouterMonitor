@@ -5,10 +5,11 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Git operations for Phenotype — repository info, diff, log, and status via libgit2"
+description = "Git operations for Phenotype via gitoxide (pure Rust) — fixes RUSTSEC-2025-0140"
 
 [dependencies]
-git2.workspace = true
+# gix (gitoxide) - pure Rust git implementation
+# Replaces libgit2 to fix RUSTSEC-2025-0140 (CVE-2024-24818)
 gix.workspace = true
 thiserror.workspace = true
 

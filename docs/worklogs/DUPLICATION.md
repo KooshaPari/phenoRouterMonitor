@@ -358,6 +358,26 @@ All error enums use `thiserror` — no hand-rolled implementations found.
 
 1. **Consolidate error crates** - Deprecate `phenotype-error-core` or promote it
 2. **Create wrapper pattern** - Domain errors should wrap common `ErrorKind`
+3. **Immediate LOC reduction** - Coalesce `InMemoryEventStore` pattern across crates into a shared `phenotype-memory-store` module to remove 4 duplicates (+80 LOC).
+
+### 2026-03-30 - Wave 96: in-memory store and snapshot config cleanup
+
+**Project:** [phenotype-infrakit]
+**Category:** duplication | LOC reduction
+**Status:** completed
+**Priority:** P0
+
+- Converged on shared in-memory store pattern using `Arc<RwLock<HashMap<_,_>>>` in `phenotype-event-sourcing`.
+- Converted `impl Default` for `InMemoryEventStore` to `#[derive(Default)]` (`crates/phenotype-event-sourcing/src/memory.rs`).
+- Standardized `SnapshotConfig` defaults to maintain one source of configuration values (`crates/phenotype-event-sourcing/src/snapshot.rs`).
+- This cleanup directly reduces duplicated runtime initialization code and paves the way for a library-level generic store.
+
+### Key duplication metrics update
+
+- `InMemoryEventStore` implementation seen in 4 repos (estimated 180 LOC total using identical pattern)
+- `SnapshotConfig` default pattern seen in 3 repos (estimated 60 LOC)
+- Reduces duplicate error load path across 2 crates (augmented in section prior)
+
 3. **Adopt phenotype-errors workspace-wide** - Migrate patterns
 
 ### Action Items
