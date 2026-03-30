@@ -11,6 +11,6 @@ pub mod store;
 
 pub use error::{EventSourcingError, EventStoreError, HashError, Result};
 pub use event::EventEnvelope;
-pub use hash::{compute_event_hash, verify_event_hash};
+pub use hash::{compute_hash, verify_chain};
 pub use memory::InMemoryEventStore;
 pub use store::{EventStore, JsonEnvelope};
