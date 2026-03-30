@@ -44,6 +44,7 @@ futures = "0.3"
 tracing = "0.1"
 sha2 = "0.10"
 hex = "0.4"
+blake3 = "1.5"
 uuid = { version = "1", features = ["v4", "serde"] }
 regex = "1"
 proc-macro2 = "1"
@@ -51,7 +52,6 @@ quote = "1"
 syn = { version = "2", features = ["full"] }
 dirs = "5"
 derive_more = "1"
-strum = { version = "0.26", features = ["derive"] }
 
 [profile.dev]
 opt-level = 0
