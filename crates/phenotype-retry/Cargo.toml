@@ -1,7 +1,3 @@
-# Phenotype Retry Library
-#
-# Provides retry patterns using the tenacity crate for Rust.
-
 [package]
 name = "phenotype-retry"
 version.workspace = true
@@ -12,14 +8,12 @@ repository.workspace = true
 description = "Retry patterns for Phenotype"
 
 [dependencies]
-# Retry library with backoff
-tenacity = { version = "0.3", features = ["nightly"] }
-
-# Async runtime
-tokio = { workspace = true, features = ["time"] }
-
-# Logging
+serde.workspace = true
+thiserror.workspace = true
+sha2.workspace = true
 tracing.workspace = true
+tokio = { workspace = true, features = ["full", "time"] }
+tenacity = { version = "0.4", features = ["tokio"] }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
@@ -30,4 +24,3 @@ path = "src/lib.rs"
 [[bin]]
 name = "retry-example"
 path = "examples/retry_example.rs"
-required-features = []
