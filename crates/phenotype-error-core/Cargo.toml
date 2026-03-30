@@ -18,7 +18,7 @@ tracing = { workspace = true }
 chrono = { workspace = true }
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["test-utilities", "macros"] }
+tokio = { workspace = true, features = ["macros"] }
 
 [features]
 default = []
