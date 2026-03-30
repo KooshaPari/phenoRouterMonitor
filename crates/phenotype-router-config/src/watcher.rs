@@ -4,9 +4,9 @@ use crate::config::RouterConfig;
 use crate::error::Result;
 use crate::loader::ConfigLoader;
 use async_trait::async_trait;
-use notify::{Watcher, RecursiveMode, Result as NotifyResult};
-use notify::watcher;
-use std::path::{Path, PathBuf};
+use notify::{Watcher, RecursiveMode};
+use notify::recommended_watcher;
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{debug, info, warn};
@@ -57,12 +57,12 @@ impl ConfigWatcher {
         let current_config = Arc::clone(&self.current_config);
         let callbacks = Arc::clone(&self.callbacks);
 
-        tokio::spawn(async move {
-            let (tx, mut rx) = mpsc::channel(100);
+        let handle = std::thread::spawn(move || {
+            let (tx, rx) = std::sync::mpsc::channel();
 
-            let mut watcher = match watcher(move |res| {
-                let _ = tx.blocking_send(res);
-            }, Default::default()) {
+            let mut watcher = match recommended_watcher(move |res| {
+                let _ = tx.send(res);
+            }) {
                 Ok(w) => w,
                 Err(e) => {
                     warn!("Failed to create watcher: {}", e);
@@ -77,33 +77,50 @@ impl ConfigWatcher {
 
             info!("Started watching configuration file: {:?}", config_path);
 
-            while let Some(_event) = rx.recv().await {
+            for _event in rx.iter() {
                 debug!("Configuration file change detected");
 
                 // Attempt to reload the configuration
-                match ConfigLoader::load_from_file(&config_path).await {
-                    Ok(new_config) => {
-                        let mut current = current_config.lock().await;
-                        let old_config = current.clone();
+                match std::fs::read_to_string(&config_path) {
+                    Ok(content) => {
+                        match toml::from_str::<RouterConfig>(&content) {
+                            Ok(new_config) => {
+                                if new_config.validate().is_ok() {
+                                    let rt = tokio::runtime::Handle::current();
+                                    let config_clone = current_config.clone();
+                                    let callbacks_clone = callbacks.clone();
 
-                        // Call all registered callbacks
-                        let cbs = callbacks.lock().await;
-                        for callback in cbs.iter() {
-                            match callback.on_config_change(&old_config, &new_config).await {
-                                Ok(()) => {
-                                    debug!("Callback executed successfully");
-                                }
-                                Err(e) => {
-                                    warn!("Callback execution failed: {:?}", e);
+                                    rt.block_on(async {
+                                        let mut current = config_clone.lock().await;
+                                        let old_config = current.clone();
+
+                                        // Call all registered callbacks
+                                        let cbs = callbacks_clone.lock().await;
+                                        for callback in cbs.iter() {
+                                            match callback.on_config_change(&old_config, &new_config).await {
+                                                Ok(()) => {
+                                                    debug!("Callback executed successfully");
+                                                }
+                                                Err(e) => {
+                                                    warn!("Callback execution failed: {:?}", e);
+                                                }
+                                            }
+                                        }
+
+                                        *current = new_config;
+                                        info!("Configuration reloaded successfully");
+                                    });
+                                } else {
+                                    warn!("New configuration failed validation");
                                 }
                             }
+                            Err(e) => {
+                                warn!("Failed to parse configuration: {}", e);
+                            }
                         }
-
-                        *current = new_config;
-                        info!("Configuration reloaded successfully");
                     }
                     Err(e) => {
-                        warn!("Failed to reload configuration: {:?}", e);
+                        warn!("Failed to read configuration file: {}", e);
                     }
                 }
             }

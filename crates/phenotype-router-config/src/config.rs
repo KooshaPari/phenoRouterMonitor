@@ -2,7 +2,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::PathBuf;
 
 /// Router configuration loaded from TOML
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -120,19 +119,19 @@ impl RouterConfig {
     /// Validate the configuration
     pub fn validate(&self) -> Result<(), String> {
         // Validate server
-        if self.port == 0 {
+        if self.server.port == 0 {
             return Err("Port must be greater than 0".to_string());
         }
 
-        if self.host.is_empty() {
+        if self.server.host.is_empty() {
             return Err("Host cannot be empty".to_string());
         }
 
-        if self.timeout_secs == 0 {
+        if self.server.timeout_secs == 0 {
             return Err("Timeout must be greater than 0".to_string());
         }
 
-        if self.max_connections == 0 {
+        if self.server.max_connections == 0 {
             return Err("Max connections must be greater than 0".to_string());
         }
 

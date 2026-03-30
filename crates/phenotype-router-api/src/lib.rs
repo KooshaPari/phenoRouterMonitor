@@ -35,7 +35,6 @@ pub use metrics::{Metrics, MetricsCollector};
 pub use state::RouterState;
 pub use types::{Agent, Route, RouterConfig, RouterInfo};
 
-use axum::Server;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
