@@ -8,8 +8,7 @@ pub enum BifrostError {
     NoProvidersAvailable,
     #[error("routing failed: {0}")]
     RoutingFailed(String),
-    #[error("invalid request: {0}")]
-    InvalidRequest(String),
 }
 
 pub type Result<T> = std::result::Result<T, BifrostError>;
+pub type BifrostResult<T> = Result<T>;
