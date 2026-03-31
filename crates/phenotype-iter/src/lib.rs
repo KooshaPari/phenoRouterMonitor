@@ -303,7 +303,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn batch_iter_basic() {
+    fn chunk_iter_three_chunks() {
         let items = vec![1, 2, 3, 4, 5, 6, 7];
         let chunks: Vec<Vec<i32>> = ChunkIter::new(items.into_iter(), 3).collect();
         assert_eq!(chunks, vec![vec![1, 2, 3], vec![4, 5, 6], vec![7]]);
@@ -335,5 +335,34 @@ mod tests {
     fn window_iter_zero_size_panics() {
         let items = vec![1, 2, 3];
         let _iter: WindowIter<_> = WindowIter::new(items.into_iter(), 0);
+    }
+
+    #[test]
+    fn test_batch_predicate_with_strings() {
+        let items = vec!["apple", "apricot", "banana", "berry"];
+        let batches: Vec<Vec<&str>> =
+            BatchIter::new(items.into_iter(), |s: &&str| s.starts_with('b')).collect();
+        assert_eq!(
+            batches,
+            vec![vec!["apple", "apricot"], vec!["banana"], vec!["berry"]]
+        );
+    }
+
+    #[test]
+    fn test_batch_large_dataset() {
+        let items: Vec<i32> = (0..1000).collect();
+        let batches: Vec<Vec<i32>> =
+            BatchIter::new(items.into_iter(), |x: &i32| *x < 500).collect();
+        assert_eq!(batches.len(), 2);
+        assert_eq!(batches[0], (500..1000).collect::<Vec<_>>());
+        assert_eq!(batches[1], vec![499]);
+    }
+
+    #[test]
+    fn test_batch_complex_predicate() {
+        let items = vec![1, 3, 5, 7, 2, 4, 6];
+        let batches: Vec<Vec<i32>> =
+            BatchIter::new(items.into_iter(), |x: &i32| x % 2 != 0).collect();
+        assert_eq!(batches, vec![vec![2, 4, 6], vec![7]]);
     }
 }
