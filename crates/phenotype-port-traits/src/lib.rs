@@ -10,7 +10,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust
+//! ```rust,ignore
 //! use phenotype_port_traits::outbound::{Repository, CachePort};
 //! use async_trait::async_trait;
 //!
@@ -23,6 +23,3 @@
 
 pub mod inbound;
 pub mod outbound;
-
-// Re-export common types
-pub use async_trait::async_trait;

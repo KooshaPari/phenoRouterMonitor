@@ -17,6 +17,9 @@ members = [
     "crates/phenotype-port-traits",
     "crates/phenotype-policy-engine",
     "crates/phenotype-telemetry",
+    "libs/phenotype-config-core",
+    "forgecode-fork",
+    "phenotype-router-monitor",
 ]
 
 [workspace.dependencies]
