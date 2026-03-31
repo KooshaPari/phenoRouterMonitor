@@ -408,3 +408,13 @@ spec-verifier tests --verify-all
 **Maintained By:** Architecture team (phenotype-infrakit, AgilePlus, heliosCLI owners)
 **Next Review:** 2026-04-30
 
+
+#### FR-PHENOSDK-001: LLM Contract Extraction
+
+**Requirement:** System SHALL extract LLM integration contracts from phenotype-SDK codebase into standalone phenosdk-llm crate with canonical trait interfaces.
+**Traces To:** E8.1
+**Code Location:** `crates/phenosdk-llm/src/lib.rs`
+**Repository:** phenotype-infrakit
+**Status:** Planned
+**Test Traces:** `crates/phenosdk-llm/tests/llm_contract_tests.rs`
+
