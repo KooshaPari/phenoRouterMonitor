@@ -72,11 +72,13 @@ impl ConfigFormat {
     /// Parse content into a JSON Value.
     pub fn parse_to_json(self, content: &str) -> Result<JsonValue> {
         match self {
-            Self::Json => serde_json::from_str(content).map_err(|e| ConfigError::json_parse(e.to_string())),
+            Self::Json => {
+                serde_json::from_str(content).map_err(|e| ConfigError::json_parse(e.to_string()))
+            }
             #[cfg(feature = "toml")]
             Self::Toml => {
-                let value: toml::Value = toml::from_str(content)
-                    .map_err(|e| ConfigError::toml_parse(e.to_string()))?;
+                let value: toml::Value =
+                    toml::from_str(content).map_err(|e| ConfigError::toml_parse(e.to_string()))?;
                 serde_json::to_value(value).map_err(|e| ConfigError::custom("toml", e.to_string()))
             }
             #[cfg(not(feature = "toml"))]
@@ -100,7 +102,8 @@ impl ConfigFormat {
     /// Serialize a value to string in this format.
     pub fn serialize(self, value: &JsonValue) -> Result<String> {
         match self {
-            Self::Json => serde_json::to_string_pretty(value).map_err(|e| ConfigError::json_parse(e.to_string())),
+            Self::Json => serde_json::to_string_pretty(value)
+                .map_err(|e| ConfigError::json_parse(e.to_string())),
             #[cfg(feature = "toml")]
             Self::Toml => {
                 let value: toml::Value = serde_json::from_value(value.clone())
@@ -110,12 +113,13 @@ impl ConfigFormat {
             #[cfg(not(feature = "toml"))]
             Self::Toml => Err(ConfigError::custom("toml", "TOML feature not enabled")),
             #[cfg(feature = "yaml")]
-            Self::Yaml => serde_yaml::to_string(value).map_err(|e| ConfigError::yaml_parse(e.to_string())),
+            Self::Yaml => {
+                serde_yaml::to_string(value).map_err(|e| ConfigError::yaml_parse(e.to_string()))
+            }
             #[cfg(not(feature = "yaml"))]
             Self::Yaml => Err(ConfigError::custom("yaml", "YAML feature not enabled")),
-            Self::Auto => {
-                serde_json::to_string_pretty(value).map_err(|e| ConfigError::json_parse(e.to_string()))
-            }
+            Self::Auto => serde_json::to_string_pretty(value)
+                .map_err(|e| ConfigError::json_parse(e.to_string())),
         }
     }
 }
@@ -134,8 +138,14 @@ mod tests {
 
     #[test]
     fn test_from_content() {
-        assert_eq!(ConfigFormat::from_content(r#"{"key": "value"}"#), ConfigFormat::Json);
-        assert_eq!(ConfigFormat::from_content(r#"[section]"#), ConfigFormat::Toml);
+        assert_eq!(
+            ConfigFormat::from_content(r#"{"key": "value"}"#),
+            ConfigFormat::Json
+        );
+        assert_eq!(
+            ConfigFormat::from_content(r#"[section]"#),
+            ConfigFormat::Toml
+        );
         assert_eq!(ConfigFormat::from_content("key: value"), ConfigFormat::Yaml);
     }
 

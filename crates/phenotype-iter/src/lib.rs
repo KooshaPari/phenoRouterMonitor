@@ -258,12 +258,25 @@ where
             return None;
         }
 
+        // Handle pending item from previous iteration
+        if let Some(item) = self.pending_item.take() {
+            if (self.predicate)(&item) {
+                self.current_batch.push(item);
+            } else {
+                self.pending_item = Some(item);
+                self.exhausted = true;
+                return if self.current_batch.is_empty() {
+                    None
+                } else {
+                    Some(std::mem::take(&mut self.current_batch))
+                };
+            }
+        }
+
+        // Get iterator or return final batch
         let mut iter = match self.iter.take() {
             Some(it) => it,
             None => {
-                if let Some(item) = self.pending_item.take() {
-                    self.current_batch.push(item);
-                }
                 self.exhausted = true;
                 return if self.current_batch.is_empty() {
                     None
@@ -273,17 +286,16 @@ where
             }
         };
 
-        // Handle pending item from previous iteration
-        if let Some(item) = self.pending_item.take() {
-            self.current_batch.push(item);
-        }
-
         for item in iter.by_ref() {
-            if (self.predicate)(&item) && !self.current_batch.is_empty() {
-                // Save the triggering item for the next batch
-                self.pending_item = Some(item);
-                self.iter = Some(iter);
-                return Some(std::mem::take(&mut self.current_batch));
+            if !(self.predicate)(&item) {
+                // Predicate is false: finalize current batch if not empty, save item for next batch
+                if !self.current_batch.is_empty() {
+                    self.pending_item = Some(item);
+                    self.iter = Some(iter);
+                    return Some(std::mem::take(&mut self.current_batch));
+                }
+                // Current batch is empty, skip this item and continue looking for matching items
+                continue;
             }
             self.current_batch.push(item);
         }
@@ -322,17 +334,15 @@ mod tests {
     fn window_iter_basic() {
         let items = vec![1, 2, 3, 4, 5];
         let windows: Vec<Vec<i32>> = items.into_iter().window(3).collect();
-        assert_eq!(
-            windows,
-            vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]
-        );
+        assert_eq!(windows, vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]);
     }
 
     #[test]
     fn batch_iter_basic() {
         // When predicate is true, a new batch starts with that item
         let items = vec![1, 2, 3, 4, 5, 6];
-        let batches: Vec<Vec<i32>> = BatchIter::new(items.into_iter(), |x: &i32| x % 3 == 1).collect();
+        let batches: Vec<Vec<i32>> =
+            BatchIter::new(items.into_iter(), |x: &i32| x % 3 == 1).collect();
         // Predicate true for 1 and 4, so batches are: [1,2,3] then [4,5,6]
         assert_eq!(batches, vec![vec![1, 2, 3], vec![4, 5, 6]]);
     }

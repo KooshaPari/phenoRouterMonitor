@@ -94,7 +94,7 @@ impl<T: Contract> std::ops::Deref for Invariant<T> {
 pub struct Precondition;
 
 impl Precondition {
-    pub fn check(condition: bool, message: &str) -> Result<(), ContractError> {
+    pub fn new(condition: bool, message: &str) -> Result<(), ContractError> {
         if condition {
             Ok(())
         } else {
@@ -113,10 +113,9 @@ impl Precondition {
 #[macro_export]
 macro_rules! requires {
     ($condition:expr, $message:expr) => {{
-        $crate::Precondition::new($condition, $message)?
+        $crate::Precondition::new($condition, $message)?;
     }};
 }
-
 #[macro_export]
 macro_rules! ensures {
     ($condition:expr, $message:expr, $return_value:expr) => {{
@@ -139,7 +138,6 @@ pub trait ResultContract<T, E> {
     where
         F: FnOnce(&T) -> bool;
 }
-
 impl<T, E> ResultContract<T, E> for Result<T, E> {
     fn check_postcondition<F>(self, f: F) -> Self
     where
@@ -157,8 +155,7 @@ pub struct ContractBuilder<T> {
     value: T,
     errors: Vec<ContractError>,
 }
-
-impl<T> ContractBuilder<T> {
+impl<T: std::fmt::Debug> ContractBuilder<T> {
     pub fn new(value: T) -> Self {
         Self {
             value,
@@ -245,7 +242,8 @@ mod tests {
     }
     #[test]
     fn test_invariant_wrapper_invalid() {
-        assert!(Invariant::new(PositiveInt::new(-5).unwrap()).is_err());
+        // Precondition fails for negative values, so we use unwrap_err
+        assert!(PositiveInt::new(-5).is_err());
     }
     #[test]
     fn test_requires_macro_valid() {

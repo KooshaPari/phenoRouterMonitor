@@ -12,19 +12,31 @@ pub enum ConfigError {
     FileNotFound { path: String },
 
     #[error("failed to parse {format}: {reason}")]
-    Parse { format: &'static str, reason: String },
+    Parse {
+        format: &'static str,
+        reason: String,
+    },
 
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
     #[error("JSON parse error: {0}")]
-    JsonParse { path: Option<String>, reason: String },
+    JsonParse {
+        path: Option<String>,
+        reason: String,
+    },
 
     #[error("TOML parse error: {0}")]
-    TomlParse { path: Option<String>, reason: String },
+    TomlParse {
+        path: Option<String>,
+        reason: String,
+    },
 
     #[error("YAML parse error: {0}")]
-    YamlParse { path: Option<String>, reason: String },
+    YamlParse {
+        path: Option<String>,
+        reason: String,
+    },
 }
 
 /// Result type alias for configuration operations.

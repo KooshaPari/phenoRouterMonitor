@@ -617,9 +617,18 @@ mod tests {
 
     #[test]
     fn test_complexity_compare() {
-        assert_eq!(Complexity::compare(Complexity::Constant, Complexity::Linear), Ordering::Less);
-        assert_eq!(Complexity::compare(Complexity::Quadratic, Complexity::Linear), Ordering::Greater);
-        assert_eq!(Complexity::compare(Complexity::Linear, Complexity::Linear), Ordering::Equal);
+        assert_eq!(
+            Complexity::compare(Complexity::Constant, Complexity::Linear),
+            Ordering::Less
+        );
+        assert_eq!(
+            Complexity::compare(Complexity::Quadratic, Complexity::Linear),
+            Ordering::Greater
+        );
+        assert_eq!(
+            Complexity::compare(Complexity::Linear, Complexity::Linear),
+            Ordering::Equal
+        );
     }
 
     #[test]
@@ -686,7 +695,10 @@ mod tests {
     #[test]
     fn test_complexity_description() {
         assert_eq!(Complexity::Constant.description(), "O(1) - Constant time");
-        assert_eq!(Complexity::Quadratic.description(), "O(n²) - Quadratic time");
+        assert_eq!(
+            Complexity::Quadratic.description(),
+            "O(n²) - Quadratic time"
+        );
     }
 
     #[test]

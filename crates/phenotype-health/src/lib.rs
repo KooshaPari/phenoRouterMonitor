@@ -137,7 +137,10 @@ impl HealthMonitor {
                 Ok(s) => (s, None),
                 Err(_) => (
                     HealthStatus::Unhealthy,
-                    Some(format!("timeout after {}ms", self.config.timeout.as_millis())),
+                    Some(format!(
+                        "timeout after {}ms",
+                        self.config.timeout.as_millis()
+                    )),
                 ),
             };
 

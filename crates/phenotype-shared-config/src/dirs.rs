@@ -131,6 +131,8 @@ mod tests {
     fn test_config_dir_search() {
         let results = search_config_dirs("nonexistent-app", ".config.toml", &[]);
         // Should return empty or partial matches depending on environment
-        assert!(results.iter().all(|(d, p)| d != &ConfigDir::Env && p.exists()));
+        assert!(results
+            .iter()
+            .all(|(d, p)| d != &ConfigDir::Env && p.exists()));
     }
 }

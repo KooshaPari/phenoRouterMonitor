@@ -9,23 +9,38 @@ use std::time::Duration;
 
 #[test]
 fn worse_returns_unhealthy_over_anything() {
-    assert_eq!(HealthStatus::Healthy.worse(HealthStatus::Unhealthy), HealthStatus::Unhealthy);
-    assert_eq!(HealthStatus::Unhealthy.worse(HealthStatus::Healthy), HealthStatus::Unhealthy);
+    assert_eq!(
+        HealthStatus::Healthy.worse(HealthStatus::Unhealthy),
+        HealthStatus::Unhealthy
+    );
+    assert_eq!(
+        HealthStatus::Unhealthy.worse(HealthStatus::Healthy),
+        HealthStatus::Unhealthy
+    );
 }
 
 #[test]
 fn worse_returns_degraded_over_healthy() {
-    assert_eq!(HealthStatus::Healthy.worse(HealthStatus::Degraded), HealthStatus::Degraded);
+    assert_eq!(
+        HealthStatus::Healthy.worse(HealthStatus::Degraded),
+        HealthStatus::Degraded
+    );
 }
 
 #[test]
 fn worse_returns_unknown_over_healthy() {
-    assert_eq!(HealthStatus::Healthy.worse(HealthStatus::Unknown), HealthStatus::Unknown);
+    assert_eq!(
+        HealthStatus::Healthy.worse(HealthStatus::Unknown),
+        HealthStatus::Unknown
+    );
 }
 
 #[test]
 fn worse_healthy_healthy_is_healthy() {
-    assert_eq!(HealthStatus::Healthy.worse(HealthStatus::Healthy), HealthStatus::Healthy);
+    assert_eq!(
+        HealthStatus::Healthy.worse(HealthStatus::Healthy),
+        HealthStatus::Healthy
+    );
 }
 
 // --- Stub checker for tests ---
@@ -72,16 +87,28 @@ async fn monitor_no_checkers_is_healthy() {
 #[tokio::test]
 async fn monitor_all_healthy() {
     let mut monitor = HealthMonitor::new();
-    monitor.add_checker(StubChecker { name: "a", status: HealthStatus::Healthy });
-    monitor.add_checker(StubChecker { name: "b", status: HealthStatus::Healthy });
+    monitor.add_checker(StubChecker {
+        name: "a",
+        status: HealthStatus::Healthy,
+    });
+    monitor.add_checker(StubChecker {
+        name: "b",
+        status: HealthStatus::Healthy,
+    });
     assert_eq!(monitor.overall_status().await, HealthStatus::Healthy);
 }
 
 #[tokio::test]
 async fn monitor_one_unhealthy() {
     let mut monitor = HealthMonitor::new();
-    monitor.add_checker(StubChecker { name: "a", status: HealthStatus::Healthy });
-    monitor.add_checker(StubChecker { name: "b", status: HealthStatus::Unhealthy });
+    monitor.add_checker(StubChecker {
+        name: "a",
+        status: HealthStatus::Healthy,
+    });
+    monitor.add_checker(StubChecker {
+        name: "b",
+        status: HealthStatus::Unhealthy,
+    });
     assert_eq!(monitor.overall_status().await, HealthStatus::Unhealthy);
 }
 
@@ -102,7 +129,10 @@ async fn monitor_timeout_yields_unhealthy() {
 #[tokio::test]
 async fn health_response_json_serialization() {
     let mut monitor = HealthMonitor::new();
-    monitor.add_checker(StubChecker { name: "db", status: HealthStatus::Healthy });
+    monitor.add_checker(StubChecker {
+        name: "db",
+        status: HealthStatus::Healthy,
+    });
     let resp = monitor.health_response().await;
     let json = serde_json::to_string(&resp).unwrap();
     assert!(json.contains("\"status\":\"healthy\""));

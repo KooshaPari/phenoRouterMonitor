@@ -2,27 +2,23 @@
 //!
 //! Unified error types for the Phenotype ecosystem.
 
-pub use phenotype_error_core::ErrorKind;
+pub use phenotype_error_core::ApiError;
+pub use phenotype_error_core::ConfigError;
+pub use phenotype_error_core::DomainError;
+pub use phenotype_error_core::RepositoryError;
+pub use phenotype_error_core::StorageError;
 
-/// Canonical error type alias for type annotations.
-///
-/// Preferred over using `ErrorKind` directly in public APIs.
-pub type Error = ErrorKind;
-
-/// Convenience result type using the canonical `ErrorKind`.
-pub type Result<T> = std::result::Result<T, ErrorKind>;
-
-/// Backward compatibility alias for ErrorKind.
-pub use ErrorKind as CoreError;
+/// Convenience result type using the canonical ApiError.
+pub type Result<T> = std::result::Result<T, ApiError>;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_error_kind_not_found() {
-        let err = ErrorKind::not_found("user/42");
-        assert!(err.to_string().contains("not found"));
+    fn test_domain_error() {
+        let err = DomainError::Validation("invalid".into());
+        assert!(err.to_string().contains("validation failed"));
     }
 
     #[test]
@@ -33,33 +29,32 @@ mod tests {
 
     #[test]
     fn test_result_type_err() {
-        let r: Result<i32> = Err(ErrorKind::not_found("missing"));
+        let r: Result<i32> = Err(ApiError::BadRequest("bad".into()));
         assert!(r.is_err());
     }
 
     #[test]
-    fn test_error_constructors() {
-        assert_eq!(ErrorKind::serialization("parse failed").kind(), "Serialization");
-        assert_eq!(ErrorKind::validation("invalid email").kind(), "Validation");
-        assert_eq!(ErrorKind::conflict("already exists").kind(), "Conflict");
+    fn test_api_error_status_code() {
+        let err = ApiError::NotFound {
+            resource: "user".into(),
+            id: "42".into(),
+        };
+        assert_eq!(err.status_code(), 404);
     }
 
     #[test]
-    fn test_io_error_conversion() {
-        let io_err = std::io::Error::new(std::io::ErrorKind::PermissionDenied, "denied");
-        let err = ErrorKind::from(io_err);
-        assert_eq!(err.kind(), "Io");
+    fn test_storage_error_io() {
+        let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = StorageError::from(io_err);
+        assert!(err.to_string().contains("I/O error"));
     }
 
     #[test]
-    fn test_error_alias() {
-        let e: Error = ErrorKind::internal("test");
-        assert_eq!(e.kind(), "Internal");
-    }
-
-    #[test]
-    fn test_core_error_alias() {
-        let err: CoreError = ErrorKind::permission("denied");
-        assert_eq!(err.kind(), "Permission");
+    fn test_config_error_parse() {
+        let err = ConfigError::Parse {
+            format: "json".into(),
+            reason: "invalid".into(),
+        };
+        assert!(err.to_string().contains("parse error"));
     }
 }

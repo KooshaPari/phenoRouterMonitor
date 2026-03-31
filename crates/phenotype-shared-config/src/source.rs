@@ -69,7 +69,11 @@ impl ConfigValue {
     }
 
     /// Create with custom priority.
-    pub fn with_priority(source: ConfigSource, priority: SourcePriority, value: serde_json::Value) -> Self {
+    pub fn with_priority(
+        source: ConfigSource,
+        priority: SourcePriority,
+        value: serde_json::Value,
+    ) -> Self {
         Self {
             source,
             priority,
