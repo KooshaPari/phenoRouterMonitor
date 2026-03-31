@@ -1,16 +1,9 @@
 [package]
 name = "phenotype-git-core"
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-
-[lib]
-path = "src/lib.rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Phenotype git core crate"
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
-thiserror = "2"
-gix = "0.71"
-
-[dev-dependencies]
-tokio = { version = "1", features = ["full"] }
