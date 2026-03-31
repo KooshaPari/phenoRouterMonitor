@@ -1,6 +1,6 @@
 //! phenotype-git-core
 
-use git2::Repository;
+use gix::Repository;
 use std::path::Path;
 
 #[derive(Debug, Clone)]
@@ -23,8 +23,8 @@ pub struct GitRepository {
 }
 
 impl GitRepository {
-    pub fn open(path: &Path) -> Result<Self, git2::Error> {
-        let repo = Repository::open(path)?;
+    pub fn open(path: &Path) -> Result<Self, Box<gix::open::Error>> {
+        let repo = gix::open(path).map_err(Box::new)?;
         Ok(Self { repo })
     }
 
@@ -32,25 +32,27 @@ impl GitRepository {
         self.repo.is_bare()
     }
 
-    pub fn head_commit(&self) -> Result<Option<GitCommit>, git2::Error> {
-        let head = self.repo.head();
-        match head {
-            Ok(head) => {
-                let oid = head.target().ok_or_else(|| {
-                    git2::Error::new(
-                        git2::ErrorCode::Invalid,
-                        git2::ErrorLevel::Warning,
-                        "head has no target",
-                    )
-                })?;
-                let commit = self.repo.find_commit(oid)?;
+    pub fn head_commit(&self) -> Result<Option<GitCommit>, gix::reference::head_commit::Error> {
+        match self.repo.head_commit() {
+            Ok(commit) => {
+                let oid = commit.id();
+                let message = commit
+                    .message()
+                    .unwrap_or_else(|_| gix::objs::commit::MessageRef {
+                        title: b"<invalid>".as_ref().into(),
+                        body: None,
+                    });
+                let message_str = if let Some(body) = message.body {
+                    format!("{}{}{}", message.title, "\n\n", body)
+                } else {
+                    message.title.to_string()
+                };
                 Ok(Some(GitCommit {
                     id: oid.to_string()[..8].to_string(),
-                    message: commit.message().unwrap_or("").to_string(),
+                    message: message_str,
                 }))
             }
-Err(_) => Ok(None),
-            }
+            Err(_) => Ok(None),
         }
     }
 }
