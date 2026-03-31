@@ -1,15 +1,20 @@
 [package]
 name = "phenotype-error-core"
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-
-[lib]
-path = "src/lib.rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Canonical error types for the Phenotype ecosystem"
+keywords = ["error", "phenotype", "thiserror"]
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
-thiserror = "2"
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [dev-dependencies]
-tokio = { version = "1", features = ["full"] }
+anyhow = { workspace = true }
+
+[lib]
+name = "phenotype_error_core"
+path = "src/lib.rs"
