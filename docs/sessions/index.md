@@ -10,6 +10,7 @@ This directory contains session-led work bundles for active and historical waves
 
 | Session | Entry file |
 |---------|------------|
+| PR Review (2026-03-30) | [`pr-review-20260330/README.md`](./pr-review-20260330/README.md) |
 | Stacked PR + SBOM (2026-03-30) | [`20260330-stacked-pr-sbom/00_OVERVIEW.md`](./20260330-stacked-pr-sbom/00_OVERVIEW.md) |
 | Phase 2 error-core (2026-03-29) | [`20260329-phase2-error-core/README.md`](./20260329-phase2-error-core/README.md) |
 | Phase 4 http-client (2026-03-29) | [`20260329-phase4-http-client/README.md`](./20260329-phase4-http-client/README.md) |

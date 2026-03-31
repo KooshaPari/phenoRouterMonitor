@@ -8,9 +8,13 @@ license.workspace = true
 path = "src/lib.rs"
 
 [dependencies]
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 thiserror.workspace = true
-regex.workspace = true
 dashmap.workspace = true
+regex.workspace = true
 toml.workspace = true
+phenotype-error-core.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

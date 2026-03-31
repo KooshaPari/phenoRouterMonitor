@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
 # FR Annotation Guide for Test Files
 
 Quick guide for adding Functional Requirement (FR) ID annotations to AgilePlus test files.
@@ -62,45 +58,10 @@ mod tests {
         // ... test body ...
     }
 }
-<<<<<<< HEAD
-=======
-=======
-# FR Annotation Guide
-
-**Purpose**: Add Functional Requirement trace IDs to test files
-**Updated**: 2026-03-30
-
----
-
-## Why FR Annotations?
-
-FR annotations enable:
-- Finding which tests cover a given FR
-- Identifying missing test coverage
-- Automated traceability reports
-- Compliance verification
-
----
-
-## Standard Pattern
-
-All tests should include FR ID comments:
-
-```rust
-#[tokio::test]
-async fn test_feature_transition() {
-    // Traces to: FR-API-002, FR-DOMAIN-003
-    // Verify that feature state transitions emit audit entries
-
-    // ... test implementation ...
-}
->>>>>>> origin/main
 ```
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Annotation Format
 
 ### Single FR
@@ -117,13 +78,10 @@ async fn test_feature_transition() {
 ```rust
 // Traces to: FR-API-002, FR-DOMAIN-003
 // Verify that feature state transitions emit audit entries
->>>>>>> origin/main
 ```
 
 ---
 
-<<<<<<< HEAD
->>>>>>> origin/main
 ## Finding the Right FR IDs
 
 ### Option 1: Use FR_TRACKER.md
@@ -348,12 +306,12 @@ async fn verify_audit_chain_integrity() {
 async fn cycle_state_transitions() {
     // Traces to: FR-DOMAIN-011
     // Verify Cycle state machine (Draft→Active→Completed→Archived)
-<<<<<<< HEAD
-=======
-=======
-## By Test Type
+```
 
-### Unit Tests
+---
+
+## Unit Tests
+
 ```rust
 #[test]
 fn test_domain_event_serialization() {
@@ -368,6 +326,7 @@ fn test_domain_event_serialization() {
 ```
 
 ### Integration Tests
+
 ```rust
 #[tokio::test]
 async fn test_api_returns_audit_entries() {
@@ -381,6 +340,7 @@ async fn test_api_returns_audit_entries() {
 ```
 
 ### Async Tests
+
 ```rust
 #[tokio::test]
 async fn test_concurrent_event_handling() {
@@ -390,13 +350,10 @@ async fn test_concurrent_event_handling() {
     let handlers: Vec<EventHandler> = (0..100).map(|_| MockHandler::new()).collect();
     // ... test implementation ...
 }
->>>>>>> origin/main
 ```
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Category Prefixes
 
 | Prefix | Category |
@@ -423,6 +380,7 @@ async fn test_concurrent_event_handling() {
 ## Examples by Category
 
 ### API Tests
+
 ```rust
 #[tokio::test]
 async fn test_create_feature_endpoint() {
@@ -438,6 +396,7 @@ async fn test_create_feature_endpoint() {
 ```
 
 ### Domain Tests
+
 ```rust
 #[test]
 fn test_state_machine_valid_transition() {
@@ -452,6 +411,7 @@ fn test_state_machine_valid_transition() {
 ```
 
 ### Storage Tests
+
 ```rust
 #[tokio::test]
 async fn test_sqlite_event_persistence() {
@@ -463,63 +423,10 @@ async fn test_sqlite_event_persistence() {
     let retrieved = store.get_events(feature_id).await.unwrap();
     assert_eq!(retrieved.len(), 1);
 }
->>>>>>> origin/main
 ```
 
 ---
 
-<<<<<<< HEAD
->>>>>>> origin/main
-## Automated Checking (Future)
-
-Once all tests are annotated, this command can verify coverage:
-
-```bash
-# Find all test functions
-grep -r "#\[.*test.*\]" crates/ | wc -l
-
-# Find annotated tests
-grep -r "Traces to: FR-" crates/ | wc -l
-
-# Find orphaned tests (no FR)
-grep -r "#\[.*test.*\]" crates/ | while read line; do
-  file=$(echo $line | cut -d: -f1)
-  func=$(echo $line | grep -oE 'fn [a-z_]+' | head -1)
-  if ! grep -A2 "$func" "$file" | grep -q "Traces to:"; then
-    echo "Missing FR annotation: $file::$func"
-  fi
-done
-```
-
----
-
-## Next Steps
-
-1. **Start with key test files:**
-   - `crates/agileplus-api/tests/api_integration/` (multiple modules)
-   - `crates/agileplus-cli/tests/`
-   - `crates/agileplus-domain/tests/`
-
-2. **Add annotations** using this guide
-
-3. **Reference FR_TRACKER.md** to ensure coverage
-
-4. **Commit** with message: `"test(traceability): add FR annotations to <module> tests"`
-
-5. **Verify** by grepping for "Traces to:" and comparing to FR categories
-
----
-
-## Reference
-
-- **FR_TRACKER.md** - Comprehensive list of all 63 FRs with status
-- **CODE_ENTITY_MAP.md** - Code entity to FR mapping
-- **FUNCTIONAL_REQUIREMENTS.md** - Authoritative requirement specifications
-- **FR_TRACEABILITY_COMPLETION.md** - Completion report and gap analysis
-
-<<<<<<< HEAD
-=======
-=======
 ## Automated Discovery
 
 Find all tests for a specific FR:
@@ -544,7 +451,30 @@ git commit -m "test(traceability): add FR annotations to feature module
 Traces to: FR-DOMAIN-005, FR-API-001
 - Add annotations to domain model tests
 - Add annotations to API integration tests
-"
+:"
+```
+
+---
+
+## Automated Checking
+
+Once all tests are annotated, this command can verify coverage:
+
+```bash
+# Find all test functions
+grep -r "#\[.*test.*\]" crates/ | wc -l
+
+# Find annotated tests
+grep -r "Traces to: FR-" crates/ | wc -l
+
+# Find orphaned tests (no FR)
+grep -r "#\[.*test.*\]" crates/ | while read line; do
+  file=$(echo $line | cut -d: -f1)
+  func=$(echo $line | grep -oE 'fn [a-z_]+' | head -1)
+  if ! grep -A2 "$func" "$file" | grep -q "Traces to:"; then
+    echo "Missing FR annotation: $file::$func"
+  fi
+done
 ```
 
 ---
@@ -578,15 +508,28 @@ done
 
 ---
 
-## FR Reference
+## Next Steps
 
-See also:
-- `docs/reference/FR_TRACKER.md` - Full FR implementation status
-- `docs/reference/CODE_ENTITY_MAP.md` - Code ↔ FR mappings
-- `FUNCTIONAL_REQUIREMENTS.md` - Authoritative requirements
+1. **Start with key test files:**
+   - `crates/agileplus-api/tests/api_integration/` (multiple modules)
+   - `crates/agileplus-cli/tests/`
+   - `crates/agileplus-domain/tests/`
+
+2. **Add annotations** using this guide
+
+3. **Reference FR_TRACKER.md** to ensure coverage
+
+4. **Commit** with message: `"test(traceability): add FR annotations to <module> tests"`
+
+5. **Verify** by grepping for "Traces to:" and comparing to FR categories
 
 ---
 
+## Reference
+
+- **FR_TRACKER.md** - Comprehensive list of all 63 FRs with status
+- **CODE_ENTITY_MAP.md** - Code entity to FR mapping
+- **FUNCTIONAL_REQUIREMENTS.md** - Authoritative requirement specifications
+- **FR_TRACEABILITY_COMPLETION.md** - Completion report and gap analysis
+
 **Last Updated**: 2026-03-30
->>>>>>> origin/main
->>>>>>> origin/main

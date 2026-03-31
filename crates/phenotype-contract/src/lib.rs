@@ -1,13 +1,9 @@
 //! Design-by-contract assertions and invariants for Rust.
-//!
-//! This crate provides type-level and runtime support for design-by-contract
-//! programming.
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use thiserror::Error;
 
-/// Error type for contract violations.
 #[derive(Debug, Clone, Error)]
 pub enum ContractError {
     #[error("Precondition violated: {message}")]
@@ -18,7 +14,6 @@ pub enum ContractError {
     Invariant { message: String, location: Location },
 }
 
-/// Source location for contract violations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Location { pub file: String, pub line: u32, pub column: u32 }
 
@@ -28,13 +23,11 @@ impl fmt::Display for Location {
     }
 }
 
-/// Trait for types with invariants.
 pub trait Contract: Sized {
     fn check_invariant(&self) -> bool;
     fn invariant_message(&self) -> String { "Invariant violated".to_string() }
 }
 
-/// Wrapper type that enforces invariants.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Invariant<T: Contract> { value: T }
 
@@ -65,7 +58,6 @@ impl<T: Contract> std::ops::Deref for Invariant<T> {
     fn deref(&self) -> &Self::Target { &self.value }
 }
 
-/// Assertion type for preconditions.
 #[derive(Debug, Clone)]
 pub struct Precondition;
 
@@ -81,7 +73,9 @@ impl Precondition {
 }
 
 #[macro_export] macro_rules! requires {
-    ($condition:expr, $message:expr) => {{ $crate::Precondition::new($condition, $message)?; }};
+    ($condition:expr, $message:expr) => {{
+        $crate::Precondition::new($condition, $message)?
+    }};
 }
 
 #[macro_export] macro_rules! ensures {
@@ -96,7 +90,6 @@ impl Precondition {
     }};
 }
 
-/// Extension trait for Result with contract support.
 pub trait ResultContract<T, E> {
     fn check_postcondition<F>(self, f: F) -> Self where F: FnOnce(&T) -> bool;
 }
@@ -108,7 +101,6 @@ impl<T, E> ResultContract<T, E> for Result<T, E> {
     }
 }
 
-/// Builder for complex contract checking.
 #[derive(Debug, Clone)]
 pub struct ContractBuilder<T> { value: T, errors: Vec<ContractError> }
 
@@ -140,7 +132,10 @@ mod tests {
 
     #[derive(Debug)] struct PositiveInt(i32);
     impl PositiveInt {
-        pub fn new(value: i32) -> Result<Self, ContractError> { requires!(value > 0, "Value must be positive")?; Ok(Self(value)) }
+        pub fn new(value: i32) -> Result<Self, ContractError> { 
+            Precondition::new(value > 0, "Value must be positive")?; 
+            Ok(Self(value)) 
+        }
         pub fn get(&self) -> i32 { self.0 }
     }
     impl Contract for PositiveInt {
@@ -157,23 +152,59 @@ mod tests {
     #[test]
     fn test_invariant_wrapper_invalid() { assert!(Invariant::new(PositiveInt::new(-5).unwrap()).is_err()); }
     #[test]
-    fn test_requires_macro_valid() { fn divide(a: i32, b: i32) -> Result<i32, ContractError> { requires!(b != 0, "Division by zero"); Ok(a / b) } assert_eq!(divide(10, 2).unwrap(), 5); }
+    fn test_requires_macro_valid() { 
+        fn divide(a: i32, b: i32) -> Result<i32, ContractError> { 
+            requires!(b != 0, "Division by zero"); 
+            Ok(a / b) 
+        } 
+        assert_eq!(divide(10, 2).unwrap(), 5); 
+    }
     #[test]
-    fn test_requires_macro_invalid() { fn divide(a: i32, b: i32) -> Result<i32, ContractError> { requires!(b != 0, "Division by zero"); Ok(a / b) } assert!(divide(10, 0).is_err()); }
+    fn test_requires_macro_invalid() { 
+        fn divide(a: i32, b: i32) -> Result<i32, ContractError> { 
+            requires!(b != 0, "Division by zero"); 
+            Ok(a / b) 
+        } 
+        assert!(divide(10, 0).is_err()); 
+    }
     #[test]
-    fn test_ensures_macro_valid() { fn absolute_value(x: i32) -> Result<i32, ContractError> { let result = if x < 0 { -x } else { x }; ensures!(result >= 0, "Must be non-negative", result); Ok(result) } assert_eq!(absolute_value(-5).unwrap(), 5); }
+    fn test_ensures_macro_valid() { 
+        fn absolute_value(x: i32) -> Result<i32, ContractError> { 
+            let result = if x < 0 { -x } else { x }; 
+            ensures!(result >= 0, "Must be non-negative", result); 
+            Ok(result) 
+        } 
+        assert_eq!(absolute_value(-5).unwrap(), 5); 
+    }
     #[test]
-    fn test_contract_builder_success() { assert_eq!(ContractBuilder::new(42).requires(true, "ok").ensures(true, "ok").build().unwrap(), 42); }
+    fn test_contract_builder_success() { 
+        assert_eq!(ContractBuilder::new(42).requires(true, "ok").ensures(true, "ok").build().unwrap(), 42); 
+    }
     #[test]
-    fn test_contract_builder_failure() { assert!(ContractBuilder::new(41).requires(false, "fail").build().is_err()); }
+    fn test_contract_builder_failure() { 
+        assert!(ContractBuilder::new(41).requires(false, "fail").build().is_err()); 
+    }
     #[test]
-    fn test_location_display() { assert_eq!(format!("{}", Location { file: "test.rs".to_string(), line: 1, column: 1 }), "test.rs:1:1"); }
+    fn test_location_display() { 
+        assert_eq!(format!("{}", Location { file: "test.rs".to_string(), line: 1, column: 1 }), "test.rs:1:1"); 
+    }
     #[test]
-    fn test_result_contract() { let r: Result<i32, ()> = Ok(42); assert!(r.check_postcondition(|v| *v > 0).is_ok()); }
+    fn test_result_contract() { 
+        let r: Result<i32, ()> = Ok(42); 
+        assert!(r.check_postcondition(|v| *v > 0).is_ok()); 
+    }
     #[test]
-    fn test_invariant_into_inner() { assert_eq!(Invariant::new(PositiveInt::new(42).unwrap()).unwrap().into_inner().get(), 42); }
+    fn test_invariant_into_inner() { 
+        assert_eq!(Invariant::new(PositiveInt::new(42).unwrap()).unwrap().into_inner().get(), 42); 
+    }
     #[test]
-    fn test_invariant_check() { assert!(Invariant::new(PositiveInt::new(10).unwrap()).unwrap().check().is_ok()); }
+    fn test_invariant_check() { 
+        assert!(Invariant::new(PositiveInt::new(10).unwrap()).unwrap().check().is_ok()); 
+    }
     #[test]
-    fn test_invariant_deref() { let wrapper = Invariant::new(PositiveInt::new(20).unwrap()).unwrap(); let value: &PositiveInt = &wrapper; assert_eq!(value.get(), 20); }
+    fn test_invariant_deref() { 
+        let wrapper = Invariant::new(PositiveInt::new(20).unwrap()).unwrap(); 
+        let value: &PositiveInt = &wrapper; 
+        assert_eq!(value.get(), 20); 
+    }
 }

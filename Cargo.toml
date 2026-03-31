@@ -37,6 +37,7 @@ exclude = [
     # Stubs - not ready for compilation
     "crates/phenotype-async-traits",
     "crates/phenotype-config-loader",
+    "crates/phenotype-contract",
     "crates/phenotype-crypto",
     "crates/phenotype-error-macros",
     "crates/phenotype-event-sourcing",
@@ -95,6 +96,7 @@ opentelemetry = { version = "0.31", features = ["trace", "metrics"] }
 opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "http-proto", "reqwest-client"] }
 opentelemetry_sdk = { version = "0.31", features = ["trace", "metrics", "rt-tokio"] }
 prometheus = "0.13"
+phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 
 [profile.dev]
 opt-level = 0
