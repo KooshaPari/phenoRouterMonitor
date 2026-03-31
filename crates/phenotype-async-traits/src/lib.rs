@@ -59,53 +59,83 @@ impl<I: AsyncIterator> CollectVec<I> {
 }
 
 /// Wrapper for boxed async futures.
-pub struct AsyncFuture<T: Send> {
+#[pin_project::pin_project]
+pub struct AsyncFuture<T> {
+    #[pin]
     inner: Pin<Box<dyn Future<Output = T> + Send>>,
 }
 
-impl<T: Send> AsyncFuture<T> {
-    pub fn new<F>(future: F) -> Self where F: Future<Output = T> + Send + 'static {
+impl<T> AsyncFuture<T> {
+    pub fn new<F>(future: F) -> Self 
+    where
+        F: Future<Output = T> + Send + 'static,
+        T: Send,
+    {
         Self { inner: Box::pin(future) }
     }
-    pub fn map<U, F>(self, f: F) -> AsyncFuture<U> where F: FnOnce(T) -> U + Send + 'static, U: Send + 'static {
-        Self::new(async move { f(self.await) })
+}
+
+impl<T: Send + 'static, F: Future<Output = T> + Send + 'static> AsyncFuture<T> {
+    pub fn map<U, M>(self, f: M) -> AsyncFuture<U>
+    where
+        M: FnOnce(T) -> U + Send + 'static,
+        U: Send + 'static,
+    {
+        let fut = self.inner;
+        AsyncFuture::new(async move { f(fut.await) })
     }
-    pub fn then<U, F, Fut>(self, f: F) -> AsyncFuture<U> where F: FnOnce(T) -> Fut + Send + 'static, Fut: Future<Output = U> + Send + 'static, U: Send + 'static {
-        Self::new(async move { f(self.await).await })
+    
+    pub fn then<U, G, Fut>(self, f: G) -> AsyncFuture<U>
+    where
+        G: FnOnce(T) -> Fut + Send + 'static,
+        Fut: Future<Output = U> + Send + 'static,
+        U: Send + 'static,
+    {
+        let fut = self.inner;
+        AsyncFuture::new(async move { f(fut.await).await })
     }
 }
 
-impl<T: Send, E: Send> AsyncFuture<Result<T, E>> {
-    pub fn ok(self) -> AsyncFuture<Option<T>> { self.map(|r| r.ok()) }
-    pub fn err(self) -> AsyncFuture<Option<E>> { self.map(|r| r.err()) }
+impl<T: Send + 'static, E: Send + 'static> AsyncFuture<Result<T, E>> {
+    pub fn ok(self) -> AsyncFuture<Option<T>> {
+        self.map(|r| r.ok())
+    }
+    pub fn err(self) -> AsyncFuture<Option<E>> {
+        self.map(|r| r.err())
+    }
 }
 
-impl<F: Future + Send> Future for AsyncFuture<F::Output> where F::Output: Send {
+impl<F: Future + Send> Future for AsyncFuture<F::Output> {
     type Output = F::Output;
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        self.get_mut().inner.as_mut().poll(cx)
+        self.project().inner.poll(cx)
     }
 }
 
 /// Trait for types that need async cleanup.
-pub trait AsyncDrop { fn async_drop(self); }
+pub trait AsyncDrop {
+    fn async_drop(self);
+}
 
 /// Wrapper providing AsyncDrop for types with cleanup closures.
 pub struct AsyncDropper<T> {
-    value: T,
+    value: Option<T>,
     cleanup: Option<Box<dyn FnOnce(T) -> Pin<Box<dyn Future<Output = ()> + Send>>> + Send>>,
 }
 
-impl<T: Send> AsyncDropper<T> {
-    pub fn new<F, Fut>(value: T, cleanup: F) -> Self where F: FnOnce(T) -> Fut + Send + 'static, Fut: Future<Output = ()> + Send + 'static {
-        Self { value, cleanup: Some(Box::new(|v| Box::pin(cleanup(v)))) }
+impl<T: Send + 'static> AsyncDropper<T> {
+    pub fn new<F, Fut>(value: T, cleanup: F) -> Self 
+    where 
+        F: FnOnce(T) -> Fut + Send + 'static, 
+        Fut: Future<Output = ()> + Send + 'static,
+    {
+        Self { value: Some(value), cleanup: Some(Box::new(|v| Box::pin(cleanup(v)))) }
     }
 }
 
-impl<T: Send> AsyncDrop for AsyncDropper<T> {
+impl<T: Send + 'static> AsyncDrop for AsyncDropper<T> {
     fn async_drop(mut self) {
-        if let Some(cleanup) = self.cleanup.take() {
-            let value = std::mem::take(&mut self.value);
+        if let (Some(value), Some(cleanup)) = (self.value.take(), self.cleanup.take()) {
             let _ = cleanup(value);
         }
     }
@@ -131,7 +161,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_async_future_result() {
+    async fn test_async_future_result_ok() {
         let ok_future: AsyncFuture<Result<i32, &str>> = AsyncFuture::new(async { Ok::<_, &str>(42) });
         assert_eq!(ok_future.clone().ok().await, Some(42));
         assert_eq!(ok_future.err().await, None);
@@ -141,7 +171,12 @@ mod tests {
     fn test_async_dropper() {
         static CALLED: AtomicUsize = AtomicUsize::new(0);
         struct TestValue(i32);
-        { let dropper = AsyncDropper::new(TestValue(42), |val| async move { CALLED.store(val.0, Ordering::SeqCst); }); dropper.async_drop(); }
+        { 
+            let dropper = AsyncDropper::new(TestValue(42), |val| async move { 
+                CALLED.store(val.0 as usize, Ordering::SeqCst); 
+            }); 
+            dropper.async_drop(); 
+        }
         assert_eq!(CALLED.load(Ordering::SeqCst), 42);
     }
 
@@ -162,5 +197,18 @@ mod tests {
         let (min, max) = collector.size_hint();
         assert_eq!(min, 0);
         assert_eq!(max, Some(5));
+    }
+
+    #[tokio::test]
+    async fn test_async_future_result_err() {
+        let err_future: AsyncFuture<Result<i32, &str>> = AsyncFuture::new(async { Err::<i32, _>("error") });
+        assert_eq!(err_future.clone().ok().await, None);
+        assert_eq!(err_future.err().await, Some("error"));
+    }
+
+    #[tokio::test]
+    async fn test_async_future_new() {
+        let future = AsyncFuture::new(async { "hello" });
+        assert_eq!(future.await, "hello");
     }
 }

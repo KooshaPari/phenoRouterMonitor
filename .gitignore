@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
 # Documentation assets
 docs/public/assets/demos/*.gif
 docs/public/assets/**/*.js
@@ -18,13 +14,8 @@ docs/docset/
 # Rust build artifacts (1.5GB+)
 crates/target/
 **/target/
-<<<<<<< HEAD
-=======
-=======
 /target
 /sbom-out/
->>>>>>> origin/main
->>>>>>> origin/main
 Cargo.lock
 
 # Node modules (689MB)
@@ -99,7 +90,6 @@ logs/
 
 # Local GH Actions emulation artifacts
 .github/act-events/
-.worktrees/
 
 # Workspace noise and generated diagnostics
 wt/
@@ -109,8 +99,6 @@ hooks/zig/
 .serena/
 .factory/closure_pack_*.md
 
-# Agent/tool-generated artifacts and prompt bundles
-
 # Safari/ browser data
 data/safari/
 
@@ -119,7 +107,6 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
-
 
 # AI tool artifacts
 .claude/
@@ -133,12 +120,8 @@ __pycache__/
 .claudeignore
 .llmignore
 
-# Archives
+# Archives and legacy directories
 .archive/
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
 archive/
 bloom-wt/
 craft-wt/
@@ -159,41 +142,41 @@ worktrees/
 thegent/
 scripts/
 colab/
-archive/
 trace/
-crates/phenotype-cache-adapter/
-<<<<<<< HEAD
-=======
-=======
+
+# Documentation workflow artifacts
 docs/plans/
 docs/reports/
-evidence_ledger.jsonl
-plans/
-# Only the repository-root tests/ tree (not per-crate integration tests).
-/tests/
-#worklogs/
-docs/AGENT_MASTER_AUDIT_PROMPT.md
-platforms/
 docs/research/
-docs/worklogs/LIBIFICATION_AUDIT_2026-03-29.md
-docs/worklogs/LIBIFICATION_HIGHLIGHTS.md
-docs/worklogs/LOC_REDUCTION.md
-docs/worklogs/MasterDuplicationAudit20260329.md
-docs/worklogs/TOOLING.md
-docs/worklogs/WorkLog.md
->>>>>>> origin/main
->>>>>>> origin/main
-.agileplus/
-kitty-specs/
-styles/
-thegent-wtrees/
-phenotype-gauge-wtrees/
-template-commons/
-vibe-kanban-wtrees/
+docs/sessions/
 
-# Ghost files (exist on disk but not in git)
-pyproject.toml
-uv.lock
+# Diagnostic and audit artifacts (generated, not to be committed)
+evidence_ledger.jsonl
+EXTRACTION_REPORT_CONFIG_CORE.md
+EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
+PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
+SESSION_GAPS_2026_03_29.md
+REPOS_INDEX.md
+audit_worktrees.sh
+
+# Build logs
+cargo-check.log
+
+# CI/DevOps
+nextest.toml
+.github/workflows/sbom.yml
+.github/workflows/ci.yml
+.forge/
+
+# Uncommitted crate stubs
+crates/phenotype-error-core.ARCHIVED/
+crates/phenotype-event-sourcing/src/async_store.rs
+
+# Non-workspace / legacy crate trees (keep ignored until promoted into the workspace)
+crates/phenotype-ports-canonical/
+
+# Test infrastructure (repository-root tests only, not per-crate)
+/tests/
 
 # Worktree clones and research artifacts
 colab-wtrees/
@@ -202,77 +185,29 @@ forgecode-wtrees/
 heliosCLI-wtrees/
 trace-wtrees/
 governance/
-docs/research/seeds.jsonl
-tests/infra/
-tokenledger/
 phenotype-config-wtrees/
+phenotype-shared-wtrees/
+thegent-wtrees/
+vibe-kanban-wtrees/
 
 # Forked repositories (for reference/research only)
 ccusage/
+ccusage-wtrees/
 vibe-kanban/
 zen-wtrees/
 
-# Research artifacts and guides
+# Research and guide artifacts
 docs/guides/FORGE_ANTINOMY_AND_FOUNDRY.md
-
-# Worktree clones for forked repos
-ccusage-wtrees/
-phenotype-shared-wtrees/
-
-# Test scaffolding
-tests/__init__.py
-tests/conftest.py
-
-# Session artifacts
-REPOS_INDEX.md
-SESSION_GAPS_2026_03_29.md
-audit_worktrees.sh
-Cargo.toml
-EXTRACTION_REPORT_CONFIG_CORE.md
-<<<<<<< HEAD
-crates/phenotype-contracts/
-crates/phenotype-policy-engine/
-crates/phenotype-state-machine/
-=======
-<<<<<<< HEAD
-crates/phenotype-contracts/
-crates/phenotype-policy-engine/
-crates/phenotype-state-machine/
-=======
-EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
-PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
-# Non-workspace / legacy crate trees (keep ignored until promoted into the workspace).
-crates/phenotype-ports-canonical/
->>>>>>> origin/main
->>>>>>> origin/main
-docs/CI-CD-IMPLEMENTATION-SUMMARY.md
-docs/reference/GAP_SWEEP_INDEX.md
-docs/reference/GAP_SWEEP_MISSION_SUMMARY.md
-docs/reference/PHASE_1_BLOCKER_DECISIONS.md
-docs/reference/PHASE_1_COMPLETION_REPORT.md
-docs/reference/PHASE_1_FINAL_SUMMARY.md
-docs/reference/PHASE_1_READINESS_CHECKLIST.md
-docs/reference/SPEC_COMPLETENESS.md
-docs/reports/
-docs/sessions/20260329-wave92-deep-audit/
-docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
+docs/adoption/
+docs/worklogs/LIBIFICATION_AUDIT_2026-03-29.md
+docs/worklogs/LIBIFICATION_HIGHLIGHTS.md
 docs/worklogs/LOC_REDUCTION.md
-docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
+docs/worklogs/MasterDuplicationAudit20260329.md
 docs/worklogs/TOOLING.md
-tests/doc-sync/
-tests/test_runtime_helpers.py
-EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
-PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
-.github/workflows/ci.yml
-<<<<<<< HEAD
-=======
-=======
+docs/worklogs/WorkLog.md
+docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
 docs/worklogs/data/
-tools/
+docs/worklogs/libification/
 
 # Session/agent artifacts
 .github/QUICK_REFERENCE.md
@@ -284,42 +219,36 @@ phase2_federation_spec.md
 # Build artifacts
 .sccache/
 
-# Uncommitted crate stubs
-crates/phenotype-error-core.ARCHIVED/
-crates/phenotype-event-sourcing/src/async_store.rs
-
-# CI/DevOps
-nextest.toml
-
-# Scripts
-scripts/audit_scope.sh
-scripts/clone-devenv-abstraction-worktree.sh
-scripts/export_phenotype_session_artifacts.py
-scripts/git-worktree-health.sh
-.forge/
-.github/workflows/sbom.yml
-docs/adoption/
-cargo-check.log
-docs/worklogs/libification/CODE_QUALITY_METRICS.md
-docs/worklogs/libification/DEEP_CODEBASE_AUDIT.md
-docs/worklogs/libification/LOC_REDUCTION_PLAN.md
-docs/worklogs/libification/WS1_RUST_THISERROR_AUDIT.md
-docs/worklogs/libification/WS3_TS_ZOD_AUDIT.md
-docs/worklogs/libification/WS4_PYTHON_HTTPX_AUDIT.md
-docs/worklogs/libification/WS5_PYTHON_PYDANTIC_AUDIT.md
-docs/worklogs/libification/WS6_RUST_TOML_AUDIT.md
+# Service implementations
 service_fixed.py
 service_working.py
-crates/phenotype-contracts/tests/
-.serena/
 
-# Phase 1-2 architecture docs are tracked
+# Test scaffolding
+tests/__init__.py
+tests/conftest.py
+tests/doc-sync/
+tests/test_runtime_helpers.py
+tests/infra/
+
+# Additional artifacts
+tokenledger/
+docs/reference/GAP_SWEEP_INDEX.md
+docs/reference/GAP_SWEEP_MISSION_SUMMARY.md
+docs/reference/PHASE_1_BLOCKER_DECISIONS.md
+docs/reference/PHASE_1_COMPLETION_REPORT.md
+docs/reference/PHASE_1_FINAL_SUMMARY.md
+docs/reference/PHASE_1_READINESS_CHECKLIST.md
+docs/reference/SPEC_COMPLETENESS.md
+
+# Ghost files (exist on disk but not in git)
+pyproject.toml
+uv.lock
+
+# Separate workspace (AgilePlus)
+AgilePlus/
+
+# Architecture docs (these ARE tracked)
 !docs/adoption/CHASSIS_FOUNDATION.md
 !docs/adoption/FEDERATED_HYBRID_ARCHITECTURE.md
 !docs/adoption/PHENOSDK_EXTRACTION_STRATEGY.md
 !docs/adoption/INDEX.md
-.hypothesis/
-.hypothesis/
->>>>>>> origin/main
->>>>>>> origin/main
-AgilePlus/
