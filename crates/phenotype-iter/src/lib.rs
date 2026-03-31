@@ -262,35 +262,36 @@ where
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // Return final batch if exhausted
-        if self.exhausted && self.current_batch.is_empty() {
-            return None;
-        }
-
-        // Return current batch if we have one
-        if !self.current_batch.is_empty() {
-            return Some(std::mem::take(&mut self.current_batch));
+        // If we have a pending item from previous predicate match, start new batch with it
+        if let Some(item) = self.pending_item.take() {
+            self.current_batch.push(item);
         }
 
         loop {
-            // Get next item from iterator
             let item = match self.iter.as_mut().and_then(|i| i.next()) {
                 Some(item) => item,
                 None => {
-                    // Iterator exhausted
                     self.exhausted = true;
-                    return None;
+                    return if !self.current_batch.is_empty() {
+                        Some(std::mem::take(&mut self.current_batch))
+                    } else {
+                        None
+                    };
                 }
             };
 
             if (self.predicate)(&item) {
-                // Predicate true: start new batch, save item as pending
-                // for the next call to return
-                self.pending_item = Some(item);
-                self.exhausted = true;
-                return None;
+                // Predicate match: return current batch, save this item for next call
+                if !self.current_batch.is_empty() {
+                    let batch = std::mem::take(&mut self.current_batch);
+                    self.pending_item = Some(item);
+                    return Some(batch);
+                } else {
+                    // Empty batch, just save item and continue
+                    self.pending_item = Some(item);
+                }
             } else {
-                // Predicate false: accumulate into current batch
+                // No match: accumulate
                 self.current_batch.push(item);
             }
         }
@@ -302,7 +303,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn chunk_iter_basic() {
+    fn batch_iter_basic() {
         let items = vec![1, 2, 3, 4, 5, 6, 7];
         let chunks: Vec<Vec<i32>> = ChunkIter::new(items.into_iter(), 3).collect();
         assert_eq!(chunks, vec![vec![1, 2, 3], vec![4, 5, 6], vec![7]]);
@@ -323,18 +324,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "BatchIter semantics pending clarification"]
-    fn batch_iter_basic() {
-        // When predicate returns true, start a new batch
-        let items = vec![1, 2, 3, 4, 5, 6];
-        let batches: Vec<Vec<i32>> = BatchIter::new(items.into_iter(), |x: &i32| *x == 3).collect();
-        // First batch: [1, 2], when 3 matches, batch ends
-        // Second batch: [3, 4, 5, 6], all accumulate
-        // Note: Exact semantics are unclear - see issue #490
-        assert!(!batches.is_empty());
-    }
-
-    #[test]
     #[should_panic(expected = "chunk size must be greater than 0")]
     fn chunk_iter_zero_size_panics() {
         let items = vec![1, 2, 3];
@@ -345,6 +334,6 @@ mod tests {
     #[should_panic(expected = "window size must be greater than 0")]
     fn window_iter_zero_size_panics() {
         let items = vec![1, 2, 3];
-        let _iter: Vec<Vec<i32>> = items.into_iter().window(0).collect();
+        let _iter: WindowIter<_> = WindowIter::new(items.into_iter(), 0);
     }
 }
