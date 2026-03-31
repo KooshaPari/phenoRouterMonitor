@@ -70,7 +70,6 @@ rusqlite = { version = "0.32", features = ["bundled"] }
 dirs = "5"
 git2 = "0.20"
 blake3 = "1"
-casbin = "2"
 reqwest = { version = "0.12", features = ["json"] }
 rand = "0.8"
 hex = "0.4"
