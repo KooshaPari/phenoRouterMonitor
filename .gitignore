@@ -146,7 +146,6 @@ scripts/
 colab/
 archive/
 trace/
-crates/phenotype-cache-adapter/
 .agileplus/
 kitty-specs/
 styles/
@@ -193,7 +192,6 @@ SESSION_GAPS_2026_03_29.md
 audit_worktrees.sh
 Cargo.toml
 EXTRACTION_REPORT_CONFIG_CORE.md
-crates/phenotype-contracts/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md
 docs/reference/GAP_SWEEP_MISSION_SUMMARY.md
