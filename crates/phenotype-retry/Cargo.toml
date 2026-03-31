@@ -1,17 +1,15 @@
 [package]
 name = "phenotype-retry"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
-repository.workspace = true
-authors.workspace = true
-description = "TODO"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

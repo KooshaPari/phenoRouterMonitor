@@ -1,18 +1,12 @@
 [package]
 name = "phenotype-mcp"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "MCP (Model Context Protocol) server types for Phenotype"
-
-[dependencies]
-serde.workspace = true
-serde_json.workspace = true
-num_cpus = "1.16"
-sys-info = "0.9"
-dirs = "5.0"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"

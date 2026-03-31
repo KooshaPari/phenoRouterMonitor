@@ -336,7 +336,6 @@ version = "0.2.0"
 dependencies = [
  "async-trait",
  "chrono",
- "phenotype-errors",
  "serde",
  "serde_json",
  "thiserror",
@@ -350,6 +349,7 @@ version = "0.2.0"
 dependencies = [
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -357,9 +357,11 @@ name = "phenotype-errors"
 version = "0.2.0"
 dependencies = [
  "chrono",
+ "phenotype-error-core",
  "serde",
  "serde_json",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -368,6 +370,7 @@ version = "0.2.0"
 dependencies = [
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -390,14 +393,18 @@ version = "0.2.0"
 dependencies = [
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
 name = "phenotype-telemetry"
 version = "0.2.0"
 dependencies = [
+ "chrono",
  "serde",
+ "serde_json",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]

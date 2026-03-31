@@ -8,7 +8,7 @@ rust-version.workspace = true
 [dependencies]
 agileplus-domain = { path = "../agileplus-domain" }
 agileplus-proto = { path = "../../rust" }
-tonic = { workspace = true }
+tonic .workspace = true
 prost = "0.13"
 tokio.workspace = true
 tokio-stream = { version = "0.1", features = ["sync"] }
@@ -19,7 +19,7 @@ serde_json.workspace = true
 chrono.workspace = true
 
 [build-dependencies]
-tonic-build = { workspace = true }
+tonic-build .workspace = true
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full", "test-util"] }

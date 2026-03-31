@@ -1,38 +1,11 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
-//! # Phenotype Port Traits
-//!
-//! Canonical async trait definitions for hexagonal architecture ports.
-//! This crate consolidates the duplicated port traits scattered across Phenotype crates.
-//!
-//! ## Port Categories
-//!
-//! - **Inbound Ports**: Use cases, command handlers, query handlers, event handlers
-//! - **Outbound Ports**: Repositories, cache, event bus, secrets, external services
-//!
-//! ## Usage
-//!
-//! ```rust
-//! use phenotype_port_traits::outbound::{Repository, CachePort};
-//! use async_trait::async_trait;
-//!
-//! #[async_trait]
-//! impl Repository<Entity, EntityId> for SqliteRepository {
-//!     async fn save(&self, entity: &Entity) -> Result<(), RepositoryError> { ... }
-//!     async fn find_by_id(&self, id: &EntityId) -> Result<Option<Entity>, RepositoryError> { ... }
-//! }
-//! ```
+//! phenotype-port-traits
 
-pub mod inbound;
-pub mod outbound;
+use thiserror::Error;
 
-// Re-export common types
-pub use async_trait::async_trait;
-<<<<<<< HEAD
-=======
-=======
-// phenotype-port-traits
->>>>>>> origin/main
->>>>>>> origin/main
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

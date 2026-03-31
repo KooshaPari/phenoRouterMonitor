@@ -1,23 +1,12 @@
 [package]
 name = "phenotype-config-loader"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Unified configuration loader for Phenotype using figment"
-keywords = ["config", "loader", "figment", "environment"]
-categories = ["config", "development-tools"]
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-toml.workspace = true
-thiserror.workspace = true
-figment.workspace = true
-dirs.workspace = true
-num_cpus.workspace = true
-
-[dev-dependencies]
-tempfile.workspace = true
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"

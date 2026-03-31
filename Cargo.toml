@@ -5,7 +5,6 @@ license = "MIT"
 rust-version = "1.75"
 description = "Phenotype Infrastructure Kit"
 authors = ["Phenotype Team"]
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
 [workspace]
 resolver = "2"
@@ -42,6 +41,7 @@ futures = "0.3"
 tempfile = "3"
 strum = { version = "0.26", features = ["derive"] }
 once_cell = "1.19"
+
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
 
