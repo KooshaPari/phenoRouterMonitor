@@ -12,13 +12,13 @@ resolver = "3"
 members = [
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
-    "crates/phenotype-contracts",
-    "crates/phenotype-health",
-    "crates/phenotype-policy-engine",
-    "crates/phenotype-state-machine",
-    "crates/phenotype-iter",
-    "crates/phenotype-telemetry",
-    "forgecode-fork",
+"crates/phenotype-contracts",
+"crates/phenotype-health",
+"crates/phenotype-policy-engine",
+"crates/phenotype-state-machine",
+"crates/phenotype-iter",
+"crates/phenotype-telemetry",
+"forgecode-fork",
     "phenotype-router-monitor",
 ]
 
