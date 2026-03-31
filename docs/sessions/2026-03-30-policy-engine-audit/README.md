@@ -1,8 +1,8 @@
 # Policy Engine Audit Report
 
-**Date:** 2026-03-30
+**Date:** 2026-03-30 (Updated 2026-03-31)
 **Auditor:** Forge
-**Status:** COMPLETE
+**Status:** IN PROGRESS - Phase 1 Starting
 
 ---
 
@@ -12,9 +12,31 @@ This audit compares the documented 12-week casbin-rs migration plan against actu
 
 **Critical Findings:**
 1. The 12-week casbin-rs migration plan was **NOT STARTED** - it's a planning artifact only
-2. **Workspace build broken** - `phenotype-errors` missing from workspace dependencies
-3. Policy engine has **functional gaps** vs industry standards
-4. Code structure is well-organized but missing advanced features
+2. ~~**Workspace build broken**~~ - **RESOLVED** (manifests fixed, dependencies added)
+3. **phenotype-iter tests failing** - BatchIter implementation has incorrect logic
+4. Policy engine has **functional gaps** vs industry standards
+5. Phase 1 casbin-rs migration now starting
+
+---
+
+## Current Workspace Status (2026-03-31)
+
+### Quality Checks
+- `cargo check --workspace`: ✅ PASSES
+- `cargo clippy --workspace -- -D warnings`: ✅ PASSES (with 1 `#[allow(dead_code)]`)
+- `cargo test --workspace`: ⚠️ 3 integration tests failing in `phenotype-iter`
+
+### Issues Resolved
+- Fixed merge conflicts in root `Cargo.toml` and crate manifests
+- Added missing workspace dependencies (`strum`, `strum_macros`, etc.)
+- Fixed `phenotype-policy-engine/src/rule.rs` (import and borrow errors)
+- Fixed `phenotype-state-machine/src/lib.rs` (type aliases, guard comparison)
+- Fixed unused import warning in `phenotype-telemetry/src/lib.rs`
+
+### Issues Remaining
+- `phenotype-iter` integration tests failing due to BatchIter logic bugs
+- Tests expect: predicate=true → include in batch, predicate=false → BREAK and yield
+- Implementation does: predicate=true → yield (if batch not empty), predicate=false → accumulate
 
 ---
 
@@ -117,17 +139,26 @@ tracing = "0.1"
 
 ## V. Action Items
 
-### CRITICAL - Fix Build First
+### Phase 1: Evaluation & Planning (COMPLETED)
 
-- [ ] **Fix workspace dependency issue**: Add `phenotype-errors` to `[workspace.dependencies]` in `Cargo.toml`
-- [ ] Verify build succeeds: `cargo build -p phenotype-policy-engine`
-- [ ] Run tests: `cargo test -p phenotype-policy-engine`
+- [x] Verify workspace builds: `cargo check --workspace`
+- [x] Run clippy: `cargo clippy --workspace -- -D warnings`
+- [x] Update this audit report with current status
+- [x] Decision: Proceed with casbin-rs migration (Phase 1 starting)
 
-### High Priority
+### Phase 2: Fix BatchIter (HIGH PRIORITY)
 
-- [ ] Evaluate whether casbin-rs migration is still needed based on current functionality
-- [ ] Update PLAN.md with accurate migration plan status
-- [ ] Add missing error type imports if any
+- [ ] Fix BatchIter::next() logic in `crates/phenotype-iter/src/lib.rs`
+- [ ] Expected semantics: predicate=true → include in batch; predicate=false → BREAK and yield
+- [ ] Run tests to verify: `cargo test -p phenotype-iter`
+- [ ] Re-run full workspace tests: `cargo test --workspace`
+
+### Phase 3: Start Casbin-rs Migration (Phase 1)
+
+- [ ] Create `crates/phenotype-casbin-wrapper/` crate
+- [ ] Define `CasbinAdapter` trait with policy operations
+- [ ] Write tests FIRST (autograder approach)
+- [ ] Implement basic casbin wrapper
 
 ### Medium Priority
 
@@ -137,8 +168,7 @@ tracing = "0.1"
 
 ### Deferred
 
-- [ ] Create `phenotype-casbin-wrapper` crate (only if casbin migration is approved)
-- [ ] Phase 2-5 implementation (blocked on Phase 1 + approval)
+- [ ] Phase 2-5 implementation (blocked on Phase 1 initial wrapper)
 
 ---
 

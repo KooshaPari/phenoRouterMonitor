@@ -254,35 +254,34 @@ where
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // Return final batch if exhausted
-        if self.exhausted && self.current_batch.is_empty() {
-            return None;
+        if let Some(item) = self.pending_item.take() {
+            self.current_batch.push(item);
         }
 
-        // Return current batch if we have one
         if !self.current_batch.is_empty() {
             return Some(std::mem::take(&mut self.current_batch));
         }
 
         loop {
-            // Get next item from iterator
             let item = match self.iter.as_mut().and_then(|i| i.next()) {
                 Some(item) => item,
                 None => {
-                    // Iterator exhausted
                     self.exhausted = true;
-                    return None;
+                    return if self.current_batch.is_empty() {
+                        None
+                    } else {
+                        Some(std::mem::take(&mut self.current_batch))
+                    };
                 }
             };
 
             if (self.predicate)(&item) {
-                // Predicate true: start new batch, save item as pending
-                // for the next call to return
-                self.pending_item = Some(item);
-                self.exhausted = true;
-                return None;
+                if !self.current_batch.is_empty() {
+                    self.pending_item = Some(item);
+                    return Some(std::mem::take(&mut self.current_batch));
+                }
+                self.current_batch.push(item);
             } else {
-                // Predicate false: accumulate into current batch
                 self.current_batch.push(item);
             }
         }

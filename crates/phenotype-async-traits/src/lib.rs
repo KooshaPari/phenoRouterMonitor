@@ -4,6 +4,9 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
+/// Type alias for async cleanup functions.
+type AsyncCleanupFn<T> = Box<dyn FnOnce(T) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send>;
+
 /// AsyncIterator trait - async version of the standard Iterator.
 pub trait AsyncIterator {
     type Item;
@@ -101,7 +104,7 @@ impl<T: Send + 'static> AsyncFuture<T> {
         AsyncFuture::new(async move { f(fut.await) })
     }
 
-    pub fn then<U: Send + 'static, G, Fut>(self, g: G) -> AsyncFuture<U>
+    pub fn then<U, G, Fut>(self, g: G) -> AsyncFuture<U>
     where
         G: FnOnce(T) -> Fut + Send + 'static,
         Fut: Future<Output = U> + Send + 'static,
@@ -133,7 +136,7 @@ impl<T: Send + 'static> Future for AsyncFuture<T> {
 /// Wrapper providing AsyncDrop for types with cleanup closures.
 pub struct AsyncDropper<T> {
     value: Option<T>,
-    cleanup: Option<Box<dyn FnOnce(T) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send>>,
+    cleanup: Option<AsyncCleanupFn<T>>,
 }
 
 impl<T: Send + 'static> AsyncDropper<T> {

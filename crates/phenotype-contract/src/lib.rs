@@ -101,6 +101,7 @@ impl<T: Contract> std::ops::Deref for Invariant<T> {
 pub struct Precondition;
 
 impl Precondition {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(condition: bool, message: &str) -> Result<(), ContractError> {
         Self::check(condition, message)
     }
