@@ -4,6 +4,53 @@
 
 ---
 
+## 2026-03-30 - Documentation vs Implementation Discrepancy Audit
+
+**Project:** [phenotype-infrakit]
+**Category:** documentation
+**Status:** completed
+**Priority:** P1
+
+### Summary
+
+Compared documented work in `docs/worklogs/DEPENDENCIES.md` and `docs/worklogs/RESEARCH.md` against actual crate implementations in `crates/`. Found significant discrepancies between documented status and actual implementation state.
+
+### Verified Crate Implementation Status
+
+| Crate | Documentation Claims | Actual Implementation | Discrepancy |
+|-------|---------------------|----------------------|-------------|
+| `phenotype-health` | COMPLETED (~270 LOC) | ✅ **COMPLETE** (495 LOC) | Documentation accurate |
+| `phenotype-telemetry` | COMPLETED (~50 LOC) | ❌ **STUB** (1 LOC) | **FALSELY MARKED COMPLETE** |
+| `phenotype-validation` | COMPLETED (~40 LOC) | ❌ **STUB** (1 LOC) | **FALSELY MARKED COMPLETE** |
+| `phenotype-state-machine` | COMPLETED (~200 LOC) | ✅ **COMPLETE** (359 LOC) | Documentation accurate |
+| `phenotype-policy-engine` | COMPLETED | ✅ **COMPLETE** | Documentation accurate |
+| `phenotype-cache-adapter` | Mentioned | ❌ **STUB** (1 LOC) | Missing implementation |
+| `phenotype-event-sourcing` | Mentioned | ❌ **STUB** (1 LOC) | Missing implementation |
+| `phenotype-error-core` | Mentioned | ✅ **COMPLETE** (447 LOC) | Documentation accurate |
+| `phenotype-contract` | Mentioned | ✅ **COMPLETE** (344 LOC) | Documentation accurate |
+| `phenotype-config-core` | COMPLETED | ✅ **COMPLETE** | Documentation accurate |
+| `phenotype-process` | FORK-001 TODO | ❌ **STUB** (1 LOC) | **FALSELY MARKED TODO** |
+
+### Workspace Fixes Applied
+
+1. **Removed broken crates from workspace**:
+   - `phenotype-validation` - Pre-existing compilation errors (removed from members)
+
+2. **Fixed workspace dependencies**:
+   - `phenotype-event-sourcing` - Changed hardcoded deps to `workspace = true`
+
+3. **Fixed crate issues**:
+   - `phenotype-contract` - Added `# Safety` docs for unsafe function
+   - `phenotype-contract` - Fixed duplicate `#[test]` attribute
+
+### Recommendations
+
+1. **Update documentation** for phenotype-telemetry and phenotype-validation to reflect STUB status
+2. **Complete implementations** for: phenotype-telemetry, phenotype-validation, phenotype-cache-adapter, phenotype-event-sourcing, phenotype-process
+3. **Update FORK-001** entry to reflect actual stub state (not "in progress")
+
+---
+
 ## 2026-03-29 - External Dependencies & Package Modernization Audit
 
 **Project:** [cross-repo]

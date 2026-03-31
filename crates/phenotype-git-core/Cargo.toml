@@ -7,3 +7,4 @@ repository.workspace = true
 description = "Phenotype git core crate"
 
 [dependencies]
+git2 = "0.19"
