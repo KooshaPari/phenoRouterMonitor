@@ -48,7 +48,10 @@ pub struct CollectVec<I: AsyncIterator> {
 
 impl<I: AsyncIterator> CollectVec<I> {
     pub fn new(iterator: I) -> Self {
-        Self { iterator, items: Vec::new() }
+        Self {
+            iterator,
+            items: Vec::new(),
+        }
     }
 
     pub fn into_vec(self) -> Vec<I::Item> {
@@ -93,7 +96,9 @@ impl<T: Send + 'static> AsyncFuture<T> {
     where
         F: Future<Output = T> + Send + 'static,
     {
-        Self { inner: Box::pin(future) }
+        Self {
+            inner: Box::pin(future),
+        }
     }
 
     pub fn map<U: Send + 'static, M>(self, f: M) -> AsyncFuture<U>
@@ -172,7 +177,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_then() {
-        assert_eq!(AsyncFuture::new(async { 42 }).then(|v| async move { v + 8 }).await, 50);
+        assert_eq!(
+            AsyncFuture::new(async { 42 })
+                .then(|v| async move { v + 8 })
+                .await,
+            50
+        );
     }
 
     #[tokio::test]

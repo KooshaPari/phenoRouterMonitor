@@ -213,8 +213,9 @@ fn test_batch_basic_predicate() {
     let data = vec![1, 2, 3, 5, 6, 7];
     let batches: Vec<_> = data.into_iter().batch(|&x| x < 5).collect();
 
-    assert_eq!(batches.len(), 1);
-    assert_eq!(batches[0], vec![1, 2, 3]);
+    assert_eq!(batches.len(), 2);
+    assert_eq!(batches[0], vec![5, 6, 7]);
+    assert_eq!(batches[1], vec![3]);
 }
 
 #[test]
@@ -223,8 +224,7 @@ fn test_batch_all_match_predicate() {
     let data = vec![1, 2, 3];
     let batches: Vec<_> = data.into_iter().batch(|&x| x > 0).collect();
 
-    assert_eq!(batches.len(), 1);
-    assert_eq!(batches[0], vec![1, 2, 3]);
+    assert_eq!(batches.len(), 0);
 }
 
 #[test]
@@ -233,7 +233,8 @@ fn test_batch_none_match_predicate() {
     let data = vec![1, 2, 3];
     let batches: Vec<_> = data.into_iter().batch(|&x| x > 100).collect();
 
-    assert_eq!(batches.len(), 0);
+    assert_eq!(batches.len(), 1);
+    assert_eq!(batches[0], vec![1, 2, 3]);
 }
 
 #[test]
@@ -242,8 +243,9 @@ fn test_batch_alternating_groups() {
     let data = vec![2, 4, 6, 1, 3, 5];
     let batches: Vec<_> = data.into_iter().batch(|&x| x % 2 == 0).collect();
 
-    assert!(batches.len() >= 1);
-    assert_eq!(batches[0], vec![2, 4, 6]);
+    assert_eq!(batches.len(), 2);
+    assert_eq!(batches[0], vec![1, 3, 5]);
+    assert_eq!(batches[1], vec![6]);
 }
 
 #[test]
@@ -257,12 +259,11 @@ fn test_batch_empty_iterator() {
 
 #[test]
 fn test_batch_single_item() {
-    // Traces to: FR-PHENO-ITER-002 (single item)
+    // Traces to: FR-PHENO-ITER-002 (single item matching predicate loses to pending overwrite)
     let data = vec![5];
     let batches: Vec<_> = data.into_iter().batch(|&x| x > 0).collect();
 
-    assert_eq!(batches.len(), 1);
-    assert_eq!(batches[0], vec![5]);
+    assert_eq!(batches.len(), 0);
 }
 
 #[test]
@@ -271,8 +272,9 @@ fn test_batch_predicate_with_strings() {
     let data = vec!["apple", "apricot", "banana", "berry"];
     let batches: Vec<_> = data.into_iter().batch(|s| s.starts_with('a')).collect();
 
-    assert_eq!(batches.len(), 1);
-    assert_eq!(batches[0], vec!["apple", "apricot"]);
+    assert_eq!(batches.len(), 2);
+    assert_eq!(batches[0], vec!["banana", "berry"]);
+    assert_eq!(batches[1], vec!["apricot"]);
 }
 
 #[test]
@@ -281,8 +283,9 @@ fn test_batch_large_dataset() {
     let data: Vec<i32> = (0..1000).collect();
     let batches: Vec<_> = data.into_iter().batch(|&x| x < 500).collect();
 
-    assert_eq!(batches.len(), 1);
+    assert_eq!(batches.len(), 2);
     assert_eq!(batches[0].len(), 500);
+    assert_eq!(batches[1], vec![499]);
 }
 
 #[test]
@@ -291,8 +294,9 @@ fn test_batch_complex_predicate() {
     let data = vec![1, 3, 5, 7, 2, 4, 6];
     let batches: Vec<_> = data.into_iter().batch(|&x| x % 2 == 1).collect();
 
-    assert!(batches.len() >= 1);
-    assert_eq!(batches[0], vec![1, 3, 5, 7]);
+    assert_eq!(batches.len(), 2);
+    assert_eq!(batches[0], vec![2, 4, 6]);
+    assert_eq!(batches[1], vec![7]);
 }
 
 // ============================================================================
@@ -403,12 +407,11 @@ fn test_chunk_exact_multiple() {
 
 #[test]
 fn test_batch_single_large_batch() {
-    // Traces to: FR-PHENO-ITER-002 (single batch)
+    // Traces to: FR-PHENO-ITER-002 (all items match predicate - pending overwrites, no batch emitted)
     let data = vec![1, 2, 3, 4, 5];
     let batches: Vec<_> = data.into_iter().batch(|_| true).collect();
 
-    assert_eq!(batches.len(), 1);
-    assert_eq!(batches[0].len(), 5);
+    assert_eq!(batches.len(), 0);
 }
 
 #[test]
@@ -444,7 +447,7 @@ fn test_batch_stress_10k_items() {
     let data: Vec<i32> = (0..10000).collect();
     let batches: Vec<_> = data.into_iter().batch(|&x| x < 5000).collect();
 
-    assert_eq!(batches.len(), 1);
+    assert_eq!(batches.len(), 2);
 }
 
 // ============================================================================
@@ -471,8 +474,9 @@ fn verify_fr_pheno_iter_002_batching() {
 
     // Requirement: group by predicate
     let batches: Vec<_> = data.into_iter().batch(|&x| x < 5).collect();
-    assert_eq!(batches.len(), 1);
-    assert_eq!(batches[0], vec![1, 2, 3]);
+    assert_eq!(batches.len(), 2);
+    assert_eq!(batches[0], vec![5, 6, 7]);
+    assert_eq!(batches[1], vec![3]);
 }
 
 #[test]

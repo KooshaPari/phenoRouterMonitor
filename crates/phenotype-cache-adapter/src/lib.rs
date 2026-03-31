@@ -53,9 +53,12 @@ where
         if let Some(entry) = self.l2.get(key) {
             let value = entry.value.clone();
             let mut l1 = self.l1.lock().unwrap();
-            l1.put(key.clone(), CacheEntry {
-                value: value.clone(),
-            });
+            l1.put(
+                key.clone(),
+                CacheEntry {
+                    value: value.clone(),
+                },
+            );
             return Some(value);
         }
         None
@@ -63,9 +66,12 @@ where
 
     pub fn put(&self, key: K, value: V) {
         let mut l1 = self.l1.lock().unwrap();
-        l1.put(key.clone(), CacheEntry {
-            value: value.clone(),
-        });
+        l1.put(
+            key.clone(),
+            CacheEntry {
+                value: value.clone(),
+            },
+        );
         drop(l1);
         self.l2.insert(key, CacheEntry { value });
     }

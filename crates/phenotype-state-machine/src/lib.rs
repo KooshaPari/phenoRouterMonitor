@@ -74,13 +74,13 @@ impl StateMachine {
         let mut current = self.current.write().unwrap();
         let key = (current.clone(), event.to_string());
 
-        let transition = self
-            .transitions
-            .get(&key)
-            .ok_or_else(|| StateMachineError::InvalidTransition {
-                from: current.clone(),
-                event: event.to_string(),
-            })?;
+        let transition =
+            self.transitions
+                .get(&key)
+                .ok_or_else(|| StateMachineError::InvalidTransition {
+                    from: current.clone(),
+                    event: event.to_string(),
+                })?;
 
         if let Some(guard) = &transition.guard {
             if !guard(&current, event) {
@@ -205,11 +205,7 @@ impl StateMachineBuilder {
     }
 
     /// Register a callback for when a state is exited.
-    pub fn on_exit(
-        mut self,
-        state: &str,
-        callback: impl Fn(&str) + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_exit(mut self, state: &str, callback: impl Fn(&str) + Send + Sync + 'static) -> Self {
         self.on_exit
             .entry(state.to_string())
             .or_default()

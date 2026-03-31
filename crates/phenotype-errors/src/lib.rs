@@ -2,7 +2,7 @@
 //!
 //! Unified error types for the Phenotype ecosystem.
 
-pub use phenotype_error_core::{ApiError, DomainError, RepositoryError, ConfigError, StorageError};
+pub use phenotype_error_core::{ApiError, ConfigError, DomainError, RepositoryError, StorageError};
 
 /// Canonical error type alias.
 pub type Error = ApiError;
@@ -16,7 +16,10 @@ mod tests {
 
     #[test]
     fn test_api_error() {
-        let err = ApiError::NotFound { resource: "user".into(), id: "42".into() };
+        let err = ApiError::NotFound {
+            resource: "user".into(),
+            id: "42".into(),
+        };
         assert_eq!(err.status_code(), 404);
     }
 

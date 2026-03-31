@@ -134,10 +134,7 @@ pub struct MemoryHealthChecker {
 }
 
 impl MemoryHealthChecker {
-    pub fn new(
-        threshold: f64,
-        probe: impl Fn() -> (u64, u64) + Send + Sync + 'static,
-    ) -> Self {
+    pub fn new(threshold: f64, probe: impl Fn() -> (u64, u64) + Send + Sync + 'static) -> Self {
         Self {
             threshold,
             probe: Arc::new(probe),
