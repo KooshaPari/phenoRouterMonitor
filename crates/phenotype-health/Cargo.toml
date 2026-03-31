@@ -1,17 +1,18 @@
 [package]
 name = "phenotype-health"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-rust-version.workspace = true
-repository.workspace = true
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
 description = "Shared health check abstraction for Phenotype services"
 
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies]
-tokio = { workspace = true }
+tokio = { version = "1", features = ["full"] }

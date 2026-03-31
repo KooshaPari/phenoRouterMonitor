@@ -119,7 +119,7 @@ pub trait AsyncDrop {
 /// Wrapper providing AsyncDrop for types with cleanup closures.
 pub struct AsyncDropper<T> {
     value: Option<T>,
-    cleanup: Option<Box<dyn FnOnce(T) -> Pin<Box<dyn Future<Output = ()> + Send>>> + Send>>,
+    cleanup: Option<Box<dyn FnOnce(T) -> Pin<Box<dyn Future<Output = ()> + Send>> + Send>>,
 }
 
 impl<T: Send + 'static> AsyncDropper<T> {
