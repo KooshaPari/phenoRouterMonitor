@@ -1,12 +1,3 @@
-[workspace.package]
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-rust-version = "1.75"
-authors = ["Phenotype Team"]
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
-description = "Phenotype Infrastructure Kit"
-
 [workspace]
 resolver = "3"
 members = [
@@ -19,6 +10,15 @@ members = [
     "crates/phenotype-state-machine",
     "crates/phenotype-telemetry",
 ]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.75"
+authors = ["Phenotype Team"]
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+description = "Phenotype infrastructure crates"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }

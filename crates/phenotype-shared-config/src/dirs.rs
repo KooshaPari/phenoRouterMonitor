@@ -1,6 +1,5 @@
 //! Directory search utilities for configuration files.
 
-use crate::{ConfigError, Result};
 use std::path::{Path, PathBuf};
 
 /// Configuration directory types.

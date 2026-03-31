@@ -2,16 +2,6 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Represents a Casbin access control model.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Model {
-    pub model_type: ModelType,
-    pub request_definition: RequestDef,
-    pub policy_definition: PolicyDef,
-    pub policy_effect: PolicyEffect,
-    pub matchers: Vec<Matcher>,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum ModelType {
@@ -22,17 +12,6 @@ pub enum ModelType {
     RbacWithDomains,
     Acl,
     AclWithResource,
-    Unknown,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RequestDef {
-    pub request_type: Vec<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PolicyDef {
-    pub policy_type: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -44,6 +23,25 @@ pub enum PolicyEffect {
     Priority,
     SubjectPriority,
     NoType,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Model {
+    pub model_type: ModelType,
+    pub request_definition: RequestDef,
+    pub policy_definition: PolicyDef,
+    pub policy_effect: PolicyEffect,
+    pub matchers: Vec<Matcher>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RequestDef {
+    pub request_type: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PolicyDef {
+    pub policy_type: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

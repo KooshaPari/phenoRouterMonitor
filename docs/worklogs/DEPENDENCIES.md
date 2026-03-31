@@ -19,8 +19,8 @@ Comprehensive audit of external dependencies, package modernization opportunitie
 
 | ID | Source | Target | LOC | Priority | Status |
 |----|--------|--------|-----|----------|--------|
-| FORK-001 | `utils/pty` | `phenotype-process` | ~750 | 🔴 CRITICAL | TODO |
-| FORK-002 | `error.rs` pattern | `phenotype-error` | ~400 | 🔴 CRITICAL | TODO |
+| FORK-001 | `utils/pty` | `phenotype-process` | ~750 | CRITICAL | STUB (1 LOC) - NOT IMPLEMENTED |
+| FORK-002 | `error.rs` pattern | `phenotype-error` | ~400 | CRITICAL | TODO |
 | FORK-003 | `utils/git` | `phenotype-git` | ~300 | 🟠 MEDIUM | EVALUATE |
 | FORK-004 | `utils/config` | `phenotype-config` | ~200 | 🟠 MEDIUM | EVALUATE |
 
@@ -599,9 +599,9 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 
 | Source | Target | LOC | Priority | Status |
 |--------|--------|-----|----------|--------|
-| `utils/pty` | `phenotype-process` | ~283 | 🔴 CRITICAL | ✅ COMPLETE |
-| `utils/git` | `phenotype-git` | ~300 | 🟠 MEDIUM | EVALUATE |
-| `error.rs` | `phenotype-error` | ~1148 | 🔴 CRITICAL | TODO |
+| `utils/pty` | `phenotype-process` | ~283 | CRITICAL | STUB (1 LOC) - NOT IMPLEMENTED |
+| `utils/git` | `phenotype-git` | ~300 | MEDIUM | EVALUATE |
+| `error.rs` | `phenotype-error` | ~1148 | CRITICAL | TODO |
 
 ### Modern Tooling Gaps
 
