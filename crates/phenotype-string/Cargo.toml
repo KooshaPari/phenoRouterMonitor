@@ -1,13 +1,16 @@
 [package]
 name = "phenotype-string"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-thiserror.workspace = true
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "2.0"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

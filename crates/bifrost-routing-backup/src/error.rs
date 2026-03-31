@@ -11,3 +11,4 @@ pub enum BifrostError {
 }
 
 pub type Result<T> = std::result::Result<T, BifrostError>;
+pub type BifrostResult<T> = Result<T>;

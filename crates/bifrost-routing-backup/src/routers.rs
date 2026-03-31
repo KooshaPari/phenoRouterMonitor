@@ -3,7 +3,11 @@ use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::{Arc, RwLock};
 
+<<<<<<< HEAD
+use crate::{BifrostError, Result, RoutingRequest, RouterDecision};
+=======
 use crate::{Result, RoutingRequest, RouterDecision};
+>>>>>>> origin/main
 
 #[async_trait]
 pub trait Router: Send + Sync {
@@ -29,11 +33,17 @@ impl CostAwareRouter {
 
 #[async_trait]
 impl Router for CostAwareRouter {
-    fn name(&self) -> &str { "cost_aware" }
+    fn name(&self) -> &str {
+        "cost_aware"
+    }
 
     async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
         let cost = self.costs.get(&req.model).copied().unwrap_or(0.001);
-        let provider = if cost < 0.001 { "gemini-2.0-flash" } else { "gpt-4o-mini" };
+        let provider = if cost < 0.001 {
+            "gemini-2.0-flash"
+        } else {
+            "gpt-4o-mini"
+        };
         Ok(RouterDecision {
             provider: provider.into(),
             reasoning: "Selected for lowest cost".into(),
@@ -62,10 +72,18 @@ impl LatencyAwareRouter {
 
 #[async_trait]
 impl Router for LatencyAwareRouter {
-    fn name(&self) -> &str { "latency_aware" }
+    fn name(&self) -> &str {
+        "latency_aware"
+    }
 
+<<<<<<< HEAD
+    async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
+=======
     async fn decide(&self, _req: &RoutingRequest) -> Result<RouterDecision> {
-        let provider = self.latencies.iter()
+>>>>>>> origin/main
+        let provider = self
+            .latencies
+            .iter()
             .min_by_key(|(_, v)| *v)
             .map(|(k, _)| k.clone())
             .unwrap_or_else(|| "gemini-2.0-flash".into());
@@ -93,13 +111,16 @@ impl<P: Router + 'static, F: Router + 'static> FailoverRouter<P, F> {
 
 #[async_trait]
 impl<P: Router + 'static, F: Router + 'static> Router for FailoverRouter<P, F> {
-    fn name(&self) -> &str { "failover" }
+    fn name(&self) -> &str {
+        "failover"
+    }
 
     async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
-        match self.primary.decide(req).await {
-            Ok(decision) => Ok(decision),
-            Err(_) => self.fallback.decide(req).await,
-        }
+<<<<<<< HEAD
+        self.primary.decide(req).await.or_else(|_| self.fallback.decide(req).await)
+=======
+        self.primary.decide(req).await.or_else(|_| async { self.fallback.decide(req).await })
+>>>>>>> origin/main
     }
 }
 
@@ -121,10 +142,14 @@ impl TaskSpecificRouter {
 
 #[async_trait]
 impl Router for TaskSpecificRouter {
-    fn name(&self) -> &str { "task_specific" }
+    fn name(&self) -> &str {
+        "task_specific"
+    }
 
     async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
-        let provider = req.task_type.as_ref()
+        let provider = req
+            .task_type
+            .as_ref()
             .and_then(|t| self.rules.get(t))
             .cloned()
             .unwrap_or_else(|| "gpt-4o-mini".into());
@@ -154,13 +179,17 @@ pub struct SemanticCacheRouter {
 
 impl SemanticCacheRouter {
     pub fn new() -> Self {
-        Self { cache: RwLock::new(HashMap::new()) }
+        Self {
+            cache: RwLock::new(HashMap::new()),
+        }
     }
 }
 
 #[async_trait]
 impl Router for SemanticCacheRouter {
-    fn name(&self) -> &str { "semantic_cache" }
+    fn name(&self) -> &str {
+        "semantic_cache"
+    }
 
     async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
         let key = PromptHasher::hash(&req.prompt);
@@ -191,10 +220,29 @@ impl Router for SemanticCacheRouter {
     }
 }
 
-impl Default for CostAwareRouter { fn default() -> Self { Self::new() } }
-impl Default for LatencyAwareRouter { fn default() -> Self { Self::new() } }
-impl Default for TaskSpecificRouter { fn default() -> Self { Self::new() } }
-impl Default for SemanticCacheRouter { fn default() -> Self { Self::new() } }
+impl Default for CostAwareRouter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Default for LatencyAwareRouter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Default for TaskSpecificRouter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Default for SemanticCacheRouter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -246,8 +294,10 @@ mod tests {
     async fn test_semantic_cache_miss_then_hit() {
         let router = Arc::new(SemanticCacheRouter::new());
         let req = RoutingRequest::new("gpt-4o-mini", "What is 2+2?");
+
         let d1 = router.decide(&req).await.unwrap();
         assert_eq!(d1.estimated_latency_ms, 800);
+
         let d2 = router.decide(&req).await.unwrap();
         assert_eq!(d2.estimated_latency_ms, 5);
         assert_eq!(d2.reasoning, "Cache hit");
@@ -258,6 +308,7 @@ mod tests {
         let router = Arc::new(SemanticCacheRouter::new());
         let req1 = RoutingRequest::new("gpt-4o-mini", "What is 2+2?");
         let req2 = RoutingRequest::new("gpt-4o-mini", "What is 3+3?");
+
         let d1 = router.decide(&req1).await.unwrap();
         let d2 = router.decide(&req2).await.unwrap();
         assert_eq!(d1.estimated_latency_ms, 800);
@@ -269,6 +320,7 @@ mod tests {
         let primary = Arc::new(CostAwareRouter::new());
         let fallback = Arc::new(LatencyAwareRouter::new());
         let router = FailoverRouter::new(primary, fallback);
+
         let req = RoutingRequest::new("gpt-4o", "test");
         let decision = router.decide(&req).await.unwrap();
         assert_eq!(decision.provider, "gpt-4o-mini");
@@ -280,6 +332,7 @@ mod tests {
         let primary = Arc::new(TaskSpecificRouter::new());
         let fallback = Arc::new(LatencyAwareRouter::new());
         let router = FailoverRouter::new(primary, fallback);
+
         let req = RoutingRequest::new("gpt-4o", "write code").with_task("code");
         let decision = router.decide(&req).await.unwrap();
         assert_eq!(decision.provider, "gpt-4o");

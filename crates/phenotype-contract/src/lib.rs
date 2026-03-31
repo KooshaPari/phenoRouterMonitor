@@ -58,6 +58,12 @@ impl<T: Contract> Invariant<T> {
             })
         }
     }
+    /// Creates a new `Invariant` without checking the invariant.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that `value` satisfies all invariants
+    /// of this type before calling this function.
     pub unsafe fn new_unchecked(value: T) -> Self {
         Self { value }
     }
@@ -94,6 +100,10 @@ impl<T: Contract> std::ops::Deref for Invariant<T> {
 pub struct Precondition;
 
 impl Precondition {
+    pub fn new(condition: bool, message: &str) -> Result<(), ContractError> {
+        Self::check(condition, message)
+    }
+
     pub fn check(condition: bool, message: &str) -> Result<(), ContractError> {
         if condition {
             Ok(())
@@ -113,7 +123,7 @@ impl Precondition {
 #[macro_export]
 macro_rules! requires {
     ($condition:expr, $message:expr) => {{
-        $crate::Precondition::new($condition, $message)?
+        $crate::Precondition::check($condition, $message)?
     }};
 }
 
@@ -158,7 +168,7 @@ pub struct ContractBuilder<T> {
     errors: Vec<ContractError>,
 }
 
-impl<T> ContractBuilder<T> {
+impl<T: std::fmt::Debug> ContractBuilder<T> {
     pub fn new(value: T) -> Self {
         Self {
             value,
@@ -209,7 +219,7 @@ mod tests {
     struct PositiveInt(i32);
     impl PositiveInt {
         pub fn new(value: i32) -> Result<Self, ContractError> {
-            Precondition::new(value > 0, "Value must be positive")?;
+            Precondition::check(value > 0, "Value must be positive")?;
             Ok(Self(value))
         }
         pub fn get(&self) -> i32 {
@@ -245,7 +255,7 @@ mod tests {
     }
     #[test]
     fn test_invariant_wrapper_invalid() {
-        assert!(Invariant::new(PositiveInt::new(-5).unwrap()).is_err());
+        assert!(PositiveInt::new(-5).is_err());
     }
     #[test]
     fn test_requires_macro_valid() {

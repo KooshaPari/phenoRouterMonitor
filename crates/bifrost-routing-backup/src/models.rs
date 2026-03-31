@@ -5,6 +5,7 @@ pub struct RoutingRequest {
     pub model: String,
     pub prompt: String,
     pub task_type: Option<String>,
+    pub metadata: serde_json::Value,
 }
 
 impl RoutingRequest {
@@ -13,6 +14,7 @@ impl RoutingRequest {
             model: model.into(),
             prompt: prompt.into(),
             task_type: None,
+            metadata: serde_json::json!({}),
         }
     }
 
@@ -20,9 +22,14 @@ impl RoutingRequest {
         self.task_type = Some(task.into());
         self
     }
+
+    pub fn with_metadata(mut self, key: impl Into<String>, value: serde_json::Value) -> Self {
+        self.metadata[key.into()] = value;
+        self
+    }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct RouterDecision {
     pub provider: String,
     pub reasoning: String,
@@ -69,10 +76,14 @@ mod tests {
 
     #[test]
     fn test_routing_request_builder() {
-        let request = RoutingRequest::new("gpt-4o", "Hello world").with_task("chat");
+        let request = RoutingRequest::new("gpt-4o", "Hello world")
+            .with_task("chat")
+            .with_metadata("user_id", serde_json::json!("123"));
+
         assert_eq!(request.model, "gpt-4o");
         assert_eq!(request.prompt, "Hello world");
         assert_eq!(request.task_type, Some("chat".to_string()));
+        assert_eq!(request.metadata["user_id"], "123");
     }
 
     #[test]
@@ -82,7 +93,11 @@ mod tests {
             .with_cost(0.003)
             .with_latency(500)
             .with_confidence(0.95);
+
         assert_eq!(decision.provider, "gpt-4o");
+        assert_eq!(decision.reasoning, "Selected for analysis");
         assert_eq!(decision.estimated_cost_usd, 0.003);
+        assert_eq!(decision.estimated_latency_ms, 500);
+        assert_eq!(decision.confidence, 0.95);
     }
 }
