@@ -17,7 +17,6 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use thiserror::Error;
 
 // ---------------------------------------------------------------------------
@@ -376,7 +375,6 @@ impl Logger for NoopTelemetry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::str::FromStr;
 
     #[test]
     fn test_log_level_from_str() {
