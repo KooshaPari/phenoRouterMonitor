@@ -21,3 +21,7 @@
 
 //     println!("Person: {} (age {})", person.name, person.age);
 // }
+
+fn main() {
+    println!("Builder macro example is pending implementation");
+}
