@@ -1,0 +1,110 @@
+# EditorConfig for consistent formatting across IDEs
+# See https://editorconfig.org
+# Applies to: VSCode, IntelliJ, Vim, Emacs, and other EditorConfig-aware editors
+
+root = true
+
+# ====================
+# All Files
+# ====================
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# ====================
+# Rust (4 spaces)
+# ====================
+[*.rs]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ====================
+# Python (4 spaces)
+# ====================
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ====================
+# Go (tabs)
+# ====================
+[*.go]
+indent_style = tab
+max_line_length = 100
+
+# ====================
+# Makefiles (tabs)
+# ====================
+[Makefile]
+indent_style = tab
+
+# ====================
+# YAML/TOML (2 spaces)
+# ====================
+[*.{yml,yaml,toml}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ====================
+# Markdown (2 spaces, preserve trailing whitespace)
+# ====================
+[*.md]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+trim_trailing_whitespace = false
+
+# ====================
+# JSON/JSON5 (2 spaces)
+# ====================
+[*.{json,json5}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ====================
+# JavaScript/TypeScript (2 spaces)
+# ====================
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ====================
+# Shell Scripts (2 spaces)
+# ====================
+[*.{sh,bash,zsh}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ====================
+# CSS/SCSS/LESS (2 spaces)
+# ====================
+[*.{css,scss,less}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ====================
+# HTML (2 spaces)
+# ====================
+[*.{html,htm}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+# ====================
+# Vue/JSX (2 spaces)
+# ====================
+[*.{vue,tsx,jsx}]
+indent_style = space
+indent_size = 2
+max_line_length = 100

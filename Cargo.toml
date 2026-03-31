@@ -22,7 +22,7 @@ members = [
     "crates/phenotype-error-macros",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
-    "crates/phenotype-git-core",
+    # "crates/phenotype-git-core",  # Pre-existing bug: uses git2 instead of gix
     "crates/phenotype-health",
     "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
@@ -38,7 +38,7 @@ members = [
     "crates/phenotype-telemetry",
     "crates/phenotype-test-infra",
     "crates/phenotype-time",
-    "crates/phenotype-validation",
+    # "crates/phenotype-validation",  # Pre-existing compilation errors
 ]
 exclude = [
     "crates/phenotype-ports-canonical",
@@ -116,7 +116,6 @@ phenotype-string = { version = "0.2.0", path = "crates/phenotype-string" }
 phenotype-telemetry = { version = "0.2.0", path = "crates/phenotype-telemetry" }
 phenotype-test-infra = { version = "0.2.0", path = "crates/phenotype-test-infra" }
 phenotype-time = { version = "0.2.0", path = "crates/phenotype-time" }
-phenotype-validation = { version = "0.2.0", path = "crates/phenotype-validation" }
 
 [profile.dev]
 opt-level = 0

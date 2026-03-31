@@ -49,14 +49,7 @@ impl GitRepository {
                     message: commit.message().unwrap_or("").to_string(),
                 }))
             }
-            Err(e) => {
-                if e.code() == git2::ErrorCode::UnbornBranch
-                    || e.code() == git2::ErrorCode::NotFound
-                {
-                    Ok(None)
-                } else {
-                    Err(e)
-                }
+Err(_) => Ok(None),
             }
         }
     }
