@@ -5,21 +5,19 @@ license = "MIT"
 rust-version = "1.75"
 authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
-description = "Phenotype infrastructure crates"
+description = "Phenotype Infrastructure Kit"
 
 [workspace]
 resolver = "3"
 members = [
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
-"crates/phenotype-contracts",
-"crates/phenotype-health",
-"crates/phenotype-policy-engine",
-"crates/phenotype-state-machine",
-"crates/phenotype-iter",
-"crates/phenotype-telemetry",
-"forgecode-fork",
-    "phenotype-router-monitor",
+    "crates/phenotype-contracts",
+    "crates/phenotype-health",
+    "crates/phenotype-iter",
+    "crates/phenotype-policy-engine",
+    "crates/phenotype-state-machine",
+    "crates/phenotype-telemetry",
 ]
 
 [workspace.dependencies]
@@ -30,7 +28,7 @@ anyhow = "1"
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util", "net"] }
+tokio = { version = "1", features = ["full"] }
 dashmap = "5"
 toml = "0.8"
 regex = "1"
@@ -42,8 +40,6 @@ parking_lot = "0.12"
 futures = "0.3"
 strum = { version = "0.26", features = ["derive"] }
 once_cell = "1.19"
-reqwest = { version = "0.12", features = ["json"] }
-url = "2"
 
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
 phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
@@ -57,4 +53,3 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
-panic = "abort"

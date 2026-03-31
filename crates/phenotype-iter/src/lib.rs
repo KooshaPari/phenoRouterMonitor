@@ -103,6 +103,14 @@ pub trait Batch: Iterator + Sized {
     {
         BatchIter::new(self, predicate)
     }
+
+    /// Alias for `batch` - creates a batch iterator based on a predicate.
+    fn batch_by<F>(self, predicate: F) -> BatchIter<Self, F>
+    where
+        F: Fn(&Self::Item) -> bool,
+    {
+        self.batch(predicate)
+    }
 }
 
 impl<I: Iterator> Batch for I {}
