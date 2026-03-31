@@ -348,6 +348,7 @@ dependencies = [
 name = "phenotype-error-core"
 version = "0.2.0"
 dependencies = [
+ "anyhow",
  "serde",
  "serde_json",
  "thiserror",
