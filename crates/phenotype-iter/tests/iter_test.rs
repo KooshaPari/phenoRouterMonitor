@@ -2,7 +2,7 @@
 //!
 //! Traces to: FR-PHENO-ITER-001, FR-PHENO-ITER-002, FR-PHENO-ITER-003
 
-use phenotype_iter::{Batch, Chunk, Window, Windowed};
+use phenotype_iter::{Batch, Chunk, Windowed};
 
 // ============================================================================
 // Window Iterator Tests
@@ -334,8 +334,8 @@ fn test_multiple_windows_different_sizes() {
     // Traces to: FR-PHENO-ITER-001 (varying window sizes)
     let data = vec![1, 2, 3, 4, 5, 6];
 
-    let w2: Vec<_> = data.iter().cloned().window(2).count();
-    let w3: Vec<_> = data.iter().cloned().window(3).count();
+    let w2 = data.iter().cloned().window(2).count();
+    let w3 = data.iter().cloned().window(3).count();
 
     assert!(w2 > w3);
 }

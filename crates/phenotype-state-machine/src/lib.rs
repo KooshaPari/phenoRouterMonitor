@@ -147,8 +147,8 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<StateCallback>>,
-    on_exit: HashMap<String, Vec<StateCallback>>,
+    on_enter: HashMap<String, Vec<Arc<StateCallback>>>,
+    on_exit: HashMap<String, Vec<Arc<StateCallback>>>,
 }
 
 impl StateMachineBuilder {

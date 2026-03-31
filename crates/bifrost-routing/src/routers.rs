@@ -3,7 +3,11 @@ use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::{Arc, RwLock};
 
+<<<<<<< HEAD
+use crate::{BifrostError, Result, RoutingRequest, RouterDecision};
+=======
 use crate::{Result, RoutingRequest, RouterDecision};
+>>>>>>> origin/main
 
 #[async_trait]
 pub trait Router: Send + Sync {
@@ -72,7 +76,11 @@ impl Router for LatencyAwareRouter {
         "latency_aware"
     }
 
+<<<<<<< HEAD
+    async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
+=======
     async fn decide(&self, _req: &RoutingRequest) -> Result<RouterDecision> {
+>>>>>>> origin/main
         let provider = self
             .latencies
             .iter()
@@ -108,7 +116,11 @@ impl<P: Router + 'static, F: Router + 'static> Router for FailoverRouter<P, F> {
     }
 
     async fn decide(&self, req: &RoutingRequest) -> Result<RouterDecision> {
+<<<<<<< HEAD
+        self.primary.decide(req).await.or_else(|_| self.fallback.decide(req).await)
+=======
         self.primary.decide(req).await.or_else(|_| async { self.fallback.decide(req).await })
+>>>>>>> origin/main
     }
 }
 
