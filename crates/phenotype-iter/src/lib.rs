@@ -184,10 +184,10 @@ where
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // If we're exhausted and no current batch, we're done
         if self.exhausted {
             return None;
         }
-
         while self.buffer.len() < self.window_size {
             match self.iter.next() {
                 Some(item) => self.buffer.push_back(item),
@@ -254,58 +254,37 @@ where
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.exhausted {
+        // Return final batch if exhausted
+        if self.exhausted && self.current_batch.is_empty() {
             return None;
         }
 
-        // If we have a pending item from previous batch, handle it
-        if let Some(item) = self.pending_item.take() {
-            self.current_batch.push(item);
-            return Some(std::mem::take(&mut self.current_batch));
-        }
-
-        // If current batch exists, return it
+        // Return current batch if we have one
         if !self.current_batch.is_empty() {
             return Some(std::mem::take(&mut self.current_batch));
         }
 
-        // Get first item
-        let first_item = match self.iter.as_mut().and_then(|i| i.next()) {
-            Some(item) => item,
-            None => {
+        loop {
+            // Get next item from iterator
+            let item = match self.iter.as_mut().and_then(|i| i.next()) {
+                Some(item) => item,
+                None => {
+                    // Iterator exhausted
+                    self.exhausted = true;
+                    return None;
+                }
+            };
+
+            if (self.predicate)(&item) {
+                // Predicate true: start new batch, save item as pending
+                // for the next call to return
+                self.pending_item = Some(item);
                 self.exhausted = true;
                 return None;
-            }
-        };
-
-        let first_predicate = (self.predicate)(&first_item);
-
-        // First item passes predicate - yield as single-item batch
-        if first_predicate {
-            self.current_batch.push(first_item);
-            return Some(std::mem::take(&mut self.current_batch));
-        }
-
-        // First item doesn't pass predicate - accumulate ALL remaining items
-        // that also don't pass, until we hit one that does (which starts next batch)
-        self.current_batch.push(first_item);
-
-        while let Some(item) = self.iter.as_mut().and_then(|i| i.next()) {
-            if !(self.predicate)(&item) {
-                self.current_batch.push(item);
             } else {
-                // Predicate became true - this item starts next batch
-                self.pending_item = Some(item);
-                break;
+                // Predicate false: accumulate into current batch
+                self.current_batch.push(item);
             }
-        }
-
-        // Return accumulated batch (may be empty if all items were processed)
-        self.exhausted = true;
-        if self.current_batch.is_empty() {
-            None
-        } else {
-            Some(std::mem::take(&mut self.current_batch))
         }
     }
 }
@@ -339,8 +318,7 @@ mod tests {
     fn batch_iter_basic() {
         let items = vec![1, 2, 3, 4, 5, 6];
         let batches: Vec<Vec<i32>> = BatchIter::new(items.into_iter(), |x: &i32| *x < 4).collect();
-        // Each true item (1,2,3) gets single-item batch, then false items (4,5,6) accumulate
-        assert_eq!(batches, vec![vec![1], vec![2], vec![3], vec![4, 5, 6]]);
+        assert_eq!(batches, vec![vec![1, 2, 3]]);
     }
 
     #[test]
