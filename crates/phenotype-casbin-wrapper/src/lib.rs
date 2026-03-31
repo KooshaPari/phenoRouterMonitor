@@ -20,8 +20,8 @@
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let adapter = CasbinAdapter::new(
-//!         "examples/basic_model.conf",
-//!         "examples/basic_policy.csv",
+//!         "examples/basic_model.conf".to_string(),
+//!         "examples/basic_policy.csv".to_string(),
 //!     ).await?;
 //!
 //!     // Check if request is allowed
@@ -115,7 +115,11 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model(dir.path());
         let policy_path = create_basic_policy(dir.path());
 
-        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
 
         let request = vec!["alice", "data1", "read"];
         let allowed = adapter.enforce(&request).await?;
@@ -134,7 +138,11 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_rbac_model(dir.path());
         let policy_path = create_rbac_policy(dir.path());
 
-        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
 
         let request = vec!["alice", "data1", "read"];
         let allowed = adapter.enforce(&request).await?;
@@ -157,7 +165,11 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model(dir.path());
         let policy_path = create_basic_policy(dir.path());
 
-        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
 
         let requests = vec![
             vec!["alice", "data1", "read"],
@@ -180,7 +192,11 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model(dir.path());
         let policy_path = create_basic_policy(dir.path());
 
-        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
 
         let request = vec!["charlie", "data1", "read"];
         let initially_denied = adapter.enforce(&request).await?;
@@ -206,7 +222,11 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model(dir.path());
         let policy_path = create_basic_policy(dir.path());
 
-        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
 
         let request = vec!["alice", "data1", "read"];
         let initially_allowed = adapter.enforce(&request).await?;
@@ -226,7 +246,11 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model(dir.path());
         let policy_path = create_basic_policy(dir.path());
 
-        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
 
         let rules = vec![vec!["charlie".to_string(), "data1".to_string(), "read".to_string()]];
         adapter.modify_policy("p", rules).await?;
