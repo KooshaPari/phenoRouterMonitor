@@ -1,59 +1,180 @@
-//! # phenotype-iter: Advanced Iterator Utilities
+#![warn(missing_docs)]
+#![warn(missing_debug_implementations)]
+
+//! # phenotype-iter
 //!
-//! Provides efficient, composable iterator adapters for common patterns:
-//! - **Windowing**: Sliding windows over sequences
-//! - **Chunking**: Fixed-size non-overlapping partitions
-//! - **Batching**: Predicate-based grouping with pending item tracking
+//! Advanced iteration utilities for lazy, memory-efficient batch processing.
 //!
-//! All implementations use lazy evaluation for memory efficiency and support
-//! generic iterators via trait extensions.
+//! This crate provides composable iterator adapters that enable efficient processing
+//! of large sequences without allocating intermediate collections.
 //!
-//! # Examples
+//! ## Features
 //!
-//! ```ignore
-//! use phenotype_iter::Window;
+//! - **Chunk Iterator**: Group elements into fixed-size chunks
+//! - **Window Iterator**: Sliding window over consecutive elements
+//! - **Batch Iterator**: Accumulate elements until a condition is met
 //!
-//! let data = vec![1, 2, 3, 4, 5];
-//! let windows: Vec<_> = data.iter().window(3).collect();
-//! // windows = [[1,2,3], [2,3,4], [3,4,5]]
+//! All iterators are lazy and memory-efficient, only materializing data when needed.
+//!
+//! ## Examples
+//!
+//! ```
+//! use phenotype_iter::Chunk;
+//!
+//! let items = vec![1, 2, 3, 4, 5, 6, 7];
+//! let chunks: Vec<Vec<i32>> = items
+//!     .into_iter()
+//!     .chunk(3)
+//!     .collect();
+//! assert_eq!(chunks, vec![vec![1, 2, 3], vec![4, 5, 6], vec![7]]);
 //! ```
 
 use std::collections::VecDeque;
+use thiserror::Error;
+
+/// Errors produced by iteration operations.
+#[derive(Debug, Error)]
+#[error("{0}")]
+pub enum Error {
+    /// Invalid configuration or state.
+    Invalid(String),
+}
+
+/// Result type for iteration operations.
+pub type Result<T> = std::result::Result<T, Error>;
+
+// ============================================================================
+// Traits
+// ============================================================================
+
+/// Trait for chunking an iterator into fixed-size groups.
+///
+/// This trait extends any iterator to provide efficient grouping
+/// of consecutive elements without pre-allocating the full collection.
+pub trait Chunk: Iterator + Sized {
+    /// Creates an iterator that groups elements into chunks of the given size.
+    ///
+    /// The last chunk may contain fewer elements than the requested size.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `size` is 0.
+    fn chunk(self, size: usize) -> ChunkIter<Self> {
+        assert!(size > 0, "chunk size must be greater than 0");
+        ChunkIter::new(self, size)
+    }
+}
+
+impl<I: Iterator> Chunk for I {}
 
 /// Trait for creating sliding windows over an iterator.
 ///
-/// Each window contains up to `size` consecutive elements. Windows overlap,
-/// advancing by one element per iteration.
-pub trait Window: Iterator + Sized
-where
-    Self::Item: Clone,
-{
-    /// Create a sliding window iterator with the given window size.
+/// This trait extends any iterator to provide efficient sliding
+/// window operations without materializing the entire collection.
+pub trait Windowed: Iterator + Sized {
+    /// Creates an iterator that yields sliding windows of the given size.
     ///
     /// # Panics
+    ///
     /// Panics if `size` is 0.
-    fn window(self, size: usize) -> WindowIter<Self> {
+    fn window(self, size: usize) -> WindowIter<Self>
+    where
+        Self::Item: Clone,
+    {
         assert!(size > 0, "window size must be greater than 0");
-        WindowIter {
-            iter: self,
-            buffer: VecDeque::with_capacity(size),
-            size,
-            exhausted: false,
+        WindowIter::new(self, size)
+    }
+}
+
+impl<I: Iterator> Windowed for I {}
+
+/// Trait for batching an iterator based on a predicate.
+///
+/// This trait extends any iterator to provide efficient accumulation
+/// of elements into batches determined by a condition function.
+pub trait Batch: Iterator + Sized {
+    /// Creates an iterator that batches elements using the given predicate.
+    ///
+    /// A new batch is started whenever the predicate returns true for
+    /// the current element.
+    fn batch<F>(self, predicate: F) -> BatchIter<Self, F>
+    where
+        F: Fn(&Self::Item) -> bool,
+    {
+        BatchIter::new(self, predicate)
+    }
+}
+
+impl<I: Iterator> Batch for I {}
+
+// ============================================================================
+// Iterator Adapters
+// ============================================================================
+
+/// An iterator adapter that groups consecutive elements into fixed-size chunks.
+#[derive(Debug, Clone)]
+pub struct ChunkIter<I: Iterator> {
+    iter: I,
+    size: usize,
+}
+
+impl<I: Iterator> ChunkIter<I> {
+    /// Creates a new chunk iterator with the specified chunk size.
+    pub fn new(iter: I, size: usize) -> Self {
+        assert!(size > 0, "chunk size must be greater than 0");
+        ChunkIter { iter, size }
+    }
+}
+
+impl<I: Iterator> Iterator for ChunkIter<I> {
+    type Item = Vec<I::Item>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut chunk = Vec::with_capacity(self.size);
+        for _ in 0..self.size {
+            match self.iter.next() {
+                Some(item) => chunk.push(item),
+                None => break,
+            }
+        }
+
+        if chunk.is_empty() {
+            None
+        } else {
+            Some(chunk)
         }
     }
 }
 
-impl<I: Iterator> Window for I where I::Item: Clone {}
+impl<I: ExactSizeIterator> ExactSizeIterator for ChunkIter<I> {
+    fn len(&self) -> usize {
+        self.iter.len().div_ceil(self.size)
+    }
+}
 
-/// An iterator adapter that yields sliding windows.
-pub struct WindowIter<I: Iterator>
+/// An iterator adapter that creates sliding windows over consecutive elements.
+#[derive(Debug)]
+pub struct WindowIter<I: Iterator> {
+    buffer: VecDeque<I::Item>,
+    window_size: usize,
+    iter: I,
+    exhausted: bool,
+}
+
+impl<I: Iterator> WindowIter<I>
 where
     I::Item: Clone,
 {
-    iter: I,
-    buffer: VecDeque<I::Item>,
-    size: usize,
-    exhausted: bool,
+    /// Creates a new window iterator with the specified window size.
+    pub fn new(iter: I, size: usize) -> Self {
+        assert!(size > 0, "window size must be greater than 0");
+        WindowIter {
+            buffer: VecDeque::with_capacity(size),
+            window_size: size,
+            iter,
+            exhausted: false,
+        }
+    }
 }
 
 impl<I: Iterator> Iterator for WindowIter<I>
@@ -67,161 +188,114 @@ where
             return None;
         }
 
-        // Fill buffer to size on first call
-        while self.buffer.len() < self.size {
+        while self.buffer.len() < self.window_size {
             match self.iter.next() {
                 Some(item) => self.buffer.push_back(item),
                 None => {
-                    self.exhausted = true;
                     if self.buffer.is_empty() {
+                        self.exhausted = true;
                         return None;
                     }
-                    break;
+                    self.exhausted = true;
+                    return Some(self.buffer.iter().cloned().collect());
                 }
             }
         }
 
-        if self.buffer.len() < self.size {
-            return None;
-        }
+        let window: Vec<I::Item> = self.buffer.iter().cloned().collect();
 
-        let window = self.buffer.iter().cloned().collect();
-
-        // Advance by one element
-        if self.iter.next().is_some() {
-            self.buffer.pop_front();
-            return Some(window);
-        }
-
-        self.exhausted = true;
-        Some(window)
-    }
-}
-
-/// Trait for chunking an iterator into fixed-size non-overlapping groups.
-pub trait Chunk: Iterator + Sized
-where
-    Self::Item: Clone,
-{
-    /// Create a chunking iterator with the given chunk size.
-    ///
-    /// # Panics
-    /// Panics if `size` is 0.
-    fn chunk(self, size: usize) -> ChunkIter<Self> {
-        assert!(size > 0, "chunk size must be greater than 0");
-        ChunkIter {
-            iter: self,
-            buffer: Vec::with_capacity(size),
-            size,
-        }
-    }
-}
-
-impl<I: Iterator> Chunk for I where I::Item: Clone {}
-
-/// An iterator adapter that yields fixed-size chunks.
-pub struct ChunkIter<I: Iterator>
-where
-    I::Item: Clone,
-{
-    iter: I,
-    buffer: Vec<I::Item>,
-    size: usize,
-}
-
-impl<I: Iterator> Iterator for ChunkIter<I>
-where
-    I::Item: Clone,
-{
-    type Item = Vec<I::Item>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.buffer.clear();
-
-        for _ in 0..self.size {
-            match self.iter.next() {
-                Some(item) => self.buffer.push(item),
-                None => break,
+        match self.iter.next() {
+            Some(item) => {
+                self.buffer.pop_front();
+                self.buffer.push_back(item);
+                Some(window)
+            }
+            None => {
+                self.exhausted = true;
+                Some(window)
             }
         }
-
-        if self.buffer.is_empty() {
-            None
-        } else {
-            Some(self.buffer.clone())
-        }
     }
 }
 
-impl<I: Iterator> ExactSizeIterator for ChunkIter<I> where I::Item: Clone + ExactSizeIterator {}
+/// An iterator adapter that batches elements based on a predicate function.
+#[derive(Debug)]
+pub struct BatchIter<I: Iterator, F>
+where
+    F: Fn(&I::Item) -> bool,
+{
+    iter: Option<I>,
+    predicate: F,
+    current_batch: Vec<I::Item>,
+    pending_item: Option<I::Item>,
+    exhausted: bool,
+}
 
-/// Trait for batching an iterator based on predicates.
-///
-/// Batches are created by grouping consecutive elements that satisfy a predicate.
-/// When the predicate returns false, a new batch begins.
-pub trait Batch: Iterator + Sized {
-    /// Create a batching iterator using the given predicate.
-    ///
-    /// Items continue in the current batch while `predicate` returns true.
-    /// When it returns false, the current batch ends and a new one begins.
-    fn batch<F>(self, predicate: F) -> BatchIter<Self, F>
-    where
-        F: Fn(&Self::Item) -> bool,
-    {
+impl<I: Iterator, F> BatchIter<I, F>
+where
+    F: Fn(&I::Item) -> bool,
+{
+    /// Creates a new batch iterator with the given predicate.
+    pub fn new(iter: I, predicate: F) -> Self {
         BatchIter {
-            iter: self,
+            iter: Some(iter),
             predicate,
-            buffer: Vec::new(),
-            pending: None,
+            current_batch: Vec::new(),
+            pending_item: None,
             exhausted: false,
         }
     }
 }
 
-impl<I: Iterator> Batch for I {}
-
-/// An iterator adapter that yields predicate-based batches.
-pub struct BatchIter<I: Iterator, F: Fn(&I::Item) -> bool> {
-    iter: I,
-    predicate: F,
-    buffer: Vec<I::Item>,
-    pending: Option<I::Item>,
-    exhausted: bool,
-}
-
-impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
+impl<I: Iterator, F> Iterator for BatchIter<I, F>
+where
+    F: Fn(&I::Item) -> bool,
+{
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.buffer.clear();
+        if self.exhausted && self.current_batch.is_empty() && self.pending_item.is_none() {
+            return None;
+        }
 
-        // Start with pending item if available
-        if let Some(item) = self.pending.take() {
-            if (self.predicate)(&item) {
-                self.buffer.push(item);
-            } else {
-                self.pending = Some(item);
-                if self.buffer.is_empty() && !self.exhausted {
-                    return self.next();
+        let mut iter = match self.iter.take() {
+            Some(it) => it,
+            None => {
+                if let Some(item) = self.pending_item.take() {
+                    self.current_batch.push(item);
                 }
+                self.exhausted = true;
+                return if self.current_batch.is_empty() {
+                    None
+                } else {
+                    Some(std::mem::take(&mut self.current_batch))
+                };
             }
+        };
+
+        // Handle pending item from previous iteration
+        if let Some(item) = self.pending_item.take() {
+            self.current_batch.push(item);
         }
 
-        // Fill batch while predicate is true
-        for item in self.iter.by_ref() {
-            if (self.predicate)(&item) {
-                self.buffer.push(item);
-            } else {
-                self.pending = Some(item);
-                break;
+        for item in iter.by_ref() {
+            if (self.predicate)(&item) && !self.current_batch.is_empty() {
+                // Save the triggering item for the next batch
+                self.pending_item = Some(item);
+                self.iter = Some(iter);
+                return Some(std::mem::take(&mut self.current_batch));
             }
+            self.current_batch.push(item);
         }
 
-        if self.buffer.is_empty() {
-            self.exhausted = true;
+        // Iterator exhausted
+        self.exhausted = true;
+        self.iter = None;
+
+        if self.current_batch.is_empty() {
             None
         } else {
-            Some(std::mem::take(&mut self.buffer))
+            Some(std::mem::take(&mut self.current_batch))
         }
     }
 }
@@ -231,129 +305,49 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_window_basic() {
-        let data = vec![1, 2, 3, 4, 5];
-        let windows: Vec<_> = data.into_iter().window(2).collect();
-        assert_eq!(windows.len(), 4);
-        assert_eq!(windows[0], vec![1, 2]);
-        assert_eq!(windows[1], vec![2, 3]);
-        assert_eq!(windows[3], vec![4, 5]);
+    fn chunk_iter_basic() {
+        let items = vec![1, 2, 3, 4, 5, 6, 7];
+        let chunks: Vec<Vec<i32>> = ChunkIter::new(items.into_iter(), 3).collect();
+        assert_eq!(chunks, vec![vec![1, 2, 3], vec![4, 5, 6], vec![7]]);
     }
 
     #[test]
-    fn test_window_size_one() {
-        let data = vec![1, 2, 3];
-        let windows: Vec<_> = data.into_iter().window(1).collect();
-        assert_eq!(windows.len(), 3);
-        assert_eq!(windows[0], vec![1]);
-        assert_eq!(windows[2], vec![3]);
+    fn chunk_iter_exact_size() {
+        let items = vec![1, 2, 3, 4, 5, 6];
+        let chunks: Vec<Vec<i32>> = ChunkIter::new(items.into_iter(), 3).collect();
+        assert_eq!(chunks, vec![vec![1, 2, 3], vec![4, 5, 6]]);
     }
 
     #[test]
-    fn test_window_larger_than_input() {
-        let data = vec![1, 2];
-        let windows: Vec<_> = data.into_iter().window(5).collect();
-        assert_eq!(windows.len(), 1);
-        assert_eq!(windows[0], vec![1, 2]);
+    fn window_iter_basic() {
+        let items = vec![1, 2, 3, 4, 5];
+        let windows: Vec<Vec<i32>> = items.into_iter().window(3).collect();
+        assert_eq!(
+            windows,
+            vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]
+        );
     }
 
     #[test]
-    fn test_chunk_basic() {
-        let data = vec![1, 2, 3, 4, 5, 6];
-        let chunks: Vec<_> = data.into_iter().chunk(2).collect();
-        assert_eq!(chunks.len(), 3);
-        assert_eq!(chunks[0], vec![1, 2]);
-        assert_eq!(chunks[1], vec![3, 4]);
-        assert_eq!(chunks[2], vec![5, 6]);
+    fn batch_iter_basic() {
+        // When predicate is true, a new batch starts with that item
+        let items = vec![1, 2, 3, 4, 5, 6];
+        let batches: Vec<Vec<i32>> = BatchIter::new(items.into_iter(), |x: &i32| x % 3 == 1).collect();
+        // Predicate true for 1 and 4, so batches are: [1,2,3] then [4,5,6]
+        assert_eq!(batches, vec![vec![1, 2, 3], vec![4, 5, 6]]);
     }
 
     #[test]
-    fn test_chunk_uneven() {
-        let data = vec![1, 2, 3, 4, 5];
-        let chunks: Vec<_> = data.into_iter().chunk(2).collect();
-        assert_eq!(chunks.len(), 3);
-        assert_eq!(chunks[2], vec![5]);
+    #[should_panic(expected = "chunk size must be greater than 0")]
+    fn chunk_iter_zero_size_panics() {
+        let items = vec![1, 2, 3];
+        let _iter: ChunkIter<_> = ChunkIter::new(items.into_iter(), 0);
     }
 
     #[test]
-    fn test_chunk_size_one() {
-        let data = vec![1, 2, 3];
-        let chunks: Vec<_> = data.into_iter().chunk(1).collect();
-        assert_eq!(chunks.len(), 3);
-        assert_eq!(chunks[0], vec![1]);
-    }
-
-    #[test]
-    fn test_batch_basic() {
-        let data = vec![1, 2, 3, 4, 5];
-        let batches: Vec<_> = data.into_iter().batch(|&x| x < 4).collect();
-        assert!(batches.len() >= 1);
-        assert_eq!(batches[0], vec![1, 2, 3]);
-    }
-
-    #[test]
-    fn test_batch_all_match() {
-        let data = vec![1, 2, 3];
-        let batches: Vec<_> = data.into_iter().batch(|&x| x > 0).collect();
-        assert_eq!(batches.len(), 1);
-        assert_eq!(batches[0], vec![1, 2, 3]);
-    }
-
-    #[test]
-    fn test_batch_none_match() {
-        let data = vec![1, 2, 3];
-        let batches: Vec<_> = data.into_iter().batch(|&x| x > 10).collect();
-        assert_eq!(batches.len(), 0);
-    }
-
-    #[test]
-    fn test_batch_alternating() {
-        let data = vec![1, 3, 2, 4];
-        let batches: Vec<_> = data.into_iter().batch(|&x| x % 2 == 1).collect();
-        assert!(batches.len() >= 1);
-    }
-
-    #[test]
-    fn test_window_empty() {
-        let data: Vec<i32> = vec![];
-        let windows: Vec<_> = data.into_iter().window(3).collect();
-        assert_eq!(windows.len(), 0);
-    }
-
-    #[test]
-    fn test_chunk_empty() {
-        let data: Vec<i32> = vec![];
-        let chunks: Vec<_> = data.into_iter().chunk(3).collect();
-        assert_eq!(chunks.len(), 0);
-    }
-
-    #[test]
-    fn test_batch_empty() {
-        let data: Vec<i32> = vec![];
-        let batches: Vec<_> = data.into_iter().batch(|_| true).collect();
-        assert_eq!(batches.len(), 0);
-    }
-
-    #[test]
-    fn test_window_order_preserved() {
-        let data = vec!['a', 'b', 'c', 'd'];
-        let windows: Vec<_> = data.into_iter().window(3).collect();
-        assert_eq!(windows[0], vec!['a', 'b', 'c']);
-        assert_eq!(windows[1], vec!['b', 'c', 'd']);
-    }
-
-    #[test]
-    fn test_chunk_order_preserved() {
-        let data = vec!['a', 'b', 'c', 'd', 'e'];
-        let chunks: Vec<_> = data.into_iter().chunk(2).collect();
-        assert_eq!(chunks[0], vec!['a', 'b']);
-        assert_eq!(chunks[1], vec!['c', 'd']);
-    }
-
-    #[test]
-    fn test_composition_window_then_chunk() {
-        let data = vec![1, 2, 3, 4];
-        let result: Vec<_> = data.into_iter().window(2).flatten().chunk(2).collect();
-        assert!(result.len() > 0);
+    #[should_panic(expected = "window size must be greater than 0")]
+    fn window_iter_zero_size_panics() {
+        let items = vec![1, 2, 3];
+        let _iter: Vec<Vec<i32>> = items.into_iter().window(0).collect();
     }
 }

@@ -13,7 +13,11 @@ use crate::templates::{
 <<<<<<< HEAD
 use super::{plane_settings_page, root};
 =======
+<<<<<<< HEAD
+use super::{plane_settings_page, root};
+=======
 use super::pages::{plane_settings_page, root};
+>>>>>>> origin/main
 >>>>>>> origin/main
 
 fn make_state() -> SharedState {
@@ -37,17 +41,23 @@ async fn health_panel_renders() {
 async fn plane_settings_page_renders() {
     let state = make_state();
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
     let response = plane_settings_page(axum::extract::State(state)).await;
     let body = response.into_body();
     let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
     let html = String::from_utf8(bytes.to_vec()).unwrap();
     assert!(html.contains("Plane Native Surface"));
+<<<<<<< HEAD
+=======
 =======
     let response: axum::response::Response = plane_settings_page(axum::extract::State(state)).await;
     let body = response.into_body();
     let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();
     let html = String::from_utf8(bytes.to_vec()).unwrap();
     assert!(!html.is_empty());
+>>>>>>> origin/main
 >>>>>>> origin/main
     assert!(html.contains("Not configured"));
 }
@@ -99,11 +109,14 @@ async fn agent_activity_renders_agents() {
             last_action: "1m ago".into(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
             pid: Some(12345),
             started_at: Some("2024-01-15 10:30:00 UTC".into()),
             worktree: "/path/to/worktree".into(),
             worktree_label: "worktree".into(),
             is_live: true,
+>>>>>>> origin/main
 >>>>>>> origin/main
         }],
     };
@@ -118,7 +131,11 @@ async fn root_renders_home_page() {
 <<<<<<< HEAD
     let response = root(axum::extract::State(state)).await;
 =======
+<<<<<<< HEAD
+    let response = root(axum::extract::State(state)).await;
+=======
     let response: axum::response::Response = root(axum::extract::State(state)).await;
+>>>>>>> origin/main
 >>>>>>> origin/main
     let body = response.into_body();
     let bytes = axum::body::to_bytes(body, usize::MAX).await.unwrap();

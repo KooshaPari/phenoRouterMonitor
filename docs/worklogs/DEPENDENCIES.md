@@ -621,8 +621,6 @@ Analyzed heliosCLI dependencies and identified opportunities for modernization a
 
 ---
 
----
-
 ## 2026-03-29 - Dependency Management Best Practices (2026)
 
 **Project:** [cross-repo]
@@ -3032,4 +3030,3 @@ grep -r "quote::" crates/ libs/
 # Average deps per crate: ~5
 # Most common: serde, thiserror, tokio, async-trait
 ```
-

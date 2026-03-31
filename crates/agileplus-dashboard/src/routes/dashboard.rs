@@ -14,9 +14,15 @@ use crate::templates::{
     EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
     KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
 =======
+<<<<<<< HEAD
+    AgentActivityPartial, AgentView, CiLinkView, DashboardPage, EventTimelinePartial,
+    EvidenceBundleView, FeatureDetailPage, FeatureView, GitCommitView, HealthPanelPartial,
+    KanbanPartial, MediaAssetView, PrLinkView, ProjectSwitcherPartial, ProjectView,
+=======
     AgentActivityPartial, AgentView, DashboardPage, EventTimelinePartial,
     EvidenceBundleView, FeatureDetailPage, FeatureView, HealthPanelPartial,
     KanbanPartial, MediaAssetView, ProjectSwitcherPartial, ProjectView,
+>>>>>>> origin/main
 >>>>>>> origin/main
     ReportArtifactView, WpListPartial, WpView,
 };
@@ -38,6 +44,8 @@ fn build_feature_events(
         timestamp: now.clone(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
         agent_name: None,
         agent_link: None,
         wp_id: None,
@@ -46,6 +54,7 @@ fn build_feature_events(
         commit_link: None,
         ci_run_id: None,
         ci_run_link: None,
+>>>>>>> origin/main
 >>>>>>> origin/main
     }];
 
@@ -57,6 +66,8 @@ fn build_feature_events(
             timestamp: now.clone(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
             agent_name: None,
             agent_link: None,
             wp_id: None,
@@ -65,6 +76,7 @@ fn build_feature_events(
             commit_link: None,
             ci_run_id: None,
             ci_run_link: None,
+>>>>>>> origin/main
 >>>>>>> origin/main
         });
 
@@ -76,6 +88,8 @@ fn build_feature_events(
                 timestamp: now.clone(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
                 agent_name: None,
                 agent_link: None,
                 wp_id: Some(wp.id.to_string()),
@@ -84,6 +98,7 @@ fn build_feature_events(
                 commit_link: None,
                 ci_run_id: None,
                 ci_run_link: None,
+>>>>>>> origin/main
 >>>>>>> origin/main
             });
         }
@@ -95,6 +110,8 @@ fn build_feature_events(
             timestamp: now.clone(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
             agent_name: None,
             agent_link: None,
             wp_id: None,
@@ -103,6 +120,7 @@ fn build_feature_events(
             commit_link: None,
             ci_run_id: None,
             ci_run_link: None,
+>>>>>>> origin/main
 >>>>>>> origin/main
         });
     }
@@ -335,11 +353,14 @@ pub async fn agent_activity(_state: State<SharedState>) -> Response {
             last_action: "2m ago".into(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
             pid: None,
             started_at: None,
             worktree: String::new(),
             worktree_label: String::new(),
             is_live: false,
+>>>>>>> origin/main
 >>>>>>> origin/main
         },
         AgentView {
@@ -349,11 +370,14 @@ pub async fn agent_activity(_state: State<SharedState>) -> Response {
             last_action: "just now".into(),
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
             pid: Some(12345),
             started_at: Some("2024-01-15 10:30:00 UTC".into()),
             worktree: "/Users/kooshapari/CodeProjects/Phenotype/repos/.worktrees/merge-spec-docs".into(),
             worktree_label: "merge-spec-docs".into(),
             is_live: true,
+>>>>>>> origin/main
 >>>>>>> origin/main
         },
     ];
@@ -394,6 +418,8 @@ pub async fn switch_project(State(state): State<SharedState>, Path(id): Path<i64
     let cards = build_kanban_cards(&store, DashboardFilter::All);
     render(KanbanPartial { cards })
 }
+<<<<<<< HEAD
+=======
 <<<<<<< HEAD
 =======
 
@@ -477,4 +503,5 @@ pub async fn time_footer() -> axum::response::Html<String> {
 pub async fn stream_placeholder() -> StatusCode {
     StatusCode::NO_CONTENT
 }
+>>>>>>> origin/main
 >>>>>>> origin/main

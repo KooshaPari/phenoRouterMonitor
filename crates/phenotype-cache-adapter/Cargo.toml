@@ -3,15 +3,18 @@ name = "phenotype-cache-adapter"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
-description = "Cache adapter for Phenotype"
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "2.0"
-chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1", features = ["v4", "serde"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+moka = { version = "0.12", features = ["sync"] }
+lru = "0.12"
 dashmap = "5"
+tokio = { version = "1", features = ["sync", "rt"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

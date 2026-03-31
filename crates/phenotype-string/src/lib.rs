@@ -1,16 +1,11 @@
-//! # Phenotype String
-//!
-//! Canonical string utilities for Phenotype services.
-//!
-//! This crate consolidates the duplicated string manipulation patterns scattered across the codebase.
+//! phenotype-string
 
-pub mod sanitize;
-pub mod parse;
-pub mod join;
+use thiserror::Error;
 
-pub use sanitize::Sanitize;
-pub use parse::ParseExt;
-pub use join::JoinExt;
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
+}
 
-/// Re-export for convenience.
-pub use std::string::ToString;
+pub type Result<T> = std::result::Result<T, Error>;

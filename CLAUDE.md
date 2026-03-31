@@ -1,6 +1,58 @@
 <<<<<<< HEAD
 # CLAUDE.md — repos shelf root
 
+<<<<<<< HEAD
+**This project is managed through AgilePlus.**
+
+## AgilePlus Mandate
+
+All work MUST be tracked in AgilePlus:
+- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
+- CLI: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
+
+## Work Requirements
+
+1. **Check for AgilePlus spec before implementing**
+2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
+3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
+4. **No code without corresponding AgilePlus spec**
+
+## Branch Discipline
+
+- Feature branches in `repos/worktrees/<project>/<category>/<branch>`
+- Canonical repository tracks `main` only
+- Return to `main` for merge/integration checkpoints
+
+## UTF-8 Encoding
+
+All markdown files must use UTF-8.
+
+---
+
+
+
+- Always evaluate and fix ALL CI check failures on a PR, including pre-existing failures inherited from main.
+- Never dismiss a CI failure as "pre-existing" or "unrelated to our changes" — if it fails on the PR, fix it in the PR.
+- This includes: build, lint, test, docs build, security scanning (CodeQL), code review gates (CodeRabbit), workflow guard checks, and any other CI jobs.
+- When a failure is caused by infrastructure outside the branch (e.g., rate limits, external service outages), implement or improve automated retry/bypass mechanisms in CI workflows.
+- After fixing CI failures, verify locally where possible (build, vet, tests) before pushing.
+=======
+## Identity
+>>>>>>> origin/main
+
+This is the **repos shelf** for `CodeProjects/Phenotype/organizational-shelf/repos`.
+A shelf is a top-level organizational unit containing related but independent
+project repositories. Think of it like a `/opt` or `~/code` directory, but
+versioned and synced as a polyrepo (repo of repos).
+
+**NOT AgilePlus.** AgilePlus is one of ~30 projects inside this shelf.
+See `projects/INDEX.md` for the full catalog.
+
+## Structure
+=======
+<<<<<<< HEAD
+# CLAUDE.md — repos shelf root
+
 ## Identity
 =======
 <!-- Base: platforms/thegent/dotfiles/governance/CLAUDE.base.md -->
@@ -12,6 +64,11 @@ Extends thegent governance base. See `platforms/thegent/dotfiles/governance/CLAU
 
 ## Project Overview
 
+<<<<<<< HEAD
+- Feature work goes in `.worktrees/<topic>/`
+- Legacy `PROJECT-wtrees/` and `repo-wtrees/` roots are for migration only and must not receive new work.
+- Canonical repository remains on `main` for final integration and verification.
+=======
 - **Name**: phenotype-infrakit
 - **Description**: Rust workspace containing generic infrastructure crates extracted from the Phenotype ecosystem
 - **Location**: `/Users/kooshapari/CodeProjects/Phenotype/repos/` (monorepo)
@@ -121,6 +178,7 @@ crates/
 
 This project follows Hexagonal Architecture with clear separation of concerns:
 >>>>>>> origin/main
+>>>>>>> origin/main
 
 ```
 repos/                          # ← YOU ARE HERE (shelf root)
@@ -145,6 +203,9 @@ repos/                          # ← YOU ARE HERE (shelf root)
 ```
 
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 ## Agent Rules
 
 **READ `AGENTS.md` FIRST.** It contains the authoritative agent interaction
@@ -154,8 +215,11 @@ rules for this shelf. Key points:
 - Never assume a project is at shelf root — always verify
 - Test commands must run inside the target project directory, not shelf root
 - File reads should specify the correct relative path from shelf root
+<<<<<<< HEAD
+=======
 =======
 ### Design Principles
+>>>>>>> origin/main
 >>>>>>> origin/main
 
 ## Project Index
@@ -167,6 +231,9 @@ See `projects/INDEX.md` for the full catalog of all projects in this shelf.
 This shelf is part of the **Phenotype Federated Hybrid Architecture**, which provides two complementary chassis systems:
 
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
 ### Phenotype Docs Chassis
 
 Provides VitePress configuration, design tokens, and theme components for consistent documentation across the organization.
@@ -195,6 +262,8 @@ Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMEN
 | Cross-project scripts | `scripts/` |
 | Docs Chassis Interface | `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` |
 | Governance Chassis Interface | `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` |
+<<<<<<< HEAD
+=======
 =======
 See `docs/adr/` for architecture decisions.
 
@@ -210,4 +279,6 @@ See thegent governance base for:
 - Worktree Discipline guidelines
 
 Location: `platforms/thegent/dotfiles/governance/CLAUDE.base.md`
+>>>>>>> origin/main
+>>>>>>> origin/main
 >>>>>>> origin/main

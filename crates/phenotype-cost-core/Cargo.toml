@@ -1,19 +1,12 @@
 [package]
 name = "phenotype-cost-core"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Cost calculation, pricing models, and budget enforcement for LLM operations"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
 
-[features]
-default = ["serialize"]
-serialize = ["dep:serde"]
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"], optional = true }
-serde_json.workspace = true
-thiserror.workspace = true
-chrono.workspace = true
-uuid.workspace = true
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"

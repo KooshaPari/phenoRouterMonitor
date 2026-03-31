@@ -175,7 +175,7 @@ pub enum LogLevel {
 }
 
 impl LogLevel {
-    pub fn parse(s: &str) -> Self {
+    pub fn from_str(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "trace" => Self::Trace,
             "debug" => Self::Debug,
@@ -375,12 +375,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_log_level_parse() {
-        assert_eq!(LogLevel::parse("debug"), LogLevel::Debug);
-        assert_eq!(LogLevel::parse("DEBUG"), LogLevel::Debug);
-        assert_eq!(LogLevel::parse("warning"), LogLevel::Warn);
-        assert_eq!(LogLevel::parse("err"), LogLevel::Error);
-        assert_eq!(LogLevel::parse("unknown"), LogLevel::Info);
+    fn test_log_level_from_str() {
+        assert_eq!(LogLevel::from_str("debug"), LogLevel::Debug);
+        assert_eq!(LogLevel::from_str("DEBUG"), LogLevel::Debug);
+        assert_eq!(LogLevel::from_str("warning"), LogLevel::Warn);
+        assert_eq!(LogLevel::from_str("err"), LogLevel::Error);
+        assert_eq!(LogLevel::from_str("unknown"), LogLevel::Info);
     }
 
     #[test]

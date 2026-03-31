@@ -8,5 +8,8 @@ license = "MIT"
 path = "src/lib.rs"
 
 [dependencies]
-serde = { workspace = true }
-thiserror = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

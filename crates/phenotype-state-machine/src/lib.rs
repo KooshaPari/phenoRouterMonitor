@@ -54,8 +54,8 @@ struct Transition {
 pub struct StateMachine {
     current: RwLock<String>,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<StateCallback>>,
-    on_exit: HashMap<String, Vec<StateCallback>>,
+    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
 }
 
 impl StateMachine {
@@ -103,7 +103,6 @@ impl StateMachine {
         }
 
         *current = new_state.clone();
-        *current_ordinal = transition.to_ordinal;
         Ok(new_state)
     }
 
@@ -142,8 +141,8 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<StateCallback>>,
-    on_exit: HashMap<String, Vec<StateCallback>>,
+    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
 }
 
 impl StateMachineBuilder {
@@ -163,7 +162,6 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
-                to_ordinal: self.state_ordinals.len() as u32,
                 guard: None,
             },
         );
@@ -183,7 +181,6 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
-                to_ordinal: self.state_ordinals.len() as u32,
                 guard: Some(Arc::new(guard)),
             },
         );
@@ -216,12 +213,6 @@ impl StateMachineBuilder {
         self
     }
 
-    /// Enable forward-only mode. Transitions to states with lower ordinals are rejected.
-    pub fn forward_only(mut self) -> Self {
-        self.forward_only = true;
-        self
-    }
-
     /// Build the state machine.
     pub fn build(self) -> Result<StateMachine> {
         if self.initial.is_empty() {
@@ -229,21 +220,11 @@ impl StateMachineBuilder {
                 "initial state cannot be empty".into(),
             ));
         }
-        // Ensure initial state has an ordinal
-        if !self.state_ordinals.contains_key(&self.initial) {
-            self.state_ordinals.insert(self.initial.clone(), 0);
-        }
-
         Ok(StateMachine {
-            current: RwLock::new(self.initial.clone()),
-            current_ordinal: RwLock::new(*self.state_ordinals.get(&self.initial).unwrap()),
+            current: RwLock::new(self.initial),
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,
-            sequential_next: self.sequential_next,
-            skip_states: self.skip_states,
-            forward_only: self.forward_only,
-            state_ordinals: self.state_ordinals,
         })
     }
 }

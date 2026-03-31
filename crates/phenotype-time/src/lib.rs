@@ -1,21 +1,11 @@
-//! # Phenotype Time
-//!
-//! Canonical time and duration utilities for Phenotype services.
-//!
-//! This crate consolidates the duplicated Duration patterns scattered across the codebase.
-//!
-//! ## Common Duration Constants
-//!
-//! ```rust
-//! use phenotype_time::{Duration, SECONDS, MINUTES, HOURS};
-//!
-//! let timeout = *MINUTES * 5;
-//! ```
+//! phenotype-time
 
-pub mod duration;
-pub mod timestamp;
-pub mod constants;
+use thiserror::Error;
 
-pub use duration::DurationExt;
-pub use timestamp::{Timestamp, TimestampKind};
-pub use constants::*;
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("{0}")]
+    Invalid(String),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;

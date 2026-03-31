@@ -175,6 +175,165 @@ Research into LLM inference optimization for agent workloads.
 
 ---
 
+<<<<<<< HEAD
+## 2026-03-29 - PERFORMANCE OPTIMIZATION AT SCALE (Non-Heliso)
+
+**Project:** [cross-repo]
+**Category:** performance
+**Status:** completed
+**Priority:** P1
+
+### Performance Hotspots by Crate
+
+| Crate | LOC | Hotspot | Current | Optimization |
+|-------|-----|---------|---------|---------------|
+| `agileplus-api` | 6,739 | Route handlers | Sequential | Parallel async |
+| `agileplus-sqlite` | 6,124 | Query execution | Sync | ADOPT `sqlx` async |
+| `phenotype-event-sourcing` | 2,054 | Hash chains | SHA-256 | blake3 (3x) |
+| `agileplus-git` | 3,544 | File operations | Sync | Async file ops |
+| `phenotype-cache-adapter` | 778 | Cache lookups | Lock-based | Lock-free DashMap |
+
+---
+
+### 1. Async Optimization
+
+#### Sequential → Parallel Pattern
+
+**Current (Sequential):**
+```rust
+async fn process_requests(requests: Vec<Request>) -> Vec<Response> {
+    let mut responses = Vec::new();
+    for req in requests {
+        responses.push(handle(req).await); // Sequential!
+    }
+    responses
+}
+```
+
+**Optimized (Parallel):**
+```rust
+async fn process_requests(requests: Vec<Request>) -> Vec<Response> {
+    futures::future::join_all(
+        requests.into_iter().map(handle)
+    ).await
+}
+```
+
+**Affected Crates:**
+- `agileplus-api` (routes processing)
+- `agileplus-sync` (sync operations)
+- `agileplus-import` (data import)
+
+---
+
+### 2. Serialization Optimization
+
+#### Current: serde_json
+
+```rust
+fn serialize(data: &Data) -> Vec<u8> {
+    serde_json::to_vec(data).unwrap()
+}
+```
+
+#### Optimized: rkyv for hot paths
+
+```rust
+use rkyv::{Archive, Serialize};
+
+#[derive(Archive, Serialize)]
+struct Data {
+    id: u64,
+    name: String,
+    value: f64,
+}
+
+fn serialize(data: &Data) -> Vec<u8> {
+    rkyv::to_bytes(data).unwrap()
+}
+```
+
+**Performance Gain:** 10x faster serialization, zero-copy deserialization
+
+---
+
+### 3. Hash Chain Optimization
+
+#### Current: SHA-256 (slow)
+
+```rust
+use sha2::{Sha256, Digest};
+
+pub fn hash(data: &[u8]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(data);
+    format!("{:x}", hasher.finalize())
+}
+```
+
+#### Optimized: blake3 (3x faster)
+
+```rust
+use blake3::Hasher;
+
+pub fn hash(data: &[u8]) -> String {
+    let mut hasher = Hasher::new();
+    hasher.update(data);
+    hasher.finalize().to_hex().to_string()
+}
+```
+
+**Affected Crates:**
+- `phenotype-event-sourcing` (hash.rs)
+- `agileplus-events` (event hashing)
+
+---
+
+### 4. Database Optimization
+
+#### Current: Sync SQLite
+
+```rust
+fn query_users(pool: &SqlitePool) -> Vec<User> {
+    pool.query(
+        "SELECT * FROM users",
+        [],
+    ).fetch_all().unwrap()
+}
+```
+
+#### Optimized: Async SQLx
+
+```rust
+async fn query_users(pool: &SqlitePool) -> Vec<User> {
+    sqlx::query_as::<_, User>("SELECT * FROM users")
+        .fetch_all(pool)
+        .await
+        .unwrap()
+}
+```
+
+**Affected Crates:**
+- `agileplus-sqlite` → `agileplus-api` with sqlx
+- `phenotype-event-sourcing` (event persistence)
+
+---
+
+### 5. Caching Optimization
+
+#### Current: Mutex-based
+
+```rust
+use std::sync::Mutex;
+
+pub struct Cache {
+    data: Mutex<HashMap<String, Vec<u8>>>,
+}
+
+impl Cache {
+    pub fn get(&self, key: &str) -> Option<Vec<u8>> {
+        self.data.lock().unwrap().get(key).cloned()
+=======
 ## 2026-03-30 - Zero-Copy Serialization Performance (Wave 136)
 
 **Project:** [phenotype-infrakit]
@@ -219,10 +378,71 @@ impl EventStore {
     pub fn get(&self, id: u64) -> Option<&ArchivedEventEnvelope> {
         // Zero-copy deserialization - no allocation!
         rkyv::check_ptr::<ArchivedEventEnvelope>(self.data.as_ref(), id).ok()
+>>>>>>> origin/main
     }
 }
 ```
 
+<<<<<<< HEAD
+#### Optimized: DashMap (lock-free)
+
+```rust
+use dashmap::DashMap;
+
+pub struct Cache {
+    data: DashMap<String, Vec<u8>>,
+}
+
+impl Cache {
+    pub fn get(&self, key: &str) -> Option<Vec<u8>> {
+        self.data.get(key).map(|v| v.clone())
+    }
+}
+```
+
+**Affected Crates:**
+- `phenotype-cache-adapter`
+- `agileplus-cache`
+- `agileplus-git` (git cache)
+
+---
+
+### 6. Memory Optimization
+
+#### Object Pooling
+
+```rust
+use object_pool::Pool;
+
+pub struct RequestHandler {
+    pool: Pool<ExpensiveObject>,
+}
+
+impl RequestHandler {
+    pub fn handle(&self, data: Vec<u8>) -> Result<()> {
+        let obj = self.pool.take();
+        let result = obj.process(data);
+        self.pool.give(obj);
+        result
+    }
+}
+```
+
+---
+
+### 7. Benchmarking Framework
+
+```rust
+use criterion::{black_box, criterion_group, Criterion};
+
+fn bench_hash_chain(c: &mut Criterion) {
+    c.bench_function("blake3_hash", |b| {
+        b.iter(|| {
+            let data = black_box(vec![0u8; 1024]);
+            blake3::hash(&data)
+        })
+    });
+=======
 ### Migration Path
 
 1. **Phase 1**: Add rkyv feature flag to `phenotype-event-sourcing`
@@ -375,9 +595,38 @@ pub async fn warm_cache(&self, keys: Vec<Key>) {
     for handle in handles {
         handle.await.unwrap();
     }
+>>>>>>> origin/main
 }
 ```
 
 ---
 
+<<<<<<< HEAD
+### 8. Performance Budget
+
+| Metric | Target | Current (est.) | Action |
+|--------|--------|----------------|--------|
+| API response (p99) | <100ms | TBD | Profile |
+| Hash chain (10K events) | <1s | TBD | blake3 |
+| Cache lookup | <1ms | TBD | DashMap |
+| Serialization (1MB) | <10ms | TBD | rkyv |
+| Build time | <5min | TBD | sccache |
+
+---
+
+### 9. Optimization Roadmap
+
+| Phase | Action | Impact | Effort |
+|-------|--------|--------|--------|
+| 1 | Add blake3 for hash chains | 3x faster | 1 day |
+| 2 | Replace serde_json with rkyv | 10x faster | 1 week |
+| 3 | DashMap for caches | 2x faster | 1 day |
+| 4 | Parallel async operations | 5x throughput | 1 week |
+| 5 | sqlx async migration | 3x throughput | 2 weeks |
+
+---
+
+_Last updated: 2026-03-29_
+=======
 _Last updated: 2026-03-30 (Wave 139)_
+>>>>>>> origin/main
