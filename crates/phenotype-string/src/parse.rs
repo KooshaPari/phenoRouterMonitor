@@ -106,7 +106,7 @@ impl<T: AsRef<str>> ParseExt for T {
         }
     }
 
-    fn parse<T: FromStr>(&self) -> Result<T, T::Err> {
+    fn parse<U: FromStr>(&self) -> Result<U, U::Err> {
         self.as_ref().parse()
     }
 }

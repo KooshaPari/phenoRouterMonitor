@@ -40,17 +40,29 @@ pub enum StateMachineError {
 /// Result type for state machine operations.
 pub type Result<T> = std::result::Result<T, StateMachineError>;
 
+<<<<<<< HEAD
 // Type aliases for complex function types
 /// Guard function type: (current_state, event) -> bool
 type GuardFn = dyn Fn(&str, &str) -> bool + Send + Sync;
 /// State callback function type: (new_state) -> ()
 type StateCallback = dyn Fn(&str) + Send + Sync;
+=======
+/// Callback for state enter/exit events.
+pub type StateCallback = Arc<dyn Fn(&str) + Send + Sync>;
+
+/// Guard function for conditional transitions.
+type TransitionGuard = Arc<dyn Fn(&str, &str) -> bool + Send + Sync>;
+>>>>>>> origin/main
 
 /// A transition definition: (from_state, event) -> to_state with optional guard.
 #[derive(Clone)]
 struct Transition {
     to: String,
+<<<<<<< HEAD
     guard: Option<Arc<GuardFn>>,
+=======
+    guard: Option<TransitionGuard>,
+>>>>>>> origin/main
 }
 
 /// A generic finite state machine.
@@ -60,8 +72,13 @@ struct Transition {
 pub struct StateMachine {
     current: RwLock<String>,
     transitions: HashMap<(String, String), Transition>,
+<<<<<<< HEAD
     on_enter: HashMap<String, Vec<Arc<StateCallback>>>,
     on_exit: HashMap<String, Vec<Arc<StateCallback>>>,
+=======
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
+>>>>>>> origin/main
 }
 
 impl StateMachine {
@@ -147,8 +164,13 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
+<<<<<<< HEAD
     on_enter: HashMap<String, Vec<Arc<StateCallback>>>,
     on_exit: HashMap<String, Vec<Arc<StateCallback>>>,
+=======
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
+>>>>>>> origin/main
 }
 
 impl StateMachineBuilder {

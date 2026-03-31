@@ -18,7 +18,6 @@
 //! assert!(rule.validate("").is_err());
 //! ```
 
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 // ---------------------------------------------------------------------------
@@ -88,12 +87,6 @@ impl RequiredRule {
     pub fn with_message(mut self, msg: impl Into<String>) -> Self {
         self.message = msg.into();
         self
-    }
-}
-
-impl Default for &RequiredRule {
-    fn default() -> Self {
-        &RequiredRule::new()
     }
 }
 
@@ -175,7 +168,7 @@ pub struct PatternRule {
 impl PatternRule {
     pub fn new(pattern: &str) -> Result<Self> {
         Ok(Self {
-            pattern: regex::Regex::new(pattern)?,
+            pattern: regex::Regex::new(pattern).map_err(|e| ValidationError::new(e.to_string()))?,
             description: format!("must match pattern: {}", pattern),
         })
     }
@@ -216,7 +209,10 @@ pub struct NumericRangeRule {
 
 impl NumericRangeRule {
     pub fn new() -> Self {
-        Self { min: None, max: None }
+        Self {
+            min: None,
+            max: None,
+        }
     }
 
     pub fn with_min(mut self, min: f64) -> Self {
@@ -277,7 +273,7 @@ impl ValidationRule for NumericRangeRule {
 // ---------------------------------------------------------------------------
 
 /// Combines multiple validation rules for a single field.
-#[derive(Clone, Debug, Default)]
+#[derive(Default)]
 pub struct FieldValidator {
     rules: Vec<Box<dyn ValidationRule>>,
     field_name: String,
@@ -304,16 +300,15 @@ impl FieldValidator {
         self.with_rule(LengthRule::new(min, max))
     }
 
-    pub fn with_pattern(self, pattern: &str) -> std::result::Result<Self, regex::Error> {
+    pub fn with_pattern(self, pattern: &str) -> Result<Self> {
         Ok(self.with_rule(PatternRule::new(pattern)?))
     }
 
     /// Validate a value against all rules.
     pub fn validate(&self, value: &str) -> Result<()> {
         for rule in &self.rules {
-            rule.validate(value).map_err(|e| {
-                ValidationError::invalid_field(&self.field_name, &e.to_string())
-            })?;
+            rule.validate(value)
+                .map_err(|e| ValidationError::invalid_field(&self.field_name, &e.to_string()))?;
         }
         Ok(())
     }
@@ -363,11 +358,12 @@ pub fn required_validator(field: &str) -> FieldValidator {
 // Validator Registry
 // ---------------------------------------------------------------------------
 
-use std::sync::LazyLock;
 use std::collections::HashMap;
+use std::sync::LazyLock;
+use std::sync::RwLock;
 
-static VALIDATOR_REGISTRY: LazyLock<tokio::sync::RwLock<ValidatorRegistry>> =
-    LazyLock::new(|| tokio::sync::RwLock::new(ValidatorRegistry::default()));
+static VALIDATOR_REGISTRY: LazyLock<RwLock<ValidatorRegistry>> =
+    LazyLock::new(|| RwLock::new(ValidatorRegistry::default()));
 
 /// Global validator registry for plugin-style validation.
 #[derive(Default)]
@@ -378,12 +374,11 @@ pub struct ValidatorRegistry {
 impl ValidatorRegistry {
     /// Register a named validator factory.
     pub fn register(name: &'static str, factory: fn() -> FieldValidator) {
-        // Note: In async context, use VALIDATOR_REGISTRY.write().await
-        // This is a sync wrapper for simpler use cases
-        std::mem::forget(VALIDATOR_REGISTRY.write().unwrap().validators.insert(
-            name.to_string(),
-            factory,
-        ));
+        let _ = VALIDATOR_REGISTRY
+            .write()
+            .unwrap()
+            .validators
+            .insert(name.to_string(), factory);
     }
 
     /// Get a registered validator by name.
@@ -398,7 +393,11 @@ impl ValidatorRegistry {
 
     /// Check if a validator is registered.
     pub fn contains(name: &str) -> bool {
-        VALIDATOR_REGISTRY.read().unwrap().validators.contains_key(name)
+        VALIDATOR_REGISTRY
+            .read()
+            .unwrap()
+            .validators
+            .contains_key(name)
     }
 }
 
