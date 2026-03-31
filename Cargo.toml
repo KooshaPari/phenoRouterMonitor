@@ -12,12 +12,7 @@ resolver = "2"
 members = [
     "crates/phenotype-async-traits",
     "crates/phenotype-cache-adapter",
-
     "crates/phenotype-config-core",
-    "crates/phenotype-config-loader",
-    "crates/phenotype-contract",
-    "crates/phenotype-contracts",
-    "crates/phenotype-cost-core",
     "crates/phenotype-crypto",
     "crates/phenotype-error-core",
     "crates/phenotype-error-macros",
@@ -28,7 +23,6 @@ members = [
     "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
     "crates/phenotype-logging",
-    "crates/phenotype-macros",
     "crates/phenotype-mcp",
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
@@ -79,7 +73,6 @@ blake3 = "1"
 reqwest = { version = "0.12", features = ["json"] }
 rand = "0.8"
 hex = "0.4"
-casbin = "3"
 
 [profile.dev]
 opt-level = 0
