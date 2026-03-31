@@ -1,25 +1,15 @@
 //! Generic finite state machine with transition guards and callbacks.
-//!
-//! ```rust
-//! use phenotype_state_machine::{StateMachine, StateMachineBuilder};
-//!
-//! let sm = StateMachineBuilder::new("idle")
-//!     .transition("idle", "start", "running")
-//!     .transition("running", "pause", "paused")
-//!     .transition("paused", "resume", "running")
-//!     .transition("running", "stop", "idle")
-//!     .build()
-//!     .unwrap();
-//!
-//! assert_eq!(sm.current(), "idle");
-//! sm.send("start").unwrap();
-//! assert_eq!(sm.current(), "running");
-//! ```
 
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::{Arc, RwLock};
 use thiserror::Error;
+
+/// Callback type for state enter/exit hooks.
+type StateCallback = Arc<dyn Fn(&str) + Send + Sync>;
+
+/// Guard function type for conditional transitions.
+type TransitionGuard = Box<dyn Fn(&str, &str) -> bool + Send + Sync>;
 
 /// Errors that can occur during state machine operations.
 #[derive(Debug, Clone, Error)]
@@ -40,14 +30,7 @@ pub enum StateMachineError {
 /// Result type for state machine operations.
 pub type Result<T> = std::result::Result<T, StateMachineError>;
 
-/// Callback for state enter/exit events.
-pub type StateCallback = Arc<dyn Fn(&str) + Send + Sync>;
-
-/// Guard function for conditional transitions.
-type TransitionGuard = Arc<dyn Fn(&str, &str) -> bool + Send + Sync>;
-
-/// A transition definition: (from_state, event) -> to_state with optional guard.
-#[derive(Clone)]
+/// A transition definition with optional guard.
 struct Transition {
     to: String,
     guard: Option<TransitionGuard>,
@@ -64,7 +47,23 @@ pub struct StateMachine {
     on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
+impl Default for StateMachine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl StateMachine {
+    /// Create a new empty state machine.
+    pub fn new() -> Self {
+        Self {
+            current: RwLock::new(String::new()),
+            transitions: HashMap::new(),
+            on_enter: HashMap::new(),
+            on_exit: HashMap::new(),
+        }
+    }
+
     /// Get the current state.
     pub fn current(&self) -> String {
         self.current.read().unwrap().clone()
@@ -75,13 +74,13 @@ impl StateMachine {
         let mut current = self.current.write().unwrap();
         let key = (current.clone(), event.to_string());
 
-        let transition =
-            self.transitions
-                .get(&key)
-                .ok_or_else(|| StateMachineError::InvalidTransition {
-                    from: current.clone(),
-                    event: event.to_string(),
-                })?;
+        let transition = self
+            .transitions
+            .get(&key)
+            .ok_or_else(|| StateMachineError::InvalidTransition {
+                from: current.clone(),
+                event: event.to_string(),
+            })?;
 
         if let Some(guard) = &transition.guard {
             if !guard(&current, event) {
@@ -147,8 +146,8 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<Arc<StateCallback>>>,
-    on_exit: HashMap<String, Vec<Arc<StateCallback>>>,
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
 impl StateMachineBuilder {
@@ -174,8 +173,7 @@ impl StateMachineBuilder {
         self
     }
 
-    /// Add a guarded transition. The guard function receives (current_state, event)
-    /// and returns true to allow the transition.
+    /// Add a guarded transition.
     pub fn guarded_transition(
         mut self,
         from: &str,
@@ -187,7 +185,7 @@ impl StateMachineBuilder {
             (from.to_string(), event.to_string()),
             Transition {
                 to: to.to_string(),
-                guard: Some(Arc::new(guard)),
+                guard: Some(Box::new(guard)),
             },
         );
         self
@@ -207,7 +205,11 @@ impl StateMachineBuilder {
     }
 
     /// Register a callback for when a state is exited.
-    pub fn on_exit(mut self, state: &str, callback: impl Fn(&str) + Send + Sync + 'static) -> Self {
+    pub fn on_exit(
+        mut self,
+        state: &str,
+        callback: impl Fn(&str) + Send + Sync + 'static,
+    ) -> Self {
         self.on_exit
             .entry(state.to_string())
             .or_default()
@@ -222,8 +224,9 @@ impl StateMachineBuilder {
                 "initial state cannot be empty".into(),
             ));
         }
+
         Ok(StateMachine {
-            current: RwLock::new(self.initial),
+            current: RwLock::new(self.initial.clone()),
             transitions: self.transitions,
             on_enter: self.on_enter,
             on_exit: self.on_exit,
@@ -350,7 +353,6 @@ mod tests {
         for h in handles {
             h.join().unwrap();
         }
-        // Should be in one of the 3 states
         let state = sm.current();
         assert!(["red", "green", "yellow"].contains(&state.as_str()));
     }
