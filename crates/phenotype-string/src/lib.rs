@@ -2,6 +2,10 @@
 
 use thiserror::Error;
 
+pub mod join;
+pub mod parse;
+pub mod sanitize;
+
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("{0}")]

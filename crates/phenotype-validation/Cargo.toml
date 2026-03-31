@@ -9,11 +9,11 @@ description.workspace = true
 path = "src/lib.rs"
 
 [dependencies]
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 thiserror.workspace = true
 regex.workspace = true
-tokio.workspace = true
+parking_lot.workspace = true
 
 [dev-dependencies]
 tokio.workspace = true
