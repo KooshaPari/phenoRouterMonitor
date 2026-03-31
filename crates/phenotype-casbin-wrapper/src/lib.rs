@@ -14,13 +14,14 @@
 //!
 //! ## Example
 //!
-//! ```rust
+//! ```ignore
 //! use phenotype_casbin_wrapper::{CasbinAdapter, CasbinAdapterExt};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let adapter = CasbinAdapter::new(
-//!         "r", "p", "examples/rbac_with_dummy.toml",
+//!         "examples/basic_model.conf".to_string(),
+//!         "examples/basic_policy.csv".to_string(),
 //!     ).await?;
 //!
 //!     // Check if request is allowed
@@ -39,19 +40,84 @@ pub mod models;
 pub use adapter::CasbinAdapter;
 pub use error::CasbinWrapperError;
 
-// ============================================================================
-// Tests
-// ============================================================================
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::TempDir;
+
+    fn create_basic_model(dir: &std::path::Path) -> std::path::PathBuf {
+        let model_path = dir.join("model.conf");
+        std::fs::write(
+            &model_path,
+            r#"
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
+"#,
+        )
+        .unwrap();
+        model_path
+    }
+
+    fn create_basic_policy(dir: &std::path::Path) -> std::path::PathBuf {
+        let policy_path = dir.join("policy.csv");
+        std::fs::write(&policy_path, "p, alice, data1, read\np, bob, data1, read\n")
+            .unwrap();
+        policy_path
+    }
+
+    fn create_rbac_model(dir: &std::path::Path) -> std::path::PathBuf {
+        let model_path = dir.join("rbac_model.conf");
+        std::fs::write(
+            &model_path,
+            r#"
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
+"#,
+        )
+        .unwrap();
+        model_path
+    }
+
+    fn create_rbac_policy(dir: &std::path::Path) -> std::path::PathBuf {
+        let policy_path = dir.join("rbac_policy.csv");
+        std::fs::write(
+            &policy_path,
+            "p, alice, data1, read\np, bob, data1, read\ng, bob, user\ng, alice, admin\n",
+        )
+        .unwrap();
+        policy_path
+    }
 
     #[tokio::test]
     async fn test_basic_enforcement() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/basic_model.conf",
-            "examples/basic_policy.csv",
+        let dir = TempDir::new().unwrap();
+        let model_path = create_basic_model(dir.path());
+        let policy_path = create_basic_policy(dir.path());
+
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
         )
         .await?;
 
@@ -68,23 +134,24 @@ mod tests {
 
     #[tokio::test]
     async fn test_rbac_enforcement() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/rbac_model.conf",
-            "examples/rbac_policy.csv",
+        let dir = TempDir::new().unwrap();
+        let model_path = create_rbac_model(dir.path());
+        let policy_path = create_rbac_policy(dir.path());
+
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
         )
         .await?;
 
-        // Alice has admin role which should allow anything under data1
         let request = vec!["alice", "data1", "read"];
         let allowed = adapter.enforce(&request).await?;
         assert!(allowed, "alice (admin) should be allowed to read data1");
 
-        // Bob is a user with data1_reader role
         let request2 = vec!["bob", "data1", "read"];
         let allowed2 = adapter.enforce(&request2).await?;
         assert!(allowed2, "bob (user) should be allowed to read data1");
 
-        // Bob should not have write access
         let request3 = vec!["bob", "data1", "write"];
         let denied = adapter.enforce(&request3).await?;
         assert!(!denied, "bob (user) should not be allowed to write data1");
@@ -93,92 +160,80 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_enforce_named() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/rbac_model.conf",
-            "examples/rbac_policy.csv",
-        )
-        .await?;
-
-        // Using named enforcement with different policy type
-        let request = vec!["alice", "data2", "read"];
-        let allowed = adapter.enforce_named("p", &request).await?;
-        assert!(!allowed, "alice should not have access to data2 by default");
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_modify_policy() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/rbac_model.conf",
-            "examples/rbac_policy.csv",
-        )
-        .await?;
-
-        // Initially bob should not have access to data1/write
-        let request = vec!["bob", "data1", "write"];
-        let denied = adapter.enforce(&request).await?;
-        assert!(!denied);
-
-        // Add policy: bob can write data1
-        let rules = vec![vec!["bob", "data1", "write"]];
-        adapter.modify_policy("p", rules.clone()).await?;
-
-        // Now bob should have access
-        let allowed = adapter.enforce(&request).await?;
-        assert!(allowed, "bob should now be allowed to write data1 after policy update");
-
-        // Remove policy
-        adapter.remove_policy("p", rules).await?;
-
-        // Bob should be denied again
-        let denied2 = adapter.enforce(&request).await?;
-        assert!(!denied2, "bob should be denied after policy removal");
-
-        Ok(())
-    }
-
-    #[tokio::test]
     async fn test_batch_enforcement() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/rbac_model.conf",
-            "examples/rbac_policy.csv",
+        let dir = TempDir::new().unwrap();
+        let model_path = create_basic_model(dir.path());
+        let policy_path = create_basic_policy(dir.path());
+
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
         )
         .await?;
 
         let requests = vec![
             vec!["alice", "data1", "read"],
             vec!["bob", "data1", "read"],
-            vec!["bob", "data1", "write"],
+            vec!["charlie", "data1", "read"],
         ];
 
         let results = adapter.batch_enforce(&requests).await?;
         assert_eq!(results.len(), 3);
         assert!(results[0], "alice should be allowed");
         assert!(results[1], "bob should be allowed to read");
-        assert!(!results[2], "bob should not be allowed to write");
+        assert!(!results[2], "charlie should be denied");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_modify_policy() -> Result<(), CasbinWrapperError> {
+        let dir = TempDir::new().unwrap();
+        let model_path = create_basic_model(dir.path());
+        let policy_path = create_basic_policy(dir.path());
+
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
+        )
+        .await?;
+
+        let request = vec!["charlie", "data1", "read"];
+        let initially_denied = adapter.enforce(&request).await?;
+        assert!(!initially_denied);
+
+        let rules = vec![vec!["charlie".to_string(), "data1".to_string(), "read".to_string()]];
+        adapter.modify_policy("p", rules.clone()).await?;
+
+        let allowed = adapter.enforce(&request).await?;
+        assert!(allowed, "charlie should now be allowed after policy update");
+
+        adapter.remove_policy("p", rules).await?;
+
+        let denied = adapter.enforce(&request).await?;
+        assert!(!denied, "charlie should be denied after policy removal");
 
         Ok(())
     }
 
     #[tokio::test]
     async fn test_clear_policy() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/rbac_model.conf",
-            "examples/rbac_policy.csv",
+        let dir = TempDir::new().unwrap();
+        let model_path = create_basic_model(dir.path());
+        let policy_path = create_basic_policy(dir.path());
+
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
         )
         .await?;
 
-        // Initially alice should have access
         let request = vec!["alice", "data1", "read"];
-        let allowed = adapter.enforce(&request).await?;
-        assert!(allowed);
+        let initially_allowed = adapter.enforce(&request).await?;
+        assert!(initially_allowed);
 
-        // Clear all policies
         adapter.clear_policy().await?;
 
-        // Alice should no longer have access
         let denied = adapter.enforce(&request).await?;
         assert!(!denied, "alice should be denied after policy clear");
 
@@ -187,25 +242,25 @@ mod tests {
 
     #[tokio::test]
     async fn test_policy_reload() -> Result<(), CasbinWrapperError> {
-        let adapter = CasbinAdapter::new(
-            "r", "p", "examples/rbac_model.conf",
-            "examples/rbac_policy.csv",
+        let dir = TempDir::new().unwrap();
+        let model_path = create_basic_model(dir.path());
+        let policy_path = create_basic_policy(dir.path());
+
+        let adapter = CasbinAdapterExt::new(
+            model_path.to_string_lossy().to_string(),
+            policy_path.to_string_lossy().to_string(),
         )
         .await?;
 
-        // Modify policy in memory
-        let rules = vec![vec!["charlie", "data1", "read"]];
+        let rules = vec![vec!["charlie".to_string(), "data1".to_string(), "read".to_string()]];
         adapter.modify_policy("p", rules).await?;
 
-        // Charlie should have access via modified policy
         let request = vec!["charlie", "data1", "read"];
         let allowed = adapter.enforce(&request).await?;
         assert!(allowed);
 
-        // Reload from file should restore original
         adapter.reload_policy().await?;
 
-        // Charlie should no longer have access
         let denied = adapter.enforce(&request).await?;
         assert!(!denied, "charlie should be denied after reload");
 

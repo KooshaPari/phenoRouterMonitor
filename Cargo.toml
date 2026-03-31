@@ -8,21 +8,46 @@ repository = "https://github.com/KooshaPari/phenotype-infrakit"
 description = "Phenotype Infrastructure Kit"
 
 [workspace]
-resolver = "3"
+resolver = "2"
 members = [
-    "crates/phenotype-error-core",
-    "crates/phenotype-errors",
+    "crates/phenotype-async-traits",
+    "crates/phenotype-cache-adapter",
+
+    "crates/phenotype-config-core",
+    "crates/phenotype-config-loader",
+    "crates/phenotype-contract",
     "crates/phenotype-contracts",
+    "crates/phenotype-cost-core",
+    "crates/phenotype-crypto",
+    "crates/phenotype-error-core",
+    "crates/phenotype-error-macros",
+    "crates/phenotype-errors",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
     "crates/phenotype-health",
+    "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
+    "crates/phenotype-logging",
+    "crates/phenotype-macros",
+    "crates/phenotype-mcp",
     "crates/phenotype-policy-engine",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-ports-canonical",
+    "crates/phenotype-process",
+    "crates/phenotype-rate-limit",
+    "crates/phenotype-retry",
     "crates/phenotype-state-machine",
+    "crates/phenotype-string",
     "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra",
+    "crates/phenotype-time",
+    "crates/phenotype-validation",
 ]
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+serde_yaml = "0.9"
 thiserror = "2"
 anyhow = "1"
 async-trait = "0.1"
@@ -30,19 +55,31 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 tokio = { version = "1", features = ["full"] }
 dashmap = "5"
+parking_lot = "0.12"
+lru = "0.12"
 toml = "0.8"
 regex = "1"
 tempfile = "3"
 sha2 = "0.10"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-parking_lot = "0.12"
 futures = "0.3"
 strum = { version = "0.26", features = ["derive"] }
 once_cell = "1.19"
-
-phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
-phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
+prometheus = "0.13"
+opentelemetry = "0.31"
+opentelemetry_sdk = "0.31"
+gix = "0.71"
+figment = { version = "0.10", features = ["toml", "yaml", "env"] }
+jsonschema = "0.29"
+rusqlite = { version = "0.32", features = ["bundled"] }
+dirs = "5"
+git2 = "0.20"
+blake3 = "1"
+reqwest = { version = "0.12", features = ["json"] }
+rand = "0.8"
+hex = "0.4"
+casbin = "3"
 
 [profile.dev]
 opt-level = 0

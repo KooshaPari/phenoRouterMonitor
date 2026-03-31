@@ -17,14 +17,14 @@ pub enum ConfigError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
-    #[error("JSON parse error: {0}")]
-    JsonParse { path: Option<String>, reason: String },
+    #[error("JSON parse error: {reason}")]
+    JsonParse { #[allow(dead_code)] path: Option<String>, reason: String },
 
-    #[error("TOML parse error: {0}")]
-    TomlParse { path: Option<String>, reason: String },
+    #[error("TOML parse error: {reason}")]
+    TomlParse { #[allow(dead_code)] path: Option<String>, reason: String },
 
-    #[error("YAML parse error: {0}")]
-    YamlParse { path: Option<String>, reason: String },
+    #[error("YAML parse error: {reason}")]
+    YamlParse { #[allow(dead_code)] path: Option<String>, reason: String },
 }
 
 /// Result type alias for configuration operations.

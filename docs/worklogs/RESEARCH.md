@@ -1444,8 +1444,8 @@ osv-scanner -r -L ./sbom.spdx.json
 - **Strategy:** Adopt `figment` as internal engine; provide `PhenotypeConfig` trait.
 - **Modernization:** Add JSON Schema generation for all config structs automatically.
 
-### Target 3: `phenotype-health-core` (LOC Savings: ~270)
-- **Status:** 6 variants of Healthy/Unavailable enums.
+### Target 3: `phenotype-health-core` (Actual LOC: ~176)
+- **Status:** Implementation exists with `HealthStatus` enum + `HealthCheck` trait (176 LOC).
 - **Strategy:** Single `HealthStatus` enum + `#[async_trait] HealthCheck` trait.
 - **Modernization:** Standardize OTel health check metrics export (gauge: `service_health`).
 
@@ -2516,7 +2516,7 @@ tracing_subscriber::registry()
 
 | System | Current LOC | After Consolidation | Savings |
 |--------|-------------|---------------------|---------|
-| phenotype-telemetry | 420 | ~200 | **220 LOC** |
+| phenotype-telemetry | ~444 | ~200 | **244 LOC** |
 | phenotype-logging | 244 | ~200 | 44 LOC |
 | Metrics fragmentation | 3 systems | 1 facade | **~300 LOC** |
 | **Total** | **~964 LOC** | **~400 LOC** | **~564 LOC** |

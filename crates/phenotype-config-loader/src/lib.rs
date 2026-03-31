@@ -18,7 +18,7 @@ pub type Result<T> = std::result::Result<T, ConfigLoadError>;
 
 pub fn load_json<T: DeserializeOwned>(path: &Path) -> Result<T> {
     let content = std::fs::read_to_string(path)?;
-    serde_json::from_str(&content).map_err(|e| ConfigLoadError::Parse(e.to_string()))
+    serde_json::from_str::<T>(&content).map_err(|e| ConfigLoadError::Parse(e.to_string()))
 }
 
 pub fn load_toml<T: DeserializeOwned>(path: &Path) -> Result<T> {
