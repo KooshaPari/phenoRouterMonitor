@@ -375,14 +375,15 @@ impl Logger for NoopTelemetry {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     #[test]
     fn test_log_level_from_str() {
-        assert_eq!(LogLevel::from_str("debug"), LogLevel::Debug);
-        assert_eq!(LogLevel::from_str("DEBUG"), LogLevel::Debug);
-        assert_eq!(LogLevel::from_str("warning"), LogLevel::Warn);
-        assert_eq!(LogLevel::from_str("err"), LogLevel::Error);
-        assert_eq!(LogLevel::from_str("unknown"), LogLevel::Info);
+        assert_eq!(LogLevel::from_str("debug"), Ok(LogLevel::Debug));
+        assert_eq!(LogLevel::from_str("DEBUG"), Ok(LogLevel::Debug));
+        assert_eq!(LogLevel::from_str("warning"), Ok(LogLevel::Warn));
+        assert_eq!(LogLevel::from_str("err"), Ok(LogLevel::Error));
+        assert_eq!(LogLevel::from_str("unknown"), Ok(LogLevel::Info));
     }
 
     #[test]

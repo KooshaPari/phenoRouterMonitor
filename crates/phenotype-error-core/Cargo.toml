@@ -3,17 +3,15 @@ name = "phenotype-error-core"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
-description = "Canonical error types for the Phenotype ecosystem"
-keywords = ["error", "phenotype", "thiserror"]
 
 [lib]
-name = "phenotype_error_core"
 path = "src/lib.rs"
 
 [dependencies]
-thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+thiserror = "2"
+anyhow = "1.0"
 
 [dev-dependencies]
-anyhow = "1.0"
+tokio = { version = "1", features = ["full"] }
