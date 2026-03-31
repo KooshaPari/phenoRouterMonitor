@@ -194,8 +194,6 @@ audit_worktrees.sh
 Cargo.toml
 EXTRACTION_REPORT_CONFIG_CORE.md
 crates/phenotype-contracts/
-crates/phenotype-policy-engine/
-crates/phenotype-state-machine/
 docs/CI-CD-IMPLEMENTATION-SUMMARY.md
 docs/reference/GAP_SWEEP_INDEX.md
 docs/reference/GAP_SWEEP_MISSION_SUMMARY.md
