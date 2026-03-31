@@ -1,0 +1,12 @@
+/* AgilePlus Dashboard Styles */
+/* Tailwind CSS is used for all styling. This file is for global overrides if needed. */
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Dark mode by default */
+:root {
+  color-scheme: dark;
+}

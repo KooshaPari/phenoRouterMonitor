@@ -129,7 +129,8 @@ mod tests {
 
     #[test]
     fn test_config_dir_search() {
-        let results = search_config_dirs("nonexistent-app", ".config.toml", &[]);
+        let extra: Vec<std::path::PathBuf> = Vec::new();
+        let results: Vec<(ConfigDir, std::path::PathBuf)> = search_config_dirs("nonexistent-app", ".config.toml", &extra);
         // Should return empty or partial matches depending on environment
         assert!(results.iter().all(|(d, p)| d != &ConfigDir::Env && p.exists()));
     }

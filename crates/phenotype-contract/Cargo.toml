@@ -3,10 +3,11 @@ name = "phenotype-contract"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
+description = "Design-by-contract assertions and invariants for Rust."
 
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
-thiserror = "2"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "2.0"

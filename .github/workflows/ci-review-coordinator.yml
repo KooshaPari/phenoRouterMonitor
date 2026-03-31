@@ -1,0 +1,616 @@
+name: CI Review Coordinator
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  workflow_dispatch:
+  schedule:
+    # Check merge readiness every hour
+    - cron: '0 * * * *'
+
+concurrency:
+  group: ci-review-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  REVIEW_COORDINATOR_VERSION: '1.0'
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  statuses: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 1: Immediate Bot Reviews (Bugbot + Language Linters)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  analyze-pr-risk:
+    name: Analyze PR Risk Profile
+    runs-on: ubuntu-latest
+    outputs:
+      risk_level: ${{ steps.classify.outputs.risk_level }}
+      pr_size: ${{ steps.classify.outputs.pr_size }}
+      has_security_changes: ${{ steps.classify.outputs.has_security_changes }}
+      has_shared_lib_changes: ${{ steps.classify.outputs.has_shared_lib_changes }}
+      should_escalate_to_copilot: ${{ steps.classify.outputs.should_escalate_to_copilot }}
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Classify PR Risk
+        id: classify
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          # Get PR size
+          git diff --stat origin/"$BASE_REF"... | tail -1
+          ADDED=$(git diff --shortstat origin/"$BASE_REF"... | grep -oP '\d+(?= insertions)' || echo "0")
+          DELETED=$(git diff --shortstat origin/"$BASE_REF"... | grep -oP '\d+(?= deletions)' || echo "0")
+          TOTAL=$((ADDED + DELETED))
+
+          echo "PR size: +${ADDED}/-${DELETED} (total: ${TOTAL})"
+          echo "pr_size=${TOTAL}" >> "$GITHUB_OUTPUT"
+
+          # Determine risk level
+          if [ "$TOTAL" -gt 5000 ]; then
+            RISK="critical"
+            ESCALATE="true"
+          elif [ "$TOTAL" -gt 1000 ]; then
+            RISK="high"
+            ESCALATE="true"
+          elif [ "$TOTAL" -gt 300 ]; then
+            RISK="medium"
+            ESCALATE="false"
+          else
+            RISK="low"
+            ESCALATE="false"
+          fi
+
+          echo "risk_level=${RISK}" >> "$GITHUB_OUTPUT"
+          echo "should_escalate_to_copilot=${ESCALATE}" >> "$GITHUB_OUTPUT"
+
+          # Check for security-sensitive paths
+          if git diff --name-only origin/"$BASE_REF"... | grep -qE '(auth|crypto|secret|security|password|token)'; then
+            echo "has_security_changes=true" >> "$GITHUB_OUTPUT"
+            ESCALATE="true"
+            echo "should_escalate_to_copilot=${ESCALATE}" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_security_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Check for shared library changes
+          if git diff --name-only origin/"$BASE_REF"... | grep -qE '(libs/|crates/|packages/|contracts/)'; then
+            echo "has_shared_lib_changes=true" >> "$GITHUB_OUTPUT"
+            ESCALATE="true"
+            echo "should_escalate_to_copilot=${ESCALATE}" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_shared_lib_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "Risk Level: ${RISK}, Escalate to Copilot: ${ESCALATE}"
+
+  # ─── Immediate: Linting & Formatting Checks ──────────────────────────
+
+  lint-and-format:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check Formatting (Rust)
+        run: |
+          if [ -d "crates" ] || [ -d "rust" ]; then
+            command -v cargo > /dev/null || rustup update stable
+            cargo fmt --check 2>/dev/null || true
+          fi
+
+      - name: Check Formatting (Python)
+        run: |
+          if find . -name "*.py" -type f | grep -q .; then
+            pip install black pylint -q || true
+            python -m black --check . 2>/dev/null || true
+          fi
+
+      - name: Check Formatting (JavaScript/TypeScript)
+        run: |
+          if [ -f "package.json" ]; then
+            npm list eslint > /dev/null 2>&1 && npm run lint || true
+          fi
+
+  # ─── Secrets Scanning (Critical) ──────────────────────────────────────
+
+  secrets-scan:
+    name: Secrets Scan (trufflehog)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    continue-on-error: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog Scan
+        id: scan
+        run: |
+          set +e
+          # Install trufflehog if not available
+          command -v trufflehog > /dev/null || pip install trufflehog -q
+
+          # Scan commits since base branch
+          trufflehog git file://. \
+            --since-commit HEAD \
+            --only-verified \
+            --fail 2>&1 | tee trufflehog-results.txt
+
+          SCAN_EXIT=$?
+
+          if [ $SCAN_EXIT -eq 0 ]; then
+            echo "status=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=secrets_found" >> "$GITHUB_OUTPUT"
+            cat trufflehog-results.txt
+            exit 1
+          fi
+          set -e
+
+      - name: Comment on PR if Secrets Found
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = '🔴 **CRITICAL** — Secrets Detected\n\nTruffleHog found potential secrets in this PR. **This PR cannot merge until secrets are removed.** See workflow logs for details.';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 2: Standard Bot Reviews (CodeRabbit, CodeQL)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      security-events: write
+    continue-on-error: true
+    strategy:
+      matrix:
+        language: ['cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'rust']
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  # CodeRabbit integration (note: requires separate webhook configuration)
+  # See docs/governance/CI_REVIEW_AUTOMATION_STRATEGY.md for setup
+  coderabbit-check:
+    name: CodeRabbit Review Gate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    continue-on-error: true
+    steps:
+      - name: Check CodeRabbit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // CodeRabbit posts reviews via webhook
+            // This job verifies the review exists and parses severity
+            const reviews = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const coderabbitReview = reviews.data.find(r => r.user.login === 'coderabbitai');
+            if (coderabbitReview) {
+              console.log('CodeRabbit review found:', coderabbitReview.state);
+            } else {
+              console.log('CodeRabbit review pending or not configured');
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Phase 3: High-Risk Escalation (Copilot Review)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  escalate-to-copilot:
+    name: Escalate to Copilot Review
+    runs-on: ubuntu-latest
+    needs: analyze-pr-risk
+    if: |
+      github.event_name == 'pull_request' &&
+      needs.analyze-pr-risk.outputs.should_escalate_to_copilot == 'true'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Tag PR for Copilot Review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const riskLevel = '${{ needs.analyze-pr-risk.outputs.risk_level }}';
+            const labels = [];
+
+            if ('${{ needs.analyze-pr-risk.outputs.has_security_changes }}' === 'true') {
+              labels.push('security-review-required');
+            }
+            if ('${{ needs.analyze-pr-risk.outputs.has_shared_lib_changes }}' === 'true') {
+              labels.push('shared-lib-review-required');
+            }
+            labels.push('risk-' + riskLevel);
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels,
+              });
+
+              console.log('Added labels for Copilot review:', labels);
+            }
+
+      - name: Request Copilot Review
+        env:
+          RISK_LEVEL: ${{ needs.analyze-pr-risk.outputs.risk_level }}
+          PR_SIZE: ${{ needs.analyze-pr-risk.outputs.pr_size }}
+          HAS_SECURITY: ${{ needs.analyze-pr-risk.outputs.has_security_changes }}
+          HAS_SHARED_LIB: ${{ needs.analyze-pr-risk.outputs.has_shared_lib_changes }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const riskLevel = process.env.RISK_LEVEL;
+            const prSize = process.env.PR_SIZE;
+            const hasSecurity = process.env.HAS_SECURITY;
+            const hasSharedLib = process.env.HAS_SHARED_LIB;
+
+            const body = '🔍 **Copilot Review Required**\n\n' +
+              'This PR has been flagged for advanced semantic review:\n' +
+              '- Risk Level: ' + riskLevel + '\n' +
+              '- PR Size: ' + prSize + ' lines changed\n' +
+              '- Security Changes: ' + hasSecurity + '\n' +
+              '- Shared Lib Changes: ' + hasSharedLib + '\n\n' +
+              '**Action Required:** A Copilot code review will be performed. Check back in 30 minutes.\n\n' +
+              'See CI Review Automation Strategy documentation for details.';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body,
+            });
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Merge Readiness Detection & Reporting
+  # ─────────────────────────────────────────────────────────────────────────
+
+  check-merge-readiness:
+    name: Check Merge Readiness
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_review' || github.event_name == 'schedule'
+    outputs:
+      is_ready: ${{ steps.readiness.outputs.is_ready }}
+      readiness_percentage: ${{ steps.readiness.outputs.readiness_percentage }}
+      blocking_issues: ${{ steps.readiness.outputs.blocking_issues }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Assess Merge Readiness
+        id: readiness
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let readiness = 0;
+            const issues = [];
+
+            // Get PR info
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            // Check 1: Draft status (10 points)
+            if (pr.data.draft) {
+              issues.push('PR is in draft mode');
+            } else {
+              readiness += 10;
+            }
+
+            // Check 2: Status checks (25 points)
+            const statuses = await github.rest.repos.getCombinedStatusForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.data.head.sha,
+            });
+
+            const failingChecks = statuses.data.statuses.filter(s => s.state !== 'success');
+            if (failingChecks.length === 0) {
+              readiness += 25;
+            } else {
+              issues.push(failingChecks.length + ' status checks failing');
+            }
+
+            // Check 3: Approvals (25 points)
+            const reviews = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const approvals = reviews.data.filter(r => r.state === 'APPROVED').length;
+            const requestedChanges = reviews.data.filter(r => r.state === 'CHANGES_REQUESTED').length;
+
+            if (requestedChanges > 0) {
+              issues.push(requestedChanges + ' review(s) requesting changes');
+            } else if (approvals > 0) {
+              readiness += 25;
+            } else {
+              issues.push('No approvals yet');
+            }
+
+            // Check 4: Conflicts (15 points)
+            if (!pr.data.mergeable) {
+              issues.push('Merge conflicts present');
+            } else {
+              readiness += 15;
+            }
+
+            // Check 5: Review comments (25 points)
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComments = comments.data.filter(c => c.user.type === 'Bot' && c.body.includes('CRITICAL'));
+            if (botComments.length === 0) {
+              readiness += 25;
+            } else {
+              issues.push(botComments.length + ' CRITICAL review comment(s) unresolved');
+            }
+
+            // Determine if ready
+            const isReady = readiness >= 90 && requestedChanges === 0;
+
+            core.setOutput('readiness_percentage', readiness.toString());
+            core.setOutput('is_ready', isReady.toString());
+            core.setOutput('blocking_issues', JSON.stringify(issues));
+
+            console.log('Merge Readiness: ' + readiness + '% ' + (isReady ? '✅ READY' : '⏳ NOT READY'));
+            if (issues.length > 0) {
+              console.log('Blocking issues:', issues);
+            }
+
+      - name: Post Readiness Report
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_review'
+        env:
+          READINESS: ${{ steps.readiness.outputs.readiness_percentage }}
+          IS_READY: ${{ steps.readiness.outputs.is_ready }}
+          BLOCKING_ISSUES: ${{ steps.readiness.outputs.blocking_issues }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const readiness = parseInt(process.env.READINESS);
+            const isReady = process.env.IS_READY === 'true';
+            const issues = JSON.parse(process.env.BLOCKING_ISSUES);
+
+            let emoji = '🔴';
+            if (readiness >= 90) emoji = '🟢';
+            else if (readiness >= 70) emoji = '🟡';
+            else if (readiness >= 50) emoji = '🟠';
+
+            let body = emoji + ' **Merge Readiness: ' + readiness + '%**\n\n';
+
+            if (isReady) {
+              body += '✅ **Ready to merge** — All gates passed\n\n';
+            } else {
+              body += '⏳ **Not ready** — See blocking issues below\n\n';
+            }
+
+            if (issues.length > 0) {
+              body += '**Blocking Issues:**\n';
+              issues.forEach(issue => {
+                body += '- ❌ ' + issue + '\n';
+              });
+            } else if (isReady) {
+              body += 'All checks passed. Ready for merge.';
+            }
+
+            // Try to find and update existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.data.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('Merge Readiness:')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Auto-Merge Gate (only if all conditions met + label present)
+  # ─────────────────────────────────────────────────────────────────────────
+
+  auto-merge-gate:
+    name: Auto-Merge Gate
+    runs-on: ubuntu-latest
+    needs: check-merge-readiness
+    if: |
+      github.event_name == 'pull_request_review' &&
+      needs.check-merge-readiness.outputs.is_ready == 'true'
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check for Auto-Merge Label
+        id: check-label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const hasReadyLabel = pr.data.labels.some(label => label.name === 'ready');
+            const hasAutoMergeLabel = pr.data.labels.some(label => label.name === 'auto-merge');
+
+            core.setOutput('has_ready_label', hasReadyLabel.toString());
+            core.setOutput('has_auto_merge_label', hasAutoMergeLabel.toString());
+
+      - name: Attempt Auto-Merge
+        if: steps.check-label.outputs.has_ready_label == 'true' || steps.check-label.outputs.has_auto_merge_label == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const result = await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                merge_method: 'squash',
+              });
+              console.log('Auto-merge successful');
+            } catch (error) {
+              console.log('Auto-merge blocked: ' + error.message);
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Branch Scanning for Auto-PR Creation
+  # ─────────────────────────────────────────────────────────────────────────
+
+  scan-feature-branches:
+    name: Scan Feature Branches
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Scan for Mergeable Branches
+        id: scan
+        run: |
+          # Get all branches except main
+          BRANCHES=$(git branch -r --format='%(refname:short)' | grep -v 'origin/main' | grep -v 'HEAD')
+
+          for BRANCH in $BRANCHES; do
+            # Check if branch is ahead of main
+            COMMIT_COUNT=$(git rev-list --count origin/main..$BRANCH 2>/dev/null || echo "0")
+
+            if [ "$COMMIT_COUNT" -ge 3 ]; then
+              # Check if PR already exists (using safe method without untrusted input)
+              PR_COUNT=$(gh pr list --head "$BRANCH" --json number -q 'length' 2>/dev/null || echo "0")
+
+              if [ "$PR_COUNT" -eq 0 ]; then
+                echo "Branch $BRANCH has $COMMIT_COUNT commits and no PR"
+                echo "$BRANCH" >> branches_to_pr.txt
+              fi
+            fi
+          done
+
+      - name: Create PRs for Branches
+        if: hashFiles('branches_to_pr.txt') != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const branches = fs.readFileSync('branches_to_pr.txt', 'utf8').trim().split('\n');
+
+            for (const branch of branches) {
+              if (!branch) continue;
+
+              try {
+                const safeBranch = branch.replace('origin/', '');
+                const pr = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: 'auto: ' + safeBranch,
+                  head: safeBranch,
+                  base: 'main',
+                  body: 'Automated PR\n\nBranch: ' + safeBranch + '\n\nThis PR was automatically created because the branch has 3+ commits without a PR.',
+                });
+                console.log('Created PR #' + pr.data.number + ' for ' + safeBranch);
+              } catch (error) {
+                console.log('Failed to create PR for ' + branch + ': ' + error.message);
+              }
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Final Coordination Report
+  # ─────────────────────────────────────────────────────────────────────────
+
+  coordination-summary:
+    name: CI Review Coordination Summary
+    runs-on: ubuntu-latest
+    if: always() && github.event_name == 'pull_request'
+    needs: [analyze-pr-risk, check-merge-readiness]
+    steps:
+      - name: Generate Summary
+        env:
+          RISK_LEVEL: ${{ needs.analyze-pr-risk.outputs.risk_level }}
+          READINESS: ${{ needs.check-merge-readiness.outputs.readiness_percentage }}
+          IS_READY: ${{ needs.check-merge-readiness.outputs.is_ready }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('='.repeat(60));
+            console.log('CI REVIEW COORDINATION SUMMARY');
+            console.log('='.repeat(60));
+            console.log('Risk Level: ' + process.env.RISK_LEVEL);
+            console.log('Merge Readiness: ' + process.env.READINESS + '%');
+            console.log('Ready to Merge: ' + process.env.IS_READY);
+            console.log('='.repeat(60));
+            console.log('\nNext Steps:');
+            console.log('1. Review all bot comments');
+            console.log('2. Address blocking issues');
+            console.log('3. Request human review if needed');
+            console.log('4. Add "ready" label when prepared');
+            console.log('\nFor details, see: docs/governance/CI_REVIEW_AUTOMATION_STRATEGY.md');

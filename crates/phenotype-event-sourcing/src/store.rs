@@ -1,18 +1,30 @@
-//! EventStore trait - generic append-only event storage.
+use crate::event::{Event, EventEnvelope};
+use crate::error::EventSourcingError;
 
-use crate::error::Result;
-use crate::event::EventEnvelope;
+pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
+/// Trait for event store implementations.
 pub trait EventStore: Send + Sync {
-    fn append(&self, event: &EventEnvelope<serde_json::Value>) -> Result<i64>;
+    /// Append an event to the store.
+    fn append(&self, event: Event) -> Result<EventEnvelope>;
 
-    fn get_events(
-        &self,
-        entity_type: &str,
-        entity_id: &str,
-    ) -> Result<Vec<EventEnvelope<serde_json::Value>>>;
+    /// Get all events for an aggregate.
+    fn get_events(&self, aggregate_id: &str) -> Result<Vec<EventEnvelope>>;
 
-    fn get_latest_sequence(&self, entity_type: &str, entity_id: &str) -> Result<i64>;
+    /// Get a specific event by sequence number.
+    fn get_event_by_sequence(&self, sequence: i64) -> Result<EventEnvelope>;
 
-    fn verify_chain(&self, entity_type: &str, entity_id: &str) -> Result<()>;
+    /// Get the last sequence number.
+    fn get_last_sequence(&self) -> Result<i64>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_event_store_trait_bounds() {
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<Box<dyn EventStore>>();
+    }
 }

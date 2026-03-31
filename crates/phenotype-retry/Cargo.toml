@@ -7,8 +7,6 @@ license = "MIT"
 [lib]
 path = "src/lib.rs"
 
-[workspace]
-
 [dependencies]
 rand = "0.8"
 serde = { version = "1", features = ["derive"] }

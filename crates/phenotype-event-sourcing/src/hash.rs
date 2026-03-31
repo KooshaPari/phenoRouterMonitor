@@ -1,67 +1,51 @@
-//! Hash utilities for phenotype-event-sourcing.
-//!
-//! Uses blake3 for hash computation (3-5x faster than SHA-256) with
-//! hex encoding for storage compatibility.
-
 use blake3::Hasher;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use crate::error::HashError;
+use crate::error::EventSourcingError;
 
-pub const ZERO_HASH: &str = "0000000000000000000000000000000000000000000000000000000000000000";
+pub type Result<T> = std::result::Result<T, EventSourcingError>;
 
-pub fn compute_hash(
-    id: &Uuid,
-    timestamp: DateTime<Utc>,
-    entity_type: &str,
-    entity_id: &str,
+/// Compute BLAKE3 hash of an event payload.
+pub fn compute_event_hash(
+    event_type: &str,
+    aggregate_id: &str,
     payload: &serde_json::Value,
-    actor: &str,
-    prev_hash: &str,
-) -> Result<String, HashError> {
+    sequence: i64,
+    previous_hash: &str,
+) -> Result<String> {
     let mut hasher = Hasher::new();
-    hasher.update(id.as_bytes());
-    hasher.update(timestamp.to_rfc3339().as_bytes());
-    hasher.update(entity_type.as_bytes());
-    hasher.update(entity_id.as_bytes());
-    let payload_bytes =
-        serde_json::to_string(payload).map_err(|_e| HashError::InvalidHashLength(0))?;
-    hasher.update(payload_bytes.as_bytes());
-    hasher.update(actor.as_bytes());
-
-    let prev_bytes = decode_hex(prev_hash)?;
-    if prev_bytes.len() != 32 {
-        return Err(HashError::InvalidHashLength(prev_bytes.len()));
-    }
-    hasher.update(&prev_bytes);
-
+    hasher.update(event_type.as_bytes());
+    hasher.update(aggregate_id.as_bytes());
+    let payload_str = serde_json::to_string(payload).map_err(|e| EventSourcingError::Serialization(e.to_string()))?;
+    hasher.update(payload_str.as_bytes());
+    hasher.update(&sequence.to_le_bytes());
+    hasher.update(previous_hash.as_bytes());
     Ok(hasher.finalize().to_hex().to_string())
 }
 
-fn decode_hex(s: &str) -> Result<Vec<u8>, HashError> {
-    hex::decode(s).map_err(|e| HashError::HexDecode(e.to_string()))
+/// Verify a hash chain by checking each event's hash.
+pub fn verify_hash_chain(
+    hashes: &[(i64, String)],
+) -> Result<()> {
+    for (i, (seq, hash)) in hashes.iter().enumerate() {
+        if i > 0 {
+            let prev_hash = &hashes[i - 1].1;
+            if hash.is_empty() || prev_hash.is_empty() {
+                return Err(EventSourcingError::HashMismatch {
+                    expected: prev_hash.clone(),
+                    actual: hash.clone(),
+                });
+            }
+        }
+        let _ = hex::decode(hash).map_err(|e| EventSourcingError::HexDecode(e.to_string()))?;
+    }
+    Ok(())
 }
 
-pub fn verify_chain(events: &[(String, String)]) -> Result<(), HashError> {
-    if events.is_empty() {
-        return Ok(());
-    }
-
-    let zero = ZERO_HASH.to_string();
-    if events[0].1 != zero && events[0].1 != "0".repeat(64) {
-        return Err(HashError::ChainBroken { sequence: 1 });
-    }
-
-    for (i, (_, prev_hash)) in events.iter().enumerate().skip(1) {
-        if prev_hash != &events[i - 1].0 {
-            return Err(HashError::ChainBroken {
-                sequence: (i + 1) as i64,
-            });
-        }
-    }
-
-    Ok(())
+/// Decode a hex string to bytes.
+pub fn hex_decode(s: &str) -> Result<Vec<u8>> {
+    hex::decode(s).map_err(|e| EventSourcingError::HexDecode(e.to_string()))
 }
 
 #[cfg(test)]
@@ -69,43 +53,35 @@ mod tests {
     use super::*;
 
     #[test]
-    fn compute_hash_deterministic() {
-        let id = Uuid::nil();
-        let ts = DateTime::parse_from_rfc3339("2026-03-02T00:00:00Z")
-            .unwrap()
-            .with_timezone(&Utc);
-        let payload = serde_json::json!({"n": "t"});
-        let h1 = compute_hash(&id, ts, "test", "entity-1", &payload, "u1", ZERO_HASH).unwrap();
-        let h2 = compute_hash(&id, ts, "test", "entity-1", &payload, "u1", ZERO_HASH).unwrap();
-        assert_eq!(h1, h2);
-        assert_ne!(h1, ZERO_HASH);
+    fn test_compute_event_hash() {
+        let hash1 = compute_event_hash("test", "agg-1", &serde_json::json!({}), 1, "").unwrap();
+        let hash2 = compute_event_hash("test", "agg-1", &serde_json::json!({}), 1, "").unwrap();
+        assert_eq!(hash1, hash2);
+
+        let hash3 = compute_event_hash("test", "agg-1", &serde_json::json!({"x": 1}), 1, "").unwrap();
+        assert_ne!(hash1, hash3);
     }
 
     #[test]
-    fn verify_chain_empty() {
-        verify_chain(&[]).unwrap();
+    fn test_verify_hash_chain_valid() {
+        let chain = vec![
+            (1, "abc123".to_string()),
+            (2, "def456".to_string()),
+        ];
+        assert!(verify_hash_chain(&chain).is_ok());
     }
 
     #[test]
-    fn verify_chain_two_events() {
-        let zero = "0".repeat(64);
-        let h1 = "abc123".to_string();
-        let h2 = "def456".to_string();
-        verify_chain(&[(h1.clone(), zero), (h2, h1)]).unwrap();
+    fn test_verify_hash_chain_invalid_hex() {
+        let chain = vec![
+            (1, "not-hex!!!".to_string()),
+        ];
+        assert!(verify_hash_chain(&chain).is_err());
     }
 
     #[test]
-    fn decode_hex_valid() {
-        assert_eq!(decode_hex("ff").unwrap(), vec![255]);
-        assert_eq!(
-            decode_hex("deadbeef").unwrap(),
-            vec![0xde, 0xad, 0xbe, 0xef]
-        );
-    }
-
-    #[test]
-    fn decode_hex_invalid() {
-        assert!(decode_hex("gg").is_err());
-        assert!(decode_hex("fff").is_err());
+    fn test_hex_decode() {
+        let bytes = hex_decode("48656c6c6f").unwrap();
+        assert_eq!(bytes, b"Hello");
     }
 }

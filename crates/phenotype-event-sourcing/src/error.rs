@@ -1,61 +1,46 @@
-//! Error types for phenotype-event-sourcing.
-
 use thiserror::Error;
 
-pub type Result<T> = std::result::Result<T, EventSourcingError>;
-
-#[derive(Debug, Clone, Error)]
+#[derive(Debug, Error)]
 pub enum EventSourcingError {
-    #[error("serialization error: {0}")]
-    Serialization(String),
-
-    #[error("deserialization error: {0}")]
-    Deserialization(String),
-
-    #[error("hash error: {0}")]
-    Hash(String),
-
-    #[error("chain broken at sequence {sequence}")]
-    ChainBroken { sequence: i64 },
-
-    #[error("entity not found: {0}")]
-    EntityNotFound(String),
-
-    #[error("invalid event: {0}")]
-    InvalidEvent(String),
-
-    #[error("internal error: {0}")]
-    Internal(String),
-}
-
-#[derive(Debug, Clone, Error)]
-pub enum HashError {
-    #[error("invalid hash length: expected 64 hex chars (32 bytes), got {0}")]
+    #[error("store error: {0}")]
+    Store(String),
+    #[error("hash mismatch: expected {expected}, got {actual}")]
+    HashMismatch { expected: String, actual: String },
+    #[error("invalid hash length: {0}")]
     InvalidHashLength(usize),
-
-    #[error("chain broken at sequence {sequence}")]
-    ChainBroken { sequence: i64 },
-
     #[error("hex decode error: {0}")]
     HexDecode(String),
-}
-
-impl From<HashError> for EventSourcingError {
-    fn from(err: HashError) -> Self {
-        match err {
-            HashError::InvalidHashLength(len) => {
-                EventSourcingError::Hash(format!("invalid hash length: {}", len))
-            }
-            HashError::ChainBroken { sequence } => EventSourcingError::ChainBroken { sequence },
-            HashError::HexDecode(msg) => {
-                EventSourcingError::Hash(format!("hex decode error: {}", msg))
-            }
-        }
-    }
+    #[error("event not found: {0}")]
+    EventNotFound(String),
+    #[error("sequence error: {0}")]
+    Sequence(String),
+    #[error("serialization error: {0}")]
+    Serialization(String),
 }
 
 impl From<serde_json::Error> for EventSourcingError {
     fn from(err: serde_json::Error) -> Self {
-        EventSourcingError::Serialization(err.to_string())
+        Self::Serialization(err.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_error_display() {
+        let err = EventSourcingError::Store("test".to_string());
+        assert!(err.to_string().contains("test"));
+    }
+
+    #[test]
+    fn test_hash_mismatch() {
+        let err = EventSourcingError::HashMismatch {
+            expected: "abc".to_string(),
+            actual: "def".to_string(),
+        };
+        assert!(err.to_string().contains("abc"));
+        assert!(err.to_string().contains("def"));
     }
 }
