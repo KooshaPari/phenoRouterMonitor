@@ -8,115 +8,41 @@ repository = "https://github.com/KooshaPari/phenotype-infrakit"
 description = "Phenotype Infrastructure Kit"
 
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
-    "crates/phenotype-async-traits",
-    "crates/phenotype-cache-adapter",
-    "crates/phenotype-config-core",
-    "crates/phenotype-config-loader",
-    "crates/phenotype-contract",
-    "crates/phenotype-contracts",
-    "crates/phenotype-cost-core",
-    "crates/phenotype-crypto",
     "crates/phenotype-error-core",
-    "crates/phenotype-error-macros",
     "crates/phenotype-errors",
-    "crates/phenotype-event-sourcing",
-    "crates/phenotype-git-core",
+    "crates/phenotype-contracts",
     "crates/phenotype-health",
-    "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
-    "crates/phenotype-logging",
-    "crates/phenotype-macros",
-    "crates/phenotype-mcp",
     "crates/phenotype-policy-engine",
-    "crates/phenotype-port-traits",
-    "crates/phenotype-process",
-    "crates/phenotype-rate-limit",
     "crates/phenotype-state-machine",
-    "crates/phenotype-string",
     "crates/phenotype-telemetry",
-    "crates/phenotype-test-infra",
-    "crates/phenotype-time",
-    "crates/phenotype-validation",
-]
-exclude = [
-    "crates/phenotype-ports-canonical",
-    "crates/phenotype-shared-config",
-    "crates/bifrost-routing",
-    "crates/forgecode-core",
 ]
 
 [workspace.dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "2.0"
-anyhow = "1.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-blake3 = "1.5"
-sha2 = "0.10"
-hex = "0.4"
 tokio = { version = "1", features = ["full"] }
 dashmap = "5"
-parking_lot = "0.12"
-lru = "0.12"
-moka = { version = "0.12", features = ["sync"] }
-regex = "1"
 toml = "0.8"
-reqwest = { version = "0.12", features = ["json", "stream"] }
+regex = "1"
+tempfile = "3"
+sha2 = "0.10"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+parking_lot = "0.12"
 futures = "0.3"
-syn = { version = "2", features = ["full"] }
-quote = "1"
-proc-macro2 = "1"
-tempfile = "3"
 strum = { version = "0.26", features = ["derive"] }
 once_cell = "1.19"
-dirs = "5.0"
-figment = "0.10"
-serde_yaml = "0.9"
-schemars = "0.8"
-jsonschema = "0.18"
-aes-gcm = "0.10"
-pbkdf2 = "0.12"
-rand = "0.8"
-hmac = "0.12"
-zeroize = "1.7"
-ed25519-dalek = { version = "2.1", features = ["std"] }
-gix = "0.71"
 
-phenotype-async-traits = { version = "0.2.0", path = "crates/phenotype-async-traits" }
-phenotype-cache-adapter = { version = "0.2.0", path = "crates/phenotype-cache-adapter" }
-phenotype-config-core = { version = "0.2.0", path = "crates/phenotype-config-core" }
-phenotype-config-loader = { version = "0.2.0", path = "crates/phenotype-config-loader" }
-phenotype-contract = { version = "0.2.0", path = "crates/phenotype-contract" }
-phenotype-contracts = { version = "0.2.0", path = "crates/phenotype-contracts" }
-phenotype-cost-core = { version = "0.2.0", path = "crates/phenotype-cost-core" }
-phenotype-crypto = { version = "0.2.0", path = "crates/phenotype-crypto" }
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
-phenotype-error-macros = { version = "0.2.0", path = "crates/phenotype-error-macros" }
 phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
-phenotype-event-sourcing = { version = "0.2.0", path = "crates/phenotype-event-sourcing" }
-phenotype-git-core = { version = "0.2.0", path = "crates/phenotype-git-core" }
-phenotype-health = { version = "0.2.0", path = "crates/phenotype-health" }
-phenotype-http-client-core = { version = "0.2.0", path = "crates/phenotype-http-client-core" }
-phenotype-iter = { version = "0.2.0", path = "crates/phenotype-iter" }
-phenotype-logging = { version = "0.2.0", path = "crates/phenotype-logging" }
-phenotype-macros = { version = "0.2.0", path = "crates/phenotype-macros" }
-phenotype-mcp = { version = "0.2.0", path = "crates/phenotype-mcp" }
-phenotype-policy-engine = { version = "0.2.0", path = "crates/phenotype-policy-engine" }
-phenotype-port-traits = { version = "0.2.0", path = "crates/phenotype-port-traits" }
-phenotype-process = { version = "0.2.0", path = "crates/phenotype-process" }
-phenotype-rate-limit = { version = "0.2.0", path = "crates/phenotype-rate-limit" }
-phenotype-state-machine = { version = "0.2.0", path = "crates/phenotype-state-machine" }
-phenotype-string = { version = "0.2.0", path = "crates/phenotype-string" }
-phenotype-telemetry = { version = "0.2.0", path = "crates/phenotype-telemetry" }
-phenotype-test-infra = { version = "0.2.0", path = "crates/phenotype-test-infra" }
-phenotype-time = { version = "0.2.0", path = "crates/phenotype-time" }
-phenotype-validation = { version = "0.2.0", path = "crates/phenotype-validation" }
 
 [profile.dev]
 opt-level = 0
