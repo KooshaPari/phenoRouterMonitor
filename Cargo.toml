@@ -5,50 +5,102 @@ license = "MIT"
 rust-version = "1.75"
 authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
-description = "Phenotype infrastructure crates"
+description = "Phenotype Infrastructure Kit"
 
 [workspace]
-resolver = "3"
+resolver = "2"
 members = [
+    "crates/phenotype-async-traits",
     "crates/phenotype-cache-adapter",
+    "crates/phenotype-config-core",
+    "crates/phenotype-config-loader",
+    "crates/phenotype-contract",
     "crates/phenotype-contracts",
+    "crates/phenotype-cost-core",
+    "crates/phenotype-crypto",
     "crates/phenotype-error-core",
+    "crates/phenotype-error-macros",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
     "crates/phenotype-health",
+    "crates/phenotype-http-client-core",
+    "crates/phenotype-iter",
     "crates/phenotype-logging",
     "crates/phenotype-macros",
-    "crates/phenotype-port-traits",
+    "crates/phenotype-mcp",
     "crates/phenotype-policy-engine",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-process",
     "crates/phenotype-rate-limit",
-    "crates/phenotype-retry",
     "crates/phenotype-state-machine",
     "crates/phenotype-string",
     "crates/phenotype-telemetry",
+    "crates/phenotype-test-infra",
+    "crates/phenotype-time",
     "crates/phenotype-validation",
+    "crates/phenotype-shared-config",
+]
+
+exclude = [
+    "crates/phenotype-ports-canonical",
+    "crates/bifrost-routing",
+    "crates/forgecode-core",
 ]
 
 [workspace.dependencies]
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-thiserror = "2"
-anyhow = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+thiserror = "2.0"
+anyhow = "1.0"
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
+blake3 = "1.5"
+sha2 = "0.10"
+hex = "0.4"
 tokio = { version = "1", features = ["full"] }
 dashmap = "5"
-toml = "0.8"
+parking_lot = "0.12"
+lru = "0.12"
+moka = { version = "0.12", features = ["sync"] }
 regex = "1"
-tempfile = "3"
-sha2 = "0.10"
+toml = "0.8"
+reqwest = { version = "0.12", features = ["json", "stream"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
-prometheus = "0.13"
-opentelemetry = "0.31"
-opentelemetry-otlp = "0.31"
-opentelemetry_sdk = "0.31"
+tracing-opentelemetry = "0.32"
+futures = "0.3"
 futures-util = "0.3"
-parking_lot = "0.12"
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+tempfile = "3"
+strum = { version = "0.26", features = ["derive"] }
+once_cell = "1.19"
+dirs = "5.0"
+figment = { version = "0.10", features = ["toml", "yaml", "json", "env"] }
 schemars = "0.8"
 jsonschema = "0.18"
+aes-gcm = "0.10"
+pbkdf2 = "0.12"
+rand = "0.8"
+hmac = "0.12"
+zeroize = "1.7"
+ed25519-dalek = { version = "2.1", features = ["std"] }
+gix = "0.71"
+opentelemetry = { version = "0.31", features = ["trace", "metrics"] }
+opentelemetry-otlp = { version = "0.31", features = ["trace", "metrics", "http-proto", "reqwest-client"] }
+opentelemetry_sdk = { version = "0.31", features = ["trace", "metrics", "rt-tokio"] }
+prometheus = "0.13"
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
