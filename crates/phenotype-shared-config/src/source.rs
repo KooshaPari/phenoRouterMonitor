@@ -127,7 +127,7 @@ mod tests {
             ),
             ConfigValue::with_priority(
                 ConfigSource::File,
-                SourcePriority::File,
+                SourcePriority::Local,
                 serde_json::json!({"port": 9000, "debug": true}),
             ),
         ];

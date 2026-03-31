@@ -9,45 +9,25 @@ use crate::models::ModelType;
 
 pub type CasbinEnforcer = Arc<RwLock<Enforcer>>;
 
-pub trait CasbinAdapterExt {
-    async fn new(
-        model_path: &str,
-        policy_path: &str,
-    ) -> Result<Self, CasbinWrapperError>
+#[async_trait::async_trait]
+pub trait CasbinAdapterExt: Send + Sync {
+    async fn new(model_path: &str, policy_path: &str) -> Result<Self, CasbinWrapperError>
     where
         Self: Sized;
 
-    async fn enforce(
-        &self,
-        request: &[&str],
-    ) -> Result<bool, CasbinWrapperError>;
+    async fn enforce(&self, request: &[&str]) -> Result<bool, CasbinWrapperError>;
 
-    async fn enforce_named(
-        &self,
-        policy_type: &str,
-        request: &[&str],
-    ) -> Result<bool, CasbinWrapperError>;
+    async fn enforce_named(&self, policy_type: &str, request: &[&str]) -> Result<bool, CasbinWrapperError>;
 
-    async fn modify_policy(
-        &self,
-        policy_type: &str,
-        rules: Vec<Vec<String>>,
-    ) -> Result<(), CasbinWrapperError>;
+    async fn modify_policy(&self, policy_type: &str, rules: Vec<Vec<String>>) -> Result<(), CasbinWrapperError>;
 
-    async fn remove_policy(
-        &self,
-        policy_type: &str,
-        rules: Vec<Vec<String>>,
-    ) -> Result<(), CasbinWrapperError>;
+    async fn remove_policy(&self, policy_type: &str, rules: Vec<Vec<String>>) -> Result<(), CasbinWrapperError>;
 
     async fn clear_policy(&self) -> Result<(), CasbinWrapperError>;
 
     async fn reload_policy(&self) -> Result<(), CasbinWrapperError>;
 
-    async fn batch_enforce(
-        &self,
-        requests: &[Vec<&str>],
-    ) -> Result<Vec<bool>, CasbinWrapperError>;
+    async fn batch_enforce(&self, requests: &[Vec<&str>]) -> Result<Vec<bool>, CasbinWrapperError>;
 
     fn model_type(&self) -> ModelType;
 }
@@ -58,10 +38,7 @@ pub struct CasbinAdapter {
 }
 
 impl CasbinAdapter {
-    pub async fn new_with_enforcer(
-        enforcer: Enforcer,
-        model_type: ModelType,
-    ) -> Result<Self, CasbinWrapperError> {
+    pub async fn new_with_enforcer(enforcer: Enforcer, model_type: ModelType) -> Result<Self, CasbinWrapperError> {
         Ok(Self {
             enforcer: Arc::new(RwLock::new(enforcer)),
             model_type,
@@ -75,10 +52,7 @@ impl CasbinAdapter {
 
 #[async_trait::async_trait]
 impl CasbinAdapterExt for CasbinAdapter {
-    async fn new(
-        model_path: &str,
-        policy_path: &str,
-    ) -> Result<Self, CasbinWrapperError> {
+    async fn new(model_path: &str, policy_path: &str) -> Result<Self, CasbinWrapperError> {
         let enforcer = Enforcer::new(model_path, policy_path)
             .await
             .map_err(|e| CasbinWrapperError::InitError(e.to_string()))?;
@@ -99,33 +73,31 @@ impl CasbinAdapterExt for CasbinAdapter {
         })
     }
 
-    async fn enforce(
-        &self,
-        request: &[&str],
-    ) -> Result<bool, CasbinWrapperError> {
+    async fn enforce(&self, request: &[&str]) -> Result<bool, CasbinWrapperError> {
         let enforcer = self.enforcer.read().await;
-        let result = enforcer.enforce(request).await?;
-        Ok(result)
+        let result = match request.len() {
+            1 => enforcer.enforce((request[0],)).await,
+            2 => enforcer.enforce((request[0], request[1])).await,
+            3 => enforcer.enforce((request[0], request[1], request[2])).await,
+            4 => enforcer.enforce((request[0], request[1], request[2], request[3])).await,
+            _ => return Err(CasbinWrapperError::EnforcementFailed(
+                "Unsupported request arity".to_string(),
+            )),
+        };
+        result.map_err(|e| CasbinWrapperError::EnforcementFailed(e.to_string()))
     }
 
-    async fn enforce_named(
-        &self,
-        _policy_type: &str,
-        request: &[&str],
-    ) -> Result<bool, CasbinWrapperError> {
+    async fn enforce_named(&self, _policy_type: &str, request: &[&str]) -> Result<bool, CasbinWrapperError> {
         self.enforce(request).await
     }
 
-    async fn modify_policy(
-        &self,
-        policy_type: &str,
-        rules: Vec<Vec<String>>,
-    ) -> Result<(), CasbinWrapperError> {
+    async fn modify_policy(&self, policy_type: &str, rules: Vec<Vec<String>>) -> Result<(), CasbinWrapperError> {
         let mut enforcer = self.enforcer.write().await;
 
         for rule in rules {
             enforcer
                 .add_policy(rule)
+                .await
                 .map_err(|e| CasbinWrapperError::PolicyError(e.to_string()))?;
         }
 
@@ -133,16 +105,13 @@ impl CasbinAdapterExt for CasbinAdapter {
         Ok(())
     }
 
-    async fn remove_policy(
-        &self,
-        policy_type: &str,
-        rules: Vec<Vec<String>>,
-    ) -> Result<(), CasbinWrapperError> {
+    async fn remove_policy(&self, policy_type: &str, rules: Vec<Vec<String>>) -> Result<(), CasbinWrapperError> {
         let mut enforcer = self.enforcer.write().await;
 
         for rule in rules {
             enforcer
                 .remove_policy(rule)
+                .await
                 .map_err(|e| CasbinWrapperError::PolicyError(e.to_string()))?;
         }
 
@@ -154,6 +123,7 @@ impl CasbinAdapterExt for CasbinAdapter {
         let mut enforcer = self.enforcer.write().await;
         enforcer
             .clear_policy()
+            .await
             .map_err(|e| CasbinWrapperError::PolicyError(e.to_string()))?;
         tracing::info!("Cleared all policies");
         Ok(())
@@ -162,16 +132,14 @@ impl CasbinAdapterExt for CasbinAdapter {
     async fn reload_policy(&self) -> Result<(), CasbinWrapperError> {
         let mut enforcer = self.enforcer.write().await;
         enforcer
-            .reload_policy()
+            .load_policy()
+            .await
             .map_err(|e| CasbinWrapperError::PolicyError(e.to_string()))?;
         tracing::info!("Reloaded policies from disk");
         Ok(())
     }
 
-    async fn batch_enforce(
-        &self,
-        requests: &[Vec<&str>],
-    ) -> Result<Vec<bool>, CasbinWrapperError> {
+    async fn batch_enforce(&self, requests: &[Vec<&str>]) -> Result<Vec<bool>, CasbinWrapperError> {
         let mut results = Vec::with_capacity(requests.len());
 
         for request in requests {
@@ -262,11 +230,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model_file(dir.path());
         let policy_path = create_basic_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
 
         let request = vec!["alice", "data1", "read"];
         let allowed = adapter.enforce(&request).await?;
@@ -285,11 +249,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_rbac_model_file(dir.path());
         let policy_path = create_rbac_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
 
         let request = vec!["alice", "data1", "read"];
         let allowed = adapter.enforce(&request).await?;
@@ -312,11 +272,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model_file(dir.path());
         let policy_path = create_basic_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
 
         let requests = vec![
             vec!["alice", "data1", "read"],
@@ -339,11 +295,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model_file(dir.path());
         let policy_path = create_basic_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
 
         let request = vec!["charlie", "data1", "read"];
         let initially_denied = adapter.enforce(&request).await?;
@@ -369,11 +321,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model_file(dir.path());
         let policy_path = create_basic_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
 
         let request = vec!["alice", "data1", "read"];
         let initially_allowed = adapter.enforce(&request).await?;
@@ -393,11 +341,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model_file(dir.path());
         let policy_path = create_basic_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
 
         let rules = vec![vec!["charlie".to_string(), "data1".to_string(), "read".to_string()]];
         adapter.modify_policy("p", rules).await?;
@@ -420,11 +364,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
         let model_path = create_basic_model_file(dir.path());
         let policy_path = create_basic_policy_file(dir.path());
 
-        let adapter = CasbinAdapterExt::new(
-            model_path.to_str().unwrap(),
-            policy_path.to_str().unwrap(),
-        )
-        .await?;
+        let adapter = CasbinAdapterExt::new(model_path.to_str().unwrap(), policy_path.to_str().unwrap()).await?;
         assert_eq!(adapter.model_type(), ModelType::Basic);
 
         Ok(())

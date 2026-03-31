@@ -81,7 +81,6 @@ blake3 = "1"
 reqwest = { version = "0.12", features = ["json"] }
 rand = "0.8"
 hex = "0.4"
-casbin = "3"
 
 [profile.dev]
 opt-level = 0
