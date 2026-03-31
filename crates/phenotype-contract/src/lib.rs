@@ -254,9 +254,10 @@ mod tests {
         );
     }
     #[test]
-fn test_invariant_wrapper_invalid() {
-    assert!(PositiveInt::new(-5).is_err());
-}
+    fn test_invariant_wrapper_invalid() {
+        assert!(PositiveInt::new(-5).is_err());
+    }
+    #[test]
     fn test_requires_macro_valid() {
         fn divide(a: i32, b: i32) -> Result<i32, ContractError> {
             requires!(b != 0, "Division by zero");

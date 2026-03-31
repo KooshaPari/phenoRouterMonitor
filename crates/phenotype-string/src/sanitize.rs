@@ -38,7 +38,7 @@ impl<T: AsRef<str>> Sanitize for T {
                 result.push(c.to_ascii_lowercase());
                 prev_was_upper = true;
             } else if c == '-' || c == ' ' {
-                if result.last() != Some(&'_') {
+                if !result.ends_with('_') {
                     result.push('_');
                 }
                 prev_was_upper = false;

@@ -7,7 +7,6 @@ license = "MIT"
 [lib]
 path = "src/lib.rs"
 
-[workspace]
 
 [dependencies]
 rand = "0.8"
