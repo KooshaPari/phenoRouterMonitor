@@ -1,23 +1,56 @@
 [workspace.package]
+[workspace.package]
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.75"
 authors = ["Phenotype Team"]
 repository = "https://github.com/KooshaPari/phenotype-infrakit"
-description = "Phenotype Infrastructure Kit"
 
 [workspace]
 resolver = "2"
 members = [
+    "crates/phenotype-async-traits",
+    "crates/phenotype-contract",
+    "crates/phenotype-cost-core",
+    "crates/phenotype-config-core",
+    "crates/phenotype-contracts",
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
-    "crates/phenotype-contracts",
+    "crates/phenotype-event-sourcing",
+    "crates/phenotype-git-core",
     "crates/phenotype-health",
-    "crates/phenotype-iter",
-    "crates/phenotype-port-traits",
+    "crates/phenotype-macros",
     "crates/phenotype-policy-engine",
+    "crates/phenotype-port-traits",
+    "crates/phenotype-shared-config",
     "crates/phenotype-state-machine",
+    "crates/phenotype-telemetry",
+    "crates/phenotype-validation",
+    "crates/phenotype-cache-adapter",
+]
+
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1"
+thiserror = "2.0"
+tokio = { version = "1", features = ["full"] }
+pin-project = "1"
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+parking_lot = "0.12"
+dashmap = "5"
+regex = "1"
+lru = "0.12"
+moka = { version = "0.12", features = ["sync"] }
+blake3 = "1"
+toml = "0.8"
+serde_yaml = "0.9"
+figment = { version = "0.10", features = ["toml", "yaml"] }
+tracing = "0.1"
+dirs = "5"
+tempfile = "3"
     "crates/phenotype-telemetry",
 ]
 
