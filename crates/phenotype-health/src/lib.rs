@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
 //! # Phenotype Health
 //!
 //! Shared health check abstraction for Phenotype services.
@@ -178,9 +174,3 @@ impl Default for HealthMonitor {
         Self::new()
     }
 }
-<<<<<<< HEAD
-=======
-=======
-// phenotype-health
->>>>>>> origin/main
->>>>>>> origin/main
