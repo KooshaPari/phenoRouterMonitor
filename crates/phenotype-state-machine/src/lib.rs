@@ -40,11 +40,17 @@ pub enum StateMachineError {
 /// Result type for state machine operations.
 pub type Result<T> = std::result::Result<T, StateMachineError>;
 
+/// Callback for state enter/exit events.
+pub type StateCallback = Arc<dyn Fn(&str) + Send + Sync>;
+
+/// Guard function for conditional transitions.
+type TransitionGuard = Arc<dyn Fn(&str, &str) -> bool + Send + Sync>;
+
 /// A transition definition: (from_state, event) -> to_state with optional guard.
 #[derive(Clone)]
 struct Transition {
     to: String,
-    guard: Option<Arc<dyn Fn(&str, &str) -> bool + Send + Sync>>,
+    guard: Option<TransitionGuard>,
 }
 
 /// A generic finite state machine.
@@ -54,8 +60,8 @@ struct Transition {
 pub struct StateMachine {
     current: RwLock<String>,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
-    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
 impl StateMachine {
@@ -69,13 +75,13 @@ impl StateMachine {
         let mut current = self.current.write().unwrap();
         let key = (current.clone(), event.to_string());
 
-        let transition = self
-            .transitions
-            .get(&key)
-            .ok_or_else(|| StateMachineError::InvalidTransition {
-                from: current.clone(),
-                event: event.to_string(),
-            })?;
+        let transition =
+            self.transitions
+                .get(&key)
+                .ok_or_else(|| StateMachineError::InvalidTransition {
+                    from: current.clone(),
+                    event: event.to_string(),
+                })?;
 
         if let Some(guard) = &transition.guard {
             if !guard(&current, event) {
@@ -141,8 +147,8 @@ unsafe impl Sync for StateMachine {}
 pub struct StateMachineBuilder {
     initial: String,
     transitions: HashMap<(String, String), Transition>,
-    on_enter: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
-    on_exit: HashMap<String, Vec<Arc<dyn Fn(&str) + Send + Sync>>>,
+    on_enter: HashMap<String, Vec<StateCallback>>,
+    on_exit: HashMap<String, Vec<StateCallback>>,
 }
 
 impl StateMachineBuilder {
@@ -201,11 +207,7 @@ impl StateMachineBuilder {
     }
 
     /// Register a callback for when a state is exited.
-    pub fn on_exit(
-        mut self,
-        state: &str,
-        callback: impl Fn(&str) + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_exit(mut self, state: &str, callback: impl Fn(&str) + Send + Sync + 'static) -> Self {
         self.on_exit
             .entry(state.to_string())
             .or_default()

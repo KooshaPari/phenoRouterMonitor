@@ -9,9 +9,9 @@ path = "src/lib.rs"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace = true
-chrono.workspace = true
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
 
 [dev-dependencies]
-tokio.workspace = true
+tokio = { workspace = true }
