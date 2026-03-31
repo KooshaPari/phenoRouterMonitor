@@ -30,7 +30,7 @@ anyhow = "1"
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util", "net"] }
 dashmap = "5"
 toml = "0.8"
 regex = "1"
@@ -57,3 +57,4 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
+panic = "abort"
