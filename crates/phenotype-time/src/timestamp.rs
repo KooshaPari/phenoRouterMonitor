@@ -1,6 +1,6 @@
 //! Timestamp utilities for working with chrono DateTime.
 
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime, Utc};
 
 /// Timestamp kind (UTC vs Offset).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -53,7 +53,7 @@ impl Timestamp for DateTime<Utc> {
 
 /// Time-related constants.
 pub mod constants {
-    use chrono::Duration as ChronoDuration;
+    use chrono::{Duration as ChronoDuration, Utc};
 
     /// Unix epoch.
     pub const UNIX_EPOCH: chrono::DateTime<Utc> = chrono::DateTime::UNIX_EPOCH;
