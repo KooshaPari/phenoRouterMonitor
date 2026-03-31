@@ -89,9 +89,9 @@ impl Rule {
 
         let fact_value = context.get_string(&self.fact);
         match self.rule_type {
-            RuleType::Allow => Ok(fact_value.as_ref().map_or(true, |v| regex.is_match(&v))),
-            RuleType::Deny => Ok(fact_value.as_ref().map_or(true, |v| !regex.is_match(&v))),
-            RuleType::Require => Ok(fact_value.as_ref().is_some_and(|v| regex.is_match(&v))),
+            RuleType::Allow => Ok(fact_value.as_ref().is_none_or(|v| regex.is_match(v))),
+            RuleType::Deny => Ok(fact_value.as_ref().is_none_or(|v| !regex.is_match(v))),
+            RuleType::Require => Ok(fact_value.as_ref().is_some_and(|v| regex.is_match(v))),
         }
     }
 }

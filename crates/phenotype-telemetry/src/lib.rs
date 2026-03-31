@@ -174,16 +174,18 @@ pub enum LogLevel {
     Error,
 }
 
-impl LogLevel {
-    pub fn from_str(s: &str) -> Self {
-        match s.to_lowercase().as_str() {
+impl std::str::FromStr for LogLevel {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s.to_lowercase().as_str() {
             "trace" => Self::Trace,
             "debug" => Self::Debug,
             "info" => Self::Info,
             "warn" | "warning" => Self::Warn,
             "error" | "err" => Self::Error,
             _ => Self::Info,
-        }
+        })
     }
 }
 
