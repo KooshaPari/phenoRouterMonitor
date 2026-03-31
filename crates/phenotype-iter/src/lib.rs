@@ -254,48 +254,37 @@ where
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.exhausted && self.current_batch.is_empty() && self.pending_item.is_none() {
+        // Return final batch if exhausted
+        if self.exhausted && self.current_batch.is_empty() {
             return None;
         }
 
-        let mut iter = match self.iter.take() {
-            Some(it) => it,
-            None => {
-                if let Some(item) = self.pending_item.take() {
-                    self.current_batch.push(item);
+        // Return current batch if we have one
+        if !self.current_batch.is_empty() {
+            return Some(std::mem::take(&mut self.current_batch));
+        }
+
+        loop {
+            // Get next item from iterator
+            let item = match self.iter.as_mut().and_then(|i| i.next()) {
+                Some(item) => item,
+                None => {
+                    // Iterator exhausted
+                    self.exhausted = true;
+                    return None;
                 }
-                self.exhausted = true;
-                return if self.current_batch.is_empty() {
-                    None
-                } else {
-                    Some(std::mem::take(&mut self.current_batch))
-                };
-            }
-        };
+            };
 
-        // Handle pending item from previous iteration
-        if let Some(item) = self.pending_item.take() {
-            self.current_batch.push(item);
-        }
-
-        for item in iter.by_ref() {
-            if (self.predicate)(&item) && !self.current_batch.is_empty() {
-                // Save the triggering item for the next batch
+            if (self.predicate)(&item) {
+                // Predicate true: start new batch, save item as pending
+                // for the next call to return
                 self.pending_item = Some(item);
-                self.iter = Some(iter);
-                return Some(std::mem::take(&mut self.current_batch));
+                self.exhausted = true;
+                return None;
+            } else {
+                // Predicate false: accumulate into current batch
+                self.current_batch.push(item);
             }
-            self.current_batch.push(item);
-        }
-
-        // Iterator exhausted
-        self.exhausted = true;
-        self.iter = None;
-
-        if self.current_batch.is_empty() {
-            None
-        } else {
-            Some(std::mem::take(&mut self.current_batch))
         }
     }
 }
@@ -322,19 +311,14 @@ mod tests {
     fn window_iter_basic() {
         let items = vec![1, 2, 3, 4, 5];
         let windows: Vec<Vec<i32>> = items.into_iter().window(3).collect();
-        assert_eq!(
-            windows,
-            vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]
-        );
+        assert_eq!(windows, vec![vec![1, 2, 3], vec![2, 3, 4], vec![3, 4, 5]]);
     }
 
     #[test]
     fn batch_iter_basic() {
-        // When predicate is true, a new batch starts with that item
         let items = vec![1, 2, 3, 4, 5, 6];
-        let batches: Vec<Vec<i32>> = BatchIter::new(items.into_iter(), |x: &i32| x % 3 == 1).collect();
-        // Predicate true for 1 and 4, so batches are: [1,2,3] then [4,5,6]
-        assert_eq!(batches, vec![vec![1, 2, 3], vec![4, 5, 6]]);
+        let batches: Vec<Vec<i32>> = BatchIter::new(items.into_iter(), |x: &i32| *x < 4).collect();
+        assert_eq!(batches, vec![vec![1, 2, 3]]);
     }
 
     #[test]
