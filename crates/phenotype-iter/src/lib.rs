@@ -193,22 +193,30 @@ impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
     type Item = Vec<I::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.buffer.clear();
+        // Return buffered items if any (from previous incomplete batch)
+        if !self.buffer.is_empty() {
+            return Some(std::mem::take(&mut self.buffer));
+        }
 
-        // Start with pending item if available
+        // If exhausted, we're done
+        if self.exhausted {
+            return None;
+        }
+
+        // Handle pending item from previous iteration
         if let Some(item) = self.pending.take() {
             if (self.predicate)(&item) {
                 self.buffer.push(item);
             } else {
+                // Item doesn't match predicate, becomes pending for next batch
                 self.pending = Some(item);
-                if self.buffer.is_empty() && !self.exhausted {
-                    return self.next();
-                }
+                self.exhausted = true;
+                return None;
             }
         }
 
-        // Fill batch while predicate is true
-        for item in self.iter.by_ref() {
+        // Fill batch while predicate returns true
+        while let Some(item) = self.iter.next() {
             if (self.predicate)(&item) {
                 self.buffer.push(item);
             } else {
