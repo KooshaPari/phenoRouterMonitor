@@ -4,6 +4,8 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Phenotype git core crate"
+description = "Git operations for Phenotype — deprecated, use phenotype-shared-config"
 
 [dependencies]
+
+[dev-dependencies]

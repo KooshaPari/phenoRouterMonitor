@@ -28,6 +28,7 @@ members = [
     "crates/phenotype-string",
     "crates/phenotype-telemetry",
     "crates/phenotype-validation",
+    "crates/phenotype-git-core",
 ]
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
