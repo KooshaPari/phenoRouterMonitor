@@ -1,11 +1,9 @@
-//! phenotype-contracts
+//! Hexagonal architecture ports and domain model contracts for Phenotype.
 
-use thiserror::Error;
+pub mod adapters;
+pub mod error;
+pub mod outbound;
 
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("{0}")]
-    Invalid(String),
-}
-
-pub type Result<T> = std::result::Result<T, Error>;
+pub use adapters::{InMemoryCache, InMemoryEventBus, InMemoryRepository, InMemorySecretManager};
+pub use error::{DomainError, Result};
+pub use outbound::{CachePort, EventBus, Repository, SecretManager};

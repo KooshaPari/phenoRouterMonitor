@@ -90,7 +90,7 @@ where
 
         // Advance window by removing front and trying to add next item
         self.buffer.pop_front();
-        
+
         // Try to get next item from iterator to add to back
         if let Some(item) = self.iter.next() {
             self.buffer.push_back(item);

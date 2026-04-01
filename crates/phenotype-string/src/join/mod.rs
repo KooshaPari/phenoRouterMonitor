@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     fn test_join_with_empty() {
-        assert_eq!(join_with(", ", &[]), "");
+        assert_eq!(join_with(", ", &[] as &[&str]), "");
         assert_eq!(join_with(", ", &["a"]), "a");
         assert_eq!(join_with(", ", &["a", "b"]), "a, b");
     }
