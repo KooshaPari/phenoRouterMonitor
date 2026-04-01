@@ -1,0 +1,163 @@
+# Phenotype Org — Capital Ledger
+# SSOT for all organizational resources available to agents.
+# Parsed by phenotype-capital::registry
+
+[org]
+name = "Phenotype"
+default_rotation_days = 90
+evidence_ledger = "evidence_ledger.jsonl"
+
+# ── LLM Inference Accounts ──────────────────────────────────────────────────
+
+[accounts.llm.groq]
+type = "api_key"
+env_var = "GROQ_API_KEY"
+endpoint = "https://api.groq.com/openai/v1/models"
+rate_limit = { requests_per_day = 1000, tokens_per_minute = 6000 }
+rotation = { interval_days = 90, validate_on_startup = true }
+tags = ["inference", "free-tier", "fast"]
+
+[accounts.llm.claude]
+type = "subscription"
+env_var = "ANTHROPIC_API_KEY"
+plan = "max"
+rotation = { interval_days = 30, validate_on_startup = true }
+tags = ["inference", "paid", "primary"]
+
+[accounts.llm.openai]
+type = "subscription"
+env_var = "OPENAI_API_KEY"
+plan = "pro"
+rotation = { interval_days = 30, validate_on_startup = true }
+tags = ["inference", "paid", "codex"]
+
+[accounts.llm.google_ai]
+type = "api_key"
+env_var = "GOOGLE_API_KEY"
+endpoint = "https://generativelanguage.googleapis.com/v1/models"
+rate_limit = { requests_per_minute = 60 }
+rotation = { interval_days = 90, validate_on_startup = true }
+tags = ["inference", "free-tier", "gemini"]
+
+[accounts.llm.openrouter]
+type = "api_key"
+env_var = "OPENROUTER_API_KEY"
+endpoint = "https://openrouter.ai/api/v1/models"
+rotation = { interval_days = 90, validate_on_startup = true }
+tags = ["inference", "paid", "router"]
+
+[accounts.llm.minimax]
+type = "api_key"
+env_var = "MINIMAX_API_KEY"
+rotation = { interval_days = 90, validate_on_startup = true }
+tags = ["inference", "paid"]
+
+[accounts.llm.cerebras]
+type = "api_key"
+env_var = "CEREBRAS_API_KEY"
+endpoint = "https://api.cerebras.ai/v1/models"
+rate_limit = { requests_per_minute = 30, tokens_per_minute = 60000 }
+rotation = { interval_days = 90, validate_on_startup = true }
+tags = ["inference", "free-tier", "fast"]
+
+# ── Cloud Compute ────────────────────────────────────────────────────────────
+
+[accounts.cloud.oracle]
+type = "always_free"
+resources = { arm_vms = 4, ocpus = 24, ram_gb = 24, storage_gb = 200, bandwidth_tb = 10 }
+expires = "never"
+tags = ["compute", "free-tier", "primary"]
+
+[accounts.cloud.gcp]
+type = "credits"
+env_var = "GOOGLE_CLOUD_PROJECT"
+credits_usd = 300
+expires = "2027-03-31"
+tags = ["compute", "credits", "ai-ml"]
+
+[accounts.cloud.aws]
+type = "free_tier"
+resources = { ec2_hours = 750, lambda_requests = 1000000, s3_gb = 5, dynamodb_gb = 25 }
+expires = "2027-03-31"
+tags = ["compute", "free-tier"]
+
+# ── Database & Auth ──────────────────────────────────────────────────────────
+
+[accounts.auth.supabase]
+type = "service_key"
+env_var = "SUPABASE_SERVICE_KEY"
+url_var = "SUPABASE_URL"
+rate_limit = { mau = 50000, db_mb = 500 }
+tags = ["auth", "database", "free-tier"]
+
+[accounts.db.neon]
+type = "api_key"
+env_var = "NEON_API_KEY"
+rate_limit = { storage_gb = 5 }
+tags = ["database", "free-tier", "serverless"]
+
+[accounts.db.turso]
+type = "api_key"
+env_var = "TURSO_API_KEY"
+rate_limit = { storage_gb = 9, reads = 200000000, writes = 10000000 }
+tags = ["database", "free-tier", "sqlite", "edge"]
+
+[accounts.cache.upstash]
+type = "api_key"
+env_var = "UPSTASH_REDIS_REST_URL"
+token_var = "UPSTASH_REDIS_REST_TOKEN"
+rate_limit = { data_mb = 256, commands = 500000 }
+tags = ["cache", "free-tier", "serverless"]
+
+# ── Monitoring & Observability ───────────────────────────────────────────────
+
+[accounts.monitoring.sentry]
+type = "dsn"
+env_var = "SENTRY_DSN"
+rate_limit = { events_per_month = 5000 }
+tags = ["error-tracking", "free-tier"]
+
+[accounts.monitoring.newrelic]
+type = "api_key"
+env_var = "NEW_RELIC_API_KEY"
+rate_limit = { data_gb = 100 }
+tags = ["apm", "free-tier"]
+
+# ── Container Registry ──────────────────────────────────────────────────────
+
+[accounts.registry.ghcr]
+type = "github_token"
+env_var = "GITHUB_TOKEN"
+tags = ["container-registry", "free-tier"]
+
+[accounts.registry.gitlab]
+type = "api_key"
+env_var = "GITLAB_TOKEN"
+rate_limit = { storage_gb = 5 }
+tags = ["container-registry", "free-tier"]
+
+# ── CDN & Edge ──────────────────────────────────────────────────────────────
+
+[accounts.edge.cloudflare]
+type = "api_token"
+env_var = "CLOUDFLARE_API_TOKEN"
+rate_limit = { workers_requests = 100000, r2_storage_gb = 10 }
+tags = ["cdn", "edge-compute", "free-tier"]
+
+# ── Email ────────────────────────────────────────────────────────────────────
+
+[accounts.email.resend]
+type = "api_key"
+env_var = "RESEND_API_KEY"
+rate_limit = { emails_per_month = 3000 }
+tags = ["email", "free-tier"]
+
+# ── Browser Profiles ────────────────────────────────────────────────────────
+
+[profiles.browser.chrome_primary]
+type = "browser_profile"
+managed_by = "phenotype-profiles"
+user_data_dir = "~/.phenotype/profiles/chrome-primary"
+auth_sessions = ["github", "supabase", "vercel", "cloudflare"]
+refresh_strategy = "detect-on-failure"
+tags = ["browser", "auth"]
