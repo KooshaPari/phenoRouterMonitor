@@ -1,0 +1,51 @@
+name: Security and Quality Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: |
+            rules:
+              - id: rust-unsafe-code
+                pattern: unsafe { ... }
+                message: "Review unsafe code block for potential security vulnerabilities"
+                languages: [rust]
+                severity: WARNING
+              - id: rust-unwrap-usage
+                pattern: $X.unwrap()
+                message: "Consider using expect() with context instead of unwrap()"
+                languages: [rust]
+                severity: INFO
+
+  sonarqube:
+    runs-on: ubuntu-latest
+    needs: semgrep
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -1,0 +1,24 @@
+rules:
+  - id: rust-unsafe-code
+    pattern: unsafe { ... }
+    message: "Review unsafe code block for potential security vulnerabilities"
+    languages: [rust]
+    severity: WARNING
+
+  - id: rust-unwrap-usage
+    pattern: $X.unwrap()
+    message: "Consider using expect() with context or proper error handling instead of unwrap()"
+    languages: [rust]
+    severity: INFO
+
+  - id: rust-todo-comments
+    pattern-regex: (//|/\*)\s*TODO
+    message: "TODO comment found - ensure these are addressed before production"
+    languages: [rust]
+    severity: INFO
+
+  - id: rust-hardcoded-credentials
+    pattern: $X = "$Y" # hardcoded
+    message: "Potential hardcoded credential detected"
+    languages: [rust]
+    severity: ERROR

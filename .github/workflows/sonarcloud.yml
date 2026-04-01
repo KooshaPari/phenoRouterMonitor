@@ -1,0 +1,88 @@
+name: SonarCloud Quality Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Set up Go
+        if: false # Enable for Go repos
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: Install sonar-scanner
+        run: |
+          curl -sL https://binaries.sonarsource.com/Download/Organization-SonarCloud-prod/bin/sonar-scanner-cli.zip -o sonar-scanner.zip
+          unzip -q sonar-scanner.zip
+          echo "${PWD}/sonar-scanner-*/bin" >> $GITHUB_PATH
+
+      - name: Generate coverage (Rust)
+        run: |
+          cargo install cargo-tarpaulin || true
+          cargo tarpaulin --workspace --out xml --output-dir coverage || true
+
+      - name: Run SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=KooshaPari_${{ github.event.repository.name }} \
+            -Dsonar.organization=kooshapari \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.sources=. \
+            -Dsonar.exclusions=**/*.lock,**/target/**,**/.git/**,**/node_modules/** \
+            -Dsonar.github.repository=${{ github.repository }} \
+            -Dsonar.github.pullRequest=${{ github.event.pull_request.number }} \
+            -Dsonar.qualitygate.wait=true
+
+  sonarcloud-rust:
+    name: SonarCloud Rust Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan with GitHub Action
+        uses: SonarSource/sonarcloud-github-action@v2.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=KooshaPari_${{ github.event.repository.name }}
+            -Dsonar.organization=kooshapari
+            -Dsonar.sources=cargo
+            -Dsonar.exclusions=**/*.lock,**/target/**,**/.git/**
+            -Dsonar.rust.includetests=true
+            -Dsonar.qualitygate.wait=true
