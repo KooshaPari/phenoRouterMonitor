@@ -723,6 +723,9 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "casbin",
+ "dashmap",
+ "phenotype-cache-adapter",
+ "phenotype-telemetry",
  "serde",
  "serde_json",
  "tempfile",
