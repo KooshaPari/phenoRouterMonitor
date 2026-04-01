@@ -63,20 +63,25 @@ impl ConfigSource {
 
     /// Creates a source with default priority.
     pub fn default_source(name: impl Into<String>) -> Self {
-        Self::new(name, Priority::DEFAULT)
+        Self::new(name, Priority::new(Priority::DEFAULT))
     }
 }
 
 /// Trait for configuration loaders.
 pub trait ConfigLoader: Send + Sync {
-    /// The error type for loading.
-    type Error: std::error::Error + Send + Sync + 'static;
-
-    /// loads configuration from this source.
-    fn load<T: DeserializeOwned + Serialize>(&self) -> Result<T, Self::Error>;
+    /// loads configuration from this source as a JSON value.
+    fn load_value(&self) -> Result<serde_json::Value, Box<dyn std::error::Error + Send + Sync>>;
 
     /// Returns the source name.
     fn source_name(&self) -> &str;
+}
+
+/// Loads and deserializes configuration from a loader.
+pub fn load_from_loader<T: DeserializeOwned + Serialize>(
+    loader: &dyn ConfigLoader,
+) -> Result<T, Box<dyn std::error::Error + Send + Sync>> {
+    let value = loader.load_value()?;
+    Ok(serde_json::from_value(value)?)
 }
 
 /// Trait for configuration validation.
@@ -127,16 +132,13 @@ impl EnvConfig {
 }
 
 impl ConfigLoader for EnvConfig {
-    type Error = std::env::VarError;
-
-    fn load<T: DeserializeOwned + Serialize>(&self) -> Result<T, Self::Error> {
+    fn load_value(&self) -> Result<serde_json::Value, Box<dyn std::error::Error + Send + Sync>> {
         // For simple env loading, we parse the entire env as JSON
-        let env_vars: std::collections::HashMap<String, String> =
-            std::env::vars().collect();
+        let env_vars: std::collections::HashMap<String, String> = std::env::vars().collect();
 
         let json = serde_json::to_string(&env_vars)?;
 
-        serde_json::from_str(&json).map_err(|_| std::env::VarError::NotPresent)
+        Ok(serde_json::from_str(&json)?)
     }
 
     fn source_name(&self) -> &str {
@@ -185,9 +187,15 @@ impl FileConfig {
         let content = std::fs::read_to_string(&self.path)?;
 
         match self.format {
-            ConfigFormat::Json => serde_json::from_str(&content).map_err(FileConfigError::Parse),
-            ConfigFormat::Toml => toml::from_str(&content).map_err(FileConfigError::Parse),
-            ConfigFormat::Yaml => serde_yaml::from_str(&content).map_err(FileConfigError::Parse),
+            ConfigFormat::Json => {
+                serde_json::from_str(&content).map_err(|e| FileConfigError::Parse(e.to_string()))
+            }
+            ConfigFormat::Toml => {
+                toml::from_str(&content).map_err(|e| FileConfigError::Parse(e.to_string()))
+            }
+            ConfigFormat::Yaml => {
+                serde_yaml::from_str(&content).map_err(|e| FileConfigError::Parse(e.to_string()))
+            }
         }
     }
 }
@@ -217,14 +225,11 @@ impl From<toml::de::Error> for FileConfigError {
 /// Merges multiple configuration sources.
 pub fn merge_configs<T: DeserializeOwned + Serialize + Default>(
     sources: &[&dyn ConfigLoader],
-) -> Result<T, Box<dyn std::error::Error>>
-where
-    <dyn ConfigLoader>::Error: 'static,
-{
+) -> Result<T, Box<dyn std::error::Error>> {
     let mut merged = serde_json::Map::new();
 
     for source in sources {
-        match source.load::<serde_json::Value>() {
+        match source.load_value() {
             Ok(value) => {
                 if let serde_json::Value::Object(map) = value {
                     merged.extend(map);
@@ -235,8 +240,8 @@ where
     }
 
     serde_json::from_value(serde_json::Value::Object(merged))
-    serde_json::from_value(serde_json::Value::Object(merged))
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>))
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+}
 
 #[cfg(test)]
 mod tests {

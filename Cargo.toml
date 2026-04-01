@@ -57,6 +57,7 @@ phenotype-policy-engine = { path = "crates/phenotype-policy-engine" }
 hex = "0.4"
 phenotype-error-core = { path = "crates/phenotype-error-core" }
 phenotype-errors = { path = "crates/phenotype-errors" }
+gix = { version = "0.76", default-features = false, features = ["parallel", "revision", "worktree-mutation", "index"] }
 zstd = "0.13"
 unicode-normalization = "0.1"
 [profile.dev]
