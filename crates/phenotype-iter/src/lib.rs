@@ -224,7 +224,7 @@ impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
         }
 
         // Fill batch while predicate returns true
-        while let Some(item) = self.iter.next() {
+        for item in self.iter.by_ref() {
             if (self.predicate)(&item) {
                 self.buffer.push(item);
             } else {

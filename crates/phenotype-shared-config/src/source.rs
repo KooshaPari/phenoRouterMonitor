@@ -79,6 +79,7 @@ impl ConfigValue {
 }
 
 /// Merges multiple configuration values according to priority.
+#[allow(dead_code)]
 pub fn merge_configs(configs: Vec<ConfigValue>) -> HashMap<String, serde_json::Value> {
     let mut result: HashMap<String, serde_json::Value> = HashMap::new();
 
