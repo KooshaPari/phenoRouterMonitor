@@ -1,33 +1,44 @@
-//! # Phenotype Shared Config
+//! # phenotype-shared-config
 //!
-//! Shared configuration types and utilities for Phenotype crates.
-//! Provides a unified approach to configuration loading from multiple sources.
+//! Shared configuration types and utilities for the Phenotype ecosystem.
+//!
+//! This crate provides foundational types for configuration loading, validation,
+//! and source management across Phenotype projects.
+//!
+//! ## Features
+//!
+//! - `yaml` - Enable YAML format support
+//! - `toml` - Enable TOML format support (default)
+//!
+//! ## Modules
+//!
+//! - [`error`] - Structured error types for configuration operations
+//! - [`format`] - Format detection and parsing (TOML, JSON, YAML)
+//! - [`dirs`] - XDG-compliant directory resolution
+//! - [`source`] - Configuration source tracking and priority-based merging
+//!
+//! ## Example
+//!
+//! ```rust
+//! use phenotype_shared_config::{ConfigDirs, ConfigFormat};
+//!
+//! // Find config file
+//! let dirs = ConfigDirs::new("myapp");
+//! if let Ok(Some(path)) = dirs.find_config_file("config.toml") {
+//!     // Load and parse
+//!     let format = ConfigFormat::from_path(&path);
+//!     // ...
+//! }
+//! ```
 
+// Re-export commonly used types
+pub use crate::dirs::ConfigDirs;
+pub use crate::error::{ConfigError, Result as ConfigResult};
+pub use crate::format::ConfigFormat;
+pub use crate::source::{ConfigSource, ConfigValue, ConfigSet};
+
+// Module declarations
 mod dirs;
 mod error;
 mod format;
 mod source;
-
-pub use dirs::{search_config_dirs, AppDirs, ConfigDir};
-pub use error::{ConfigError, Result};
-pub use format::{ConfigFormat, FormatDetect};
-pub use source::{ConfigSource, ConfigValue, SourcePriority};
-
-/// Configuration metadata.
-#[derive(Debug, Clone)]
-pub struct ConfigMeta {
-    pub name: String,
-    pub format: ConfigFormat,
-    pub source: ConfigSource,
-}
-
-impl ConfigMeta {
-    /// Create a new ConfigMeta.
-    pub fn new(name: impl Into<String>, format: ConfigFormat, source: ConfigSource) -> Self {
-        Self {
-            name: name.into(),
-            format,
-            source,
-        }
-    }
-}

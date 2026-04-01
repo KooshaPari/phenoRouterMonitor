@@ -1,101 +1,114 @@
-//! Configuration source types and priorities.
+//! Configuration source types and utilities.
+//!
+//! This module provides the foundational types for tracking configuration sources
+//! and their priority-based merging.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
-/// Priority levels for configuration sources.
-/// Higher priority values override lower ones.
+/// Priority ordering for config sources (higher = higher priority).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[repr(u8)]
-pub enum SourcePriority {
-    /// Default values built into the application.
-    Default = 0,
-    /// Environment variables.
-    Env = 10,
-    /// Local configuration files (e.g., `.config.toml`).
-    Local = 20,
-    /// User-specific configuration.
-    User = 30,
-    /// System-wide configuration.
-    System = 40,
-}
-
-/// Source of configuration values.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ConfigSource {
-    /// Configuration from the environment.
-    Env,
-    /// Configuration from a file.
-    File,
-    /// Configuration from default values.
-    Default,
-    /// Configuration from arguments.
-    Args,
+    System = 1,
+    User = 2,
+    Project = 3,
+    Env = 4,
+    Inline = 5,
 }
 
-impl ConfigSource {
-    /// Get the default priority for this source type.
-    pub fn default_priority(self) -> SourcePriority {
+impl std::fmt::Display for ConfigSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Default => SourcePriority::Default,
-            Self::Env => SourcePriority::Env,
-            Self::File => SourcePriority::Local,
-            Self::Args => SourcePriority::User,
+            ConfigSource::System => write!(f, "system"),
+            ConfigSource::User => write!(f, "user"),
+            ConfigSource::Project => write!(f, "project"),
+            ConfigSource::Env => write!(f, "env"),
+            ConfigSource::Inline => write!(f, "inline"),
         }
     }
 }
 
-/// A configuration value with metadata.
+/// A value with its source tracking.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigValue {
-    /// The source of this configuration value.
-    pub source: ConfigSource,
-    /// Priority of this value (higher overrides lower).
-    pub priority: SourcePriority,
-    /// The actual value.
-    #[serde(flatten)]
     pub value: serde_json::Value,
+    pub source: ConfigSource,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
 }
 
 impl ConfigValue {
-    /// Create a new ConfigValue.
-    pub fn new(source: ConfigSource, value: serde_json::Value) -> Self {
-        Self {
-            source,
-            priority: source.default_priority(),
-            value,
-        }
+    pub fn new(value: impl Into<serde_json::Value>, source: ConfigSource) -> Self {
+        Self { value: value.into(), source, path: None }
     }
 
-    /// Create with custom priority.
-    pub fn with_priority(source: ConfigSource, priority: SourcePriority, value: serde_json::Value) -> Self {
-        Self {
-            source,
-            priority,
-            value,
-        }
+    pub fn from_object(map: serde_json::Map<String, serde_json::Value>, source: ConfigSource) -> Self {
+        Self::new(serde_json::Value::Object(map), source)
+    }
+
+    #[must_use]
+    pub fn with_path(mut self, path: impl Into<String>) -> Self {
+        self.path = Some(path.into());
+        self
     }
 }
 
-/// Merges multiple configuration values according to priority.
-pub fn merge_configs(configs: Vec<ConfigValue>) -> HashMap<String, serde_json::Value> {
-    let mut result: HashMap<String, serde_json::Value> = HashMap::new();
+/// A collection of config values from multiple sources.
+#[derive(Debug, Clone, Default)]
+pub struct ConfigSet {
+    values: Vec<ConfigValue>,
+}
 
-    // Sort by priority (low to high)
-    let mut sorted = configs;
-    sorted.sort_by_key(|c| c.priority);
+impl ConfigSet {
+    pub fn new() -> Self { Self::default() }
 
-    // Higher priority values override lower ones
-    for config in sorted {
-        if let serde_json::Value::Object(map) = config.value {
-            for (key, value) in map {
-                result.insert(key, value);
+    pub fn add(&mut self, value: ConfigValue) { self.values.push(value); }
+
+    pub fn add_from(&mut self, value: impl Into<serde_json::Value>, source: ConfigSource) {
+        self.values.push(ConfigValue::new(value, source));
+    }
+
+    pub fn merge(&self) -> serde_json::Value {
+        let mut sorted: Vec<_> = self.values.clone();
+        sorted.sort_by_key(|v| v.source);
+        let mut result = serde_json::Value::Object(serde_json::Map::new());
+        for config_value in sorted {
+            Self::deep_merge(&mut result, config_value.value);
+        }
+        result
+    }
+
+    fn deep_merge(target: &mut serde_json::Value, source: serde_json::Value) {
+        match (target, source) {
+            (target @ serde_json::Value::Object(_), serde_json::Value::Object(source_obj)) => {
+                let target_obj = target.as_object_mut().unwrap();
+                for (key, value) in source_obj {
+                    if target_obj.contains_key(key.as_str()) {
+                        Self::deep_merge(target_obj.get_mut(key.as_str()).unwrap(), value.clone());
+                    } else {
+                        target_obj.insert(key.clone(), value);
+                    }
+                }
             }
+            (target, source) => *target = source,
         }
     }
 
-    result
+    pub fn highest_source(&self) -> Option<ConfigSource> {
+        self.values.iter().map(|v| v.source).max()
+    }
+
+    pub fn from_source(&self, source: ConfigSource) -> Vec<&ConfigValue> {
+        self.values.iter().filter(|v| v.source == source).collect()
+    }
+}
+
+impl From<Vec<ConfigValue>> for ConfigSet {
+    fn from(values: Vec<ConfigValue>) -> Self {
+        let mut set = Self::new();
+        for value in values { set.add(value); }
+        set
+    }
 }
 
 #[cfg(test)]
@@ -104,57 +117,35 @@ mod tests {
 
     #[test]
     fn test_source_priority() {
-        assert!(SourcePriority::System > SourcePriority::User);
-        assert!(SourcePriority::User > SourcePriority::Local);
-        assert!(SourcePriority::Local > SourcePriority::Env);
-        assert!(SourcePriority::Env > SourcePriority::Default);
+        assert!(ConfigSource::Inline > ConfigSource::Env);
+        assert!(ConfigSource::Env > ConfigSource::Project);
+        assert!(ConfigSource::Project > ConfigSource::User);
+        assert!(ConfigSource::User > ConfigSource::System);
     }
 
     #[test]
     fn test_config_value() {
-        let value = ConfigValue::new(ConfigSource::File, serde_json::json!({"key": "value"}));
-        assert_eq!(value.source, ConfigSource::File);
-        assert_eq!(value.priority, SourcePriority::Local);
+        let value = ConfigValue::new(serde_json::json!({"key": "value"}), ConfigSource::User);
+        assert_eq!(value.source, ConfigSource::User);
     }
 
     #[test]
     fn test_merge_override() {
-        let configs = vec![
-            ConfigValue::with_priority(
-                ConfigSource::Default,
-                SourcePriority::Default,
-                serde_json::json!({"host": "localhost", "port": 8080}),
-            ),
-            ConfigValue::with_priority(
-                ConfigSource::File,
-                SourcePriority::Local,
-                serde_json::json!({"port": 9000, "debug": true}),
-            ),
-        ];
-
-        let merged = merge_configs(configs);
-        assert_eq!(merged.get("host"), Some(&serde_json::json!("localhost")));
-        assert_eq!(merged.get("port"), Some(&serde_json::json!(9000)));
-        assert_eq!(merged.get("debug"), Some(&serde_json::json!(true)));
+        let mut set = ConfigSet::new();
+        set.add(ConfigValue::new(serde_json::json!({"key": "low"}), ConfigSource::System));
+        set.add(ConfigValue::new(serde_json::json!({"key": "high"}), ConfigSource::User));
+        let merged = set.merge();
+        assert_eq!(merged["key"], "high");
     }
 
     #[test]
     fn test_deep_merge() {
-        // For simple values, higher priority wins
-        let configs = vec![
-            ConfigValue::with_priority(
-                ConfigSource::Default,
-                SourcePriority::Default,
-                serde_json::json!({"key": "old"}),
-            ),
-            ConfigValue::with_priority(
-                ConfigSource::Env,
-                SourcePriority::Env,
-                serde_json::json!({"key": "new"}),
-            ),
-        ];
-
-        let merged = merge_configs(configs);
-        assert_eq!(merged.get("key"), Some(&serde_json::json!("new")));
+        let mut set = ConfigSet::new();
+        set.add(ConfigValue::new(serde_json::json!({"db": {"host": "localhost", "port": 5432}}), ConfigSource::System));
+        set.add(ConfigValue::new(serde_json::json!({"db": {"host": "prod.db.local"}}), ConfigSource::User));
+        let merged = set.merge();
+        let db = merged["db"].as_object().unwrap();
+        assert_eq!(db["host"], "prod.db.local");
+        assert_eq!(db["port"], 5432);
     }
 }
