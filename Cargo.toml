@@ -25,6 +25,7 @@ members = [
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
     "crates/phenotype-state-machine",
+    "crates/phenotype-string",
     "crates/phenotype-telemetry",
     "crates/phenotype-validation",
 ]
@@ -43,6 +44,7 @@ parking_lot = "0.12"
 lru = "0.12"
 toml = "0.8"
 regex = "1"
+unicode-normalization = "0.1"
 tempfile = "3"
 sha2 = "0.10"
 tracing = "0.1"

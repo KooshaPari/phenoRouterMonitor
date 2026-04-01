@@ -3,8 +3,7 @@
 use thiserror::Error;
 
 pub mod join;
-pub mod parse;
-pub mod sanitize;
+pub mod normalization;
 
 #[derive(Debug, Error)]
 pub enum Error {
