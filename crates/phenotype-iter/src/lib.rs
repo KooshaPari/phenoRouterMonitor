@@ -37,7 +37,7 @@ where
         WindowIter {
             iter: self,
             buffer: VecDeque::with_capacity(size),
-            size,
+            window_size: size,
             exhausted: false,
         }
     }
@@ -52,7 +52,7 @@ where
 {
     iter: I,
     buffer: VecDeque<I::Item>,
-    size: usize,
+    window_size: usize,
     exhausted: bool,
 }
 
@@ -67,12 +67,13 @@ where
             return None;
         }
 
-        // Fill buffer to size on first call
-        while self.buffer.len() < self.size {
+        // Fill buffer to window_size on first call or when rebuilding
+        while self.buffer.len() < self.window_size {
             match self.iter.next() {
                 Some(item) => self.buffer.push_back(item),
                 None => {
                     self.exhausted = true;
+                    // Return partial window if we have any items
                     if self.buffer.is_empty() {
                         return None;
                     }
@@ -81,19 +82,22 @@ where
             }
         }
 
-        if self.buffer.len() < self.size {
+        if self.buffer.is_empty() {
             return None;
         }
 
-        let window = self.buffer.iter().cloned().collect();
+        let window: Vec<_> = self.buffer.iter().cloned().collect();
 
-        // Advance by one element
-        if self.iter.next().is_some() {
-            self.buffer.pop_front();
-            return Some(window);
+        // Advance window by removing front and trying to add next item
+        self.buffer.pop_front();
+        
+        // Try to get next item from iterator to add to back
+        if let Some(item) = self.iter.next() {
+            self.buffer.push_back(item);
+        } else {
+            self.exhausted = true;
         }
 
-        self.exhausted = true;
         Some(window)
     }
 }
@@ -208,11 +212,15 @@ impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
             if (self.predicate)(&item) {
                 self.buffer.push(item);
             } else {
-                // Item doesn't match predicate, becomes pending for next batch
-                self.pending = Some(item);
+                // Item doesn't match predicate, start new batch with it
+                self.buffer.push(item);
                 self.exhausted = true;
-                return None;
             }
+        }
+
+        // If we had a non-matching pending item and accumulated it, return it as batch
+        if !self.buffer.is_empty() && self.exhausted {
+            return Some(std::mem::take(&mut self.buffer));
         }
 
         // Fill batch while predicate returns true
