@@ -44,11 +44,11 @@ use chrono::Utc;
 
 #[derive(Clone)]
 struct MockStorage {
-    features: Arc<std::sync::Mutex<Vec<Feature,
-    work_packages: Arc<std::sync::Mutex<Vec<WorkPackage,
-    governance: Arc<std::sync::Mutex<Vec<GovernanceContract,
+    features: Arc<std::sync::Mutex<Vec<Feature>,
+    work_packages: Arc<std::sync::Mutex<Vec<WorkPackage>,
+    governance: Arc<std::sync::Mutex<Vec<GovernanceContract>,
     projects: Arc<std::sync::Mutex<Vec<Project>
-    audit: Arc<std::sync::Mutex<Vec<AuditEntry,
+    audit: Arc<std::sync::Mutex<Vec<AuditEntry>,
 }
 
 impl Default for MockStorage {
