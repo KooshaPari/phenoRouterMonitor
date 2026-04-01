@@ -1,0 +1,80 @@
+name: OWASP ZAP DAST Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target URL to scan'
+        required: true
+        default: 'http://localhost:3000'
+        type: string
+  schedule:
+    # Weekly DAST scan on main
+    - cron: '0 3 * * 0'
+
+jobs:
+  zap-scan:
+    name: ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.9.0
+        with:
+          target: ${{ inputs.target || 'https://localhost' }}
+          docker_name: 'owasp/zap2docker-stable'
+          cmd_options: '-j'
+
+      - name: Run ZAP Full Scan
+        if: github.event_name == 'workflow_dispatch'
+        uses: zaproxy/action-full-scan@v0.9.0
+        with:
+          target: ${{ inputs.target }}
+          docker_name: 'owasp/zap2docker-stable'
+          cmd_options: '-j -T 60'
+
+      - name: Upload ZAP Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: report.html
+          retention-days: 30
+
+      - name: Upload SARIF
+        uses: atomicgo/sarif-action@v1
+        with:
+          toolName: 'OWASP ZAP'
+          command: 'zap-full-scan.py'
+          dockerName: 'owasp/zap2docker-stable'
+          target: ${{ inputs.target || 'https://localhost' }}
+
+  zap-api-scan:
+    name: ZAP API Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ZAP API Scan (OpenAPI)
+        if: endsWith(github.event.inputs.target, '.json') || endsWith(github.event.inputs.target, '.yaml')
+        run: |
+          docker run -t owasp/zap2docker-stable zap-api-scan.py \
+            -t ${{ inputs.target }} \
+            -f json \
+            -J zap_output.json
+
+      - name: Upload API Scan Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-api-report
+          path: zap_output.json
+          retention-days: 30

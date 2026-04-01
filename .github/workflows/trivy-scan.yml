@@ -1,0 +1,121 @@
+name: Trivy Container Security Scan
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  pull_request:
+    paths:
+      - 'Dockerfile*'
+      - 'docker-compose*.yml'
+      - '.github/workflows/**'
+  workflow_dispatch:
+  schedule:
+    # Daily container scan
+    - cron: '0 4 * * *'
+
+env:
+  TRIVY_VERSION: '0.54.0'
+  IMAGE_TAG: ${{ github.event.inputs.image || 'latest' }}
+
+jobs:
+  trivy-file-scan:
+    name: Trivy File System Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v${{ env.TRIVY_VERSION }}
+
+      - name: Run Trivy File Scan
+        run: |
+          trivy fs --security-checks vuln,config,secret \
+                   --severity HIGH,CRITICAL \
+                   --format sarif \
+                   --output trivy-fs-results.sarif .
+
+      - name: Upload Trivy FS Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+
+      - name: Run Trivy Config Scan
+        run: |
+          trivy config --security-checks vuln,config \
+                       --severity HIGH,CRITICAL \
+                       --format table .
+
+  trivy-image-scan:
+    name: Trivy Container Image Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v${{ env.TRIVY_VERSION }}
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: phenotype/${{ github.event.repository.name }}:${{ env.IMAGE_TAG }}
+
+      - name: Run Trivy Image Scan
+        run: |
+          trivy image --security-checks vuln,config,secret \
+                     --severity HIGH,CRITICAL \
+                     --format sarif \
+                     --output trivy-image-results.sarif \
+                     phenotype/${{ github.event.repository.name }}:${{ env.IMAGE_TAG }}
+
+      - name: Upload Trivy Image Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+
+      - name: Run Trivy Image Scan (Table)
+        run: |
+          trivy image --severity HIGH,CRITICAL \
+                     --exit-code 1 \
+                     phenotype/${{ github.event.repository.name }}:${{ env.IMAGE_TAG }}
+
+  trivy-repo-scan:
+    name: Trivy Repository Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v${{ env.TRIVY_VERSION }}
+
+      - name: Run Trivy Repository Scan
+        run: |
+          trivy repo --security-checks vuln,config,secret \
+                    --severity HIGH,CRITICAL \
+                    --format sarif \
+                    --output trivy-repo-results.sarif \
+                    https://github.com/${{ github.repository }}
+
+      - name: Upload Trivy Repo Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-repo-results.sarif'

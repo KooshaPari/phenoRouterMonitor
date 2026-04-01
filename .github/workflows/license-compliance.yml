@@ -1,0 +1,157 @@
+name: License Compliance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/Cargo.lock'
+      - '**/package-lock.json'
+      - '**/go.sum'
+      - '**/requirements.txt'
+      - '**/Gemfile.lock'
+      - '**/Cargo.toml'
+      - '**/go.mod'
+      - '**/package.json'
+  workflow_dispatch:
+
+jobs:
+  fossa:
+    name: FOSSA License Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run FOSSA
+        uses: fossa/fossa-action@v1
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+          args: '--all-projects'
+
+      - name: Upload FOSSA Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fossa-results
+          path: |
+            fossa_report.*
+            .fossa/
+          retention-days: 30
+
+  cargo-deny:
+    name: Cargo License Check (Rust)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/Cargo.lock') != ''
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install cargo-deny
+        run: |
+          cargo install cargo-deny || true
+
+      - name: Run cargo-deny check
+        run: |
+          if [ -f "deny.toml" ]; then
+            cargo deny check -c deny.toml
+          else
+            cargo deny check
+          fi
+        continue-on-error: true
+
+      - name: Check advisories
+        run: |
+          cargo audit || true
+        continue-on-error: true
+
+  license-checker:
+    name: License Checker (JS/TS)
+    runs-on: ubuntu-latest
+    if: hashFiles('**/package-lock.json') != '' || hashFiles('**/package.json') != ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install license-checker
+        run: |
+          npm install -g license-checker
+
+      - name: Run license-checker
+        run: |
+          license-checker --json --out license-report.json
+          # Check for problematic licenses
+          if grep -q '"GPL\|AGPL\|CC-BY-NC' license-report.json; then
+            echo "WARNING: Potentially problematic licenses found!"
+            grep '"GPL\|AGPL\|CC-BY-NC' license-report.json
+            exit 1
+          fi
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.json
+          retention-days: 30
+
+  scancode:
+    name: Scancode License Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Scancode
+        uses: scancode-toolkit/scanbot-action@v1
+        with:
+          input: .
+          output: scancode-results/
+          options: '--license --copyright --info'
+
+      - name: Upload Scancode results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scancode-results
+          path: scancode-results/
+          retention-days: 30
+
+  dependency-track:
+    name: Dependency-Track SBOM Analysis
+    runs-on: ubuntu-latest
+    if: false # Enable when Dependency-Track instance is available
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate SBOM
+        run: |
+          # Install syft for SBOM generation
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          syft packages . -o cyclonedx-json > sbom.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90

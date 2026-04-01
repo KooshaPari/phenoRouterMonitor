@@ -1,0 +1,150 @@
+name: Fuzzing Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/fuzz/**'
+      - '**/*fuzz*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  workflow_dispatch:
+    inputs:
+      fuzz_target:
+        description: 'Fuzz target to run (leave empty for all)'
+        required: false
+        type: string
+
+env:
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+jobs:
+  cargo-fuzz:
+    name: Rust Fuzzing
+    runs-on: ubuntu-latest
+    # Only run on Rust projects
+    if: contains(github.event.repository.name, 'phenotype') ||
+        contains(github.event.repository.name, 'agile') ||
+        contains(github.event.repository.name, 'helios') ||
+        hashFiles('**/fuzz/Cargo.toml') != ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Install cargo-fuzz
+        run: |
+          cargo install cargo-fuzz || true
+
+      - name: List fuzz targets
+        if: github.event.inputs.fuzz_target == ''
+        run: |
+          cd fuzz && cargo fuzz list 2>/dev/null || echo "No fuzz targets found"
+
+      - name: Initialize fuzz targets
+        run: |
+          if [ ! -d "fuzz" ]; then
+            cargo fuzz init 2>/dev/null || echo "fuzz already exists or init failed"
+          fi
+
+      - name: Run fuzz targets
+        run: |
+          TARGET="${{ github.event.inputs.fuzz_target }}"
+          if [ -z "$TARGET" ]; then
+            # Run all targets for 5 minutes each
+            for target in $(cd fuzz && cargo fuzz list 2>/dev/null); do
+              echo "Fuzzing target: $target"
+              timeout 300 cargo fuzz run "$target" -- -max_total_time=300 || true
+            done
+          else
+            # Run specific target for 10 minutes
+            timeout 600 cargo fuzz run "$TARGET" -- -max_total_time=600 || true
+          fi
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-coverage
+          path: fuzz/coverage/
+          retention-days: 7
+
+  aflplusplus:
+    name: AFL++ Fuzzing (C/C++)
+    runs-on: ubuntu-latest
+    # Only run if C/C++ files changed
+    if: |
+      contains(github.event.pull_request.changed_files, '.c') ||
+      contains(github.event.pull_request.changed_files, '.cpp') ||
+      contains(github.event.pull_request.changed_files, '.h')
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up AFL++
+        run: |
+          apt-get update && apt-get install -y afl++
+
+      - name: Build with AFL++
+        env:
+          CC: afl-gcc
+          CXX: afl-g++
+        run: |
+          mkdir -p input output
+          # Build targets here
+          make
+
+      - name: Run AFL++
+        run: |
+          afl-fuzz -i input -o output ./target_program || true
+
+      - name: Upload AFL++ results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: afl-output
+          path: output/
+          retention-days: 7
+
+  go-fuzz:
+    name: Go Fuzzing
+    runs-on: ubuntu-latest
+    # Only run on Go projects
+    if: hashFiles('**/go.mod') != ''
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install go-fuzz
+        run: |
+          go install github.com/dvyukov/go-fuzz/go-fuzz@latest
+          go install github.com/dvyukov/go-fuzz/go-fuzz-build@latest
+
+      - name: Run Go fuzz tests
+        run: |
+          # Build fuzz targets
+          go-fuzz-build -o fuzz.zip ./...
+          # Run for limited time
+          timeout 300 go-fuzz -bin=fuzz.zip -workdir=./fuzz_output || true
+
+      - name: Upload Go fuzz results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-fuzz-output
+          path: fuzz_output/
+          retention-days: 7

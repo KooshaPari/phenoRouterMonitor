@@ -1,0 +1,121 @@
+name: IaC Security Scanning
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.tf'
+      - '**/*.tfvars'
+      - '**/terragrunt.hcl'
+      - '**/ Pulumi.yaml'
+      - '**/k8s/**'
+      - '**/kubernetes/**'
+      - '**/Dockerfile*'
+      - '.github/workflows/iac-scan.yml'
+  pull_request:
+    paths:
+      - '**/*.tf'
+      - '**/*.tfvars'
+      - '**/terragrunt.hcl'
+      - '**/ Pulumi.yaml'
+      - '**/k8s/**'
+      - '**/kubernetes/**'
+      - '**/Dockerfile*'
+  workflow_dispatch:
+
+jobs:
+  tfsec:
+    name: tfsec Terraform Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1
+        with:
+          soft_fail: true
+          format: sarif
+          output: tfsec-results.sarif
+
+      - name: Upload tfsec Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'tfsec-results.sarif'
+
+      - name: tfsec with sarif output (fallback)
+        if: always()
+        run: |
+          docker run --rm -v "$(pwd):/src" aquasec/tfsec /src --format sarif --output /src/tfsec-fallback.sarif || true
+
+  checkov:
+    name: Checkov IaC Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: terraform,terraform_v2,dockerfile,k8s
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+          skip_check: CKV_K8S_13
+
+      - name: Upload Checkov Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'checkov-results.sarif'
+
+  hadolint:
+    name: Hadolint Dockerfile Scan
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, 'Dockerfile') || github.event_name != 'pull_request'
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3
+        with:
+          dockerfile: ./Dockerfile
+          format: sarif
+          output: hadolint-results.sarif
+
+      - name: Upload Hadolint Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'hadolint-results.sarif'
+
+  kics:
+    name: KICS IaC Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run KICS
+        uses: Checkmarx/kics-action@v0
+        with:
+          path: .
+          output_path: .
+          format: sarif
+
+      - name: Upload KICS Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'results.sarif'
