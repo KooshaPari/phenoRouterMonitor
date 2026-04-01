@@ -211,3 +211,16 @@ tests/test_runtime_helpers.py
 EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
 .github/workflows/ci.yml
+
+# Nested project directories (not tracked in this repo)
+bifrost/
+cloud/
+koosha-portfolio/
+phenotype-hub/
+phenotype-infrakit/
+AgilePlus/crates/agileplus-api-types/
+AgilePlus/crates/agileplus-error-core/
+crates/agileplus-domain/src/aggregates.rs
+crates/agileplus-domain/src/entities.rs
+crates/agileplus-domain/src/events.rs
+crates/agileplus-domain/src/values.rs
