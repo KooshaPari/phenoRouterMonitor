@@ -731,13 +731,9 @@ dependencies = [
 
 [[package]]
 name = "phenotype-casbin-wrapper"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
- "async-trait",
  "casbin",
- "dashmap",
- "phenotype-cache-adapter",
- "phenotype-telemetry",
  "serde",
  "serde_json",
  "tempfile",
@@ -903,13 +899,21 @@ name = "phenotype-telemetry"
 version = "0.2.0"
 dependencies = [
  "chrono",
- "dashmap",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
  "tokio",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "phenotype-test-infra"
+version = "0.2.0"
+dependencies = [
+ "phenotype-error-core",
+ "serde",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
