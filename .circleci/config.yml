@@ -1,0 +1,174 @@
+version: 2.1
+
+orbs:
+  sonar-cloud: sonarsource/sonarcloud-github-action@2.0.0
+
+executors:
+  rust-executor:
+    docker:
+      - image: cimg/rust:1.86
+    working_directory: ~/project
+
+  golang-executor:
+    docker:
+      - image: cimg/go:1.23
+    working_directory: ~/project
+
+jobs:
+  # ─── Rust Jobs ───────────────────────────────────────────────────────
+  rust-check:
+    executor: rust-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - rust-{{ checksum "Cargo.lock" }}
+            - rust-
+      - run:
+          name: Install protoc
+          command: |
+            sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - run:
+          name: Format check
+          command: cargo fmt --all -- --check
+      - run:
+          name: Clippy
+          command: cargo clippy --workspace -- -D warnings
+      - run:
+          name: Build
+          command: cargo build --workspace
+      - run:
+          name: Test
+          command: cargo test --workspace
+      - save_cache:
+          key: rust-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo/bin
+            - target
+
+  rust-coverage:
+    executor: rust-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - rust-{{ checksum "Cargo.lock" }}
+            - rust-
+      - run:
+          name: Install protoc & tarpaulin
+          command: |
+            sudo apt-get update && sudo apt-get install -y protobuf-compiler
+            cargo install cargo-tarpaulin || true
+      - run:
+          name: Generate coverage
+          command: cargo tarpaulin --workspace --out xml --output-dir coverage || true
+      - store_test_results:
+          path: coverage
+          when: always
+      - store_artifacts:
+          path: coverage
+          when: always
+      - sonarcloud-scan:
+          step_name: SonarCloud Code Analysis
+
+  # ─── Go Jobs ────────────────────────────────────────────────────────
+  go-check:
+    executor: golang-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-{{ checksum "go.sum" }}
+            - go-
+      - run:
+          name: Format check
+          command: go fmt ./...
+      - run:
+          name: Vet
+          command: go vet ./...
+      - run:
+          name: Build
+          command: go build ./...
+      - run:
+          name: Test
+          command: go test ./...
+      - save_cache:
+          key: go-{{ checksum "go.sum" }}
+          paths:
+            - /root/go/pkg/mod
+
+  # ─── Security Jobs ───────────────────────────────────────────────────
+  security-audit:
+    executor: rust-executor
+    steps:
+      - checkout
+      - run:
+          name: Install cargo-audit
+          command: |
+            cargo install cargo-audit || true
+      - run:
+          name: Audit dependencies
+          command: cargo audit || true
+
+  dependency-scan:
+    executor: rust-executor
+    steps:
+      - checkout
+      - run:
+          name: Install cargo-deny
+          command: |
+            cargo install cargo-deny || true
+      - run:
+          name: Check licenses & advisories
+          command: |
+            if [ -f deny.toml ]; then
+              cargo deny check -c deny.toml || true
+            else
+              cargo deny check || true
+            fi
+
+  sonarcloud-scan:
+    description: "SonarCloud code analysis"
+    steps:
+      - run:
+          name: SonarCloud Scan
+          command: |
+            if [ -n "$SONAR_TOKEN" ]; then
+              # Use sonar-scanner if available
+              if command -v sonar-scanner &> /dev/null; then
+                sonar-scanner \
+                  -Dsonar.projectKey=${CIRCLE_PROJECT_REPONAME:-agileplus} \
+                  -Dsonar.organization=kooshapari \
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.token=$SONAR_TOKEN
+              else
+                echo "sonar-scanner not installed, skipping SonarCloud"
+              fi
+            else
+              echo "SONAR_TOKEN not set, skipping SonarCloud"
+            fi
+
+workflows:
+  version: 2
+
+  # ─── Main CI Pipeline ──────────────────────────────────────────────
+  ci:
+    jobs:
+      - rust-check
+      - go-check
+      - rust-coverage
+      - security-audit
+      - dependency-scan
+
+  # ─── Nightly Deep Scans ────────────────────────────────────────────
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - security-audit
+      - dependency-scan

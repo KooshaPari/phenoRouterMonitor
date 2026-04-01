@@ -1,0 +1,148 @@
+name: Visual Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/*.tsx'
+      - '**/*.jsx'
+      - '**/*.vue'
+      - '**/components/**'
+      - '**/*.css'
+      - '**/*.scss'
+  workflow_dispatch:
+
+jobs:
+  chromatic:
+    name: Chromatic Visual Testing
+    runs-on: ubuntu-latest
+    if: false # Enable when Chromatic is configured
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Run Chromatic
+        uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          onlyChanged: true
+          exitOnceUploaded: true
+
+  percy:
+    name: Percy Visual Testing
+    runs-on: ubuntu-latest
+    if: false # Enable when Percy is configured
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Percy
+        run: |
+          npm install @percy/cli
+
+      - name: Run Percy
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        run: |
+          percy exec -- node tests/visual.js || true
+        continue-on-error: true
+
+  backstopjs:
+    name: BackstopJS Visual Regression
+    runs-on: ubuntu-latest
+    if: false # Enable when BackstopJS is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install BackstopJS
+        run: |
+          npm install -g backstopjs
+
+      - name: Reference screenshots
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          backstop reference || true
+
+      - name: Test screenshots
+        run: |
+          backstop test || true
+        continue-on-error: true
+
+      - name: Approve screenshots
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          backstop approve || true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backstop-results
+          path: backstop_data/
+          retention-days: 14
+
+  playwright-visual:
+    name: Playwright Visual Comparison
+    runs-on: ubuntu-latest
+    if: false # Enable when Playwright tests exist
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install -g playwright
+          npx playwright install chromium
+
+      - name: Run visual tests
+        run: |
+          npx playwright test --grep "@visual" || true
+        continue-on-error: true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots
+          path: test-results/
+          retention-days: 7

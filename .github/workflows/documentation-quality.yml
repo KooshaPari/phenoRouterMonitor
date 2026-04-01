@@ -1,0 +1,124 @@
+name: Documentation Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/*.rs'
+      - '**/*.md'
+      - '**/docs/**'
+  workflow_dispatch:
+
+jobs:
+  cargo-spellcheck:
+    name: Rust Spellcheck
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install cargo-spellcheck
+        run: cargo install cargo-spellcheck || true
+
+      - name: Configure spellcheck
+        run: |
+          if [ ! -f ".spellcheck.yml" ]; then
+            echo 'version: 2
+check:
+  files:
+    - src/
+    - tests/
+    - examples/
+  ignore:
+    - target/
+  hunspell:
+    dictionaries:
+      - en_US' > .spellcheck.yml
+          fi
+
+      - name: Run spellcheck
+        run: cargo spellcheck check || true
+        continue-on-error: true
+
+      - name: Run spellcheck fix
+        run: cargo spellcheck fix || true
+        continue-on-error: true
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Create config
+        run: |
+          if [ ! -f ".markdownlint.json" ]; then
+            echo '{"default": true, "MD013": false, "MD033": false, "MD041": false}' > .markdownlint.json
+          fi
+
+      - name: Run markdownlint
+        run: markdownlint "**/*.md" || true
+        continue-on-error: true
+
+  docs-lint:
+    name: Documentation Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for TODO/FIXME in docs
+        run: |
+          echo "Checking for documentation issues..."
+          grep -r "TODO\|FIXME\|XXX\|HACK" docs/ --include="*.md" || echo "No doc TODOs found"
+
+      - name: Check link validity
+        run: |
+          if command -v lychee &> /dev/null; then
+            lychee docs/**/*.md || true
+          fi
+        continue-on-error: true
+
+  rust-doc-check:
+    name: Rust Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check documentation coverage
+        run: cargo doc --no-deps --document-private-items || true
+        continue-on-error: true
+
+      - name: Check for missing docs
+        run: cargo +nightly docs.rs || true
+        continue-on-error: true

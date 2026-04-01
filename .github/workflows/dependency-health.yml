@@ -1,0 +1,138 @@
+name: Dependency Health
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '**/requirements.txt'
+      - '**/Pipfile'
+      - '**/Gemfile'
+      - '**/Gemfile.lock'
+  workflow_dispatch:
+
+jobs:
+  depcheck:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install depcheck
+        run: |
+          pip install depcheck || true
+
+      - name: Run Python depcheck
+        if: hashFiles('**/requirements.txt') != '' || hashFiles('**/Pipfile') != ''
+        run: |
+          depcheck . || true
+        continue-on-error: true
+
+  npm-outdated:
+    name: npm Outdated Check
+    runs-on: ubuntu-latest
+    if: hashFiles('**/package.json') != ''
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Check outdated packages
+        run: |
+          npm outdated || true
+        continue-on-error: true
+
+      - name: Check for security advisories
+        run: |
+          npm audit || true
+        continue-on-error: true
+
+  cargo-outdated:
+    name: Cargo Outdated Check
+    runs-on: ubuntu-latest
+    if: hashFiles('**/Cargo.toml') != ''
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-outdated
+        run: |
+          cargo install cargo-outdated || true
+
+      - name: Run cargo-outdated
+        run: |
+          cargo outdated --output-format table || true
+        continue-on-error: true
+
+  go-mod-outdated:
+    name: Go Module Outdated
+    runs-on: ubuntu-latest
+    if: hashFiles('**/go.mod') != ''
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install gomodoutdated
+        run: |
+          go install github.com/psampaz/gomod-outdated@latest || true
+
+      - name: Check outdated modules
+        run: |
+          gomod-outdated -direct -update | head -50 || true
+        continue-on-error: true
+
+  pip-compile:
+    name: Python Dependency Pins
+    runs-on: ubuntu-latest
+    if: hashFiles('**/requirements.in') != ''
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pip-tools
+        run: |
+          pip install pip-tools
+
+      - name: Compile requirements
+        run: |
+          pip-compile requirements.in --output-file requirements.txt || true
+        continue-on-error: true

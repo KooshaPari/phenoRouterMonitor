@@ -1,0 +1,94 @@
+name: Observability Stack
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  prometheus-metrics:
+    name: Prometheus Metrics Check
+    runs-on: ubuntu-latest
+    if: false # Enable when Prometheus is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Prometheus
+        run: |
+          docker run -d --name prometheus -p 9090:9090 prom/prometheus:latest
+
+      - name: Check metrics endpoint
+        run: |
+          curl -s http://localhost:9090/metrics | head -20
+
+  grafana-dashboard:
+    name: Grafana Dashboard Validation
+    runs-on: ubuntu-latest
+    if: false # Enable when Grafana is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Grafana dashboards
+        run: |
+          if [ -d "grafana/dashboards" ]; then
+            echo "Dashboard files:"
+            ls -la grafana/dashboards/*.json
+          fi
+
+  loki-log-check:
+    name: Loki Log Aggregation
+    runs-on: ubuntu-latest
+    if: false # Enable when Loki is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Loki
+        run: |
+          docker run -d --name loki -p 3100:3100 grafana/loki:latest
+
+      - name: Query logs
+        run: |
+          curl -s "http://localhost:3100/loki/api/v1/query" \
+            --data-urlencode 'query={app="phenotype"}' | jq .
+
+  alerting-rules:
+    name: AlertManager Rules
+    runs-on: ubuntu-latest
+    if: false # Enable when AlertManager is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate alerting rules
+        run: |
+          if [ -f "alerting/rules.yml" ]; then
+            echo "Alert rules configured:"
+            cat alerting/rules.yml
+          fi
+
+  distributed-tracing:
+    name: OpenTelemetry Trace Check
+    runs-on: ubuntu-latest
+    if: false # Enable when OTEL collector is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tracing endpoint
+        run: |
+          curl -s http://localhost:4318/v1/traces -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"resourceSpans": []}'

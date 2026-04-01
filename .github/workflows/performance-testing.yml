@@ -1,0 +1,163 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/*.test.ts'
+      - '**/*_test.go'
+      - '**/k6*.js'
+      - '**/locustfile.py'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL for k6 test'
+        required: false
+        default: 'http://localhost:3000'
+        type: string
+      duration:
+        description: 'Test duration (seconds)'
+        required: false
+        default: '60'
+        type: string
+
+env:
+  TARGET_URL: ${{ github.event.inputs.target_url || 'http://localhost:3000' }}
+  TEST_DURATION: ${{ github.event.inputs.duration || '60' }}
+
+jobs:
+  k6-load-test:
+    name: k6 Load Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up k6
+        uses: grafana/k6-action@v0.3
+        with:
+          k6-version: '0.49.0'
+
+      - name: Run k6 test
+        run: |
+          if [ -f "k6/test.js" ]; then
+            k6 run --duration ${TEST_DURATION}s k6/test.js
+          elif [ -f "tests/load.js" ]; then
+            k6 run --duration ${TEST_DURATION}s tests/load.js
+          else
+            echo "No k6 test file found, skipping"
+          fi
+
+      - name: Store results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-results
+          path: k6-output.json
+          retention-days: 7
+
+  locust-test:
+    name: Locust Load Test
+    runs-on: ubuntu-latest
+    if: false # Enable for Python-based load testing
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Locust
+        run: |
+          pip install locust
+
+      - name: Run Locust
+        run: |
+          if [ -f "locustfile.py" ]; then
+            locust -f locustfile.py \
+              --headless \
+              --users 100 \
+              --spawn-rate 10 \
+              --run-time ${TEST_DURATION}s \
+              --host $TARGET_URL \
+              --html locust-report.html
+          fi
+
+      - name: Upload Locust report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: locust-report
+          path: locust-report.html
+          retention-days: 7
+
+  benchmark-rust:
+    name: Rust Benchmark
+    runs-on: ubuntu-latest
+    if: contains(github.event.repository.name, 'phenotype') ||
+        contains(github.event.repository.name, 'agile')
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Run benchmarks
+        run: cargo bench -- --nocapture
+
+      - name: Compare benchmarks
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'cargo'
+          output-path: 'benchmark-results.json'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          alert-threshold: '150%'
+          comment-on-alert: true
+
+  oha-benchmark:
+    name: oha HTTP Benchmark
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install oha
+        run: |
+          curl -sL https://github.com/hatoo/oha/releases/download/oha-latest/oha-linux-x86_64.tar.gz | tar xz
+          echo "oha-*-x86_64-linux/oha" >> $GITHUB_PATH
+
+      - name: Run oha benchmark
+        run: |
+          oha -n 1000 -c 10 $TARGET_URL
+
+  hey-benchmark:
+    name: hey HTTP Load Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install hey
+        run: |
+          go install github.com/rakyll/hey@latest
+
+      - name: Run hey benchmark
+        run: |
+          hey -n 1000 -c 10 $TARGET_URL

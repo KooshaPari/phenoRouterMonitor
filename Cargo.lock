@@ -878,6 +878,7 @@ name = "phenotype-telemetry"
 version = "0.2.0"
 dependencies = [
  "chrono",
+ "dashmap",
  "serde",
  "serde_json",
  "thiserror 2.0.18",

@@ -1,0 +1,171 @@
+name: API Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/*.postman_collection.json'
+      - '**/newman/**'
+      - '**/insomnia*.json'
+      - '**/*.http'
+      - '**/hurl/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment (dev, staging, prod)'
+        required: false
+        default: 'staging'
+        type: string
+
+env:
+  API_ENV: ${{ github.event.inputs.environment || 'staging' }}
+
+jobs:
+  newman-tests:
+    name: Postman/Newman API Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        run: |
+          npm install -g newman
+
+      - name: Run Postman collection
+        run: |
+          if [ -f "newman/collection.json" ]; then
+            newman run newman/collection.json \
+              --environment newman/$API_ENV.json \
+              --reporters cli,junit \
+              --reporter-junit-export results/newman-results.xml
+          elif [ -f "postman/collection.json" ]; then
+            newman run postman/collection.json \
+              --reporters cli,junit \
+              --reporter-junit-export results/newman-results.xml
+          fi
+        continue-on-error: true
+
+      - name: Store test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-results
+          path: results/
+          retention-days: 14
+
+  insomnia-tests:
+    name: Insomnia API Tests
+    runs-on: ubuntu-latest
+    if: false # Enable when Insomnia test files exist
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Inso
+        run: |
+          npm install -g @kong/insomnia-inso
+
+      - name: Run Insomnia tests
+        env:
+          INSO_API_SPEC: insomnia-api-spec.yaml
+          INSO_WORKSPACE_ID: ${{ secrets.INSOMNIA_WORKSPACE_ID }}
+          INSO_AUTH_TOKEN: ${{ secrets.INSOMNIA_TOKEN }}
+        run: |
+          inso run spec
+
+      - name: Store results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: insomnia-results
+          path: test-results/
+          retention-days: 14
+
+  hurl-tests:
+    name: Hurl HTTP Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Hurl
+        run: |
+          curl -sL https://github.com/Orange-OpenSource/hurl/releases/download/4.2.0/hurl-4.2.0-x86_64-linux.tar.gz | tar xz
+          echo "hurl-4.2.0-x86_64-linux/hurl" >> $GITHUB_PATH
+
+      - name: Run Hurl tests
+        run: |
+          if [ -d "tests/hurl" ]; then
+            hurl --json tests/hurl/*.hurl || true
+          elif [ -d "hurl" ]; then
+            hurl --json hurl/*.hurl || true
+          fi
+
+      - name: Store results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hurl-results
+          path: hurl-report.json
+          retention-days: 7
+
+  httpie-tests:
+    name: HTTPie API Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install HTTPie
+        run: |
+          pip install httpie
+
+      - name: Run HTTP tests
+        run: |
+          if [ -f "tests/api.http" ]; then
+            http --print=hHbb --style=grid < tests/api.http || true
+          fi
+
+  apifox-tests:
+    name: Apifox API Tests
+    runs-on: ubuntu-latest
+    if: false # Enable when Apifox is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Apifox tests
+        env:
+          APIFOX_TOKEN: ${{ secrets.APIFOX_TOKEN }}
+          APIFOX_PROJECT_ID: ${{ secrets.APIFOX_PROJECT_ID }}
+        run: |
+          curl -X POST "https://console.apifox.com/api/openapi/v1/test/run" \
+            -H "X-Apifox-Token: $APIFOX_TOKEN" \
+            -d "{\"project_id\": $APIFOX_PROJECT_ID}"

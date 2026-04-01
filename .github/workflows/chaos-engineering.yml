@@ -1,0 +1,111 @@
+name: Chaos Engineering
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Monthly chaos tests
+    - cron: '0 4 * * 0'
+  workflow_dispatch:
+    inputs:
+      experiment:
+        description: 'Experiment to run'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  litmus-chaos:
+    name: Litmus Chaos Experiments
+    runs-on: ubuntu-latest
+    if: false # Enable when Kubernetes cluster is configured
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Install Litmus
+        run: |
+          kubectl apply -f https://litmuschaos.github.io/litmus/litmus-operator-v3.14.0.yaml
+
+      - name: Run chaos experiment
+        env:
+          CHAOS_EXPERIMENT: ${{ github.event.inputs.experiment || 'pod-delete' }}
+        run: |
+          echo "Running chaos experiment: $CHAOS_EXPERIMENT"
+
+  chaos-monkey:
+    name: Chaos Monkey
+    runs-on: ubuntu-latest
+    if: false # Enable for Spring Boot applications
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+
+      - name: Run Chaos Monkey
+        env:
+          CHAOS_MONKEY_URL: ${{ secrets.CHAOS_MONKEY_URL }}
+        run: |
+          if [ -n "$CHAOS_MONKEY_URL" ]; then
+            curl -X POST "$CHAOS_MONKEY_URL/api/chaosMonkey/enable"
+            sleep 60
+            curl -X POST "$CHAOS_MONKEY_URL/api/chaosMonkey/disable"
+          fi
+
+  aws-fault-injection:
+    name: AWS FIS Chaos
+    runs-on: ubuntu-latest
+    if: false # Enable for AWS workloads
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Run FIS experiment
+        env:
+          FIS_TEMPLATE_ID: ${{ secrets.FIS_TEMPLATE_ID }}
+        run: |
+          if [ -n "$FIS_TEMPLATE_ID" ]; then
+            aws fis start-experiment \
+              --experiment-template-id $FIS_TEMPLATE_ID \
+              --region us-east-1
+          fi
+
+  network-latency:
+    name: Network Latency Chaos
+    runs-on: ubuntu-latest
+    if: false # Enable for network chaos testing
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject network latency
+        run: |
+          echo "Chaos engineering ready"

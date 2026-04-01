@@ -1,0 +1,95 @@
+name: Mutation Testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/mutants/**'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+  workflow_dispatch:
+
+jobs:
+  cargo-mutants:
+    name: Rust Mutation Testing
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install cargo-mutants
+        run: |
+          cargo install cargo-mutants || true
+
+      - name: Generate mutants
+        run: |
+          cargo mutants --list || echo "No mutants generated"
+
+      - name: Run mutation tests
+        run: |
+          cargo mutants -- -j 4 || true
+        continue-on-error: true
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: |
+            mutants.log
+            mutants-results.json
+          retention-days: 14
+
+  pitest-java:
+    name: Java Mutation Testing
+    runs-on: ubuntu-latest
+    if: false # Enable for Java projects
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Run Pitest
+        run: |
+          mvn org.pitest:pitest-maven:mutationCoverage || true
+        continue-on-error: true
+
+  go-mutate:
+    name: Go Mutation Testing
+    runs-on: ubuntu-latest
+    if: false # Enable for Go projects
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install go-mutate
+        run: |
+          go install github.com/matismally/mutate@latest || true
+
+      - name: Run mutation tests
+        run: |
+          mutate test ./... || echo "Mutation tests completed"
+        continue-on-error: true

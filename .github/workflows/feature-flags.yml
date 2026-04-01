@@ -1,0 +1,73 @@
+name: Feature Flags
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  unleash-check:
+    name: Unleash Feature Flags
+    runs-on: ubuntu-latest
+    if: false # Enable when Unleash is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Check Unleash flags
+        env:
+          UNLEASH_URL: ${{ secrets.UNLEASH_URL }}
+          UNLEASH_TOKEN: ${{ secrets.UNLEASH_TOKEN }}
+        run: |
+          curl -s "$UNLEASH_URL/api/admin/projects/default/features" \
+            -H "Authorization: Bearer $UNLEASH_TOKEN" | jq .
+
+  flagsmith-check:
+    name: Flagsmith Feature Flags
+    runs-on: ubuntu-latest
+    if: false # Enable when Flagsmith is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check Flagsmith flags
+        env:
+          FLAGSMITH_API_KEY: ${{ secrets.FLAGSMITH_API_KEY }}
+        run: |
+          curl -s "https://api.flagsmith.com/api/v1/features/" \
+            -H "X-EnvironmentKey: $FLAGSMITH_API_KEY" | jq .
+
+  launchdarkly-check:
+    name: LaunchDarkly Feature Flags
+    runs-on: ubuntu-latest
+    if: false # Enable when LaunchDarkly is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Check LaunchDarkly flags
+        env:
+          LD_API_KEY: ${{ secrets.LD_API_KEY }}
+        run: |
+          npx ld-cli flags "$LD_API_KEY"

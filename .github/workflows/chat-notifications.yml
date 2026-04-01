@@ -1,0 +1,118 @@
+name: Chat Notifications
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, closed, synchronize]
+  workflow_dispatch:
+
+jobs:
+  slack-notify:
+    name: Slack Notifications
+    runs-on: ubuntu-latest
+    if: false # Enable when Slack webhook is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Slack notify on PR
+        if: github.event_name == 'pull_request'
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR:* <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }} ${{ github.event.pull_request.title }}>\n*Author:* ${{ github.event.pull_request.user.login }}\n*Status:* ${{ github.event.action }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Slack notify on failure
+        if: failure() && github.event_name == 'push'
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": ":rotating_light: Build Failed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Repository:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\n*Author:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  discord-notify:
+    name: Discord Notifications
+    runs-on: ubuntu-latest
+    if: false # Enable when Discord webhook is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discord notify on failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d "{\"content\": \":rotating_light: Build failed in ${{ github.repository }} on ${{ github.ref_name }}\"}" \
+            ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Discord notify on success
+        if: success() && github.event_name == 'push'
+        run: |
+          curl -H "Content-Type: application/json" \
+            -d "{\"content\": \":white_check_mark: Build succeeded in ${{ github.repository }} on ${{ github.ref_name }}\"}" \
+            ${{ secrets.DISCORD_WEBHOOK }}
+
+  teams-notify:
+    name: Microsoft Teams Notifications
+    runs-on: ubuntu-latest
+    if: false # Enable when Teams webhook is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Teams notify
+        if: always()
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"${{ github.workflow }}: ${{ job.status }} for ${{ github.repository }}\"}" \
+            ${{ secrets.TEAMS_WEBHOOK }}
+
+  telegram-notify:
+    name: Telegram Notifications
+    runs-on: ubuntu-latest
+    if: false # Enable when Telegram bot is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Telegram notify
+        run: |
+          curl -s "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "text=${{ github.workflow }}: ${{ job.status }} in ${{ github.repository }}"

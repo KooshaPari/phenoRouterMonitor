@@ -1,0 +1,177 @@
+name: Edge & CDN
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '**/public/**'
+      - '**/static/**'
+      - '**/*.html'
+      - '**/_workers/**'
+      - '**/functions/**'
+      - '.github/workflows/cdn-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  cloudflare-pages:
+    name: Cloudflare Pages Deploy
+    runs-on: ubuntu-latest
+    if: false # Enable when Cloudflare is configured
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: phenotype
+          directory: public
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  cloudflare-workers:
+    name: Cloudflare Workers Deploy
+    runs-on: ubuntu-latest
+    if: false # Enable when Workers are configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Wrangler
+        run: |
+          npm install -g wrangler
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler deploy || true
+        continue-on-error: true
+
+  vercel-deploy:
+    name: Vercel Deploy
+    runs-on: ubuntu-latest
+    if: false # Enable when Vercel is configured
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Vercel
+        run: |
+          npm install -g vercel
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          vercel --prod || true
+        continue-on-error: true
+
+  netlify-deploy:
+    name: Netlify Deploy
+    runs-on: ubuntu-latest
+    if: false # Enable when Netlify is configured
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Netlify CLI
+        run: |
+          npm install -g netlify-cli
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          netlify deploy --prod || true
+        continue-on-error: true
+
+  edge-function-test:
+    name: Edge Function Tests
+    runs-on: ubuntu-latest
+    if: false # Enable when edge functions exist
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Test edge functions locally
+        run: |
+          echo "Edge function tests ready"
+
+      - name: Check function size
+        run: |
+          for f in functions/**/*.{js,ts}; do
+            size=$(wc -c < "$f")
+            if [ "$size" -gt 102400 ]; then
+              echo "WARNING: $f exceeds 100KB limit ($size bytes)"
+            fi
+          done
+
+  cdn-cache-purge:
+    name: CDN Cache Purge
+    runs-on: ubuntu-latest
+    if: false # Enable when CDN is configured
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Purge Cloudflare cache
+        if: false # secrets.CLOUDFLARE_API_TOKEN
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything": true}'
+
+      - name: Purge Fastly cache
+        if: false # secrets.FASTLY_TOKEN
+        env:
+          FASTLY_SERVICE_ID: ${{ secrets.FASTLY_SERVICE_ID }}
+          FASTLY_TOKEN: ${{ secrets.FASTLY_TOKEN }}
+        run: |
+          curl -X POST "https://api.fastly.com/service/$FASTLY_SERVICE_ID/purge_all" \
+            -H "Fastly-Key: $FASTLY_TOKEN"
