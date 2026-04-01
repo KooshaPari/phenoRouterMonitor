@@ -91,3 +91,51 @@ pub enum CacheError {
     #[error("internal error: {0}")]
     Internal(String),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cache_error_connection_display() {
+        let err = CacheError::Connection("refused".into());
+        assert_eq!(err.to_string(), "connection error: refused");
+    }
+
+    #[test]
+    fn cache_error_serialization_display() {
+        let err = CacheError::Serialization("invalid utf8".into());
+        assert_eq!(err.to_string(), "serialization error: invalid utf8");
+    }
+
+    #[test]
+    fn cache_error_not_found_display() {
+        let err = CacheError::NotFound("session:abc".into());
+        assert_eq!(err.to_string(), "key not found: session:abc");
+    }
+
+    #[test]
+    fn cache_error_operation_failed_display() {
+        let err = CacheError::OperationFailed("OOM".into());
+        assert_eq!(err.to_string(), "operation failed: OOM");
+    }
+
+    #[test]
+    fn cache_error_timeout_display() {
+        let err = CacheError::Timeout;
+        assert_eq!(err.to_string(), "timeout");
+    }
+
+    #[test]
+    fn cache_error_internal_display() {
+        let err = CacheError::Internal("unexpected".into());
+        assert_eq!(err.to_string(), "internal error: unexpected");
+    }
+
+    #[test]
+    fn cache_error_debug() {
+        let err = CacheError::Timeout;
+        let debug = format!("{:?}", err);
+        assert!(debug.contains("Timeout"));
+    }
+}

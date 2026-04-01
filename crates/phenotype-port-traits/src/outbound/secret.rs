@@ -65,3 +65,46 @@ pub enum SecretError {
     #[error("internal error: {0}")]
     Internal(String),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn secret_error_not_found_display() {
+        let err = SecretError::NotFound("api-key".into());
+        assert_eq!(err.to_string(), "not found: api-key");
+    }
+
+    #[test]
+    fn secret_error_permission_denied_display() {
+        let err = SecretError::PermissionDenied("admin required".into());
+        assert_eq!(err.to_string(), "permission denied: admin required");
+    }
+
+    #[test]
+    fn secret_error_connection_display() {
+        let err = SecretError::Connection("vault unreachable".into());
+        assert_eq!(err.to_string(), "connection error: vault unreachable");
+    }
+
+    #[test]
+    fn secret_error_operation_failed_display() {
+        let err = SecretError::OperationFailed("rotation failed".into());
+        assert_eq!(err.to_string(), "operation failed: rotation failed");
+    }
+
+    #[test]
+    fn secret_error_internal_display() {
+        let err = SecretError::Internal("unexpected".into());
+        assert_eq!(err.to_string(), "internal error: unexpected");
+    }
+
+    #[test]
+    fn secret_error_debug() {
+        let err = SecretError::NotFound("key".into());
+        let debug = format!("{:?}", err);
+        assert!(debug.contains("NotFound"));
+        assert!(debug.contains("key"));
+    }
+}

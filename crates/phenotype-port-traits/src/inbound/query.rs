@@ -24,3 +24,33 @@ pub enum QueryError {
     #[error("internal error: {0}")]
     Internal(String),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn query_error_invalid_display() {
+        let err = QueryError::InvalidQuery("missing filter".into());
+        assert_eq!(err.to_string(), "invalid query: missing filter");
+    }
+
+    #[test]
+    fn query_error_not_found_display() {
+        let err = QueryError::NotFound;
+        assert_eq!(err.to_string(), "not found");
+    }
+
+    #[test]
+    fn query_error_internal_display() {
+        let err = QueryError::Internal("timeout".into());
+        assert_eq!(err.to_string(), "internal error: timeout");
+    }
+
+    #[test]
+    fn query_error_debug() {
+        let err = QueryError::NotFound;
+        let debug = format!("{:?}", err);
+        assert!(debug.contains("NotFound"));
+    }
+}

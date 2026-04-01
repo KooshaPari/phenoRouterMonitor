@@ -31,3 +31,42 @@ pub enum UseCaseError {
     #[error("internal error: {0}")]
     Internal(String),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn use_case_error_validation_display() {
+        let err = UseCaseError::Validation("email invalid".into());
+        assert_eq!(err.to_string(), "validation failed: email invalid");
+    }
+
+    #[test]
+    fn use_case_error_not_found_display() {
+        let err = UseCaseError::NotFound {
+            entity: "Order".into(),
+            id: "99".into(),
+        };
+        assert_eq!(err.to_string(), "not found: Order 99");
+    }
+
+    #[test]
+    fn use_case_error_policy_violation_display() {
+        let err = UseCaseError::PolicyViolation("rate limit exceeded".into());
+        assert_eq!(err.to_string(), "policy violation: rate limit exceeded");
+    }
+
+    #[test]
+    fn use_case_error_internal_display() {
+        let err = UseCaseError::Internal("panic".into());
+        assert_eq!(err.to_string(), "internal error: panic");
+    }
+
+    #[test]
+    fn use_case_error_debug() {
+        let err = UseCaseError::Validation("x".into());
+        let debug = format!("{:?}", err);
+        assert!(debug.contains("Validation"));
+    }
+}
