@@ -2,7 +2,6 @@
 
 use thiserror::Error;
 
-/// Errors that can occur during Casbin operations.
 #[derive(Debug, Error)]
 pub enum CasbinWrapperError {
     #[error("Casbin enforcement failed: {0}")]

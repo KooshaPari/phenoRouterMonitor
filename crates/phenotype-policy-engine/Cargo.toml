@@ -3,8 +3,10 @@ name = "phenotype-policy-engine"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
+
 [lib]
 path = "src/lib.rs"
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -13,5 +15,14 @@ dashmap = "5"
 regex = "1"
 toml = "0.8"
 phenotype-error-core = { path = "../phenotype-error-core" }
+phenotype-casbin-wrapper = { path = "../phenotype-casbin-wrapper", optional = true }
+async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
+
 [dev-dependencies]
 tempfile = "3"
+tokio = { version = "1", features = ["full"] }
+
+[features]
+default = []
+casbin-backend = ["dep:phenotype-casbin-wrapper"]
