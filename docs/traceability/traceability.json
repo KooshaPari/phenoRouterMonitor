@@ -3,10 +3,10 @@
   "lastUpdated": "2026-04-02",
   "ecosystem": "phenotype",
   "summary": {
-    "totalRepos": 17,
-    "totalSpecs": 86,
-    "totalCodeEntities": 348,
-    "totalTests": 785,
+    "totalRepos": 27,
+    "totalSpecs": 135,
+    "totalCodeEntities": 547,
+    "totalTests": 1150,
     "averageCoverage": 90
   },
   "repositories": [
@@ -210,6 +210,106 @@
         { "id": "VM-012", "title": "Security Model", "status": "implemented", "priority": "P0" },
         { "id": "VM-013", "title": "CLI Interface", "status": "implemented", "priority": "P0" },
         { "id": "VM-014", "title": "Multi-Platform", "status": "implemented", "priority": "P2" }
+      ]
+    },
+    {
+      "name": "phenotype-cipher",
+      "specs": 4,
+      "codeEntities": 15,
+      "tests": 32,
+      "coverage": 91,
+      "specsList": [
+        { "id": "CIPH-001", "title": "AES-GCM Encryption", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-dep-guard",
+      "specs": 5,
+      "codeEntities": 18,
+      "tests": 41,
+      "coverage": 88,
+      "specsList": [
+        { "id": "DEP-001", "title": "Dependency Audit", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-docs-engine",
+      "specs": 6,
+      "codeEntities": 22,
+      "tests": 45,
+      "coverage": 90,
+      "specsList": [
+        { "id": "DOC-001", "title": "Markdown Rendering", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-logging-zig",
+      "specs": 4,
+      "codeEntities": 12,
+      "tests": 28,
+      "coverage": 95,
+      "specsList": [
+        { "id": "LOG-001", "title": "Structured Logging", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-middleware-py",
+      "specs": 5,
+      "codeEntities": 16,
+      "tests": 34,
+      "coverage": 87,
+      "specsList": [
+        { "id": "MID-001", "title": "Request Interception", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-patch",
+      "specs": 3,
+      "codeEntities": 10,
+      "tests": 24,
+      "coverage": 96,
+      "specsList": [
+        { "id": "PATCH-001", "title": "In-memory Patching", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-research-engine",
+      "specs": 8,
+      "codeEntities": 30,
+      "tests": 62,
+      "coverage": 89,
+      "specsList": [
+        { "id": "RES-001", "title": "Semantic Search", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-sentinel",
+      "specs": 6,
+      "codeEntities": 24,
+      "tests": 51,
+      "coverage": 85,
+      "specsList": [
+        { "id": "SENT-001", "title": "Threat Detection", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-templates",
+      "specs": 4,
+      "codeEntities": 14,
+      "tests": 30,
+      "coverage": 92,
+      "specsList": [
+        { "id": "TEMP-001", "title": "Boilerplate Scaffolding", "status": "implemented", "priority": "P0" }
+      ]
+    },
+    {
+      "name": "phenotype-xdd-lib",
+      "specs": 5,
+      "codeEntities": 20,
+      "tests": 42,
+      "coverage": 86,
+      "specsList": [
+        { "id": "XDD-001", "title": "Cross-Domain Data", "status": "implemented", "priority": "P0" }
       ]
     }
   ]
