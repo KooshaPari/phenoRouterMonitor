@@ -1,9 +1,9 @@
 //! Metrics registry for collecting and storing telemetry data.
 
-use dashmap::DashMap;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
+use dashmap::DashMap;
+use serde::{Deserialize, Serialize};
 
 /// Telemetry service configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -24,9 +24,6 @@ pub enum Metric {
     Histogram { values: Vec<f64> },
 }
 
-/// Maximum number of samples retained per histogram (ring buffer capacity).
-const HISTOGRAM_MAX_CAPACITY: usize = 10_000;
-
 /// Counter metric — incremental counter.
 #[derive(Debug, Clone)]
 pub struct Counter {
@@ -35,21 +32,14 @@ pub struct Counter {
 }
 
 impl Counter {
-    /// Get the metric name.
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
     /// Increment the counter by 1.
     pub fn inc(&self) {
-        self.value
-            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.value.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     }
 
     /// Increment the counter by `delta`.
     pub fn add(&self, delta: u64) {
-        self.value
-            .fetch_add(delta, std::sync::atomic::Ordering::Relaxed);
+        self.value.fetch_add(delta, std::sync::atomic::Ordering::Relaxed);
     }
 
     /// Get the current value.
@@ -66,11 +56,6 @@ pub struct Gauge {
 }
 
 impl Gauge {
-    /// Get the metric name.
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
     /// Set the gauge to a specific value.
     pub fn set(&self, value: f64) {
         *self.value.lock().unwrap() = value;
@@ -82,46 +67,22 @@ impl Gauge {
     }
 }
 
-/// Histogram metric — bounded ring buffer of values.
+/// Histogram metric — distribution of values.
 #[derive(Debug, Clone)]
 pub struct Histogram {
     name: String,
-    /// Fixed-capacity ring buffer.  Once full, new observations overwrite the
-    /// oldest entry so memory usage stays O(HISTOGRAM_MAX_CAPACITY).
-    values: Arc<std::sync::Mutex<std::collections::VecDeque<f64>>>,
+    values: Arc<std::sync::Mutex<Vec<f64>>>,
 }
 
 impl Histogram {
-    /// Get the metric name.
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
     /// Record a value in the histogram.
-    ///
-    /// When the internal buffer reaches [`HISTOGRAM_MAX_CAPACITY`] the oldest
-    /// entry is popped before the new one is pushed.
     pub fn observe(&self, value: f64) {
-        let mut values = self.values.lock().unwrap();
-        if values.len() >= HISTOGRAM_MAX_CAPACITY {
-            values.pop_front();
-        }
-        values.push_back(value);
+        self.values.lock().unwrap().push(value);
     }
 
-    /// Get all recorded values as a `Vec`.
+    /// Get all recorded values.
     pub fn values(&self) -> Vec<f64> {
-        self.values.lock().unwrap().iter().copied().collect()
-    }
-
-    /// Number of samples currently stored.
-    pub fn len(&self) -> usize {
-        self.values.lock().unwrap().len()
-    }
-
-    /// Returns `true` when no samples have been recorded.
-    pub fn is_empty(&self) -> bool {
-        self.values.lock().unwrap().is_empty()
+        self.values.lock().unwrap().clone()
     }
 }
 
@@ -143,11 +104,6 @@ impl MetricsRegistry {
             gauges: DashMap::new(),
             histograms: DashMap::new(),
         }
-    }
-
-    /// Get the registry configuration.
-    pub fn config(&self) -> &TelemetryConfig {
-        &self.config
     }
 
     /// Get or create a counter.
@@ -181,9 +137,7 @@ impl MetricsRegistry {
             .entry(name.clone())
             .or_insert_with(|| Histogram {
                 name: name.clone(),
-                values: Arc::new(std::sync::Mutex::new(
-                    std::collections::VecDeque::with_capacity(HISTOGRAM_MAX_CAPACITY),
-                )),
+                values: Arc::new(std::sync::Mutex::new(Vec::new())),
             })
             .clone()
     }
@@ -253,7 +207,7 @@ mod tests {
     fn histogram_observe() {
         let histogram = Histogram {
             name: "test".into(),
-            values: Arc::new(std::sync::Mutex::new(std::collections::VecDeque::new())),
+            values: Arc::new(std::sync::Mutex::new(Vec::new())),
         };
         histogram.observe(1.0);
         histogram.observe(2.5);
