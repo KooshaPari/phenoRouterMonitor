@@ -261,3 +261,7 @@ EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
 PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
 .github/workflows/ci.yml
 AgentMCP/
+AgentMCP/
+helix-logging/
+tracely/
+platforms/crates/
