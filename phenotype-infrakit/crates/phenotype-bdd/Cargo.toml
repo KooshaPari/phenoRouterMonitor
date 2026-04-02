@@ -1,0 +1,29 @@
+[package]
+name = "phenotype-bdd"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Phenotype Team"]
+rust-version = "1.75"
+repository = "https://github.com/phenotype-dev/phenotype-infrakit"
+description = "BDD/Gherkin-style testing framework with hexagonal architecture"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+gherkin = "0.14"
+regex = "1.10"
+tokio = { version = "1.0", features = ["full"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["test-util", "rt-multi-thread"] }
+tempfile = "3"
+
+[features]
+default = []
+async = []
+reporting = []

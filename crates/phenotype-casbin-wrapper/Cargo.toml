@@ -1,0 +1,18 @@
+[package]
+name = "phenotype-casbin-wrapper"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Phenotype Team"]
+description = "Casbin adapter wrapper for Phenotype"
+rust-version = "1.70"
+
+[dependencies]
+casbin = "2"
+thiserror.workspace = true
+serde.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
