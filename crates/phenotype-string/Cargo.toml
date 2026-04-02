@@ -12,6 +12,7 @@ path = "src/lib.rs"
 serde.workspace = true
 thiserror.workspace = true
 zstd.workspace = true
+flate2.workspace = true
 regex.workspace = true
 unicode-normalization.workspace = true
 

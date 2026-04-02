@@ -1,0 +1,58 @@
+#!/bin/sh
+# pre-commit: Fast lint checks on staged files
+# Usage: Copy to .git/hooks/pre-commit or configure core.hooksPath
+set -e
+
+echo "Running pre-commit checks..."
+
+# Colors for output (if terminal supports it)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Check staged files for trailing whitespace
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null)
+
+if [ -n "$STAGED_FILES" ]; then
+  TRAILING_WS=0
+  for FILE in $STAGED_FILES; do
+    if [ -f "$FILE" ] && grep -qE '\s+$' "$FILE" 2>/dev/null; then
+      echo "${RED}ERROR: Trailing whitespace found in: $FILE${NC}"
+      TRAILING_WS=1
+    fi
+  done
+  if [ "$TRAILING_WS" -eq 1 ]; then
+    echo "${RED}Commit aborted: Please fix trailing whitespace before committing.${NC}"
+    exit 1
+  fi
+
+  # Check for large files (>5MB warning)
+  for FILE in $STAGED_FILES; do
+    if [ -f "$FILE" ]; then
+      SIZE=$(wc -c < "$FILE" 2>/dev/null || echo 0)
+      if [ "$SIZE" -gt 5242880 ]; then
+        echo "${YELLOW}WARNING: Large file detected (>5MB): $FILE (${SIZE} bytes)${NC}"
+        echo "${YELLOW}Consider using Git LFS for large files.${NC}"
+      fi
+    fi
+  done
+fi
+
+# Check for merge conflict markers
+if [ -n "$STAGED_FILES" ]; then
+  CONFLICT_MARKERS=0
+  for FILE in $STAGED_FILES; do
+    if [ -f "$FILE" ] && grep -qE "^(<<<<<<<|=======|>>>>>>>)" "$FILE" 2>/dev/null; then
+      echo "${RED}ERROR: Merge conflict markers found in: $FILE${NC}"
+      CONFLICT_MARKERS=1
+    fi
+  done
+  if [ "$CONFLICT_MARKERS" -eq 1 ]; then
+    echo "${RED}Commit aborted: Please resolve merge conflicts before committing.${NC}"
+    exit 1
+  fi
+fi
+
+echo "${GREEN}Pre-commit checks passed!${NC}"
+exit 0

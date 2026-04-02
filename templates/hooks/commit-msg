@@ -1,0 +1,52 @@
+#!/bin/sh
+# commit-msg: Validate commit message format
+# Usage: Copy to .git/hooks/commit-msg or configure core.hooksPath
+set -e
+
+COMMIT_MSG_FILE="$1"
+
+# Colors for output (if terminal supports it)
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Read the commit message (excluding comments)
+COMMIT_MSG=$(grep -v '^#' "$COMMIT_MSG_FILE" | head -n 1)
+
+# Allow empty commits (for --allow-empty)
+if [ -z "$COMMIT_MSG" ]; then
+  exit 0
+fi
+
+# Skip validation for merge commits
+if echo "$COMMIT_MSG" | grep -qE "^Merge branch|^Merge pull request"; then
+  exit 0
+fi
+
+# Conventional commit pattern
+# Format: type(scope)!: message or type: message
+CONVENTIONAL_PATTERN="^(feat|fix|chore|docs|style|refactor|perf|test|ci|build|revert)(\(.+\))?!?: .+"
+
+if ! echo "$COMMIT_MSG" | grep -qE "$CONVENTIONAL_PATTERN"; then
+  echo "${RED}ERROR: Commit message does not follow conventional commit format.${NC}"
+  echo ""
+  echo "Expected format: <type>(<scope>): <message>"
+  echo ""
+  echo "Types: feat, fix, chore, docs, style, refactor, perf, test, ci, build, revert"
+  echo ""
+  echo "Examples:"
+  echo "  feat(auth): add JWT token refresh"
+  echo "  fix(parser): handle empty input gracefully"
+  echo "  docs(readme): update installation instructions"
+  echo ""
+  echo "Your message: $COMMIT_MSG"
+  exit 1
+fi
+
+# Check message length (subject line should be <= 72 characters)
+MSG_LENGTH=$(echo "$COMMIT_MSG" | wc -c)
+if [ "$MSG_LENGTH" -gt 72 ]; then
+  echo "${YELLOW}WARNING: Commit message subject is ${MSG_LENGTH} characters (recommended: <= 72)${NC}"
+fi
+
+exit 0

@@ -5,8 +5,15 @@ docs/public/assets/**/*.css
 docs/public/assets/**/*.map
 docs-dist/
 
+# Allow platforms/ generic parent workspace
+!platforms/Cargo.toml
+!platforms/Cargo.lock
+!platforms/crates/
+!platforms/crates/**/Cargo.toml
+!platforms/crates/**/src/
+!platforms/crates/**/src/*.rs
+
 # Excluded documentation (already excluded from VitePress build via srcExclude)
-# These contain duplicate/legacy content that's not part of the canonical docs
 docs/fragemented/
 docs/context/
 docs/docset/

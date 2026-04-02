@@ -1,0 +1,212 @@
+name: Template Synchronization Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Mondays
+  workflow_dispatch:
+  push:
+    paths:
+      - 'template-commons/**'
+      - 'templates/**'
+      - '.github/workflows/template-sync-check.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-config-templates:
+    name: Check Config Template Sync
+    runs-on: ubuntu-latest
+    outputs:
+      drift_detected: ${{ steps.check.outputs.drift }}
+      drift_details: ${{ steps.check.outputs.details }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check config template drift
+        id: check
+        run: |
+          DRIFT=0
+          DETAILS=""
+
+          # Template directory
+          TEMPLATE_DIR="template-commons/config-templates"
+
+          # List of projects to check (add more as needed)
+          RUST_PROJECTS=(
+            "Cmdra"
+            "Tokn"
+            "phenotype-cipher"
+            "phenotype-xdd-lib"
+            "phenotype-forge"
+            "Tossy"
+            "thegent-plugin-host"
+          )
+
+          # Check cliff.toml drift
+          for project in "${RUST_PROJECTS[@]}"; do
+            if [ -f "$project/cliff.toml" ]; then
+              # Compare hash (simplified check)
+              PROJECT_HASH=$(md5sum "$project/cliff.toml" | cut -d' ' -f1)
+              TEMPLATE_HASH=$(md5sum "$TEMPLATE_DIR/cliff.toml.template" | cut -d' ' -f1)
+
+              if [ "$PROJECT_HASH" != "$TEMPLATE_HASH" ]; then
+                # Allow for project-specific customizations
+                # Just check critical sections match
+                if ! grep -q "traditional_commit_parsing = true" "$project/cliff.toml"; then
+                  DRIFT=1
+                  DETAILS="${DETAILS}cliff.toml drift: $project\\n"
+                fi
+              fi
+            fi
+          done
+
+          # Check codecov.yml drift
+          for project in "${RUST_PROJECTS[@]}"; do
+            if [ -f "$project/codecov.yml" ]; then
+              # Check for required sections
+              if ! grep -q "target: 85%" "$project/codecov.yml"; then
+                DRIFT=1
+                DETAILS="${DETAILS}codecov.yml threshold drift: $project\\n"
+              fi
+            else
+              DRIFT=1
+              DETAILS="${DETAILS}Missing codecov.yml: $project\\n"
+            fi
+          done
+
+          echo "drift=$DRIFT" >> $GITHUB_OUTPUT
+          echo "details=$DETAILS" >> $GITHUB_OUTPUT
+
+          if [ $DRIFT -eq 1 ]; then
+            echo "::warning::Template drift detected"
+            echo -e "$DETAILS"
+          else
+            echo "::notice::All configs in sync with templates"
+          fi
+
+  check-ci-workflows:
+    name: Check CI Workflow Standardization
+    runs-on: ubuntu-latest
+    outputs:
+      non_standard: ${{ steps.check.outputs.non_standard }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find non-standard CI workflows
+        id: check
+        run: |
+          NON_STANDARD=""
+
+          # List of projects that should use reusable workflows
+          declare -A PROJECT_LANGUAGE
+          PROJECT_LANGUAGE=(
+            ["Cmdra"]="rust"
+            ["Tokn"]="rust"
+            ["phenotype-cipher"]="rust"
+            ["phenotype-xdd-lib"]="rust"
+            ["phenotype-forge"]="rust"
+            ["Tossy"]="rust"
+            ["thegent-plugin-host"]="rust"
+            ["HexaPy"]="python"
+            ["PolicyStack"]="python"
+            ["Profila"]="python"
+            ["Quillr"]="typescript"
+            ["Planify"]="typescript"
+          )
+
+          for project in "${!PROJECT_LANGUAGE[@]}"; do
+            ci_file="$project/.github/workflows/ci.yml"
+            if [ -f "$ci_file" ]; then
+              # Check if using reusable workflows
+              if ! grep -q "uses: KooshaPari/template-commons/.github/workflows/reusable-" "$ci_file"; then
+                NON_STANDARD="${NON_STANDARD}$project (using inline CI instead of reusable workflow)\\n"
+              fi
+            fi
+          done
+
+          echo "non_standard=$NON_STANDARD" >> $GITHUB_OUTPUT
+
+          if [ -n "$NON_STANDARD" ]; then
+            echo "::warning::Projects using inline CI (not reusable workflows):"
+            echo -e "$NON_STANDARD"
+          fi
+
+  check-git-hooks:
+    name: Check Git Hooks Source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for duplicate hook sources
+        run: |
+          # List known duplicate locations
+          DUPLICATES=0
+
+          # Check pheno-cli/internal/hooks (should be removed/consolidated)
+          if [ -d "AgilePlus/pheno-cli/internal/hooks" ]; then
+            echo "::warning::Duplicate hooks found: AgilePlus/pheno-cli/internal/hooks/"
+            DUPLICATES=$((DUPLICATES + 1))
+          fi
+
+          if [ -d "AgilePlus/pheno-cli/hooks" ]; then
+            echo "::warning::Duplicate hooks found: AgilePlus/pheno-cli/hooks/"
+            DUPLICATES=$((DUPLICATES + 1))
+          fi
+
+          # Verify canonical hooks exist
+          if [ ! -f "templates/hooks/pre-commit" ]; then
+            echo "::error::Canonical hooks missing: templates/hooks/pre-commit"
+            exit 1
+          fi
+
+          if [ $DUPLICATES -gt 0 ]; then
+            echo "::warning::Found $DUPLICATES duplicate hook sources that should be removed"
+          else
+            echo "::notice::No duplicate hook sources found"
+          fi
+
+  report:
+    name: Generate Consolidation Report
+    runs-on: ubuntu-latest
+    needs: [check-config-templates, check-ci-workflows, check-git-hooks]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Template Synchronization Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Config Template Status" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.check-config-templates.outputs.drift_detected }}" == "1" ]; then
+            echo "⚠️ **Drift detected in the following files:**" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo -e "${{ needs.check-config-templates.outputs.drift_details }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All config templates in sync" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### CI Workflow Standardization" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ needs.check-ci-workflows.outputs.non_standard }}" ]; then
+            echo "⚠️ **Projects using inline CI (migration recommended):**" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo -e "${{ needs.check-ci-workflows.outputs.non_standard }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All projects using reusable workflows" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Report completion
+        if: failure()
+        run: |
+          echo "::error::Template synchronization check failed. See summary for details."
+          exit 1

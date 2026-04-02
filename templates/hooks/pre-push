@@ -1,0 +1,72 @@
+#!/bin/sh
+# pre-push: Channel-aware checks based on branch name
+# Usage: Copy to .git/hooks/pre-push or configure core.hooksPath
+set -e
+
+REMOTE="$1"
+URL="$2"
+
+echo "Running pre-push checks..."
+
+# Colors for output (if terminal supports it)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Read pushed refs from stdin: <local ref> <local sha1> <remote ref> <remote sha1>
+while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  # Extract branch name from remote ref (refs/heads/<branch>)
+  BRANCH=$(echo "$REMOTE_REF" | sed 's|refs/heads/||')
+
+  case "$BRANCH" in
+    main)
+      echo "${RED}ERROR: Direct push to main is not allowed.${NC}"
+      echo "Please open a Pull Request to merge changes into main."
+      exit 1
+      ;;
+    feature/*)
+      echo "${GREEN}Feature branch detected: $BRANCH${NC}"
+      echo "Running lint checks..."
+      if command -v mise >/dev/null 2>&1; then
+        mise run lint 2>/dev/null || true
+      elif [ -f "Makefile" ] && grep -q "^lint:" Makefile; then
+        make lint 2>/dev/null || true
+      fi
+      ;;
+    canary/*)
+      echo "${YELLOW}Canary branch detected: $BRANCH${NC}"
+      echo "Running lint and tests..."
+      if command -v mise >/dev/null 2>&1; then
+        mise run lint && mise run test
+      elif [ -f "Makefile" ] && grep -q "^test:" Makefile; then
+        make lint && make test
+      else
+        echo "${YELLOW}Warning: Could not run tests automatically${NC}"
+      fi
+      ;;
+    beta/* | rc/*)
+      echo "${YELLOW}Release branch detected: $BRANCH${NC}"
+      echo "Running lint and tests..."
+      if command -v mise >/dev/null 2>&1; then
+        mise run lint && mise run test
+      elif [ -f "Makefile" ] && grep -q "^test:" Makefile; then
+        make lint && make test
+      fi
+
+      # Check ROLLBACK.md exists for release branches
+      if [ ! -f "ROLLBACK.md" ]; then
+        echo "${RED}ERROR: ROLLBACK.md is required for beta/rc branches but was not found.${NC}"
+        echo "Please create ROLLBACK.md with rollback instructions before pushing."
+        exit 1
+      fi
+      ;;
+    *)
+      # No additional checks for other branches
+      echo "${GREEN}Branch: $BRANCH (no additional checks required)${NC}"
+      ;;
+  esac
+done
+
+echo "${GREEN}Pre-push checks passed!${NC}"
+exit 0
