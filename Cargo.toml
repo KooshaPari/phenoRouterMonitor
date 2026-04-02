@@ -20,6 +20,7 @@ members = [
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
+    "crates/phenotype-http-client-core",
     "crates/phenotype-iter",
     "crates/phenotype-logging",
     "crates/phenotype-policy-engine",
