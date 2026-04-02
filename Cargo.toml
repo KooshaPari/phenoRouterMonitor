@@ -15,6 +15,7 @@ members = [
     "crates/phenotype-casbin-wrapper",
     "crates/phenotype-contract",
     "crates/phenotype-contracts",
+    "crates/phenotype-crypto",
     "crates/phenotype-error-core",
     "crates/phenotype-error-macros",
     "crates/phenotype-errors",
