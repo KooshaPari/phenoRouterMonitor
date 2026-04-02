@@ -38,10 +38,18 @@ pub trait CachePort: Send + Sync {
 #[async_trait]
 pub trait CacheJsonPort: Send + Sync {
     /// Get a value and deserialize it.
-    async fn get_json<T: serde::de::DeserializeOwned>(&self, key: &str) -> Result<Option<T>, CacheError>;
+    async fn get_json<T: serde::de::DeserializeOwned>(
+        &self,
+        key: &str,
+    ) -> Result<Option<T>, CacheError>;
 
     /// Set a value after serializing it.
-    async fn set_json<T: serde::Serialize>(&self, key: &str, value: &T, ttl: Duration) -> Result<(), CacheError>;
+    async fn set_json<T: serde::Serialize>(
+        &self,
+        key: &str,
+        value: &T,
+        ttl: Duration,
+    ) -> Result<(), CacheError>;
 }
 
 /// Cache port for atomic counter operations.

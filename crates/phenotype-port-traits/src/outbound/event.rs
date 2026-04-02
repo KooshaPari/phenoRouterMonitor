@@ -47,17 +47,24 @@ impl<E: DomainEvent> EventEnvelope<E> {
 #[async_trait]
 pub trait EventPublisher: Send + Sync {
     /// Publish a domain event.
-    async fn publish<E: DomainEvent>(&self, envelope: EventEnvelope<E>) -> Result<(), EventBusError>;
+    async fn publish<E: DomainEvent>(
+        &self,
+        envelope: EventEnvelope<E>,
+    ) -> Result<(), EventBusError>;
 
     /// Publish multiple events in a batch.
-    async fn publish_batch<E: DomainEvent>(&self, envelopes: Vec<EventEnvelope<E>>) -> Result<(), EventBusError>;
+    async fn publish_batch<E: DomainEvent>(
+        &self,
+        envelopes: Vec<EventEnvelope<E>>,
+    ) -> Result<(), EventBusError>;
 }
 
 /// Event subscriber port for consuming domain events.
 #[async_trait]
 pub trait EventSubscriber<E: DomainEvent>: Send + Sync {
     /// Subscribe to events of the given type.
-    async fn subscribe(&self, handler: impl EventHandler<E> + 'static) -> Result<(), EventBusError>;
+    async fn subscribe(&self, handler: impl EventHandler<E> + 'static)
+        -> Result<(), EventBusError>;
 
     /// Unsubscribe from events.
     async fn unsubscribe(&self) -> Result<(), EventBusError>;
@@ -111,9 +118,7 @@ mod tests {
 
     #[test]
     fn event_envelope_new() {
-        let event = TestEvent {
-            id: "agg-1".into(),
-        };
+        let event = TestEvent { id: "agg-1".into() };
         let envelope = EventEnvelope::new(event);
         assert_eq!(envelope.event_type, "test.event");
         assert_eq!(envelope.aggregate_id, "agg-1");
@@ -123,9 +128,7 @@ mod tests {
 
     #[test]
     fn event_envelope_with_correlation_id() {
-        let event = TestEvent {
-            id: "agg-1".into(),
-        };
+        let event = TestEvent { id: "agg-1".into() };
         let envelope = EventEnvelope::new(event).with_correlation_id("corr-123".into());
         assert_eq!(envelope.correlation_id.as_deref(), Some("corr-123"));
         assert!(envelope.causation_id.is_none());
@@ -133,9 +136,7 @@ mod tests {
 
     #[test]
     fn event_envelope_with_causation_id() {
-        let event = TestEvent {
-            id: "agg-1".into(),
-        };
+        let event = TestEvent { id: "agg-1".into() };
         let envelope = EventEnvelope::new(event).with_causation_id("cause-456".into());
         assert_eq!(envelope.causation_id.as_deref(), Some("cause-456"));
         assert!(envelope.correlation_id.is_none());
@@ -143,9 +144,7 @@ mod tests {
 
     #[test]
     fn event_envelope_chained_builder() {
-        let event = TestEvent {
-            id: "agg-1".into(),
-        };
+        let event = TestEvent { id: "agg-1".into() };
         let envelope = EventEnvelope::new(event)
             .with_correlation_id("corr-1".into())
             .with_causation_id("cause-1".into());
@@ -155,9 +154,7 @@ mod tests {
 
     #[test]
     fn event_envelope_debug() {
-        let event = TestEvent {
-            id: "agg-1".into(),
-        };
+        let event = TestEvent { id: "agg-1".into() };
         let envelope = EventEnvelope::new(event);
         let debug = format!("{:?}", envelope);
         assert!(debug.contains("test.event"));

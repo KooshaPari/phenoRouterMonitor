@@ -14,7 +14,9 @@ pub fn gzip_compress(input: &str) -> Result<Vec<u8>> {
     encoder
         .write_all(input.as_bytes())
         .map_err(|e| Error::Compression(e.to_string()))?;
-    encoder.finish().map_err(|e| Error::Compression(e.to_string()))
+    encoder
+        .finish()
+        .map_err(|e| Error::Compression(e.to_string()))
 }
 
 /// Decompress gzip-compressed data to a string.
@@ -40,7 +42,9 @@ pub fn zlib_compress(input: &str) -> Result<Vec<u8>> {
     encoder
         .write_all(input.as_bytes())
         .map_err(|e| Error::Compression(e.to_string()))?;
-    encoder.finish().map_err(|e| Error::Compression(e.to_string()))
+    encoder
+        .finish()
+        .map_err(|e| Error::Compression(e.to_string()))
 }
 
 /// Decompress zlib-compressed data to a string.

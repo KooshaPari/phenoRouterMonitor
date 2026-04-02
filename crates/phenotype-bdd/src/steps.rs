@@ -27,7 +27,10 @@ impl StepContext {
 
     /// Get a value from the context
     pub fn get<T: Any + Clone>(&self, key: &str) -> Option<T> {
-        self.data.get(key).and_then(|v| v.downcast_ref::<T>()).cloned()
+        self.data
+            .get(key)
+            .and_then(|v| v.downcast_ref::<T>())
+            .cloned()
     }
 
     /// Get a reference to a value in the context

@@ -50,7 +50,9 @@ pub enum AlertSource {
 impl SecurityAggregator {
     /// Create a new aggregator
     pub fn new() -> Self {
-        Self { sources: Vec::new() }
+        Self {
+            sources: Vec::new(),
+        }
     }
 
     /// Add a security source
@@ -87,11 +89,9 @@ impl SecurityAggregator {
             .filter(|a| matches!(a.severity, Severity::Warning))
             .count();
 
-        let score = (100.0_f32
-            - (critical as f32 * 25.0)
-            - (high as f32 * 10.0)
-            - (medium as f32 * 2.0))
-            .max(0.0);
+        let score =
+            (100.0_f32 - (critical as f32 * 25.0) - (high as f32 * 10.0) - (medium as f32 * 2.0))
+                .max(0.0);
 
         let findings: Vec<Finding> = all_alerts
             .iter()
@@ -189,7 +189,11 @@ mod tests {
             "mock"
         }
 
-        async fn fetch_alerts(&self, _owner: &str, _repo: &str) -> anyhow::Result<Vec<SecurityAlert>> {
+        async fn fetch_alerts(
+            &self,
+            _owner: &str,
+            _repo: &str,
+        ) -> anyhow::Result<Vec<SecurityAlert>> {
             Ok(self.alerts.clone())
         }
     }

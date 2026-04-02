@@ -3,8 +3,6 @@
 //! Provides normalization for Unicode strings, whitespace handling,
 //! and case normalization.
 
-use crate::{Error, Result};
-
 /// Normalize Unicode string to NFC form.
 pub fn unicode_nfc(input: &str) -> String {
     use unicode_normalization::UnicodeNormalization;

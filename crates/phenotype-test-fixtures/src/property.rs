@@ -99,7 +99,11 @@ where
 }
 
 /// Generate a random HashMap
-pub fn hash_map<K, V, Fk, Fv>(len: usize, key_gen: Fk, val_gen: Fv) -> std::collections::HashMap<K, V>
+pub fn hash_map<K, V, Fk, Fv>(
+    len: usize,
+    key_gen: Fk,
+    val_gen: Fv,
+) -> std::collections::HashMap<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash,
     Fk: Fn() -> K,
@@ -194,11 +198,9 @@ mod tests {
     #[test]
     fn test_property_test() {
         let mut counter = 0;
-        PropertyTest::new("test")
-            .iterations(10)
-            .run(|| {
-                counter += 1;
-            });
+        PropertyTest::new("test").iterations(10).run(|| {
+            counter += 1;
+        });
         assert_eq!(counter, 10);
     }
 }

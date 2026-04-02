@@ -56,7 +56,9 @@ impl ProjectRegistry {
     pub fn by_type(&self, project_type: &ProjectType) -> Vec<&Project> {
         self.projects
             .iter()
-            .filter(|p| std::mem::discriminant(&p.project_type) == std::mem::discriminant(project_type))
+            .filter(|p| {
+                std::mem::discriminant(&p.project_type) == std::mem::discriminant(project_type)
+            })
             .collect()
     }
 }
@@ -88,7 +90,11 @@ pub async fn discover_projects(root: &Path) -> Result<ProjectRegistry> {
         if path.join("pyproject.toml").exists() || path.join("setup.py").exists() {
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
                 // Avoid duplicates if already added as Rust
-                if !registry.projects.iter().any(|p| p.path == path.to_string_lossy()) {
+                if !registry
+                    .projects
+                    .iter()
+                    .any(|p| p.path == path.to_string_lossy())
+                {
                     registry.add(Project {
                         name: name.to_string(),
                         path: path.to_string_lossy().to_string(),
@@ -102,7 +108,11 @@ pub async fn discover_projects(root: &Path) -> Result<ProjectRegistry> {
         // Check for TypeScript/Node projects
         if path.join("package.json").exists() {
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                if !registry.projects.iter().any(|p| p.path == path.to_string_lossy()) {
+                if !registry
+                    .projects
+                    .iter()
+                    .any(|p| p.path == path.to_string_lossy())
+                {
                     registry.add(Project {
                         name: name.to_string(),
                         path: path.to_string_lossy().to_string(),
@@ -126,13 +136,19 @@ mod tests {
     #[tokio::test]
     async fn test_discover_rust_project() {
         let temp = TempDir::new().unwrap();
-        fs::write(temp.path().join("Cargo.toml"), "[package]\nname = \"test\"\n")
-            .await
-            .unwrap();
+        fs::write(
+            temp.path().join("Cargo.toml"),
+            "[package]\nname = \"test\"\n",
+        )
+        .await
+        .unwrap();
 
         let registry = discover_projects(temp.path()).await.unwrap();
         assert_eq!(registry.projects().len(), 1);
-        assert!(matches!(registry.projects()[0].project_type, ProjectType::Rust));
+        assert!(matches!(
+            registry.projects()[0].project_type,
+            ProjectType::Rust
+        ));
     }
 
     #[tokio::test]

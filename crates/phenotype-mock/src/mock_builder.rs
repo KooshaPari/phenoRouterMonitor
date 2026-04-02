@@ -20,7 +20,8 @@ impl MockBuilder {
 
     /// Add a method to the mock
     pub fn with_method<T: Any + 'static>(mut self, name: &str, implementation: T) -> Self {
-        self.methods.insert(name.to_string(), Box::new(implementation));
+        self.methods
+            .insert(name.to_string(), Box::new(implementation));
         self
     }
 

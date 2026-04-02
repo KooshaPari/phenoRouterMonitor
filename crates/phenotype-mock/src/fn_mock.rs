@@ -26,7 +26,7 @@ where
     }
 
     /// Configure an expectation for this mock
-    pub fn expect_call(&mut self) -> MockExpectation<I, O> {
+    pub fn expect_call(&mut self) -> MockExpectation<'_, I, O> {
         MockExpectation {
             mock: self,
             expected_arg: None,
@@ -155,6 +155,7 @@ where
 /// Result builder for mock calls
 #[derive(Debug)]
 pub struct MockResult<T> {
+    #[allow(dead_code)]
     value: T,
     times: usize,
 }
@@ -286,7 +287,10 @@ mod tests {
         assert!(result.is_err());
         assert!(matches!(
             result.unwrap_err(),
-            MockError::WrongCallCount { expected: 2, actual: 1 }
+            MockError::WrongCallCount {
+                expected: 2,
+                actual: 1
+            }
         ));
     }
 }

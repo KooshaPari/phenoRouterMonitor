@@ -188,7 +188,10 @@ mod tests {
 
     #[test]
     fn test_health_band_from_score() {
-        assert!(matches!(HealthBand::from_score(95.0), HealthBand::Excellent));
+        assert!(matches!(
+            HealthBand::from_score(95.0),
+            HealthBand::Excellent
+        ));
         assert!(matches!(HealthBand::from_score(80.0), HealthBand::Good));
         assert!(matches!(HealthBand::from_score(65.0), HealthBand::Fair));
         assert!(matches!(HealthBand::from_score(50.0), HealthBand::Poor));

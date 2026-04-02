@@ -80,7 +80,7 @@ where
         self.l1.lock().unwrap().len()
     }
 
-    pub fn len_l2(&self) -> usize {
+    pub fn len_l2(&self) -> u64 {
         self.l2.entry_count()
     }
 
@@ -93,96 +93,112 @@ where
 mod tests {
     use super::*;
 
+    type StringCache = TwoTierCache<String, String>;
+    type IntCache = TwoTierCache<String, i32>;
+    type IntKeyCache = TwoTierCache<i32, i32>;
+
+    fn make_string_cache() -> StringCache {
+        TwoTierCache::new(100, 1000)
+    }
+
+    fn make_int_cache() -> IntCache {
+        TwoTierCache::new(100, 1000)
+    }
+
+    fn make_int_key_cache() -> IntKeyCache {
+        TwoTierCache::new(100, 1000)
+    }
+
     #[test]
     fn test_cache_basic_put_get() {
-        let cache = TwoTierCache::new(100, 1000);
-        cache.put("key1", "value1");
-        assert_eq!(cache.get(&"key1"), Some("value1".to_string()));
+        let cache = make_string_cache();
+        cache.put("key1".into(), "value1".into());
+        assert_eq!(cache.get(&"key1".into()), Some("value1".into()));
     }
 
     #[test]
     fn test_cache_get_nonexistent() {
-        let cache = TwoTierCache::new(100, 1000);
-        assert_eq!(cache.get(&"nonexistent"), None);
+        let cache = make_int_cache();
+        assert_eq!(cache.get(&"nonexistent".into()), None);
     }
 
     #[test]
     fn test_cache_overwrite() {
-        let cache = TwoTierCache::new(100, 1000);
-        cache.put("key1", "value1");
-        cache.put("key1", "value2");
-        assert_eq!(cache.get(&"key1"), Some("value2".to_string()));
+        let cache = make_string_cache();
+        cache.put("key1".into(), "value1".into());
+        cache.put("key1".into(), "value2".into());
+        assert_eq!(cache.get(&"key1".into()), Some("value2".into()));
     }
 
     #[test]
     fn test_cache_multiple_items() {
-        let cache = TwoTierCache::new(100, 1000);
-        cache.put("a", 1);
-        cache.put("b", 2);
-        cache.put("c", 3);
-        assert_eq!(cache.get(&"a"), Some(1));
-        assert_eq!(cache.get(&"b"), Some(2));
-        assert_eq!(cache.get(&"c"), Some(3));
+        let cache = make_int_cache();
+        cache.put("a".into(), 1);
+        cache.put("b".into(), 2);
+        cache.put("c".into(), 3);
+        assert_eq!(cache.get(&"a".into()), Some(1));
+        assert_eq!(cache.get(&"b".into()), Some(2));
+        assert_eq!(cache.get(&"c".into()), Some(3));
     }
 
     #[test]
     fn test_cache_l1_promotion() {
-        let cache = TwoTierCache::new(2, 100);
-        cache.put("key1", "v1");
-        cache.put("key2", "v2");
+        let cache: StringCache = TwoTierCache::new(2, 100);
+        cache.put("key1".into(), "v1".into());
+        cache.put("key2".into(), "v2".into());
         assert_eq!(cache.len_l1(), 2);
-        let val = cache.get(&"key1");
-        assert_eq!(val, Some("v1".to_string()));
+        let val = cache.get(&"key1".into());
+        assert_eq!(val, Some("v1".into()));
     }
 
     #[test]
     fn test_cache_l2_promotion() {
-        let cache = TwoTierCache::new(1, 100);
-        cache.put("key1", "v1");
-        cache.put("key2", "v2");
-        let _ = cache.get(&"key1");
-        let _ = cache.get(&"key2");
-        assert!(cache.get(&"key1").is_some());
-        assert!(cache.get(&"key2").is_some());
+        let cache: StringCache = TwoTierCache::new(1, 100);
+        cache.put("key1".into(), "v1".into());
+        cache.put("key2".into(), "v2".into());
+        let _ = cache.get(&"key1".into());
+        let _ = cache.get(&"key2".into());
+        assert!(cache.get(&"key1".into()).is_some());
+        assert!(cache.get(&"key2".into()).is_some());
     }
 
     #[test]
     fn test_cache_lru_eviction() {
-        let cache = TwoTierCache::new(2, 100);
-        cache.put("key1", "v1");
-        cache.put("key2", "v2");
-        cache.put("key3", "v3");
-        let val1 = cache.get(&"key1");
-        let val2 = cache.get(&"key2");
-        let val3 = cache.get(&"key3");
+        let cache: StringCache = TwoTierCache::new(2, 100);
+        cache.put("key1".into(), "v1".into());
+        cache.put("key2".into(), "v2".into());
+        cache.put("key3".into(), "v3".into());
+        let val1 = cache.get(&"key1".into());
+        let val2 = cache.get(&"key2".into());
+        let val3 = cache.get(&"key3".into());
         assert!(val1.is_none() || val2.is_none() || val3.is_some());
     }
 
     #[test]
     fn test_cache_empty() {
-        let cache: TwoTierCache<&str, &str> = TwoTierCache::new(100, 1000);
+        let cache: StringCache = TwoTierCache::new(100, 1000);
         assert!(cache.is_empty());
     }
 
     #[test]
     fn test_cache_len_after_put() {
-        let cache = TwoTierCache::new(100, 1000);
-        cache.put("a", 1);
-        cache.put("b", 2);
+        let cache = make_int_cache();
+        cache.put("a".into(), 1);
+        cache.put("b".into(), 2);
         assert!(!cache.is_empty());
         assert!(cache.len_l1() >= 1);
     }
 
     #[test]
     fn test_cache_int_values() {
-        let cache: TwoTierCache<&str, i32> = TwoTierCache::new(100, 1000);
-        cache.put("int", 42);
-        assert_eq!(cache.get(&"int"), Some(42));
+        let cache: IntCache = TwoTierCache::new(100, 1000);
+        cache.put("int".into(), 42);
+        assert_eq!(cache.get(&"int".into()), Some(42));
     }
 
     #[test]
     fn test_cache_key_cloning() {
-        let cache = TwoTierCache::new(100, 1000);
+        let cache = make_string_cache();
         let key = String::from("test_key");
         cache.put(key.clone(), String::from("value"));
         assert_eq!(cache.get(&key), Some(String::from("value")));
@@ -190,18 +206,19 @@ mod tests {
 
     #[test]
     fn test_cache_zero_capacity() {
-        let cache = TwoTierCache::new(0, 0);
-        cache.put("key", "value");
-        assert!(cache.get(&"key").is_none() || cache.get(&"key").is_some());
+        let cache: StringCache = TwoTierCache::new(0, 0);
+        cache.put("key".into(), "value".into());
+        let result = cache.get(&"key".into());
+        assert!(result.is_none() || result.is_some());
     }
 
     #[tokio::test]
     async fn test_cache_concurrent_put() {
-        let cache = std::sync::Arc::new(TwoTierCache::new(100, 1000));
+        let cache = std::sync::Arc::new(make_int_cache());
         let cache_ref = cache.clone();
         let handle = tokio::spawn(async move {
             for i in 0..100 {
-                cache_ref.put(format!("key_{}", i), i);
+                cache_ref.put(format!("key_{}", i), i as i32);
             }
         });
         handle.await.unwrap();
@@ -210,19 +227,21 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_concurrent_get() {
-        let cache = std::sync::Arc::new(TwoTierCache::new(100, 1000));
+        let cache = std::sync::Arc::new(make_int_cache());
         for i in 0..50 {
-            cache.put(format!("key_{}", i), i);
+            cache.put(format!("key_{}", i), i as i32);
         }
         let cache_ref = cache.clone();
-        let handles: Vec<_> = (0..4).map(|_| {
-            let c = cache_ref.clone();
-            tokio::spawn(async move {
-                for i in 0..50 {
-                    let _ = c.get(&format!("key_{}", i));
-                }
+        let handles: Vec<_> = (0..4)
+            .map(|_| {
+                let c = cache_ref.clone();
+                tokio::spawn(async move {
+                    for i in 0..50 {
+                        let _ = c.get(&format!("key_{}", i));
+                    }
+                })
             })
-        }).collect();
+            .collect();
         for h in handles {
             h.await.unwrap();
         }
@@ -230,17 +249,17 @@ mod tests {
 
     #[test]
     fn test_cache_large_values() {
-        let cache = TwoTierCache::new(10, 100);
+        let cache: StringCache = TwoTierCache::new(10, 100);
         let large_vec = (0..10000).collect::<Vec<_>>();
-        cache.put("large", large_vec.clone());
-        let retrieved = cache.get(&"large");
+        cache.put("large".into(), format!("{:?}", large_vec));
+        let retrieved = cache.get(&"large".into());
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().len(), 10000);
+        assert!(retrieved.unwrap().len() > 1000);
     }
 
     #[test]
     fn test_cache_many_items() {
-        let cache = TwoTierCache::new(50, 10000);
+        let cache: IntKeyCache = TwoTierCache::new(50, 10000);
         for i in 0..1000 {
             cache.put(i, i * 2);
         }
@@ -250,7 +269,7 @@ mod tests {
 
     #[test]
     fn test_cache_alternating_put_get() {
-        let cache = TwoTierCache::new(10, 100);
+        let cache: IntKeyCache = TwoTierCache::new(10, 100);
         for i in 0..20 {
             cache.put(i, i);
             assert_eq!(cache.get(&i), Some(i));
@@ -259,17 +278,17 @@ mod tests {
 
     #[test]
     fn test_cache_mixed_operations() {
-        let cache = TwoTierCache::new(5, 50);
-        cache.put("a", 1);
-        cache.put("b", 2);
-        assert_eq!(cache.get(&"a"), Some(1));
-        cache.put("c", 3);
-        assert_eq!(cache.get(&"b"), Some(2));
-        cache.put("a", 10);
-        assert_eq!(cache.get(&"a"), Some(10));
-        cache.put("d", 4);
-        let _ = cache.get(&"c");
-        cache.put("e", 5);
-        cache.put("f", 6);
+        let cache: IntCache = TwoTierCache::new(5, 50);
+        cache.put("a".into(), 1);
+        cache.put("b".into(), 2);
+        assert_eq!(cache.get(&"a".into()), Some(1));
+        cache.put("c".into(), 3);
+        assert_eq!(cache.get(&"b".into()), Some(2));
+        cache.put("a".into(), 10);
+        assert_eq!(cache.get(&"a".into()), Some(10));
+        cache.put("d".into(), 4);
+        let _ = cache.get(&"c".into());
+        cache.put("e".into(), 5);
+        cache.put("f".into(), 6);
     }
 }

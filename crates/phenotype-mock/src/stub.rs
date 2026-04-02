@@ -2,10 +2,13 @@
 
 use std::sync::{Arc, Mutex};
 
+/// Type alias for the stub function storage
+type StubFunc<I, O> = Arc<Mutex<Box<dyn Fn(I) -> O + Send>>>;
+
 /// A simple stub that returns a fixed value or executes a closure
 #[derive(Clone)]
 pub struct Stub<I, O> {
-    func: Arc<Mutex<Box<dyn Fn(I) -> O + Send>>>,
+    func: StubFunc<I, O>,
     call_count: Arc<Mutex<usize>>,
     recorded_calls: Arc<Mutex<Vec<I>>>,
 }
@@ -92,7 +95,9 @@ pub struct StubBuilder {
 impl StubBuilder {
     /// Create a new stub builder
     pub fn new() -> Self {
-        Self { sequence: Vec::new() }
+        Self {
+            sequence: Vec::new(),
+        }
     }
 
     /// Add a return value to the sequence
