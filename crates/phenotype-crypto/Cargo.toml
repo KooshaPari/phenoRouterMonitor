@@ -12,6 +12,10 @@ sha2.workspace = true
 hex.workspace = true
 blake3.workspace = true
 thiserror.workspace = true
+aes-gcm = "0.10"
+pbkdf2 = "0.13"
+rand = "0.8"
+hmac = "0.12"
 
 [lib]
 path = "src/lib.rs"
