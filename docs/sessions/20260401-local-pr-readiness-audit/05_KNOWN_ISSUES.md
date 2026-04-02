@@ -15,12 +15,13 @@
 
 - The live PR lane is in `.worktrees/thegent-pr908-policy-fix`; the root checkout on `main` is not
   the branch that should be updated for PR `#908`.
-- `policy-gate` is fixed and passing on the refreshed PR head, but `#908` still has real failures
-  in `CodeQL Advanced`, `SAST Quick Check`, `SonarCloud`, and repo-specific lint/license checks.
+- `policy-gate` is fixed on the refreshed PR head, but `#908` still has real failures or review
+  pressure in `CodeQL Advanced`, `SonarCloud`, and repo-specific lint/license checks.
 - `security/snyk (kooshapari)` is still failing for account-limit reasons, and `CodeRabbit` is
   intermittently failing with review rate-limit exhaustion rather than repository code defects.
 - The PR still carries unresolved review threads that will continue to trip `pr-governance-gate`
   until comment resolution catches up with the code lane.
+- `CODEOWNERS` is still modified in the worktree and was not part of the latest immutable-pin pass.
 
 ## heliosCLI
 
@@ -32,6 +33,8 @@
   - `cargo fmt --all --check`
   - `cargo clippy --workspace --all-targets -- -D warnings`
   - `cargo test --workspace`
+- The PR `#179` worktree now also has a fresh local delta in `Cargo.toml`, `Cargo.lock`,
+  `policy-gate.yml`, and `pr-governance-gate.yml`; those changes still need push plus fresh CI.
 - Remaining GitHub blockers are now non-local or review-driven:
   - `security/snyk (kooshapari)` is failing because the private test quota is exhausted
   - some long-running platform and Bazel jobs are still pending or noisy
@@ -41,9 +44,40 @@
 
 ## cliproxyapi-plusplus
 
-- PR `#942` is no longer dirty, but it is still blocked pending fresh CI on head `52b60351`.
+- PR `#942` is no longer dirty, but it is still blocked pending fresh CI on the refreshed head.
 - `security/snyk (kooshapari)` remains an external quota or billing blocker.
-- Local `go vet ./...` is still blocked by pre-existing import-cycle and Go proxy fetch failures,
-  so Go-quality green status depends on the GitHub runner environment and further repo cleanup.
-- The repo-local custom Semgrep rules are now valid YAML and Go-oriented, but they are not yet safe
-  to hard-gate this repository without a dedicated false-positive reduction pass.
+- `Go Quality` was failing on repo-local formatting drift; the exact files GitHub flagged have now
+  been `gofmt`-normalized locally and still need push plus rerun.
+- Local `go vet ./...` is still blocked by a mix of pre-existing import-cycle, duplicate-symbol,
+  and upstream module-resolution failures that are not isolated to the current PR diff.
+- `main` itself has recent failing `CI` runs, so the remaining compile failures on `#942` cannot be
+  treated as solely introduced by this PR.
+- `sast-quick.yml` now carries a changed-file Semgrep path filter locally, but the repo still needs
+  a dedicated false-positive reduction pass before Semgrep can be trusted as a broad full-repo gate.
+
+## heliosApp
+
+- The local checkout is clean, but PR `#362` is still blocked by missing repo scripts
+  (`bun run test`, `bun run test:coverage`, `bun run docs:index`) and an invalid `.oxfmtrc.json`.
+- The branch also carries concrete lint/test cleanup items in the desktop/runtime/logger/ids
+  surfaces surfaced during the expanded audit.
+- External review and security apps are still noisy there:
+  - Snyk private-test quota exhaustion
+  - intermittent CodeRabbit/Kilo parse or rate-limit churn
+  - Socket alerts on dependency updates
+
+## AgilePlus
+
+- The root checkout is dirty on `main`, ahead of `origin/main` by one local commit, and is not in
+  a state where a new PR should be opened directly.
+- The current lane mixes workflow/governance changes, runtime and CLI edits, process-compose drift,
+  worklog changes, and untracked plan/spec files.
+- There are no stashes or detached worktrees to peel the PR slice out automatically; the next step
+  there is manual isolation into a clean branch or worktree.
+
+## agentapi-plusplus
+
+- The active root checkout is on `main` with broad unrelated drift, including tracked
+  `docs/node_modules` deletions, so the current state is not safe for direct PR prep.
+- The live PR lane remains `#398`, but its intended fixes are currently buried under unrelated repo
+  noise and should be moved into a clean worktree before further push activity.
