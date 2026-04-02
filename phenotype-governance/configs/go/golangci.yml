@@ -1,0 +1,9 @@
+# GolangCI-Lint configuration
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused

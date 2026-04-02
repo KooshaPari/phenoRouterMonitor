@@ -1,0 +1,6 @@
+# Ruff configuration
+target-version = "py310"
+line-length = 100
+
+[lint]
+select = ["E", "F", "I", "N", "W", "UP"]

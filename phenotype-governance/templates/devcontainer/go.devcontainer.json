@@ -1,0 +1,18 @@
+{
+  "name": "Go Development",
+  "image": "mcr.microsoft.com/devcontainers/go:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "editorconfig.editorconfig",
+        "golang.Go"
+      ]
+    }
+  },
+  "postCreateCommand": "go version",
+  "remoteUser": "vscode"
+}
