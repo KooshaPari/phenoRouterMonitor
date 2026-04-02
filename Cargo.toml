@@ -25,6 +25,7 @@ members = [
     "crates/phenotype-logging",
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
+    "crates/phenotype-ports-canonical",
     "crates/phenotype-state-machine",
     "crates/phenotype-string",
     "crates/phenotype-telemetry",

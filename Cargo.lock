@@ -1035,6 +1035,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "phenotype-ports-canonical"
+version = "0.2.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "phenotype-state-machine"
 version = "0.2.0"
 dependencies = [
