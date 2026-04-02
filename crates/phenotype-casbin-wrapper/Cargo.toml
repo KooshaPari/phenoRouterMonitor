@@ -1,0 +1,19 @@
+[package]
+name = "phenotype-casbin-wrapper"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Casbin adapter providing policy enforcement for the Phenotype ecosystem"
+
+[dependencies]
+casbin = { version = "2", features = ["runtime-tokio"] }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true }
