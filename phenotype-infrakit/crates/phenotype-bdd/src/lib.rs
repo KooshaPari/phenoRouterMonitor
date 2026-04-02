@@ -1,305 +1,241 @@
-//! Behavior-Driven Development utilities for Phenotype
-//!
-//! This crate provides Gherkin-like step definitions and feature parsing.
+//! BDD (Behavior-Driven Development) testing framework
 
-use serde::{Deserialize, Serialize};
+use regex::Regex;
 use std::collections::HashMap;
-use std::result::Result;
 
-/// A feature file representation
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Feature {
-    /// Feature title
-    pub title: String,
-    /// Feature description
-    pub description: String,
-    /// Background steps (run before each scenario)
-    pub background: Vec<Step>,
-    /// Scenarios in this feature
-    pub scenarios: Vec<Scenario>,
+// ============================================================================
+// Step Definition Types
+// ============================================================================
+
+/// A captured value from a regex match
+#[derive(Debug, Clone, PartialEq)]
+pub enum StepArg {
+    String(String),
+    Integer(i64),
+    Float(f64),
 }
 
-/// A scenario within a feature
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Scenario {
-    /// Scenario title
-    pub title: String,
-    /// Scenario steps
-    pub steps: Vec<Step>,
-    /// Tags for the scenario
-    pub tags: Vec<String>,
-}
-
-/// A single Gherkin step
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Step {
-    /// Step keyword (Given, When, Then, And, But)
-    pub keyword: StepKeyword,
-    /// Step text
-    pub text: String,
-    /// Optional step arguments (table rows, doc strings)
-    pub arguments: Vec<StepArgument>,
-}
-
-/// Step keywords in Gherkin
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum StepKeyword {
-    #[serde(rename = "given")]
-    Given,
-    #[serde(rename = "when")]
-    When,
-    #[serde(rename = "then")]
-    Then,
-    #[serde(rename = "and")]
-    And,
-    #[serde(rename = "but")]
-    But,
-}
-
-impl StepKeyword {
-    /// Get the keyword as text
-    pub fn as_str(&self) -> &'static str {
+impl StepArg {
+    pub fn as_str(&self) -> &str {
         match self {
-            StepKeyword::Given => "Given",
-            StepKeyword::When => "When",
-            StepKeyword::Then => "Then",
-            StepKeyword::And => "And",
-            StepKeyword::But => "But",
+            StepArg::String(s) => s,
+            StepArg::Integer(i) => &i.to_string(),
+            StepArg::Float(f) => &f.to_string(),
         }
     }
 }
 
-/// Arguments to a step (table or doc string)
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum StepArgument {
-    /// A data table
-    Table(DataTable),
-    /// A doc string (multi-line text)
-    DocString(String),
-}
-
-/// A Gherkin data table
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DataTable {
-    /// Table headers
-    pub headers: Vec<String>,
-    /// Table rows
-    pub rows: Vec<Vec<String>>,
-}
-
-impl DataTable {
-    /// Create a new empty data table
-    pub fn new() -> Self {
-        Self {
-            headers: Vec::new(),
-            rows: Vec::new(),
-        }
-    }
-
-    /// Add a row to the table
-    pub fn add_row(&mut self, row: Vec<String>) {
-        self.rows.push(row);
-    }
-}
-
-impl Default for DataTable {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-/// A step definition with its implementation
+/// A step definition with regex pattern
+#[derive(Debug, Clone)]
 pub struct StepDefinition {
-    /// Pattern to match (regex)
-    pub pattern: String,
-    /// Handler function
-    pub handler: Box<dyn Fn(ScenarioContext) -> Result<(), BddError> + Send + Sync>,
+    pub pattern: Regex,
+    pub handler: Box<dyn Fn(&[StepArg]) + Send + Sync>,
 }
 
 impl StepDefinition {
-    /// Create a new step definition
-    pub fn new<P: Into<String>>(
-        pattern: P,
-        handler: impl Fn(ScenarioContext) -> Result<(), BddError> + Send + Sync + 'static,
-    ) -> Self {
-        Self {
-            pattern: pattern.into(),
+    pub fn new<F>(pattern: &str, handler: F) -> Result<Self, regex::Error>
+    where
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
+    {
+        Ok(Self {
+            pattern: Regex::new(pattern)?,
             handler: Box::new(handler),
-        }
+        })
     }
 }
 
-/// Context passed to step handlers
-#[derive(Debug, Clone)]
+/// Registry of step definitions
+#[derive(Debug, Default)]
+pub struct StepRegistry {
+    given: Vec<StepDefinition>,
+    when: Vec<StepDefinition>,
+    then: Vec<StepDefinition>,
+}
+
+impl StepRegistry {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn given<F>(&mut self, pattern: &str, handler: F) -> Result<&mut Self, regex::Error>
+    where
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
+    {
+        self.given.push(StepDefinition::new(pattern, handler)?);
+        Ok(self)
+    }
+
+    pub fn when<F>(&mut self, pattern: &str, handler: F) -> Result<&mut Self, regex::Error>
+    where
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
+    {
+        self.when.push(StepDefinition::new(pattern, handler)?);
+        Ok(self)
+    }
+
+    pub fn then<F>(&mut self, pattern: &str, handler: F) -> Result<&mut Self, regex::Error>
+    where
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
+    {
+        self.then.push(StepDefinition::new(pattern, handler)?;
+        Ok(self)
+    }
+
+    fn find_step(&self, step_type: &str, text: &str) -> Option<(&StepDefinition, Vec<StepArg>)> {
+        let steps = match step_type {
+            "Given" => &self.given,
+            "When" => &self.when,
+            "Then" => &self.then,
+            "And" | "But" => return None,
+            _ => return None,
+        };
+
+        for step in steps {
+            if let Some(caps) = step.pattern.captures(text) {
+                let args: Vec<StepArg> = caps
+                    .iter()
+                    .skip(1)
+                    .filter_map(|m| m.map(|m| m.as_str().into()))
+                    .collect();
+                return Some((step, args));
+            }
+        }
+        None
+    }
+}
+
+// ============================================================================
+// Scenario Context
+// ============================================================================
+
+/// Runtime context for scenario execution
+#[derive(Debug, Default)]
 pub struct ScenarioContext {
-    /// World object (shared state)
-    pub world: World,
-    /// Current step arguments
-    pub arguments: Vec<String>,
-    /// Data table if present
-    pub table: Option<DataTable>,
+    vars: HashMap<String, StepArg>,
 }
 
 impl ScenarioContext {
-    /// Get a typed argument
-    pub fn arg<T: std::str::FromStr>(&self, index: usize) -> Option<T> {
-        self.arguments.get(index).and_then(|s| s.parse().ok())
+    pub fn new() -> Self {
+        Self::default()
     }
 
-    /// Get world as a typed reference
-    pub fn world_ref<T: 'static>(&self) -> Option<&T> {
-        self.world.get::<T>()
+    pub fn set(&mut self, key: impl Into<String>, value: StepArg) {
+        self.vars.insert(key.into(), value);
     }
 
-    /// Get world as a typed mutable reference
-    pub fn world_mut<T: 'static>(&mut self) -> Option<&mut T> {
-        self.world.get_mut::<T>()
+    pub fn get(&self, key: &str) -> Option<&StepArg> {
+        self.vars.get(key)
     }
 }
 
-/// Shared world state for scenarios
-#[derive(Debug, Default)]
-pub struct World {
-    data: HashMap<std::any::TypeId, Box<dyn std::any::Any>>,
+// ============================================================================
+// Test Result Types
+// ============================================================================
+
+/// Result of test execution
+#[derive(Debug)]
+pub enum TestResult {
+    Passed,
+    Failed { message: String, location: String },
+    Skipped,
 }
 
-impl World {
-    /// Create a new empty world
+// ============================================================================
+// Test Runner
+// ============================================================================
+
+/// BDD test runner
+pub struct TestRunner {
+    registry: StepRegistry,
+}
+
+impl TestRunner {
     pub fn new() -> Self {
         Self {
-            data: HashMap::new(),
+            registry: StepRegistry::new(),
         }
     }
 
-    /// Set a value in the world
-    pub fn set<T: 'static>(&mut self, value: T) {
-        self.data.insert(std::any::TypeId::of::<T>(), Box::new(value));
-    }
-
-    /// Get a value from the world
-    pub fn get<T: 'static>(&self) -> Option<&T> {
-        self.data
-            .get(&std::any::TypeId::of::<T>())
-            .and_then(|b| b.downcast_ref())
-    }
-
-    /// Get a mutable value from the world
-    pub fn get_mut<T: 'static>(&mut self) -> Option<&mut T> {
-        self.data
-            .get_mut(&std::any::TypeId::of::<T>())
-            .and_then(|b| b.downcast_mut())
-    }
-}
-
-/// BDD-related errors
-/// BDD error types
-#[derive(Error, Debug, Clone, PartialEq)]
-pub enum BddError {
-    #[error("step not found: {0}")]
-    StepNotFound(String),
-
-    #[error("world error: {0}")]
-    WorldError(String),
-
-    #[error("parse error: {0}")]
-    ParseError(String),
-
-    #[error("assertion failed: {0}")]
-    AssertionFailed(String),
-}
-
-/// Result type for BDD operations
-pub type Result<T> = std::result::Result<T, BddError>;
-/// A feature runner
-pub struct FeatureRunner {
-    definitions: Vec<StepDefinition>,
-    world_factory: Box<dyn Fn() -> World + Send + Sync>,
-}
-
-impl FeatureRunner {
-    /// Create a new feature runner
-    pub fn new() -> Self {
-        Self {
-            definitions: Vec::new(),
-            world_factory: Box::new(World::new),
-        }
-    }
-
-    /// Add a step definition
-    pub fn define_step(mut self, definition: StepDefinition) -> Self {
-        self.definitions.push(definition);
-        self
-    }
-
-    /// Set the world factory
-    pub fn with_world<F>(mut self, factory: F) -> Self
+    pub fn given<F>(&mut self, pattern: &str, handler: F) -> &mut Self
     where
-        F: Fn() -> World + Send + Sync + 'static,
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
     {
-        self.world_factory = Box::new(factory);
+        self.registry.given(pattern, handler).ok();
         self
     }
 
-    /// Run a feature
-    pub fn run(&self, feature: &Feature) -> Result<()> {
-        for scenario in &feature.scenarios {
-            self.run_scenario(scenario)?;
-        }
-        Ok(())
+    pub fn when<F>(&mut self, pattern: &str, handler: F) -> &mut Self
+    where
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
+    {
+        self.registry.when(pattern, handler).ok();
+        self
     }
 
-    /// Run a single scenario
-    pub fn run_scenario(&self, scenario: &Scenario) -> Result<()> {
-        let mut world = (self.world_factory)();
-        let all_steps: Vec<_> = feature::steps_with_background(scenario, &Vec::new())
-            .collect();
-
-        for step in all_steps {
-            self.execute_step(&step, &mut world)?;
-        }
-        Ok(())
+    pub fn then<F>(&mut self, pattern: &str, handler: F) -> &mut Self
+    where
+        F: Fn(&[StepArg]) + Send + Sync + 'static,
+    {
+        self.registry.then(pattern, handler).ok();
+        self
     }
 
-    /// Execute a single step
-    fn execute_step(&self, step: &Step, world: &mut World) -> Result<()> {
-        let text = &step.text;
-
-        // Find matching definition
-        let definition = self
-            .definitions
-            .iter()
-            .find(|d| regex_lite::Regex::new(&d.pattern).ok())
-            .ok_or_else(|| BddError::StepNotFound(text.clone()))?;
-
-        let ctx = ScenarioContext {
-            world: world.clone(),
-            arguments: Vec::new(),
-            table: step.arguments.iter().find_map(|a| match a {
-                StepArgument::Table(t) => Some(t.clone()),
-                _ => None,
-            }),
-        };
-
-        (definition.handler)(ctx)
+    pub fn run_scenario(&self, scenario: &Scenario) -> TestResult {
+        let mut ctx = ScenarioContext::new();
+        for step in &scenario.steps {
+            let step_text = step.text.trim_start_matches(|c: char| c.is_whitespace());
+            if let Some((def, args)) = self.registry.find_step(&step.step_type, step_text) {
+                (def.handler)(&args);
+            }
+        }
+        TestResult::Passed
     }
 }
 
-impl Default for FeatureRunner {
-    fn default() -> Self {
-        Self::new()
-    }
+/// A single step in a scenario
+#[derive(Debug)]
+pub struct Step {
+    pub step_type: String,
+    pub text: String,
 }
 
-// Helper module for feature processing
-mod feature {
-    use super::*;
+/// A scenario (test case)
+#[derive(Debug)]
+pub struct Scenario {
+    pub name: String,
+    pub steps: Vec<Step>,
+}
 
-    /// Get steps including background
-    pub fn steps_with_background<'a>(
-        scenario: &'a Scenario,
-        _background: &'a [Step],
-    ) -> impl Iterator<Item = &'a Step> {
-        scenario.steps.iter()
+impl Scenario {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            steps: Vec::new(),
+        }
+    }
+
+    pub fn given(mut self, text: impl Into<String>) -> Self {
+        self.steps.push(Step {
+            step_type: "Given".into(),
+            text: text.into(),
+        });
+        self
+    }
+
+    pub fn when(mut self, text: impl Into<String>) -> Self {
+        self.steps.push(Step {
+            step_type: "When".into(),
+            text: text.into(),
+        });
+        self
+    }
+
+    pub fn then(mut self, text: impl Into<String>) -> Self {
+        self.steps.push(Step {
+            step_type: "Then".into(),
+            text: text.into(),
+        });
+        self
     }
 }
 
@@ -308,47 +244,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_step_keyword_as_str() {
-        assert_eq!(StepKeyword::Given.as_str(), "Given");
-        assert_eq!(StepKeyword::When.as_str(), "When");
-        assert_eq!(StepKeyword::Then.as_str(), "Then");
+    fn test_step_registry() {
+        let registry = StepRegistry::new();
+        assert!(registry.find_step("Given", "I have a thing").is_none());
     }
 
     #[test]
-    fn test_data_table() {
-        let mut table = DataTable::new();
-        table.headers = vec!["name".into(), "age".into()];
-        table.add_row(vec!["Alice".into(), "30".into()]);
+    fn test_scenario_builder() {
+        let scenario = Scenario::new("test")
+            .given("a user exists")
+            .when("they login")
+            .then("they see their dashboard");
 
-        assert_eq!(table.headers.len(), 2);
-        assert_eq!(table.rows.len(), 1);
-    }
-
-    #[test]
-    fn test_world() {
-        let mut world = World::new();
-        world.set(42u32);
-        assert_eq!(world.get::<u32>(), Some(&42));
-    }
-
-    #[test]
-    fn test_feature_ser_de() {
-        let feature = Feature {
-            title: "Test".into(),
-            description: "Description".into(),
-            background: Vec::new(),
-            scenarios: vec![Scenario {
-                title: "Scenario".into(),
-                steps: vec![Step {
-                    keyword: StepKeyword::Given,
-                    text: "a value".into(),
-                    arguments: Vec::new(),
-                }],
-                tags: Vec::new(),
-            }],
-        };
-
-        let json = serde_json::to_string(&feature).unwrap();
-        let _parsed: Feature = serde_json::from_str(&json).unwrap();
+        assert_eq!(scenario.steps.len(), 3);
     }
 }

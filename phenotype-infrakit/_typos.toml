@@ -1,0 +1,10 @@
+# Typo detection configuration for phenotype-infrakit
+
+[default.extend-words]
+agileplus = "agileplus"
+
+[files]
+extend-exclude = [
+    "*.lock",
+    "target/",
+]

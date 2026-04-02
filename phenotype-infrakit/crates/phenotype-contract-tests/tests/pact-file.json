@@ -1,0 +1,99 @@
+{
+  "consumer": {
+    "name": "user-service"
+  },
+  "provider": {
+    "name": "account-service"
+  },
+  "interactions": [
+    {
+      "description": "a request to get user accounts",
+      "providerState": "user 123 exists",
+      "request": {
+        "method": "GET",
+        "path": "/api/users/123/accounts",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer token123"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "accounts": [
+            {
+              "id": "acc-001",
+              "type": "checking",
+              "balance": 1500.00
+            },
+            {
+              "id": "acc-002",
+              "type": "savings",
+              "balance": 5000.00
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "a request to create a new account",
+      "providerState": "user 123 exists",
+      "request": {
+        "method": "POST",
+        "path": "/api/users/123/accounts",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer token123"
+        },
+        "body": {
+          "type": "checking",
+          "initialBalance": 100.00
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "acc-003",
+          "type": "checking",
+          "balance": 100.00,
+          "createdAt": "2024-01-15T10:30:00Z"
+        }
+      }
+    },
+    {
+      "description": "a request for non-existent user",
+      "providerState": "user 999 does not exist",
+      "request": {
+        "method": "GET",
+        "path": "/api/users/999/accounts",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer token123"
+        }
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": "User not found",
+          "userId": 999
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    },
+    "version": "1.0.0",
+    "createdAt": "2024-01-15T10:00:00+00:00"
+  }
+}
