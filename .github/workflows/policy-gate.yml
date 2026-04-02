@@ -41,9 +41,16 @@ jobs:
             fi
           fi
 
-          git fetch origin "$BASE_REF" --depth=1 || true
-          MERGES=$(git rev-list --merges "origin/$BASE_REF..HEAD" || true)
-          if [[ -n "$MERGES" ]]; then
+      # Check for merge commits in PR (only new ones, not base branch history)
+      git fetch origin "$BASE_REF" --depth=100 || true
+      BASE_SHA=$(git rev-parse "origin/$BASE_REF")
+      HEAD_SHA=$(git rev-parse HEAD)
+      MERGE_BASE=$(git merge-base "$BASE_SHA" "$HEAD_SHA" || echo "")
+      if [[ -n "$MERGE_BASE" ]]; then
+        MERGES=$(git rev-list --merges "$MERGE_BASE..$HEAD_SHA" --first-parent || true)
+      else
+        MERGES=$(git rev-list --merges "origin/$BASE_REF..HEAD" --first-parent || true)
+      fi
             echo "ERROR: merge commits detected in PR diff range:"
             echo "$MERGES"
             exit 1
