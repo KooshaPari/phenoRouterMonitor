@@ -26,6 +26,30 @@ This audit compares the documented 12-week casbin-rs migration plan against actu
 - `cargo test -p phenotype-casbin-wrapper`: ✅ 4 tests pass
 - `cargo clippy -p phenotype-casbin-wrapper -- -D warnings`: ✅ PASSES
 
+### Follow-on Crypto Lane Validation (2026-04-02)
+- Restored `crates/phenotype-casbin-wrapper/Cargo.toml` so the wrapper crate is again a valid
+  workspace member in the active `feat/crypto-complete-rebased` lane.
+- Re-aligned `pbkdf2` onto the workspace-managed `0.12` line in the root manifest and
+  `crates/phenotype-crypto/Cargo.toml` to eliminate dependency drift.
+- Completed public hex-helper exports in `crates/phenotype-crypto/src/lib.rs` for:
+  - `encrypt_aes_gcm_hex`
+  - `decrypt_aes_gcm_hex`
+  - `compute_hmac_hex`
+  - `verify_hmac_hex`
+- Local validation results on the active worktree:
+  - `cargo check -p phenotype-crypto`: ✅
+  - `cargo check -p phenotype-casbin-wrapper`: ✅
+  - `cargo test -p phenotype-casbin-wrapper`: ✅ 4 tests pass
+  - `cargo test -p phenotype-crypto --lib`: ✅ 49 tests pass
+  - `cargo test -p phenotype-crypto --test crypto_test test_hmac_hex_workflow`: ✅
+  - `cargo test -p phenotype-crypto --test crypto_test test_complete_encryption_workflow`: ✅
+  - `cargo test -p phenotype-crypto --test crypto_test test_hex_encoding_roundtrip`: ✅
+  - `cargo clippy -p phenotype-crypto --all-targets -- -D warnings`: ✅
+- Formatting note:
+  - targeted `rustfmt` succeeds on the touched `phenotype-crypto` source and test files
+  - workspace-wide `cargo fmt --check` is still blocked by an unrelated missing
+    `crates/phenotype-string/src/compression.rs` module outside this crypto lane
+
 ---
 
 ## I. Plan vs Implementation Status
