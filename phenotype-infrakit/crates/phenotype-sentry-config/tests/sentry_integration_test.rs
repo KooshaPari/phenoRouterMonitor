@@ -25,10 +25,7 @@ fn test_sentry_capture_message() {
 fn test_sentry_capture_error() {
     // FR-SENTRY-003: Should be able to capture errors
     let _guard = phenotype_sentry_config::initialize();
-    let error = std::io::Error::new(
-        std::io::ErrorKind::Other,
-        "Test error for Sentry in phenotype-infrakit",
-    );
+    let error = std::io::Error::other("Test error for Sentry in phenotype-infrakit");
     phenotype_sentry_config::capture_error(&error);
     // Error captured, test passes
 }
