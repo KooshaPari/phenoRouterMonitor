@@ -12,6 +12,7 @@
 
 - The repo is heavily dirty on `main` with live DB changes, generated artifacts, deleted workflows, and many untracked spec directories.
 - It is not suitable for immediate PR creation without first splitting runtime-state changes from governance/docs changes.
+- `git worktree prune -v` removed one stale record on 2026-04-02, but `git worktree list --porcelain` still reports `AgilePlus-phase2` as a prunable missing-path entry. Treat this as a Git metadata anomaly until a dedicated recovery pass resolves it cleanly.
 
 ### `agentapi-plusplus`
 
@@ -30,6 +31,7 @@
 - A broken linked worktree entry existed at `worktrees/chore/fix-dep-drift-python`.
 - `git worktree prune -v` removed the stale metadata on 2026-04-02.
 - The repo still has one stash and mixed governance/doc updates on `refactor/decouple-harness-crates`.
+- The root workspace breakage from nested harness-crate `[workspace]` declarations has been repaired locally and validated, but the branch still needs commit/push plus thread resolution on PR `#179`.
 
 ### `thegent`
 
@@ -38,7 +40,7 @@
 
 ### `forgecode`
 
-- Current governance bootstrap work lives on `main`, so it should not go straight to PR without a
+- Current governance bootstrap work is dirty on `main`, so it should not go straight to PR without a
   dedicated feature branch.
 
 ### `temp-PRODVERCEL`
@@ -48,7 +50,7 @@
 ## Open PR Branches With Local Drift
 
 - `heliosCLI`: PR branch `refactor/decouple-harness-crates` is open as PR `#179`.
-- `thegent`: PR branch `refactor/cleanup-error-variants` is open and locally drifted.
+- `thegent`: PR branch `refactor/cleanup-error-variants` is open as PR `#908` and locally drifted.
 - `agentapi-plusplus`: PR branch `feat/chromatic-visual-testing` is open as PR `#398`.
 - `cliproxyapi-plusplus`: PR branch `feat/kilo-gastown-spec-and-sast` is open as PR `#942`.
 
