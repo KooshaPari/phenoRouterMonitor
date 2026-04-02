@@ -13,6 +13,8 @@ import (
 	"github.com/KooshaPari/pheno-cli/internal/publish"
 )
 
+var promoteCmd *cobra.Command
+
 func init() {
 	promoteCmd = &cobra.Command{
 		Use:   "promote [channel]",
@@ -20,6 +22,7 @@ func init() {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runPromote,
 	}
+	rootCmd.AddCommand(promoteCmd)
 	promoteCmd.Flags().String("risk-profile", "low", "risk profile for gate evaluation (low, medium, high)")
 	promoteCmd.Flags().Bool("force", false, "skip gate checks and promote anyway")
 	promoteCmd.Flags().Bool("dry-run", false, "print what would be promoted without making changes")

@@ -40,6 +40,7 @@ Use --all to bootstrap all repositories in a directory.`,
 }
 
 func init() {
+	rootCmd.AddCommand(bootstrapCmd)
 	bootstrapCmd.Flags().StringVar(&bootstrapLanguage, "language", "", "Programming language (go, rust, python, typescript). If not specified, detected from manifests.")
 	bootstrapCmd.Flags().StringVar(&bootstrapRiskProfile, "risk-profile", "low", "Risk profile (low, medium, high)")
 	bootstrapCmd.Flags().BoolVar(&bootstrapDryRun, "dry-run", false, "Show files that would be created without writing them")
@@ -115,7 +116,7 @@ func runSingleBootstrap(cmd *cobra.Command, args []string) error {
 	ctx := templates.TemplateContext{
 		RepoName:    repoName,
 		Language:    language,
-		Registry:    inferRegistry(language),
+		Registry:    templates.InferRegistry(language),
 		RiskProfile: bootstrapRiskProfile,
 	}
 
@@ -194,20 +195,4 @@ func runSingleBootstrap(cmd *cobra.Command, args []string) error {
 	fmt.Println("3. Commit with: git add . && git commit -m 'chore: bootstrap governance artifacts'")
 
 	return nil
-}
-
-// inferRegistry returns the likely registry for a given language
-func inferRegistry(language string) string {
-	switch language {
-	case "go":
-		return "go_proxy"
-	case "rust":
-		return "crates.io"
-	case "python":
-		return "pypi"
-	case "typescript":
-		return "npm"
-	default:
-		return "unknown"
-	}
 }

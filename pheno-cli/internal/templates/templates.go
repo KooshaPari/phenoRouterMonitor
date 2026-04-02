@@ -16,6 +16,12 @@ type TemplateContext struct {
 	Language    string // Programming language (go, rust, python, typescript)
 	Registry    string // Package registry
 	RiskProfile string // Risk profile (low, medium, high)
+
+	// Additional fields for hexagonal architecture templates
+	ModulePath  string // Go module path (e.g., github.com/org/repo)
+	GoVersion   string // Go version
+	AuthorName  string // Author name
+	Description string // Project description
 }
 
 // RenderTemplate renders a template by name with the given context.
@@ -43,11 +49,24 @@ func RenderTemplate(name string, ctx TemplateContext) (string, error) {
 // ListTemplates returns the list of available template names.
 func ListTemplates() []string {
 	return []string{
+		// Base configs
+		"editorconfig",
+		"gitignore",
+		"gitattributes",
+		"dockerignore",
+		// Task runner
 		"mise.toml",
+		// Git hooks
 		"pre-commit.sh",
 		"pre-push.sh",
+		// CI/CD
 		"ci.yml",
 		"release.yml",
+		// Hexagonal architecture templates
+		"hexagonal-cargo-toml",
+		"hexagonal-go-mod",
+		"hexagonal-pyproject-toml",
+		"hexagonal-package-json",
 	}
 }
 

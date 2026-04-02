@@ -21,6 +21,7 @@ var (
 )
 
 func init() {
+	rootCmd.AddCommand(matrixCmd)
 	matrixCmd.Flags().StringVar(&matrixOutput, "output", "", "Output file path (prints to stdout if not specified)")
 }
 

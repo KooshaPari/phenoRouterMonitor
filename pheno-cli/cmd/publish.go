@@ -13,12 +13,15 @@ import (
 	"github.com/KooshaPari/pheno-cli/internal/publish"
 )
 
+var publishCmd *cobra.Command
+
 func init() {
 	publishCmd = &cobra.Command{
 		Use:   "publish",
 		Short: "Publish packages to their registries",
 		RunE:  runPublish,
 	}
+	rootCmd.AddCommand(publishCmd)
 	publishCmd.Flags().String("registry", "", "registry to publish to (npm, pypi, crates.io)")
 	publishCmd.Flags().String("version", "", "version to publish (overrides auto-detection)")
 	publishCmd.Flags().String("channel", "alpha", "release channel (alpha, canary, beta, rc, prod)")

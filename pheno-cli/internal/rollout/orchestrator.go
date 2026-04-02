@@ -87,7 +87,7 @@ func bootstrapRepo(repoPath string, repo manifest.RepoConfig, dryRun bool) Rollo
 
 	registry := repo.Registry
 	if registry == "" {
-		registry = inferRegistry(language)
+		registry = templates.InferRegistry(language)
 	}
 
 	riskProfile := repo.RiskProfile
@@ -186,19 +186,4 @@ func FormatResults(results []RolloutResult) string {
 	sb.WriteString(strings.Repeat("-", 70) + "\n")
 	sb.WriteString(fmt.Sprintf("Total: %d OK, %d failed, %d skipped\n", succeeded, failed, skipped))
 	return sb.String()
-}
-
-func inferRegistry(language string) string {
-	switch language {
-	case "go":
-		return "go_proxy"
-	case "rust":
-		return "crates.io"
-	case "python":
-		return "pypi"
-	case "typescript":
-		return "npm"
-	default:
-		return "unknown"
-	}
 }
