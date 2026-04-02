@@ -35,3 +35,9 @@ impl Contract {
         self.tests.push(test);
     }
 }
+
+impl Default for Contract {
+    fn default() -> Self {
+        Self::new()
+    }
+}
