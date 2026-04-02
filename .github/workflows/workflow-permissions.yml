@@ -1,0 +1,7 @@
+name: workflow-permissions
+on: workflow_dispatch
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+  security-events: write
