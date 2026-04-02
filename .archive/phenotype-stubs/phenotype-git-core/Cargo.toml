@@ -1,0 +1,12 @@
+[package]
+name = "phenotype-git-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Git utilities for the phenotype ecosystem"
+
+[dependencies]
+gix.workspace = true
+thiserror.workspace = true

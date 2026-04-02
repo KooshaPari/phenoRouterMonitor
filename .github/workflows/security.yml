@@ -39,11 +39,7 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check advisories, licenses, duplicates
-<<<<<<< HEAD
-        run: cargo deny check -c rust/deny.toml
-=======
         run: cargo deny check
->>>>>>> origin/main
 
   # ─── Gitleaks Secret Detection ────────────────────────────────────────
   gitleaks:
@@ -64,32 +60,12 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    strategy:
-      matrix:
-        language: [cpp, python]
     steps:
       - uses: actions/checkout@v6
       - uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
+          languages: rust
       - uses: github/codeql-action/analyze@v3
-
-  # ─── Python Security (bandit) ─────────────────────────────────────────
-  python-security:
-    name: Python Security
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-      - name: Install bandit
-        run: pip install bandit[toml]
-      - name: Run bandit
-        run: bandit -r python/src -ll
-        continue-on-error: true
-<<<<<<< HEAD
-=======
 
   # ─── OSV-Scanner (Rust lockfile; repo does not commit Cargo.lock) ───────
   osv-scanner:
@@ -124,4 +100,3 @@ jobs:
       - name: OSV table (on vulnerability findings)
         if: failure() && steps.osv.outcome == 'failure'
         run: osv-scanner scan -L Cargo.lock --format table
->>>>>>> origin/main

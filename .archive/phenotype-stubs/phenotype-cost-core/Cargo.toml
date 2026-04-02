@@ -1,0 +1,13 @@
+[package]
+name = "phenotype-cost-core"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+description = "Cost calculation, pricing models, and budget enforcement for LLM operations"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,18 @@
+[package]
+name = "phenotype-async-traits"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Reusable async trait helper utilities for Phenotype crates."
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+pin-project = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
