@@ -46,6 +46,12 @@ impl StepContext {
     }
 }
 
+impl Default for StepContext {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Feature result
 #[derive(Debug)]
 pub struct FeatureResult {
@@ -62,6 +68,12 @@ impl FeatureResult {
     }
 }
 
+impl Default for FeatureResult {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Scenario result
 #[derive(Debug)]
 pub struct ScenarioResult {
@@ -75,6 +87,12 @@ impl ScenarioResult {
             passed: true,
             steps: Vec::new(),
         }
+    }
+}
+
+impl Default for ScenarioResult {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -97,6 +115,12 @@ impl StepResult {
         self.passed = false;
         self.error = Some(error);
         self
+    }
+}
+
+impl Default for StepResult {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -124,5 +148,11 @@ impl BddRunner {
             }
         }
         result
+    }
+}
+
+impl Default for BddRunner {
+    fn default() -> Self {
+        Self::new()
     }
 }
