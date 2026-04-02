@@ -1,0 +1,242 @@
+{
+  "version": "1.0.0",
+  "name": "phenotype-ecosystem-traceability",
+  "description": "Multi-repo traceability configuration for phenotype ecosystem",
+  "repositories": [
+    {
+      "name": "phenodocs",
+      "path": "phenodocs",
+      "language": "typescript",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src", "docs"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-agent-core",
+      "path": "phenotype-agent-core",
+      "language": "python",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-skills",
+      "path": "phenotype-skills",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src", "crates"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-task-engine",
+      "path": "phenotype-task-engine",
+      "language": "python",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-vessel",
+      "path": "phenotype-vessel",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-sentinel",
+      "path": "phenotype-sentinel",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-router-monitor",
+      "path": "phenotype-router-monitor",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-governance",
+      "path": "phenotype-governance",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "phenotype-evaluation",
+      "path": "phenotype-evaluation",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src"],
+      "enabled": true
+    },
+    {
+      "name": "pheno-cli",
+      "path": "pheno-cli",
+      "language": "go",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["cmd", "internal"],
+      "enabled": true
+    },
+    {
+      "name": "nanovms",
+      "path": "nanovms",
+      "language": "go",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["cmd", "internal", "pkg"],
+      "enabled": true
+    },
+    {
+      "name": "thegent",
+      "path": "thegent",
+      "language": "rust",
+      "specs_path": ".agileplus/specs",
+      "tests_path": "tests",
+      "source_paths": ["src", "crates"],
+      "enabled": true
+    }
+  ],
+  "traceability": {
+    "levels": [
+      {
+        "id": "fr",
+        "name": "Functional Requirement",
+        "description": "High-level feature requirements",
+        "pattern": "FR-\\d{3}",
+        "required": true,
+        "min_per_repo": 5
+      },
+      {
+        "id": "us",
+        "name": "User Story",
+        "description": "User-facing functionality description",
+        "pattern": "US-\\d{3}",
+        "required": true,
+        "min_per_repo": 10
+      },
+      {
+        "id": "adr",
+        "name": "Architecture Decision Record",
+        "description": "Design decisions with rationale",
+        "pattern": "ADR-\\d{3}",
+        "required": true,
+        "min_per_repo": 3
+      },
+      {
+        "id": "tc",
+        "name": "Test Case",
+        "description": "Automated test verifying functionality",
+        "pattern": "TC-[A-Z]{2,4}-\\d{3}(-\\d{3})?",
+        "required": true,
+        "min_per_repo": 20
+      },
+      {
+        "id": "ce",
+        "name": "Code Entity",
+        "description": "Function, class, or type implementing feature",
+        "pattern": "CE-[A-Z]{2,4}-\\d{3}",
+        "required": true,
+        "min_per_repo": 50
+      }
+    ],
+    "rules": [
+      {
+        "id": "fr-us",
+        "from": "fr",
+        "to": "us",
+        "min_links": 1,
+        "max_links": 10,
+        "description": "Each FR must have at least 1 US"
+      },
+      {
+        "id": "us-adr",
+        "from": "us",
+        "to": "adr",
+        "min_links": 0,
+        "max_links": 3,
+        "description": "Each US may have 0-3 ADRs"
+      },
+      {
+        "id": "adr-tc",
+        "from": "adr",
+        "to": "tc",
+        "min_links": 1,
+        "max_links": 10,
+        "description": "Each ADR must have at least 1 TC"
+      },
+      {
+        "id": "tc-ce",
+        "from": "tc",
+        "to": "ce",
+        "min_links": 1,
+        "max_links": 5,
+        "description": "Each TC must test at least 1 CE"
+      },
+      {
+        "id": "us-ce",
+        "from": "us",
+        "to": "ce",
+        "min_links": 1,
+        "max_links": 10,
+        "description": "Each US must be implemented by at least 1 CE"
+      }
+    ],
+    "coverage": {
+      "minimum_percentage": 100,
+      "fail_on_violation": true,
+      "generate_report": true,
+      "badge_format": "svg"
+    }
+  },
+  "automation": {
+    "auto_annotate": true,
+    "auto_link": true,
+    "generate_missing_specs": true,
+    "update_journeys": true,
+    "create_gif_placeholders": true
+  },
+  "badges": {
+    "fr": {
+      "prefix": "✓ FR",
+      "color": "#22c55e"
+    },
+    "us": {
+      "prefix": "✓ US",
+      "color": "#3b82f6"
+    },
+    "adr": {
+      "prefix": "✓ ADR",
+      "color": "#8b5cf6"
+    },
+    "tc": {
+      "prefix": "✓ TC",
+      "color": "#f59e0b"
+    },
+    "ce": {
+      "prefix": "✓ CE",
+      "color": "#ec4899"
+    }
+  },
+  "ci": {
+    "enabled": true,
+    "fail_on_missing_coverage": true,
+    "comment_on_pr": true,
+    "generate_summary": true
+  }
+}
