@@ -20,12 +20,13 @@ use std::env;
 /// ```
 pub fn initialize() -> sentry::ClientInitGuard {
     let dsn = env::var("SENTRY_DSN").ok();
-    let environment = env::var("SENTRY_ENVIRONMENT")
-        .unwrap_or_else(|_| "development".to_string());
+    let environment = env::var("SENTRY_ENVIRONMENT").unwrap_or_else(|_| "development".to_string());
     let release = env!("CARGO_PKG_VERSION");
 
     // Use test DSN if not provided
-    let dsn_url = dsn.as_deref().unwrap_or("https://test@test.ingest.sentry.io/0");
+    let dsn_url = dsn
+        .as_deref()
+        .unwrap_or("https://test@test.ingest.sentry.io/0");
 
     sentry::init((
         dsn_url,
@@ -93,7 +94,6 @@ mod tests {
         // FR-SENTRY-001: Sentry should initialize in test mode without DSN
         env::remove_var("SENTRY_DSN");
         let _guard = initialize();
-        assert!(true);
     }
 
     #[test]
@@ -101,6 +101,5 @@ mod tests {
         // FR-SENTRY-002: Environment should be overridable via env var
         env::set_var("SENTRY_ENVIRONMENT", "test");
         let _guard = initialize();
-        assert!(true);
     }
 }
