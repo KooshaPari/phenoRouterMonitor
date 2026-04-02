@@ -38,8 +38,7 @@ tasks:
     desc: Start all services via process-compose (detached, no TUI; logs under .agileplus/logs)
     cmds:
       - mkdir -p {{.AGILEPLUS_DIR}}/logs
-      - bash scripts/orb-up.sh
-      - process-compose up -f process-compose.yml -t=false -D -L {{.AGILEPLUS_DIR}}/logs/process-compose.log
+      - bash scripts/dev-up.sh
 
   platform:up:
     desc: Alias for dev stack (OrbStack Dragonfly/Postgres + process-compose)

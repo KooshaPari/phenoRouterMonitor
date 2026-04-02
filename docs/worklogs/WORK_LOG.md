@@ -1,12 +1,181 @@
 # Work Log
 
-<<<<<<< HEAD
 > Track work items, tasks, and deliverables across the Phenotype ecosystem.
 
 ---
 
-## Wave 94 - Deep Decomposition Audit (2026-03-29)
-=======
+## 2026-04-02 — Local PR Readiness Audit
+
+> **Agent:** Codex
+> **Date:** 2026-04-02
+> **Priority:** P0-P1
+
+### Summary
+
+Expanded the local PR-readiness lane from a narrow repo sample into a broader active-repo audit
+covering local branches, dirty trees, worktrees, temp surfaces, and stash debt. The result is a
+real PR-prep queue instead of a generic “audit complete” note.
+
+### Findings
+
+- best current PR-refresh candidates:
+  - `agentapi-plusplus`
+  - `heliosCLI`
+  - `cliproxyapi-plusplus`
+- blocked PR candidates:
+  - `thegent` due to branch drift and mixed local changes
+  - `heliosApp` until branch-to-PR lane alignment is clarified
+- not PR lanes from current local state:
+  - `forgecode`
+  - `cloud`
+  - `AgilePlus`
+- recovery-first lane:
+  - `phenotype-infrakit` due to 39 stashes and multiple linked worktrees
+
+### Artifacts
+
+- refreshed `artifacts/local-pr-readiness-audit.md`
+- refreshed `docs/sessions/20260401-local-pr-readiness-audit/`
+
+---
+
+## 2026-04-02 — Active Repo Git Governance
+
+> **Agent:** Codex
+> **Date:** 2026-04-02
+> **Priority:** P0
+
+### Summary
+
+Resumed the active-repo governance lane and converted it from a partial notes pass into a real
+baseline plus repo bootstrap work. The shelf now has a current active-repo ruleset matrix, a
+completed governance session bundle, and minimum PR-governance surfaces for the weakest active
+repos.
+
+### Actions
+
+- refreshed `artifacts/active-repo-git-governance-baseline.md`
+- refreshed `docs/reference/ACTIVE_REPO_GIT_RULESETS.md`
+- completed `docs/sessions/20260401-active-repo-git-governance/`
+- bootstrapped `heliosApp` with:
+  - `.github/CODEOWNERS`
+  - `.github/RULESET_BASELINE.md`
+  - `.github/pull_request_template.md`
+  - `.github/workflows/policy-gate.yml`
+- bootstrapped `forgecode` with:
+  - `.github/CODEOWNERS`
+  - `.github/RULESET_BASELINE.md`
+  - `.github/pull_request_template.md`
+  - `.github/workflows/ci.yml`
+  - `.github/workflows/policy-gate.yml`
+- promoted secret scanning from soft-fail to hard-fail in the touched weak repos
+
+### Governance State
+
+- `AgilePlus`, `agentapi-plusplus`, `cliproxyapi-plusplus`, `heliosCLI`, `thegent`, and `cloud`
+  all show active GitHub ruleset list payloads from the current auth context
+- `heliosApp`, `forgecode`, and `phenotype-infrakit` still need their server-side rulesets turned
+  on after the repo-local baseline is stabilized
+- sampled open PRs across active repos are not merge-ready; current blockers are red CI,
+  `policy-gate` failures, and `CHANGES_REQUESTED` review state rather than missing merge buttons
+
+---
+
+## 2026-04-02 — Polyrepo Recovery Baseline
+
+> **Agent:** Codex
+> **Date:** 2026-04-02
+> **Priority:** P0-P1
+
+### Summary
+
+Shifted the 2026-04-01 audit wave into a git-tracked recovery baseline. The shelf now has a
+manager-facing recovery matrix, a grouped next-target map, refreshed session docs, and a live
+AgilePlus runtime update that better matches the current repo cohort structure.
+
+### Actions
+
+- published `artifacts/polyrepo-recovery-matrix.md`
+- published `artifacts/next-target-list.md`
+- refreshed the 2026-04-01 session bundle to reflect recovery-first execution
+- refreshed `docs/WORKLOG.md` and `docs/worklogs/README.md` to separate live surfaces from history
+- refreshed `AgilePlus/worklog.md` and `AgilePlus/docs/reference/CURRENT_STATE_BASELINE.md`
+- populated AgilePlus runtime state with:
+  - `3` policy rules
+  - active cycle `ledger-stabilization-wave-1`
+  - active cycle `cross-module-recovery-wave-1`
+
+### Current Recovery Constraints
+
+- shelf-root `.agileplus/agileplus.db` is readable again, but it remains a sparse mirror and not
+  the authoritative runtime ledger
+- AgilePlus queue commands now work after restoring the embedded `backlog_items` migration; the
+  runtime backlog has been seeded with three recovery-tranche items
+- `heliosApp/WORKLOG.md` and `phenotype-infrakit/WORKLOG.md` were added as repo-local canonical
+  status surfaces and still need to be kept in sync with live implementation work
+- a separate tranche of GitHub-profile repos is not present in this shelf checkout and needs
+  remote triage before it can be folded into local stabilization
+
+---
+
+## 2026-04-02 — External Repo Swath Audit
+
+> **Agent:** Codex
+> **Date:** 2026-04-02
+> **Priority:** P1
+
+### Summary
+
+Audited a pasted swath of GitHub-profile repos against the active shelf and nearby local clones.
+Most of the names are not present in this machine's current working set, so they cannot be
+treated as active maintenance targets yet.
+
+### Findings
+
+- no exact-name matches as direct shelf repos
+- recoverable local git repos found:
+  - `TripleM` at `/Users/kooshapari/CodeProjects/archive/TripleM`
+  - `P2` at `/Users/kooshapari/CodeProjects/learning/courses/prior/340/P2`
+- ambiguous absorbed surfaces found:
+  - `heliosBench`
+  - `heliosHarness`
+- missing local checkout for the rest of the pasted list
+
+### Session
+
+- published `docs/sessions/20260401-external-repo-swatch-audit/`
+- published `artifacts/external-repo-recovery-matrix-20260401.md`
+- published `artifacts/external-repo-reclone-queue-20260401.txt`
+
+---
+
+## 2026-04-02 — TripleM Recovery Audit
+
+> **Agent:** Codex
+> **Date:** 2026-04-02
+> **Priority:** P1
+
+### Summary
+
+Took the first actionable repo from the swath queue and audited the archived local `TripleM`
+clone. The repo is not ready for direct cleanup; it needs a preservation-first recovery step.
+
+### Findings
+
+- repo path: `/Users/kooshapari/CodeProjects/archive/TripleM`
+- branch: `main`
+- last commit: `e9d8768` (`2024-08-18`)
+- dirty state:
+  - `2` modified files
+  - `907` tracked deletions
+  - `202089` deleted lines in diff
+- package diff adds `@fullhuman/postcss-purgecss`, but that does not justify the deletion set
+
+### Artifacts
+
+- published `artifacts/triplem-recovery-plan-20260401.md`
+- published `docs/sessions/20260401-triplem-recovery-audit/`
+
 > **Agent:** FORGE
 > **Date:** 2026-03-29
 > **Session:** Wave 97 - Archive Nested Crates + Deep Pattern Audit
@@ -369,7 +538,6 @@ Expanded worklog audit with comprehensive LOC reduction analysis, external packa
 ---
 
 ## Wave 93 - LOC Reduction Deep Dive (2026-03-29)
->>>>>>> origin/main
 
 **Status:** completed
 **Priority:** P0
@@ -426,217 +594,6 @@ Expanded worklog audit with comprehensive LOC reduction analysis, external packa
 
 ### Deliverables
 
-<<<<<<< HEAD
-- ✅ DECOMPOSITION_AUDIT.md expanded to 809 lines
-- ✅ WORK_LOG.md updated with Wave 94 entry
-- ✅ 4 inactive folders cleaned up
-- ✅ 10 new decomposition categories documented
-
-### Related
-
-- `docs/reports/DECOMPOSITION_AUDIT.md` - Full decomposition analysis
-- `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md` - Cross-project patterns
-
----
-
-## Wave 90 - AgilePlus Duplication Audit (2026-03-29)
-
-**Status:** completed
-**Priority:** P1
-**Agents:** SAGE, MUSE, FORGE
-
-### Session Summary
-
-| Field | Value |
-|-------|-------|
-| Duration | 48 minutes (33 research + 15 framework) |
-| Scope | 1,599 files across 27 Rust crates |
-| LOC Identified | 1,800 lines of duplication |
-| Savings Potential | 1,200 lines through consolidation |
-
-### Key Findings
-
-#### 🔴 CRITICAL: Error Types — 8 Independent Definitions (~600 LOC)
-
-| Crate | Error Type | Lines |
-|-------|------------|-------|
-| `agileplus-api/src/error.rs` | ApiError | 67 |
-| `agileplus-p2p/src/error.rs` | SyncError, PeerDiscoveryError | 78 |
-| `agileplus-domain/src/error.rs` | DomainError | 50 |
-| `agileplus-graph/src/store.rs` | GraphError | 326 |
-| `agileplus-cache/src/store.rs` | CacheError | 129 |
-
-**Action**: Create `libs/agileplus-error/` for consolidation
-
-#### 🟡 HIGH: 11 Unused Libraries (edition mismatch)
-
-All `libs/` use `edition = "2021"` while workspace uses `edition = "2024"`.
-
-| Library | Value | Recommendation |
-|---------|-------|---------------|
-| `hexagonal-rs` | HIGH - has exact Repository patterns | Migrate edition |
-| `config-core` | HIGH - config loading ready | Migrate edition |
-| `phenotype-state-machine` | LOW | DELETE (dead code) |
-
-#### 🟠 MEDIUM: 5+ Async Repository Traits
-
-`libs/hexagonal-rs/src/ports/repository.rs` has the patterns but unused.
-
-### Deliverables
-
-- ✅ Comprehensive duplication analysis
-- ✅ 30-agent coordination structure
-- ✅ Phase roadmap (6 weeks)
-- ✅ Audit framework published
-
-### Consolidated Findings
-
-See `docs/research/consolidation-audit-2026-03-29.md` for master findings.
-
-### Related
-
-- `worklogs/DUPLICATION.md` - Extended duplication findings
-- `worklogs/ARCHITECTURE.md` - Port/trait analysis
-- `worklogs/DEPENDENCIES.md` - Library status
-
----
-
-## Wave 89 - Ecosystem Cleanup Complete (2026-03-29)
-
-**Status:** completed
-**Priority:** P0
-
-### ECO Work Package Status
-
-| ID | Work Package | Status |
-|----|-------------|--------|
-| ECO-001 | Worktree Remediation | ✅ COMPLETE |
-| ECO-002 | Branch Consolidation | ✅ COMPLETE |
-| ECO-003 | Circular Dependency Resolution | ✅ SHIPPED (CI CONFIGURED) |
-| ECO-004 | Hexagonal Migration | ✅ NO WORK NEEDED |
-| ECO-006 | Final Merge Stabilization | ✅ COMPLETE |
-
-### Merge Stabilization Complete
-
-| Repo | PRs Merged | Status |
-|------|------------|--------|
-| thegent | pr-679, pr-680, pr-681, pr-682, pr-833 | ✅ |
-| AgilePlus | pr-208 | ✅ |
-| portage | phase2-decompose branches | ✅ |
-| template-commons | governance, policy, hardening | ✅ |
-
-### Quality Gate Results
-
-| Metric | Result |
-|--------|--------|
-| Python syntax errors | 0 (1 fixed) |
-| Ruff lint errors | 0 (21 fixed) |
-| Tests passed | 83/83 |
-| Non-canonical folders | Cleaned |
-
----
-
-## Wave 87 - MUSE Phase 2 Complete (2026-03-29)
-
-**Status:** completed
-**Priority:** P0
-
-### Final Status
-
-| Repository | Branch | Status | Tests |
-|------------|--------|--------|-------|
-| thegent | main | ✅ CLEAN | 6/6 pass |
-| cliproxyapi-plusplus | main | ✅ CLEAN | 44 packages pass |
-| AgilePlus | main | ✅ CLEAN | CI fixed |
-
-### ECO Packages: ALL SHIPPED
-
-| ID | Package | Status |
-|----|---------|--------|
-| ECO-001 | Worktree Remediation | ✅ SHIPPED |
-| ECO-002 | Branch Consolidation | ✅ SHIPPED |
-| ECO-003 | Circular Dependency | ✅ SHIPPED |
-| ECO-004 | Hexagonal Migration | ✅ SHIPPED |
-| ECO-005 | XDD Quality | ✅ SHIPPED |
-| ECO-006 | Governance Sync | ✅ SHIPPED |
-
----
-
-## Wave 86 - AgilePlus CI Fixes (2026-03-29)
-
-**Status:** completed
-
-| Item | Status | Notes |
-|------|--------|-------|
-| Sync Canary fix (#215) | ✅ Fixed | `branch:sync` → `branch sync` |
-| VitePress Pages fix (#216) | ✅ Fixed | `upload-pages-artifact@v3` → `@v4` |
-
----
-
-## Wave 79 - Test Suite Remediation (2026-03-29)
-
-**Status:** completed
-
-| Metric | Before | After |
-|--------|--------|-------|
-| Test collection errors | 795+ | 0 |
-| Tests collected | 3,924 | 0 |
-| Test directories archived | 0 | 54 |
-
-### Actions Taken
-
-1. Restored `src/` from commit `b7b86487f^`
-2. Tests now collect and run properly
-3. Archived broken tests to `tests.broken/`
-
----
-
-## Wave 79 - Final (2026-03-29)
-## Wave 79 - Final (2026-03-29)
-
-**Status:** completed
-
-### Git State:
-- Branch: main (clean, pushed)
-- feat/rescued-detached-head-work: merged
-- fix/cache-test-pyright: merged
-- PR #865: merged
-
-### Testing:
-- test_audit_log.py: 12 passed
-- test_batch_ops.py: 5 passed
-- test_board_artifact_integrator.py: 37 passed
-
----
-
-## Wave 96 - 2026-03-30
-
-### Task
-Continue LOC reduction, decomp, code optimization. Double worklog entries. Skip DELETE.
-
-### Actions
-- Updated `UX_DX.md`: +607 LOC (TUI frameworks, Agent Experience, Developer Onboarding)
-- Updated `DUPLICATION.md`: +980 LOC (telemetry, logging, serialization patterns)
-- Updated `ARCHITECTURE.md`: +900 LOC (crate decomposition, macros, derive patterns)
-- Updated `RESEARCH.md`: +1,000 LOC (agentic AI frameworks, MCP ecosystem)
-- Updated `PERFORMANCE.md`: +280 LOC (memory optimization, async tuning)
-
-### Deliverables
-- LOC reduction targets: 8,600+ LOC across all categories
-- 2026 Rust crate radar (ratatui, lapce, sccache, cargo-nextest)
-- Agentic AI fork candidates (Dify, AutoGPT, Composio, Google ADK)
-- TUI patterns (ratatui vs textual vs cursive)
-
-### Skip DELETE (per user)
-1. SKIP orphaned worktrees deletion
-2. Create `phenotype-macros` crate
-3. Evaluate `FastMCP` (ADOPT)
-4. Evaluate `sccache` + `cargo-nextest`
-
----
-
-_Last updated: 2026-03-30_
-=======
 - [x] Remove nested crate duplicates (1,710 LOC) — **Wave 97 DUP-001**
 - [ ] Create `libs/sync-utils/` crate
 - [ ] Create `libs/async-timeout/` crate
@@ -1170,4 +1127,3 @@ Blueprints created with module structure, handler mapping, re-export patterns.
 - Ready for implementation phase
 
 _Last updated: 2026-03-30 (Wave 4 session complete)_
->>>>>>> origin/main

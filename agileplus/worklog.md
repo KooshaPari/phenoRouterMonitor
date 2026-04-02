@@ -151,3 +151,64 @@ Historical work is documented in:
 - thegent-wtrees/rebase-fix-cache-test-pyright (fix/cache-test-pyright)
 - thegent-wtrees/rescued-detached-head (feat/rescued-detached-head-work)
 
+---
+
+## Polyrepo Ecosystem Audit — 2026-04-02
+
+### Audit Scope
+- **GitHub repos**: 247 total under KooshaPari
+- **Local repos**: 9 cloned, 89 GB disk usage
+- **AgilePlus specs**: 35 in kitty-specs/
+- **Agents used**: 4 parallel worker agents for comprehensive audit
+
+### Key Findings
+
+#### Repo Classification
+| Cluster | Count | Priority | Status |
+|---------|-------|----------|--------|
+| Core Platform | 13 | P0 | Active development |
+| Agent Orchestration | 8 | P0 | Active development |
+| SDK & DevTools | 16 | P1 | Needs consolidation |
+| Templates & Kits | 7 | P2 | Needs deduplication |
+| Peripheral/Archive | 23+ | P3 | Archive candidates |
+| Learning/Personal | 6+ | P3 | Move to separate org |
+
+#### Local State Issues
+- **Dirty repos**: 7 of 9 have uncommitted changes
+- **Open PRs**: 15+ across cloned repos (10 in infrakit, 5 in thegent)
+- **Build artifacts**: 22 GB (77% of disk usage)
+- **Stale branches**: 50+ without PRs
+- **Empty worktrees**: 3 directories (docs/, infrastructure/, phenotype-errors/)
+- **Off-main repos**: thegent, heliosApp, heliosCLI not on main
+
+#### AgilePlus Spec Status
+- **Complete**: 3 specs (001, 002, 003)
+- **Partial**: 8 specs (need plans, tasks, or research)
+- **Spec only**: 15 specs (need full artifact structure)
+- **New**: 1 spec created (021-polyrepo-ecosystem-stabilization)
+
+### Actions Taken
+
+| Action | Status | Details |
+|--------|--------|---------|
+| Created spec 021 | ✅ | Full stabilization plan with 20 WPs |
+| Created tasks.md for spec 021 | ✅ | 4 phases, 48 tasks |
+| Created plan.md for spec 021 | ✅ | Dependency graph, checkpoints |
+| Created research.md for spec 021 | ✅ | Audit methodology, findings |
+| Created STRATEGY.md | ✅ | docs/stabilization/STRATEGY.md |
+| Identified merge candidates | ✅ | 15 repos → 8 targets |
+| Identified archive candidates | ✅ | 28 repos for archival |
+| Documented disk optimization | ✅ | 89 GB → 20 GB target |
+
+### Next Steps
+
+1. **Phase 1 (Days 1-7)**: Commit dirty files, merge PRs, clean artifacts, set up org CI
+2. **Phase 2 (Weeks 2-3)**: Merge duplicates, archive stale, set up package publishing
+3. **Phase 3 (Weeks 4-6)**: SDK monorepo, docs federation, health checks
+4. **Phase 4 (Weeks 7-12)**: Full CI/CD, governance compliance, performance benchmarks
+
+### References
+- Strategy: `docs/stabilization/STRATEGY.md`
+- Spec 021: `kitty-specs/021-polyrepo-ecosystem-stabilization/`
+- Audit reports: Session documentation from 2026-04-02
+

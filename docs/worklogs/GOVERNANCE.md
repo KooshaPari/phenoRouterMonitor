@@ -1,6 +1,54 @@
 # Governance Worklogs
 
-**Category:** GOVERNANCE | **Updated:** 2026-03-29
+**Category:** GOVERNANCE | **Updated:** 2026-04-02
+
+---
+
+## 2026-04-02 - Active Repo Git Governance
+
+**Project:** [cross-repo]
+**Category:** governance
+**Status:** in_progress
+**Priority:** P0
+
+### Summary
+
+Resumed the active-repo governance tranche and moved it from partial notes into a repo-tracked
+baseline plus weak-repo bootstrap work.
+
+### Current Baseline
+
+- no force-push to protected branches
+- no merge with unresolved review threads or `CHANGES_REQUESTED`
+- no merge with red CI except documented GitHub Actions billing or quota failures
+- stacked PRs preferred for multi-part delivery
+- helper bots do not replace approval or required checks
+
+### Repo State
+
+| Repo | State |
+|------|-------|
+| AgilePlus | strong policy surface, active ruleset visible |
+| agentapi-plusplus | strong workflow surface, active rulesets visible |
+| cliproxyapi-plusplus | strong policy surface, active ruleset visible, ownership gap remains |
+| cloud | mature CI, weak review-policy surface |
+| forgecode | bootstrapped in this lane with CI + PR policy files |
+| heliosApp | bootstrapped in this lane with PR policy files |
+| heliosCLI | strong stage and policy surface, active ruleset visible |
+| phenotype-infrakit | bootstrap files present, no visible ruleset payload yet |
+| thegent | documented baseline exists, ownership gap remains |
+
+### Artifacts
+
+- `artifacts/active-repo-git-governance-baseline.md`
+- `docs/reference/ACTIVE_REPO_GIT_RULESETS.md`
+- `docs/sessions/20260401-active-repo-git-governance/`
+
+### Next Steps
+
+- [ ] turn the repo-tracked baselines into exact GitHub required-check configuration
+- [ ] add `CODEOWNERS` where ownership enforcement is still missing
+- [ ] repair sampled open PRs that are currently failing `policy-gate`, CI, or review requirements
 
 ---
 
@@ -234,8 +282,6 @@ Plan for tracking DORA (DevOps Research and Assessment) metrics.
 - Metrics: `crates/agileplus-telemetry/`
 
 ---
-<<<<<<< HEAD
-=======
 
 ## 2026-03-29 - Cross-Repo Governance Deep Audit (v2)
 
@@ -247,6 +293,47 @@ Plan for tracking DORA (DevOps Research and Assessment) metrics.
 ### Executive Summary
 
 ~70% governance maturity. Strong Rust/Python quality gates but weak cross-repo consistency. Critical gap: AgilePlus (core platform) has zero CI/CD.
+
+## 2026-04-02 - Active Repo PR Governance Backstops
+
+**Project:** [cross-repo]
+**Category:** governance
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+Repo-local PR governance backstops now exist for the active Rust-heavy repos that are currently in the stabilization lane. The baseline is aligned around stacked PR disclosure, no protected-branch force-push, no merge with unresolved review threads or `CHANGES_REQUESTED`, and no red CI except the documented billing-only exception path.
+
+### Implemented Surfaces
+
+- `AgilePlus`: [github-rulesets.md](/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus/docs/process/github-rulesets.md), [pr-governance-gate.yml](/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus/.github/workflows/pr-governance-gate.yml)
+- `heliosCLI`: [RULESET_BASELINE.md](/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI/.github/RULESET_BASELINE.md), [pr-governance-gate.yml](/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI/.github/workflows/pr-governance-gate.yml)
+- `thegent`: [RULESET_BASELINE.md](/Users/kooshapari/CodeProjects/Phenotype/repos/thegent/.github/RULESET_BASELINE.md), [pr-governance-gate.yml](/Users/kooshapari/CodeProjects/Phenotype/repos/thegent/.github/workflows/pr-governance-gate.yml)
+- `agentapi-plusplus`: [RULESET_BASELINE.md](/Users/kooshapari/CodeProjects/Phenotype/repos/agentapi-plusplus/.github/RULESET_BASELINE.md), [pr-governance-gate.yml](/Users/kooshapari/CodeProjects/Phenotype/repos/agentapi-plusplus/.github/workflows/pr-governance-gate.yml)
+
+### Follow-up
+
+- Apply the same repo-local backstop pattern to the remaining active repos with weaker `.github` posture (`heliosApp`, `phenotype-infrakit`, `cloud`, `forgecode`, `cliproxyapi-plusplus`) once their current CI surfaces are normalized.
+- Convert the documented baseline into actual GitHub rulesets and branch protection config at the server side.
+
+## 2026-04-02 - AgilePlus Event Sourcing Activation
+
+**Project:** [AgilePlus]
+**Category:** governance
+**Status:** completed
+**Priority:** P0
+
+### Summary
+
+AgilePlus now has a real live event row in the `events` table instead of only source support and audit-log history. The CLI command paths for `validate`, `ship`, and `retrospective` now append `state_transitioned` events, and the first verified runtime event came from `008-temporal-deployment-workflow-migration` moving from `shipped` to `retrospected`.
+
+### Runtime Verification
+
+- `001-spec-driven-development-engine` was backfilled with a governance contract and minimum evidence so the `validate` command can now operate against the live ledger.
+- `cargo run -p agileplus-cli -- validate --feature 001-spec-driven-development-engine --force` passed and moved the feature to `validated`.
+- `cargo run -p agileplus-cli -- retrospective --feature 008-temporal-deployment-workflow-migration` passed after fixing the retrospective flag collision.
+- `events` now contains a live `feature` / `state_transitioned` row for feature `008-temporal-deployment-workflow-migration`.
 
 ---
 
@@ -552,5 +639,4 @@ updates:
 
 ---
 
-_Last updated: 2026-03-30 (Wave 153)_
->>>>>>> origin/main
+_Last updated: 2026-04-02_

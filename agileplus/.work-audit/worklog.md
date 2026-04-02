@@ -580,4 +580,126 @@ The following order balances unblocking dependencies, addressing user-stated urg
 
 ---
 
+## 2026-04-02 — Portfolio-Wide Audit & Stabilization Plan
+
+> **Audit scope:** 226 GitHub repos + local shelf state
+> **Agents:** 6 worker agents (parallel audit)
+> **Output:** 9 new specs (012-020), 41 work packages, 499 subtasks
+
+### Key Findings
+
+1. **GitHub portfolio:** 226 repos total (was reported as 246, actual count 226)
+2. **Local shelf:** 9 independent git repos + 10 non-git project directories
+3. **Spec coverage:** 7% (15 of 226 repos tracked) → target 80%
+4. **Single-commit stubs:** 25 repos created 2026-03-25, never developed
+5. **Archived repos:** 16 on GitHub
+6. **Private repos:** 19 on GitHub
+7. **Local ↔ remote disconnect:** 7 of 9 local repos on feature branches (not main)
+8. **70+ GitHub repos** have no local clone
+9. **AgilePlus DB:** 2 orphaned entries (snyk-phase-1-deploy, temporal-deployment-workflow)
+10. **CI/CD broken:** 3 workflows have merge conflicts (security.yml, release.yml, tag-automation.yml)
+
+### New Specs Created (012-020)
+
+| Spec | Title | Clusters | WPs | Subtasks |
+|------|-------|----------|-----|----------|
+| 012 | GitHub Portfolio Triage | Legacy + Stubs | 4 | 33 |
+| 013 | Phenotype Infrakit Stabilization | Infrastructure | 5 | 52 |
+| 014 | Observability Stack Completion | Observability | 6 | 57 |
+| 015 | Plugin System Completion | Plugins | 4 | 49 |
+| 016 | Agent Framework Expansion | Agents | 6 | 67 |
+| 017 | CLI Tools Consolidation | CLI | 6 | 73 |
+| 018 | Template Repo Cleanup | Templates | 5 | 54 |
+| 019 | Private Repo Catalog | Private | 5 | 57 |
+| 020 | Portfolio and Web Apps | Apps/Web | 5 | 57 |
+
+**Total:** 41 WPs, 499 subtasks across 9 specs
+
+### New Work Items
+
+16. **GitHub portfolio triage** (Spec 012)
+    - Archive 25 single-commit stub repos (phenotype-rust-*, phenotype-*-sdk, etc.)
+    - Archive ~15 legacy Odin projects and stale repos
+    - Clean up 2 orphaned DB entries
+    - Create consolidated repo inventory
+
+17. **phenotype-infrakit stabilization** (Spec 013)
+    - Audit all 19 infrastructure crates — categorize production-ready vs stubs
+    - Workspace consolidation — merge scattered crates
+    - Stabilize API surfaces — tests, docs, version pinning
+    - Publish to crates.io/PyPI/npm
+    - Cross-crate dependency audit and deduplication
+
+18. **Observability stack completion** (Spec 014)
+    - Phench (benchmarking) — complete implementation
+    - tracely — distributed tracing with OpenTelemetry
+    - thegent-metrics + thegent-shm — metrics collection
+    - helix-logging — structured logging
+    - Profila — profiling toolkit
+    - Archive helix-tracing and document rationale
+
+19. **Plugin system completion** (Spec 015)
+    - agileplus-plugin-core — define plugin interfaces
+    - agileplus-plugin-git — git VCS adapter
+    - agileplus-plugin-sqlite — SQLite storage adapter
+    - thegent-plugin-host — integrate with thegent
+
+20. **Agent framework expansion** (Spec 016)
+    - Agentora — agent orchestration framework
+    - AgentMCP — MCP protocol server
+    - agent-wave — event-driven communication
+    - agentops-policy-federation — policy distribution
+    - helMo — agent mobility
+    - agent-devops-setups — CI/CD templates
+
+21. **CLI tools consolidation** (Spec 017)
+    - cliproxyapi-plusplus — LLM proxy completion
+    - agentapi-plusplus — agent API completion
+    - Cmdra — CLI framework completion
+    - forgecode — git workflow framework
+    - Deduplicate thegent-sharecli vs thegent-cli-share
+    - thegent-subprocess — subprocess management
+
+22. **Template repo cleanup** (Spec 018)
+    - Audit 14 hexagon-* and Hexa* repos — identify duplicates
+    - Merge hexagon-* + Hexa* duplicates
+    - Audit 13 template-lang-* repos — consolidate generators
+    - Create single template generator tool
+    - Document remaining templates
+
+23. **Private repo catalog** (Spec 019)
+    - Catalog all 19 private repos — map functionality
+    - Complete phenotype-agent-core, phenotype-vessel, phenotype-sentinel
+    - Complete Schemaforge, Flagward, Prismal, Cursora, Civis
+    - Identify duplicates with public repos
+    - Create sync plan for private ↔ public parity
+
+24. **Portfolio and web apps** (Spec 020)
+    - koosha-portfolio — complete portfolio site
+    - Parpoura — complete app implementation
+    - phenodocs — complete VitePress federation hub
+    - FixitGo + FixitRs — complete fix-it tools
+    - External repos triage — decide keep/archive/integrate
+
+### Immediate Actions (P0)
+
+1. **Fix CI/CD merge conflicts** — security.yml, release.yml, tag-automation.yml
+2. **Start Spec 012** (portfolio triage) — fastest noise reduction
+3. **Return local repos to main** — 7 repos on feature branches need merging
+4. **Clone active GitHub repos locally** — 40+ repos need local clones
+5. **Fix AgilePlus DB parsing** — CLI error on `agileplus list` (pre-existing)
+
+### Stabilization Timeline
+
+| Phase | Weeks | Focus | Expected Outcome |
+|-------|-------|-------|-----------------|
+| 1 | Week 1 | Reduce noise (40+ repos) | 226 → ~170 repos |
+| 2 | Weeks 2-3 | Core infrastructure | 19 crates stabilized |
+| 3 | Weeks 3-4 | Agent framework | 6 agent repos complete |
+| 4 | Weeks 4-5 | CLI tools | 7 CLI repos complete |
+| 5 | Weeks 5-6 | Template cleanup | 27 → ~10 template repos |
+| 6 | Weeks 6-7 | Apps & external | Apps complete, external triaged |
+
+---
+
 *This worklog is the single source of truth for all Phenotype org work. Refresh after each session by re-running the audit against current repo state.*

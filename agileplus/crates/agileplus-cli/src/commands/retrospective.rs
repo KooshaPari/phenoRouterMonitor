@@ -11,8 +11,10 @@ use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 
 use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
+use agileplus_domain::domain::event::Event;
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
+use agileplus_events::{EventStore, compute_hash};
 
 /// Arguments for the `retrospective` subcommand.
 #[derive(Debug, clap::Args)]
@@ -26,8 +28,8 @@ pub struct RetrospectiveArgs {
     pub output: Option<PathBuf>,
 
     /// Include raw metric data in report.
-    #[arg(long)]
-    pub verbose: bool,
+    #[arg(long = "include-raw-metrics")]
+    pub include_raw_metrics: bool,
 }
 
 /// Per-WP performance data.
@@ -279,7 +281,7 @@ fn generate_retro_markdown(
 /// Run the `retrospective` command.
 pub async fn run_retrospective<S, V>(args: RetrospectiveArgs, storage: &S, vcs: &V) -> Result<()>
 where
-    S: StoragePort,
+    S: StoragePort + EventStore,
     V: VcsPort,
 {
     let start = std::time::Instant::now();
@@ -390,7 +392,12 @@ where
 
     // Generate report
     let report_content =
-        generate_retro_markdown(slug, &feature.friendly_name, &feature_metrics, args.verbose);
+        generate_retro_markdown(
+            slug,
+            &feature.friendly_name,
+            &feature_metrics,
+            args.include_raw_metrics,
+        );
 
     // Write to output path
     let output_path = args
@@ -439,6 +446,10 @@ where
         .await
         .context("appending audit entry")?;
 
+    append_feature_transition_event(storage, feature.id, "Shipped", "Retrospected", "user")
+        .await
+        .context("appending state transition event")?;
+
     let elapsed_ms = start.elapsed().as_millis();
     tracing::info!(command = "retrospective", slug = %slug, audit_entries = audit_trail.len(), elapsed_ms = %elapsed_ms, "retrospective completed");
 
@@ -474,6 +485,51 @@ fn compute_durations_from_audit(
     }
 
     (total_ms, phase_durations)
+}
+
+async fn append_feature_transition_event<S: EventStore>(
+    storage: &S,
+    feature_id: i64,
+    from: &str,
+    to: &str,
+    actor: &str,
+) -> Result<()> {
+    let prev_hash = storage
+        .get_events("feature", feature_id)
+        .await
+        .map(|events| events.last().map(|event| event.hash).unwrap_or([0u8; 32]))
+        .context("loading prior event chain")?;
+    let sequence = storage
+        .get_latest_sequence("feature", feature_id)
+        .await
+        .context("loading latest event sequence")?
+        + 1;
+
+    let payload = serde_json::json!({
+        "from": from,
+        "to": to,
+    });
+
+    let mut event = Event::new("feature", feature_id, "state_transitioned", payload, actor);
+    event.sequence = sequence;
+    event.prev_hash = prev_hash;
+    event.hash = compute_hash(
+        event.entity_id,
+        &event.entity_type,
+        &event.event_type,
+        &event.payload,
+        event.timestamp,
+        &event.actor,
+        &event.prev_hash,
+    )
+    .context("computing event hash")?;
+
+    storage
+        .append(&event)
+        .await
+        .context("persisting event")?;
+
+    Ok(())
 }
 
 async fn get_latest_hash<S: StoragePort>(storage: &S, feature_id: i64) -> [u8; 32] {

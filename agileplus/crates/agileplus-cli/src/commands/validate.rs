@@ -10,9 +10,11 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 
 use agileplus_domain::domain::audit::{AuditEntry, hash_entry};
+use agileplus_domain::domain::event::Event;
 use agileplus_domain::domain::governance::{Evidence, GovernanceContract, PolicyCheck};
 use agileplus_domain::domain::state_machine::FeatureState;
 use agileplus_domain::ports::{StoragePort, VcsPort};
+use agileplus_events::{EventStore, compute_hash};
 
 /// Arguments for the `validate` subcommand.
 #[derive(Debug, clap::Args)]
@@ -365,7 +367,7 @@ async fn evaluate_policies<S: StoragePort>(
 /// Run the `validate` command.
 pub async fn run_validate<S, V>(args: ValidateArgs, storage: &S, vcs: &V) -> Result<()>
 where
-    S: StoragePort,
+    S: StoragePort + EventStore,
     V: VcsPort,
 {
     let start = std::time::Instant::now();
@@ -492,6 +494,16 @@ where
         .await
         .context("appending audit entry")?;
 
+    append_feature_transition_event(
+        storage,
+        feature.id,
+        "Implementing",
+        "Validated",
+        "user",
+    )
+    .await
+    .context("appending state transition event")?;
+
     // Also write report as artifact
     let report_md = if args.format == "json" {
         report.to_markdown()
@@ -519,6 +531,51 @@ async fn get_latest_hash<S: StoragePort>(storage: &S, feature_id: i64) -> [u8; 3
         Ok(Some(entry)) => entry.hash,
         _ => [0u8; 32],
     }
+}
+
+async fn append_feature_transition_event<S: EventStore>(
+    storage: &S,
+    feature_id: i64,
+    from: &str,
+    to: &str,
+    actor: &str,
+) -> Result<()> {
+    let prev_hash = storage
+        .get_events("feature", feature_id)
+        .await
+        .map(|events| events.last().map(|event| event.hash).unwrap_or([0u8; 32]))
+        .context("loading prior event chain")?;
+    let sequence = storage
+        .get_latest_sequence("feature", feature_id)
+        .await
+        .context("loading latest event sequence")?
+        + 1;
+
+    let payload = serde_json::json!({
+        "from": from,
+        "to": to,
+    });
+
+    let mut event = Event::new("feature", feature_id, "state_transitioned", payload, actor);
+    event.sequence = sequence;
+    event.prev_hash = prev_hash;
+    event.hash = compute_hash(
+        event.entity_id,
+        &event.entity_type,
+        &event.event_type,
+        &event.payload,
+        event.timestamp,
+        &event.actor,
+        &event.prev_hash,
+    )
+    .context("computing event hash")?;
+
+    storage
+        .append(&event)
+        .await
+        .context("persisting event")?;
+
+    Ok(())
 }
 
 #[cfg(test)]

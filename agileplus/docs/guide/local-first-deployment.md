@@ -16,26 +16,31 @@ cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus
 # 3. Create data directories
 mkdir -p data/{nats,dragonfly,neo4j,minio}
 
-# 4. Start entire stack
-process-compose -f process-compose.yml up
+# 4. Start entire stack with conflict-safe local ports
+bash scripts/dev-up.sh
 
-# 5. Verify health
-curl http://localhost:8080/health
-curl http://localhost:8080/ready
+# 5. Inspect assigned ports
+cat .agileplus/runtime/local-ports.env
 ```
 
 ### Service Access Points
 
+Assigned ports are written on each launch to `.agileplus/runtime/local-ports.env`. Export a
+specific `AGILEPLUS_*_PORT` before startup when you want to pin or share a service.
+
 | Service | URL | Purpose |
 |---------|-----|---------|
-| NATS Server | nats://localhost:4222 | Message broker |
-| NATS Monitoring | http://localhost:8222 | Server metrics/console |
-| Dragonfly | redis://localhost:6379 | Cache layer |
-| Neo4j Bolt | bolt://localhost:7687 | Graph database (protocol) |
-| Neo4j Browser | http://localhost:7474 | Graph DB UI |
-| MinIO S3 API | http://localhost:9000 | Object storage API |
-| MinIO Console | http://localhost:9001 | S3 management UI |
-| AgilePlus API | http://localhost:8080 | Application server |
+| NATS Server | `nats://localhost:$AGILEPLUS_NATS_PORT` | Message broker |
+| NATS Monitoring | `http://localhost:$AGILEPLUS_NATS_HTTP_PORT` | Server metrics/console |
+| Dragonfly | `redis://localhost:$AGILEPLUS_REDIS_PORT` | Cache layer |
+| PostgreSQL | `postgresql://localhost:$AGILEPLUS_POSTGRES_PORT/plane` | Plane database |
+| Neo4j Bolt | `bolt://localhost:$AGILEPLUS_NEO4J_PORT` | Graph database (protocol) |
+| Neo4j Browser | `http://localhost:$AGILEPLUS_NEO4J_HTTP_PORT` | Graph DB UI |
+| MinIO S3 API | `http://localhost:$AGILEPLUS_MINIO_PORT` | Object storage API |
+| MinIO Console | `http://localhost:$AGILEPLUS_MINIO_CONSOLE_PORT` | S3 management UI |
+| Plane API | `http://localhost:$AGILEPLUS_PLANE_API_PORT` | Plane application API |
+| Plane Web | `http://localhost:$AGILEPLUS_PLANE_WEB_PORT` | Plane frontend |
+| AgilePlus API | `http://localhost:$AGILEPLUS_API_PORT` | Application server |
 
 ### Typical Development Workflow
 
