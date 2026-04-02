@@ -1,0 +1,32 @@
+name: CI - Rust
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '**/*.rs'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '**/*.rs'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Format
+        run: cargo fmt -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Test
+        run: cargo test --workspace

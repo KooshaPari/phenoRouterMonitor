@@ -1,0 +1,30 @@
+name: CI - Python
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '**/*.py'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '**/*.py'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: Ruff
+        run: uvx ruff check .
+      - name: Format Check
+        run: uvx ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: Test
+        run: uv run pytest

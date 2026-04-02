@@ -1,0 +1,18 @@
+# CODEOWNERS - Repository Ownership
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global default - Sponsor owns everything
+* @kooshapari
+
+# GitHub configuration
+/.github/ @kooshapari
+
+# CI/CD workflows
+/.github/workflows/ @kooshapari
+
+# Documentation
+/docs/ @kooshapari @docs-team
+
+# Security-sensitive files
+/SECURITY.md @kooshapari
+/CODEOWNERS @kooshapari
