@@ -90,7 +90,7 @@ where
 
         // Advance window by removing front and trying to add next item
         self.buffer.pop_front();
-        
+
         // Try to get next item from iterator to add to back
         if let Some(item) = self.iter.next() {
             self.buffer.push_back(item);
@@ -224,7 +224,7 @@ impl<I: Iterator, F: Fn(&I::Item) -> bool> Iterator for BatchIter<I, F> {
         }
 
         // Fill batch while predicate returns true
-        while let Some(item) = self.iter.next() {
+        for item in self.iter.by_ref() {
             if (self.predicate)(&item) {
                 self.buffer.push(item);
             } else {

@@ -16,6 +16,10 @@
 //! }
 //! ```
 
+pub mod registry;
+pub mod snapshot;
+pub mod timer;
+
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 

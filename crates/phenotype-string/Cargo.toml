@@ -9,8 +9,11 @@ license = "MIT"
 path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-thiserror = "2.0"
+serde.workspace = true
+thiserror.workspace = true
+zstd.workspace = true
+regex.workspace = true
+unicode-normalization.workspace = true
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

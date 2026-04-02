@@ -25,6 +25,7 @@ members = [
     "crates/phenotype-policy-engine",
     "crates/phenotype-port-traits",
     "crates/phenotype-state-machine",
+    "crates/phenotype-string",
     "crates/phenotype-telemetry",
     "crates/phenotype-validation",
 ]
@@ -55,6 +56,8 @@ phenotype-policy-engine = { path = "crates/phenotype-policy-engine" }
 hex = "0.4"
 phenotype-error-core = { path = "crates/phenotype-error-core" }
 phenotype-errors = { path = "crates/phenotype-errors" }
+zstd = "0.13"
+unicode-normalization = "0.1"
 [profile.dev]
 opt-level = 0
 debug = true
