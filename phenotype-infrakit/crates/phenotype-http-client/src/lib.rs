@@ -15,8 +15,15 @@ impl HttpClient {
             client: reqwest::Client::new(),
         }
     }
-    
+
     pub async fn get(&self, url: &str) -> Result<String> {
         Ok(self.client.get(url).send().await?.text().await?)
     }
 }
+
+impl Default for HttpClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
