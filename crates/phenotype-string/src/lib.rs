@@ -3,6 +3,7 @@
 use thiserror::Error;
 
 pub mod join;
+pub mod normalization;
 pub mod parse;
 pub mod sanitize;
 

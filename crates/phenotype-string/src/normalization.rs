@@ -2,15 +2,8 @@
 //!
 //! Provides pure, stateless functions for string normalization and transformation.
 
-use std::sync::LazyLock;
-
 use regex::Regex;
 use unicode_normalization::UnicodeNormalization;
-
-static SLUGIFY_NON_ALPHANUMERIC: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"[^a-z0-9\-]").unwrap());
-static SLUGIFY_HYPHENS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"-+").unwrap());
-static COLLAPSE_WHITESPACE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s+").unwrap());
 
 /// Normalizes a string to NFC (Canonical Decomposition, followed by Canonical Composition).
 ///
@@ -22,7 +15,7 @@ static COLLAPSE_WHITESPACE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s+"
 ///
 /// # Example
 /// ```
-/// use phenotype_string::normalization::normalize_nfc;
+/// use phenotype_string::normalize_nfc;
 /// let input = "Café";
 /// let normalized = normalize_nfc(input);
 /// assert!(!normalized.is_empty());
@@ -41,7 +34,7 @@ pub fn normalize_nfc(input: &str) -> String {
 ///
 /// # Example
 /// ```
-/// use phenotype_string::normalization::normalize_nfd;
+/// use phenotype_string::normalize_nfd;
 /// let input = "Café";
 /// let normalized = normalize_nfd(input);
 /// assert!(normalized.len() > 4);
@@ -60,7 +53,7 @@ pub fn normalize_nfd(input: &str) -> String {
 ///
 /// # Example
 /// ```
-/// use phenotype_string::normalization::trim_whitespace;
+/// use phenotype_string::trim_whitespace;
 /// assert_eq!(trim_whitespace("  hello world  "), "hello world");
 /// ```
 pub fn trim_whitespace(input: &str) -> String {
@@ -80,7 +73,7 @@ pub fn trim_whitespace(input: &str) -> String {
 ///
 /// # Example
 /// ```
-/// use phenotype_string::normalization::slugify;
+/// use phenotype_string::slugify;
 /// assert_eq!(slugify("Hello World!"), "hello-world");
 /// assert_eq!(slugify("Foo    Bar"), "foo-bar");
 /// ```
@@ -91,12 +84,12 @@ pub fn slugify(input: &str) -> String {
     let with_hyphens = lowercase.replace([' ', '_'], "-");
 
     // Use regex to replace non-alphanumeric characters (except hyphens) with nothing
-    let clean = SLUGIFY_NON_ALPHANUMERIC
-        .replace_all(&with_hyphens, "")
-        .to_string();
+    let regex = Regex::new(r"[^a-z0-9\-]").unwrap_or_else(|_| Regex::new("[^a-z0-9-]").unwrap());
+    let clean = regex.replace_all(&with_hyphens, "").to_string();
 
     // Replace multiple consecutive hyphens with a single hyphen
-    let normalized = SLUGIFY_HYPHENS.replace_all(&clean, "-").to_string();
+    let hyphen_regex = Regex::new(r"-+").unwrap();
+    let normalized = hyphen_regex.replace_all(&clean, "-").to_string();
 
     // Remove leading and trailing hyphens
     normalized.trim_matches('-').to_string()
@@ -112,11 +105,14 @@ pub fn slugify(input: &str) -> String {
 ///
 /// # Example
 /// ```ignore
-/// use phenotype_string::normalization::remove_special_chars;
+/// use phenotype_string::remove_special_chars;
 /// assert_eq!(remove_special_chars("Hello@World!"), "HelloWorld");
 /// ```
 pub fn remove_special_chars(input: &str) -> String {
-    input.chars().filter(|c| c.is_alphanumeric()).collect()
+    input
+        .chars()
+        .filter(|c| c.is_alphanumeric())
+        .collect()
 }
 
 /// Collapses multiple consecutive whitespace characters into a single space.
@@ -129,14 +125,12 @@ pub fn remove_special_chars(input: &str) -> String {
 ///
 /// # Example
 /// ```ignore
-/// use phenotype_string::normalization::collapse_whitespace;
+/// use phenotype_string::collapse_whitespace;
 /// assert_eq!(collapse_whitespace("hello    world"), "hello world");
 /// ```
 pub fn collapse_whitespace(input: &str) -> String {
-    COLLAPSE_WHITESPACE
-        .replace_all(input, " ")
-        .trim()
-        .to_string()
+    let regex = Regex::new(r"\s+").unwrap();
+    regex.replace_all(input, " ").trim().to_string()
 }
 
 #[cfg(test)]
