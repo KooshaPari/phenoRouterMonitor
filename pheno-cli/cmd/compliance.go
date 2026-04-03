@@ -96,13 +96,14 @@ func outputComplianceJSON(report *policy.DriftReport) error {
 func outputComplianceText(report *policy.DriftReport) error {
 	fmt.Printf("\n📊 Compliance Report\n")
 	fmt.Printf("====================\n\n")
-	fmt.Printf("Total Repositories: %d\n", report.TotalRepos)
-	fmt.Printf("Compliant: %d\n", report.CompliantRepos)
-	fmt.Printf("Drift Detected: %d\n", report.DriftDetected)
-	fmt.Printf("Failed: %d\n", report.FailedRepos)
-	fmt.Printf("\nDuration: %dms\n\n", report.DurationMs)
+	fmt.Printf("Total Repositories Scanned: %d\n", report.Summary.Total)
+	fmt.Printf("Info Level: %d\n", report.Summary.Info)
+	fmt.Printf("Warning Level: %d\n", report.Summary.Warning)
+	fmt.Printf("Error Level: %d\n", report.Summary.Error)
+	fmt.Printf("Critical Level: %d\n", report.Summary.Critical)
+	fmt.Printf("\nDuration: %s\n\n", report.Duration)
 
-	if len(report.Findings) == 0 {
+	if len(report.Items) == 0 {
 		fmt.Println("✅ All repositories are compliant!")
 		return nil
 	}
@@ -110,23 +111,38 @@ func outputComplianceText(report *policy.DriftReport) error {
 	fmt.Println("⚠️  Drift Findings:")
 	fmt.Println()
 
-	for _, finding := range report.Findings {
+	for _, item := range report.Items {
 		icon := "🔴"
-		if finding.Severity == policy.SeverityMedium {
+		if item.Severity == policy.SeverityMedium {
 			icon = "🟡"
-		} else if finding.Severity == policy.SeverityLow {
+		} else if item.Severity == policy.SeverityLow {
 			icon = "🟢"
 		}
 
-		fmt.Printf("%s %s\n", icon, finding.Repo)
-		fmt.Printf("   File: %s\n", finding.File)
-		fmt.Printf("   Issue: %s\n", finding.Issue)
-		fmt.Printf("   Severity: %s\n\n", finding.Severity)
+		fmt.Printf("%s %s\n", icon, item.RepoPath)
+		if item.FilePath != "" {
+			fmt.Printf("   File: %s\n", item.FilePath)
+		}
+		fmt.Printf("   Issue: %s\n", item.Message)
+		fmt.Printf("   Severity: %s\n\n", severityToString(item.Severity))
 	}
 
-	if complianceFailOnDrift && report.DriftDetected > 0 {
-		return fmt.Errorf("drift detected in %d repositories", report.DriftDetected)
+	if complianceFailOnDrift && len(report.Items) > 0 {
+		return fmt.Errorf("drift detected in %d repositories", len(report.Items))
 	}
 
 	return nil
+}
+
+func severityToString(s policy.Severity) string {
+	switch s {
+	case policy.SeverityLow:
+		return "low"
+	case policy.SeverityMedium:
+		return "medium"
+	case policy.SeverityHigh:
+		return "high"
+	default:
+		return "unknown"
+	}
 }

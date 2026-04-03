@@ -1,7 +1,6 @@
 package state
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -10,8 +9,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/KooshaPari/pheno-cli/internal/adapters"
 )
 
 // Channel represents a release channel.

@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	auditCmd     *cobra.Command
 	auditReposDir string
 	auditRepo    string
 	auditFormat  string
