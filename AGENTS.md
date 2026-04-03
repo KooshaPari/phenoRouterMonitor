@@ -1,7 +1,28 @@
 # AGENTS.md — Phenotype Repos Shelf
+- If you finish a task and need to **serialize state for handoff**, consider using structured format (e.g., JSON/YAML) that's easy for other agents to read.
 
-This file defines the agent interaction rules for working in the repos shelf.
+## agent.s Integration
 
+agent.s is an integrated agent framework within the Phenotype ecosystem, designed for:
+- Multi-agent orchestration and coordination
+- Context preservation across agent handoffs
+- Cross-project state management
+- Automated workflow execution
+
+### When to use agent.s
+- Complex multi-step tasks requiring coordination
+- Cross-project operations requiring state preservation
+- Automated pipeline execution with checkpoints
+- Tasks requiring specialized agent roles
+
+### Integration with Phenotype Tools
+agent.s works alongside:
+- `forge.term` - Terminal session management
+- `pheno` - CLI orchestration
+- `worktree-manager` - Workspace coordination
+- `shelf` - Cross-project operations
+
+## Agent State Serialization
 ## Shelf Identity
 
 This is the **repos shelf** — a polyrepo containing ~150 independent projects. **Never treat this shelf as a single project.** Each subdirectory is an independent git repository.

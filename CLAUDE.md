@@ -16,23 +16,41 @@ Agents working in this shelf must understand the difference between **shelf-leve
 
 ## Repository Consolidation Status
 
-Recent consolidation efforts have merged duplicate repositories:
 
-| Consolidated Into | Merged From | Status |
-|-------------------|-------------|--------|
-| `hexagon` (templates) | hexagon-go, hexagon-rust, hexagon-zig, template-lang-* | ✅ Complete |
-| `Kogito` | bifrost-extensions | ✅ Complete |
-| `thegent` | thegent-mesh, thegent-plugin-host | ✅ Complete |
-| `Tracely` | Traceon, helix-logging, helix-tracing | ✅ Complete |
-| `Stashly` | thegent-cache | ✅ Complete |
-| `PhenoConfig` | Settly, phenotype-config, Configra | ✅ Complete |
-| `Tasken` | phenotype-task-engine | ✅ Complete |
+## Consolidation Status (As of 2026-04-03)
 
-**Total**: ~44 repositories consolidated → ~131 active
+| Registry | Merged From | Strategy |
+|----------|-------------|----------|
+| **hexagon** | hexagon-go, hexagon-rust, hexagon-zig, HexaKit/*, template-lang-* | Unified template registry |
+| **Kogito** | bifrost-extensions | Gateway/extensions merged |
+| **thegent** | Unified agent orchestration | Intentionally decomposed (satellites merged in) |
+| **Tracely** | Traceon, helix-logging, helix-tracing | Observability absorption |
+| **Stashly** | thegent-cache | Caching merged |
+| **PhenoConfig** | Settly, phenotype-config, Configra | Config ecosystem strategy |
+| **Tasken** | phenotype-task-engine | Task engine (referenced as alternative) |
+| **agentapi-plusplus** | agentapi, agentapi-deprec, agentapi-temp | API layer consolidation |
+| **cliproxyapi-plusplus** | CLIProxyAPI | CLI proxy consolidation |
 
-## Architecture
+### Thegent Crate Extraction Candidates
 
-### Shelf Structure
+| thegent Crate | Extraction Target | Status |
+|---------------|-------------------|--------|
+| thegent-crypto | phenotype-crypto | ⏳ Generic primitive candidate |
+| thegent-fs | phenotype-fs | ⏳ Generic primitive candidate |
+| thegent-jsonl | phenotype-jsonl | ⏳ Generic primitive candidate |
+| thegent-utils | phenotype-utils | ⏳ Generic primitive candidate |
+| thegent-path-resolve | phenotype-path | ⏳ Generic primitive candidate |
+| thegent-parser | - | ✅ Keep in thegent (agent-specific) |
+| thegent-discovery | - | ✅ Keep in thegent (agent-specific) |
+| thegent-hooks | - | ✅ Keep in thegent (agent-specific) |
+
+### Deleted Empty Shells
+
+- pheno* directories (phenoCipher, phenoConfigTs, etc.) - phenotype-* equivalents exist
+- thegent-* satellite directories (merged into thegent)
+
+---
+
 
 ```
 repos/                          # ← YOU ARE HERE (shelf root)
@@ -63,6 +81,7 @@ repos/                          # ← YOU ARE HERE (shelf root)
 | `platforms/` | Platform-as-product | thegent, AgilePlus |
 | `crates/` | Rust workspace | phenotype-* crates |
 | `packages/` | JS/TS packages | @phenotype/* |
+| `agent.s/` | Agent framework | Multi-agent orchestration |
 
 ## Agent Rules
 
