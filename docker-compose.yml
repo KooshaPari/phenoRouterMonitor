@@ -1,0 +1,24 @@
+services:
+  rust-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    volumes:
+      - .:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+    working_dir: /workspace
+    command: cargo build --workspace
+
+  python-mcp:
+    build:
+      context: ./python
+      dockerfile: Dockerfile.python
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./python:/app
+      - sqlite-data:/data
+
+volumes:
+  cargo-cache:
+  sqlite-data:

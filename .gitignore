@@ -1,0 +1,213 @@
+# Documentation assets
+docs/public/assets/demos/*.gif
+docs/public/assets/**/*.js
+docs/public/assets/**/*.css
+docs/public/assets/**/*.map
+docs-dist/
+
+# Excluded documentation (already excluded from VitePress build via srcExclude)
+# These contain duplicate/legacy content that's not part of the canonical docs
+docs/fragemented/
+docs/context/
+docs/docset/
+
+# Rust build artifacts (1.5GB+)
+crates/target/
+**/target/
+Cargo.lock
+
+# Node modules (689MB)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python virtual environment (623MB)
+.venv/
+venv/
+env/
+ENV/
+
+# Environment secrets - NEVER commit
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python caches and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.uv-cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Build and distribution
+dist/
+build/
+*.egg-info/
+*.egg
+wheels/
+
+# Large data directories
+artifacts/
+.process-compose/
+.factory-seed/
+mcp_backup/
+
+# Thegent scanner cache dirs (WL-006: prevent disk saturation)
+.git-cache/
+.shadow-*/
+.worktrees/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Local GH Actions emulation artifacts
+.github/act-events/
+.worktrees/
+
+# Workspace noise and generated diagnostics
+wt/
+docs/dumps/
+hooks/zig/
+# Serena AI tool
+.serena/
+.factory/closure_pack_*.md
+
+# Agent/tool-generated artifacts and prompt bundles
+
+# Safari/ browser data
+data/safari/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+
+# AI tool artifacts
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kittify/
+.kilocode/
+.github/prompts/
+.github/copilot-instructions.md
+.claudeignore
+.llmignore
+
+# Archives
+.archive/
+archive/
+bloom-wt/
+craft-wt/
+apps/
+libs/
+packages/
+services/*
+!services/colab
+!services/colab/
+colab-temp/
+phenotype-gauge-wtrees/
+sub-projects/
+template-commons/
+plans/
+tooling/
+tools/
+worktrees/
+thegent/
+scripts/
+colab/
+archive/
+trace/
+.agileplus/
+kitty-specs/
+styles/
+thegent-wtrees/
+phenotype-gauge-wtrees/
+template-commons/
+vibe-kanban-wtrees/
+
+# Ghost files (exist on disk but not in git)
+pyproject.toml
+uv.lock
+
+# Worktree clones and research artifacts
+colab-wtrees/
+devenv-abstraction/
+forgecode-wtrees/
+heliosCLI-wtrees/
+trace-wtrees/
+governance/
+docs/research/seeds.jsonl
+tests/infra/
+tokenledger/
+phenotype-config-wtrees/
+
+# Forked repositories (for reference/research only)
+ccusage/
+vibe-kanban/
+zen-wtrees/
+
+# Research artifacts and guides
+docs/guides/FORGE_ANTINOMY_AND_FOUNDRY.md
+
+# Worktree clones for forked repos
+ccusage-wtrees/
+phenotype-shared-wtrees/
+
+# Test scaffolding
+tests/__init__.py
+tests/conftest.py
+
+# Session artifacts
+REPOS_INDEX.md
+SESSION_GAPS_2026_03_29.md
+audit_worktrees.sh
+Cargo.toml
+EXTRACTION_REPORT_CONFIG_CORE.md
+docs/CI-CD-IMPLEMENTATION-SUMMARY.md
+docs/reference/GAP_SWEEP_INDEX.md
+docs/reference/GAP_SWEEP_MISSION_SUMMARY.md
+docs/reference/PHASE_1_BLOCKER_DECISIONS.md
+docs/reference/PHASE_1_COMPLETION_REPORT.md
+docs/reference/PHASE_1_FINAL_SUMMARY.md
+docs/reference/PHASE_1_READINESS_CHECKLIST.md
+docs/reference/SPEC_COMPLETENESS.md
+docs/reports/
+docs/sessions/20260329-wave92-deep-audit/
+docs/worklogs/LIBIFICATION_PHASE1-2_MASTER_INDEX.md
+docs/worklogs/LOC_REDUCTION.md
+docs/worklogs/PHASE2_COMPLETION_SUMMARY.md
+docs/worklogs/TOOLING.md
+tests/doc-sync/
+tests/test_runtime_helpers.py
+EXTRACT_PHENOTYPE_GIT_CORE_REPORT.md
+PHENOTYPE_ERROR_CORE_EXTRACTION_REPORT.md
+.github/workflows/ci.yml

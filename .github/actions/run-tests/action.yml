@@ -1,0 +1,43 @@
+name: Run Tests
+description: Runs tests with optional linting and formatting checks.
+
+inputs:
+  test-command:
+    description: Test command to run
+    default: cargo test
+    required: false
+  lint-command:
+    description: Lint command to run (optional)
+    default: ""
+    required: false
+  format-check:
+    description: Run format check
+    default: "true"
+    required: false
+  working-directory:
+    description: Working directory
+    default: .
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Format check
+      if: inputs.format-check == 'true'
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        cargo fmt --all -- --check
+
+    - name: Lint
+      if: inputs.lint-command != ''
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        ${{ inputs.lint-command }}
+
+    - name: Test
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        ${{ inputs.test-command }}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 2001,
+    "body": "error: missing semicolon",
+    "path": "src/main.rs",
+    "line": 10,
+    "user": { "login": "coderabbitai[bot]" },
+    "created_at": "2026-03-01T11:00:00Z"
+  },
+  {
+    "id": 2002,
+    "body": "LGTM!",
+    "path": null,
+    "line": null,
+    "user": { "login": "human-reviewer" },
+    "created_at": "2026-03-01T11:05:00Z"
+  },
+  {
+    "id": 2003,
+    "body": "Looks good to me",
+    "path": null,
+    "line": null,
+    "user": { "login": "another-dev" },
+    "created_at": "2026-03-01T11:10:00Z"
+  }
+]

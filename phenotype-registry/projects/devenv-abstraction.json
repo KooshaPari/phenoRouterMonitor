@@ -1,0 +1,14 @@
+{
+  "name": "devenv-abstraction",
+  "languages": [
+    "go",
+    "typescript"
+  ],
+  "primary_language": "go",
+  "status": "partial",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": false,
+  "type": "core",
+  "path": "repos/devenv-abstraction"
+}
