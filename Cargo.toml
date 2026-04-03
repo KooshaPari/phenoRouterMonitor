@@ -1,53 +1,40 @@
-[workspace.package]
+[package]
+name = "phenotype-infrakit"
 version = "0.2.0"
 edition = "2021"
+authors = ["Phenotype Developers"]
+description = "Phenotype Infrastructure Kit"
 license = "MIT"
-rust-version = "1.75"
-authors = ["Phenotype Team"]
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
 
 [workspace]
 resolver = "2"
 members = [
+    "crates/phenotype-async-traits",
     "crates/phenotype-cache-adapter",
+    "crates/phenotype-config-core",
     "crates/phenotype-contracts",
+    "crates/phenotype-core",
     "crates/phenotype-error-core",
     "crates/phenotype-errors",
     "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
-    "crates/phenotype-logging",
-    "crates/phenotype-macros",
-    "crates/phenotype-policy-engine",
+    "crates/phenotype-mock",
+    "crates/phenotype-port-traits",
     "crates/phenotype-security-aggregator",
     "crates/phenotype-state-machine",
-    "crates/phenotype-string",
-    "crates/phenotype-telemetry",
-    "crates/phenotype-test-infra",
-    "crates/phenotype-port-traits",
+    "crates/phenotype-testing",
+    "crates/phenotype-validation",
 ]
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
-anyhow = "1.0"
-async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-blake3 = "1.5"
-sha2 = "0.10"
-hex = "0.4"
-tokio = { version = "1", features = ["full"] }
-dashmap = "5"
-tracing = "0.1"
-tracing-subscriber = "0.3"
-opentelemetry = "0.26"
-opentelemetry_sdk = "0.26"
-opentelemetry-otlp = "0.26"
-tracing-opentelemetry = "0.29"
-parking_lot = "0.12"
-lru = "0.16"
-moka = { version = "0.12", features = ["sync"] }
 regex = "1"
 toml = "0.8"
 reqwest = { version = "0.12", features = ["json"] }
@@ -71,14 +58,14 @@ phenotype-async-traits = { version = "0.2.0", path = "crates/phenotype-async-tra
 phenotype-mock = { version = "0.2.0", path = "crates/phenotype-mock" }
 phenotype-testing = { version = "0.2.0", path = "crates/phenotype-testing" }
 phenotype-validation = { version = "0.2.0", path = "crates/phenotype-validation" }
-phenotype-string = { version = "0.2.0", path = "crates/phenotype-string" }
-phenotype-iter = { version = "0.2.0", path = "crates/phenotype-iter" }
-phenotype-retry = { version = "0.2.0", path = "crates/phenotype-retry" }
-phenotype-time = { version = "0.2.0", path = "crates/phenotype-time" }
-phenotype-telemetry = { version = "0.2.0", path = "crates/phenotype-telemetry" }
-phenotype-metrics = { version = "0.2.0", path = "crates/phenotype-metrics" }
-phenotype-logging = { version = "0.2.0", path = "crates/phenotype-logging" }
-phenotype-health = { version = "0.2.0", path = "crates/phenotype-health" }
-phenotype-security-aggregator = { version = "0.1.0", path = "crates/phenotype-security-aggregator" }
+
+[dependencies]
 
 [profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
