@@ -8,16 +8,10 @@ license = "MIT"
 path = "src/lib.rs"
 
 [dependencies]
-phenotype-config-core = { path = "../../phenotype-infrakit/crates/phenotype-config-core" }
-phenotype-contracts = { path = "../phenotype-contracts" }
-phenotype-port-traits = { path = "../phenotype-port-traits" }
-serde = { version = "1.0", features = ["derive"] }
-thiserror = "1.0"
-lru = "0.12"
-moka = { version = "0.12", features = ["sync"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
 dashmap = "5"
-tokio = { version = "1", features = ["sync", "rt"] }
-tracing = "0.1"
+tokio = { version = "1", features = ["sync", "rt-multi-thread", "time"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

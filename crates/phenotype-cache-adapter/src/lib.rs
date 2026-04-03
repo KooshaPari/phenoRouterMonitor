@@ -1,6 +1,6 @@
 //! phenotype-cache-adapter
 //!
-//! Two-tier cache with L1 (LRU) and L2 (DashMap), implementing CachePort.
+//! Two-tier cache with L1 (LRU) and L2 (DashMap).
 
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
@@ -8,43 +8,29 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::sync::Arc;
 
-// Re-export CachePort from phenotype-contracts
-pub use phenotype_contracts::CachePort;
-
-// Import observability traits from phenotype-port-traits
-pub use phenotype_port_traits::{CounterMetrics, MetricsHook, NoOpMetrics};
-
-/// Cache-specific errors
-#[derive(Debug, thiserror::Error)]
-pub enum CacheError {
-    #[error("Serialization error: {0}")]
-    Serialization(String),
-    #[error("Key not found: {0}")]
-    NotFound(String),
-    #[error("Cache error: {0}")]
-    Other(String),
+/// Metrics hook for observability.
+pub trait MetricsHook: Send + Sync + Debug {
+    fn record_hit(&self, tier: &str);
+    fn record_miss(&self, tier: &str);
 }
 
-impl From<CacheError> for phenotype_contracts::error::Error {
-    fn from(e: CacheError) -> Self {
-        phenotype_contracts::error::Error::Internal(e.to_string())
-    }
+/// Default no-op metrics hook.
+#[derive(Debug, Default, Clone)]
+pub struct NoOpMetrics;
+
+impl MetricsHook for NoOpMetrics {
+    fn record_hit(&self, _tier: &str) {}
+    fn record_miss(&self, _tier: &str) {}
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 struct CacheEntry<V: Clone> {
     value: V,
-    #[serde(skip)]
-    #[allow(dead_code)]
-    timestamp: std::time::Instant,
 }
 
 impl<V: Clone> CacheEntry<V> {
     fn new(value: V) -> Self {
-        Self {
-            value,
-            timestamp: std::time::Instant::now(),
-        }
+        Self { value }
     }
 }
 
@@ -76,7 +62,7 @@ where
     }
 
     /// Create with custom metrics hook.
-    pub fn with_metrics(l1_capacity: usize, l2_capacity: usize, metrics: impl MetricsHook) -> Self {
+    pub fn with_metrics(l1_capacity: usize, l2_capacity: usize, metrics: impl MetricsHook + 'static) -> Self {
         Self {
             l1: Arc::new(DashMap::with_capacity(l1_capacity)),
             l2: Arc::new(DashMap::with_capacity(l2_capacity)),
@@ -148,24 +134,53 @@ where
     }
 }
 
-impl<K, V> CachePort for TwoTierCache<K, V>
-where
-    K: Clone + Eq + Hash + Send + Sync + Debug + 'static,
-    V: Clone + Send + Sync + Debug + 'static,
-{
-    type Error = CacheError;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    fn get(&self, key: &K) -> phenotype_contracts::Result<Option<V>> {
-        Ok(self.get(key))
+    #[test]
+    fn test_two_tier_cache_basic() {
+        let cache: TwoTierCache<String, String> = TwoTierCache::new(10, 100);
+        cache.put("key1".to_string(), "value1".to_string());
+        assert_eq!(cache.get(&"key1".to_string()), Some("value1".to_string()));
     }
 
-    fn set(&self, key: K, value: V) -> phenotype_contracts::Result<()> {
-        self.put(key, value);
-        Ok(())
+    #[test]
+    fn test_two_tier_cache_l1_promotion() {
+        let cache: TwoTierCache<String, i32> = TwoTierCache::new(2, 100);
+        cache.put("a".to_string(), 1);
+        cache.put("b".to_string(), 2);
+        assert_eq!(cache.get(&"a".to_string()), Some(1));
+        assert_eq!(cache.l1_len(), 1);
     }
 
-    fn invalidate(&self, key: &K) -> phenotype_contracts::Result<()> {
-        self.remove(key);
-        Ok(())
+    #[test]
+    fn test_two_tier_cache_eviction() {
+        let cache: TwoTierCache<String, String> = TwoTierCache::new(2, 100);
+        cache.put("k1".to_string(), "v1".to_string());
+        cache.put("k2".to_string(), "v2".to_string());
+        cache.put("k3".to_string(), "v3".to_string());
+        // k1 should be evicted from L1 but still in L2
+        assert_eq!(cache.l1_len(), 2);
+        assert!(cache.l2_len() >= 3);
+    }
+
+    #[test]
+    fn test_two_tier_cache_remove() {
+        let cache: TwoTierCache<String, String> = TwoTierCache::new(10, 100);
+        cache.put("key".to_string(), "value".to_string());
+        assert!(cache.get(&"key".to_string()).is_some());
+        cache.remove(&"key".to_string());
+        assert!(cache.get(&"key".to_string()).is_none());
+    }
+
+    #[test]
+    fn test_two_tier_cache_clear() {
+        let cache: TwoTierCache<String, String> = TwoTierCache::new(10, 100);
+        cache.put("k1".to_string(), "v1".to_string());
+        cache.put("k2".to_string(), "v2".to_string());
+        cache.clear();
+        assert_eq!(cache.l1_len(), 0);
+        assert_eq!(cache.l2_len(), 0);
     }
 }
