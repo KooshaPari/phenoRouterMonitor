@@ -1,37 +1,32 @@
-# phenotype-infrakit
+# Phenotype InfraKit
 
-Infrastructure toolkit for the Phenotype ecosystem.
+Shared infrastructure crates extracted from the Phenotype ecosystem.
 
-## Overview
+This workspace contains generic infrastructure components that are shared across Phenotype services.
 
-A comprehensive set of infrastructure components including dashboard, health monitoring, compliance scanning, rate limiting, and security aggregation.
+## Crates
 
-## Components
+- `phenotype-error-core`: Canonical error types for the Phenotype ecosystem
+- `phenotype-git-core`: Phenotype git core crate
+- `phenotype-health`: Shared health check abstraction for Phenotype services
+- `phenotype-config-core`: Unified configuration loading and management for Phenotype ecosystem
+- `phenotype-telemetry`: Telemetry and observability infrastructure
+- `phenotype-validation`: Data validation infrastructure
+- `phenotype-event-sourcing`: Append-only event store with SHA-256 hash chains
+- `phenotype-cache-adapter`: Two-tier LRU + DashMap cache with TTL
+- `phenotype-policy-engine`: Rule-based policy evaluation with TOML config
+- `phenotype-state-machine`: Generic FSM with transition guards
+- `phenotype-contracts`: Shared traits and types
 
-### Dashboard
-- `agileplus-dashboard` - Web dashboard UI
-- `agileplus-dashboard-server` - Dashboard backend server
+## Usage
 
-### Core Services
-- `phenotype-analytics` - Analytics and metrics
-- `phenotype-auth` - Authentication and authorization
-- `phenotype-config-core` - Configuration management
-- `phenotype-health` - Health checking system
-- `phenotype-observability` - Observability tools
+Add to your Cargo.toml:
 
-### Security & Compliance
-- `phenotype-compliance-scanner` - Compliance scanning
-- `phenotype-security-aggregator` - Security event aggregation
-- `pheno-guard` - Guard service
-
-### Testing & Quality
-- `phenotype-bdd` - BDD testing framework
-- `phenotype-contract-tests` - Contract testing
-
-### Infrastructure
-- `phenotype-http-client` - HTTP client utilities
-- `phenotype-project-registry` - Project registry
-- `phenotype-rate-limiter` - Rate limiting
+```toml
+[dependencies]
+phenotype-error-core = { path = "../phenotype-infrakit/crates/phenotype-error-core" }
+# ... other phenotype crates
+```
 
 ## License
 

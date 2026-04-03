@@ -1,23 +1,23 @@
-//! HTTP client for Phenotype
+//! HTTP client
 
-use thiserror::Error;
+pub mod error;
 
-/// HTTP client error types
-#[derive(Error, Debug)]
-pub enum HttpError {
-    #[error("request failed: {0}")]
-    Request(String),
-    #[error("invalid url: {0}")]
-    InvalidUrl(String),
+pub use error::{HttpError, Result};
+
+/// HTTP client wrapper
+pub struct HttpClient {
+    client: reqwest::Client,
 }
 
-/// HTTP client
-pub struct HttpClient;
-
 impl HttpClient {
-    /// Create a new HTTP client
     pub fn new() -> Self {
-        Self
+        Self {
+            client: reqwest::Client::new(),
+        }
+    }
+
+    pub async fn get(&self, url: &str) -> Result<String> {
+        Ok(self.client.get(url).send().await?.text().await?)
     }
 }
 
@@ -26,3 +26,4 @@ impl Default for HttpClient {
         Self::new()
     }
 }
+

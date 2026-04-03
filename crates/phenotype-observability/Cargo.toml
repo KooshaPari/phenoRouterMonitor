@@ -6,10 +6,14 @@ license = "MIT"
 description = "Observability facade for metrics, tracing, and logging across the Phenotype ecosystem"
 repository = "https://github.com/kooshr/phenotype"
 
+[features]
+default = ["tracing"]
+tracing = ["dep:tracing", "dep:tracing-subscriber"]
+
 [dependencies]
 tokio = { version = "1", features = ["rt", "sync"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"], optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

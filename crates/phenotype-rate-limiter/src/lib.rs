@@ -1,31 +1,26 @@
-//! Rate limiting for Phenotype
+//! Rate limiting utilities
 
-use std::sync::atomic::{AtomicU64, Ordering};
+pub mod error;
 
-/// Token bucket rate limiter
-pub struct TokenBucket {
-    tokens: AtomicU64,
-    #[allow(dead_code)]
-    max_tokens: u64,
+pub use error::{RateLimitError, Result};
+
+/// Rate limiter
+pub struct RateLimiter {
+    capacity: u64,
+    used: u64,
 }
 
-impl TokenBucket {
-    /// Create a new token bucket
-    pub fn new(max_tokens: u64) -> Self {
-        Self {
-            tokens: AtomicU64::new(max_tokens),
-            max_tokens,
-        }
+impl RateLimiter {
+    pub fn new(capacity: u64) -> Self {
+        Self { capacity, used: 0 }
     }
-
-    /// Try to acquire a token
-    pub fn try_acquire(&self) -> bool {
-        let current = self.tokens.load(Ordering::Relaxed);
-        if current > 0 {
-            self.tokens.fetch_sub(1, Ordering::Relaxed);
-            true
+    
+    pub fn try_acquire(&mut self) -> Result<()> {
+        if self.used < self.capacity {
+            self.used += 1;
+            Ok(())
         } else {
-            false
+            Err(RateLimitError::RateLimited)
         }
     }
 }

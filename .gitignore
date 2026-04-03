@@ -1,2 +1,5 @@
-hexagon/templates/*/
-hexagon/templates/*/
+
+# Environment configuration
+.env
+.env.local
+.env.*.local

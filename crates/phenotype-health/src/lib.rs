@@ -1,110 +1,65 @@
-//! Phenotype Health
+//! Health check framework for phenotype infrastructure.
+//!
+//! Provides a trait for implementing health checks that can be queried
+//! by monitoring systems.
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum HealthStatus { Healthy, Degraded, Unhealthy, Unknown }
+/// Health check status.
+#[derive(Debug, Clone, Serialize)]
+pub enum HealthStatus {
+    /// The component is healthy.
+    Healthy,
+    /// The component is degraded but functional.
+    Degraded(String),
+    /// The component is unhealthy.
+    Unhealthy(String),
+}
 
-impl Default for HealthStatus { fn default() -> Self { Self::Unknown } }
+impl HealthStatus {
+    /// Returns true if the status indicates health.
+    pub fn is_healthy(&self) -> bool {
+        matches!(self, HealthStatus::Healthy)
+    }
+}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum HealthBand { Excellent, Good, Fair, Poor, Critical, Unknown }
+/// Result of a health check.
+#[derive(Debug, Clone, Serialize)]
+pub struct HealthReport {
+    pub name: String,
+    pub status: HealthStatus,
+}
 
-impl HealthBand {
-    pub fn from_score(score: f32) -> Self {
-        match score {
-            s if s >= 90.0 => HealthBand::Excellent,
-            s if s >= 75.0 => HealthBand::Good,
-            s if s >= 60.0 => HealthBand::Fair,
-            s if s >= 40.0 => HealthBand::Poor,
-            s if s > 0.0 => HealthBand::Critical,
-            _ => HealthBand::Unknown,
+impl HealthReport {
+    /// Create a new healthy report.
+    pub fn healthy(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            status: HealthStatus::Healthy,
+        }
+    }
+
+    /// Create a new degraded report.
+    pub fn degraded(name: impl Into<String>, reason: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            status: HealthStatus::Degraded(reason.into()),
+        }
+    }
+
+    /// Create a new unhealthy report.
+    pub fn unhealthy(name: impl Into<String>, reason: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            status: HealthStatus::Unhealthy(reason.into()),
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Severity { Info, Warning, Error, Critical }
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Finding { pub severity: Severity, pub message: String }
-
-impl Finding {
-    pub fn info(msg: impl Into<String>) -> Self { Self { severity: Severity::Info, message: msg.into() } }
-    pub fn warning(msg: impl Into<String>) -> Self { Self { severity: Severity::Warning, message: msg.into() } }
-    pub fn error(msg: impl Into<String>) -> Self { Self { severity: Severity::Error, message: msg.into() } }
-    pub fn critical(msg: impl Into<String>) -> Self { Self { severity: Severity::Critical, message: msg.into() } }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DimensionScore {
-    pub dimension: String,
-    pub weight: f32,
-    pub score: f32,
-    pub findings: Vec<Finding>,
-}
-
-impl DimensionScore {
-    pub fn new(dimension: impl Into<String>, weight: f32, score: f32) -> Self {
-        Self { dimension: dimension.into(), weight, score, findings: Vec::new() }
-    }
-    pub fn with_finding(mut self, finding: Finding) -> Self {
-        self.findings.push(finding);
-        self
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectHealth {
-    pub repo_name: String,
-    pub language: String,
-    pub overall_score: f32,
-    pub band: HealthBand,
-    pub dimensions: Vec<DimensionScore>,
-    pub findings_count: usize,
-}
-
-impl ProjectHealth {
-    pub fn compute_overall_score(&mut self) {
-        let mut total_weighted = 0.0;
-        let mut total_weight = 0.0;
-        for dim in &self.dimensions {
-            total_weighted += dim.score * dim.weight;
-            total_weight += dim.weight;
-        }
-        self.overall_score = if total_weight > 0.0 { total_weighted / total_weight } else { 0.0 };
-        self.band = HealthBand::from_score(self.overall_score);
-        self.findings_count = self.dimensions.iter().map(|d| d.findings.len()).sum();
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_health_band() {
-        assert_eq!(HealthBand::from_score(95.0), HealthBand::Excellent);
-        assert_eq!(HealthBand::from_score(80.0), HealthBand::Good);
-        assert_eq!(HealthBand::from_score(65.0), HealthBand::Fair);
-        assert_eq!(HealthBand::from_score(50.0), HealthBand::Poor);
-        assert_eq!(HealthBand::from_score(20.0), HealthBand::Critical);
-    }
-
-    #[test]
-    fn test_project_health() {
-        let mut health = ProjectHealth {
-            repo_name: "test".into(),
-            language: "Rust".into(),
-            overall_score: 0.0,
-            band: HealthBand::Unknown,
-            dimensions: vec![
-                DimensionScore::new("docs", 15.0, 100.0),
-                DimensionScore::new("tests", 20.0, 80.0),
-            ],
-            findings_count: 0,
-        };
-        health.compute_overall_score();
-        assert!(health.overall_score > 88.0 && health.overall_score < 89.0);
-    }
+/// Trait for implementing health checks.
+///
+/// Implement this trait to provide health check functionality for components.
+pub trait HealthCheck: Send + Sync {
+    /// Perform the health check.
+    fn check(&self) -> HealthReport;
 }

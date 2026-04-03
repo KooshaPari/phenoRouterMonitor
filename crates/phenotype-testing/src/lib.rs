@@ -1,17 +1,5 @@
-//! Testing utilities for Phenotype
+//! Testing utilities
 
-/// Test fixture utilities
-pub struct Fixture;
+pub mod fixture;
 
-impl Fixture {
-    /// Create a new fixture
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl Default for Fixture {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+pub use fixture::Fixture;

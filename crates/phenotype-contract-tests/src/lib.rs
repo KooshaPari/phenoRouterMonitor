@@ -1,17 +1,5 @@
-//! Contract tests for Phenotype
+//! Contract testing utilities
 
-/// Contract test runner
-pub struct ContractRunner;
+pub mod contract;
 
-impl ContractRunner {
-    /// Create a new runner
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl Default for ContractRunner {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+pub use contract::{Contract, ContractTest};
