@@ -1,0 +1,19 @@
+{
+  "name": "hexagon",
+  "languages": [
+    "elixir",
+    "go",
+    "kotlin",
+    "mojo",
+    "rust",
+    "swift",
+    "zig"
+  ],
+  "primary_language": "zig",
+  "status": "partial",
+  "has_readme": true,
+  "has_spec": false,
+  "has_plan": true,
+  "type": "core",
+  "path": "repos/hexagon"
+}

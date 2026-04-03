@@ -27,11 +27,11 @@ func init() {
 	rootCmd.PersistentFlags().Bool("verbose", false, "verbose output")
 
 	rootCmd.AddCommand(publishCmd)
-	rootCmd.AddCommand(promoteCmd)
-	rootCmd.AddCommand(auditCmd)
 	rootCmd.AddCommand(bootstrapCmd)
 	rootCmd.AddCommand(matrixCmd)
 	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(complianceCmd)
+	rootCmd.AddCommand(trainCmd)
 }
 
 func initConfig() {

@@ -13,6 +13,8 @@ import (
 	"github.com/KooshaPari/pheno-cli/internal/publish"
 )
 
+var publishCmd *cobra.Command
+
 func init() {
 	publishCmd = &cobra.Command{
 		Use:   "publish",

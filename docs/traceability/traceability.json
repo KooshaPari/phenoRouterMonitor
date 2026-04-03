@@ -1,102 +1,1354 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-02",
+  "lastUpdated": "2026-04-03",
   "ecosystem": "phenotype",
   "summary": {
-    "totalRepos": 17,
-    "totalSpecs": 86,
-    "totalCodeEntities": 348,
-    "totalTests": 785,
+    "totalRepos": 103,
+    "totalSpecs": 135,
+    "totalCodeEntities": 547,
+    "totalTests": 1150,
     "averageCoverage": 90
   },
   "repositories": [
     {
       "name": "phenotype-agent-core",
       "specs": 12,
-      "codeEntities": 45,
-      "tests": 89,
       "coverage": 94,
       "specsList": [
-        { "id": "FR-001", "title": "Agent Creation", "status": "implemented", "priority": "P0" },
-        { "id": "FR-002", "title": "LLM Provider Registration", "status": "implemented", "priority": "P0" },
-        { "id": "FR-003", "title": "OpenAI Integration", "status": "implemented", "priority": "P0" },
-        { "id": "FR-004", "title": "Anthropic Integration", "status": "implemented", "priority": "P0" },
-        { "id": "FR-005", "title": "Tool Registration", "status": "implemented", "priority": "P1" },
-        { "id": "FR-006", "title": "Tool Execution", "status": "implemented", "priority": "P1" },
-        { "id": "FR-007", "title": "Bash Tool", "status": "implemented", "priority": "P1" },
-        { "id": "FR-008", "title": "File Read Tool", "status": "implemented", "priority": "P1" },
-        { "id": "FR-009", "title": "File Write Tool", "status": "implemented", "priority": "P1" },
-        { "id": "FR-010", "title": "Web Search Tool", "status": "implemented", "priority": "P2" },
-        { "id": "FR-011", "title": "Browser Tool", "status": "implemented", "priority": "P2" },
-        { "id": "FR-012", "title": "Context Management", "status": "implemented", "priority": "P1" }
+        {
+          "id": "FR-001",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-002",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-003",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-004",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-005",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-006",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-007",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-008",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-009",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-010",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-011",
+          "status": "implemented"
+        },
+        {
+          "id": "FR-012",
+          "status": "implemented"
+        }
       ]
     },
     {
       "name": "phenotype-skills",
       "specs": 8,
-      "codeEntities": 32,
-      "tests": 67,
       "coverage": 91,
       "specsList": [
-        { "id": "SKILL-001", "title": "Skill Definition", "status": "implemented", "priority": "P0" },
-        { "id": "SKILL-002", "title": "Skill Registry", "status": "implemented", "priority": "P0" },
-        { "id": "SKILL-003", "title": "Hot Reload", "status": "implemented", "priority": "P1" },
-        { "id": "SKILL-004", "title": "Native Skill Support", "status": "implemented", "priority": "P1" },
-        { "id": "SKILL-005", "title": "Python Skill Support", "status": "implemented", "priority": "P1" },
-        { "id": "SKILL-006", "title": "WASM Skill Support", "status": "implemented", "priority": "P2" },
-        { "id": "SKILL-007", "title": "Dependency Resolution", "status": "implemented", "priority": "P2" },
-        { "id": "SKILL-008", "title": "Sandbox Execution", "status": "implemented", "priority": "P1" }
+        {
+          "id": "SKILL-001",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-002",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-003",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-004",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-005",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-006",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-007",
+          "status": "implemented"
+        },
+        {
+          "id": "SKILL-008",
+          "status": "implemented"
+        }
       ]
     },
     {
       "name": "phenotype-task-engine",
       "specs": 10,
-      "codeEntities": 38,
-      "tests": 76,
       "coverage": 93,
       "specsList": [
-        { "id": "TASK-001", "title": "Task Definition", "status": "implemented", "priority": "P0" },
-        { "id": "TASK-002", "title": "Task Scheduling", "status": "implemented", "priority": "P0" },
-        { "id": "TASK-003", "title": "Dependency Graph", "status": "implemented", "priority": "P0" },
-        { "id": "TASK-004", "title": "Parallel Execution", "status": "implemented", "priority": "P1" },
-        { "id": "TASK-005", "title": "Retry Logic", "status": "implemented", "priority": "P1" },
-        { "id": "TASK-006", "title": "Async/Await", "status": "implemented", "priority": "P0" }
+        {
+          "id": "TASK-001",
+          "status": "implemented"
+        },
+        {
+          "id": "TASK-002",
+          "status": "implemented"
+        },
+        {
+          "id": "TASK-003",
+          "status": "implemented"
+        },
+        {
+          "id": "TASK-004",
+          "status": "implemented"
+        },
+        {
+          "id": "TASK-005",
+          "status": "implemented"
+        },
+        {
+          "id": "TASK-006",
+          "status": "implemented"
+        }
       ]
     },
     {
       "name": "phenotype-auth-ts",
       "specs": 6,
-      "codeEntities": 24,
-      "tests": 54,
       "coverage": 88,
       "specsList": [
-        { "id": "AUTH-001", "title": "OIDC Support", "status": "implemented", "priority": "P0" },
-        { "id": "AUTH-003", "title": "OAuth2 Provider", "status": "implemented", "priority": "P0" },
-        { "id": "AUTH-004", "title": "JWT Validation", "status": "implemented", "priority": "P0" }
+        {
+          "id": "AUTH-001",
+          "status": "implemented"
+        },
+        {
+          "id": "AUTH-003",
+          "status": "implemented"
+        },
+        {
+          "id": "AUTH-004",
+          "status": "implemented"
+        }
       ]
     },
     {
       "name": "phenotype-config-ts",
       "specs": 4,
-      "codeEntities": 18,
-      "tests": 42,
       "coverage": 95,
       "specsList": [
-        { "id": "CONF-001", "title": "Multi-Source Config", "status": "implemented", "priority": "P0" },
-        { "id": "CONF-002", "title": "Validation", "status": "implemented", "priority": "P1" },
-        { "id": "CONF-004", "title": "Secrets Integration", "status": "implemented", "priority": "P0" }
+        {
+          "id": "CONF-001",
+          "status": "implemented"
+        },
+        {
+          "id": "CONF-002",
+          "status": "implemented"
+        },
+        {
+          "id": "CONF-004",
+          "status": "implemented"
+        }
       ]
     },
     {
       "name": "phenotype-vessel",
       "specs": 7,
-      "codeEntities": 28,
-      "tests": 61,
       "coverage": 90,
       "specsList": [
-        { "id": "VES-001", "title": "Agent Runtime", "status": "implemented", "priority": "P0" },
-        { "id": "VES-002", "title": "Sandbox Isolation", "status": "implemented", "priority": "P0" },
-        { "id": "VES-004", "title": "Monitoring", "status": "implemented", "priority": "P1" }
+        {
+          "id": "VES-001",
+          "status": "implemented"
+        },
+        {
+          "id": "VES-002",
+          "status": "implemented"
+        },
+        {
+          "id": "VES-004",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-forge",
+      "specs": 5,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "FORGE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-evaluation",
+      "specs": 4,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "EVAL-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-types",
+      "specs": 3,
+      "coverage": 96,
+      "specsList": [
+        {
+          "id": "TYPE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-infrakit",
+      "specs": 6,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "INFRA-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-governance",
+      "specs": 4,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "GOV-001",
+          "status": "implemented"
+        },
+        {
+          "id": "GOV-002",
+          "status": "implemented"
+        },
+        {
+          "id": "GOV-003",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-hub",
+      "specs": 5,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "HUB-001",
+          "status": "implemented"
+        },
+        {
+          "id": "HUB-002",
+          "status": "implemented"
+        },
+        {
+          "id": "HUB-003",
+          "status": "implemented"
+        },
+        {
+          "id": "HUB-004",
+          "status": "implemented"
+        },
+        {
+          "id": "HUB-005",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "pheno-cli",
+      "specs": 4,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "CLI-001",
+          "status": "implemented"
+        },
+        {
+          "id": "CLI-002",
+          "status": "implemented"
+        },
+        {
+          "id": "CLI-003",
+          "status": "implemented"
+        },
+        {
+          "id": "CLI-004",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "thegent",
+      "specs": 8,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "META-001",
+          "status": "implemented"
+        },
+        {
+          "id": "META-002",
+          "status": "implemented"
+        },
+        {
+          "id": "META-003",
+          "status": "implemented"
+        },
+        {
+          "id": "META-004",
+          "status": "implemented"
+        },
+        {
+          "id": "META-005",
+          "status": "implemented"
+        },
+        {
+          "id": "META-007",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "nanovms",
+      "specs": 14,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "VM-001",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-002",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-003",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-004",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-009",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-010",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-011",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-012",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-013",
+          "status": "implemented"
+        },
+        {
+          "id": "VM-014",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-cipher",
+      "specs": 4,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "CIPH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-dep-guard",
+      "specs": 5,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "DEP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-docs-engine",
+      "specs": 6,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "DOC-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-logging-zig",
+      "specs": 4,
+      "coverage": 95,
+      "specsList": [
+        {
+          "id": "LOG-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-middleware-py",
+      "specs": 5,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "MID-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-patch",
+      "specs": 3,
+      "coverage": 96,
+      "specsList": [
+        {
+          "id": "PATCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-research-engine",
+      "specs": 8,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "RES-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-sentinel",
+      "specs": 6,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "SENT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-templates",
+      "specs": 4,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "TEMP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenotype-xdd-lib",
+      "specs": 5,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "XDD-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "AgilePlus",
+      "specs": 10,
+      "coverage": 94,
+      "specsList": [
+        {
+          "id": "AP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "heliosCLI",
+      "specs": 8,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "HEL-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "bifrost",
+      "specs": 8,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "BIF-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "KaskMan",
+      "specs": 7,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "KM-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "kits",
+      "specs": 4,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "KIT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Logify",
+      "specs": 6,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "LOG-002",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Metron",
+      "specs": 9,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "MET-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "org-github",
+      "specs": 5,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "ORG-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Planify",
+      "specs": 8,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "PLAN-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "PolicyStack",
+      "specs": 10,
+      "coverage": 84,
+      "specsList": [
+        {
+          "id": "PS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Portalis",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "PORT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Profila",
+      "specs": 6,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "PROF-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Queris",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "QUERY-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Quillr",
+      "specs": 4,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "QUILL-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Seedloom",
+      "specs": 6,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "SEED-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Settly",
+      "specs": 8,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "SETT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Stashly",
+      "specs": 5,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "STASH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Tasken",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "TASK-003",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Tokn",
+      "specs": 6,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "TOKN-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Tossy",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "TOSS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Traceon",
+      "specs": 8,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "TRACE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Zerokit",
+      "specs": 6,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "ZERO-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "forgecode",
+      "specs": 12,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "FORGE-002",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "helMo",
+      "specs": 6,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "HELM-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "helix-logging",
+      "specs": 5,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "HL-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "vibeproxy",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "VIBE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Dino",
+      "specs": 8,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "DINO-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Docuverse",
+      "specs": 7,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "DOCV-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Duple",
+      "specs": 5,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "DUPLE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Evalora",
+      "specs": 6,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "EVALO-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Eventra",
+      "specs": 8,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "EVENT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Flagward",
+      "specs": 5,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "FLAG-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Flowra",
+      "specs": 7,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "FLOW-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Guardis",
+      "specs": 6,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "GUARD-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "HexaGo",
+      "specs": 9,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "HEX-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "HexaPy",
+      "specs": 8,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "HEXP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Httpora",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "HTTP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Kogito",
+      "specs": 10,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "KOG-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Portage",
+      "specs": 6,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "PORTAGE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Schemaforge",
+      "specs": 8,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "SCHEMA-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "sharecli",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "SHARE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Tracera",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "TRAC-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "worktree-manager",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "WM-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Cursora",
+      "specs": 6,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "CURS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "BytePort",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "BYTE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Authvault",
+      "specs": 5,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "AUTHV-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Datamold",
+      "specs": 8,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "DM-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Apisync",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "APIS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Cmdra",
+      "specs": 7,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "CMDR-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenoSDK",
+      "specs": 9,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "SDK-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-commons",
+      "specs": 4,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "TPLCOM-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-domain-service-api",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "TPLAPI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "artifacts",
+      "specs": 3,
+      "coverage": 94,
+      "specsList": [
+        {
+          "id": "ART-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "heliosApp",
+      "specs": 8,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "HELI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "platforms",
+      "specs": 10,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "PLAT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "crates",
+      "specs": 12,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "CRATE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "agent-wave",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "AGWAVE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "agentapi-plusplus",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "AGAPI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "omniroute-temp",
+      "specs": 5,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "OMNI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "heliosBench",
+      "specs": 6,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "HBENCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "tests",
+      "specs": 8,
+      "coverage": 95,
+      "specsList": [
+        {
+          "id": "TEST-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "hexagon",
+      "specs": 9,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "HEXAGON-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "docs",
+      "specs": 4,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "DOCS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "zen",
+      "specs": 5,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "ZEN-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenodocs",
+      "specs": 6,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "PHDOC-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "cloud",
+      "specs": 8,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "CLOUD-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "scripts",
+      "specs": 3,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "SCRIPT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "bare-cua",
+      "specs": 4,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "BCUA-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phench",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "PHENCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "devenv-abstraction",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "DEVENV-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "agentapi-temp",
+      "specs": 4,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "AGTEMP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "colab",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "COLAB-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Benchora",
+      "specs": 5,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "BENCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-program-ops",
+      "specs": 4,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "TPLOPS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-domain-webapp",
+      "specs": 6,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "TPLWEB-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "cliproxyapi-plusplus",
+      "specs": 5,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "CLIPROX-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "koosha-portfolio",
+      "specs": 3,
+      "coverage": 94,
+      "specsList": [
+        {
+          "id": "KPORT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Tracely",
+      "specs": 6,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "TRACELY-001",
+          "status": "implemented"
+        }
       ]
     }
   ]

@@ -1,0 +1,19 @@
+{
+  "name": "phenoTemplates",
+  "languages": [
+    "go",
+    "kotlin",
+    "mojo",
+    "python",
+    "rust",
+    "swift",
+    "zig"
+  ],
+  "primary_language": "rust",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "template",
+  "path": "repos/phenoTemplates"
+}

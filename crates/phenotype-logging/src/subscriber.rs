@@ -1,45 +1,38 @@
 //! Tracing subscriber initialization.
 
-use crate::config::{LogConfig, LogLevel, OutputFormat};
+use crate::config::{LogConfig, OutputFormat};
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 /// Initialize the tracing subscriber with the given configuration.
 pub fn init(config: LogConfig) {
-    let env_filter = config
-        .env_filter
-        .as_deref()
-        .map(tracing_subscriber::EnvFilter::try_from_default_env)
-        .transpose()
-        .unwrap_or_else(|_| {
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
-        });
+    let env_filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new(config.level.as_str()));
 
-    let layer = match config.format {
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        .with_target(config.include_target)
+        .with_thread_ids(config.include_thread_id);
+
+    match config.format {
         OutputFormat::Pretty => {
-            tracing_subscriber::fmt::layer()
-                .with_target(config.include_target)
-                .with_thread_ids(config.include_thread_id)
-                .with_file(true)
-                .with_line_number(true)
+            tracing_subscriber::registry()
+                .with(env_filter)
+                .with(fmt_layer.pretty())
+                .init();
         }
         OutputFormat::Compact => {
-            tracing_subscriber::fmt::layer()
-                .with_target(config.include_target)
-                .with_thread_ids(config.include_thread_id)
-                .compact()
+            tracing_subscriber::registry()
+                .with(env_filter)
+                .with(fmt_layer.compact())
+                .init();
         }
         OutputFormat::Json => {
-            tracing_subscriber::fmt::layer()
-                .json()
-                .with_target(config.include_target)
-                .with_thread_ids(config.include_thread_id)
+            tracing_subscriber::registry()
+                .with(env_filter)
+                .with(fmt_layer.json())
+                .init();
         }
-    };
-
-    tracing_subscriber::registry()
-        .with(env_filter)
-        .with(layer)
-        .init();
+    }
 }
 
 /// Initialize with default configuration.

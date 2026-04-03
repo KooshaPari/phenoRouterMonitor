@@ -36,11 +36,22 @@ impl LogLevel {
             Self::Error => tracing::Level::ERROR,
         }
     }
+
+    /// Convert to lowercase string.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Trace => "trace",
+            Self::Debug => "debug",
+            Self::Info => "info",
+            Self::Warn => "warn",
+            Self::Error => "error",
+        }
+    }
 }
 
-impl Default for LogLevel {
-    fn default() -> Self {
-        Self::Info
+impl std::fmt::Display for LogLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 

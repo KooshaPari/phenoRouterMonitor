@@ -1,0 +1,13 @@
+{
+  "name": "agentapi-temp",
+  "languages": [
+    "go"
+  ],
+  "primary_language": "go",
+  "status": "minimal",
+  "has_readme": true,
+  "has_spec": false,
+  "has_plan": false,
+  "type": "core",
+  "path": "repos/agentapi-temp"
+}

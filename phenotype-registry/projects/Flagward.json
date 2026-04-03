@@ -1,0 +1,14 @@
+{
+  "name": "Flagward",
+  "languages": [
+    "python",
+    "typescript"
+  ],
+  "primary_language": "python",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "core",
+  "path": "repos/Flagward"
+}

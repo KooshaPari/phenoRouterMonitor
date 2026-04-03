@@ -235,8 +235,8 @@ where
     }
 
     serde_json::from_value(serde_json::Value::Object(merged))
-    serde_json::from_value(serde_json::Value::Object(merged))
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>))
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+}
 
 #[cfg(test)]
 mod tests {

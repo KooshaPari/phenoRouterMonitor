@@ -1,0 +1,15 @@
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/bin/Debug/net9.0/Phenotype.Packs.deps.json
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/bin/Debug/net9.0/Phenotype.Packs.dll
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/bin/Debug/net9.0/Phenotype.Packs.pdb
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/bin/Debug/net9.0/Phenotype.Packs.xml
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.csproj.AssemblyReference.cache
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.AssemblyInfoInputs.cache
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.AssemblyInfo.cs
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.csproj.CoreCompileInputs.cache
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.sourcelink.json
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.dll
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/refint/Phenotype.Packs.dll
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.xml
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/Phenotype.Packs.pdb
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/obj/Debug/net9.0/ref/Phenotype.Packs.dll

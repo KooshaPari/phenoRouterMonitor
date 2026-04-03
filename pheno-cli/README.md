@@ -270,3 +270,11 @@ The following flags are available on all commands:
 | `--config`  | Path to config file (default: ~/.config/pheno/config.toml) |
 | `--verbose` | Enable verbose output                            |
 | `--help`    | Show help for any command                        |
+
+
+## Traceability
+
+/// @trace CLI-001
+/// @trace CLI-002
+/// @trace CLI-003
+/// @trace CLI-004

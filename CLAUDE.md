@@ -1,189 +1,111 @@
-<<<<<<< HEAD
-# CLAUDE.md — repos shelf root
+# CLAUDE.md — Phenotype Repos Shelf
 
-<<<<<<< HEAD
-**This project is managed through AgilePlus.**
+## Shelf Identity
 
-## AgilePlus Mandate
+This is the **repos shelf** — a polyrepo containing ~150 independent projects.
+Agents working in this shelf must understand the difference between **shelf-level** work and **project-level** work.
 
-All work MUST be tracked in AgilePlus:
-- Reference: `/Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus`
-- CLI: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
+**Never treat this shelf as a single project.** Each subdirectory is an independent git repository. Always identify which project you're working in before taking action.
 
-## Work Requirements
+## Quick Start
 
-1. **Check for AgilePlus spec before implementing**
-2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
-3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
-4. **No code without corresponding AgilePlus spec**
+1. **Find your project**: Check `projects/INDEX.md` for the full catalog
+2. **Enter the project**: `cd <project-name>` before any work
+3. **Read project docs**: Each project has its own `CLAUDE.md` and `AGENTS.md`
+4. **Run commands inside**: Never run `cargo test` or `npm test` from shelf root
 
-## Branch Discipline
-
-- Feature branches in `repos/worktrees/<project>/<category>/<branch>`
-- Canonical repository tracks `main` only
-- Return to `main` for merge/integration checkpoints
-
-## UTF-8 Encoding
-
-All markdown files must use UTF-8.
-
----
+## Repository Consolidation Status
 
 
+## Consolidation Status (As of 2026-04-03)
 
-- Always evaluate and fix ALL CI check failures on a PR, including pre-existing failures inherited from main.
-- Never dismiss a CI failure as "pre-existing" or "unrelated to our changes" — if it fails on the PR, fix it in the PR.
-- This includes: build, lint, test, docs build, security scanning (CodeQL), code review gates (CodeRabbit), workflow guard checks, and any other CI jobs.
-- When a failure is caused by infrastructure outside the branch (e.g., rate limits, external service outages), implement or improve automated retry/bypass mechanisms in CI workflows.
-- After fixing CI failures, verify locally where possible (build, vet, tests) before pushing.
-=======
-## Identity
->>>>>>> origin/main
+| Registry | Merged From | Strategy |
+| Repository | Consolidated From | Status |
+|------------|-------------------|--------|
+| **hexagon** | hexagon-go, hexagon-rust, hexagon-zig, HexaKit/*, template-lang-* | ✅ Active - Unified template registry |
+| **PhenoConfig** | Settly, phenotype-config, Configra, phenotype-config-ts | ✅ Active - Polyglot config |
+| **Kogito** | Kogito + bifrost-extensions | ✅ Active - Bifrost extensions |
+| **thegent** | thegent-mesh, thegent-plugin-host, thegent-shm, thegent-subprocess (decomposition pattern) | ✅ Active - Satellite workspace |
+| **phenotype-infrakit** | + 6 crates from thegent (crypto, fs, jsonl, utils, resources, path) | ✅ Active - Generic primitives |
+| **agentapi-plusplus** | agentapi, agentapi-deprec, agentapi-temp | ✅ Active - API layer |
+| **cliproxyapi-plusplus** | CLIProxyAPI | ✅ Active - CLI proxy |
+| **Tracely** | Traceon, helix-logging, helix-tracing, thegent-cache (features) | ✅ Active - Observability |
+| **Stashly** | thegent-cache (crate) | ✅ Active - Caching |
+| **Profila** | phenoSDK quality/ (in progress) | 🔄 In Progress - Quality + profiling |
+| **Tasken** | phenoSDK lib/tasks.py (in progress) | 🔄 In Progress - Task execution |
 
-This is the **repos shelf** for `CodeProjects/Phenotype/organizational-shelf/repos`.
-A shelf is a top-level organizational unit containing related but independent
-project repositories. Think of it like a `/opt` or `~/code` directory, but
-versioned and synced as a polyrepo (repo of repos).
+## Decomposition & Libification Plans
 
-**NOT AgilePlus.** AgilePlus is one of ~30 projects inside this shelf.
-See `projects/INDEX.md` for the full catalog.
+### AgilePlus - External Library Adoption
 
-## Structure
-=======
-<<<<<<< HEAD
-# CLAUDE.md — repos shelf root
+AgilePlus is already well-decomposed (~47 workspace crates). The optimization is to **replace custom implementations with proven external libraries**:
 
-## Identity
-=======
-<!-- Base: platforms/thegent/dotfiles/governance/CLAUDE.base.md -->
-<!-- Last synced: 2026-03-29 -->
+| Custom | External | Benefit |
+|--------|----------|---------|
+| cipher (AES/GCM) | rustls + ring | Audited, maintained |
+| gauge (benchmarking) | Criterion + iai | De facto standard |
+| middleware | tower + tower-http | Ecosystem compatibility |
+| runtime (WASM) | wasmtime | Production-grade |
 
-# phenotype-infrakit — CLAUDE.md
+**Plan**: `AgilePlus/DECOMPOSITION_PLAN.md`
 
-Extends thegent governance base. See `platforms/thegent/dotfiles/governance/CLAUDE.base.md` for canonical definitions.
+### Tracera - Monolith to Libraries
 
-## Project Overview
+Tracera is a **massive 88K+ file monolith** (Go + Python + TypeScript) that needs libification:
 
-<<<<<<< HEAD
-- Feature work goes in `.worktrees/<topic>/`
-- Legacy `PROJECT-wtrees/` and `repo-wtrees/` roots are for migration only and must not receive new work.
-- Canonical repository remains on `main` for final integration and verification.
-=======
-- **Name**: phenotype-infrakit
-- **Description**: Rust workspace containing generic infrastructure crates extracted from the Phenotype ecosystem
-- **Location**: `/Users/kooshapari/CodeProjects/Phenotype/repos/` (monorepo)
-- **Language Stack**: Rust (edition 2021)
-- **Published**: Internal (shared across Phenotype org)
->>>>>>> origin/main
+**Proposed Split**:
+- `tracera-core-py` - Traceability engine (Python)
+- `tracera-api-go` - REST/gRPC API (Go)
+- `tracera-ui-ts` - React frontend (TypeScript)
+- `tracera-agent-py` - AI agent framework (Python)
+- `tracera/` - Hub repo (coordination, integration tests)
 
-This is the **repos shelf** for `CodeProjects/Phenotype/organizational-shelf/repos`.
-A shelf is a top-level organizational unit containing related but independent
-project repositories. Think of it like a `/opt` or `~/code` directory, but
-versioned and synced as a polyrepo (repo of repos).
+**Target**: 88K files → ~7K files (-92% reduction)
 
-**NOT AgilePlus.** AgilePlus is one of ~30 projects inside this shelf.
-See `projects/INDEX.md` for the full catalog.
+**Plan**: `Tracera/LIBIFICATION_PLAN.md`
 
-<<<<<<< HEAD
-## Structure
-=======
-## Work Requirements
+### phenoSDK - Component Extraction (In Progress)
 
-1. **Check for AgilePlus spec before implementing**
-2. **Create spec for new work**: `agileplus specify --title "<feature>" --description "<desc>"`
-3. **Update work package status**: `agileplus status <feature-id> --wp <wp-id> --state <state>`
-4. **No code without corresponding AgilePlus spec**
+The October 2025 monolithic SDK is being extracted into specialized crates:
+- Quality/Fitness → **Profila**
+- Storage → **Stashly** ✅
+- Tasks → **Tasken**
+- Connection Pool → phenotype-connection
 
-## Branch Discipline
+**Plan**: `phenoSDK/EXTRACTION_PLAN.md`
+| Component | Target | Status | Notes |
+|-----------|--------|--------|-------|
+| phenoSDK quality → | **Profila** | 🔄 IN PROGRESS | Quality metrics merge |
+| phenoSDK storage → | **Stashly** | ✅ COMPLETE | Already merged |
+| phenoSDK tasks → | **Tasken** | 🔄 IN PROGRESS | Task management |
+| phenoSDK analytics → | phenotype-analytics-py | ⏳ PLANNED | Data structures |
+| phenoSDK connection → | phenotype-connection | ⏳ PLANNED | Connection pooling |
 
-- Feature branches in `repos/worktrees/<project>/<category>/<branch>`
-- Canonical repository tracks `main` only
-- Return to `main` for merge/integration checkpoints
+**Goal:** Break down monolithic SDK into focused specialized crates
 
-## UTF-8 Encoding
+### Thegent Crate Extraction Candidates
 
-All markdown files must use UTF-8.
+| thegent Crate | Extraction Target | Status |
+|---------------|-------------------|--------|
+| thegent-crypto | phenotype-crypto | ⏳ Generic primitive candidate |
+| thegent-fs | phenotype-fs | ⏳ Generic primitive candidate |
+| thegent-jsonl | phenotype-jsonl | ⏳ Generic primitive candidate |
+| thegent-utils | phenotype-utils | ⏳ Generic primitive candidate |
+| thegent-path-resolve | phenotype-path | ⏳ Generic primitive candidate |
+| thegent-parser | - | ✅ Keep in thegent (agent-specific) |
+| thegent-discovery | - | ✅ Keep in thegent (agent-specific) |
+| thegent-hooks | - | ✅ Keep in thegent (agent-specific) |
+
+### Deleted Empty Shells
+
+- pheno* directories (phenoCipher, phenoConfigTs, etc.) - phenotype-* equivalents exist
+- thegent-* satellite directories (merged into thegent)
 
 ---
 
-## Local Quality Checks
-
-From this repository root:
-
-```bash
-cargo test --workspace
-cargo clippy --workspace -- -D warnings
-cargo fmt --check
-```
-
-## Testing & Specification Traceability
-
-All tests MUST reference a Functional Requirement (FR):
-
-```rust
-// Traces to: FR-XXX-NNN
-#[test]
-fn test_feature_name() {
-    // Test body
-}
-```
-
-**Verification**:
-- Every FR in FUNCTIONAL_REQUIREMENTS.md MUST have >=1 test
-- Every test MUST reference >=1 FR
-- Run: `cargo test` to verify
-
----
-
-## Project-Specific Configuration
-
-This monorepo consists of domain-agnostic, independently consumable Rust crates:
-
-### Crate Structure
-
-```
-crates/
-  phenotype-event-sourcing/   # Append-only event store with SHA-256 hash chains
-  phenotype-cache-adapter/    # Two-tier LRU + DashMap cache with TTL
-  phenotype-policy-engine/    # Rule-based policy evaluation with TOML config
-  phenotype-state-machine/    # Generic FSM with transition guards
-  phenotype-contracts/        # Shared traits and types
-  phenotype-error-core/       # Canonical error types
-  phenotype-health/           # Health check abstraction
-  phenotype-config-core/      # Configuration management
-```
-
-### Conventions
-
-- All public types implement `Debug`, `Clone` where possible
-- Error types use `thiserror` with `#[from]` for conversions
-- Serialization via `serde` with `Serialize`/`Deserialize` derives
-- No inter-crate dependencies; each crate stands alone
-- Workspace-level dependency versions in root `Cargo.toml`
-- Tests are inline (`#[cfg(test)]` modules) within each source file
-
-### Adding a New Crate
-
-1. Create `crates/<name>/` with `Cargo.toml` and `src/lib.rs`
-2. Add to `members` in root `Cargo.toml`
-3. Use `workspace = true` for shared dependencies
-4. Include inline tests with `#[cfg(test)]`
-5. Update `README.md` crate table
-
----
-
-## Architecture
-
-### Hexagonal Architecture (Ports & Adapters)
-
-This project follows Hexagonal Architecture with clear separation of concerns:
->>>>>>> origin/main
->>>>>>> origin/main
 
 ```
 repos/                          # ← YOU ARE HERE (shelf root)
-├── .worktrees/                 # Canonical worktree staging area
-├── .archive/                   # Archived/rejected items
 ├── apps/                       # Application projects (user-facing)
 ├── libs/                       # Shared libraries (internal packages)
 ├── tooling/                    # Developer tools, CLIs, scripts
@@ -192,65 +114,81 @@ repos/                          # ← YOU ARE HERE (shelf root)
 ├── crates/                     # Rust workspace members
 ├── packages/                   # JS/TS monorepo packages
 ├── docs/                       # Cross-project documentation
-│   ├── adr/                   #   Architecture decision records
-│   └── guides/                #   How-to guides
 ├── scripts/                    # Cross-project utility scripts
-├── governance/                 # Governance tooling (policy, scoring)
+├── governance/                 # Governance tooling
 ├── projects/                   # Project catalog & metadata
 │   └── INDEX.md               #   Master project list
 ├── WORKSTORES.md               # Worktree management guide
-└── REPOS_INDEX.md              # Detailed shelf index
+├── CLAUDE.md                   # ← This file
+└── AGENTS.md                   # Agent interaction rules
 ```
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
+### Project Categories
+
+| Directory | Purpose | Examples |
+|-----------|---------|----------|
+| `apps/` | User-facing applications | heliosCLI, phenodocs |
+| `libs/` | Shared libraries | Authvault, Stashly, Tracely |
+| `tooling/` | Developer tools | Cmdra, Kogito, worktree-manager |
+| `platforms/` | Platform-as-product | thegent, AgilePlus |
+| `crates/` | Rust workspace | phenotype-* crates |
+| `packages/` | JS/TS packages | @phenotype/* |
+| `agent.s/` | Agent framework | Multi-agent orchestration |
+
 ## Agent Rules
 
-**READ `AGENTS.md` FIRST.** It contains the authoritative agent interaction
-rules for this shelf. Key points:
+**READ `AGENTS.md` FIRST.** It contains the authoritative agent interaction rules for this shelf.
 
-- When working on a project, cd into its directory first (e.g., `cd heliosCLI`)
+Key points:
+- When working on a project, `cd` into its directory first (e.g., `cd heliosCLI`)
 - Never assume a project is at shelf root — always verify
 - Test commands must run inside the target project directory, not shelf root
 - File reads should specify the correct relative path from shelf root
-<<<<<<< HEAD
-=======
-=======
-### Design Principles
->>>>>>> origin/main
->>>>>>> origin/main
 
-## Project Index
+### Working at Project Level
 
-See `projects/INDEX.md` for the full catalog of all projects in this shelf.
+```bash
+cd <project-name>    # e.g., cd heliosCLI
+pwd                   # Always verify
+```
 
-## Phenotype Federated Hybrid Architecture
+- Run all tests from inside the project directory
+- All file paths are relative to the project, not the shelf
+- Dotfiles (`.gitignore`, `.claude/`, etc.) are project-specific
 
-This shelf is part of the **Phenotype Federated Hybrid Architecture**, which provides two complementary chassis systems:
+### Working at Shelf Level
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> origin/main
-### Phenotype Docs Chassis
+Shelf-level work is rare and includes:
+- Organizing the shelf structure
+- Cross-project governance
+- Audit/investigation across multiple projects
+- Creating or deleting projects
 
-Provides VitePress configuration, design tokens, and theme components for consistent documentation across the organization.
+### Never Do This
 
-**Location**: `@phenotype/docs` (GitHub Packages)
-**Documentation**: `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md`
-**Usage**: Add `@phenotype/docs` to `docs/package.json` in any project
+- Run `npm test` or `cargo test` from shelf root — it's not a project
+- Assume a file exists because you saw it in another project
+- Create files at shelf root for project-specific work
 
-### AgilePlus Governance Chassis
+## Naming Conventions
 
-Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMENTS, PLAN, USER_JOURNEYS, with FR traceability and worklog integration.
+### Session/Conversation Naming
 
-**Location**: AgilePlus project (this repo, crates/agileplus-*)
-**Documentation**: `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md`
-**Usage**: Create `/PRD.md`, `/FUNCTIONAL_REQUIREMENTS.md` at project root; tag tests with `@pytest.mark.requirement("FR-XXX-NNN")`
+Format: `<project>:<brief-task-description>`
+- Good: `heliosCLI:auth-refactor`, `shelf:duplication-audit`
+- Bad: `fix`, `implementation`, `agent work`
 
-**See Also**: `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` and `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` for integration points and code examples.
+### File Naming in Sessions
+
+Format: `<project>-<YYYYMMDD>-<task>-<version>.md`
+- Good: `heliosCLI-20260329-cli-redesign-v1.md`
+- Location: `worktrees/<project>/sessions/` or `shelf-level: plans/`
+
+### Branch Naming
+
+Format: `<project>/<type>/<description>`
+- Good: `heliosCLI/feat/token-refresh`, `thegent/chore/update-deps`
+- Bad: `feature-branch`, `fix`
 
 ## Quick Reference
 
@@ -260,25 +198,146 @@ Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMEN
 | Governance rules | `AGENTS.md` |
 | Architecture decisions | `docs/adr/` |
 | Cross-project scripts | `scripts/` |
-| Docs Chassis Interface | `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md` |
-| Governance Chassis Interface | `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md` |
-<<<<<<< HEAD
-=======
-=======
-See `docs/adr/` for architecture decisions.
+| Worktree guide | `WORKSTORES.md` |
 
----
+## Phenotype Federated Hybrid Architecture
+
+This shelf is part of the **Phenotype Federated Hybrid Architecture**, which provides two complementary chassis systems:
+
+### Phenotype Docs Chassis
+
+Provides VitePress configuration, design tokens, and theme components for consistent documentation across the organization.
+
+- **Location**: `@phenotype/docs` (GitHub Packages)
+- **Documentation**: `docs/reference/PHENOTYPE_DOCS_CHASSIS_INTERFACE.md`
+
+### AgilePlus Governance Chassis
+
+Defines specification-driven delivery framework: PRD, ADR, FUNCTIONAL_REQUIREMENTS, PLAN, USER_JOURNEYS, with FR traceability and worklog integration.
+
+- **Location**: AgilePlus project
+- **Documentation**: `docs/reference/AGILEPLUS_GOVERNANCE_CHASSIS.md`
+
+## Tool Usage Policy
+
+### Read-Only Tools First
+
+Before using write/edit tools:
+1. Use `Read` to understand the current state
+2. Use `fs_search`/`sem_search` to locate code
+3. Use `shell` (read-only commands) to verify state
+
+### Write Tools
+
+Use `patch`/`write` only when:
+- You've read the file first
+- You understand the full context
+- You can explain what you're changing before changing it
+
+### Shell Tools
+
+- Always use `cwd` parameter, never `cd`
+- Use `--` to separate file paths from arguments
+- Never chain `cd` commands
+- Use absolute paths when possible
+
+## Multi-Agent Coordination
+
+### Primary Agent Selection
+
+| Task type | Primary agent |
+|-----------|---------------|
+| Feature implementation | Forge |
+| Code review | Muse |
+| Bug investigation | Sage |
+| Testing/runtime | Helios |
+| Cross-project architecture | Forge + Sage |
+| Research/investigation | Sage |
+| Documentation | Forge (with Muse review) |
+
+### Coordination Protocol
+
+1. **Single thread**: One agent owns a task at a time
+2. **Handoff**: When switching agents, summarize state in conversation
+3. **No overwrites**: If Agent B joins a task Agent A started, Agent B reads conversation history before taking action
+4. **Conflict resolution**: If two agents conflict, pause and get user decision
+
+## Session Documentation
+
+All agents MUST maintain session documentation for research, decisions, and findings:
+
+### Location
+
+- Default: `docs/sessions/<session-id>/`
+
+### Standard Session Structure
+
+```
+docs/sessions/<session-id>/
+├── README.md           # Overview and context
+├── 01_RESEARCH.md      # Findings and analysis
+├── 02_PLAN.md          # Design and approach
+├── 03_IMPLEMENTATION.md # Code changes and rationale
+├── 04_VALIDATION.md    # Tests and verification
+└── 05_KNOWN_ISSUES.md  # Blockers and follow-ups
+```
+
+## Commit/PR Policy
+
+### Commit Messages
+
+Format: `<type>(<scope>): <description>`
+
+Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`
+
+Good: `feat(heliosCLI): add token refresh with exponential backoff`
+Bad: `fix stuff`, `update`, `WIP`
+
+### PR Guidelines
+
+- One logical change per PR
+- PR title matches commit format
+- Description explains WHY, not just WHAT
+- Always link related issues
+
+### Force Push Policy
+
+**NEVER force push to `main`, `master`, or shared long-lived branches.**
+Force push is acceptable ONLY for:
+- Personal feature branches
+- Your own worktrees
+- Branches you're sure no one else is using
 
 ## Governance Reference
 
-See thegent governance base for:
-- Complete CI completeness policy
-- Phenotype Git and Delivery Workflow Protocol
-- Phenotype Org Cross-Project Reuse Protocol
-- Phenotype Long-Term Stability and Non-Destructive Change Protocol
-- Worktree Discipline guidelines
+See thegent governance base for complete guidance on:
+1. **Core Agent Expectations** — Autonomous operation, when to ask vs. decide
+2. **Standard Operating Loop (SWE Autopilot)** — Review, Research, Plan, Execute, Size-Check, Test, Review & Polish, Repeat
+3. **File Size & Modularity Mandate** — ≤500 line hard limit, decomposition patterns
+4. **Research-First Development** — Codebase research, web research, documentation
+5. **Branch Discipline** — Worktree usage, PR workflow, git best practices
 
 Location: `platforms/thegent/dotfiles/governance/CLAUDE.base.md`
->>>>>>> origin/main
->>>>>>> origin/main
->>>>>>> origin/main
+
+## Quick Command Reference
+
+```bash
+# List all projects
+ls projects/INDEX.md  # then cat it
+
+# Check if directory is a git repo
+ls <dir>/.git 2>/dev/null && echo "GIT REPO" || echo "NOT A REPO"
+
+# List worktrees
+ls .worktrees/
+
+# Add worktree
+git worktree add .worktrees/<name> -b <branch>
+
+# Remove worktree
+git worktree remove .worktrees/<name>
+```
+
+---
+
+*Last updated: 2026-04-03 — Post-consolidation cleanup*
