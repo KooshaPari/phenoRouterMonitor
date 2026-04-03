@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 
 /// A generic stub for mocking functions.
 pub struct Stub<I, O> {
-    func: Arc<Mutex<dyn Fn(I) -> O + Send + 'static>>,
+    func: Arc<Mutex<dyn Fn(I) -> O + Send + Sync + 'static>>,
     call_count: Arc<Mutex<u64>>,
     recorded_calls: Arc<Mutex<Vec<I>>>,
 }
@@ -15,7 +15,7 @@ impl<I: Clone, O> Stub<I, O> {
     /// Create a new stub from a function
     pub fn new<F>(func: F) -> Self
     where
-        F: Fn(I) -> O + Send + 'static,
+        F: Fn(I) -> O + Send + Sync + 'static,
     {
         Self {
             func: Arc::new(Mutex::new(func)),
@@ -89,7 +89,7 @@ pub struct Spy<T> {
     calls: Arc<Mutex<Vec<T>>>,
 }
 
-impl<T> Spy<T> {
+impl<T: Clone + Send> Spy<T> {
     /// Create a new spy
     pub fn new() -> Self {
         Self {
