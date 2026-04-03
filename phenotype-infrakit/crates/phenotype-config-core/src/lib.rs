@@ -186,11 +186,12 @@ impl FileConfig {
     pub fn load<T: DeserializeOwned + Serialize>(&self) -> Result<T, FileConfigError> {
         let content = std::fs::read_to_string(&self.path)?;
 
-        match self.format {
+        let value: T = match self.format {
             ConfigFormat::Json => serde_json::from_str(&content)?,
             ConfigFormat::Toml => toml::from_str(&content)?,
             ConfigFormat::Yaml => serde_yaml::from_str(&content)?,
-        }
+        };
+        Ok(value)
     }
 }
 
@@ -235,9 +236,9 @@ impl From<serde_yaml::Error> for FileConfigError {
 }
 
 /// Merges multiple configuration sources.
-pub fn merge_configs<T: DeserializeOwned + Serialize + Default>(
+pub fn merge_configs(
     sources: &[&dyn ConfigLoader<Error = FileConfigError>],
-) -> Result<T, FileConfigError> {
+) -> Result<serde_json::Value, FileConfigError> {
     let mut merged = serde_json::Map::new();
 
     for source in sources {
@@ -251,8 +252,7 @@ pub fn merge_configs<T: DeserializeOwned + Serialize + Default>(
         }
     }
 
-    serde_json::from_value(serde_json::Value::Object(merged))
-        .map_err(|e| FileConfigError::Parse(e.to_string()))
+    Ok(serde_json::Value::Object(merged))
 }
 
 #[cfg(test)]
