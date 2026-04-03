@@ -1,0 +1,20 @@
+[package]
+name = "agileplus-dashboard"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+
+[dependencies]
+phenotype-health = { path = "../phenotype-health" }
+phenotype-project-registry = { path = "../phenotype-project-registry" }
+phenotype-compliance-scanner = { path = "../phenotype-compliance-scanner" }
+phenotype-security-aggregator = { path = "../phenotype-security-aggregator" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+chrono.workspace = true
+axum.workspace = true

@@ -1,0 +1,12 @@
+[package]
+name = "phenotype-process"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"

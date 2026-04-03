@@ -1,0 +1,17 @@
+[package]
+name = "phenotype-retry"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+path = "src/lib.rs"
+
+
+[dependencies]
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

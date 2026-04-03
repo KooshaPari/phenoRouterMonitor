@@ -1,0 +1,18 @@
+[package]
+name = "agileplus-dashboard-server"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "dashboard-server"
+path = "src/main.rs"
+
+[dependencies]
+agileplus-dashboard = { path = "../agileplus-dashboard" }
+phenotype-health = { path = "../phenotype-health" }
+phenotype-project-registry = { path = "../phenotype-project-registry" }
+tokio.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+axum.workspace = true

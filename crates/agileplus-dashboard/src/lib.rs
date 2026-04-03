@@ -1,9 +1,19 @@
-//! AgilePlus Dashboard — Askama HTML templates + htmx route handlers.
-//! Traceability: WP12 (T071–T077)
+//! AgilePlus Dashboard
 
-pub mod app_state;
-pub mod process_detector;
+pub mod health_scanner;
 pub mod routes;
-pub mod seed;
-pub mod seed_bridge;
-pub mod templates;
+
+pub use health_scanner::{HealthScanner, HealthSummary};
+pub use routes::{AppState, create_router};
+
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+pub async fn start_dashboard(root_path: impl Into<String>, port: u16) -> anyhow::Result<()> {
+    let scanner = Arc::new(RwLock::new(HealthScanner::new(root_path, 24)));
+    let state = AppState { scanner };
+    let app = create_router(state);
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await?;
+    axum::serve(listener, app).await?;
+    Ok(())
+}
