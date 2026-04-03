@@ -29,7 +29,10 @@ var trainListCmd = &cobra.Command{
 
 func runTrainList(cmd *cobra.Command, args []string) error {
 	mgr := state.NewTrainManager("")
-	trains := mgr.ListTrains()
+	trains, err := mgr.ListTrains()
+	if err != nil {
+		return fmt.Errorf("failed to list trains: %w", err)
+	}
 
 	if len(trains) == 0 {
 		fmt.Println("No release trains found.")
@@ -39,7 +42,7 @@ func runTrainList(cmd *cobra.Command, args []string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "NAME\tCHANNEL\tREPOS\n")
 	for _, t := range trains {
-		fmt.Fprintf(w, "%s\t%s\t%d\n", t.Name, t.TargetChannel, len(t.Repos))
+		fmt.Fprintf(w, "%s\t%s\t%d\n", t.Name, t.Channel, len(t.Repos))
 	}
 	w.Flush()
 	return nil
@@ -74,10 +77,13 @@ var trainStatusCmd = &cobra.Command{
 
 func runTrainStatus(cmd *cobra.Command, args []string) error {
 	mgr := state.NewTrainManager(trainStateDir)
-	trains := mgr.ListTrains()
+	trains, err := mgr.ListTrains()
+	if err != nil {
+		return err
+	}
 	for _, t := range trains {
 		if t.Name == args[0] {
-			fmt.Printf("Train: %s\nChannel: %s\nRepos: %d\n", t.Name, t.TargetChannel, len(t.Repos))
+			fmt.Printf("Train: %s\nChannel: %s\nRepos: %d\n", t.Name, t.Channel, len(t.Repos))
 			return nil
 		}
 	}
@@ -95,22 +101,7 @@ var trainToChannel string
 
 func runTrainPromote(cmd *cobra.Command, args []string) error {
 	mgr := state.NewTrainManager(trainStateDir)
-
-	var targetCh state.Channel
-	switch trainToChannel {
-	case "alpha":
-		targetCh = state.ChannelAlpha
-	case "beta":
-		targetCh = state.ChannelBeta
-	case "rc":
-		targetCh = state.ChannelRC
-	case "prod":
-		targetCh = state.ChannelProd
-	default:
-		return fmt.Errorf("invalid channel: %s", trainToChannel)
-	}
-
-	if err := mgr.PromoteTrain(args[0], targetCh); err != nil {
+	if err := mgr.PromoteTrain(args[0], trainToChannel); err != nil {
 		return err
 	}
 	fmt.Printf("Promoted train '%s' to %s\n", args[0], trainToChannel)
