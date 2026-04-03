@@ -1,8 +1,0 @@
-[package]
-name = "phenotype-testing"
-version = "0.2.0"
-edition = "2021"
-license = "MIT"
-description = "Testing utilities for phenotype"
-
-[dependencies]

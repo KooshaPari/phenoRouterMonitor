@@ -1,3 +1,0 @@
-pub mod outbound;
-
-pub use outbound::ReportWriterPort;
