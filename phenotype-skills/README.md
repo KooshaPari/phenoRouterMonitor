@@ -97,3 +97,15 @@ registry.Register(manifest);
 ## License
 
 MIT
+
+
+## Traceability
+
+/// @trace SKILL-001
+/// @trace SKILL-002
+/// @trace SKILL-003
+/// @trace SKILL-004
+/// @trace SKILL-005
+/// @trace SKILL-006
+/// @trace SKILL-007
+/// @trace SKILL-008

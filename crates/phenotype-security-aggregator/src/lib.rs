@@ -66,7 +66,7 @@ pub struct DimensionScore {
 }
 
 /// Source of the alert
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AlertSource {
     Snyk,
     CodeQL,
@@ -93,17 +93,21 @@ impl AlertSource {
 /// Security alert from external sources
 #[derive(Debug, Clone)]
 pub struct SecurityAlert {
-    pub source: AlertSource,
-    pub severity: Severity,
+    pub id: String,
     pub title: String,
+    pub severity: Severity,
+    pub source: AlertSource,
     pub description: String,
+    pub remediation: Option<String>,
     pub cve_id: Option<String>,
-    pub package_name: Option<String>,
-    pub affected_versions: Option<String>,
-    pub fixed_versions: Option<String>,
-    pub detected_at: DateTime<Utc>,
+    pub cwes: Vec<String>,
+    pub references: Vec<String>,
+    pub found_at: Instant,
+    pub raw_data: Value,
 }
 
+/// Boxed alert stream type for object safety.
+pub type BoxedAlertStream = Pin<Box<dyn Stream<Item = SecurityAlert> + Send + 'static>>;
 /// Aggregates security alerts from multiple sources
 pub struct SecurityAggregator {
     sources: Vec<Box<dyn SecuritySource>>,
