@@ -1,0 +1,14 @@
+{
+  "name": "cliproxyapi-plusplus",
+  "languages": [
+    "go",
+    "typescript"
+  ],
+  "primary_language": "go",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "tool",
+  "path": "repos/cliproxyapi-plusplus"
+}

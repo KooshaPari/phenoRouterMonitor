@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "VGtPFi2L8O4=",
+  "success": true,
+  "projectFilePath": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/Phenotype.Packs.csproj",
+  "expectedPackageFiles": [
+    "/Users/kooshapari/.nuget/packages/microsoft.extensions.primitives/5.0.1/microsoft.extensions.primitives.5.0.1.nupkg.sha512",
+    "/Users/kooshapari/.nuget/packages/semver/3.0.0/semver.3.0.0.nupkg.sha512",
+    "/Users/kooshapari/.nuget/packages/yamldotnet/16.0.0/yamldotnet.16.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

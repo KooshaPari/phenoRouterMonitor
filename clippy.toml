@@ -1,0 +1,4 @@
+# Clippy configuration for AgilePlus workspace.
+# The must_use_candidate lint is enabled via #![warn(clippy::must_use_candidate)]
+# in individual crate lib.rs files or via RUSTFLAGS in CI.
+avoid-breaking-exported-api = false

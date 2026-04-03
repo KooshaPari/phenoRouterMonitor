@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Phenotype.Skills</RootNamespace>
+    <AssemblyName>Phenotype.Skills</AssemblyName>
+    <Version>0.1.0</Version>
+    <Authors>Phenotype Contributors</Authors>
+    <Description>Modular Skill System for Agent Orchestration - C# bindings</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>skills;agents;orchestration;sandboxing;wasm</PackageTags>
+    <RepositoryUrl>https://github.com/phenotype/skills</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference to the Rust native library -->
+    <Content Include="../../target/release/libphenotype_skills.dylib" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../target/release/libphenotype_skills.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../target/release/phenotype_skills.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

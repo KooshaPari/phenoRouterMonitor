@@ -1,0 +1,14 @@
+{
+  "name": "colab",
+  "languages": [
+    "rust",
+    "typescript"
+  ],
+  "primary_language": "rust",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "core",
+  "path": "repos/colab"
+}

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Phenotype.Packs</id>
+    <version>0.1.0</version>
+    <authors>Phenotype Team</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>README.md</readme>
+    <description>Generic content pack system with dependency resolution, schema validation, and conflict detection. Extracted from DINOForge.</description>
+    <tags>content-packs mods dependencies yaml validation</tags>
+    <repository type="git" commit="205ae69f4210767f3a749763bee8496cc2912abb" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Semver" version="3.0.0" exclude="Build,Analyzers" />
+        <dependency id="YamlDotNet" version="16.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/bin/Release/net9.0/Phenotype.Packs.dll" target="lib/net9.0/Phenotype.Packs.dll" />
+    <file src="/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/src/Phenotype.Packs/bin/Release/net9.0/Phenotype.Packs.xml" target="lib/net9.0/Phenotype.Packs.xml" />
+    <file src="/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/README.md" target="/README.md" />
+  </files>
+</package>

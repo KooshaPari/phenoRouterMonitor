@@ -1,0 +1,46 @@
+extends:
+  - "@commitlint/config-conventional"
+rules:
+  type-enum:
+    - 2
+    - always
+    - - feat
+      - fix
+      - docs
+      - style
+      - refactor
+      - perf
+      - test
+      - chore
+      - ci
+      - build
+      - revert
+  scope-enum:
+    - 1
+    - always
+    - - proto
+      - rust
+      - python
+      - ci
+      - WP00
+      - WP01
+      - WP02
+      - WP03
+      - WP04
+      - WP05
+      - WP06
+      - WP07
+      - WP08
+      - WP09
+      - WP10
+      - WP11
+      - WP12
+      - WP13
+      - WP14
+      - WP15
+      - WP16
+      - WP17
+      - WP18
+      - WP19
+      - WP20
+      - WP21

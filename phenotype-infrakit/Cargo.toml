@@ -10,6 +10,7 @@ resolver = "2"
 members = [
     "crates/phenotype-analytics",
     "crates/phenotype-bdd",
+    "crates/phenotype-compliance-scanner",
     "crates/phenotype-config-core",
     "crates/phenotype-contract-tests",
     "crates/phenotype-contracts",
@@ -21,6 +22,7 @@ members = [
     "crates/phenotype-jsonl",
     "crates/phenotype-mock",
     "crates/phenotype-observability",
+    "crates/phenotype-path",
     "crates/phenotype-project-registry",
     "crates/phenotype-rate-limiter",
     "crates/phenotype-resources",

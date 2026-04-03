@@ -1,0 +1,80 @@
+version: "3.9"
+
+# Full-stack integration test environment for AgilePlus.
+# Spins up the Rust core, Python MCP service, and a test runner container.
+#
+# Usage:
+#   make test-integration
+#   docker compose -f tests/integration/docker-compose.test.yml up --build --abort-on-container-exit
+#
+# Traceability: WP16-T095
+
+services:
+  agileplus-core:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.rust
+      target: runtime
+    command: ["agileplus", "serve"]
+    ports:
+      - "50051:50051"
+      - "8080:8080"
+    volumes:
+      - test-data:/data
+      - test-repo:/repo
+    environment:
+      - AGILEPLUS_CORE_DATABASE_PATH=/data/agileplus.db
+      - AGILEPLUS_CORE_REPO_PATH=/repo
+      - AGILEPLUS_API_PORT=8080
+      - AGILEPLUS_API_GRPC_PORT=50051
+      - AGILEPLUS_TELEMETRY_ENABLED=false
+      - AGILEPLUS_LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
+    profiles: ["full", "core"]
+
+  agileplus-mcp:
+    build:
+      context: ../../python
+      dockerfile: Dockerfile.python
+    depends_on:
+      agileplus-core:
+        condition: service_healthy
+    environment:
+      - AGILEPLUS_GRPC_ADDRESS=agileplus-core:50051
+      - AGILEPLUS_MCP_PORT=8081
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    profiles: ["full", "mcp"]
+
+  test-runner:
+    build:
+      context: ../..
+      dockerfile: tests/integration/Dockerfile.test
+    depends_on:
+      agileplus-core:
+        condition: service_healthy
+      agileplus-mcp:
+        condition: service_started
+    environment:
+      - AGILEPLUS_API_URL=http://agileplus-core:8080
+      - AGILEPLUS_GRPC_URL=agileplus-core:50051
+      - AGILEPLUS_API_KEY=test-key
+      - RUST_LOG=info
+    volumes:
+      - test-repo:/repo
+    command: ["make", "test-integration-inner"]
+    profiles: ["full", "test"]
+
+volumes:
+  test-data:
+  test-repo:

@@ -1,0 +1,85 @@
+name: Rust Quality Gates
+
+on:
+  workflow_call:
+    inputs:
+      rust-version:
+        description: Rust version
+        default: nightly
+        required: false
+        type: string
+      coverage-threshold:
+        description: Minimum coverage percentage
+        default: 85
+        required: false
+        type: number
+      working-directory:
+        description: Working directory
+        default: .
+        required: false
+        type: string
+
+jobs:
+  quality:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ inputs.rust-version }}
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ inputs.working-directory }}
+
+      - name: Format check
+        run: |
+          cd ${{ inputs.working-directory }}
+          cargo fmt --all -- --check
+
+      - name: Clippy
+        run: |
+          cd ${{ inputs.working-directory }}
+          cargo clippy --all-targets -- -D warnings
+
+      - name: Build
+        run: |
+          cd ${{ inputs.working-directory }}
+          cargo build
+
+      - name: Test
+        run: |
+          cd ${{ inputs.working-directory }}
+          cargo test
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ inputs.working-directory }}
+
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Generate coverage
+        run: |
+          cd ${{ inputs.working-directory }}
+          cargo tarpaulin --out xml --output-dir coverage
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ${{ inputs.working-directory }}/coverage/cobertura.xml
+          flags: unittests
+          fail_ci_if_error: false

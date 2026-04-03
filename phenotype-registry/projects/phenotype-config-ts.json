@@ -1,0 +1,13 @@
+{
+  "name": "phenotype-config-ts",
+  "languages": [
+    "typescript"
+  ],
+  "primary_language": "typescript",
+  "status": "partial",
+  "has_readme": true,
+  "has_spec": false,
+  "has_plan": true,
+  "type": "core",
+  "path": "repos/phenotype-config-ts"
+}

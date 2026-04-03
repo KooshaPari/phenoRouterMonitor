@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Modules</title></head>
+<body>
+<nav class="module-tree">
+  <h2>Modules</h2>
+  <ul>
+  {% for node in nodes %}
+    <li style="padding-left: {{ node.depth * 16 }}px">
+      <a href="/modules/{{ node.module.id }}">
+        {{ node.module.friendly_name }}
+      </a>
+      <span class="counts">
+        ({{ node.owned_count }} owned, {{ node.tagged_count }} tagged)
+      </span>
+    </li>
+  {% endfor %}
+  </ul>
+</nav>
+</body>
+</html>
