@@ -83,3 +83,38 @@ Three repositories had workspace membership conflicts with the root workspace. F
 
 ### Verification
 All three repos now compile successfully with `cargo check`.
+
+---
+
+## 2026-04-03: Libification & LOC Reduction Audit
+
+### New Worklogs Created
+
+Two new worklog files in `worklogs/`:
+
+1. **AGILEPLUS_LOC_AUDIT.md** - Detailed analysis of:
+   - 11 Active AgilePlus/Rust crates (~15,300 LOC)
+   - Cross-crate duplication patterns (~1,890 LOC)
+   - Aggressive reduction targets (~2,240 LOC)
+   - External dependency audit (viper → koanf, logrus → slog)
+
+2. **LIBIFICATION_TASKS_EXPANDED.md** - 32 tasks targeting:
+   - **~6,856 LOC total reduction** (2x previous target)
+   - Phase 1 (P0): ~1,563 LOC - Immediate actions
+   - Phase 2 (P1): ~1,635 LOC - High priority
+   - Phase 3 (P2): ~1,308 LOC - Medium priority
+   - Phase 4 (P2): ~1,100 LOC - Extended opportunities
+   - Phase 5 (P3): ~500 LOC - Deep audit
+   - Deep Audit Extras: ~750 LOC - Additional patterns
+
+### Key Findings Summary
+
+| Area | Current | Opportunity | Savings |
+|------|---------|-------------|---------|
+| AgentAPI++ (Go) | 65K | Viper→Koanf, middleware | ~600 LOC |
+| CliProxyAPI++ (Go) | 394K | Logrus→Slog, config | ~900 LOC |
+| AgilePlus crates | 15K | Deduplication | ~2,240 LOC |
+| Python SDKs | 20K | Validation→Pydantic | ~150 LOC |
+| Extended audit | - | Various | ~1,100 LOC |
+
+### Total LOC Reduction Target: ~7,000+ LOC
