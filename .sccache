@@ -1,0 +1,31 @@
+# sccache configuration for Phenotype
+# Distributed build caching for Rust
+
+# Storage backend (s3, redis, memcached, gcs)
+RUSTC_WRAPPER=sccache
+
+# S3 configuration (if using S3 backend)
+SCCACHE_S3_BUCKET=phenotype-build-cache
+SCCACHE_S3_REGION=us-east-1
+# SCCACHE_S3_KEY_PREFIX=rust/
+
+# Redis configuration (alternative backend)
+# SCCACHE_REDIS=redis://localhost:6379
+
+# Memory limit (GB)
+SCCACHE_CACHE_SIZE=10G
+
+# Disk space limit
+SCCACHE_DISK_SIZE=20G
+
+# Connection pool size
+SCCACHE_CONCURRENT_OPERATIONS=32
+
+# Idle timeout (seconds)
+SCCACHE_IDLE_TIMEOUT=3600
+
+# Statistics endpoint
+# SCCACHE_STATISTICS_URL=http://localhost:8080/stats
+
+# Error logging
+# SCCACHE_ERROR_LOG=/var/log/sccache.log

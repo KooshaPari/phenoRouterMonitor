@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Phenotype.Packs</name>
+    </assembly>
+    <members>
+        <member name="T:Phenotype.Packs.ContentPackSystem`2">
+            <summary>
+            Production implementation of the content pack system.
+            </summary>
+        </member>
+        <member name="E:Phenotype.Packs.ContentPackSystem`2.PackLoaded">
+            <inheritdoc />
+        </member>
+        <member name="E:Phenotype.Packs.ContentPackSystem`2.PackUnloaded">
+            <inheritdoc />
+        </member>
+        <member name="M:Phenotype.Packs.ContentPackSystem`2.LoadPackAsync(Phenotype.Packs.PackIdentifier,Phenotype.Packs.PackContext{`0,`1},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Phenotype.Packs.ContentPackSystem`2.UnloadPackAsync(Phenotype.Packs.PackIdentifier,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Phenotype.Packs.ContentPackSystem`2.ResolveDependenciesAsync(System.Collections.Generic.IEnumerable{`0},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Phenotype.Packs.ContentPackSystem`2.GetLoadedPacks">
+            <inheritdoc />
+        </member>
+        <member name="M:Phenotype.Packs.ContentPackSystem`2.IsPackLoaded(Phenotype.Packs.PackIdentifier)">
+            <inheritdoc />
+        </member>
+        <member name="M:Phenotype.Packs.ContentPackSystem`2.GetPack(Phenotype.Packs.PackIdentifier)">
+            <summary>
+            Get a loaded pack by ID.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.LoadedPack`2">
+            <summary>
+            Represents a loaded pack in memory.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.IConflictDetector">
+            <summary>
+            Detects conflicts between packs.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.PackConflict">
+            <summary>
+            Represents a conflict between packs.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.ConflictSeverity">
+            <summary>
+            Severity of a conflict.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.DefaultConflictDetector">
+            <summary>
+            Default conflict detector implementation.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Discovery.IPackDiscovery">
+            <summary>
+            Discovers packs from a source (filesystem, HTTP, etc.).
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Discovery.DiscoveryOptions">
+            <summary>
+            Options for pack discovery.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Discovery.PackDiscoveryResult">
+            <summary>
+            Result of discovering a pack.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Discovery.FileSystemPackDiscovery">
+            <summary>
+            File system implementation of pack discovery.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.PackIdentifier">
+            <summary>
+            Unique identifier for a content pack.
+            </summary>
+        </member>
+        <member name="M:Phenotype.Packs.PackIdentifier.#ctor(System.String,System.String)">
+            <summary>
+            Unique identifier for a content pack.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.IPackManifest">
+            <summary>
+            Represents a pack manifest with metadata and dependencies.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.IPackDependency">
+            <summary>
+            Represents a dependency on another pack.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.IPackDefinition">
+            <summary>
+            Represents a pack definition (content, configuration, etc.).
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.PackContext`2">
+            <summary>
+            Context for pack loading operations.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.PackLoadResult">
+            <summary>
+            Result of a pack load operation.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.ResolutionResult">
+            <summary>
+            Result of dependency resolution.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.DependencyConflict">
+            <summary>
+            Represents a dependency conflict between packs.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.IContentPackSystem`2">
+            <summary>
+            Core interface for content pack operations.
+            </summary>
+            <typeparam name="TManifest">The manifest type.</typeparam>
+            <typeparam name="TDefinition">The definition type.</typeparam>
+        </member>
+        <member name="M:Phenotype.Packs.IContentPackSystem`2.LoadPackAsync(Phenotype.Packs.PackIdentifier,Phenotype.Packs.PackContext{`0,`1},System.Threading.CancellationToken)">
+            <summary>
+            Load a pack from the specified path.
+            </summary>
+        </member>
+        <member name="M:Phenotype.Packs.IContentPackSystem`2.UnloadPackAsync(Phenotype.Packs.PackIdentifier,System.Threading.CancellationToken)">
+            <summary>
+            Unload a previously loaded pack.
+            </summary>
+        </member>
+        <member name="M:Phenotype.Packs.IContentPackSystem`2.ResolveDependenciesAsync(System.Collections.Generic.IEnumerable{`0},System.Threading.CancellationToken)">
+            <summary>
+            Resolve dependencies for a set of packs.
+            </summary>
+        </member>
+        <member name="M:Phenotype.Packs.IContentPackSystem`2.GetLoadedPacks">
+            <summary>
+            Get all currently loaded packs.
+            </summary>
+        </member>
+        <member name="M:Phenotype.Packs.IContentPackSystem`2.IsPackLoaded(Phenotype.Packs.PackIdentifier)">
+            <summary>
+            Check if a pack is loaded.
+            </summary>
+        </member>
+        <member name="E:Phenotype.Packs.IContentPackSystem`2.PackLoaded">
+            <summary>
+            Event raised when a pack is loaded.
+            </summary>
+        </member>
+        <member name="E:Phenotype.Packs.IContentPackSystem`2.PackUnloaded">
+            <summary>
+            Event raised when a pack is unloaded.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.PackLoadEventArgs`2">
+            <summary>
+            Event arguments for pack loading.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.PackUnloadEventArgs">
+            <summary>
+            Event arguments for pack unloading.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Loading.IPackLoader`2">
+            <summary>
+            Loads pack manifests and definitions.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Loading.YamlPackLoader`2">
+            <summary>
+            YAML-based pack loader.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Resolution.IDependencyResolver">
+            <summary>
+            Resolves dependencies between packs.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Resolution.SemverDependencyResolver">
+            <summary>
+            Semantic versioning dependency resolver.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Validation.IManifestValidator`1">
+            <summary>
+            Validates pack manifests.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Validation.ValidationResult">
+            <summary>
+            Result of validation.
+            </summary>
+        </member>
+        <member name="T:Phenotype.Packs.Validation.DefaultManifestValidator`1">
+            <summary>
+            Default manifest validator with basic rules.
+            </summary>
+        </member>
+    </members>
+</doc>

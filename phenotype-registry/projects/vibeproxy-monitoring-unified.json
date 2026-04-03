@@ -1,0 +1,13 @@
+{
+  "name": "vibeproxy-monitoring-unified",
+  "languages": [
+    "unknown"
+  ],
+  "primary_language": "unknown",
+  "status": "minimal",
+  "has_readme": false,
+  "has_spec": true,
+  "has_plan": false,
+  "type": "utility",
+  "path": "repos/vibeproxy-monitoring-unified"
+}

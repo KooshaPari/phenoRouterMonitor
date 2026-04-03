@@ -1,0 +1,13 @@
+{
+  "name": "PhenoVCS",
+  "languages": [
+    "rust"
+  ],
+  "primary_language": "rust",
+  "status": "bare",
+  "has_readme": false,
+  "has_spec": false,
+  "has_plan": false,
+  "type": "core",
+  "path": "repos/PhenoVCS"
+}

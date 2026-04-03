@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Plane Settings{% endblock %}
+
+{% block content %}
+<div class="p-2 md:p-6 max-w-4xl mx-auto space-y-6">
+  <div class="border-b border-zinc-700 pb-4">
+    <h1 class="text-2xl font-bold tracking-tight">Plane Integration Settings</h1>
+    <p class="text-sm text-zinc-400 mt-1">Configure Plane.so API credentials and workspace for native AgilePlus sync.</p>
+  </div>
+
+  <form hx-post="/api/settings/plane" hx-swap="none" class="space-y-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-6 space-y-5">
+      <h2 class="font-bold text-zinc-100 text-lg">API Configuration</h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            API URL
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="url"
+            name="api_url"
+            value="{{ plane_api_url }}"
+            placeholder="https://app.plane.so"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            API Key
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="password"
+            name="api_key"
+            placeholder="{% if plane_api_key_set %}········{% endif %}"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+          {% if plane_api_key_set %}
+            <p class="text-xs text-zinc-500">Current key: {{ plane_api_key_hint }}</p>
+          {% endif %}
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Workspace Slug
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            name="workspace_slug"
+            value="{{ workspace_slug }}"
+            placeholder="my-workspace"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Project Slug
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            name="project_slug"
+            value="{{ project_slug }}"
+            placeholder="agileplus"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button
+          type="submit"
+          hx-indicator="#save-indicator"
+          class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition"
+        >
+          Save Settings
+        </button>
+        <button
+          type="button"
+          hx-post="/api/settings/plane/test"
+          hx-indicator="#test-indicator"
+          class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-sm font-medium rounded border border-zinc-600 transition"
+        >
+          Test Connection
+        </button>
+        <span id="save-indicator" class="htmx-request:block hidden ml-2 text-zinc-400 text-sm">Saving...</span>
+        <span id="test-indicator" class="htmx-request:block hidden ml-2 text-zinc-400 text-sm">Testing...</span>
+      </div>
+    </div>
+  </form>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Workspace Status</div>
+      <div class="mt-2 font-semibold">{{ workspace_name }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Mapped Features</div>
+      <div class="mt-2 text-2xl font-bold">{{ mapped_features_coverage }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Mapped Work Packages</div>
+      <div class="mt-2 text-2xl font-bold">{{ mapped_work_packages_coverage }}</div>
+    </div>
+  </div>
+
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-3">
+    <h2 class="font-bold text-zinc-100">Connection Health</h2>
+    {% if plane_health_endpoints.is_empty() %}
+      <p class="text-sm text-zinc-400">No health endpoints configured</p>
+    {% else %}
+      <div class="space-y-2">
+        {% for endpoint in plane_health_endpoints %}
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-zinc-300">{{ endpoint.name }}</span>
+            <div class="flex items-center gap-2">
+              {% if endpoint.healthy %}
+                <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="text-green-400">Healthy</span>
+              {% else if endpoint.degraded %}
+                <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full"></span>
+                <span class="text-yellow-400">Degraded</span>
+              {% else %}
+                <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                <span class="text-red-400">Down</span>
+              {% endif %}
+              {% if let Some(latency) = endpoint.latency_ms %}
+                <span class="text-zinc-500">({{ latency }}ms)</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if !config_warnings.is_empty() %}
+      <div class="mt-4 p-3 bg-yellow-900 border border-yellow-700 rounded">
+        <p class="text-sm text-yellow-100 font-medium mb-2">Configuration Warnings:</p>
+        <ul class="list-disc list-inside space-y-1">
+          {% for warning in config_warnings %}
+            <li class="text-sm text-yellow-200">{{ warning }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-3">
+    <h2 class="font-bold text-zinc-100">Native Plane Views</h2>
+    <p class="text-sm text-zinc-400">Browse synchronized Plane data within AgilePlus.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="/features" class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">Browse Synced Features</a>
+      <a href="/events" class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-sm rounded border border-zinc-600 transition">View Sync Timeline</a>
+      <a href="/dashboard" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-sm rounded border border-blue-600 transition">Return to Dashboard</a>
+    </div>
+  </section>
+</div>
+
+<div id="toast-container"></div>
+<script>
+  document.body.addEventListener('htmx:xhr:loadend', function(evt) {
+    if (evt.detail.successful) {
+      const response = evt.detail.xhr.responseText;
+      const container = document.getElementById('toast-container');
+      container.innerHTML = response;
+    }
+  });
+</script>
+{% endblock %}
