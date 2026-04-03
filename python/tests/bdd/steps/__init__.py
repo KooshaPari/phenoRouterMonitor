@@ -1,1 +1,0 @@
-# BDD step definitions package.
