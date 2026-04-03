@@ -1,6 +1,0 @@
-# Minimal gitleaks config
-title = "phenotype gitleaks"
-
-[[rules]]
-  description = "AWS credentials"
-  regex = "(?i)aws(.{0,20})?(secret|key)"

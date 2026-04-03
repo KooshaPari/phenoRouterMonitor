@@ -1,1 +1,0 @@
-../template-commons/SECURITY.md

@@ -17,3 +17,4 @@ async-trait = "0.1"
 tokio = { version = "1", features = ["full"] }
 blake3 = "1.5"
 hex = "0.4"
+phenotype-observability = { path = "../../phenotype-infrakit/crates/phenotype-observability" }

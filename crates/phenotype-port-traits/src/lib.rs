@@ -4,7 +4,10 @@ use thiserror::Error;
 
 pub mod inbound;
 pub mod outbound;
+pub mod observability;
 
+// Re-export observability traits for convenience
+pub use observability::{CounterMetrics, MetricsHook, NoOpMetrics};
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("{0}")]

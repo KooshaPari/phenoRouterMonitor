@@ -1,7 +1,0 @@
-<type>(<scope>): <subject>
-
-<body>
-
-Spec-Traces: <FR-XXX, ADR-YYY, ...>
-Related-Issues: #123, #456
-Co-Authored-By: <agent-name> <agent@phenotype.local>
