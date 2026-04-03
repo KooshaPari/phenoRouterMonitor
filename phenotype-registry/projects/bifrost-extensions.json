@@ -1,0 +1,14 @@
+{
+  "name": "bifrost-extensions",
+  "languages": [
+    "go",
+    "typescript"
+  ],
+  "primary_language": "go",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "plugin",
+  "path": "repos/bifrost-extensions"
+}

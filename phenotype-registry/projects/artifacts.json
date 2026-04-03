@@ -1,0 +1,13 @@
+{
+  "name": "artifacts",
+  "languages": [
+    "unknown"
+  ],
+  "primary_language": "unknown",
+  "status": "bare",
+  "has_readme": false,
+  "has_spec": false,
+  "has_plan": false,
+  "type": "utility",
+  "path": "repos/artifacts"
+}

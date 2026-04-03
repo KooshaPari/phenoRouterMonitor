@@ -1,0 +1,13 @@
+{
+  "name": "hexagon-go",
+  "languages": [
+    "go"
+  ],
+  "primary_language": "go",
+  "status": "minimal",
+  "has_readme": true,
+  "has_spec": false,
+  "has_plan": false,
+  "type": "core",
+  "path": "repos/hexagon-go"
+}

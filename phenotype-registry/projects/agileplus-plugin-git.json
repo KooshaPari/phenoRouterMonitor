@@ -1,0 +1,13 @@
+{
+  "name": "agileplus-plugin-git",
+  "languages": [
+    "rust"
+  ],
+  "primary_language": "rust",
+  "status": "partial",
+  "has_readme": false,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "plugin",
+  "path": "repos/agileplus-plugin-git"
+}

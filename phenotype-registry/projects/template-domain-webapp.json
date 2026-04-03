@@ -1,0 +1,13 @@
+{
+  "name": "template-domain-webapp",
+  "languages": [
+    "typescript"
+  ],
+  "primary_language": "typescript",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "template",
+  "path": "repos/template-domain-webapp"
+}
