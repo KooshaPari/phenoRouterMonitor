@@ -1,1 +1,0 @@
-//! In-memory event store.
