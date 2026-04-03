@@ -1,0 +1,32 @@
+---
+adr_id: adr_005
+title: "Terminal Window Management"
+status: "proposed"
+date: "2026-04-03"
+author: "Phenotype Team"
+context: |
+  CLI applications often need to interact with the terminal window:
+  resize, reposition, query dimensions, or create new windows/tabs.
+  The Kitty window management protocol provides these capabilities.
+decision: |
+  [PROPOSED] Implement Kitty window management protocol for terminal
+  window control. This will enable applications to manage their
+  window environment programmatically.
+consequences:
+  positive:
+    - "Programmatic window control"
+    - "Dynamic layout management"
+    - "Multi-window application support"
+    - "Better integration with terminal multiplexers"
+  negative:
+    - "Kitty-specific protocol"
+    - "Security implications of window control"
+    - "Complex window state management"
+alternatives:
+  - title: "OSC Sequences (Generic)"
+    status: "under_consideration"
+    reason: "Limited functionality compared to Kitty protocol"
+related_frs:
+  - "fr_005"
+related_us:
+  - "us_005"

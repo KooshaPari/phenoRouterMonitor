@@ -1,0 +1,31 @@
+---
+us_id: us_002
+title: "Execute Shell Commands via MCP"
+description: |
+  As an AI assistant user, I want to execute shell commands through
+  the Model Context Protocol so that I can safely run system commands
+  with proper sandboxing and output streaming.
+role: "AI Assistant User"
+goal: "Execute shell commands via MCP"
+benefit: "Secure, controlled command execution"
+status: "implemented"
+priority: "high"
+acceptance_criteria:
+  - id: "AC-001"
+    given: "The MCP server is running"
+    when: "I request a shell command execution"
+    then: "the command runs and returns output"
+  - id: "AC-002"
+    given: "A long-running command is executing"
+    when: "I wait for it to complete"
+    then: "I receive output in real-time"
+  - id: "AC-003"
+    given: "A command is taking too long"
+    when: "I send a cancellation request"
+    then: "the command terminates gracefully"
+related_frs:
+  - "fr_002"
+related_adrs:
+  - "adr_002"
+story_points: 8
+sprint: "2"

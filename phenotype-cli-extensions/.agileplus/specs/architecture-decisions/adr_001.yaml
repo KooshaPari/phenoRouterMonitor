@@ -1,0 +1,35 @@
+---
+adr_id: adr_001
+title: "Kitty Graphics Protocol Implementation"
+status: "accepted"
+date: "2026-04-03"
+author: "Phenotype Team"
+context: |
+  The project needs to display images and graphics in the terminal.
+  Multiple terminal protocols exist, but Kitty's graphics protocol
+  offers the best performance and feature set.
+decision: |
+  Implement the Kitty Graphics Protocol for terminal image rendering.
+  This protocol supports both direct pixel data and shared memory
+  transfers for optimal performance.
+consequences:
+  positive:
+    - "High-performance image rendering in terminal"
+    - "Support for animations and progressive loading"
+    - "Shared memory for large images reduces latency"
+    - "Wide compatibility with modern terminals"
+  negative:
+    - "Requires Kitty-compatible terminal"
+    - "Shared memory implementation platform-specific"
+    - "Memory management complexity for large images"
+alternatives:
+  - title: "Sixel"
+    status: "rejected"
+    reason: "Limited color support and slower performance"
+  - title: "iTerm2 Inline Images"
+    status: "rejected"
+    reason: "iTerm2-specific, not portable"
+related_frs:
+  - "fr_001"
+related_us:
+  - "us_001"

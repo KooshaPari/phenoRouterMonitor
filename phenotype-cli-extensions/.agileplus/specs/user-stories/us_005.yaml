@@ -1,0 +1,31 @@
+---
+us_id: us_005
+title: "Manage Terminal Windows"
+description: |
+  As a power user, I want to programmatically manage terminal windows
+  including creating new windows, resizing, and positioning so that
+  I can create custom terminal layouts for my workflows.
+role: "Power User"
+goal: "Control terminal windows programmatically"
+benefit: "Custom terminal layouts and workflows"
+status: "proposed"
+priority: "low"
+acceptance_criteria:
+  - id: "AC-001"
+    given: "I'm using Kitty terminal"
+    when: "I request to create a new window"
+    then: "a new terminal window appears"
+  - id: "AC-002"
+    given: "I have multiple windows open"
+    when: "I resize one window programmatically"
+    then: "the window resizes to the specified dimensions"
+  - id: "AC-003"
+    given: "I want to organize my workspace"
+    when: "I position windows on screen"
+    then: "windows move to specified coordinates"
+related_frs:
+  - "fr_005"
+related_adrs:
+  - "adr_005"
+story_points: 5
+sprint: "TBD"

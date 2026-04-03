@@ -1,0 +1,64 @@
+agileplus_version: "1.0.0"
+project_id: "phenotype-cli-extensions"
+
+# Traceability Matrix
+traceability:
+  
+  fr_001_kitty_graphics:
+    functional_requirement: "fr_001"
+    architecture_decision: "adr_001"
+    user_story: "us_001"
+    code_entities:
+      - type: "module"
+        path: "src/kitty/graphics.rs"
+        description: "Kitty graphics protocol implementation"
+      - type: "test"
+        path: "tests/kitty_graphics_test.rs"
+    test_cases:
+      - id: "TC-KG-001"
+        description: "Verify PNG image display in terminal"
+        automated: true
+      - id: "TC-KG-002"
+        description: "Verify graphics cleanup on exit"
+        automated: true
+    
+  fr_002_mcp_shell:
+    functional_requirement: "fr_002"
+    architecture_decision: "adr_002"
+    user_story: "us_002"
+    code_entities:
+      - type: "module"
+        path: "src/shell_tool_mcp/"
+    test_cases:
+      - id: "TC-MCP-001"
+        description: "Execute command via MCP protocol"
+        automated: true
+    
+  fr_003_typescript_sdk:
+    functional_requirement: "fr_003"
+    architecture_decision: "adr_003"
+    user_story: "us_003"
+    code_entities:
+      - type: "module"
+        path: "src/sdk_typescript/"
+    test_cases:
+      - id: "TC-TSSDK-001"
+        description: "Generate TypeScript types from Rust"
+        automated: true
+
+cross_cutting:
+  security:
+    - id: "SEC-001"
+      description: "MCP command sandboxing"
+      related_frs: ["fr_002"]
+      status: "implemented"
+      
+  performance:
+    - id: "PERF-001"
+      description: "Graphics rendering optimization"
+      related_frs: ["fr_001"]
+      status: "implemented"
+
+metadata:
+  last_updated: "2026-04-03"
+  traceability_format: "agileplus-1.0"

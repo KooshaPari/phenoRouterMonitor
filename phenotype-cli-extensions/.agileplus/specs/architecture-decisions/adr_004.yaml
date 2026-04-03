@@ -1,0 +1,35 @@
+---
+adr_id: adr_004
+title: "Kitty Keyboard Protocol"
+status: "accepted"
+date: "2026-04-03"
+author: "Phenotype Team"
+context: |
+  Traditional terminal keyboard handling is limited. The Kitty Keyboard
+  Protocol provides enhanced key event reporting including key release,
+  modifier state, and non-standard keys.
+decision: |
+  Implement the Kitty Keyboard Protocol for enhanced terminal input handling.
+  This will enable proper detection of key combinations, key sequences,
+  and modifier states for improved CLI interaction.
+consequences:
+  positive:
+    - "Full key event reporting including release"
+    - "Modifier key state tracking"
+    - "Support for non-standard keys"
+    - "Better UX for interactive CLI applications"
+  negative:
+    - "Requires Kitty-compatible terminal for full features"
+    - "Fallback complexity for non-supporting terminals"
+    - "Event handling complexity increases"
+alternatives:
+  - title: "Traditional Terminal Input"
+    status: "rejected"
+    reason: "Limited key reporting, no modifier tracking"
+  - title: "xterm ModifyOtherKeys"
+    status: "rejected"
+    reason: "Less comprehensive than Kitty protocol"
+related_frs:
+  - "fr_004"
+related_us:
+  - "us_004"

@@ -1,0 +1,35 @@
+---
+adr_id: adr_002
+title: "Model Context Protocol (MCP) Shell Integration"
+status: "accepted"
+date: "2026-04-03"
+author: "Phenotype Team"
+context: |
+  AI assistants need a secure way to execute shell commands on behalf of users.
+  The Model Context Protocol (MCP) provides a standardized interface for
+  tool servers that AI systems can interact with.
+decision: |
+  Implement an MCP server for shell command execution. The server will
+  provide tools for running commands, managing files, and accessing
+  environment information through a well-defined JSON-RPC interface.
+consequences:
+  positive:
+    - "Standardized protocol for AI tool integration"
+    - "Built-in security through capability-based access control"
+    - "Easy integration with multiple AI assistants"
+    - "Extensible for additional shell-related tools"
+  negative:
+    - "Additional dependency on MCP SDK"
+    - "Requires understanding of MCP protocol for contributors"
+    - "Security review required for command execution"
+alternatives:
+  - title: "Custom RPC Protocol"
+    status: "rejected"
+    reason: "Would require custom client implementations"
+  - title: "Direct Shell Access"
+    status: "rejected"
+    reason: "Security risk, no standardized interface"
+related_frs:
+  - "fr_002"
+related_us:
+  - "us_002"

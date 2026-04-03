@@ -1,0 +1,40 @@
+---
+fr_id: fr_003
+title: "TypeScript SDK Type-Safe Bindings"
+description: |
+  Provide automatic TypeScript type generation from Rust code using
+  ts-rs. This enables TypeScript developers to use the CLI extensions
+  with full type safety and IDE support.
+status: "implemented"
+priority: "medium"
+category: "sdk_development"
+tags:
+  - "typescript"
+  - "sdk"
+  - "code_generation"
+  - "bindings"
+acceptance_criteria:
+  - id: "AC-001"
+    description: "Generate TypeScript types from Rust structs"
+    status: "implemented"
+  - id: "AC-002"
+    description: "Generate TypeScript types from Rust enums"
+    status: "implemented"
+  - id: "AC-003"
+    description: "Support nested struct types"
+    status: "implemented"
+  - id: "AC-004"
+    description: "Generate documentation comments"
+    status: "implemented"
+  - id: "AC-005"
+    description: "Export types in npm-compatible format"
+    status: "implemented"
+technical_requirements:
+  - "Must use ts-rs derive macros on public types"
+  - "Must generate types during build process"
+  - "Must handle generic types appropriately"
+  - "Must support optional/nullable fields"
+related_adrs:
+  - "adr_003"
+related_us:
+  - "us_003"
