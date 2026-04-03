@@ -3,7 +3,7 @@
   "lastUpdated": "2026-04-03",
   "ecosystem": "phenotype",
   "summary": {
-    "totalRepos": 75,
+    "totalRepos": 103,
     "totalSpecs": 135,
     "totalCodeEntities": 547,
     "totalTests": 1150,
@@ -1039,6 +1039,314 @@
       "specsList": [
         {
           "id": "SDK-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-commons",
+      "specs": 4,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "TPLCOM-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-domain-service-api",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "TPLAPI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "artifacts",
+      "specs": 3,
+      "coverage": 94,
+      "specsList": [
+        {
+          "id": "ART-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "heliosApp",
+      "specs": 8,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "HELI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "platforms",
+      "specs": 10,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "PLAT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "crates",
+      "specs": 12,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "CRATE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "agent-wave",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "AGWAVE-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "agentapi-plusplus",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "AGAPI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "omniroute-temp",
+      "specs": 5,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "OMNI-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "heliosBench",
+      "specs": 6,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "HBENCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "tests",
+      "specs": 8,
+      "coverage": 95,
+      "specsList": [
+        {
+          "id": "TEST-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "hexagon",
+      "specs": 9,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "HEXAGON-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "docs",
+      "specs": 4,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "DOCS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "zen",
+      "specs": 5,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "ZEN-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phenodocs",
+      "specs": 6,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "PHDOC-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "cloud",
+      "specs": 8,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "CLOUD-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "scripts",
+      "specs": 3,
+      "coverage": 85,
+      "specsList": [
+        {
+          "id": "SCRIPT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "bare-cua",
+      "specs": 4,
+      "coverage": 93,
+      "specsList": [
+        {
+          "id": "BCUA-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "phench",
+      "specs": 5,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "PHENCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "devenv-abstraction",
+      "specs": 6,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "DEVENV-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "agentapi-temp",
+      "specs": 4,
+      "coverage": 86,
+      "specsList": [
+        {
+          "id": "AGTEMP-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "colab",
+      "specs": 7,
+      "coverage": 90,
+      "specsList": [
+        {
+          "id": "COLAB-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Benchora",
+      "specs": 5,
+      "coverage": 92,
+      "specsList": [
+        {
+          "id": "BENCH-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-program-ops",
+      "specs": 4,
+      "coverage": 87,
+      "specsList": [
+        {
+          "id": "TPLOPS-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "template-domain-webapp",
+      "specs": 6,
+      "coverage": 89,
+      "specsList": [
+        {
+          "id": "TPLWEB-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "cliproxyapi-plusplus",
+      "specs": 5,
+      "coverage": 88,
+      "specsList": [
+        {
+          "id": "CLIPROX-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "koosha-portfolio",
+      "specs": 3,
+      "coverage": 94,
+      "specsList": [
+        {
+          "id": "KPORT-001",
+          "status": "implemented"
+        }
+      ]
+    },
+    {
+      "name": "Tracely",
+      "specs": 6,
+      "coverage": 91,
+      "specsList": [
+        {
+          "id": "TRACELY-001",
           "status": "implemented"
         }
       ]
