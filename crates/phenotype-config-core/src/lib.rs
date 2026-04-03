@@ -1,27 +1,8 @@
 //! Core configuration types
 
-use thiserror::Error;
+pub mod error;
 
-/// Result type alias using ConfigError.
-pub type ConfigResult<T> = Result<T, ConfigError>;
-
-#[derive(Debug, Error)]
-pub enum ConfigError {
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
-    #[error("JSON error: {0}")]
-    Json(#[from] serde_json::Error),
-    #[error("config not found: {0}")]
-    NotFound(String),
-    #[error("{0}")]
-    Other(String),
-}
-
-/// Loads configuration from this source as JSON value.
-pub trait ConfigLoader {
-    type Error: std::fmt::Debug + std::error::Error + From<std::io::Error> + From<serde_json::Error>;
-    fn load<T: serde::de::DeserializeOwned>(&self) -> Result<T, Self::Error>;
-}
+pub use error::{ConfigError, ConfigResult};
 
 #[derive(Debug, Clone)]
 pub enum ConfigValue {
