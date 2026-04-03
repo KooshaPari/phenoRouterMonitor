@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Phenotype.Packs.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4932bffd6da507be0f4122c07f3a5c62f71d1ace")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f480269ecea49760611861c64eac3ecc45b12231")]
 [assembly: System.Reflection.AssemblyProductAttribute("Phenotype.Packs.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Phenotype.Packs.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

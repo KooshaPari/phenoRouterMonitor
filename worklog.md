@@ -125,3 +125,34 @@ All crates build successfully
 
 ### Status
 ✅ Analysis Complete - 10 repos examined
+
+---
+
+## 2026-04-03: heliosCLI Bazel Build Optimization (WP010)
+
+### Completed Tasks
+- ✅ Fixed `aws-lc-sys` patch incompatibility (removed outdated patch for v0.39.1)
+- ✅ Generated `Cargo.lock` for codex-rs workspace (277KB, 994 packages)
+- ✅ Enabled pipelined compilation for local builds
+- ✅ Increased local jobs from 30 to 64
+
+### PR Created
+- **URL**: https://github.com/KooshaPari/heliosCLI/pull/188
+- **Branch**: `feat/bazel-build-optimizations`
+- **Status**: Ready for review
+
+### Changes
+```
+.bazelrc                     | +6 -4   (pipelined compilation, jobs tuning)
+MODULE.bazel                | -4       (removed incompatible patch)
+codex-rs/Cargo.lock         | 277KB    (Cargo workspace lock)
+MODULE.bazel.lock           | 1.2MB    (Bazel module lock)
+```
+
+### Verification
+- `cargo check -p codex-ansi-escape` ✅ passes
+- `cargo check -p codex-async-utils` ✅ passes
+
+### Notes
+- Pre-commit hooks report errors in `harness_pyo3` crate (missing `ffi_utils` from `phenotype-shared`) - unrelated to these changes
+- Bazel full build verification pending (requires longer build window due to rules_rust setup)

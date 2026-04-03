@@ -98,8 +98,7 @@ func outputComplianceText(report *policy.DriftReport) error {
 	fmt.Printf("Info: %d\n", report.Summary.Info)
 	fmt.Printf("Warning: %d\n", report.Summary.Warning)
 	fmt.Printf("Error: %d\n", report.Summary.Error)
-	fmt.Printf("Critical: %d\n", report.Summary.Critical)
-	fmt.Printf("\nDuration: %s\n\n", report.Duration)
+	fmt.Printf("Critical: %d\n\n", report.Summary.Critical)
 
 	if len(report.Items) == 0 {
 		fmt.Println("✅ All repositories are compliant!")

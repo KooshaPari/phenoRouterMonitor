@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2kNeq1loLrQ=",
+  "dgSpecHash": "KE06lpwO9Ow=",
   "success": true,
   "projectFilePath": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/Phenotype.Packs.Tests.csproj",
   "expectedPackageFiles": [
@@ -95,9 +95,7 @@
     "/Users/kooshapari/.nuget/packages/xunit.extensibility.core/2.6.2/xunit.extensibility.core.2.6.2.nupkg.sha512",
     "/Users/kooshapari/.nuget/packages/xunit.extensibility.execution/2.6.2/xunit.extensibility.execution.2.6.2.nupkg.sha512",
     "/Users/kooshapari/.nuget/packages/xunit.runner.visualstudio/2.5.4/xunit.runner.visualstudio.2.5.4.nupkg.sha512",
-    "/Users/kooshapari/.nuget/packages/yamldotnet/16.0.0/yamldotnet.16.0.0.nupkg.sha512",
-    "/Users/kooshapari/.nuget/packages/microsoft.netcore.app.ref/8.0.16/microsoft.netcore.app.ref.8.0.16.nupkg.sha512",
-    "/Users/kooshapari/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.16/microsoft.aspnetcore.app.ref.8.0.16.nupkg.sha512"
+    "/Users/kooshapari/.nuget/packages/yamldotnet/16.0.0/yamldotnet.16.0.0.nupkg.sha512"
   ],
   "logs": []
 }

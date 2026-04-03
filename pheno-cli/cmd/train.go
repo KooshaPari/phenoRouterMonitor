@@ -1,185 +1,141 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
+	"text/tabwriter"
 
-	"github.com/KooshaPari/pheno-cli/internal/state"
 	"github.com/spf13/cobra"
+	"github.com/KooshaPari/pheno-cli/internal/state"
 )
 
 var (
-	trainRepos   string
-	trainFrom    string
-	trainTo      string
+	trainName     string
+	trainRepos    []string
+	trainStateDir string
 )
 
 var trainCmd = &cobra.Command{
 	Use:   "train",
-	Short: "Manage cross-repo release trains",
-	Long: `Train manages cross-repository release trains for coordinated releases.
-
-A release train is a group of repositories that are promoted together through
-release channels (alpha -> canary -> beta -> rc -> prod).
-
-Examples:
-  # List all release trains
-  pheno train list
-
-  # Create a new release train
-  pheno train create api-train --repos api-gateway,auth-service,user-service
-
-  # Check train status
-  pheno train status api-train
-
-  # Promote a train to the next channel
-  pheno train promote api-train --to beta`,
+	Short: "Manage release trains",
+	Long:  `Release trains coordinate multi-repo releases.`,
 }
 
 var trainListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all release trains",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		mgr := state.NewTrainManager(trainStateDir)
-	// Get status
-	status, err := mgr.GetTrainStatus(trainName)
-	if err != nil {
-		return fmt.Errorf("failed to get train status: %w", err)
-	}
-		if len(trains) == 0 {
-			fmt.Println("No release trains found.")
-			fmt.Println("Create one with: pheno train create <name> --repos <repo1,repo2>")
-			return nil
-		}
+	RunE:  runTrainList,
+}
 
-		fmt.Println("Release Trains:")
-		fmt.Println(strings.Repeat("-", 60))
-		for _, train := range trains {
-			status, _ := mgr.GetTrainStatus(train.Name)
-			fmt.Printf("  %-20s %s\n", train.Name, status)
-		}
+func runTrainList(cmd *cobra.Command, args []string) error {
+	mgr := state.NewTrainManager("")
+	trains := mgr.ListTrains()
+
+	if len(trains) == 0 {
+		fmt.Println("No release trains found.")
 		return nil
-	},
+	}
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintf(w, "NAME\tCHANNEL\tREPOS\n")
+	for _, t := range trains {
+		fmt.Fprintf(w, "%s\t%s\t%d\n", t.Name, t.TargetChannel, len(t.Repos))
+	}
+	w.Flush()
+	return nil
 }
 
 var trainCreateCmd = &cobra.Command{
 	Use:   "create [name]",
-	Short: "Create a new release train",
+	Short: "Create a release train",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		name := args[0]
-		mgr := state.NewTrainManager(trainStateDir)
+	RunE:  runTrainCreate,
+}
 
-		repos := parseRepoList(trainRepos)
-		if len(repos) == 0 {
-			return fmt.Errorf("no repositories specified, use --repos flag")
-		}
-
-		train, err := mgr.CreateTrain(name, repos, nil)
-		if err != nil {
-			return fmt.Errorf("failed to create train: %w", err)
-		}
-
-		fmt.Printf("✓ Created release train: %s\n", train.Name)
-		fmt.Printf("  Repositories: %d\n", len(train.Repos))
-		for _, repo := range train.Repos {
-			fmt.Printf("    - %s (%s)\n", repo.Name, repo.Channel)
-		}
-		return nil
-	},
+func runTrainCreate(cmd *cobra.Command, args []string) error {
+	mgr := state.NewTrainManager(trainStateDir)
+	if len(trainRepos) == 0 {
+		return fmt.Errorf("use --repos flag")
+	}
+	_, err := mgr.CreateTrain(args[0], trainRepos, nil)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Created train '%s'\n", args[0])
+	return nil
 }
 
 var trainStatusCmd = &cobra.Command{
 	Use:   "status [name]",
-	Short: "Show release train status",
+	Short: "Show train status",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		name := args[0]
-		mgr := state.NewTrainManager(trainStateDir)
+	RunE:  runTrainStatus,
+}
 
-		train, err := mgr.GetTrain(name)
-		if err != nil {
-			return fmt.Errorf("train not found: %w", err)
+func runTrainStatus(cmd *cobra.Command, args []string) error {
+	mgr := state.NewTrainManager(trainStateDir)
+	trains := mgr.ListTrains()
+	for _, t := range trains {
+		if t.Name == args[0] {
+			fmt.Printf("Train: %s\nChannel: %s\nRepos: %d\n", t.Name, t.TargetChannel, len(t.Repos))
+			return nil
 		}
-
-		status, _ := mgr.GetTrainStatus(name)
-		fmt.Printf("Release Train: %s\n", train.Name)
-		fmt.Printf("Status: %s\n", status)
-		fmt.Printf("Created: %s\n", train.CreatedAt.Format("2006-01-02 15:04"))
-		fmt.Printf("Updated: %s\n", train.UpdatedAt.Format("2006-01-02 15:04"))
-		fmt.Println("\nRepositories:")
-		for _, repo := range train.Repos {
-			fmt.Printf("  %-20s %s\n", repo.Name, repo.Channel)
-		}
-		return nil
-	},
+	}
+	return fmt.Errorf("train not found")
 }
 
 var trainPromoteCmd = &cobra.Command{
 	Use:   "promote [name]",
-	Short: "Promote a release train",
+	Short: "Promote train",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		name := args[0]
-		mgr := state.NewTrainManager(trainStateDir)
+	RunE:  runTrainPromote,
+}
 
-		if err := mgr.PromoteTrain(name, trainFrom, trainTo); err != nil {
-			return fmt.Errorf("promotion failed: %w", err)
-		}
+var trainToChannel string
 
-		fmt.Printf("✓ Promoted train '%s' from %s to %s\n", name, trainFrom, trainTo)
-		return nil
-	},
+func runTrainPromote(cmd *cobra.Command, args []string) error {
+	mgr := state.NewTrainManager(trainStateDir)
+
+	var targetCh state.Channel
+	switch trainToChannel {
+	case "alpha":
+		targetCh = state.ChannelAlpha
+	case "beta":
+		targetCh = state.ChannelBeta
+	case "rc":
+		targetCh = state.ChannelRC
+	case "prod":
+		targetCh = state.ChannelProd
+	default:
+		return fmt.Errorf("invalid channel: %s", trainToChannel)
+	}
+
+	if err := mgr.PromoteTrain(args[0], targetCh); err != nil {
+		return err
+	}
+	fmt.Printf("Promoted train '%s' to %s\n", args[0], trainToChannel)
+	return nil
 }
 
 var trainDeleteCmd = &cobra.Command{
 	Use:   "delete [name]",
-	Short: "Delete a release train",
+	Short: "Delete train",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		name := args[0]
-		mgr := state.NewTrainManager(trainStateDir)
+	RunE:  runTrainDelete,
+}
 
-		if err := mgr.DeleteTrain(name); err != nil {
-			return fmt.Errorf("failed to delete train: %w", err)
-		}
-
-		fmt.Printf("✓ Deleted release train: %s\n", name)
-		return nil
-	},
+func runTrainDelete(cmd *cobra.Command, args []string) error {
+	mgr := state.NewTrainManager(trainStateDir)
+	if err := mgr.DeleteTrain(args[0]); err != nil {
+		return err
+	}
+	fmt.Printf("Deleted train '%s'\n", args[0])
+	return nil
 }
 
 func init() {
-	trainCmd.PersistentFlags().StringVar(&trainStateDir, "state-dir", "", "Directory for train state storage")
-
-	trainCreateCmd.Flags().StringVar(&trainRepos, "repos", "", "Comma-separated list of repositories")
-	_ = trainCreateCmd.MarkFlagRequired("repos")
-
-	trainPromoteCmd.Flags().StringVar(&trainFrom, "from", "", "Source channel")
-	trainPromoteCmd.Flags().StringVar(&trainTo, "to", "", "Target channel")
-	_ = trainPromoteCmd.MarkFlagRequired("from")
-	_ = trainPromoteCmd.MarkFlagRequired("to")
-
-	trainCmd.AddCommand(trainListCmd)
-	trainCmd.AddCommand(trainCreateCmd)
-	trainCmd.AddCommand(trainStatusCmd)
-	trainCmd.AddCommand(trainPromoteCmd)
-	trainCmd.AddCommand(trainDeleteCmd)
-}
-
-func parseRepoList(s string) []string {
-	if s == "" {
-		return nil
-	}
-	parts := strings.Split(s, ",")
-	var result []string
-	for _, p := range parts {
-		p = strings.TrimSpace(p)
-		if p != "" {
-			result = append(result, p)
-		}
-	}
-	return result
+	trainCmd.AddCommand(trainListCmd, trainCreateCmd, trainStatusCmd, trainPromoteCmd, trainDeleteCmd)
+	trainCmd.PersistentFlags().StringVar(&trainStateDir, "state-dir", "", "State directory")
+	trainCreateCmd.Flags().StringSliceVar(&trainRepos, "repos", nil, "Repositories")
+	trainPromoteCmd.Flags().StringVar(&trainToChannel, "to", "", "Target channel")
 }

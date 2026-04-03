@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Generic content pack system with dependency resolution, schema validation, and co" +
     "nflict detection. Extracted from DINOForge."))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+4932bffd6da507be0f4122c07f3a5c62f71d1ace")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+f480269ecea49760611861c64eac3ecc45b12231")]
 [assembly: System.Reflection.AssemblyProductAttribute("Phenotype.Packs")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Phenotype.Packs")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]

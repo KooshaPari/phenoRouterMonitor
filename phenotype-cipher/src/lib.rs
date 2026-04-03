@@ -34,6 +34,7 @@ impl From<EncryptionError> for CipherError {
             }
             EncryptionError::EncryptionFailed(s) => CipherError::EncryptionFailed(s),
             EncryptionError::DecryptionFailed(s) => CipherError::DecryptionFailed(s),
+            EncryptionError::WrongSuite => CipherError::DecryptionFailed("wrong cipher suite".to_string()),
         }
     }
 }

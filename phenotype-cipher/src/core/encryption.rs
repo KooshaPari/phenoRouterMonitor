@@ -5,13 +5,11 @@ use aes_gcm::{
     Aes256Gcm, Nonce as AesNonce,
 };
 use chacha20poly1305::{
-    aead::Aead as _,
     ChaCha20Poly1305, Nonce as ChaChaNonce,
 };
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-
 /// Cipher suite selection
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum CipherSuite {
@@ -19,10 +17,10 @@ pub enum CipherSuite {
     ChaCha20Poly1305,
 }
 
-/// Encryption errors
-#[derive(Error, Debug, Clone, PartialEq)]
+/// Encryption error
+#[derive(Debug, Error)]
 pub enum EncryptionError {
-    #[error("invalid key length: expected {expected} bytes, got {got}")]
+    #[error("invalid key length: expected {expected}, got {got}")]
     InvalidKeyLength { expected: usize, got: usize },
     #[error("encryption failed: {0}")]
     EncryptionFailed(String),
@@ -32,25 +30,20 @@ pub enum EncryptionError {
     WrongSuite,
 }
 
-/// Output of an encryption operation
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Ciphertext container
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Ciphertext {
-    /// Nonce/counter (12 bytes for both AES-GCM and ChaCha20-Poly1305)
-    pub nonce: Vec<u8>,
-    /// Encrypted data (includes auth tag)
     pub data: Vec<u8>,
-    /// Selected cipher suite
+    pub nonce: Vec<u8>,
     pub suite: CipherSuite,
 }
 
-/// AES-256-GCM implementation
-#[derive(Clone)]
+/// AES-256-GCM cipher
 pub struct AesGcmCipher {
     key: Aes256Gcm,
 }
 
 impl AesGcmCipher {
-    /// Create a new AES-256-GCM cipher from 32-byte key
     pub fn new(key: &[u8]) -> Result<Self, EncryptionError> {
         if key.len() != 32 {
             return Err(EncryptionError::InvalidKeyLength {
@@ -58,59 +51,47 @@ impl AesGcmCipher {
                 got: key.len(),
             });
         }
-        let key_arr: [u8; 32] = key.try_into().map_err(|_| EncryptionError::InvalidKeyLength {
-            expected: 32,
-            got: key.len(),
-        })?;
-        let cipher = Aes256Gcm::new_from_slice(&key_arr)
+        let key_arr: [u8; 32] = key.try_into().unwrap();
+        let key = Aes256Gcm::new_from_slice(&key_arr)
             .map_err(|e| EncryptionError::EncryptionFailed(e.to_string()))?;
-        Ok(Self { key: cipher })
+        Ok(Self { key })
     }
 
-    /// Generate a random 32-byte key
     pub fn generate_key() -> Vec<u8> {
         let mut key = vec![0u8; 32];
         OsRng.fill_bytes(&mut key);
         key
     }
 
-    /// Encrypt plaintext using AES-256-GCM
     pub fn encrypt(&self, pt: &[u8]) -> Result<Ciphertext, EncryptionError> {
-        let mut nonce_bytes = [0u8; 12];
+        let mut nonce_bytes = vec![0u8; 12];
         OsRng.fill_bytes(&mut nonce_bytes);
         let nonce = AesNonce::from_slice(&nonce_bytes);
-
-        let ct = self.key
-            .encrypt(nonce, pt)
+        let ct = self.key.encrypt(nonce, pt)
             .map_err(|e| EncryptionError::EncryptionFailed(e.to_string()))?;
-
         Ok(Ciphertext {
-            nonce: nonce_bytes.to_vec(),
             data: ct,
+            nonce: nonce_bytes,
             suite: CipherSuite::Aes256Gcm,
         })
     }
 
-    /// Decrypt ciphertext using AES-256-GCM
     pub fn decrypt(&self, ct: &Ciphertext) -> Result<Vec<u8>, EncryptionError> {
         if ct.suite != CipherSuite::Aes256Gcm {
-            return Err(EncryptionError::WrongSuite);
+            return Err(EncryptionError::DecryptionFailed("wrong suite".to_string()));
         }
         let nonce = AesNonce::from_slice(&ct.nonce);
-        self.key
-            .decrypt(nonce, ct.data.as_ref())
+        self.key.decrypt(nonce, ct.data.as_ref())
             .map_err(|e| EncryptionError::DecryptionFailed(e.to_string()))
     }
 }
 
-/// ChaCha20-Poly1305 implementation
-#[derive(Clone)]
+/// ChaCha20-Poly1305 cipher
 pub struct ChaChaCipher {
     key: ChaCha20Poly1305,
 }
 
 impl ChaChaCipher {
-    /// Create a new ChaCha20-Poly1305 cipher from 32-byte key
     pub fn new(key: &[u8]) -> Result<Self, EncryptionError> {
         if key.len() != 32 {
             return Err(EncryptionError::InvalidKeyLength {
@@ -118,83 +99,73 @@ impl ChaChaCipher {
                 got: key.len(),
             });
         }
-        let key_arr: [u8; 32] = key.try_into().map_err(|_| EncryptionError::InvalidKeyLength {
-            expected: 32,
-            got: key.len(),
-        })?;
-        let cipher = ChaCha20Poly1305::new_from_slice(&key_arr)
+        let key_arr: [u8; 32] = key.try_into().unwrap();
+        let key = ChaCha20Poly1305::new_from_slice(&key_arr)
             .map_err(|e| EncryptionError::EncryptionFailed(e.to_string()))?;
-        Ok(Self { key: cipher })
+        Ok(Self { key })
     }
 
-    /// Generate a random 32-byte key
     pub fn generate_key() -> Vec<u8> {
         let mut key = vec![0u8; 32];
         OsRng.fill_bytes(&mut key);
         key
     }
 
-    /// Encrypt plaintext using ChaCha20-Poly1305
     pub fn encrypt(&self, pt: &[u8]) -> Result<Ciphertext, EncryptionError> {
-        let mut nonce_bytes = [0u8; 12];
+        let mut nonce_bytes = vec![0u8; 12];
         OsRng.fill_bytes(&mut nonce_bytes);
         let nonce = ChaChaNonce::from_slice(&nonce_bytes);
-
-        let ct = self.key
-            .encrypt(nonce, pt)
+        let ct = self.key.encrypt(nonce, pt)
             .map_err(|e| EncryptionError::EncryptionFailed(e.to_string()))?;
-
         Ok(Ciphertext {
-            nonce: nonce_bytes.to_vec(),
             data: ct,
+            nonce: nonce_bytes,
             suite: CipherSuite::ChaCha20Poly1305,
         })
     }
 
-    /// Decrypt ciphertext using ChaCha20-Poly1305
     pub fn decrypt(&self, ct: &Ciphertext) -> Result<Vec<u8>, EncryptionError> {
         if ct.suite != CipherSuite::ChaCha20Poly1305 {
-            return Err(EncryptionError::WrongSuite);
+            return Err(EncryptionError::DecryptionFailed("wrong suite".to_string()));
         }
         let nonce = ChaChaNonce::from_slice(&ct.nonce);
-        self.key
-            .decrypt(nonce, ct.data.as_ref())
+        self.key.decrypt(nonce, ct.data.as_ref())
             .map_err(|e| EncryptionError::DecryptionFailed(e.to_string()))
     }
 }
 
-/// Encrypt with selected cipher suite (convenience function)
+/// Encrypt with selected cipher suite
 pub fn encrypt_with_suite(
     suite: CipherSuite,
     key: &[u8],
-    plaintext: &[u8],
+    pt: &[u8],
 ) -> Result<Ciphertext, EncryptionError> {
     match suite {
         CipherSuite::Aes256Gcm => {
             let cipher = AesGcmCipher::new(key)?;
-            cipher.encrypt(plaintext)
+            cipher.encrypt(pt)
         }
         CipherSuite::ChaCha20Poly1305 => {
             let cipher = ChaChaCipher::new(key)?;
-            cipher.encrypt(plaintext)
+            cipher.encrypt(pt)
         }
     }
 }
 
-/// Decrypt with selected cipher suite (convenience function)
+/// Decrypt with selected cipher suite
 pub fn decrypt_with_suite(
     suite: CipherSuite,
     key: &[u8],
-    ciphertext: &Ciphertext,
+    ct: &Ciphertext,
 ) -> Result<Vec<u8>, EncryptionError> {
     match suite {
         CipherSuite::Aes256Gcm => {
             let cipher = AesGcmCipher::new(key)?;
-            cipher.decrypt(ciphertext)
+            cipher.decrypt(ct)
         }
         CipherSuite::ChaCha20Poly1305 => {
             let cipher = ChaChaCipher::new(key)?;
-            cipher.decrypt(ciphertext)
+            cipher.decrypt(ct)
         }
     }
 }
@@ -204,7 +175,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_aes_roundtrip() {
+    fn test_aes_gcm_roundtrip() {
         let key = AesGcmCipher::generate_key();
         let cipher = AesGcmCipher::new(&key).unwrap();
         let pt = b"hello world";
@@ -242,15 +213,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cipher_suite_serialization() {
-        let suite = CipherSuite::Aes256Gcm;
-        let json = serde_json::to_string(&suite).unwrap();
-        let deserialized: CipherSuite = serde_json::from_str(&json).unwrap();
-        assert_eq!(suite, deserialized);
-    }
-
-    #[test]
-    fn test_encrypt_with_suite_aes() {
+    fn test_encrypt_suite_aes() {
         let key = AesGcmCipher::generate_key();
         let pt = b"Test data";
         let ct = encrypt_with_suite(CipherSuite::Aes256Gcm, &key, pt).unwrap();
@@ -260,12 +223,20 @@ mod tests {
     }
 
     #[test]
-    fn test_encrypt_with_suite_chacha() {
+    fn test_encrypt_suite_chacha() {
         let key = ChaChaCipher::generate_key();
         let pt = b"Test data";
         let ct = encrypt_with_suite(CipherSuite::ChaCha20Poly1305, &key, pt).unwrap();
         assert_eq!(ct.suite, CipherSuite::ChaCha20Poly1305);
         let decrypted = decrypt_with_suite(CipherSuite::ChaCha20Poly1305, &key, &ct).unwrap();
         assert_eq!(decrypted, pt);
+    }
+
+    #[test]
+    fn test_cipher_suite_serialization() {
+        let suite = CipherSuite::Aes256Gcm;
+        let json = serde_json::to_string(&suite).unwrap();
+        let deserialized: CipherSuite = serde_json::from_str(&json).unwrap();
+        assert_eq!(suite, deserialized);
     }
 }
