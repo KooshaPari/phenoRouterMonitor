@@ -1,0 +1,9 @@
+[package]
+name = "phenotype-contract-tests"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+description = "Contract testing utilities for phenotype"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
