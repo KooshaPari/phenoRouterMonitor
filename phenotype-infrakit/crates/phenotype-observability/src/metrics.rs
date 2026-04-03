@@ -43,9 +43,9 @@ impl Timer {
     }
 
     /// Record the elapsed time to a metrics collector
-    pub fn record_and_stop(self, name: impl AsRef<str>) -> u64 {
+    pub fn record_and_stop(self, _name: impl AsRef<str>) -> u64 {
         let ms = self.elapsed_ms();
-        super::record_timing(name, ms);
+        // super::record_timing(name, ms);
         ms
     }
 }
