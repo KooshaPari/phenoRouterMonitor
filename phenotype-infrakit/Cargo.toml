@@ -2,65 +2,33 @@
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/KooshaPari/phenotype-infrakit"
+rust-version = "1.75"
+authors = ["Phenotype Team"]
+repository = "https://github.com/phenotype-dev/phenotype-infrakit"
 
 [workspace]
 resolver = "2"
 members = [
-    "crates/phenotype-analytics",
-    "crates/phenotype-auth",
+    "crates/agileplus-dashboard",
+    "crates/agileplus-dashboard-server",
     "crates/phenotype-compliance-scanner",
-    "crates/phenotype-config-loader",
-    "crates/phenotype-contract-tests",
-    "crates/phenotype-git-core",
-    "crates/phenotype-http-client",
-    "crates/phenotype-networking",
-    "crates/phenotype-observability",
+    "crates/phenotype-health",
     "crates/phenotype-project-registry",
-    "crates/phenotype-rate-limiter",
     "crates/phenotype-security-aggregator",
-    "crates/phenotype-sentry-config",
-]
-
-exclude = [
-    "crates/phenotype-bdd",
-    "crates/phenotype-testing",
 ]
 
 [workspace.dependencies]
-anyhow = "1"
-async-trait = "0.1"
-chrono = { version = "0.4", features = ["serde"] }
-futures = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-serde_yaml_ng = "0.10"
 thiserror = "2"
+anyhow = "1"
 tokio = { version = "1", features = ["full"] }
-toml = "0.8"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-http = "1"
-http-body = "1"
-http-body-util = "0.1"
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
-wiremock = "0.6"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+chrono = { version = "0.4", features = ["serde"] }
 tempfile = "3"
-tokio-test = "0.4"
-uuid = { version = "1", features = ["v4", "serde"] }
-url = "2.5"
-parking_lot = "0.12"
-dashmap = "5"
-walkdir = "2.5"
-sentry = { version = "0.35", features = ["backtrace"] }
-sentry-core = "0.35"
-sentry-types = "0.35"
-metrics = "0.22"
-git2 = "0.18"
-regex = "1"
-once_cell = "1.19"
-base64 = "0.22"
-bytes = "1"
+axum = { version = "0.7", features = ["tokio"] }
+tower = "0.4"
 
 [profile.dev]
 opt-level = 0
