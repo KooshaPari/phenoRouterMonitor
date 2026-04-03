@@ -6,6 +6,9 @@
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::Path;
 
+// Use serde_yaml for YAML support
+use serde_yaml;
+
 /// Configuration source priority (higher = takes precedence).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub struct Priority(u8);
