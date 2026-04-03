@@ -1,15 +1,14 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/phenotype-analytics",
     "crates/phenotype-bdd",
-    "crates/phenotype-compliance-scanner",
     "crates/phenotype-config-core",
-    "crates/phenotype-health",
-    "crates/phenotype-project-registry",
+    "crates/phenotype-contract-tests",
+    "crates/phenotype-http-client",
     "crates/phenotype-rate-limiter",
-    "crates/phenotype-security-aggregator",
+    "crates/phenotype-sentry-config",
     "crates/phenotype-testing",
-    "crates/phenotype-validation",
 ]
 # ═══════════════════════════════════════════════════════════════════════════
 # PHENOTYPE INFRAKIT - CANONICAL DEPENDENCY VERSIONS

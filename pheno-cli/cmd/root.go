@@ -32,6 +32,8 @@ func init() {
 	rootCmd.AddCommand(bootstrapCmd)
 	rootCmd.AddCommand(matrixCmd)
 	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(complianceCmd)
+	rootCmd.AddCommand(trainCmd)
 }
 
 func initConfig() {
