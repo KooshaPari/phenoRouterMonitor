@@ -1,179 +1,234 @@
-# PhenoConfig - Polyglot Ecosystem Strategy
+# PhenoConfig - External Library Ecosystem Strategy
 
-## Status: ACTIVE - Multi-Language Config Management
+## Status: ACTIVE - Leverage Mature External Libraries
 
-PhenoConfig provides **universal configuration management** across all language ecosystems in the Phenotype platform.
+**Principle**: Our ecosystem is new. Instead of building custom config libraries, we wrap **proven external libraries** with hexagonal adapters.
 
 ---
 
-## Architecture Overview
+## External Library Stack by Language
+
+| Language | External Library | Our Wrapper | Purpose |
+|----------|------------------|-------------|---------|
+| **TypeScript** | [Zod](https://zod.dev/) + [convict](https://github.com/mozilla/node-convict) | `pheno-config-ts` | Schema validation + config management |
+| **Python 3.14+** | [Pydantic v2](https://docs.pydantic.dev/) | `pheno-config-py` | Settings management + validation |
+| **Go** | [Viper](https://github.com/spf13/viper) + [validator](https://github.com/go-playground/validator) | `pheno-config-go` | Config + validation |
+| **Rust** | [config-rs](https://github.com/mehcode/config-rs) + [serde](https://serde.rs/) | `pheno-config-rs` | Layered configs + serialization |
+| **Zig** | [zod-zig](https://github.com/andrewrk/zig-uri) pattern | `pheno-config-zig` | Manual parsing + validation |
+
+---
+
+## Hexagonal Adapter Pattern
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Language Frontends                                │
-├──────────────┬──────────────┬──────────────┬────────────────────────┤
-│ TypeScript   │ Python 3.14+ │ Go           │ Rust (Core)            │
-│ pheno-config │ (planned)    │ (planned)    │ pheno-config-core      │
-│ -ts          │              │              │                        │
-├──────────────┼──────────────┼──────────────┼────────────────────────┤
-│ • Zod        │ • Pydantic   │ • Viper      │ • Serde               │
-│ validation   │   v2         │   style      │ • Compile-time        │
-│ • Hexagonal  │ • Hexagonal  │ • Hexagonal  │   validation          │
-│   adapters   │   adapters   │   adapters   │ • Zero-cost           │
-└──────────────┴──────────────┴──────────────┴────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                   External Library (Ecosystem)                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │
+│  │    Zod     │  │  Pydantic  │  │   Viper    │  ...              │
+│  │   (TS)     │  │   (Py)     │  │   (Go)     │                  │
+│  └─────────────┘  └─────────────┘  └─────────────┘                  │
+└────────────────────────────────────────────────────────────────────┘
                               │
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                 Universal Config Core (Rust)                         │
-├─────────────────────────────────────────────────────────────────────┤
-│  • Layered Configs (File → Env → CLI → Remote)                      │
-│  • Validation Engine (serde + custom validators)                    │
-│  • Hot Reload (notify + debounce)                                   │
-│  • Schema Registry (shared types)                                   │
-│  • Secrets Management (encryption at rest)                          │
-└─────────────────────────────────────────────────────────────────────┘
+                              ▼ (Ports)
+┌────────────────────────────────────────────────────────────────────┐
+│                PhenoConfig Hexagonal Adapters                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │  • ConfigPort (load, reload, validate)                       │  │
+│  │  • ValidationPort (schema, error handling)                   │  │
+│  │  • SourcePort (file, env, cli, remote)                       │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ (Domain)
+┌────────────────────────────────────────────────────────────────────┐
+│                Shared Domain (Language Agnostic)                  │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │  • ConfigSchema (JSON Schema / OpenAPI spec)                 │  │
+│  │  • ValidationRules (cross-language rules)                    │  │
+│  │  • ConfigEvents (hot reload notifications)                   │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Ecosystem-Specific Frontends
+## Implementation Strategy
 
-### ✅ TypeScript (ACTIVE)
+### TypeScript (Zod + Convict)
 
-| Aspect | Implementation |
-|--------|----------------|
-| **Package** | `@phenotype/config` |
-| **Validation** | Zod 3.x |
-| **Runtime** | Node.js 18+, Bun, Deno |
-| **Adapters** | File, Environment, CLI, HTTP |
-| **Location** | `PhenoConfig/crates/pheno-config-ts/` |
+**External**: `zod` for validation, `convict` for config management
+**Our Layer**: Hexagonal ports/adapters around these
 
-**Usage:**
 ```typescript
-import { config } from '@phenotype/config';
+// External: Zod
+import { z } from 'zod';
 
-const appConfig = config()
-  .fromFile('app.toml')
-  .fromEnv('APP_')
-  .validate(z.object({ port: z.number() }))
-  .build();
+// Our adapter
+import { ConfigPort, ValidationPort } from 'pheno-config-ts';
+
+const config = ConfigPort.create()
+  .withValidation(ValidationPort.zod(z.object({ port: z.number() })))
+  .load();
 ```
 
-### 🐍 Python 3.14+ (PLANNED)
+### Python 3.14+ (Pydantic Settings)
 
-| Aspect | Implementation |
-|--------|----------------|
-| **Package** | `phenotype-config` (PyPI) |
-| **Validation** | Pydantic v2 |
-| **Runtime** | Python 3.14+ (pattern matching, better typing) |
-| **Adapters** | File, Environment, CLI |
-| **Location** | `PhenoConfig/crates/pheno-config-py/` (planned) |
+**External**: `pydantic-settings` + `pydantic.v2`
+**Our Layer**: Hexagonal config service
 
-**Design Considerations:**
-- Python 3.14 brings significant typing improvements
-- Pydantic v2 has Rust core (performance)
-- Could share validation schemas with Rust via pyo3
-
-**Usage:**
 ```python
-from phenotype_config import Config
-from pydantic import BaseModel
+# External: Pydantic
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
-class AppConfig(BaseModel):
-    port: int
+# Our adapter
+from pheno_config import ConfigPort, ValidationPort
 
-config = Config() \
-    .from_file("app.toml") \
-    .from_env("APP_") \
-    .validate(AppConfig) \
-    .build()
+class AppConfig(BaseSettings):
+    port: int = Field(default=8080)
+    
+config = ConfigPort.create(AppConfig).load()
 ```
 
-### 🐹 Go (PLANNED)
+### Go (Viper + Validator)
 
-| Aspect | Implementation |
-|--------|----------------|
-| **Package** | `github.com/phenotype/config` |
-| **Validation** | Custom + go-playground/validator |
-| **Adapters** | Viper-compatible |
-| **Location** | `PhenoConfig/crates/pheno-config-go/` (planned) |
+**External**: `spf13/viper` + `go-playground/validator`
+**Our Layer**: Hexagonal config manager
 
-**Usage:**
 ```go
-import "github.com/phenotype/config"
+// External: Viper
+import "github.com/spf13/viper"
+import "github.com/go-playground/validator/v10"
 
-cfg := config.New().
-    FromFile("app.toml").
-    FromEnv("APP_").
-    Validate(AppConfig{}).
-    Build()
+// Our adapter
+import "github.com/phenotype/config-go/ports"
+
+config := ports.ConfigPort.Create(
+    ports.WithViper(viper.New()),
+    ports.WithValidation(validator.New()),
+).Load()
 ```
 
-### 🦀 Rust (CORE)
+### Rust (config-rs + Serde)
 
-| Aspect | Implementation |
-|--------|----------------|
-| **Crate** | `pheno-config-core` |
-| **Validation** | serde + validator |
-| **Runtime** | Async (tokio) + Sync |
-| **Location** | `PhenoConfig/crates/pheno-config-core/` |
+**External**: `config-rs` + `serde`
+**Our Layer**: Already in `pheno-config-core`
 
-**Usage:**
 ```rust
-use pheno_config_core::ConfigBuilder;
+// External: config-rs
+use config::{Config, ConfigError, Environment, File};
+use serde::Deserialize;
 
-let config: AppConfig = ConfigBuilder::new()
-    .from_file("app.toml")
-    .from_env()
-    .validate()
-    .build()
-    .await?;
+// Our adapter
+use pheno_config_rs::ports::{ConfigPort, ValidationPort};
+
+#[derive(Debug, Deserialize)]
+struct AppConfig {
+    port: u16,
+}
+
+let config: AppConfig = ConfigPort::new()
+    .with_source(SourcePort::file("app.toml"))
+    .with_validation(ValidationPort::serde())
+    .load()?;
 ```
 
 ---
 
-## Integration Matrix
+## Why External Libraries?
 
-| Feature | Rust | TypeScript | Python | Go |
-|---------|------|------------|--------|-----|
-| **File Formats** | TOML/YAML/JSON | TOML/YAML/JSON | TOML/YAML/JSON | TOML/YAML/JSON |
-| **Env Vars** | ✅ | ✅ | ✅ | ✅ |
-| **CLI Args** | ✅ | ✅ | ✅ | ✅ |
-| **Remote (etcd)** | ✅ | ✅ | ⚠️ | ⚠️ |
-| **Hot Reload** | ✅ | ✅ | ⚠️ | ⚠️ |
-| **Secrets** | ✅ | ✅ | ⚠️ | ⚠️ |
-| **Schema Share** | Native | WASM/napi | pyo3 | FFI |
+| Criterion | External (Zod/Viper/Pydantic) | Custom Build |
+|-----------|------------------------------|--------------|
+| **Maturity** | Battle-tested, millions of users | New, untested |
+| **Ecosystem** | Integrates with existing tools | Isolated |
+| **Maintenance** | Community-maintained | Our burden |
+| **Docs/Examples** | Extensive | Ours to write |
+| **Contributors** | Open source community | Just us |
+
+**Our Value Add**: 
+- Hexagonal architecture adapters
+- Cross-language schema consistency
+- Unified config events/monitoring
+- Migration tooling
 
 ---
 
-## Migration from Legacy
+## Schema Sharing Across Languages
 
-| Legacy | Replacement | Migration Path |
-|--------|-------------|----------------|
-| Settly (Rust) | `pheno-config-core` | Direct replacement |
-| phenotype-config-ts | `pheno-config-ts` | Same API, improved |
-| phenotype-middleware-py | `pheno-config-py` (planned) | Similar patterns |
+```json
+// shared-schema.json (OpenAPI 3.1 spec)
+{
+  "AppConfig": {
+    "type": "object",
+    "properties": {
+      "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+      "database": { "$ref": "#/components/schemas/DatabaseConfig" }
+    },
+    "required": ["port"]
+  }
+}
+```
+
+**Generate Types**:
+- TypeScript: `openapi-typescript`
+- Python: `datamodel-code-generator`
+- Go: `oapi-codegen`
+- Rust: `typify`
+
+---
+
+## Consolidated Repositories
+
+| Before | After | External Lib | Our Code |
+|--------|-------|--------------|----------|
+| `Settly` | `pheno-config-rs` | config-rs | ~10% adapters |
+| `phenotype-config-ts` | `pheno-config-ts` | Zod | ~15% adapters |
+| `phenotype-config` | DELETED | - | - |
+| `Configra` | DELETED | - | - |
+
+---
+
+## Migration Guide
+
+### From Custom to External
+
+```diff
+- // Old: Custom validation
+- import { validate } from 'phenotype-config';
+- validate(config, rules);
+
++ // New: Zod (external)
++ import { z } from 'zod';
++ import { withZod } from 'pheno-config-ts';
++ withZod(z.object({ port: z.number() }));
+```
 
 ---
 
 ## Roadmap
 
-### Phase 1: Core Consolidation ✅
-- [x] Merge Settly → pheno-config-core
-- [x] Merge phenotype-config-ts → pheno-config-ts
-- [x] Create unified PhenoConfig workspace
+### Phase 1: TS Adapter ✅
+- [x] Zod integration
+- [x] Hexagonal ports
 
-### Phase 2: Python Frontend 🔄
-- [ ] Create pheno-config-py crate
+### Phase 2: Python Adapter 🔄
 - [ ] Pydantic v2 integration
-- [ ] Shared schema validation
+- [ ] ConfigPort implementation
 
-### Phase 3: Go Frontend 📋
-- [ ] Create pheno-config-go crate
-- [ ] Viper-compatible adapters
+### Phase 3: Go Adapter 📋
+- [ ] Viper integration
+- [ ] ValidationPort with go-playground/validator
 
-### Phase 4: Universal Schema 📋
-- [ ] JSON Schema export from Rust
-- [ ] Generate TS/Python/Go types
-- [ ] Single source of truth
+### Phase 4: Schema Sync 📋
+- [ ] OpenAPI spec generation
+- [ ] Type generation for all languages
 
+---
+
+## Result
+
+**Leverage ecosystem maturity instead of reinventing.**
+
+- **4 custom config repos** → **1 unified strategy**
+- **100% custom code** → **~90% external libs, ~10% adapters**
+- **Maintenance burden**: Community + thin wrappers
