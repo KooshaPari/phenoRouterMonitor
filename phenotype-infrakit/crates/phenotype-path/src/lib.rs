@@ -24,7 +24,7 @@ impl PathResolver {
 
     /// Resolve a binary name to its full path
     pub fn resolve(&self, name: &str) -> Option<String> {
-        let _safe_path = self.build_safe_path();
+        let safe_path = self.build_safe_path();
 
         match which(name) {
             Ok(path) => {
@@ -54,6 +54,13 @@ impl PathResolver {
                 }
             }
         }
+    }
+
+    /// Resolve multiple binary names to their full paths
+    pub fn resolve_many(&self, names: Vec<String>) -> HashMap<String, String> {
+        names.into_iter().filter_map(|name| {
+            self.resolve(&name).map(|path| (name, path))
+        }).collect()
     }
 
     /// Check if path is in a skip directory
