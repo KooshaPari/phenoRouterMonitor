@@ -1,0 +1,75 @@
+# Clippy Configuration Template
+# Place this file as `.clippy.toml` in your project root
+#
+# Usage:
+#   1. Copy to project root: cp .clippy.toml.template /path/to/project/.clippy.toml
+#   2. Adjust lint levels per project needs
+#   3. Run: cargo clippy --all-targets --all-features
+#
+# Reference: https://rust-lang.github.io/rust-clippy/master/index.html
+
+# Avoid these types in public APIs (as they break API compatibility)
+avoid-breaking-exported-api = false
+
+# Allow expect and unwrap in tests
+allow-expect-in-tests = true
+allow-unwrap-in-tests = true
+allow-print-in-tests = true
+
+# Thresholds for complexity warnings
+cognitive-complexity-threshold = 25
+cyclomatic-complexity-threshold = 25
+
+# Threshold for function arguments
+max-fn-params-bools = 3
+too-many-arguments-threshold = 7
+
+# Threshold for type complexity
+type-complexity-threshold = 250
+
+# Threshold for struct/enum size
+large-enum-variant-size-threshold = 200
+large-type-threshold = 200
+
+# Threshold for lines in functions
+too-many-lines-threshold = 100
+
+# Threshold for file size
+large-error-threshold = 1024
+
+# Doc comment settings
+check-private-items = false
+
+# Arithmetic lints
+suppress-restriction-lint-in-const = true
+
+# Regex lints for DDoS protection
+max-regex-complexity = 100
+
+# Cargo lints
+await-holding-invalid-types = ["std::sync::MutexGuard"]
+
+# Allowed lints (per project discretion)
+allow = [
+    # Common false positives
+    "clippy::module_name_repetitions",
+    "clippy::similar_names",
+    "clippy::too_many_lines",
+]
+
+# Denied lints (must fix)
+deny = [
+    "clippy::all",
+    "clippy::correctness",
+    "clippy::suspicious",
+    "clippy::complexity",
+    "clippy::perf",
+    "clippy::style",
+]
+
+# Warn lints (should fix)
+warn = [
+    "clippy::pedantic",
+    "clippy::nursery",
+    "clippy::cargo",
+]

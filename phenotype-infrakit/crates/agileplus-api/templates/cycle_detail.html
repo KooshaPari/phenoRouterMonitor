@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><title>Cycle: {{ cwf.cycle.name }}</title></head>
+<body>
+<h1>{{ cwf.cycle.name }}</h1>
+<p>State: {{ cwf.cycle.state }}</p>
+<p>{{ cwf.cycle.start_date }} to {{ cwf.cycle.end_date }}
+   ({{ days_remaining }} days remaining)</p>
+{% if let Some(scope) = scope_module_name %}
+<p>Scope: {{ scope }}</p>
+{% endif %}
+
+<h2>WP Burndown</h2>
+<table>
+  <tr><th>State</th><th>Count</th></tr>
+  <tr><td>Done</td><td>{{ cwf.wp_progress.done }}</td></tr>
+  <tr><td>In Progress</td><td>{{ cwf.wp_progress.in_progress }}</td></tr>
+  <tr><td>Planned</td><td>{{ cwf.wp_progress.planned }}</td></tr>
+  <tr><td>Blocked</td><td>{{ cwf.wp_progress.blocked }}</td></tr>
+  <tr><td>Total</td><td>{{ cwf.wp_progress.total }}</td></tr>
+</table>
+
+<h2>Features ({{ cwf.features.len() }})</h2>
+<table>
+  <tr><th>Slug</th><th>State</th></tr>
+  {% for f in cwf.features %}
+  <tr><td>{{ f.slug }}</td><td>{{ f.state }}</td></tr>
+  {% endfor %}
+</table>
+</body>
+</html>

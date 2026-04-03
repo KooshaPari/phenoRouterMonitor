@@ -1,0 +1,13 @@
+{
+  "name": "phench",
+  "languages": [
+    "python"
+  ],
+  "primary_language": "python",
+  "status": "partial",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": false,
+  "type": "core",
+  "path": "repos/phench"
+}
