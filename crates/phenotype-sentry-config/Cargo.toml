@@ -1,0 +1,10 @@
+[package]
+name = "phenotype-sentry-config"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+sentry.workspace = true

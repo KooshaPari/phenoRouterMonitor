@@ -1,0 +1,15 @@
+[package]
+name = "phenotype-observability"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Observability facade for metrics, tracing, and logging across the Phenotype ecosystem"
+repository = "https://github.com/kooshr/phenotype"
+
+[dependencies]
+tokio = { version = "1", features = ["rt", "sync"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

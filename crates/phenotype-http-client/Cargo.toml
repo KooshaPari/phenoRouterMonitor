@@ -1,0 +1,11 @@
+[package]
+name = "phenotype-http-client"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+reqwest.workspace = true
+thiserror.workspace = true

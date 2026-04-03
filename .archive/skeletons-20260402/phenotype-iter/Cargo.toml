@@ -1,0 +1,19 @@
+[package]
+name = "phenotype-iter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+futures.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

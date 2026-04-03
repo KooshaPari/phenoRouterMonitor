@@ -1,0 +1,10 @@
+[package]
+name = "phenotype-contract-tests"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+chrono.workspace = true
