@@ -9,8 +9,10 @@ from typing import Set
 
 # Regex patterns for finding traceability markers
 SPEC_MARKERS = {
-    "FR": re.compile(r"FR-(?:[A-Z0-9]+-)?\d+|SKILL-\d+|TASK-\d+|AUTH-\d+|CONF-\d+|VES-\d+|FORGE-\d+|EVAL-\d+|TYPE-\d+|INFRA-\d+|GOV-\d+|HUB-\d+|CLI-\d+|META-\d+|VM-\d+|AP-\d+|HEL-\d+|DEP-\d+|DOC-\d+|LOG-\d+|MID-\d+|PATCH-\d+|RES-\d+|SENT-\d+|TEMP-\d+|XDD-\d+"),
+    "FR": re.compile(r"FR-(?:[A-Z0-9]+-)?\d+"),
+    "SPEC": re.compile(r"(?:SKILL|TASK|AUTH|CONF|VES|FORGE|EVAL|TYPE|INFRA|GOV|HUB|CLI|META|VM|CIPH|DEP|DOC|LOG|MID|PATCH|RES|SENT|TEMP|XDD|AP|HEL|BIF|KM|KIT|MET|ORG|PLAN|PS|PORT|PROF|QUERY|QUILL|SEED|SETT|STASH|TOKN|TOSS|TRACE|ZERO|HELM|HL|FORGE|VIBE|DINO|DOCV|DUPLE|EVALO|EVENT|FLAG|FLOW|GUARD|HEX|HEXP|HTTP|KOG|PORTAGE|SCHEMA|SHARE|TRAC|WM|CURS|BYTE|AUTHV|DM|APIS|CMDR|SDK)-\d+"),
     "TRACE": re.compile(r"@trace\s+([A-Z0-9-]+\d+)"),
+    "TEST_ID": re.compile(r"TEST-[A-Z0-9]*-\d+"),
 }
 
 def find_markers(directory: str, extensions=(".rs",".ts",".py",".yaml",".yml",".md",".zig",".go",".json")) -> Set[str]:
@@ -24,7 +26,9 @@ def find_markers(directory: str, extensions=(".rs",".ts",".py",".yaml",".yml",".
                     with open(os.path.join(root, file), "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         found.update(SPEC_MARKERS["FR"].findall(content))
+                        found.update(SPEC_MARKERS["SPEC"].findall(content))
                         found.update(SPEC_MARKERS["TRACE"].findall(content))
+                        found.update(SPEC_MARKERS["TEST_ID"].findall(content))
                 except:
                     pass
     return found
