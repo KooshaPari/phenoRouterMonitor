@@ -1,0 +1,13 @@
+{
+  "name": "phenoStandards",
+  "languages": [
+    "unknown"
+  ],
+  "primary_language": "unknown",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "utility",
+  "path": "repos/phenoStandards"
+}

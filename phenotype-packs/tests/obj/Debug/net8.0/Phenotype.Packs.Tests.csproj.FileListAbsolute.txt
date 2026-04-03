@@ -1,0 +1,6 @@
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/obj/Debug/net8.0/Phenotype.Packs.Tests.csproj.AssemblyReference.cache
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/obj/Debug/net8.0/Phenotype.Packs.Tests.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/obj/Debug/net8.0/Phenotype.Packs.Tests.AssemblyInfoInputs.cache
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/obj/Debug/net8.0/Phenotype.Packs.Tests.AssemblyInfo.cs
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/obj/Debug/net8.0/Phenotype.Packs.Tests.csproj.CoreCompileInputs.cache
+/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-packs/tests/obj/Debug/net8.0/Phenotype.Packs.Tests.sourcelink.json

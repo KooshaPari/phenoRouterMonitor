@@ -1,0 +1,43 @@
+name: AgilePlus Validation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install agileplus
+        run: |
+          # Install agileplus CLI (adjust based on actual installation method)
+          curl -fsSL https://github.com/phenotype-org/agileplus/releases/latest/download/agileplus-linux-amd64 -o /usr/local/bin/agileplus
+          chmod +x /usr/local/bin/agileplus
+      
+      - name: Validate specs
+        run: |
+          agileplus validate --strict
+          agileplus status --check-dirty
+      
+      - name: Check worklog sync
+        run: |
+          agileplus worklog check-sync
+          
+  check-spec-completion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install agileplus
+        run: |
+          curl -fsSL https://github.com/phenotype-org/agileplus/releases/latest/download/agileplus-linux-amd64 -o /usr/local/bin/agileplus
+          chmod +x /usr/local/bin/agileplus
+      
+      - name: Report spec completion
+        run: |
+          echo "## Spec Completion Status" >> $GITHUB_STEP_SUMMARY
+          agileplus status --format=markdown >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,53 @@
+name: Run Benchmarks
+description: Runs criterion benchmarks.
+
+inputs:
+  benchmark-command:
+    description: Benchmark command
+    default: cargo bench
+    required: false
+  comparison-baseline:
+    description: Compare against baseline
+    default: ""
+    required: false
+  report-format:
+    description: Report format (json, csv, markdown)
+    default: json
+    required: false
+  working-directory:
+    description: Working directory
+    default: .
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Check for benchmarks
+      id: check
+      shell: bash
+      run: |
+        if [ -d "${{ inputs.working-directory }}/benches" ] || \
+           grep -q '\[dev-dependencies\]' ${{ inputs.working-directory }}/Cargo.toml 2>/dev/null; then
+          echo "has_benchmarks=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_benchmarks=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Run benchmarks
+      if: steps.check.outputs.has_benchmarks == 'true'
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        ${{ inputs.benchmark-command }}
+
+    - name: No benchmarks found
+      if: steps.check.outputs.has_benchmarks == 'false'
+      run: echo "No benchmarks found in this project"
+
+    - name: Upload results
+      if: steps.check.outputs.has_benchmarks == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results-${{ runner.os }}
+        path: ${{ inputs.working-directory }}/target/criterion/
+        retention-days: 30

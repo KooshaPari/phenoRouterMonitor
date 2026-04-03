@@ -1,0 +1,56 @@
+name: Security Scan
+
+on:
+  workflow_call:
+    inputs:
+      cargo-audit:
+        description: Run cargo-audit
+        default: "true"
+        required: false
+        type: string
+      cargo-deny:
+        description: Run cargo-deny
+        default: "true"
+        required: false
+        type: string
+      gitleaks:
+        description: Run gitleaks
+        default: "true"
+        required: false
+        type: string
+      working-directory:
+        description: Working directory
+        default: .
+        required: false
+        type: string
+
+jobs:
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cargo audit
+        if: inputs.cargo-audit == 'true'
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cargo deny
+        if: inputs.cargo-deny == 'true'
+        run: |
+          cd ${{ inputs.working-directory }}
+          cargo install cargo-deny
+          cargo deny check
+
+      - name: Gitleaks
+        if: inputs.gitleaks == 'true'
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
