@@ -57,13 +57,14 @@ pub trait Retryable: Send {
 /// - Multiplier: 2.0
 /// - Max interval: 30 seconds
 /// - Max elapsed time: 15 minutes
-pub async fn retry<F, T, E, Fut>(mut op: F) -> Result<T, RetryError<E>>
+pub async fn retry<F, T, E, Fut>(op: F) -> Result<T, RetryError<E>>
 where
     F: FnMut() -> Fut,
     Fut: Future<Output = Result<T, E>>,
+    E: Send + 'static,
 {
-    let backoff = ExponentialBackoff::default();
-    retry_with_backoff(backoff, op).await
+    let backoff_config = ExponentialBackoff::default();
+    retry_with_backoff(backoff_config, op).await
 }
 
 /// Execute a future with custom backoff settings
@@ -197,13 +198,33 @@ mod tests {
 
     #[tokio::test]
     async fn test_retry_n_success() {
-        let mut count = 0;
+        // Test retry_n succeeds on first attempt
         let result = retry_n(3, || async {
-            count += 1;
-            if count < 2 {
-                Err::<(), ()>(())
-            } else {
-                Ok(42)
+            Ok::<i32, ()>(42)
+        }).await;
+        
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 42);
+    }
+
+    #[tokio::test]
+    async fn test_retry_n_eventually_succeeds() {
+        // Test retry_n with attempts counter using RefCell
+        use std::cell::RefCell;
+        use std::rc::Rc;
+        
+        let attempts = Rc::new(RefCell::new(0));
+        let attempts_clone = attempts.clone();
+        
+        let result = retry_n(3, move || {
+            let attempts = attempts_clone.clone();
+            async move {
+                *attempts.borrow_mut() += 1;
+                if *attempts.borrow() < 2 {
+                    Err::<i32, ()>(())
+                } else {
+                    Ok(42)
+                }
             }
         }).await;
         
