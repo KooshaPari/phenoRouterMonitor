@@ -31,6 +31,18 @@ Agents working in this shelf must understand the difference between **shelf-leve
 | **agentapi-plusplus** | agentapi, agentapi-deprec, agentapi-temp | API layer consolidation |
 | **cliproxyapi-plusplus** | CLIProxyAPI | CLI proxy consolidation |
 
+### phenoSDK Refactoring (Oct 2025 Project)
+
+| Component | Target | Status | Notes |
+|-----------|--------|--------|-------|
+| phenoSDK quality → | **Profila** | 🔄 IN PROGRESS | Quality metrics merge |
+| phenoSDK storage → | **Stashly** | ✅ COMPLETE | Already merged |
+| phenoSDK tasks → | **Tasken** | 🔄 IN PROGRESS | Task management |
+| phenoSDK analytics → | phenotype-analytics-py | ⏳ PLANNED | Data structures |
+| phenoSDK connection → | phenotype-connection | ⏳ PLANNED | Connection pooling |
+
+**Goal:** Break down monolithic SDK into focused specialized crates
+
 ### Thegent Crate Extraction Candidates
 
 | thegent Crate | Extraction Target | Status |

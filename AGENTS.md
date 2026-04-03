@@ -126,6 +126,24 @@ Use `patch`/`write` only when:
 3. **No overwrites**: If Agent B joins a task Agent A started, Agent B reads conversation history before taking action
 4. **Conflict resolution**: If two agents conflict, pause and get user decision
 
+## Consolidation Patterns
+
+### phenoSDK → Ecosystem Extraction (In Progress)
+
+**Status:** October 2025 SDK being refactored into modular crates
+
+| phenoSDK Component | Target | Status |
+|---------------------|--------|--------|
+| Quality/fitness | → **Profila** | 🔄 In Progress |
+| Storage | → **Stashly** | ✅ Complete |
+| Tasks | → **Tasken** | 🔄 In Progress |
+| Connection pool | → **phenotype-connection** | ⏳ Planned |
+| Repository/search | → **Queris** | ⏳ Planned |
+
+**Rationale:** Extract specialized functionality into focused crates rather than monolithic SDK
+
+**Result:** phenoSDK becomes thin language-bindings layer only
+
 ## Ghostty/Forge.Terminal Policy
 
 **NEVER**: Open or interact with terminal applications (ghostty, terminal multiplexers) as part of an agent session. These are USER-ONLY.
