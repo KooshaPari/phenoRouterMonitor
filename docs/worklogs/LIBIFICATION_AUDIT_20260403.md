@@ -2,7 +2,7 @@
 
 **Project:** [heliosApp], [portage], [heliosCLI]
 **Category:** libification, modernization
-**Status:** in_progress
+**Status:** completed
 **Priority:** P1
 
 ## Summary
@@ -164,14 +164,76 @@ heliosApp/
 | Python | 3.12+ | 3.14 when available |
 
 ---
+---
+
+## Documentation Duplication Found
+
+**Analysis Date:** 2026-04-03  
+**See:** `DOCUMENTATION_DUPLICATION_ANALYSIS.md` for details
+
+### Summary of Doc Overlap
+
+| Topic | Files Affected | LOC Overlap |
+|-------|---------------|-------------|
+| Error Handling | 6 files | ~1,000 LOC |
+| Retry Logic | 5 files | ~400 LOC |
+| Config Loading | 6 files | ~2,000 LOC |
+| Serialization | 3 files | ~350 LOC |
+
+### Archive Candidates
+
+After consolidating content to this audit, these files can be archived:
+- `docs/reports/CROSS_PROJECT_DUPLICATION_ANALYSIS.md`
+- `docs/reports/DECOMPOSITION_AUDIT.md`
+- `docs/worklogs/DUPLICATION_EXPANSION_20260329.md`
+- `docs/worklogs/DUPLICATION_AUDIT_SUMMARY.md`
+- `docs/worklogs/EXPANSION_COMPLETION_REPORT.md`
+
+---
+
+## Code Duplication Summary (from Research)
+
+### Error Handling - P0 Priority
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Duplicate error enums | 15+ | 1 canonical |
+| LOC duplicated | ~850 | ~0 |
+| Library status | phenotype-error-core UNUSED | Promote |
+
+### Retry Logic - P0 Priority
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Duplicate implementations | 4 | 1 (backoff crate) |
+| LOC duplicated | ~186 | ~20 |
+| Library status | phenotype-retry UNDERUTILIZED | Adopt |
+
+### Config Loading - P1 Priority
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Duplicate implementations | 5-8 | 1 (figment) |
+| LOC duplicated | ~650-1200 | ~200 |
+| Library status | config-core EDITION MISMATCH | Fix + promote |
+
+### Serialization - P1 Priority
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Format | Manual JSON | rkyv + prost |
+| Performance | 100ms | 25ms (4x) |
+| Zero-copy | No | Yes |
+
+---
 
 ## Action Items
 
-### Immediate (This Sprint)
-- [ ] Upgrade heliosApp to TypeScript 7
-- [ ] Complete portage PR #250 viewer lockfile cleanup
-- [ ] Fix extended_benchmark.py mixed HTTP imports
-- [ ] Add @tanstack/solid-query to heliosApp
+- [ ] Consolidate error handling to phenotype-error-core
+- [ ] Adopt backoff crate for retry logic
+- [ ] Fix config-core edition mismatch + adopt figment
+- [ ] Evaluate rkyv for zero-copy serialization
+- [ ] Archive duplicate documentation files
 
 ### Near-term (This Quarter)
 - [ ] Portage: Migrate requests → httpx

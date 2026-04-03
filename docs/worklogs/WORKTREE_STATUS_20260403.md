@@ -2,7 +2,7 @@
 
 **Project:** [cross-repo]
 **Category:** governance, worktrees
-**Status:** in_progress
+**Status:** completed
 **Priority:** P1
 
 ---
