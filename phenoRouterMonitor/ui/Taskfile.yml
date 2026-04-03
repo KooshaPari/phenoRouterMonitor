@@ -1,0 +1,55 @@
+# Helios Router - Taskfile
+version: '3'
+
+vars:
+  PYTHONPATH: ./src
+
+tasks:
+  install:
+    desc: Install dependencies with uv
+    cmds:
+      - uv sync
+
+  dev:
+    desc: Start Streamlit dev server
+    cmds:
+      - uv run --no-project --with streamlit streamlit run app.py --server.port 8501
+    env:
+      PYTHONPATH: '{{.PYTHONPATH}}'
+
+  lint:
+    desc: Run ruff linter
+    cmds:
+      - uv run --no-project --with ruff ruff check .
+
+  format:
+    desc: Format code with ruff
+    cmds:
+      - uv run --no-project --with ruff ruff format .
+
+  typecheck:
+    desc: Run mypy type checker
+    cmds:
+      - uv run --no-project --with mypy mypy .
+    env:
+      PYTHONPATH: '{{.PYTHONPATH}}'
+
+  test:
+    desc: Run pytest
+    cmds:
+      - uv run --no-project --with pytest pytest -v
+    env:
+      PYTHONPATH: '{{.PYTHONPATH}}'
+
+  check:
+    desc: Run all checks
+    cmds:
+      - task: lint
+      - task: typecheck
+      - task: test
+
+  clean:
+    desc: Clean up cache files
+    cmds:
+      - rm -rf .pytest_cache .ruff_cache .mypy_cache
+      - find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
