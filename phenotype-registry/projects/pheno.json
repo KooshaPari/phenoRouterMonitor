@@ -1,0 +1,13 @@
+{
+  "name": "pheno",
+  "languages": [
+    "rust"
+  ],
+  "primary_language": "rust",
+  "status": "minimal",
+  "has_readme": true,
+  "has_spec": false,
+  "has_plan": false,
+  "type": "core",
+  "path": "repos/pheno"
+}

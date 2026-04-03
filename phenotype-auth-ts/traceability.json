@@ -1,0 +1,5 @@
+{
+  "name": "phenotype-auth-ts",
+  "version": "0.1.0",
+  "specs": ["AUTH-001", "AUTH-003", "AUTH-004"]
+}

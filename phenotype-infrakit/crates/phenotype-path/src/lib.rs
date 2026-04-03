@@ -50,7 +50,8 @@ impl PathResolver {
         let safe_path = self.build_safe_path();
 
         // Use which crate (fast, native, cross-platform)
-        match which_in(name, Some(safe_path), std::env::current_dir().ok()) {
+        let cwd: Option<&std::path::Path> = None;
+        match which_in(name, safe_path.split(':').collect::<Vec<_>>().as_slice(), cwd) {
             Ok(path) => {
                 let path_str = path.to_string_lossy().to_string();
                 // Check if in skip_dirs

@@ -1,0 +1,18 @@
+allow-expect-in-tests = true
+allow-unwrap-in-tests = true
+cognitive-complexity-threshold = 25
+too-many-arguments-threshold = 7
+
+allow = [
+    "clippy::module_name_repetitions",
+]
+
+deny = [
+    "clippy::all",
+    "clippy::correctness",
+    "clippy::suspicious",
+]
+
+warn = [
+    "clippy::pedantic",
+]

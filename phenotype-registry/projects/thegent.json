@@ -1,0 +1,22 @@
+{
+  "name": "thegent",
+  "languages": [
+    "bash",
+    "cpp",
+    "go",
+    "java",
+    "php",
+    "python",
+    "ruby",
+    "rust",
+    "typescript",
+    "zig"
+  ],
+  "primary_language": "python",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "core",
+  "path": "repos/thegent"
+}

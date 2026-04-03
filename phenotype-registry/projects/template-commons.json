@@ -1,0 +1,13 @@
+{
+  "name": "template-commons",
+  "languages": [
+    "python"
+  ],
+  "primary_language": "python",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "template",
+  "path": "repos/template-commons"
+}
