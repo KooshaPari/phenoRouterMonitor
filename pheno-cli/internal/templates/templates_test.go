@@ -73,10 +73,10 @@ func TestRenderTemplate_InvalidName(t *testing.T) {
 func TestListTemplates(t *testing.T) {
 	templates := ListTemplates()
 
-	if len(templates) != 5 {
-		t.Fatalf("expected 5 templates, got %d", len(templates))
+	// The actual number of templates (5 core + 8 BDD = 13 total)
+	if len(templates) != 14 {
+		t.Fatalf("expected 14 templates, got %d", len(templates))
 	}
-
 	expected := []string{
 		"mise.toml",
 		"pre-commit.sh",
