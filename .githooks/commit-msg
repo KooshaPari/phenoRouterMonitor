@@ -1,0 +1,20 @@
+#!/bin/bash
+# Commit message hook for conventional commits
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Conventional commit pattern
+PATTERN="^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?!?: .+"
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+    echo "⚠️  Warning: Commit message does not follow conventional commit format."
+    echo "Expected format: <type>(<scope>)?!?: <description>"
+    echo "Types: feat, fix, docs, style, refactor, test, chore, ci, build, perf, revert"
+    echo "Examples:"
+    echo "  feat(api): add new endpoint"
+    echo "  fix(auth): resolve token expiry issue"
+    echo "  docs(readme): update installation steps"
+fi
+
+exit 0

@@ -1,0 +1,27 @@
+#!/bin/bash
+# Pre-commit hook for supply chain security checks
+
+echo "Running supply chain security pre-commit checks..."
+
+# Check for secret leaks
+if command -v trufflehog &> /dev/null; then
+    echo "Running trufflehog secret scan..."
+    trufflehog filesystem . --no-update --quiet || {
+        echo "⚠️  Potential secrets detected. Please review and commit with --no-verify if safe."
+    }
+fi
+
+# Check Cargo.lock exists for Rust projects
+if [ -f "Cargo.toml" ] && [ ! -f "Cargo.lock" ]; then
+    echo "⚠️  Warning: Cargo.lock not found. Consider committing it for reproducible builds."
+fi
+
+# Check for uncommitted dependencies
+if command -v cargo-audit &> /dev/null; then
+    echo "Running cargo-audit check..."
+    cargo audit --quiet || {
+        echo "⚠️  Security vulnerabilities detected in dependencies!"
+    }
+fi
+
+echo "Pre-commit checks completed."
