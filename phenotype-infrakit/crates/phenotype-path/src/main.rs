@@ -57,8 +57,8 @@ fn main() {
     match cli.format {
         OutputFormat::Path => {
             let mut found_any = false;
-            for name in names {
-                if let Some(path) = results.get(name).and_then(|r| r.as_ref()) {
+            for name in &names {
+                if let Some(Some(path)) = results.get(name) {
                     println!("{}", path);
                     found_any = true;
                 }
@@ -69,11 +69,7 @@ fn main() {
             }
         }
         OutputFormat::Json => {
-            let json: HashMap<String, Option<String>> = results
-                .into_iter()
-                .map(|(k, v)| (k, v))
-                .collect();
-            println!("{}", serde_json::to_string_pretty(&json).unwrap());
+            println!("{}", serde_json::to_string_pretty(&results).unwrap());
         }
     }
 }

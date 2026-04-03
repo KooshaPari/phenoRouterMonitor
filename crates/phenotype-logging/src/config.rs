@@ -55,12 +55,6 @@ impl std::fmt::Display for LogLevel {
     }
 }
 
-impl Default for LogLevel {
-    fn default() -> Self {
-        Self::Info
-    }
-}
-
 /// Output format for logs.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

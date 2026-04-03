@@ -84,7 +84,10 @@ mod tests {
         assert!(matches!(LogLevel::from_env("INFO"), Some(LogLevel::Info)));
         assert!(matches!(LogLevel::from_env("debug"), Some(LogLevel::Debug)));
         assert!(matches!(LogLevel::from_env("warn"), Some(LogLevel::Warn)));
-        assert!(matches!(LogLevel::from_env("warning"), Some(LogLevel::Warn)));
+        assert!(matches!(
+            LogLevel::from_env("warning"),
+            Some(LogLevel::Warn)
+        ));
         assert!(matches!(LogLevel::from_env("trace"), Some(LogLevel::Trace)));
         assert!(matches!(LogLevel::from_env("error"), Some(LogLevel::Error)));
         assert!(matches!(LogLevel::from_env("unknown"), None));

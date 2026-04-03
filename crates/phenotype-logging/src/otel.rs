@@ -3,8 +3,8 @@
 #![cfg(feature = "otel")]
 
 use opentelemetry::trace::TracerProvider;
-use opentelemetry_sdk::{runtime, trace as sdktrace, Resource};
 use opentelemetry_otlp::SpanExporter;
+use opentelemetry_sdk::{runtime, trace as sdktrace, Resource};
 use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -16,16 +16,15 @@ pub fn init_with_otel(service_name: &str, otlp_endpoint: &str) -> Result<(), OTe
         .with_tonic()
         .with_endpoint(otlp_endpoint)
         .build()
-        .map_err(|e: opentelemetry::trace::TraceError| {
-            OTelError::ExportError(e.to_string())
-        })?;
+        .map_err(|e: opentelemetry::trace::TraceError| OTelError::ExportError(e.to_string()))?;
 
     // Create tracer provider
     let tracer_provider = sdktrace::TracerProvider::builder()
         .with_batch_exporter(otlp_exporter, runtime::Tokio)
-        .with_resource(Resource::new(vec![
-            opentelemetry::KeyValue::new("service.name", service_name.to_string()),
-        ]))
+        .with_resource(Resource::new(vec![opentelemetry::KeyValue::new(
+            "service.name",
+            service_name.to_string(),
+        )]))
         .build();
 
     let tracer = tracer_provider.tracer(service_name);
@@ -49,9 +48,10 @@ pub fn init_with_resource(
     otlp_endpoint: &str,
     attributes: Vec<(&str, &str)>,
 ) -> Result<(), OTelError> {
-    let resource = Resource::new(vec![
-        opentelemetry::KeyValue::new("service.name", service_name.to_string()),
-    ])
+    let resource = Resource::new(vec![opentelemetry::KeyValue::new(
+        "service.name",
+        service_name.to_string(),
+    )])
     .merge(&Resource::new(
         attributes
             .into_iter()
@@ -63,9 +63,7 @@ pub fn init_with_resource(
         .with_tonic()
         .with_endpoint(otlp_endpoint)
         .build()
-        .map_err(|e: opentelemetry::trace::TraceError| {
-            OTelError::ExportError(e.to_string())
-        })?;
+        .map_err(|e: opentelemetry::trace::TraceError| OTelError::ExportError(e.to_string()))?;
 
     let tracer_provider = sdktrace::TracerProvider::builder()
         .with_batch_exporter(otlp_exporter, runtime::Tokio)
