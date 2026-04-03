@@ -1,1 +1,1 @@
-//! Canonical port traits for the Phenotype ecosystem.
+// phenotype-ports-canonical
