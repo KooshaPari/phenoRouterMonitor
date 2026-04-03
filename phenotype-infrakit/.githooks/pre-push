@@ -1,0 +1,34 @@
+#!/bin/bash
+# Pre-push hook to scan for secrets before push
+# Install: cp .githooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+
+set -e
+
+echo "🔍 Running gitleaks pre-push scan..."
+
+if ! command -v gitleaks &>/dev/null; then
+    echo "⚠️  gitleaks not installed. Install: brew install gitleaks"
+    exit 0
+fi
+
+# Run gitleaks and capture output
+RESULT=$(gitleaks detect --redact --no-color -s . 2>&1)
+SCAN_RESULT=$?
+
+# gitleaks returns 1 when leaks found, 0 when clean
+if [ $SCAN_RESULT -eq 1 ]; then
+    echo "❌ SECRET DETECTED! Push blocked."
+    echo "$RESULT"
+    echo ""
+    echo "To bypass for legitimate false positive, use:"
+    echo "  git push --no-verify"
+    exit 1
+fi
+
+# Any other non-zero return is an error (skip)
+if [ $SCAN_RESULT -ne 0 ]; then
+    echo "⚠️  gitleaks scan error (code $SCAN_RESULT), skipping"
+    exit 0
+fi
+
+echo "✅ No secrets detected"

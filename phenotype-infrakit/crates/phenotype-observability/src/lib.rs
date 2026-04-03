@@ -8,16 +8,7 @@
 //! This crate serves as a lightweight abstraction that can be backed by
 //! OpenTelemetry, Prometheus, or other observability backends.
 
-use std::sync::atomic::{AtomicU64, Ordering};
-use tracing::{info, Level};
-
-/// Initialize the global tracer with a service name
-pub fn init_tracer(service_name: impl AsRef<str>) {
-    let name = service_name.as_ref();
-    info!(target: "observability", "Initializing tracer for service: {}", name);
-    // Stub: actual implementation would set up OTLP/Prometheus exporters
-    println!("[TRACER] Initialized for {}", name);
-}
+use tracing::info;
 
 /// Record a counter metric
 pub fn increment_counter(name: impl AsRef<str>) {
@@ -58,5 +49,6 @@ macro_rules! in_span {
 pub mod tracer;
 pub mod metrics;
 
-pub use tracer::{init_tracer, TracerHandle};
+pub use tracer::TracerHandle;
+pub use self::tracer::{init_tracer, TracerHandle};
 pub use metrics::{Counter, Timer, MetricsCollector};

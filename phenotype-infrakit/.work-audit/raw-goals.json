@@ -1,0 +1,735 @@
+{
+  "generated_at": "2026-03-02",
+  "auditor": "claude-sonnet-4-6",
+  "goals": [
+    {
+      "id": "G001",
+      "project": "AgilePlus",
+      "source": "spec",
+      "source_detail": "001-spec-driven-development-engine (spec.md, plan.md, tasks.md)",
+      "title": "AgilePlus Spec-Driven Development Engine — Core Platform",
+      "description": "Build the foundational AgilePlus CLI + MCP server platform. Local, git+SQLite-backed spec-driven development engine running as a CLI sidecar alongside Claude Code and Codex. Harmonizes OpenSpec, spec-kitty, bmad, and GSD into a 7-command workflow. Decomposes into 5 independent repos: agileplus-proto, agileplus-core, agileplus-agents, agileplus-mcp, agileplus-integrations. Includes domain model (Feature state machine, governance contracts, audit chain), CLI commands (specify, research, plan, implement, review, merge, ship), MCP server (FastMCP 3.0), agent dispatch with worktree isolation, Plane.so bidirectional sync, and GitHub issue triage loop.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "WP00 and WP01 merged to main (agileplus-proto scaffold + agileplus-core Rust workspace). WP02-WP04 committed but not merged. WP05+ still planned. git log shows 23 WPs defined; only WP00-WP01 confirmed done via chore: Move WP01 to done.",
+      "dependencies": [],
+      "deliverables": [
+        "agileplus-proto: Shared gRPC + MCP proto contracts",
+        "agileplus-core: Rust workspace with 7 crates (domain, CLI, API, storage, agents, integrations, events)",
+        "agileplus-mcp: FastMCP 3.0 Python MCP server",
+        "agileplus-agents: Agent dispatch + review loop in Rust",
+        "agileplus-integrations: Plane.so + GitHub sync in Rust",
+        "7-command CLI (specify/research/plan/implement/review/merge/ship)",
+        "SQLite + Git dual source-of-truth storage",
+        "Smart contract governance with hash-chained audit logs",
+        "Prompt router pattern via generated CLAUDE.md/AGENTS.md"
+      ]
+    },
+    {
+      "id": "G002",
+      "project": "AgilePlus",
+      "source": "spec",
+      "source_detail": "001-spec-driven-development-engine, WP03",
+      "title": "AgilePlus Domain Model — Feature & State Machine",
+      "description": "Implement the core domain model: Feature entity with states (draft/specified/researching/planning/implementing/reviewing/merging/done/abandoned), WorkPackage entity with states (planned/doing/review/done/blocked), governance contract (smart contract with evidence-backed transitions), hash-chained audit log. Includes Rust structs, state machine transitions with guard predicates, and persistence via SQLite.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "Commit 'bc38710 Implement WP03: Domain model with Feature & state machine' exists. WP04 claimed but WP03 review status unclear. chore: Move WP01 to done confirms WP01 scaffold done.",
+      "dependencies": ["G001"],
+      "deliverables": [
+        "Feature struct with state machine",
+        "WorkPackage struct with states",
+        "GovernanceContract struct",
+        "Hash-chained AuditLog",
+        "SQLite persistence layer",
+        "Rust domain crate in agileplus-core"
+      ]
+    },
+    {
+      "id": "G003",
+      "project": "AgilePlus",
+      "source": "spec",
+      "source_detail": "002-org-wide-release-governance-dx-automation (spec.md, 15 WPs)",
+      "title": "Org-Wide Release Governance and DX Automation",
+      "description": "Comprehensive DX infrastructure and release governance automation across all ~47 Phenotype org repos. Covers: GitHub Actions publishing workflows for npm, PyPI, and crates.io; pre-commit and pre-push hooks; Taskfile standardization; 5-tier release channel governance (alpha -> canary -> beta -> rc -> prod) with gate evaluation; package registry adapters; org-wide CLI bootstrap; pilot and full rollout. Replaces current manual publishing used by 44 of 47 repos.",
+      "category": "infra",
+      "status": "planned",
+      "evidence": "Spec and 15 WP task files created in kitty-specs/002-org-wide-release-governance-dx-automation/tasks/. No merge commits for 002 branches found in git log. meta.json created 2026-03-01.",
+      "dependencies": ["G001"],
+      "deliverables": [
+        "WP01: CLI scaffold and adapter interface",
+        "WP02: npm adapter (publish + version)",
+        "WP03: PyPI adapter",
+        "WP04: crates.io adapter",
+        "WP05: Go proxy prewired adapters",
+        "WP06: Gate evaluation engine",
+        "WP07: CLI publish/promote commands",
+        "WP08: CLI audit matrix",
+        "WP09: CLI bootstrap (install across org)",
+        "WP10: Centralized CI workflows (reusable GitHub Actions)",
+        "WP11: Task runner standardization (Taskfile targets)",
+        "WP12: Pre-commit/pre-push hooks (all repos)",
+        "WP13: Pilot rollout (3-5 repos)",
+        "WP14: Org-wide rollout (all 47 repos)",
+        "WP15: Documentation polish"
+      ]
+    },
+    {
+      "id": "G004",
+      "project": "AgilePlus",
+      "source": "spec",
+      "source_detail": "003-agileplus-platform-completion (spec.md, 21 WPs, all merged to main)",
+      "title": "AgilePlus Platform Completion — Infrastructure, Sync, Dashboard, Multi-Device",
+      "description": "End-to-end completion of AgilePlus as a production-ready local-first platform. Key deliverables: bidirectional Plane.so sync (WP08-WP10), platform service infrastructure with Process Compose (NATS, Dragonfly, Neo4j, MinIO) (WP04-WP07), event-sourced persistence with hash-chained audit trail (WP02-WP03), web dashboard (WP12-WP13), CLI platform/sync commands (WP10, WP14, WP18), OpenTelemetry observability (WP15), multi-device sync via P2P/Tailscale + git-backed state (WP16-WP17), and full benchmark + contract test suite (WP19-WP21).",
+      "category": "feature",
+      "status": "done",
+      "evidence": "All 21 WPs (WP01-WP21) show 'chore: Move WPxx to done on spec 003' in git log. Merge commits for all 21 branches exist. Most recent: 'Merge branch 003-agileplus-platform-completion-WP21'. Docs expanded in 'docs: expand all 50+ doc pages with comprehensive content, mermaid diagrams'.",
+      "dependencies": ["G001", "G002"],
+      "deliverables": [
+        "WP01: Domain model extensions (agileplus-plane crate)",
+        "WP02: agileplus-events crate (event sourcing engine)",
+        "WP03: SQLite schema extensions for event sourcing",
+        "WP04: agileplus-cache crate (Dragonfly/Redis)",
+        "WP05: agileplus-graph crate (Neo4j graph layer)",
+        "WP06: MinIO artifact storage integration",
+        "WP07: Process Compose config (full service orchestration)",
+        "WP08: Plane.so bidirectional sync with state mapping, webhooks, retry queue",
+        "WP09: Sync orchestrator",
+        "WP10: CLI sync commands (push/pull/auto/status/resolve)",
+        "WP11: API extensions",
+        "WP12: Dashboard templates",
+        "WP13: Dashboard interactivity",
+        "WP14: Platform CLI commands (up/down/status/logs, events query, dashboard)",
+        "WP15: OpenTelemetry integration",
+        "WP16: P2P sync via Tailscale",
+        "WP17: Git-backed state",
+        "WP18: CLI device commands",
+        "WP19: E2E integration tests",
+        "WP20: Contract tests for crate boundaries",
+        "WP21: Criterion performance benchmarks for all subsystems",
+        "50+ expanded documentation pages with mermaid diagrams"
+      ]
+    },
+    {
+      "id": "G005",
+      "project": "AgilePlus",
+      "source": "session",
+      "source_detail": "session 679ec5a8 (spec-kitty constitution), session eebb9479",
+      "title": "Decompose AgilePlus into Multi-Repo Microservice Architecture",
+      "description": "Restructure AgilePlus from a monorepo (12 Rust crates + Python MCP) into 5 independent microservice repositories (agileplus-proto, agileplus-core, agileplus-mcp, agileplus-agents, agileplus-integrations) following CLEAN/SOLID/Hexagonal architecture. Prevents scope creep, enables independent scaling and versioning. User specifically asked whether to modularize into multiple separate interlinking standalone projects and services.",
+      "category": "refactor",
+      "status": "done",
+      "evidence": "Spec 001 was updated to include multi-repo architecture table. Session eebb9479 shows 'Implement the following plan: Decompose AgilePlus into Multi-Repo Microservice Architecture'. WP00 (agileplus-proto scaffold) merged to main.",
+      "dependencies": ["G001"],
+      "deliverables": [
+        "Updated spec.md with 5-repo architecture",
+        "agileplus-proto repository scaffold (WP00)",
+        "Repository boundary definitions and gRPC contracts"
+      ]
+    },
+    {
+      "id": "G006",
+      "project": "AgilePlus",
+      "source": "session",
+      "source_detail": "session 46326590 (stop hook feedback)",
+      "title": "DX/AX/UX Parity Setup Across AgilePlus",
+      "description": "Completion of DX (developer experience), AX (agent experience), and UX (user experience) parity setups for AgilePlus. Referenced via stop hook feedback message 'Completion of above of parity of DXAXUX setups.'",
+      "category": "dx",
+      "status": "unknown",
+      "evidence": "Referenced in session 46326590 stop hook feedback. No specific branch or commit evidence found for this exact goal.",
+      "dependencies": ["G001"],
+      "deliverables": [
+        "Unified DX/AX/UX configuration across AgilePlus"
+      ]
+    },
+    {
+      "id": "G007",
+      "project": "heliosApp",
+      "source": "spec",
+      "source_detail": "001-colab-agent-terminal-control-plane (spec.md)",
+      "title": "heliosApp Desktop Shell — Fork co(lab) and Build Terminal-First Agent IDE",
+      "description": "Fork blackboardsh/colab (ElectroBun desktop shell), strip the embedded editor and browser chrome, and rebuild as a Claude Code desktop-app-like solution with terminal-first layout. Uses ElectroBun as desktop shell, Zellij for terminal multiplexing, Ghostty as primary renderer, par for lane orchestration. Establishes command palette scaffolding, window management, and app lifecycle. Described by user as 'insanely snappy while having rich native UI/UX'.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "Session b9ea41a3 shows user describing this plan. Session 49919176 shows 'Integrate heliosApp Runtime into co(lab) Fork' plan being executed. heliosApp AGENTS.md lists '001-colab-agent-terminal-control-plane' as active tech context. 30 specs exist in kitty-specs/. git log shows WPs being worked across multiple specs but ongoing stabilization and CI issues.",
+      "dependencies": [],
+      "deliverables": [
+        "Forked co(lab) base with ElectroBun shell",
+        "Terminal-first layout and command palette",
+        "Window management and app lifecycle",
+        "Zellij mux session adapter",
+        "PTY lifecycle manager",
+        "Par lane orchestrator integration",
+        "Ghostty renderer backend (primary)",
+        "Rio renderer backend (secondary, feature-flagged)",
+        "Renderer adapter interface with transactional switching"
+      ]
+    },
+    {
+      "id": "G008",
+      "project": "heliosApp",
+      "source": "spec",
+      "source_detail": "002-local-bus-v1-protocol-and-envelope (spec.md)",
+      "title": "heliosApp Local Bus v1 Protocol",
+      "description": "Internal command/response/event bus for heliosApp. The nervous system: every subsystem communicates through the local bus. Scope: envelope schema, correlation IDs, method and topic registries, deterministic event sequencing, validation, and error taxonomy. Transport-agnostic contract layer.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "Spec 002 exists in kitty-specs. git log shows 'chore: Move WP02 to for_review on spec 002' and 'chore: Move WP03 to for_review on spec 002'. Also 'refactor(runtime): harden bus and event surfaces with typed envelopes' committed to main.",
+      "dependencies": ["G007"],
+      "deliverables": [
+        "Envelope schema with typed message contracts",
+        "Correlation ID system",
+        "Method and topic registries",
+        "Deterministic event sequencing",
+        "Validation and error taxonomy"
+      ]
+    },
+    {
+      "id": "G009",
+      "project": "heliosApp",
+      "source": "spec",
+      "source_detail": "003-workspace-and-project-metadata-persistence (spec.md)",
+      "title": "heliosApp Workspace and Project Metadata Persistence",
+      "description": "Workspace CRUD and project bootstrap for heliosApp. Create, open, close, and delete workspaces; bind projects to workspaces; manage root paths; persist metadata. MVP uses in-memory storage with JSON snapshots; durability phase migrates to SQLite.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "Spec 003 exists in kitty-specs. git log shows WP activity across specs. 'fix(runtime): stabilize sharing types' committed.",
+      "dependencies": ["G007", "G008"],
+      "deliverables": [
+        "Workspace lifecycle API (create/open/close/delete)",
+        "Project-to-workspace binding",
+        "Root path management",
+        "JSON snapshot persistence",
+        "SQLite migration path"
+      ]
+    },
+    {
+      "id": "G010",
+      "project": "heliosApp",
+      "source": "spec",
+      "source_detail": "030-helios-mvp-agent-ide (spec.md)",
+      "title": "heliosApp MVP Agent IDE — Production-Quality Transform",
+      "description": "Transform the helios debug dashboard into a production-quality agent-first desktop IDE. Core features: conversational chat loop with AI agent, real-time tool call streaming, agent reasoning visibility, action approval/rejection, multi-file editor with syntax highlighting, integrated terminal lanes, git workflow integration, model selector, and context file picker.",
+      "category": "feature",
+      "status": "planned",
+      "evidence": "Spec 030 created 2026-03-01 in kitty-specs/030-helios-mvp-agent-ide/. No merge commits for spec 030 found in recent git log. Status: Draft.",
+      "dependencies": ["G007", "G008", "G009"],
+      "deliverables": [
+        "Chat interface with agent streaming",
+        "Tool call approval/reject UI",
+        "Multi-file editor with syntax highlighting",
+        "Integrated terminal lanes",
+        "Git workflow UI (diff, commit, PR)",
+        "Model selector",
+        "Context file picker",
+        "Session persistence and replay"
+      ]
+    },
+    {
+      "id": "G011",
+      "project": "heliosApp",
+      "source": "session",
+      "source_detail": "session fcdc1e49 (stop hook feedback)",
+      "title": "heliosApp Full Usable MVP — No Stubs, Real UI",
+      "description": "User explicitly demanded: 'complete remainder of work to usable real MVP, current is stubs / fulfills no user stories, and has no UI or performance/reasonable overhauls over colab nor most of tech stack impl. We require full usable implementation and full quality cov/pass.' Reject stub-only delivery; all 30 specs must yield actual working features, not scaffolding.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "Session fcdc1e49 stop hook feedback contains this exact demand. git log shows ongoing WP work across specs 004, 005, 007-012, 021-022, 028 and stabilization PRs being merged.",
+      "dependencies": ["G007", "G008", "G009", "G010"],
+      "deliverables": [
+        "All 30 heliosApp specs delivered as working implementations",
+        "Full quality gate pass (lint, typecheck, tests)",
+        "Actual UI/UX differentiation over co(lab) baseline",
+        "Performance improvement evidence"
+      ]
+    },
+    {
+      "id": "G012",
+      "project": "heliosApp",
+      "source": "session",
+      "source_detail": "session fcdc1e49 (Biome -> OXC migration plan)",
+      "title": "heliosApp Toolchain Migration — Biome to OXC/VoidZero Stack",
+      "description": "Migrate from Biome v1.9.4 for formatting/linting to the OXC/VoidZero stack (oxlint, oxfmt, tsgolint/tsgo). Already adopted in sibling 'thegent' repo. Goal: faster lint/format with better TypeScript support.",
+      "category": "dx",
+      "status": "unknown",
+      "evidence": "Session fcdc1e49 shows 'Implement the following plan: Migrate Biome to OXC/VoidZero Stack'. Unclear if this was completed or interrupted. heliosApp uses biome.json at root suggesting Biome still active.",
+      "dependencies": ["G007"],
+      "deliverables": [
+        "oxlint configuration replacing Biome linting",
+        "oxfmt replacing Biome formatting",
+        "tsgolint/tsgo for TypeScript checking",
+        "Updated CI to use OXC stack"
+      ]
+    },
+    {
+      "id": "G013",
+      "project": "heliosApp",
+      "source": "session",
+      "source_detail": "session fc8a2777 (heliosApp recovery plan)",
+      "title": "heliosApp Phase 2 Decompose — Runtime Decomposition and Stabilization",
+      "description": "After 30 features (97 WPs) merged to main, execute refactor/phase2-decompose: decompose the runtime into pty/renderer/secrets/lanes services. Recovery after crashed session with 420 uncommitted modified files. Fix PTY signal test hangs, biome lint errors, CI self-merge gate.",
+      "category": "refactor",
+      "status": "done",
+      "evidence": "git log shows 'refactor: decompose runtime into pty/renderer/secrets/lanes services (#40)' merged. 'chore: finish recovery lint cleanup and tests' merged. 'chore: finalize heliosApp devops hardening and queue publish docs' merged. Clean main with 0 uncommitted files.",
+      "dependencies": ["G007", "G011"],
+      "deliverables": [
+        "Runtime decomposed into pty/renderer/secrets/lanes services",
+        "PTY signal test hang fixes",
+        "Biome lint error fixes",
+        "CI self-merge gate fix",
+        "All 97 WPs merged to main"
+      ]
+    },
+    {
+      "id": "G014",
+      "project": "heliosApp",
+      "source": "commit",
+      "source_detail": "git log: composite policy-gate action, lint-test composite action, governance files",
+      "title": "heliosApp CI/CD and Governance Hardening",
+      "description": "Add and stabilize CI/CD infrastructure: composite policy-gate action, lint-test composite action workflow, CodeRabbit and Gemini Code Assist review governance, AGENTS.md governance, VitePress docs pipeline, alert-to-issue sync workflow, and CI devops hardening/merge gates.",
+      "category": "infra",
+      "status": "done",
+      "evidence": "git log: 'chore: migrate to composite policy-gate action (#38)', 'chore: add lint-test composite action workflow (#41)', 'chore: add governance files (#39)', 'chore: stabilize heliosApp ci devops merge gate and push flow', 'chore: harden heliosApp ci devops gates and agent policy'. All merged to main.",
+      "dependencies": ["G007"],
+      "deliverables": [
+        "Composite policy-gate GitHub Action",
+        "Lint-test composite action workflow",
+        "CodeRabbit governance (block at info severity)",
+        "Gemini Code Assist governance",
+        "VitePress docs IA with unified categories",
+        "Alert-to-issue sync workflow",
+        "AGENTS.md with lane-based reporting policy"
+      ]
+    },
+    {
+      "id": "G015",
+      "project": "heliosApp",
+      "source": "spec",
+      "source_detail": "021-continuous-integration-and-quality-gates, 022-code-review-and-governance-process (specs)",
+      "title": "heliosApp Continuous Integration and Code Review Governance",
+      "description": "Full CI quality gates (spec 021) and code review governance process (spec 022) for heliosApp. Covers: test execution matrix, lint enforcement, type checking, coverage gates, release publishing readiness, and review bot governance (CodeRabbit, Gemini Code Assist).",
+      "category": "infra",
+      "status": "in-progress",
+      "evidence": "Specs 021 and 022 exist in kitty-specs. git log shows WP activity for spec 021 and 022. 'chore: add docs session validation and publish readiness gates' and 'Harden policy gate SHA handling' in git log.",
+      "dependencies": ["G014"],
+      "deliverables": [
+        "CI quality gate matrix (lint, test, typecheck, coverage)",
+        "Release publishing readiness gates",
+        "Review bot governance documentation and configuration",
+        "Publish docs readiness workflow"
+      ]
+    },
+    {
+      "id": "G016",
+      "project": "heliosCLI",
+      "source": "spec",
+      "source_detail": "001-codex-tui-renderer-optimization (spec.md), HELIOSCLI_README.md",
+      "title": "heliosCLI — Fork and Optimize OpenAI Codex CLI",
+      "description": "Fork openai/codex CLI for performance optimization, Rust multi-language N-way merge, and custom helios modifications. Includes: TUI renderer optimization research and architecture walkthrough, N-way merge with Rust core / Go transport / Zig / Python benchmarks, animated ASCII logo, upstream feature mining from codex PRs, absorb strategy from portage fork, and a comprehensive performance improvement roadmap.",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "git log: 'feat: N-way merge - heliosCLI with Rust core, Go transport, Zig, Python benchmarks', 'feat(loader): animated ascii logo to HELIOS startup morph', 'feat(lane-l1 through l7): realtime protocol, memory mode, runtime, audio, etc.' Absorb/archive readiness package added. Ongoing upstream sync with openai/codex.",
+      "dependencies": [],
+      "deliverables": [
+        "Forked helios-cli from openai/codex",
+        "N-way merge: Rust core (helios-rs), Go transport, Zig, Python benchmarks",
+        "Animated ASCII logo morph on startup",
+        "TUI renderer optimization spec (spec 001)",
+        "Upstream PR mining report (CODEX_PR_ANALYSIS.md)",
+        "Performance baseline and benchmark infrastructure",
+        "Helios-rs Rust crate in crates/ directory",
+        "Absorb readiness package for portage fork"
+      ]
+    },
+    {
+      "id": "G017",
+      "project": "heliosCLI",
+      "source": "session",
+      "source_detail": "session 5f599a41 (PR completion, CI stabilization)",
+      "title": "heliosCLI PR Completion and CI Stabilization",
+      "description": "Complete and merge all outstanding open PRs in heliosCLI to main with CI/quality checks stabilized. User directed: use worktrees in .git or ../heliosCLI-worktrees, use agents to get all current PRs complete and merged to main, CI/quality checks stabilized. Handle ~200 branches per repo owned by us.",
+      "category": "infra",
+      "status": "in-progress",
+      "evidence": "Session 5f599a41 shows this exact request. git log shows ongoing PRs being merged. Recent commit 'chore: normalize dirty worktree snapshot (2026-03-03)' and 'chore: prep absorb stack via manifest diff checklist' suggest work in progress.",
+      "dependencies": ["G016"],
+      "deliverables": [
+        "All open PRs merged to main",
+        "CI passing on main",
+        "Branch cleanup (resolve ~200 agent branches)",
+        "Worktree snapshot normalized"
+      ]
+    },
+    {
+      "id": "G018",
+      "project": "heliosCLI",
+      "source": "session",
+      "source_detail": "session 7d19010d (upstream PR/issue mining)",
+      "title": "heliosCLI Upstream Feature Mining from openai/codex",
+      "description": "Evaluate upstream PRs/issues from openai/codex, other forks (portage), and related repos for feature mining. OpenAI closed codex to external contributions on 2026-02-28, creating a differentiation window. Mine unmerged community PRs (markdown table rendering, plugin system, model toggle, MCP recovery, vim mode, OSC-52 copy, realtime audio, etc.) for integration into heliosCLI.",
+      "category": "feature",
+      "status": "done",
+      "evidence": "git log: 'docs: add upstream research for feature mining action plans (#293)', 'UPSTREAM_MINING_REPORT.md' and 'CODEX_PR_ANALYSIS.md' committed. CODEX_FORKS_RESEARCH.md and CODEX_PR_QUICK_REFERENCE.txt exist in repo root.",
+      "dependencies": ["G016"],
+      "deliverables": [
+        "UPSTREAM_MINING_REPORT.md with top 10 unmerged PRs ranked",
+        "CODEX_PR_ANALYSIS.md with full PR analysis",
+        "CODEX_FORKS_RESEARCH.md with fork landscape",
+        "Feature implementation action plans for top PRs",
+        "Issue backlog of critical bugs to fix"
+      ]
+    },
+    {
+      "id": "G019",
+      "project": "heliosCLI",
+      "source": "session",
+      "source_detail": "session a0ec467e (cross-repo code reduction plan)",
+      "title": "Cross-Repo Code Reduction and Modularization (Hexagonal Refactor)",
+      "description": "Post hexagonal-architecture refactoring audit revealed LOC bloat, god modules, dead code, and modularization opportunities across 6 repos (thegent, heliosCLI, heliosApp, AgilePlus, and others). Goal: reduce LOC using lossless compression approach (fix optimally, not simplify/remove). Use 10-15 haiku agents for audit first.",
+      "category": "refactor",
+      "status": "in-progress",
+      "evidence": "Session a0ec467e shows 'Implement the following plan: Cross-Repo Code Reduction and Modularization Plan'. thegent shows hexagonal Phase 1 refactor merged. heliosCLI and heliosApp show ongoing work. Lane agents dispatched but some lanes found target directories didn't exist.",
+      "dependencies": ["G016", "G007", "G023"],
+      "deliverables": [
+        "LOC reduction across 6 repos",
+        "Dead code elimination",
+        "God module decomposition",
+        "Modularization of shared utilities",
+        "Lossless optimization (no feature removal)"
+      ]
+    },
+    {
+      "id": "G020",
+      "project": "heliosCLI",
+      "source": "commit",
+      "source_detail": "git log: policy-gate, governance, pheno devops, agentops policy federation",
+      "title": "heliosCLI Governance, Policy Federation, and Devops Hardening",
+      "description": "Onboard and stabilize CI/CD governance artifacts including: reusable policy-gate composite action, fix PR gate enforcement, review bot policy stabilization, shared pheno devops task surface, and agentops policy federation. Align with phenotype org-wide CI standards.",
+      "category": "infra",
+      "status": "done",
+      "evidence": "git log: 'feat(policy): reusable policy-gate composite action (#290)', 'ci(policy): enforce layered fix PR gate (#257)', 'chore(governance): stabilize review bot policy (#253)', 'chore: add shared pheno devops task surface', 'chore(agentops): onboard policy federation artifacts'. All merged.",
+      "dependencies": ["G016"],
+      "deliverables": [
+        "Reusable policy-gate composite action",
+        "Layered fix PR gate enforcement",
+        "Review bot policy (CodeRabbit/Gemini)",
+        "Shared pheno devops task surface",
+        "Agentops policy federation artifacts",
+        "CLAUDE.md governance file"
+      ]
+    },
+    {
+      "id": "G021",
+      "project": "heliosCLI",
+      "source": "commit",
+      "source_detail": "git log: lane-l1 through lane-l7 features",
+      "title": "heliosCLI Lane Feature Set (L1-L7)",
+      "description": "Implement heliosCLI-specific lane features: L1 realtime protocol and stream parser, L2 memory mode and state runtime, L3 realtime audio TUI picker and snapshots, L4 core runtime and turn context surface, L5 tooling and bootstrap baseline, L6 audit asset retention, L7 local audit and greenfield artifacts.",
+      "category": "feature",
+      "status": "done",
+      "evidence": "git log: 'feat(lane-l1): realtime protocol and stream parser (#283)', 'feat(lane-l2): memory mode and state runtime (#284)', 'feat(lane-l4): core runtime and turn context surface (#285)', 'feat(lane-l3): realtime audio tui picker and snapshots (#286)', 'feat(lane-l5): tooling and bootstrap baseline (#298)'. All merged via PRs.",
+      "dependencies": ["G016"],
+      "deliverables": [
+        "L1: Realtime protocol and stream parser",
+        "L2: Memory mode and state runtime",
+        "L3: Realtime audio TUI picker with snapshots",
+        "L4: Core runtime and turn context surface",
+        "L5: Tooling and bootstrap baseline",
+        "L6: Audit asset retention docs",
+        "L7: Local audit and greenfield artifacts"
+      ]
+    },
+    {
+      "id": "G022",
+      "project": "heliosCLI",
+      "source": "commit",
+      "source_detail": "git log: absorb/archive readiness package",
+      "title": "heliosCLI Absorb/Archive Readiness from Portage Fork",
+      "description": "Prepare heliosCLI to absorb valuable changes from the portage fork of openai/codex. Document absorb/archive strategy, create manifest diff checklist, and determine which portage-specific commits to cherry-pick into heliosCLI main.",
+      "category": "infra",
+      "status": "in-progress",
+      "evidence": "git log: 'docs: add heliosCLI absorb/archive readiness package', 'chore: prep absorb stack via manifest diff checklist'. These are the most recent commits. Work in progress.",
+      "dependencies": ["G016", "G017"],
+      "deliverables": [
+        "heliosCLI absorb/archive readiness documentation",
+        "Manifest diff checklist for portage vs heliosCLI",
+        "Selected commit absorb plan"
+      ]
+    },
+    {
+      "id": "G023",
+      "project": "thegent",
+      "source": "commit",
+      "source_detail": "git log: hexagonal architecture, uv workspace, DI container, async I/O",
+      "title": "thegent Hexagonal Architecture Refactor and uv Workspace Decomposition",
+      "description": "Comprehensive refactor of thegent from monolith to hexagonal architecture. Phase 1: hexagonal architecture patterns. Phase 2: uv workspace decomposition into 13 packages. Phase 3: DI container + break 4 circular dependencies + convert 5 singletons. Phase 4: async I/O, structured logging, error wrapping. Phase 5: remove monolith leaf modules migrated to workspace packages. Also includes module split into separate packages (mcp, control-plane, execution, governance, app).",
+      "category": "refactor",
+      "status": "done",
+      "evidence": "git log: 'refactor: hexagonal architecture Phase 1 (#519)', 'refactor: uv workspace decomposition with 13 packages (#523)', 'refactor: DI container + break 4 circular dependencies + convert 5 singletons (#526)', 'refactor: async I/O, structured logging, error wrapping (#527)', 'refactor: remove monolith leaf modules migrated to workspace packages (#531)'. All merged to main.",
+      "dependencies": [],
+      "deliverables": [
+        "Hexagonal architecture Phase 1 (ports and adapters)",
+        "uv workspace with 13 packages",
+        "DI container implementation",
+        "Circular dependency elimination",
+        "Singleton conversion to injectable",
+        "Async I/O throughout",
+        "Structured logging",
+        "Error wrapping patterns"
+      ]
+    },
+    {
+      "id": "G024",
+      "project": "thegent",
+      "source": "commit",
+      "source_detail": "git log: module split branches (mcp, control-plane, execution, governance, app)",
+      "title": "thegent Module Split into Workspace Packages",
+      "description": "Split thegent monolith into separate workspace packages: mcp, control-plane, execution, governance, app. Merged via int/mod-split-stage-1 integration branch. Recorded lane bootstrap smoke evidence for each package.",
+      "category": "refactor",
+      "status": "done",
+      "evidence": "git log: Merge commits for backend/m/split-thegent-mcp, split-thegent-control-plane, split-thegent-execution, split-thegent-governance, all merged into int/mod-split-stage-1. Lane bootstrap smoke evidence recorded for all 5 packages.",
+      "dependencies": ["G023"],
+      "deliverables": [
+        "thegent-mcp package",
+        "thegent-control-plane package",
+        "thegent-execution package",
+        "thegent-governance package",
+        "thegent-app package",
+        "Lane bootstrap smoke evidence for each"
+      ]
+    },
+    {
+      "id": "G025",
+      "project": "thegent",
+      "source": "commit",
+      "source_detail": "git log: phench cross-repo shared module scan",
+      "title": "thegent phench Cross-Repo Shared Module Scan and Composition",
+      "description": "Build phench (phenotype cross-repo henchman) tooling for deterministic project-state runtime surface, cross-repo shared module scanning, candidates identification for extraction, and module-driven target composition. Scan all repos for reusable modules and produce manifest materialization workflow.",
+      "category": "infra",
+      "status": "done",
+      "evidence": "git log: 'feat(phench): deterministic project-state runtime surface (#516)', 'feat(phench): add cross-repo shared module scan and candidates', 'feat(phench): add scan recommendations and manifest materialization workflow', 'docs(phench): update shared-module rollout wave statuses'. All merged to main.",
+      "dependencies": ["G023", "G024"],
+      "deliverables": [
+        "phench deterministic project-state runtime",
+        "Cross-repo shared module scanner",
+        "Shared module candidates report",
+        "Manifest materialization workflow",
+        "Module rollout wave documentation",
+        "Outside-root warning for scan safety"
+      ]
+    },
+    {
+      "id": "G026",
+      "project": "thegent",
+      "source": "commit",
+      "source_detail": "git log: sync 859 local commits, baseline CI stabilization",
+      "title": "thegent Baseline CI Stabilization and 859-Commit Sync",
+      "description": "Push 859 accumulated local commits to main. Fix baseline CI stabilization gaps. Add compatibility shim for uv workspace validation.",
+      "category": "infra",
+      "status": "done",
+      "evidence": "git log: 'sync: push 859 local commits to main (#518)', 'Fix baseline CI stabilization gaps (#517)', 'fix: validate uv workspace + add compatibility shim (#528)'. All merged.",
+      "dependencies": ["G023"],
+      "deliverables": [
+        "All 859 local commits synced to main",
+        "CI baseline passing",
+        "uv workspace validation shim"
+      ]
+    },
+    {
+      "id": "G027",
+      "project": "thegent",
+      "source": "commit",
+      "source_detail": "git log: composite policy-gate, lint-test composite, alert sync, governance",
+      "title": "thegent CI/CD Governance Infrastructure",
+      "description": "Add org-standard CI/CD infrastructure: composite policy-gate action, lint-test composite action, alert-to-issue sync workflow, governance file additions.",
+      "category": "infra",
+      "status": "done",
+      "evidence": "git log: 'chore: migrate to composite policy-gate action (#522 and #525)', 'chore: add lint-test composite action workflow (#530)', 'ci: add alert sync to issues workflow (#510)'. All merged.",
+      "dependencies": ["G023"],
+      "deliverables": [
+        "Composite policy-gate action",
+        "Lint-test composite workflow",
+        "Alert-to-issues sync workflow",
+        "Governance documentation"
+      ]
+    },
+    {
+      "id": "G028",
+      "project": "thegent",
+      "source": "session",
+      "source_detail": "session aad7f9bd (directory audit and spec remediation)",
+      "title": "thegent Directory Structure Audit and Spec Remediation",
+      "description": "Audit thegent CodeProjects directory structure, rename directories (temp-PRODVERCEL -> CodeProjects, 485 -> Phenotype, kush -> repos), remediate displaced spec files from sdk and civ paths back to active kitty-specs paths. Investigation triggered by user concern that repos/files ended up deleted and replaced with basic docs.",
+      "category": "governance",
+      "status": "unknown",
+      "evidence": "Session aad7f9bd shows directory mv commands and spec remediation agents completing. User's final message 'check all your session logs, most of my repos/files ended up deleted and replaced with basic docs, what did you do?' suggests data loss concern that was not fully resolved in session.",
+      "dependencies": [],
+      "deliverables": [
+        "Correct directory structure (CodeProjects/Phenotype/repos/)",
+        "SDK spec files remediated to active path",
+        "CIV spec files remediated to active path",
+        "Audit of any file deletions or replacements"
+      ]
+    },
+    {
+      "id": "G029",
+      "project": "cross-project",
+      "source": "spec",
+      "source_detail": "heliosCLI: HELIOSCLI_README.md, release framework commit",
+      "title": "Phenotype Release Framework — 5-Tier Release Channel Governance",
+      "description": "Organization-wide 5-tier release channel governance (alpha -> canary -> beta -> rc -> prod) with gatekeeper enforcement, phenotype-config integration, and branding. Replayed as release framework commit in heliosCLI. Documented in STACKED_PRS_AND_RELEASE_CHANNELS.md. Foundation for G003 (AgilePlus spec 002).",
+      "category": "governance",
+      "status": "in-progress",
+      "evidence": "git log heliosCLI: 'Replay: release framework (phenotype config, gatekeeper, branding) (#275)'. gatekeeper.toml exists in heliosCLI root. Only 3 of 47 repos currently implement the model per spec 002 description.",
+      "dependencies": [],
+      "deliverables": [
+        "5-tier release channel policy documentation",
+        "gatekeeper.toml enforcement config",
+        "phenotype-config integration",
+        "Branding artifacts",
+        "STACKED_PRS_AND_RELEASE_CHANNELS.md policy doc"
+      ]
+    },
+    {
+      "id": "G030",
+      "project": "cross-project",
+      "source": "session",
+      "source_detail": "session 46326590 and fc8a2777 (cross-project sessions), session 4209ad4c",
+      "title": "Cross-Repo DX/AX/UX Parity — Unified Workspace Setup",
+      "description": "Achieve parity of DX (developer experience), AX (agent experience), and UX (user experience) setup across all Phenotype org repos. Includes: standardized task runner commands (Taskfile), pre-commit hooks, AGENTS.md governance, CLAUDE.md prompt routers, shared pheno devops task surface, and policy federation. Referenced across multiple sessions as a recurring cross-project goal.",
+      "category": "dx",
+      "status": "in-progress",
+      "evidence": "Stop hook feedback in session 46326590 explicitly calls out 'Completion of above of parity of DXAXUX setups.' Session a0ec467e cross-repo code reduction session also targets this. heliosCLI commit 'chore: add shared pheno devops task surface'. thegent and heliosApp have AGENTS.md and Taskfile.yml.",
+      "dependencies": ["G003", "G029"],
+      "deliverables": [
+        "Standardized Taskfile.yml targets across all repos",
+        "Pre-commit hooks in all repos",
+        "AGENTS.md governance files in all repos",
+        "CLAUDE.md prompt router templates",
+        "Shared pheno devops task surface",
+        "Policy federation across org"
+      ]
+    },
+    {
+      "id": "G031",
+      "project": "cross-project",
+      "source": "session",
+      "source_detail": "session 4209ad4c (subagent-driven-development, cross-repo code reduction)",
+      "title": "Cross-Repo Lossless Code Reduction and Optimization",
+      "description": "User explicitly described goal as: optimize code / reduce LOC while increasing the optimality of the features. Not simplifying or removing items/implementations but actually optimally fixing. 'Easier view is a performance view: rather than using lossy use lossless compression.' Use 10-15 haiku agents for audit first. Targets: thegent, heliosCLI, heliosApp, AgilePlus, and others.",
+      "category": "refactor",
+      "status": "in-progress",
+      "evidence": "Session 4209ad4c contains this exact user request. Session a0ec467e (heliosCLI) implements the cross-repo code reduction plan. thegent hexagonal refactor and module split are partial execution of this. Dead code and god module elimination ongoing.",
+      "dependencies": ["G019", "G023"],
+      "deliverables": [
+        "LOC reduction audit across all repos",
+        "Dead code elimination",
+        "God module decomposition",
+        "Lossless optimization (feature-preserving refactoring)",
+        "LOC_REDUCTION_PLAN.md (exists in thegent)"
+      ]
+    },
+    {
+      "id": "G032",
+      "project": "cross-project",
+      "source": "session",
+      "source_detail": "session 4209ad4c and fc8a2777 (goal modeling request)",
+      "title": "Goals Modeling and Worklog — Harmonized Spec/Expectation Tracking",
+      "description": "User requested: model all session goals as semantic tasks/client requests, harmonize to a unified set of specs/expectations (extend existing ones), and add to a worklog.md covering every past task (pre-plan refactors) and new tasks. This goal (the current audit) is itself the deliverable of this request.",
+      "category": "governance",
+      "status": "in-progress",
+      "evidence": "User prompt appears in multiple sessions: 'great, now model them as goals / semantic tasks (not the real work items), or client requests... harmonize them to a unified set of specs/expectations... and add to a worklog.md that now has every past(pre-plan refactors).' The current raw-goals.json is the primary deliverable.",
+      "dependencies": [],
+      "deliverables": [
+        "raw-goals.json (this file) — comprehensive goals inventory",
+        "worklog.md — unified chronological work log",
+        "Harmonized spec extensions for unspecced work",
+        "Goals taxonomy and status tracking"
+      ]
+    },
+    {
+      "id": "G033",
+      "project": "cross-project",
+      "source": "session",
+      "source_detail": "session 08a5b3fb (session deduplication, crash recovery)",
+      "title": "Session Deduplication and Crash Recovery Protocol",
+      "description": "After session crash with 2 of 4 Claude chats lost (2 shared one session file), identify which sessions survived and recover context. Also: establish protocol to prevent future session file sharing and data loss from duplicate-open sessions.",
+      "category": "governance",
+      "status": "done",
+      "evidence": "Session 08a5b3fb specifically addresses this. User: 'this session was duplicated w/o a fork, and it seems after a crash i now lost 2 of 4 of my claude chats.' Agent identified surviving sessions and recovered context.",
+      "dependencies": [],
+      "deliverables": [
+        "Identification of surviving sessions",
+        "Context recovery for lost sessions",
+        "Protocol guidance for session fork vs reuse"
+      ]
+    },
+    {
+      "id": "G034",
+      "project": "heliosApp",
+      "source": "commit",
+      "source_detail": "git log: animated ASCII logo, realtime audio picker, verbatim paste, word-delete",
+      "title": "heliosCLI UX Enhancements — ASCII Logo, Paste, Keyboard Shortcuts",
+      "description": "UX improvements to heliosCLI TUI: animated ASCII logo morph on startup (HELIOS branding), Cmd+Shift+V verbatim paste to bypass large-paste placeholder, Ctrl as alternative to Alt for word-delete and queue restore.",
+      "category": "feature",
+      "status": "done",
+      "evidence": "git log heliosCLI: 'feat(loader): animated ascii logo to HELIOS startup morph (#276)', 'feat: add Cmd+Shift+V verbatim paste to bypass large-paste placeholder (#266)', 'fix: accept Ctrl as alternative to Alt for word-delete and queue restore (#264)'. All merged.",
+      "dependencies": ["G016"],
+      "deliverables": [
+        "Animated ASCII logo HELIOS startup morph",
+        "Cmd+Shift+V verbatim paste shortcut",
+        "Ctrl alternative for word-delete"
+      ]
+    },
+    {
+      "id": "G035",
+      "project": "heliosCLI",
+      "source": "commit",
+      "source_detail": "git log: SKILL.md discovery, OSC-52, network approval, push queue",
+      "title": "heliosCLI Feature Backport — Upstream and Community PR Integration",
+      "description": "Integrate high-value unmerged community PRs and upstream features into heliosCLI: case-insensitive SKILL.md discovery, macOS Finder image path normalization, read-only sandbox enforcement for review threads, network approval persistence, push queue worker mode, and policy improvements.",
+      "category": "feature",
+      "status": "done",
+      "evidence": "git log: 'fix: case-insensitive SKILL.md discovery and record_skill_from_path helper (#268)', 'fix: normalize macOS Finder image paths missing leading slash (#269)', 'fix: enforce read-only sandbox for review threads (#270)', 'feat(ui): add network approval persistence plumbing (#12358)', 'chore: add push queue worker mode and docs'. All merged.",
+      "dependencies": ["G016", "G018"],
+      "deliverables": [
+        "Case-insensitive SKILL.md discovery",
+        "macOS Finder image path fix",
+        "Read-only sandbox for review threads",
+        "Network approval persistence",
+        "Push queue worker mode"
+      ]
+    },
+    {
+      "id": "G036",
+      "project": "heliosApp",
+      "source": "spec",
+      "source_detail": "heliosApp kitty-specs 004 through 006, 013-018, 019-020, 023-029",
+      "title": "heliosApp Remaining Spec Set (004-029 excluding 007-012, 021-022, 028)",
+      "description": "Implement the remaining heliosApp spec work packages covering: app settings and feature flags (004), ID standards and cross-repo coordination (005), performance baseline and instrumentation (006), renderer switch transaction (013), terminal-to-lane session binding (014), lane orphan detection (015), workspace-lane-session UI tabs (016), lane list and status display (017), renderer engine settings control (018), TS7 and bun runtime setup (019), prerelease dependency registry (020), command policy engine and approval workflows (023), audit logging and session replay (024), provider adapter interface (025), share session workflows (026), crash recovery (027), secrets management (028), colab toolchain modernization (029).",
+      "category": "feature",
+      "status": "in-progress",
+      "evidence": "All 30 spec directories exist in heliosApp/kitty-specs/. git log shows WP activity across many specs (004, 005, 007-012, 021-022, 028). heliosApp main is clean but session fcdc1e49 shows demand for full usable MVP meaning these specs need full implementation not just stubs.",
+      "dependencies": ["G007", "G008", "G009"],
+      "deliverables": [
+        "App settings and feature flags system (004)",
+        "ID standards and cross-repo coordination (005)",
+        "Performance baseline and instrumentation (006)",
+        "Renderer switch transaction (013)",
+        "Terminal-to-lane session binding (014)",
+        "Lane orphan detection and remediation (015)",
+        "Workspace-lane-session UI tabs (016)",
+        "Lane list and status display (017)",
+        "Renderer engine settings control (018)",
+        "TS7 and bun runtime setup (019)",
+        "Prerelease dependency registry (020)",
+        "Command policy engine and approval workflows (023)",
+        "Audit logging and session replay (024)",
+        "Provider adapter interface (025)",
+        "Share session workflows (026)",
+        "Crash recovery (027)",
+        "Secrets management and redaction (028)",
+        "colab toolchain modernization (029)"
+      ]
+    }
+  ]
+}
