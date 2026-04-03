@@ -1,0 +1,13 @@
+{
+  "name": "agentapi-plusplus",
+  "languages": [
+    "go"
+  ],
+  "primary_language": "go",
+  "status": "complete",
+  "has_readme": true,
+  "has_spec": true,
+  "has_plan": true,
+  "type": "core",
+  "path": "repos/agentapi-plusplus"
+}

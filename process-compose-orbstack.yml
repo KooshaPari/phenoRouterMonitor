@@ -1,0 +1,40 @@
+# Process Compose - OrbStack Native Dashboards
+# Run: process-compose -f process-compose-orbstack.yml up -d
+
+version: "0.5"
+
+environment:
+  - "RUST_LOG=info"
+  - "RUST_BACKTRACE=1"
+
+processes:
+  # 1. AgilePlus Native Dashboard (port 3000)
+  agileplus-dashboard:
+    command: ./target/debug/agileplus-dashboard
+    working_dir: /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus
+    is_daemon: true
+    restart_policy:
+      max_retries: 3
+    readiness_probe:
+      http_get:
+        host: 127.0.0.1
+        port: 3000
+        path: /health
+      initial_delay_seconds: 2
+      period_seconds: 3
+
+  # 2. Unified Health Dashboard (port 3001)  
+  health-dashboard:
+    command: cargo run --bin dashboard-server -- --port 3001 --root /Users/kooshapari/CodeProjects/Phenotype/repos
+    working_dir: /Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-infrakit
+    is_daemon: true
+    restart_policy:
+      max_retries: 3
+    readiness_probe:
+      http_get:
+        host: 127.0.0.1
+        port: 3001
+        path: /health/projects
+      initial_delay_seconds: 5
+      period_seconds: 5
+

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <!-- NuGet Package Configuration -->
+    <PackageId>Phenotype.Packs</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Phenotype Team</Authors>
+    <Description>Generic content pack system with dependency resolution, schema validation, and conflict detection. Extracted from DINOForge.</Description>
+    <PackageTags>content-packs;mods;dependencies;yaml;validation</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="16.0.0" />
+    <PackageReference Include="Semver" Version="3.0.0" />
+  </ItemGroup>
+
+</Project>

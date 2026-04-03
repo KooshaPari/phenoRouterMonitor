@@ -1,0 +1,80 @@
+name: Stage Gates
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  # Stage 1: Spike - Format only
+  stage-spike:
+    name: Spike
+    if: startsWith(github.ref, 'refs/heads/spike/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+  # Stage 2: PoC - Format + Clippy
+  stage-poc:
+    name: PoC
+    if: startsWith(github.ref, 'refs/heads/poc/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          components: clippy
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+  # Stage 3: Preview - Format + Clippy + Test
+  stage-preview:
+    name: Preview
+    if: startsWith(github.ref, 'refs/heads/preview/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+      - name: Test
+        run: cargo test
+
+  # Stage 4: Main/Master/Develop - Full quality gates
+  stage-main:
+    name: Main
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Build
+        run: cargo build
+      - name: Test
+        run: cargo test
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      - name: Security audit
+        run: cargo audit
