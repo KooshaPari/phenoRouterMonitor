@@ -57,28 +57,29 @@ pub trait Retryable: Send {
 /// - Multiplier: 2.0
 /// - Max interval: 30 seconds
 /// - Max elapsed time: 15 minutes
-pub async fn retry<F, T, E>(op: F) -> Result<T, RetryError<E>>
+pub async fn retry<F, T, E, Fut>(mut op: F) -> Result<T, RetryError<E>>
 where
-    F: Future<Output = Result<T, E>>,
+    F: FnMut() -> Fut,
+    Fut: Future<Output = Result<T, E>>,
 {
     let backoff = ExponentialBackoff::default();
     retry_with_backoff(backoff, op).await
 }
 
 /// Execute a future with custom backoff settings
-pub async fn retry_with_backoff<B, F, T, E>(backoff: B, op: F) -> Result<T, RetryError<E>>
+pub async fn retry_with_backoff<B, F, T, E, Fut>(mut backoff: B, mut op: F) -> Result<T, RetryError<E>>
 where
     B: Backoff + Send + 'static,
-    F: Future<Output = Result<T, E>>,
+    F: FnMut() -> Fut,
+    Fut: Future<Output = Result<T, E>>,
     E: Send + 'static,
 {
-    let mut backoff = backoff;
     let mut attempt = 0;
 
     loop {
         attempt += 1;
 
-        match op.await {
+        match op().await {
             Ok(result) => return Ok(result),
             Err(e) => {
                 if let Some(duration) = backoff.next_backoff() {
@@ -92,16 +93,17 @@ where
 }
 
 /// Retry with a simple retry count (no backoff - instant retries)
-pub async fn retry_n<F, T, E>(max_attempts: usize, op: F) -> Result<T, RetryError<E>>
+pub async fn retry_n<F, T, E, Fut>(max_attempts: usize, mut op: F) -> Result<T, RetryError<E>>
 where
-    F: Future<Output = Result<T, E>>,
+    F: FnMut() -> Fut,
+    Fut: Future<Output = Result<T, E>>,
 {
     let mut attempt = 0;
 
     loop {
         attempt += 1;
 
-        match op.await {
+        match op().await {
             Ok(result) => return Ok(result),
             Err(e) => {
                 if attempt >= max_attempts {
@@ -114,14 +116,15 @@ where
 
 /// Retry with jitter (randomized exponential backoff)
 /// Provides better distribution and avoids thundering herd
-pub async fn retry_with_jitter<F, T, E>(
+pub async fn retry_with_jitter<F, T, E, Fut>(
     initial_interval: Duration,
     max_interval: Duration,
     max_attempts: usize,
-    op: F,
+    mut op: F,
 ) -> Result<T, RetryError<E>>
 where
-    F: Future<Output = Result<T, E>>,
+    F: FnMut() -> Fut,
+    Fut: Future<Output = Result<T, E>>,
 {
     use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -133,7 +136,7 @@ where
     loop {
         attempt += 1;
 
-        match op.await {
+        match op().await {
             Ok(result) => return Ok(result),
             Err(e) => {
                 if attempt >= max_attempts {
@@ -177,14 +180,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_retry_success_first_attempt() {
-        let result = retry(async { Ok::<_, ()>(42) }).await;
+        let result = retry(|| async { Ok::<_, ()>(42) }).await;
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 42);
     }
 
     #[tokio::test]
     async fn test_retry_exhausted() {
-        let result = retry(async { 
+        let result = retry(|| async { 
             tokio::time::sleep(Duration::from_millis(1)).await;
             Err::<i32, ()>(()) 
         }).await;
@@ -195,7 +198,7 @@ mod tests {
     #[tokio::test]
     async fn test_retry_n_success() {
         let mut count = 0;
-        let result = retry_n(3, async {
+        let result = retry_n(3, || async {
             count += 1;
             if count < 2 {
                 Err::<(), ()>(())
@@ -212,7 +215,7 @@ mod tests {
     async fn test_retry_with_timeout() {
         let result = timeout(
             Duration::from_secs(1),
-            retry(async {
+            retry(|| async {
                 tokio::time::sleep(Duration::from_millis(100)).await;
                 Ok::<_, ()>(42)
             })

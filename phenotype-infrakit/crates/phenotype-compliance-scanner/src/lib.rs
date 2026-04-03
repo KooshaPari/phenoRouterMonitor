@@ -9,17 +9,15 @@ pub struct Finding {
     pub message: String,
 }
 
-pub struct ComplianceScanner {
-    // rules could be loaded here
-}
+#[derive(Default)]
+pub struct ComplianceScanner;
 
 impl ComplianceScanner {
     pub fn new() -> Self {
-        Self {}
+        Self
     }
 
     pub async fn scan(&self, _path: &str) -> anyhow::Result<Vec<Finding>> {
-        // Implementation for scanning the path
         Ok(Vec::new())
     }
 }
