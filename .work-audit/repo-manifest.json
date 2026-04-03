@@ -1,0 +1,3529 @@
+{
+  "repos": [
+    {
+      "name": "4sgm",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/.archive/4sgm.20260325-082955Z",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "build-fix-blockers",
+        "chore/add-pages-deploy-stabilize-main",
+        "chore/add-worktrees-gitignore",
+        "chore/agent-policy-update",
+        "chore/dotagents-setup",
+        "chore/merge-upstream-20260325",
+        "chore/remove-package-lock",
+        "chore/review-bot-governance-wave1",
+        "codex/stability-audit",
+        "codex/stability-fix-1",
+        "feat/gh-pages-deploy",
+        "feat/stabilize-4sgm",
+        "feature/modernize-tooling",
+        "fix/4sgm-dotagents-resolve",
+        "fix/dotagents-resolve",
+        "fix/main-ahead-commits",
+        "fix/policy-gate-merge-detection",
+        "fix/remove-pkg-lock",
+        "fix/stabilize",
+        "fix/stabilize-4sgm",
+        "garden/sdk-integration",
+        "main",
+        "modernize",
+        "phenotype/upstream-sync-20260324",
+        "policy/layered-pr-gate-20260227",
+        "pr-207",
+        "pr-208",
+        "pr-210",
+        "release/beta",
+        "release/canary",
+        "release/stable",
+        "wave3/lane-c-docs-unification",
+        "origin",
+        "origin/build-fix-blockers",
+        "origin/chore/add-pages-deploy-stabilize-main",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/agent-policy-update",
+        "origin/chore/dotagents-setup",
+        "origin/chore/remove-package-lock",
+        "origin/chore/review-bot-governance-wave1",
+        "origin/codex/stability-audit",
+        "origin/codex/stability-fix-1",
+        "origin/feat/stabilize-4sgm",
+        "origin/fix/dotagents-resolve",
+        "origin/fix/policy-gate-merge-detection",
+        "origin/fix/python314",
+        "origin/fix/stabilize",
+        "origin/fix/stabilize-4sgm",
+        "origin/garden/sdk-integration",
+        "origin/gh-pages",
+        "origin/main",
+        "origin/phenotype/upstream-sync-20260324",
+        "origin/release/beta",
+        "origin/release/canary",
+        "origin/release/stable",
+        "upstream",
+        "upstream/build-fix-blockers",
+        "upstream/chore/add-worktrees-gitignore",
+        "upstream/chore/dotagents-setup",
+        "upstream/chore/remove-package-lock",
+        "upstream/chore/review-bot-governance-wave1",
+        "upstream/codex/stability-audit",
+        "upstream/codex/stability-fix-1",
+        "upstream/dependabot/npm_and_yarn/4sgm/frontend/npm_and_yarn-a91857585b",
+        "upstream/feat/stabilize-4sgm",
+        "upstream/fix/dotagents-resolve",
+        "upstream/fix/policy-gate-merge-detection",
+        "upstream/fix/python314",
+        "upstream/fix/stabilize",
+        "upstream/fix/stabilize-4sgm",
+        "upstream/garden/release-framework",
+        "upstream/garden/sdk-integration",
+        "upstream/gh-pages",
+        "upstream/main",
+        "upstream/policy/layered-pr-gate-20260227",
+        "upstream/release/beta",
+        "upstream/release/canary",
+        "upstream/release/stable",
+        "upstream/wave3/lane-c-docs-unification"
+      ],
+      "current_branch": "chore/agent-policy-update",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "5253be3023b2c97041b5973ebc62f547612b13bd",
+          "message": "chore(agent-policy): add global agent DO NOT UNARCHIVE directive; bump workflow python-version to 3.14",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-25 02:39:07"
+        },
+        {
+          "sha": "c20b8746a628e7bc2072490572f7aac7f6aed7d8",
+          "message": "chore: sync state",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 06:23:18"
+        },
+        {
+          "sha": "5a1c57108e477d758b53cd15e62c60d7362b7a47",
+          "message": "docs: Turn 17 mass synchronization - Secret Scanning",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 05:18:17"
+        },
+        {
+          "sha": "a9ceb18c469cbdb5caaeb93c950980141af6cf8a",
+          "message": "docs: Turn 13 mass synchronization - Release/Dependabot/Security/Contribution",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:42:12"
+        },
+        {
+          "sha": "88273184b4847dc8088a5083b3863f7144a6f45e",
+          "message": "docs: Turn 12 mass synchronization - Quality/Protection/Security/Automation",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:35:00"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "AgilePlus",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/apps/AgilePlus",
+      "has_specs": true,
+      "specs": [
+        "001-spec-driven-development-engine",
+        "002-org-wide-release-governance-dx-automation",
+        "003-agileplus-platform-completion"
+      ],
+      "spec_phases": {
+        "001-spec-driven-development-engine": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "002-org-wide-release-governance-dx-automation": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "003-agileplus-platform-completion": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        }
+      },
+      "has_agents_md": true,
+      "branches": [
+        "autofix/46148a6-20260325T145738Z",
+        "chore/add-codeowners",
+        "chore/agileplus-publish-parked",
+        "chore/migrate-kitty-specs-to-agileplus",
+        "chore/modernize-tooling",
+        "chore/version-docs-0.1.2",
+        "ci/fix-quality-gate-exec-policy",
+        "cleanup/spec-kitty",
+        "dependabot/cargo/rust/prost-0.14",
+        "docs/functional-requirements",
+        "docs/user-journeys",
+        "feat/dashboard-overhaul",
+        "feat/dashboard-overhaul-v2",
+        "feat/dev-cli",
+        "feat/evidence-bundles",
+        "feat/wp01-domain-entities-cycles",
+        "feature/project-batch-import",
+        "feature/project-batch-import-fix",
+        "fix/askama-template-syntax",
+        "fix/dashboard-compile-errors",
+        "fix/dashboard-service-control-expansion",
+        "fix/dashboard-stubs",
+        "fix/docs-dep-path",
+        "fix/post-merge-seed-bridge-and-mock-storage",
+        "fix/stabilize-ci-v2",
+        "fix/timeline-event-links",
+        "main",
+        "rebase/feat-dashboard-overhaul-v2",
+        "rebase/fix-dashboard-stubs",
+        "rebase/fix-timeline-event-links",
+        "recover/agileplus-20260325T145738Z",
+        "temp/pr156",
+        "ui/lightbox-improvements",
+        "origin",
+        "origin/autofix/09b991e-20260325T145738Z",
+        "origin/autofix/46148a6-20260325T145738Z",
+        "origin/autofix/47a8d6a-20260325T145738Z",
+        "origin/chore/add-codeowners",
+        "origin/chore/agileplus-publish-parked",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/migrate-kitty-specs-to-agileplus",
+        "origin/chore/version-docs-0.1.2",
+        "origin/ci/quality-gate-executable",
+        "origin/cleanup/spec-kitty",
+        "origin/docs/comparison-matrix",
+        "origin/feat/dashboard-overhaul",
+        "origin/feat/dashboard-overhaul-v2",
+        "origin/feat/evidence-bundles",
+        "origin/feature/modernize-tooling",
+        "origin/feature/project-batch-import",
+        "origin/fix/askama-template-syntax",
+        "origin/fix/dashboard-compile-errors",
+        "origin/fix/dashboard-service-control-expansion",
+        "origin/fix/dashboard-stubs",
+        "origin/fix/docs-dep-path",
+        "origin/fix/post-merge-seed-and-mock-storage",
+        "origin/fix/stabilize-ci-v2",
+        "origin/fix/timeline-event-links",
+        "origin/main",
+        "origin/rebase/feat-dashboard-overhaul-v2",
+        "origin/rebase/fix-dashboard-stubs",
+        "origin/recover/agileplus-20260325T145738Z",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/ui/lightbox-improvements"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "cb38ad9170859ac52cd5b4c728de853bbe0ee19d",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:28:39"
+        },
+        {
+          "sha": "27e56cad7b55303262b1ef24894cbda908011f52",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:24:05"
+        },
+        {
+          "sha": "afad5edf68f35912fbf848f3987c5cb77e3c2111",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:10:40"
+        },
+        {
+          "sha": "04bfd6e4180259a447bdd5dfaae0cf77e889835a",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:10:28"
+        },
+        {
+          "sha": "c23ab93ee18260fa1a2bfa3e7d8b47c60d7dadc1",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:02"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "agent-devops-setups",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/agent-devops-setups",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "agentops/policy-federation-rollout",
+        "chore/add-vitepress",
+        "docs-site-completion",
+        "origin",
+        "origin/agentops/policy-federation-rollout"
+      ],
+      "current_branch": "docs-site-completion",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "5d9026692b52e6cd7770028768c8031deaefb133",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:28:39"
+        },
+        {
+          "sha": "6e78411820190bac50e4849b125de2567d67aa7c",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:01"
+        },
+        {
+          "sha": "5bd1f21f315c4ae0304956c9169dc5da346f95a8",
+          "message": "docs: add ADR.md (#24)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:16"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "agent-wave",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/agent-wave",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-changelog-and-version",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/spec-docs",
+        "origin/docs/comparison-matrix",
+        "origin/main",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "73ac6cb3385548b6b910214303c83b588b034d3f",
+          "message": "test: add integration tests for governance scripts (#14)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:54:05"
+        },
+        {
+          "sha": "4e8955cdef27aadd30dae4a6d03baf950db37681",
+          "message": "ci: add TypeScript CI and CodeQL security scanning workflows",
+          "author": "Claude Code",
+          "date": "2026-03-27 05:09:07"
+        },
+        {
+          "sha": "d271dcd6f98bb238da553533247f79ddc3168e38",
+          "message": "docs: add comprehensive feature comparison matrix (#13)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:50"
+        },
+        {
+          "sha": "e8a66cf945e02a97ab723ab32ccc931ddd46594b",
+          "message": "chore: add CHANGELOG.md and VERSION (#12)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:46"
+        },
+        {
+          "sha": "165ece4f318e27c6ca75fa80ff402c219d717e35",
+          "message": "chore: add Taskfile.yml with standard tasks (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:58:03"
+        }
+      ],
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "agentapi-plusplus",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/agentapi-plusplus",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "fix/sync-upstream",
+        "main",
+        "origin/35C4n0r/agentapi-state-persistence",
+        "origin/35C4n0r/feat-copilot-formatting-update",
+        "origin/35C4n0r/fix-claude-formatting-2.1",
+        "origin/35C4n0r/fix-pr-preview-workflows",
+        "origin/35C4n0r/fix-writelocked-bug",
+        "origin/35C4n0r/format-codex-report-tasks",
+        "origin/35C4n0r/handle-partial-tool-call",
+        "origin",
+        "origin/bq/chore-chat-build-ci",
+        "origin/bq/fix-default-url",
+        "origin/bq/refactor-design",
+        "origin/chat-view-7r7r",
+        "origin/chore-0-11-5",
+        "origin/chore-0-11-7",
+        "origin/chore-0-11-8",
+        "origin/chore-0-12-0",
+        "origin/chore-0-12-0-re",
+        "origin/chore-0-12-0-rere",
+        "origin/chore-0-12-0-rerere",
+        "origin/chore-0-12-1",
+        "origin/chore/agentapi-0-9-0",
+        "origin/cj/0-4-1",
+        "origin/cj/0-5-0",
+        "origin/cj/agents-md",
+        "origin/cj/disable-cgo",
+        "origin/cj/e2e",
+        "origin/cj/e2e-asciicast",
+        "origin/cj/e2e-poll-events",
+        "origin/cj/exp-acp",
+        "origin/cj/exp/acp",
+        "origin/cj/exp/acp-c",
+        "origin/cj/fix-release-build",
+        "origin/cj/fix-version",
+        "origin/cj/fix/chat-base-path",
+        "origin/cj/gh70-sse",
+        "origin/cj/go1_24",
+        "origin/cj/jq-sort-fix",
+        "origin/cj/make-lint",
+        "origin/cj/prompt-stdin",
+        "origin/cj/quartz",
+        "origin/cj/readme-release-workflow",
+        "origin/cj/refactor-conversation-orig",
+        "origin/cj/refactor/event-emitter",
+        "origin/cj/release-automation",
+        "origin/cj/subpath",
+        "origin/cj/update-clog",
+        "origin/cj/v0.11.0",
+        "origin/cj/v0.7.1",
+        "origin/dependabot/npm_and_yarn/chat/next-15.5.14",
+        "origin/embedded-chat",
+        "origin/feat-embed",
+        "origin/feat/use-x-forwarded-host",
+        "origin/fix-build-binaries",
+        "origin/gh-pages",
+        "origin/hugodutka/0-3-0-bump",
+        "origin/hugodutka/0-3-3",
+        "origin/hugodutka/0-4-0",
+        "origin/hugodutka/0.2.2-bump",
+        "origin/hugodutka/agent-msg-flickering",
+        "origin/hugodutka/allowed-hosts",
+        "origin/hugodutka/auto-expanding-textarea",
+        "origin/hugodutka/chat-base-path-suggestion",
+        "origin/hugodutka/chat-scroll",
+        "origin/hugodutka/conversation-carriage-returns",
+        "origin/hugodutka/env-vars",
+        "origin/hugodutka/interrupt-btn",
+        "origin/hugodutka/lint",
+        "origin/hugodutka/release-build-fix",
+        "origin/hugodutka/storybook",
+        "origin/hugodutka/term-width-height",
+        "origin/main"
+      ],
+      "current_branch": "fix/sync-upstream",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "0a4aa608c941657444432fd4ac71c49a782c38af",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:01"
+        },
+        {
+          "sha": "1a7a3c02c9c80e910d5e2039ea511d0f304f5dc3",
+          "message": "feat: handle partial/malformed tool call detection for claude-code (#184)",
+          "author": "35C4n0r",
+          "date": "2026-03-13 15:20:01"
+        },
+        {
+          "sha": "c8502fbffb19c5ffc0041ce34f67ed8cd2f58292",
+          "message": "chore: update version to 0.12.1 (#201)",
+          "author": "35C4n0r",
+          "date": "2026-03-05 18:07:11"
+        },
+        {
+          "sha": "702b10b653e2f9ddb5d2b4707066fafc97d42b05",
+          "message": "feat: update codex formatting and prevent terminal echo from being captured as agent messages (#200)",
+          "author": "35C4n0r",
+          "date": "2026-03-05 17:54:32"
+        },
+        {
+          "sha": "2d98dedab2385927546f79ce7620d3bb48f654d6",
+          "message": "chore: update version to 0.12.0 (#199)",
+          "author": "35C4n0r",
+          "date": "2026-03-02 18:12:40"
+        }
+      ],
+      "tracking_files": [
+        "WORKLOG.md",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "name": "agentops-policy-federation",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/agentops-policy-federation",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/autofix/1a85bbe-20260325T150324Z",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-vitepress-docsite",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/spec-docs",
+        "origin/docs/comparison-matrix",
+        "origin/docs/update-policies",
+        "origin/feat/bash-write-guard",
+        "origin/feat/headless-ask-delegation",
+        "origin/feat/headless-ask-delegation-wt",
+        "origin/feat/headless-delegation-and-policy-gaps",
+        "origin/fix/cli-imports",
+        "origin/fix/headless-review",
+        "origin/main",
+        "origin/p1.2-env-sanitize",
+        "origin/p1.2-env-sanitize-v2",
+        "origin/p1.3-hash-chaining",
+        "origin/p1.4-write-bypass-hardening",
+        "origin/p2-unified-dsl",
+        "origin/resolver-multi-repo"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 68,
+      "recent_commits": [
+        {
+          "sha": "cc5f7c16714e8eff56213ff64222119b5bf69cf7",
+          "message": "docs: add VitePress docsite (#17)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:14:50"
+        },
+        {
+          "sha": "b08bfc79ec39a97324a14a28fb95035297971521",
+          "message": "docs(spec): expand PRD, FUNCTIONAL_REQUIREMENTS, ADR with real content (#16)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 01:47:00"
+        },
+        {
+          "sha": "47c41498a97b52db52f8b35d95a014a2f1f7c09e",
+          "message": "chore: update repository policies (#15)",
+          "author": "KooshaPari",
+          "date": "2026-03-26 18:21:19"
+        },
+        {
+          "sha": "d85cdf10c5ed09091fea95b56c18a091a8bc0272",
+          "message": "fix: add missing imports for verify_audit_chain and test helper functions (#13)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 15:47:47"
+        },
+        {
+          "sha": "a6514b058a4d74751a6dea9333808f9a2d41a230",
+          "message": "feat: headless ask delegation system (#12)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 09:42:48"
+        }
+      ],
+      "tracking_files": [],
+      "status": "GHOST_SCANNED_20260328"
+    },
+    {
+      "name": "bifrost-extensions",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/bifrost-extensions",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/plugin-rename-2026",
+        "main",
+        "rename/BifrostGo",
+        "origin",
+        "origin/chore/add-lint-test",
+        "origin/chore/composite-actions",
+        "origin/chore/governance-files",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/plugin-rename-2026",
+        "origin/chore/policy-gate-rollout-20260303",
+        "origin/chore/spec-docs",
+        "origin/chore/sync-main",
+        "origin/ci/fix-pages-deployment-and-docs-sync",
+        "origin/feat/standalone-packages",
+        "origin/fix/bifrost-remove-local-replace",
+        "origin/fix/build-blockers",
+        "origin/fix/guard-timeout-clean",
+        "origin/fix/pages-deployment-workflow",
+        "origin/main",
+        "origin/refactor/go-kit-integration",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/rename/BifrostGo"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "fddf1b989e0cb7534c19ec3494ac6276d85c69a2",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:27"
+        },
+        {
+          "sha": "cfdecb49375649847a1bffcac3b4b592707dccbc",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:02"
+        },
+        {
+          "sha": "8403bb52ed0eb1f34e5d05c87cdc46b0710614f7",
+          "message": "Rename plugins and packages with productized names (#109)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 01:10:33"
+        },
+        {
+          "sha": "405073d061ae638f2627fa9aecd98ac7a5222403",
+          "message": "docs: add spec docs and directory structure (#107)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:18:07"
+        },
+        {
+          "sha": "569628d99e19b1c72632fedbb64c3936b4877c80",
+          "message": "test: add unit tests for contentsafety and intelligentrouter plugins (#106)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:00:19"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "civ",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/civ",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/remove-bmad-refs",
+        "origin/codex/alert-sync-issues",
+        "origin/codex/alert-sync-issues-pr2",
+        "origin/codex/alert-sync-issues-pr3-civ",
+        "origin/codex/wave2-lane-b-docs-unification",
+        "origin/docs/comparison-matrix",
+        "origin/docs/real-specs",
+        "origin/docs/update-adr",
+        "origin/feat/gh-pages-deploy",
+        "origin/feat/stabilize-civ-v2-and-policy-gate-fixes",
+        "origin/feature/modernize-tooling",
+        "origin/feature/modernize-ts",
+        "origin/feature/modernize-ts-deps",
+        "origin/fix/crates",
+        "origin/fix/main-stabilize",
+        "origin/fix/policy-gate-merge-detection",
+        "origin/fix/remove-build-artifacts",
+        "origin/fix/stabilize",
+        "origin/fix/stabilize-civ",
+        "origin/fix/stabilize-civ-v2",
+        "origin/garden/release-framework",
+        "origin/garden/sdk-integration",
+        "origin/gh-pages",
+        "origin/main",
+        "origin/phenotype/upstream-sync-20260324",
+        "origin/refactor/consolidate-crates",
+        "origin/v2"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 9,
+      "recent_commits": [
+        {
+          "sha": "8f8d3ffb554c5903692eab1505bf1fd5c8ea1f06",
+          "message": "fix(ci): fix quality-gate script path and switch docs build to bun (#229)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:50:40"
+        },
+        {
+          "sha": "d309b3b876c634c8197f56d5dfe30ce45e030fb4",
+          "message": "fix(ci): fix quality-gate script path and switch docs build to bun (#228)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 16:48:59"
+        },
+        {
+          "sha": "b50cc04cb893ab53e0d2ace5e1c1b67757935637",
+          "message": "chore: remove BMAD/spec-kitty refs, replace with AgilePlus (#226)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:21:53"
+        },
+        {
+          "sha": "7a35a7d2e25a7a68095d52cbfc5ef44fe49b630b",
+          "message": "docs: add FR-METRICS section from crates/engine/src/metrics.rs analysis (#227)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:05:26"
+        },
+        {
+          "sha": "cb66c8751ab2ee542298b8b0538552cf94c794dc",
+          "message": "feat: integrate @phenotype/docs shared theme (#225)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 00:48:36"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "GHOST_SCANNED_20260328"
+    },
+    {
+      "name": "cliproxyapi-plusplus",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/cliproxyapi-plusplus",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/migrate-kitty-specs-to-agileplus",
+        "docs/add-spec-docs",
+        "fix/cliproxy-v6-migration-20260327",
+        "fix/merge-conflict-resolution-20260327",
+        "main",
+        "origin",
+        "origin/main",
+        "upstream",
+        "upstream/main"
+      ],
+      "current_branch": "fix/cliproxy-v6-migration-20260327",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "9c98d314a8b75c6ba47d329688950a59c523e7f3",
+          "message": "chore: update docs and configs",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:53:15"
+        },
+        {
+          "sha": "973927ebc8233d6c72c83681d5c7cb424fef01fe",
+          "message": "fix(sdk/auth): prevent path-injection in resolveAuthPath",
+          "author": "Claude Code",
+          "date": "2026-03-27 22:45:14"
+        },
+        {
+          "sha": "0569c5c300bb1c3a75c6af598119aa83a400860a",
+          "message": "fix: migrate to github.com/kooshapari/cliproxyapi-plusplus/v6 module path",
+          "author": "Claude Code",
+          "date": "2026-03-27 22:00:01"
+        },
+        {
+          "sha": "b5df8875964ea37a3f01e32a4bb552969b3da560",
+          "message": "docs(spec): add E8 AmpCode management and E9 BoardSync epics (#923)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 19:57:26"
+        },
+        {
+          "sha": "e69a95f9025bf6f8f2d16d6f34b5cc7bab904810",
+          "message": "fix(security): remediate CodeQL request-forgery and path-injection findings (#922)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:06:31"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "name": "colab",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/services/colab",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/spec-docs",
+        "codex/oxc-migration-20260305-heliosapp-consolidated",
+        "docs/add-spec-docs",
+        "main",
+        "origin",
+        "origin/chore/add-docs-main",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-taskfile",
+        "origin/chore/github-workflows-g012",
+        "origin/chore/github-workflows-g012-colab",
+        "origin/chore/local-main-sync-20260324",
+        "origin/chore/oxc-migration-20260303-colab",
+        "origin/chore/spec-docs",
+        "origin/codex/pr347-rustci-import-fix-20260303",
+        "origin/docs/add-spec-docs",
+        "origin/docs/add-workflow-guide-and-sync-script",
+        "origin/docs/agents-phenotype-g006-colab",
+        "origin/docs/spec-docs-push",
+        "origin/fix/stabilize",
+        "origin/fix/stabilize-colab",
+        "origin/helios-mvp",
+        "origin/helios-phase3",
+        "origin/helios-phase4",
+        "origin/main",
+        "origin/pr/docs-phenotype-g006",
+        "origin/swe/main",
+        "upstream",
+        "upstream/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "2a8919660ca6cd4259eb3f891e3f9de77fbbbcad",
+          "message": "chore: migrate kitty-specs to AgilePlus spec format (#35)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:11:29"
+        },
+        {
+          "sha": "f2670dffa2e55422013ddadf11544a75e00f8973",
+          "message": "chore: add spec docs (PRD.md, FUNCTIONAL_REQUIREMENTS.md) (#34)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:56:07"
+        },
+        {
+          "sha": "7f44f7b86383fb9cc90b3531f4b42b27532875e6",
+          "message": "Auto: Sync and evaluate chore/oxc-migration-20260303-colab-clean (#28)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:55:41"
+        },
+        {
+          "sha": "f26363f08320af464f7c73c3f1f32596126614a3",
+          "message": "Auto: Sync and evaluate codex/ts-debt-parity-20260303 (#29)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:55:36"
+        },
+        {
+          "sha": "fbf28550778b8d4f616d897b3c874b17e18a8679",
+          "message": "Auto: Sync and evaluate docs/agents-phenotype-g006 (#30)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:55:32"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "contracts",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-config/contracts",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [],
+      "current_branch": "unknown",
+      "uncommitted_count": 0,
+      "recent_commits": [],
+      "tracking_files": [],
+      "status": "SUBDIR"
+    },
+    {
+      "name": "docs",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-config/docs",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [],
+      "current_branch": "unknown",
+      "uncommitted_count": 0,
+      "recent_commits": [],
+      "tracking_files": [],
+      "status": "SUBDIR"
+    },
+    {
+      "name": "helMo",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/apps/helMo",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/add-taskfile",
+        "chore/add-worktrees-gitignore",
+        "chore/claude-md-agileplus-governance",
+        "chore/spec-docs",
+        "codex/stability-audit",
+        "docs/add-spec-docs",
+        "fix/stabilize",
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-taskfile",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/spec-docs",
+        "origin/codex/stability-audit",
+        "origin/docs/add-spec-docs",
+        "origin/fix/stabilize",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "237838578ee9a8fe4fb9f68785b9c9294b5fdc23",
+          "message": "Auto: Sync and evaluate chore/add-worktrees-gitignore (#3)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:53:37"
+        },
+        {
+          "sha": "61f09654ae3279376522b75cfe5edf12c57f442b",
+          "message": "Auto: Sync and evaluate codex/stability-audit (#4)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:53:34"
+        },
+        {
+          "sha": "aa600377e3cb75bee9f9c20ad7cc762fdd94304e",
+          "message": "Auto: Sync and evaluate fix/stabilize (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:53:31"
+        },
+        {
+          "sha": "28b365e913e5beb3f1a197627ff286d6ba503e85",
+          "message": "Merge pull request #6 from KooshaPari/chore/claude-md-agileplus-governance",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:12:47"
+        },
+        {
+          "sha": "23fcb13f8aaf2857dfc89cf955bf5f935f4cf9b2",
+          "message": "Merge pull request #7 from KooshaPari/chore/add-spec-docs",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:12:40"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "helios-cli",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/migrate-kitty-specs-to-agileplus",
+        "chore/remove-duplicated-governance-blocks",
+        "chore/spec-docs",
+        "feat/thread-list-provider-filter-regression-test",
+        "fix/bench-deprecation-clean",
+        "fix/ci-failures",
+        "fix/deprecation-warnings",
+        "fix/rollout-limit-expect",
+        "main",
+        "refactor/decompose-history",
+        "refactor/decompose-key-router",
+        "refactor/decompose-renderer",
+        "refactor/decompose-submitter",
+        "refactor/decompose-text-manipulation",
+        "refactor/phase5-renderer",
+        "wip/codex-rs-core",
+        "origin",
+        "origin/cherry/ead38c3",
+        "origin/cherry/f5d7a74",
+        "origin/chore/CLAUDE-md-v4",
+        "origin/chore/add-agileplus-governance",
+        "origin/chore/add-spec-docs",
+        "origin/chore/coderabbit-config-fix",
+        "origin/chore/coderabbit-keys-fix-20260301",
+        "origin/chore/coderabbit-keys-v2",
+        "origin/chore/coderabbit-keys-v3",
+        "origin/chore/coderabbit-v3",
+        "origin/chore/composite-actions",
+        "origin/chore/composite-actions-v2",
+        "origin/chore/docs-20260325",
+        "origin/chore/dotagents-setup-fresh",
+        "origin/chore/governance-20260325",
+        "origin/chore/governance-claude-md",
+        "origin/chore/heliosCLI-20260325",
+        "origin/chore/helioscli-final-sync",
+        "origin/chore/helioscli-last-0740",
+        "origin/chore/helioscli-v5-20260325",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/migrate-kitty-specs-to-agileplus",
+        "origin/chore/oxc-migration-v2",
+        "origin/chore/remove-duplicated-governance-blocks",
+        "origin/chore/spec-docs",
+        "origin/chore/stabilize-helioscli-20260324",
+        "origin/codex/bazel-llvm-modules-fix",
+        "origin/codex/pr346-ci-stabilize-20260303",
+        "origin/codex/review-orchestrator",
+        "origin/codex/tui-renderer-spec-docs-with-core",
+        "origin/composite-actions",
+        "origin/feat/arch-test-20260325",
+        "origin/feat/arch-test-crate",
+        "origin/feat/code-reduction-helioscli",
+        "origin/feat/phenotype-modular-arch",
+        "origin/feat/phenotypeactions-wave-a-v0pin",
+        "origin/feature/modernize-tooling",
+        "origin/fix/bench-deprecation-clean",
+        "origin/fix/ci-failures",
+        "origin/fix/deprecation-warnings",
+        "origin/fix/remove-pkg-lock",
+        "origin/fix/rollout-limit-expect",
+        "origin/fix/skip-billable-runs",
+        "origin/koosha/stabilize-v1",
+        "origin/lane/l1-realtime-protocol",
+        "origin/lane/l2-memory-state",
+        "origin/lane/l3-audio-tui",
+        "origin/lane/l4-core-runtime",
+        "origin/lane/l5-tooling-bootstrap",
+        "origin/lane/l6-assets-docs",
+        "origin/lane/l7-local-artifacts",
+        "origin/main",
+        "origin/oxc-migration",
+        "origin/refactor/decompose-history",
+        "origin/refactor/decompose-key-router",
+        "origin/refactor/decompose-submitter",
+        "origin/refactor/decompose-text-manipulation",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/replay/release-framework",
+        "origin/sync/lane-a-protocol-20260301",
+        "origin/sync/lane-b-core-runtime-20260301",
+        "origin/sync/lane-c-core-tests-20260301",
+        "origin/sync/lane-d-ui-state-cli-20260301",
+        "origin/sync/lane-e-ci-docs-20260301",
+        "origin/task/hardening/batch-2026-03-25",
+        "origin/task/hardening/harness_checkpoint-2026-03-25",
+        "origin/task/hardening/harness_elicitation-2026-03-25",
+        "origin/wave2-lane-a-docs-unification",
+        "origin/wip/codex-rs-core"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "f1e2d8bbd2d13133ed9da03482aed22363e40f70",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:28:40"
+        },
+        {
+          "sha": "6fe919ae78400a74a5602d26d3a0cec436a38fac",
+          "message": "fix(rollout): replace unwrap with expect for file search limit",
+          "author": "Claude Code",
+          "date": "2026-03-27 21:28:13"
+        },
+        {
+          "sha": "a0ca7d297630d2c153882e786b066a129b524a76",
+          "message": "chore(artifacts): update heliosCLI-wtrees worktree pointer",
+          "author": "Claude Code",
+          "date": "2026-03-27 20:37:13"
+        },
+        {
+          "sha": "4510ad786c62c93263077e92602ba4dbb2e24602",
+          "message": "chore(wip): preserve codex-rs core modifications from prior session",
+          "author": "Claude Code",
+          "date": "2026-03-27 20:37:04"
+        },
+        {
+          "sha": "6d3e8730c21c1f873c9ff413cef70c5bf3f6a918",
+          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#126)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:24:11"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "RENAMED_HELIOSCLI"
+    },
+    {
+      "name": "heliosApp",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/heliosApp",
+      "has_specs": true,
+      "specs": [
+        "001-colab-agent-terminal-control-plane",
+        "002-local-bus-v1-protocol-and-envelope",
+        "003-workspace-and-project-metadata-persistence",
+        "004-app-settings-and-feature-flags",
+        "005-id-standards-and-cross-repo-coordination",
+        "006-performance-baseline-and-instrumentation",
+        "007-pty-lifecycle-manager",
+        "008-par-lane-orchestrator-integration",
+        "009-zellij-mux-session-adapter",
+        "010-renderer-adapter-interface",
+        "011-ghostty-renderer-backend",
+        "012-rio-renderer-backend",
+        "013-renderer-switch-transaction",
+        "014-terminal-to-lane-session-binding",
+        "015-lane-orphan-detection-and-remediation",
+        "016-workspace-lane-session-ui-tabs",
+        "017-lane-list-and-status-display",
+        "018-renderer-engine-settings-control",
+        "019-ts7-and-bun-runtime-setup",
+        "020-prerelease-dependency-registry",
+        "021-continuous-integration-and-quality-gates",
+        "022-code-review-and-governance-process",
+        "023-command-policy-engine-and-approval-workflows",
+        "024-audit-logging-and-session-replay",
+        "025-provider-adapter-interface-and-lifecycle",
+        "026-share-session-workflows",
+        "027-crash-recovery-and-restoration",
+        "028-secrets-management-and-redaction",
+        "029-colab-toolchain-modernization",
+        "030-helios-mvp-agent-ide"
+      ],
+      "spec_phases": {
+        "001-colab-agent-terminal-control-plane": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "002-local-bus-v1-protocol-and-envelope": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "003-workspace-and-project-metadata-persistence": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "004-app-settings-and-feature-flags": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "005-id-standards-and-cross-repo-coordination": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "006-performance-baseline-and-instrumentation": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "007-pty-lifecycle-manager": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "008-par-lane-orchestrator-integration": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "009-zellij-mux-session-adapter": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "010-renderer-adapter-interface": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "011-ghostty-renderer-backend": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "012-rio-renderer-backend": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "013-renderer-switch-transaction": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "014-terminal-to-lane-session-binding": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "015-lane-orphan-detection-and-remediation": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "016-workspace-lane-session-ui-tabs": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "017-lane-list-and-status-display": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "018-renderer-engine-settings-control": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "019-ts7-and-bun-runtime-setup": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "020-prerelease-dependency-registry": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "021-continuous-integration-and-quality-gates": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "022-code-review-and-governance-process": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "023-command-policy-engine-and-approval-workflows": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "024-audit-logging-and-session-replay": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "025-provider-adapter-interface-and-lifecycle": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "026-share-session-workflows": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "027-crash-recovery-and-restoration": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "028-secrets-management-and-redaction": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        },
+        "029-colab-toolchain-modernization": {
+          "spec": true,
+          "plan": false,
+          "tasks": true
+        },
+        "030-helios-mvp-agent-ide": {
+          "spec": true,
+          "plan": false,
+          "tasks": true
+        }
+      },
+      "has_agents_md": true,
+      "branches": [
+        "chore/integrate-phenotype-docs",
+        "feat/extract-phenotype-project",
+        "feat/merge-colab-renderer",
+        "fix/biome-lint-errors",
+        "fix/runtime-watchdog-audit-performance",
+        "fix/typecheck-wave-resolved",
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/colab-final-0739",
+        "origin/chore/colab-final-20260325",
+        "origin/chore/colab-last-0740",
+        "origin/chore/colab-sync-20260325",
+        "origin/chore/docs-20260325",
+        "origin/chore/dotagents-setup",
+        "origin/chore/heliosApp-20260325",
+        "origin/chore/heliosapp-final-0739",
+        "origin/chore/heliosapp-final-20260325",
+        "origin/chore/heliosapp-last-0740",
+        "origin/chore/heliosapp-v3-20260325",
+        "origin/chore/heliosapp-v6-20260325",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/oxc-migration-20260303-colab",
+        "origin/chore/oxc-migration-20260303-composite",
+        "origin/chore/oxc-migration-20260303-governance",
+        "origin/chore/policy-gate-rollout-20260303",
+        "origin/chore/runtime-fix-20260325",
+        "origin/chore/spec-docs",
+        "origin/chore/spec-docs-20260325",
+        "origin/cleanup/local-work",
+        "origin/codex/launch-20260314",
+        "origin/codex/oxc-migration-20260305-heliosapp-consolidated",
+        "origin/codex/parity-debt-wave-20260303",
+        "origin/codex/ts-debt-parity-20260303",
+        "origin/decomp/20260314-heliosapp",
+        "origin/dependabot/github_actions/actions/cache-5",
+        "origin/docs/claude-md-standardize",
+        "origin/feat/code-reduction-heliosapp",
+        "origin/feat/extract-phenotype-project",
+        "origin/feat/extract-phenotype-project-pr",
+        "origin/feat/main-backlog",
+        "origin/feat/merge-colab-renderer",
+        "origin/feat/runtime-impl",
+        "origin/feat/shared-packages-ci-hardening",
+        "origin/feature/modernize-2026",
+        "origin/feature/modernize-tooling",
+        "origin/fix/biome-lint-errors",
+        "origin/fix/biome-strict-rules",
+        "origin/fix/ci-workflows",
+        "origin/fix/claude-md-standardize",
+        "origin/fix/lint-auto-fixes",
+        "origin/fix/local-work",
+        "origin/fix/main-cleanup",
+        "origin/fix/stabilize",
+        "origin/fix/typecheck-wave-resolved",
+        "origin/main",
+        "origin/pr-217-check",
+        "origin/recover/stash-7ccbd6",
+        "origin/refactor/oxc-migration-typescript-debt-reduction",
+        "origin/refactor/phase2-decompose",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/sync/main-upstream-20260305",
+        "origin/tech-debt/wave-20260310",
+        "origin/wave2-lane-a-docs-unification",
+        "push/chore/governance-files",
+        "push/chore/oxc-migration-20260303-composite",
+        "push/chore/policy-gate-rollout-20260303",
+        "upstream",
+        "upstream/chore/add-spec-docs",
+        "upstream/chore/colab-final-0739",
+        "upstream/chore/colab-final-20260325",
+        "upstream/chore/colab-last-0740",
+        "upstream/chore/docs-20260325",
+        "upstream/chore/dotagents-setup",
+        "upstream/chore/heliosApp-20260325",
+        "upstream/chore/heliosapp-final-0739",
+        "upstream/chore/heliosapp-last-0740",
+        "upstream/chore/heliosapp-v3-20260325",
+        "upstream/chore/heliosapp-v6-20260325",
+        "upstream/chore/oxc-migration-20260303-colab",
+        "upstream/chore/oxc-migration-20260303-composite",
+        "upstream/chore/oxc-migration-20260303-governance",
+        "upstream/chore/policy-gate-rollout-20260303",
+        "upstream/chore/runtime-fix-20260325",
+        "upstream/chore/spec-docs-20260325",
+        "upstream/cleanup/local-work",
+        "upstream/codex/launch-20260314",
+        "upstream/codex/oxc-migration-20260305-heliosapp-consolidated",
+        "upstream/codex/parity-debt-wave-20260303",
+        "upstream/codex/ts-debt-parity-20260303",
+        "upstream/decomp/20260314-heliosapp",
+        "upstream/dependabot/github_actions/actions/cache-5",
+        "upstream/docs/claude-md-standardize",
+        "upstream/feat/code-reduction-heliosapp",
+        "upstream/feat/main-backlog",
+        "upstream/feat/runtime-impl",
+        "upstream/feat/shared-packages-ci-hardening",
+        "upstream/feature/modernize-2026",
+        "upstream/feature/modernize-tooling",
+        "upstream/fix/claude-md-standardize",
+        "upstream/fix/local-work",
+        "upstream/fix/main-cleanup",
+        "upstream/fix/stabilize",
+        "upstream/main",
+        "upstream/pr-217-check",
+        "upstream/recover/stash-7ccbd6",
+        "upstream/refactor/oxc-migration-typescript-debt-reduction",
+        "upstream/refactor/phase2-decompose",
+        "upstream/sync/main-upstream-20260305",
+        "upstream/tech-debt/wave-20260310",
+        "upstream/wave2-lane-a-docs-unification"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "66d2f9edbf5eef96c31bd2a247f8f67275c11123",
+          "message": "feat: merge colab-renderer + extract @helios/runtime-core (#341)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 22:32:03"
+        },
+        {
+          "sha": "31fc2b384e78a8e8f37c613cf58dc119242c05f1",
+          "message": "fix(ci): enable GitHub Pages deployment via workflow (#339)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:25:10"
+        },
+        {
+          "sha": "c8c31e2e59c0066e00dcb873796acc644e37491e",
+          "message": "chore: migrate kitty-specs to docs/specs (AgilePlus format) (#338)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:13:32"
+        },
+        {
+          "sha": "a51a8851657787e88c096079c7e10bd2c600f73b",
+          "message": "docs: add standard docs/ subdirectory structure (#337)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 19:48:19"
+        },
+        {
+          "sha": "a66cf28602aa75188c9f8d27dc8b9c07faa27057",
+          "message": "docs: enhance PLAN.md with full phased WBS, DAG, and FR traces (#336)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:46:27"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "heliosCLI",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/heliosCLI",
+      "has_specs": true,
+      "specs": [
+        "001-codex-tui-renderer-optimization"
+      ],
+      "spec_phases": {
+        "001-codex-tui-renderer-optimization": {
+          "spec": true,
+          "plan": false,
+          "tasks": false
+        }
+      },
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/CLAUDE-md-v4",
+        "origin/chore/add-agileplus-governance",
+        "origin/chore/coderabbit-keys-v2",
+        "origin/chore/coderabbit-keys-v3",
+        "origin/chore/coderabbit-v3",
+        "origin/chore/composite-actions-v2",
+        "origin/chore/docs-20260325",
+        "origin/chore/dotagents-setup-fresh",
+        "origin/chore/governance-20260325",
+        "origin/chore/heliosCLI-20260325",
+        "origin/chore/helioscli-final-sync",
+        "origin/chore/helioscli-last-0740",
+        "origin/chore/helioscli-v5-20260325",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/oxc-migration-v2",
+        "origin/chore/spec-docs",
+        "origin/chore/stabilize-helioscli-20260324",
+        "origin/feat/arch-test-20260325",
+        "origin/feat/arch-test-crate",
+        "origin/feature/modernize-tooling",
+        "origin/fix/bench-deprecation-clean",
+        "origin/fix/ci-failures",
+        "origin/fix/deprecation-warnings",
+        "origin/fix/rollout-limit-expect",
+        "origin/fix/skip-billable-runs",
+        "origin/koosha/stabilize-v1",
+        "origin/main",
+        "origin/refactor/decompose-history",
+        "origin/refactor/decompose-key-router",
+        "origin/refactor/decompose-submitter",
+        "origin/refactor/decompose-text-manipulation",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/task/hardening/batch-2026-03-25",
+        "origin/task/hardening/harness_checkpoint-2026-03-25",
+        "origin/task/hardening/harness_elicitation-2026-03-25",
+        "origin/wip/codex-rs-core"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "6d3e8730c21c1f873c9ff413cef70c5bf3f6a918",
+          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#126)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:24:11"
+        },
+        {
+          "sha": "41829b769742401ce47346e9107130005f0d4733",
+          "message": "chore: migrate kitty-specs to docs/specs (AgilePlus format) (#128)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:13:35"
+        },
+        {
+          "sha": "5ac442a7557b4a5a9e85d18a7fad159c73850a9c",
+          "message": "fix(ci): fix rust-ci, codespell, cargo-deny failures on main (#125)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:02:01"
+        },
+        {
+          "sha": "9319a132be7345b05050a0dd25dd3b07333ee763",
+          "message": "fix: replace deprecated criterion::black_box with std::hint::black_box (#127)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:02:45"
+        },
+        {
+          "sha": "cff2402a744d7b588697586c2d9ebd523b4e37b9",
+          "message": "refactor: extract KeyEventRouter trait (Phase 6 of kitty-specs/002) (#124)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:00:27"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "parpour",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/parpour",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/claude-md-agileplus-governance-v2",
+        "origin/chore/spec-docs",
+        "origin/chore/vitepress-docs",
+        "origin/codex/alert-sync-issues",
+        "origin/codex/alert-sync-issues-pr3-parpour",
+        "origin/codex/wave2-lane-b-docs-unification",
+        "origin/dependabot/github_actions/actions/checkout-6",
+        "origin/dependabot/github_actions/actions/github-script-8",
+        "origin/dependabot/github_actions/actions/setup-node-6",
+        "origin/dependabot/github_actions/actions/upload-pages-artifact-4",
+        "origin/docs/add-spec-docs",
+        "origin/docs/add-spec-docs-rebased",
+        "origin/docs/comparison-matrix",
+        "origin/docs/real-specs",
+        "origin/fix/policy-gate-merge-detection",
+        "origin/fix/python314",
+        "origin/fix/stabilize",
+        "origin/garden/release-framework",
+        "origin/garden/sdk-integration",
+        "origin/gh-pages",
+        "origin/main",
+        "origin/phenotype/upstream-sync-20260324",
+        "origin/refactor/add-db-tests",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 7,
+      "recent_commits": [
+        {
+          "sha": "3e6f0e4f45531944a82b0f7a2daf5490a1d60073",
+          "message": "docs(spec): expand PRD to match actual implemented API surface (#153)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:07:27"
+        },
+        {
+          "sha": "85ee005c428daf8e0797d2774cf5aee17b2affeb",
+          "message": "docs: add FR-VNT-EVTBUS and FR-VNT-LEDGER from venture/ source analysis (#151)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:06:53"
+        },
+        {
+          "sha": "52ae3f7401da537f343a589a77bc148563575791",
+          "message": "docs(spec): expand PRD and ADR with real codebase architecture (#150)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 01:45:14"
+        },
+        {
+          "sha": "f78c8a748a8ad032b4e96755d901931e459d3ba7",
+          "message": "chore: replace BMAD/spec-kitty with AgilePlus governance (rebased) (#145)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:55:54"
+        },
+        {
+          "sha": "32707a0ded1fcbf01575d9fb2df262500dc7ce81",
+          "message": "docs: add comprehensive feature comparison matrix (#144)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:46:02"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "GHOST_SCANNED_20260328"
+    },
+    {
+      "name": "phench",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phench",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "678c7cc688be5019eb34150ce78ad3d81d0a4e80",
+          "message": "chore: update docs and configs",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:53:18"
+        },
+        {
+          "sha": "47d7d57e202835c5735a803d91f825a808a78600",
+          "message": "fix: increase hypothesis deadline to 2000ms for slower machines",
+          "author": "Claude Code",
+          "date": "2026-03-28 00:47:56"
+        },
+        {
+          "sha": "4d812a6f84f62a46d5b14e4c9d6eb2eb93bcda5f",
+          "message": "feat(WBS 56-70): Complete bulk operations, release governance, CI/CD, webhooks, notifications",
+          "author": "Claude Code",
+          "date": "2026-03-28 00:45:26"
+        },
+        {
+          "sha": "f8104625e90773b1d178d6009afcd08fae244dd8",
+          "message": "docs: add VitePress docsite (#37)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:13:00"
+        },
+        {
+          "sha": "43ebd2c027ebce8f823ccec4bd7deab50aabe68a",
+          "message": "feat(phench): add batch import/sync command families (WBS 51-55)",
+          "author": "Claude Code",
+          "date": "2026-03-27 20:07:41"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenodocs",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/.archive/phenodocs",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "08ab571baa0dc659feff8a5ca407858e7a06fcd0",
+          "message": "docs: add stacked PR governance framework and worktree contracts",
+          "author": "Koosha Paridehpour",
+          "date": "2026-02-26 02:32:57"
+        },
+        {
+          "sha": "53901d87ed30812dee4312d8d5375a397d1bcfec",
+          "message": "docs: add git-backed documentation governance scaffold",
+          "author": "Koosha Paridehpour",
+          "date": "2026-02-26 01:38:02"
+        },
+        {
+          "sha": "c4a644f0070a3bfaec35aa58cafca7d050d8e625",
+          "message": "Enhance config for GitHub Pages: base path, breadcrumbs, outline",
+          "author": "Koosha Paridehpour",
+          "date": "2026-02-24 05:15:59"
+        },
+        {
+          "sha": "5f6b9c50c627758afdd32a39bff0d22b1b401a89",
+          "message": "Add GitHub Pages badges to README",
+          "author": "Koosha Paridehpour",
+          "date": "2026-02-24 05:10:58"
+        },
+        {
+          "sha": "8ad2c61aa757eeb4ea435cfe8daee1b4a8d8ae03",
+          "message": "Add GitHub Actions workflow for deploying docs to GitHub Pages",
+          "author": "Koosha Paridehpour",
+          "date": "2026-02-24 05:10:04"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "phenotype-config",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-config",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/20260325-governance-sync",
+        "origin/chore/add-taskfile",
+        "origin/chore/config-20260325",
+        "origin/chore/config-cleanup-20260325",
+        "origin/chore/config-final-20260325",
+        "origin/chore/config-final-20260325-0739",
+        "origin/chore/config-last-0740",
+        "origin/chore/config-v2-20260325",
+        "origin/chore/config-v5-20260325",
+        "origin/chore/config-v6-20260325",
+        "origin/chore/hardening-template-sync",
+        "origin/chore/update-agents-20260325",
+        "origin/chore/worklog-20260325",
+        "origin/cleanup/phenotype-config",
+        "origin/docs/add-archive-notice",
+        "origin/feat/stage-gates-strict-mode-and-policy-alignment",
+        "origin/fix/stabilize-phenotype-config-local",
+        "origin/koosha/stabilize-phenotype-config",
+        "origin/main",
+        "origin/merge-upstream",
+        "origin/sync-upstream"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 3,
+      "recent_commits": [
+        {
+          "sha": "94eadf04a6b02e978c0d391829fb7f89abebfd93",
+          "message": "chore: final cleanup commit",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:02:54"
+        },
+        {
+          "sha": "09634e1aa67120def5e5dfa2c8eddd99a86148ca",
+          "message": "chore: repository cleanup and add missing scaffold files",
+          "author": "Claude Code",
+          "date": "2026-03-26 00:59:07"
+        },
+        {
+          "sha": "60a03bc71a1934badfd439db934b559eef80b124",
+          "message": "chore: governance sync 2026-03-25 (#45)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:53:09"
+        },
+        {
+          "sha": "d169efcfe0492b0638a97fceb5436677141d2184",
+          "message": "infra: add unit tests and migration plan (#43)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:46:25"
+        },
+        {
+          "sha": "8d08f5f022b23df5c054509dc744f7fa225901bd",
+          "message": "docs: add feature comparison matrix (#44)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:46:18"
+        }
+      ],
+      "tracking_files": [],
+      "status": "GHOST_SCANNED_20260328"
+    },
+    {
+      "name": "phenotype-design",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-design",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/modernize-typescript-20260325",
+        "origin/chore/spec-docs",
+        "origin/chore/worklog-20260325",
+        "origin/feature/modernize-ts",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 5,
+      "recent_commits": [
+        {
+          "sha": "89762de9712960b69fb1c4503c2b6a9969153244",
+          "message": "test(design-system): add vitest token and export tests (37 tests pass) (#25)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 16:49:24"
+        },
+        {
+          "sha": "224c2e65a8c6afc7ccafe6bbe018454141b34451",
+          "message": "chore: fix npm audit findings",
+          "author": "Claude Code",
+          "date": "2026-03-26 22:15:37"
+        },
+        {
+          "sha": "9eb25bed7ff823fa6ed9f61b67dc823a3d1a21cd",
+          "message": "chore: fix npm audit findings",
+          "author": "Claude Code",
+          "date": "2026-03-26 22:14:57"
+        },
+        {
+          "sha": "1ce4dd4536db08c8395bf14c82515322d74bef26",
+          "message": "docs(spec): rewrite PRD, FR, and ADR from real source code (#24)",
+          "author": "KooshaPari",
+          "date": "2026-03-26 01:35:12"
+        },
+        {
+          "sha": "2e743b9450d3f5379f6aaf317df21d82b03fb2c7",
+          "message": "docs: add CODEOWNERS and CI workflow governance files",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:31:29"
+        }
+      ],
+      "tracking_files": [],
+      "status": "GHOST_SCANNED_20260328"
+    },
+    {
+      "name": "phenotypeActions",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotypeActions",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/spec-docs",
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/hardening-template-sync",
+        "origin/chore/review-wave-runtime",
+        "origin/chore/spec-docs",
+        "origin/chore/stage-gates-canary-20260303",
+        "origin/chore/vitepress-docs-1774437307",
+        "origin/chore/vitepress-docs-1774437383",
+        "origin/docs/claude-md-standardize",
+        "origin/feat/add-lint-test-action",
+        "origin/feat/composite-actions",
+        "origin/feat/policy-gate-action",
+        "origin/fix/review-wave-gh-token",
+        "origin/fix/stabilize-phenotypeActions",
+        "origin/main",
+        "origin/merge-fix-stabilize-to-main",
+        "origin/reusable-shared-workflows"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "edbb59f72813505b88d63cab1738be74fd122f77",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:10:42"
+        },
+        {
+          "sha": "d50542ef6565a783ae474137ccfdfd60aa77293d",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:04"
+        },
+        {
+          "sha": "fdba975011f4f6c87142f231d0fd2a2e3fb5ea69",
+          "message": "test: add integration tests for composite GitHub Actions (#60)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:03:11"
+        },
+        {
+          "sha": "449cc689a56991aac3eca2bf3dce59120a74634b",
+          "message": "chore: add Taskfile.yml with standard tasks (#59)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:58:03"
+        },
+        {
+          "sha": "c3235a762e6101b10ff7c9676b709b93ad355399",
+          "message": "docs(spec): replace stub spec docs with real PRD, FR, and ADR from codebase analysis (#58)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 02:26:36"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "policy-contract",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/governance/policy-contract",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/bump-python-matrix-20260325075537",
+        "chore/spec-docs",
+        "fix/stabilize",
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-vitepress-docsite",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/bump-python-3.14-20260325030602",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/optimize",
+        "origin/chore/spec-docs",
+        "origin/docs/comparison-matrix",
+        "origin/feat/forge-guardian-and-governance-sync",
+        "origin/fix/stabilize",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "1d79fa82177a76440704f17380261e3dd3841d72",
+          "message": "docs: add comprehensive feature comparison matrix (#17)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:17:48"
+        },
+        {
+          "sha": "985254b8053861eda8e07d7ce90f3489293d93be",
+          "message": "fix: resolve all 16 baseline test failures and clean lint (#16)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 04:43:05"
+        },
+        {
+          "sha": "2d63e105fc2d1d8702afa4dcd3b33f79fb2d8135",
+          "message": "Auto: Sync and evaluate chore/add-worktrees-gitignore (#9)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:55:19"
+        },
+        {
+          "sha": "5333317b4da6782b9e5c87fc36054bd71f67b957",
+          "message": "Auto: Sync and evaluate feat/forge-guardian-and-governance-sync (#10)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:55:15"
+        },
+        {
+          "sha": "cdfd25b78f3614c6c3b6590f207d6cbf74a8857c",
+          "message": "Merge pull request #12 from KooshaPari/chore/claude-md-agileplus-governance",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:13:42"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "portage",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/portage",
+      "has_specs": true,
+      "specs": [
+        "002-portage-multi-runtime-execution-stack"
+      ],
+      "spec_phases": {
+        "002-portage-multi-runtime-execution-stack": {
+          "spec": true,
+          "plan": true,
+          "tasks": true
+        }
+      },
+      "has_agents_md": true,
+      "branches": [
+        "002-portage-multi-runtime-execution-stack-WP02",
+        "agentops/policy-federation-onboard",
+        "agentops/policy-federation-onboard-rebased",
+        "chore/add-governance-files",
+        "chore/hexagonal-adapters-20260325",
+        "chore/spec-docs",
+        "feature/002-multi-runtime-execution-rebased",
+        "feature/002-multi-runtime-wp-stack",
+        "fix/lint-redundant-assignment",
+        "fix/merge-upstream-v2",
+        "main",
+        "origin/002-portage-multi-runtime-execution-stack-WP02",
+        "origin/002-portage-multi-runtime-execution-stack-WP03",
+        "origin/002-portage-multi-runtime-execution-stack-WP04",
+        "origin/002-portage-multi-runtime-execution-stack-WP05",
+        "origin/002-portage-multi-runtime-execution-stack-WP06",
+        "origin",
+        "origin/agentops/policy-federation-onboard",
+        "origin/agentops/policy-federation-onboard-rebased",
+        "origin/chore/20260325-final",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-spec-20260325",
+        "origin/chore/add-spec-docs",
+        "origin/chore/bridge-portage-adapter",
+        "origin/chore/codex-mlx-eval",
+        "origin/chore/composite-actions",
+        "origin/chore/dotagents-setup",
+        "origin/chore/governance-20260325",
+        "origin/chore/governance-files",
+        "origin/chore/hexagonal-adapters-20260325",
+        "origin/chore/main-upstream-reconcile-20260303",
+        "origin/chore/oxc-migration-20260303-portage",
+        "origin/chore/oxc-migration-20260303-portage-composite",
+        "origin/chore/oxc-migration-20260303-portage-governance",
+        "origin/chore/policy-gate-rollout-20260303",
+        "origin/chore/portage-final",
+        "origin/chore/portage-final-20260325",
+        "origin/chore/portage-final-sync",
+        "origin/chore/spec-docs",
+        "origin/chore/sync-local-changes",
+        "origin/chore/update-dotagents-submodule",
+        "origin/chore/viewer-bun-consolidate",
+        "origin/chore/worklog-20260325",
+        "origin/docs/real-specs",
+        "origin/docs/spec-docs-push",
+        "origin/docs/workflow-guide",
+        "origin/docs/xdd-spec-20260325",
+        "origin/docs/xdd-specs",
+        "origin/feature/002-multi-runtime-wp-stack",
+        "origin/fix/lint-redundant-assignment",
+        "origin/fix/merge-upstream-v2",
+        "origin/fix/portage-dotagents-resolve",
+        "origin/fix/portage-resolve",
+        "origin/main",
+        "origin/merge-upstream",
+        "origin/phenotype/upstream-sync-20260324",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "ea8ba7e502010ceab27e138d8ac8631fd8cc846a",
+          "message": "chore: update docs and configs",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:53:18"
+        },
+        {
+          "sha": "c8da93918b7aa654982e844387ae2c45a1c34ba0",
+          "message": "feat: add harbor RL environment tracking module (#365)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:40:15"
+        },
+        {
+          "sha": "8eb04af91cbacad7fff5634d451fe2c100d51968",
+          "message": "feat(002): multi-runtime execution stack - WP01 through WP05 (#364)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:18:05"
+        },
+        {
+          "sha": "38b2b5840e949d8bbc3560714577585a186c062a",
+          "message": "feat(agentops): onboard policy federation artifacts and harden security/CI (#363)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:12:23"
+        },
+        {
+          "sha": "65337ac1d89d23fbbfab4b28b1453dbb05f714b2",
+          "message": "feat: add hexagonal architecture adapter organization (#357)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:11:28"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "profiler",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/profiler",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/migrate-kitty-specs-to-agileplus",
+        "chore/spec-docs",
+        "docs/add-spec-docs",
+        "origin",
+        "origin/chore/spec-docs"
+      ],
+      "current_branch": "chore/migrate-kitty-specs-to-agileplus",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "6324c813a6117a979eb0f4d1a20d87a5aed985ce",
+          "message": "chore: update docs and configs",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:53:19"
+        },
+        {
+          "sha": "b8652bb7265d7a9d43c16cf96eed45346b61b364",
+          "message": "chore: migrate kitty-specs to docs/specs (AgilePlus format)",
+          "author": "Claude Code",
+          "date": "2026-03-27 20:09:08"
+        },
+        {
+          "sha": "52a2106662aca01c2c5209105a0c05129a41e8bd",
+          "message": "docs(spec): replace stub spec docs with real content derived from code",
+          "author": "Agent",
+          "date": "2026-03-26 14:27:59"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "sdk",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/python/phenotype-sdk",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [],
+      "current_branch": "unknown",
+      "uncommitted_count": 0,
+      "recent_commits": [],
+      "tracking_files": [],
+      "status": "SPLIT_SDK"
+    },
+    {
+      "name": "template-commons",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/template-commons",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/agentops/policy-federation-onboard",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/contracts-reconcile-rules",
+        "origin/chore/mass-governance-policy-sync",
+        "origin/chore/policy-gate-reusable",
+        "origin/chore/spec-docs",
+        "origin/chore/template-commons-skip-status-check",
+        "origin/chore/vitepress-docs-1774437307",
+        "origin/chore/vitepress-docs-1774437402",
+        "origin/docs/comparison-matrix",
+        "origin/feat/add-phenotype-toolkit-v2",
+        "origin/feat/expand-contracts-v2",
+        "origin/feat/phenotype-toolkit",
+        "origin/fix/generate-go-sum",
+        "origin/fix/policy-gate-md",
+        "origin/fix/skip-billable-runs",
+        "origin/fix/stabilize",
+        "origin/fix/stabilize-template-commons-main",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main",
+        "origin/merge-fix",
+        "origin/refactor/standalone-packages"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "32b31673fed0bbad96f338187797b63411c178a9",
+          "message": "docs: add ADR.md (#41)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:11:07"
+        },
+        {
+          "sha": "dece1fb0e0e02bdb177170034af337bb5079dd78",
+          "message": "feat: add hexagonal templates for C# and TypeScript (#38)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 09:17:16"
+        },
+        {
+          "sha": "101a313590ae28130056f2398b6c41fd0d2ec7b6",
+          "message": "feat(xDD): add E2E workflows and 6-language hexagonal templates (250+ methodologies) (#37)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 08:52:17"
+        },
+        {
+          "sha": "8f12815a9368ccbc232766d8ed576146ddc80587",
+          "message": "feat: comprehensive xDD methodologies and hexagonal architecture templates (#34)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:27:44"
+        },
+        {
+          "sha": "b7aca629d7180a7d4430f993dc7aad073938c60a",
+          "message": "fix(ci): skip status checks validation for template-commons repo (#33)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:59:36"
+        }
+      ],
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "template-domain-service-api",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-domain-service-api",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "chore/governance-sync-and-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave2",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "stabilize/quality-gates",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/chore/governance-sync-and-gitignore",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main",
+        "origin/stabilize/quality-gates"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "44bb1466672bbe0c72107fc909b005e5a033615f",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:03"
+        },
+        {
+          "sha": "d93bd504dc772786ad563b9f1625bd53fe80842e",
+          "message": "Merge branch 'chore/branch-protection-audit-contract'",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:23:49"
+        },
+        {
+          "sha": "79ab1728d285bc35bfaa1f407ac491bcfc05c027",
+          "message": "chore: branch-protection-audit-contract (#9)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 09:22:44"
+        },
+        {
+          "sha": "1291d44828cfc53ba7359426f959577fdd1e3d30",
+          "message": "docs: Turn 14 mass synchronization - Hooks/Containers/Badges/Deployment",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:54:16"
+        },
+        {
+          "sha": "6a2af1b9fc5313bd10d26c66f9c888acd4574857",
+          "message": "docs: Turn 12 mass synchronization - Quality/Protection/Security/Automation",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:36:03"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-domain-webapp",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-domain-webapp",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "chore/governance-sync-and-gitignore",
+        "hardening/workflow-protection-wave2",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "stabilize/quality-gates",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/chore/governance-sync-and-gitignore",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main",
+        "origin/stabilize/quality-gates"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "15fb82eb2ed10203e7fd361733314907f590708e",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:03"
+        },
+        {
+          "sha": "0256154b340e1d750036a2fa28db101768467004",
+          "message": "Merge branch 'chore/branch-protection-audit-contract'",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:23:52"
+        },
+        {
+          "sha": "afede3c04e79dfa303e1e8ed60c91b5a28a7ee95",
+          "message": "docs: Turn 14 mass synchronization - Hooks/Containers/Badges/Deployment",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:54:16"
+        },
+        {
+          "sha": "32a41689590c4b72961a8be0fd0c1e4b3769fadc",
+          "message": "docs: Turn 12 mass synchronization - Quality/Protection/Security/Automation",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:36:03"
+        },
+        {
+          "sha": "3e57da1cb2de6c71dca3aeccd755b8400fb13136",
+          "message": "docs: Turn 10 mass synchronization - CI/Release/Docs/Dependencies",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:13:44"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-elixir-hex",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-elixir-hex",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "f974a560370b2139456fc13c53e4d339c048d5c2",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:28"
+        },
+        {
+          "sha": "57443262ebd1769c391e5fbf39b0f248dd38f006",
+          "message": "Auto: Sync and evaluate hardening/workflow-protection-wave2 (#10)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:17:43"
+        },
+        {
+          "sha": "6023f4c02044c4dc3b6e664c6317969a239c978d",
+          "message": "chore: add missing governance files (.gitignore, CLAUDE.md) (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:08:22"
+        },
+        {
+          "sha": "72f505f72cadc91c2b7f73140efc025046d05528",
+          "message": "chore: make policy-gate and branch protection workflows reusable (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 19:28:13"
+        },
+        {
+          "sha": "fee6b00c13a8d13f1834b6437c995467346652b8",
+          "message": "chore: enforce branch protection checks contract (#4)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 07:06:51"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-go",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-go",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave2",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "26129c13c44fd8fcdc66673d4b4304acf91b8d52",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:03"
+        },
+        {
+          "sha": "e769195d29a1b32e1dd79191d80e665a39255bf7",
+          "message": "Merge branch 'chore/branch-protection-audit-contract'",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:24:01"
+        },
+        {
+          "sha": "4bee39a6c0b0cdd65e001042987054c5aed517fd",
+          "message": "chore: branch protection audit contract (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 09:24:11"
+        },
+        {
+          "sha": "27d5a6ae61e4e7853d58083417f043d45a472ce9",
+          "message": "docs: Turn 23 mass synchronization - Structure and Environment Health",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 21:08:19"
+        },
+        {
+          "sha": "6ab1be382da4b3114cab0b7aea6c48e2c0aeb6a5",
+          "message": "docs: Turn 23 mass synchronization - Structure and Environment Health",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 21:05:22"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-kotlin",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-kotlin",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "17c8f6d54cb1168aadfa0aba7d3e36bbacce8206",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:03"
+        },
+        {
+          "sha": "9d1489e404f0ec1cec56323bc2f952c0d8bf32cb",
+          "message": "Auto: Sync and evaluate hardening/workflow-protection-wave2 (#10)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:17:59"
+        },
+        {
+          "sha": "e438315c072be538fc766e7343711f358365b6c7",
+          "message": "chore: add missing governance files (.gitignore, CLAUDE.md) (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:08:33"
+        },
+        {
+          "sha": "ff0e83ccafb2671f6e765d0524e3a11206d42760",
+          "message": "chore: make policy-gate and branch protection workflows reusable (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 19:27:58"
+        },
+        {
+          "sha": "81564513f5d864f4751e846e98c500668d608fa8",
+          "message": "chore: enforce branch protection checks contract (#4)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 07:06:53"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-mojo",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-mojo",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "stabilize/fix-template-newlines",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "b426baa6b84b28990e66c0bc4d82941a2d34ac5f",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:28"
+        },
+        {
+          "sha": "f389f659f740d8cd828fd4dc6bf338b97f5c726f",
+          "message": "Update",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:46:13"
+        },
+        {
+          "sha": "c1771e89337939f1cc4173ed74ee0c00d34df7e0",
+          "message": "Auto: Sync and evaluate hardening/workflow-protection-wave2 (#10)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:18:07"
+        },
+        {
+          "sha": "1677eafe4da1093e591c20bdc4565e612f495360",
+          "message": "chore: add missing governance files (.gitignore, CLAUDE.md) (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:08:38"
+        },
+        {
+          "sha": "9ab53d2e2fe015a18d990bf9510204eade34938d",
+          "message": "chore: make policy-gate and branch protection workflows reusable (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 19:28:21"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-python",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-python",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "de441f43cb0bcfb07cfee83b1851268777346c7a",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:03"
+        },
+        {
+          "sha": "cb3072505deade52dd930079824eb78d6650ceba",
+          "message": "chore: replace BMAD/spec-kitty refs with AgilePlus in CLAUDE.md (#12)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:11:47"
+        },
+        {
+          "sha": "f14df3abf7226b1e119996513a3c3f4f8b83a2d9",
+          "message": "Auto: Sync and evaluate hardening/workflow-protection-wave2 (#10)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:18:15"
+        },
+        {
+          "sha": "c18a2652e3c683735d618f8eca04ef45a3ff9b90",
+          "message": "chore: add missing governance files (.gitignore, CLAUDE.md) (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:08:43"
+        },
+        {
+          "sha": "9598d0e8876464e3647b3c1566c203642cbe5075",
+          "message": "chore: make policy-gate and branch protection workflows reusable (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 19:28:25"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-rust",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-rust",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "423e742093ff7dae72ce8b0127e2504e9ca1ef89",
+          "message": "Merge branch 'chore/branch-protection-audit-contract'",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:24:16"
+        },
+        {
+          "sha": "5394d8f65bfba627e65dde26e416379dfbcbcee0",
+          "message": "chore: branch protection audit contract (#8)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 15:14:17"
+        },
+        {
+          "sha": "4b5095f1eaf5d288519a919964917aa57be905b5",
+          "message": "docs: Turn 23 mass synchronization - Structure and Environment Health",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 21:00:35"
+        },
+        {
+          "sha": "f21fd698fe664807e6374b6e8042ef8ac3a99f56",
+          "message": "docs: Turn 14 mass synchronization - Hooks/Containers/Badges/Deployment",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:54:18"
+        },
+        {
+          "sha": "5d97d37c1c0bf310e27f3654825e232cc9deda65",
+          "message": "docs: Turn 12 mass synchronization - Quality/Protection/Security/Automation",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 04:36:05"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-swift",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-swift",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "stabilize/fix-template-newlines",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "136727ecccb0b45fdecce628babe8e3211e9c32f",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:29"
+        },
+        {
+          "sha": "0a7e9e3f78ef41815f8c9138cf47f185d205201f",
+          "message": "Update",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:46:16"
+        },
+        {
+          "sha": "5f9cf054de76b2c10139bcf81e127d892f551280",
+          "message": "Auto: Sync and evaluate hardening/workflow-protection-wave2 (#10)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:18:31"
+        },
+        {
+          "sha": "a392c2ffdc7dea8ba28bb9e0d83dc92f08759fcf",
+          "message": "chore: add missing governance files (.gitignore, CLAUDE.md) (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:08:54"
+        },
+        {
+          "sha": "da15ee3a1d3312d0b7fc3b63f2acb2c3fad6ab5f",
+          "message": "chore: make policy-gate and branch protection workflows reusable (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 19:28:33"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-typescript",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-typescript",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave2",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "ac1cda2ee28ee21b6a12cd16c7c43d2c8e319791",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:56:03"
+        },
+        {
+          "sha": "619cd8b9af6973f01e06fda7132aa11b65321523",
+          "message": "Merge branch 'chore/branch-protection-audit-contract'",
+          "author": "Claude Code",
+          "date": "2026-03-26 01:24:22"
+        },
+        {
+          "sha": "f39130ef7eafe2613a72cc77b994032079823b4d",
+          "message": "chore: branch protection audit contract (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 09:23:43"
+        },
+        {
+          "sha": "d28b66e67d8e6c905e92615e35255c484a8ca085",
+          "message": "docs: Turn 23 mass synchronization - Structure and Environment Health",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 21:08:21"
+        },
+        {
+          "sha": "d26d75810f990358d6a1771a0cf41b219cfdb435",
+          "message": "docs: Turn 23 mass synchronization - Structure and Environment Health",
+          "author": "Koosha Paridehpour",
+          "date": "2026-03-24 21:05:23"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-lang-zig",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-lang-zig",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/add-worktrees-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave2",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "stabilize/fix-template-newlines",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "6c912b07c13df52583875bd06c55e9a881c0cca5",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:29"
+        },
+        {
+          "sha": "80eb92a947eec0231145c07a28b2dbbd44a6d009",
+          "message": "Update",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:46:17"
+        },
+        {
+          "sha": "06b07eed0daf4c650a843bb983e8910e9ec321b4",
+          "message": "chore: add missing governance files (.gitignore, CLAUDE.md) (#11)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 03:09:05"
+        },
+        {
+          "sha": "449b667e11eb4cb4ff350d9a8a44355199cd3b34",
+          "message": "chore: make policy-gate and branch protection workflows reusable (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 19:28:40"
+        },
+        {
+          "sha": "a9a0500a051fa27a2d2c01b02ff44c35bc4e416f",
+          "message": "chore: enforce branch protection checks contract (#4)",
+          "author": "KooshaPari",
+          "date": "2026-03-01 07:06:44"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "template-program-ops",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/libs/template-program-ops",
+      "has_specs": true,
+      "specs": [
+        "layered-template-platform"
+      ],
+      "spec_phases": {
+        "layered-template-platform": {
+          "spec": false,
+          "plan": false,
+          "tasks": false
+        }
+      },
+      "has_agents_md": false,
+      "branches": [
+        "chore/add-governance-files",
+        "chore/governance-sync-and-gitignore",
+        "hardening/workflow-governance-wave1",
+        "hardening/workflow-protection-wave2",
+        "hardening/workflow-protection-wave3",
+        "main",
+        "stabilize/quality-gates",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/branch-protection-audit-contract",
+        "origin/chore/governance-sync-and-gitignore",
+        "origin/chore/template-program-ops-worktrees-gitignore",
+        "origin/hardening/workflow-governance-wave1",
+        "origin/hardening/workflow-protection-wave2",
+        "origin/hardening/workflow-protection-wave3",
+        "origin/main",
+        "origin/stabilize/quality-gates"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "a20f9bf559d09b9953266c6fd4eb70ec4f7dbb63",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:29"
+        },
+        {
+          "sha": "cdf7ce572c45d37a885e38d2d01b15ab275e111c",
+          "message": "chore: replace BMAD/spec-kitty refs with AgilePlus in CLAUDE.md (#15)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:11:58"
+        },
+        {
+          "sha": "371cdae9847af7c112d65493b39f19741f6d612a",
+          "message": "chore: add worktrees/ to gitignore (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:19:07"
+        },
+        {
+          "sha": "d3da7aad2926740b38ecb6c3ecbc62835b3c0da4",
+          "message": "fix: replace problematic Unicode characters with ASCII equivalents (#8)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:19:03"
+        },
+        {
+          "sha": "9b9efd618a048cbce8a57b64a6c194c5fd5c4997",
+          "message": "chore: ignore worktrees in gitignore (#14)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 07:17:31"
+        }
+      ],
+      "tracking_files": [],
+      "status": "PATH_FIXED_20260328"
+    },
+    {
+      "name": "thegent",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/thegent",
+      "has_specs": true,
+      "specs": [
+        "001-hexagonal-polyglot-repo-audit-plan"
+      ],
+      "spec_phases": {
+        "001-hexagonal-polyglot-repo-audit-plan": {
+          "spec": true,
+          "plan": false,
+          "tasks": false
+        }
+      },
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-codeowners",
+        "origin/chore/archive-deprecated-lib-stubs",
+        "origin/chore/cleanup-20260328",
+        "origin/chore/dotfiles-consolidation",
+        "origin/chore/final-update",
+        "origin/chore/integrate-phenotype-docs",
+        "origin/chore/remove-gitmodules",
+        "origin/chore/sync-20260328",
+        "origin/chore/sync-docs-security-2026",
+        "origin/chore/sync-gitmodules",
+        "origin/chore/sync-submodules-2026-03-28",
+        "origin/chore/sync-submodules-v2",
+        "origin/chore/sync-v3-pr",
+        "origin/chore/work-audit-20260328",
+        "origin/docs/adr-0008-release-channels",
+        "origin/docs/canonical-terms-20260327",
+        "origin/docs/hierarchical-dispatcher",
+        "origin/docs/hub-fixes-v2",
+        "origin/docs/xdd-practices",
+        "origin/feat/dotfiles-manager",
+        "origin/feat/dotfiles-manager-clean",
+        "origin/feat/dotfiles-manager-v2",
+        "origin/feat/governance-dedup",
+        "origin/feat/infrakit-migration",
+        "origin/feat/infrakit-migration2",
+        "origin/feat/perf-monitoring",
+        "origin/feat/worker-pool-enhancements-20260326",
+        "origin/feat/zsh-bench-ci",
+        "origin/fix/cache-test-pyright",
+        "origin/fix/ci-workflows",
+        "origin/fix/phenotype-naming-migration",
+        "origin/fix/runtime-watchdog-audit-performance",
+        "origin/fix/vitepress-syntax-error",
+        "origin/int/mod-split-stage-1",
+        "origin/main",
+        "origin/pr-619-merge",
+        "origin/pr-682",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "d4494dbf03946fbad4a752f81c453c27df5e8196",
+          "message": "chore: record full repo audit and cliproxy PR status (#840)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:39:13"
+        },
+        {
+          "sha": "28864bfcb926e34ba84a0f9d89cf0d998c17728a",
+          "message": "fix(tests): resolve Pyright diagnostics in response cache tests (#837)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:27:10"
+        },
+        {
+          "sha": "20cd471fdb83045674b6f6c78c6865348feea38a",
+          "message": "chore: record cliproxy auth/SDK cleanup in governance artifacts (#839)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:21:54"
+        },
+        {
+          "sha": "07d3598c88d53731ebbe1ec517b7d6bd43eb031f",
+          "message": "docs: finalize ecosystem consolidation",
+          "author": "KooshaPari",
+          "date": "2026-03-28 20:15:17"
+        },
+        {
+          "sha": "1a9485cc5d5d81c1265989f83f32b85ca85a44fa",
+          "message": "chore: archive kitty-specs (#836)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 19:45:16"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "tokenledger",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/tokenledger",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/extract-pareto-rs",
+        "origin/chore/extract-pareto-rs-v2",
+        "origin/chore/remove-duplicated-governance-blocks",
+        "origin/chore/spec-docs",
+        "origin/chore/standardize-review-bot-policy",
+        "origin/codex/alert-sync-issues-pr3-tokenledger",
+        "origin/codex/wave2-lane-b-docs-unification",
+        "origin/dependabot/cargo/cargo-64b2a50fd2",
+        "origin/docs/comparison-matrix",
+        "origin/docs/update-refactoring-summary",
+        "origin/docs/xdd-spec",
+        "origin/docs/xdd-spec-20260325",
+        "origin/fix/cache-maybe-write-unpriced-outputs",
+        "origin/fix/ci-workflows",
+        "origin/fix/policy-gate-merge-detection",
+        "origin/fix/stabilize",
+        "origin/fix/stabilize-clean",
+        "origin/fix/stabilize-tokenledger",
+        "origin/fix/worktrees-gitignore",
+        "origin/garden/git-tightening",
+        "origin/garden/release-framework",
+        "origin/garden/sdk-integration",
+        "origin/main",
+        "origin/mod/provider-ledger-schema-v1",
+        "origin/phenotype/upstream-sync-20260324",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/sync-upstream"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "2a2a9400c8f29873a795d9c085b333a75ae291b9",
+          "message": "Decompose into Cargo workspace: ParetoRs + TokenLedgerRs (#171)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 01:10:36"
+        },
+        {
+          "sha": "d79dce717831cc6254b17299e6282b3775bf71dc",
+          "message": "docs: update REFACTORING_SUMMARY to reflect completed state (#169)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:59:43"
+        },
+        {
+          "sha": "c4124f7c325859f486868334e6de5780a7e2044e",
+          "message": "fix(cache): implement maybe_write_unpriced_outputs stub (#168)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:55:44"
+        },
+        {
+          "sha": "c209b16093c5c68b7aed07e6fe485954806e92ae",
+          "message": "fix(ci): replace Go workflows with Rust for a Rust-only codebase (#167)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:06:43"
+        },
+        {
+          "sha": "d77857d62c6cab6cf3c6c12d40c55a41a3718d8f",
+          "message": "chore(governance): remove duplicated governance blocks, reference thegent templates (#166)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 02:54:46"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ],
+      "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "trace",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/trace",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "docs/add-adr",
+        "docs/trace-worklog-summary",
+        "feat/evidence-gallery",
+        "feat/geist-ui-polish",
+        "fix/ci-yaml-syntax",
+        "fix/tracertm-types-react",
+        "fix/ts4111-build-v2",
+        "fix/ts4111-remaining",
+        "fix/tsc-oom-heap",
+        "fix/types-node-tailwind",
+        "main",
+        "origin",
+        "origin/chore/add-codeowners",
+        "origin/chore/add-precommit-process-compose",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/archive-bmad",
+        "origin/chore/bump-python-3.14-20260325030543",
+        "origin/chore/claude-md-agileplus-governance",
+        "origin/chore/migrate-kitty-specs-to-agileplus",
+        "origin/chore/modernize-tooling",
+        "origin/chore/modernize-tooling-2026",
+        "origin/chore/precommit-no-todos",
+        "origin/chore/remove-duplicated-governance-blocks",
+        "origin/chore/remove-obsolete-compose-version",
+        "origin/chore/review-bot-governance-stabilize",
+        "origin/chore/todo-to-issues",
+        "origin/chore/trace-local-commits-20260325",
+        "origin/codex/alert-sync-issues",
+        "origin/codex/alert-sync-issues-pr3-trace",
+        "origin/codex/required-gates",
+        "origin/codex/required-gates-clean",
+        "origin/codex/required-gates-fresh",
+        "origin/codex/required-gates-fresh2",
+        "origin/codex/required-gates-fresh2-linear",
+        "origin/codex/required-gates-fresh2-linear-fix1",
+        "origin/codex/required-gates-fresh2-linear-fix2-clean",
+        "origin/codex/required-gates-fresh3",
+        "origin/decomp/20260314-trace",
+        "origin/docs/add-adr",
+        "origin/docs/add-adr-rebased",
+        "origin/docs/add-spec-docs",
+        "origin/docs/comparison-matrix",
+        "origin/docs/real-specs",
+        "origin/docs/spec-docs-push",
+        "origin/docs/unified-ia-vitepress-v2",
+        "origin/docs/update-guides-20260326",
+        "origin/feat/cli-stubs",
+        "origin/feat/evidence-gallery",
+        "origin/feat/geist-ui-overhaul",
+        "origin/feat/geist-ui-polish",
+        "origin/feat/modular-arch-wp16-20",
+        "origin/feat/perf-monitoring",
+        "origin/feat/spec-docs",
+        "origin/feat/test-infra-docs",
+        "origin/feature/modernize-tooling",
+        "origin/fix/ci-workflows",
+        "origin/fix/ci-yaml-syntax",
+        "origin/fix/ci-yaml-syntax-work",
+        "origin/fix/pages-deploy",
+        "origin/fix/stabilize",
+        "origin/fix/tracertm-types-react",
+        "origin/fix/ts-errors-zero",
+        "origin/fix/ts4111-build-v2",
+        "origin/fix/ts4111-remaining",
+        "origin/fix/tsc-oom-heap",
+        "origin/fix/types-node-tailwind",
+        "origin/fix/vitepress-docs-build",
+        "origin/fix/workflow-pip-cache-optimization",
+        "origin/garden/release-framework",
+        "origin/garden/sdk-integration",
+        "origin/garden/secret-remediation",
+        "origin/lane-c/review-bot-governance",
+        "origin/main",
+        "origin/modernize",
+        "origin/phenotype/upstream-sync-20260324",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "fix/tracertm-types-react",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "f7bd7685f06a8631d2a0c7acbfd8885cabe58c68",
+          "message": "chore: sync",
+          "author": "Claude Code",
+          "date": "2026-03-28 02:11:32"
+        },
+        {
+          "sha": "b81e00522e2ae559eb308de8f4a2d7959717ccde",
+          "message": "fix: add @types/react and @types/react-dom dev dependencies",
+          "author": "Claude Code",
+          "date": "2026-03-28 01:26:13"
+        },
+        {
+          "sha": "0e32e059c6ccbf9dab824fe5f0c058246ae9b9de",
+          "message": "fix(ui): add @types/node for tailwind.config.ts type resolution (#213)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:46:42"
+        },
+        {
+          "sha": "2ac8a8dcfa9f679ee61a66faa31d1df519ba26c4",
+          "message": "feat(ui): Geist fonts, hover-to-expand previews, clickable timeline cards (#212)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:39:19"
+        },
+        {
+          "sha": "f8aa0918a3bd67d07f6fae796afd02ba457e7e94",
+          "message": "chore(specs): migrate kitty-specs to AgilePlus format, archive BMAD refs (#211)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 02:56:16"
+        }
+      ],
+      "tracking_files": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "name": "trash-cli",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/trash-cli",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "master",
+        "origin",
+        "origin/chore/add-governance-files",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-vitepress-docsite",
+        "origin/chore/bump-python-3.14-20260325030544",
+        "origin/chore/governance-files-clean",
+        "origin/chore/spec-docs",
+        "origin/chore/taskfile-uv-migration-and-governance",
+        "origin/chore/vitepress-docs-1774437307",
+        "origin/chore/vitepress-docs-1774437392",
+        "origin/chore/vitepress-docs-fresh",
+        "origin/docs/comparison-matrix",
+        "origin/docs/real-specs",
+        "origin/feature/modernize-tooling",
+        "origin/fix/coderabbit-rate-limit-2",
+        "origin/fix/policy-gate-merge-detection",
+        "origin/fix/remove-banned-files",
+        "origin/fix/stabilize",
+        "origin/garden/git-tightening",
+        "origin/garden/release-framework",
+        "origin/garden/sdk-integration",
+        "origin/linear/review-bot-governance-r2-20260226",
+        "origin/main",
+        "origin/master",
+        "origin/mergein/coderabbit-policy",
+        "origin/modernize",
+        "origin/unblock/pr7-coderabbit-policy-20260227",
+        "upstream",
+        "upstream/master"
+      ],
+      "current_branch": "master",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "523d3fb0bd98fb63ebee4564cf4dc9a632fdbbfb",
+          "message": "chore: sync (#38)",
+          "author": "KooshaPari",
+          "date": "2026-03-28 02:35:54"
+        },
+        {
+          "sha": "c257b677a89ceb9ef0b2b72c075bbc6c762b53dd",
+          "message": "docs(spec): replace stub PRD and FUNCTIONAL_REQUIREMENTS with real content (#37)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:01:31"
+        },
+        {
+          "sha": "bf11eff46010964df44ed9f553990501067e9846",
+          "message": "docs: add VitePress scaffolding and spec docs (#30)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:58:26"
+        },
+        {
+          "sha": "66eff7dafac066278f95b358f448597ddcc8b11c",
+          "message": "chore: add VitePress docsite scaffold (#32)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 06:31:28"
+        },
+        {
+          "sha": "d5f5da4e7ea7901d394cd24c9b3f39454d8f1457",
+          "message": "chore: add VitePress docs and spec documentation (#31)",
+          "author": "KooshaPari",
+          "date": "2026-03-25 04:19:07"
+        }
+      ],
+      "tracking_files": [],
+      "status": "GHOST_CLONED_20260328"
+    },
+    {
+      "name": "phenotype-gauge",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-gauge",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-vitepress",
+        "origin/chore/spec-docs",
+        "origin/docs/add-vitepress",
+        "origin/main",
+        "origin/test/integration-tests"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "ee2c687a05dc09bc324ff410f15b43c09ed1bddd",
+          "message": "test: add integration tests for xDD testing utilities (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 18:01:07"
+        },
+        {
+          "sha": "dea304f335259db23dc364e4edb4a8be219a5537",
+          "message": "ci: add CodeQL security scanning workflow",
+          "author": "Claude Code",
+          "date": "2026-03-27 05:08:35"
+        },
+        {
+          "sha": "02f52c3c8f10c096d693329006594989b58a1c2c",
+          "message": "docs: upgrade VitePress docsite with Mermaid support and dark theme (#6)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:31:25"
+        },
+        {
+          "sha": "1bdaa9eaaa10a46264a740957106414e4a8f0a46",
+          "message": "chore: add .pre-commit-config.yaml (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:24:27"
+        },
+        {
+          "sha": "ecb065d586af8e568a16812a054f23d8999ac7cf",
+          "message": "docs: scaffold VitePress docsite for gauge xDD testing framework (#3)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:59"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenotype-go-kit",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-go-kit",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/20260325-final",
+        "origin/chore/20260325-governance-sync",
+        "origin/chore/add-spec-docs",
+        "origin/chore/add-vitepress",
+        "origin/chore/add-vitepress-docsite",
+        "origin/chore/docs-20260325",
+        "origin/chore/gokit-20260325",
+        "origin/chore/gokit-final-0739",
+        "origin/chore/gokit-final-20260325",
+        "origin/chore/gokit-last-0740",
+        "origin/chore/gokit-v3-20260325",
+        "origin/chore/gokit-v6-20260325",
+        "origin/docs/hexagonal-clean-architecture-xdd",
+        "origin/docs/real-specs",
+        "origin/docs/xdd-methodologies",
+        "origin/feat/hexagonal-db-secrets-ports",
+        "origin/fix/ci-trigger",
+        "origin/fix/go124",
+        "origin/fix/golangci-goroutine-mode",
+        "origin/fix/golangci-v2-clean",
+        "origin/fix/golangci-v7-goroutine",
+        "origin/main",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable",
+        "origin/sync/main-ci-fix"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "bf6bc70ec4886c120f97530bde5a68b3c2dd668f",
+          "message": "Merge pull request #91 from KooshaPari/docs/add-spec-docs",
+          "author": "KooshaPari",
+          "date": "2026-03-28 00:52:36"
+        },
+        {
+          "sha": "f01435ab0a857952884e7785a7cebb1a530fbbed",
+          "message": "docs: align go-kit worklog with spec docs lane",
+          "author": "Claude Code",
+          "date": "2026-03-28 00:52:08"
+        },
+        {
+          "sha": "52a6594f9e95bdafac7d7625bfac4ffb8993b9e0",
+          "message": "Merge pull request #90 from KooshaPari/chore/add-vitepress",
+          "author": "KooshaPari",
+          "date": "2026-03-28 00:49:32"
+        },
+        {
+          "sha": "65496acc793518c5cda88fa39ac0e42530fe5946",
+          "message": "docs: consolidate docs site setup worklog",
+          "author": "Claude Code",
+          "date": "2026-03-27 23:07:03"
+        },
+        {
+          "sha": "2c0e74fb34199c6d2a28e7056aa3ad14627732ea",
+          "message": "docs: add go-kit worklog summary",
+          "author": "Claude Code",
+          "date": "2026-03-27 21:51:04"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenotype-nexus",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-nexus",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": false,
+      "branches": [
+        "main",
+        "origin",
+        "origin/chore/add-docs",
+        "origin/chore/spec-docs",
+        "origin/docs-site-completion",
+        "origin/docs/add-vitepress",
+        "origin/main"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "5a4e091bd99cd349e8a51308644958962760cda0",
+          "message": "test: add integration tests for service registry (#7)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:57:29"
+        },
+        {
+          "sha": "9805ca585cd136f87ad237067c5c3d4283bee8cc",
+          "message": "docs: upgrade VitePress docsite with Mermaid support and dark theme (#6)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:31:19"
+        },
+        {
+          "sha": "e5b385298e3102f0dc32a9f11b69bc5c3ac4677a",
+          "message": "chore: add .pre-commit-config.yaml (#5)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:24:23"
+        },
+        {
+          "sha": "8f2fcb3012d28eed39f6d564f4cda4991e3f55b3",
+          "message": "docs: add CLAUDE.md and VitePress docsite scaffold (#3)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 04:09:54"
+        },
+        {
+          "sha": "770be9ff2abc161695315b18c2b46abdff3db859",
+          "message": "chore: add Taskfile.yml with standard tasks (#2)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 03:58:03"
+        }
+      ],
+      "tracking_files": []
+    },
+    {
+      "name": "phenotype-shared",
+      "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/phenotype-shared",
+      "status": "GHOST_CLONED_20260328",
+      "has_specs": false,
+      "specs": [],
+      "spec_phases": {},
+      "has_agents_md": true,
+      "branches": [
+        "main",
+        "origin",
+        "origin/add-tests-ci",
+        "origin/chore/add-worktrees-gitignore",
+        "origin/chore/mass-governance-sync-and-rust-ci",
+        "origin/chore/migrate-kitty-specs-to-agileplus",
+        "origin/chore/phenotype-shared-20260325",
+        "origin/chore/shared-20260325",
+        "origin/chore/shared-final",
+        "origin/chore/shared-final-0739",
+        "origin/chore/shared-final-sync",
+        "origin/chore/shared-hex-arch-20260325",
+        "origin/chore/shared-last-0740",
+        "origin/chore/shared-v2-20260325",
+        "origin/chore/shared-v5-20260325",
+        "origin/chore/shared-v6-20260325",
+        "origin/chore/spec-docs",
+        "origin/chore/worklog-20260325",
+        "origin/ci/add-workflow",
+        "origin/ci/rust-workflow",
+        "origin/create-policy-engine",
+        "origin/docs/add-spec-docs",
+        "origin/docs/hexagonal-spec",
+        "origin/event-sourcing-init",
+        "origin/feat/create-state-machine-crate",
+        "origin/fix/add-tests-ci",
+        "origin/fix/stabilize",
+        "origin/fix/tdd-test-fixes",
+        "origin/fix/workspace-build",
+        "origin/main",
+        "origin/releases/alpha",
+        "origin/releases/beta",
+        "origin/releases/stable"
+      ],
+      "current_branch": "main",
+      "uncommitted_count": 0,
+      "recent_commits": [
+        {
+          "sha": "86fc0c685bc66ec30adda10d1008113147c91269",
+          "message": "docs: finalize kitty-specs migration cleanup (#62)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 21:33:05"
+        },
+        {
+          "sha": "f3b6f226fef78fa8d06ba168bb77448b92452462",
+          "message": "chore: migrate kitty-specs to docs/specs (AgilePlus format) (#61)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 20:13:42"
+        },
+        {
+          "sha": "3e7d9f5729c1592b073f6020ac3c9af9ab106ced",
+          "message": "docs(spec): add USER_JOURNEYS.md and expand PRD/FR with E9 workspace ergonomics (#60)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 19:57:54"
+        },
+        {
+          "sha": "70bca8cdebce3e2a64a97ffa7e82d46a9568b475",
+          "message": "feat: initialize event sourcing crate (#57)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:14:18"
+        },
+        {
+          "sha": "5feb64342af4d11b02d62694cad100977c836776",
+          "message": "feat: add policy engine crate structure (#56)",
+          "author": "KooshaPari",
+          "date": "2026-03-27 17:11:11"
+        }
+      ],
+      "tracking_files": []
+    }
+  ]
+}

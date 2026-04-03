@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Features{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between border-b border-zinc-700 pb-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Feature Index</h1>
+      <p class="text-sm text-zinc-400 mt-1">Native AgilePlus view of features that can sync into Plane.</p>
+    </div>
+    <a href="/settings/plane" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-sm rounded border border-blue-600 transition">
+      Plane Surface
+    </a>
+  </div>
+
+  <div class="grid gap-3">
+    {% for feature in features %}
+      <a href="/api/dashboard/features/{{ feature.id }}"
+         class="block rounded border border-zinc-700 bg-zinc-800 px-4 py-3 hover:border-zinc-500 transition">
+        <div class="flex items-center justify-between gap-4">
+          <div class="min-w-0 flex-1">
+            <div class="font-semibold text-zinc-100 truncate">{{ feature.title }}</div>
+            <div class="text-xs text-zinc-400 mt-1 truncate">{{ feature.slug }}</div>
+          </div>
+          <div class="text-xs px-2 py-1 rounded border border-zinc-600 capitalize">{{ feature.state }}</div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+[build]
+incremental = true
+
+[profile.dev]
+# Enable incremental compilation for faster dev builds
+incremental = true
+
+[profile.test]
+# Incremental compilation helps with test iteration
+incremental = true

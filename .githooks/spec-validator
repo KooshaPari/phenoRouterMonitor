@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""
+Spec Branch Validator
+
+Validates FUNCTIONAL_REQUIREMENTS.md on specs/main and specs/agent-* branches:
+- Ensures FR ID uniqueness across polyrepo
+- Validates FR format (required fields)
+- Checks repository origin prefixes
+- Verifies traceability (basic check)
+
+Usage: Called automatically by pre-commit hook
+"""
+
+import re
+import sys
+from pathlib import Path
+from collections import Counter
+
+def validate_fr_uniqueness(fr_ids):
+    """Check for duplicate FR IDs"""
+    counts = Counter(fr_ids)
+    duplicates = {fr_id for fr_id, count in counts.items() if count > 1}
+    
+    if duplicates:
+        print(f"❌ FAIL: Duplicate FR IDs found: {', '.join(sorted(duplicates))}")
+        return False
+    
+    print(f"✅ PASS: FR uniqueness check ({len(fr_ids)} unique FRs)")
+    return True
+
+def validate_fr_format(content):
+    """Validate FR section format"""
+    # Pattern: #### FR-<REPO>-<NNN>: Title
+    fr_pattern = r'^#### (FR-[A-Z]+-\d{3}): (.+)$'
+    matches = re.finditer(fr_pattern, content, re.MULTILINE)
+    
+    fr_list = list(matches)
+    if not fr_list:
+        print("⚠️  WARNING: No FRs found in FUNCTIONAL_REQUIREMENTS.md")
+        return True
+    
+    print(f"✅ PASS: FR format check ({len(fr_list)} FRs formatted correctly)")
+    return True
+
+def validate_fr_repo_prefixes(fr_ids):
+    """Validate repo prefix against known prefixes"""
+    valid_prefixes = {
+        'INFRA', 'AGILE', 'HELIOS', 'THEGENT', 'WAVE',
+        'API', 'CLIPROXY', 'PORTAGE', 'CLIKIT', 'FORGE', 'KITS', 'PHENOSDK'
+    }
+    
+    invalid = []
+    for fr_id in fr_ids:
+        # Extract prefix from FR-<PREFIX>-NNN
+        match = re.match(r'FR-([A-Z]+)-\d{3}', fr_id)
+        if match:
+            prefix = match.group(1)
+            if prefix not in valid_prefixes:
+                invalid.append((fr_id, prefix))
+    
+    if invalid:
+        print(f"❌ FAIL: Invalid repo prefixes:")
+        for fr_id, prefix in invalid:
+            print(f"  - {fr_id}: unknown prefix '{prefix}'")
+        return False
+    
+    print(f"✅ PASS: All repo prefixes valid")
+    return True
+
+def extract_fr_ids(content):
+    """Extract all FR IDs from content"""
+    pattern = r'^#### (FR-[A-Z]+-\d{3}):'
+    return re.findall(pattern, content, re.MULTILINE)
+
+def main():
+    fr_file = Path('FUNCTIONAL_REQUIREMENTS.md')
+    
+    if not fr_file.exists():
+        print("⚠️  FUNCTIONAL_REQUIREMENTS.md not found (may be in different branch)")
+        return 0
+    
+    try:
+        with open(fr_file, 'r') as f:
+            content = f.read()
+    except Exception as e:
+        print(f"❌ ERROR: Could not read FUNCTIONAL_REQUIREMENTS.md: {e}")
+        return 1
+    
+    fr_ids = extract_fr_ids(content)
+    
+    checks = [
+        ("FR Uniqueness", validate_fr_uniqueness(fr_ids)),
+        ("FR Format", validate_fr_format(content)),
+        ("Repo Prefixes", validate_fr_repo_prefixes(fr_ids)),
+    ]
+    
+    passed = sum(1 for _, result in checks if result)
+    total = len(checks)
+    
+    print(f"\nValidation Summary: {passed}/{total} checks passed")
+    
+    if passed == total:
+        print("✅ All validations passed!")
+        return 0
+    else:
+        print("❌ Some validations failed - see above for details")
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

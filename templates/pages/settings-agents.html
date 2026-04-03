@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Agent Settings{% endblock %}
+
+{% block content %}
+<div class="p-2 md:p-6 max-w-3xl mx-auto space-y-6">
+  <div class="border-b border-zinc-700 pb-4">
+    <h1 class="text-2xl font-bold tracking-tight">Agent Settings</h1>
+    <p class="text-sm text-zinc-400 mt-1">Execution policy for native AgilePlus planning and implementation agents.</p>
+  </div>
+
+  <!-- Live agent activity feed -->
+  <div class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-zinc-100 text-lg">Live Agent Activity</h2>
+      <span class="text-xs text-zinc-500">Auto-refreshes every 5s</span>
+    </div>
+    <div
+      id="agent-status"
+      hx-get="/api/dashboard/agents"
+      hx-trigger="load, every 5s"
+      hx-swap="innerHTML"
+      class="min-h-[60px] text-sm text-zinc-400"
+    >
+      Loading agents&hellip;
+    </div>
+  </div>
+
+  <form hx-post="/api/settings/agents" hx-swap="none" hx-on::after-request="htmx.trigger('#agent-status', 'htmx:trigger')" class="space-y-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-6 space-y-5">
+      <h2 class="font-bold text-zinc-100 text-lg">Agent Pool Configuration</h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Agent Pool Size
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="number"
+            name="pool_size"
+            value="{{ agent_pool_size }}"
+            min="1"
+            max="100"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+          <p class="text-xs text-zinc-500">Number of concurrent agents (1-100)</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Retry Budget
+            <span class="text-red-400">*</span>
+          </label>
+          <input
+            type="number"
+            name="retry_budget"
+            value="{{ retry_budget }}"
+            min="0"
+            max="50"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+          <p class="text-xs text-zinc-500">Maximum retries per failed task (0-50)</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Dispatch Mode
+            <span class="text-red-400">*</span>
+          </label>
+          <select
+            name="dispatch_mode"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="round-robin" {% if dispatch_mode == "round-robin" %}selected{% endif %}>Round Robin</option>
+            <option value="priority" {% if dispatch_mode == "priority" %}selected{% endif %}>Priority</option>
+            <option value="balanced" {% if dispatch_mode == "balanced" %}selected{% endif %}>Balanced</option>
+            <option value="manual" {% if dispatch_mode == "manual" %}selected{% endif %}>Manual</option>
+          </select>
+          <p class="text-xs text-zinc-500">Task distribution strategy</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-zinc-300">
+            Default Provider
+            <span class="text-red-400">*</span>
+          </label>
+          <select
+            name="default_provider"
+            required
+            class="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded text-zinc-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="claude">Claude</option>
+            <option value="gemini">Gemini</option>
+            <option value="local">Local</option>
+          </select>
+          <p class="text-xs text-zinc-500">Default LLM provider for agents</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 flex-wrap">
+        <button
+          type="submit"
+          hx-indicator="#save-indicator"
+          class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-medium rounded border border-blue-600 transition"
+        >
+          Save Settings
+        </button>
+        <span id="save-indicator" class="htmx-request:block hidden ml-2 text-zinc-400 text-sm self-center">Saving&hellip;</span>
+      </div>
+    </div>
+  </form>
+
+  <!-- Provider connection tests -->
+  <div class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-4">
+    <h2 class="font-bold text-zinc-100 text-lg">Test Provider Connections</h2>
+    <div class="grid md:grid-cols-3 gap-3">
+      {% for provider in ["claude", "gemini", "local"] %}
+        <div class="rounded border border-zinc-700 bg-zinc-900 p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-zinc-200 capitalize">{{ provider }}</span>
+          </div>
+          <div
+            id="test-result-{{ provider }}"
+            class="text-xs text-zinc-500 min-h-[18px]"
+          ></div>
+          <button
+            type="button"
+            hx-post="/api/settings/agents/test-connection"
+            hx-vals='{"provider": "{{ provider }}"}'
+            hx-target="#test-result-{{ provider }}"
+            hx-swap="innerHTML"
+            hx-indicator="#test-ind-{{ provider }}"
+            class="w-full px-3 py-1.5 text-xs font-medium text-zinc-100 bg-zinc-700
+                   hover:bg-zinc-600 rounded border border-zinc-600 transition"
+          >
+            Test Connection
+          </button>
+          <span id="test-ind-{{ provider }}" class="htmx-request:block hidden text-xs text-zinc-400">
+            Testing&hellip;
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Kept for layout; hidden form tag closes the block opened above -->
+  <div class="hidden"><form>
+    </div>
+  </form>
+
+  <div class="grid gap-4">
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Current Dispatch Mode</div>
+      <div class="mt-2 font-semibold capitalize">{{ dispatch_mode }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Agent Pool Size</div>
+      <div class="mt-2 text-2xl font-bold">{{ agent_pool_size }}</div>
+    </div>
+    <div class="rounded border border-zinc-700 bg-zinc-800 p-4">
+      <div class="text-xs uppercase tracking-wide text-zinc-500">Retry Budget</div>
+      <div class="mt-2 text-2xl font-bold">{{ retry_budget }}</div>
+    </div>
+  </div>
+
+  <section class="rounded border border-zinc-700 bg-zinc-800 p-5 space-y-3">
+    <h2 class="font-bold text-zinc-100">Agent Configuration Help</h2>
+    <dl class="space-y-3 text-sm">
+      <div>
+        <dt class="font-medium text-zinc-200">Agent Pool Size</dt>
+        <dd class="mt-1 text-zinc-400">Number of agents that can run concurrently. Higher values allow more parallel work but consume more resources.</dd>
+      </div>
+      <div>
+        <dt class="font-medium text-zinc-200">Retry Budget</dt>
+        <dd class="mt-1 text-zinc-400">Maximum number of times a failed task can be retried. Set to 0 to disable retries.</dd>
+      </div>
+      <div>
+        <dt class="font-medium text-zinc-200">Dispatch Mode</dt>
+        <dd class="mt-1 text-zinc-400">
+          Strategy for assigning tasks to agents:
+          <ul class="list-disc list-inside mt-2 ml-2 space-y-1">
+            <li><strong>Round Robin:</strong> Distribute tasks evenly across all agents</li>
+            <li><strong>Priority:</strong> Assign to agents based on task priority</li>
+            <li><strong>Balanced:</strong> Load-aware distribution based on agent capacity</li>
+            <li><strong>Manual:</strong> Require explicit agent assignment for each task</li>
+          </ul>
+        </dd>
+      </div>
+    </dl>
+  </section>
+</div>
+
+<div id="toast-container"></div>
+<script>
+  document.body.addEventListener('htmx:xhr:loadend', function(evt) {
+    if (evt.detail.successful) {
+      const response = evt.detail.xhr.responseText;
+      const container = document.getElementById('toast-container');
+      container.innerHTML = response;
+    }
+  });
+</script>
+{% endblock %}

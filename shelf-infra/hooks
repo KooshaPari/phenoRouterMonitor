@@ -1,0 +1,88 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PRE-COMMIT HOOKS - Standardized for phenotype Rust projects
+# ═══════════════════════════════════════════════════════════════════════════
+# Install: pre-commit install
+# Update:  pre-commit autoupdate
+# Run:     pre-commit run --all-files
+# ═══════════════════════════════════════════════════════════════════════════
+
+repos:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Standard hooks (all languages)
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+        types: [rust, toml, yaml, json, markdown, sql]
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: check-merge-conflict
+        args: ["--assume-in-merge"]
+      - id: check-case-conflict
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: no-commit-to-branch
+        args: [--branch=main, --branch=master]
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Rust-specific hooks
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+      - id: cargo_fmt
+        args: [--all, --]
+      - id: cargo_clippy
+        args: [--all-targets, --all-features, ---, -D, warnings]
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Gitleaks - Secret detection
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Taplo - TOML linter
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/档次cc/pre-commit-hooks
+    rev: v0.1.0
+    hooks:
+      - id: taplofmt
+      - id: taplo-check
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Markdown linting
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.41.0
+    hooks:
+      - id: markdownlint
+        args: ["--config=.markdownlint.yaml", "--ignore=node_modules,CHANGELOG.md"]
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Shell script linting
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/shellcheck-py/shellcheck
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        types: [shell]
+        args: [-x]
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # EditorConfig validation
+  # ─────────────────────────────────────────────────────────────────────────
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker
+    rev: v2.12.0
+    hooks:
+      - id: editorconfig-checker
+        args: [-e]

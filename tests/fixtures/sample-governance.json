@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "transition": "implementing -> validated",
+      "required_evidence": [
+        {
+          "fr_id": "FR-001",
+          "evidence_type": "test_result",
+          "threshold": {
+            "min_coverage": 80,
+            "max_failures": 0
+          }
+        },
+        {
+          "fr_id": "FR-002",
+          "evidence_type": "ci_output",
+          "threshold": null
+        }
+      ],
+      "policy_refs": ["POL-001", "POL-002"]
+    },
+    {
+      "transition": "validated -> shipped",
+      "required_evidence": [
+        {
+          "fr_id": "FR-001",
+          "evidence_type": "review_approval",
+          "threshold": null
+        }
+      ],
+      "policy_refs": ["POL-003"]
+    }
+  ]
+}

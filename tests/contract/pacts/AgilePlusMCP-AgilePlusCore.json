@@ -1,0 +1,172 @@
+{
+  "consumer": {
+    "name": "AgilePlusMCP"
+  },
+  "interactions": [
+    {
+      "description": "a GetFeature response",
+      "providerState": "feature test-feature exists in planned state",
+      "request": {
+        "method": "POST",
+        "path": "/agileplus.v1.AgilePlusCoreService/GetFeature",
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "slug": "test-feature"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "feature": {
+            "id": 1,
+            "slug": "test-feature",
+            "friendly_name": "Test Feature",
+            "state": "planned",
+            "spec_hash": "abc123def456abc123def456abc123def456abc123def456abc123def456abc1",
+            "target_branch": "main",
+            "created_at": "2026-01-01T00:00:00Z",
+            "updated_at": "2026-01-01T00:00:00Z",
+            "wp_count": 2,
+            "wp_done": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "a RunCommand response for plan",
+      "providerState": "feature test-feature exists in planned state",
+      "request": {
+        "method": "POST",
+        "path": "/agileplus.v1.AgilePlusCoreService/DispatchCommand",
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "command": {
+            "command": "plan",
+            "feature_slug": "test-feature",
+            "args": {}
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "result": {
+            "success": true,
+            "message": "Generated 5 work packages",
+            "outputs": {
+              "feature_state": "planned",
+              "wp_count": "5"
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "a GetAuditTrail response",
+      "providerState": "feature test-feature has 3 audit entries",
+      "request": {
+        "method": "POST",
+        "path": "/agileplus.v1.AgilePlusCoreService/GetAuditTrail",
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "feature_slug": "test-feature",
+          "after_id": 0
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "audit_entry": {
+            "id": 1,
+            "feature_slug": "test-feature",
+            "wp_sequence": 0,
+            "timestamp": "2026-01-01T00:00:00Z",
+            "actor": "user",
+            "transition": "created -> specified",
+            "evidence_refs": [],
+            "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+            "hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+          }
+        }
+      }
+    },
+    {
+      "description": "a VerifyAuditChain response",
+      "providerState": "feature test-feature has 3 audit entries",
+      "request": {
+        "method": "POST",
+        "path": "/agileplus.v1.AgilePlusCoreService/VerifyAuditChain",
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "feature_slug": "test-feature"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "valid": true,
+          "entries_verified": 3,
+          "first_invalid_id": 0,
+          "error_message": ""
+        }
+      }
+    },
+    {
+      "description": "a CheckGovernanceGate response",
+      "providerState": "feature test-feature has all evidence for implementing -> validated",
+      "request": {
+        "method": "POST",
+        "path": "/agileplus.v1.AgilePlusCoreService/CheckGovernanceGate",
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "feature_slug": "test-feature",
+          "transition": "implementing -> validated"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/grpc+proto"
+        },
+        "body": {
+          "passed": true,
+          "violations": []
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    }
+  },
+  "provider": {
+    "name": "AgilePlusCore"
+  }
+}
