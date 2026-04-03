@@ -217,9 +217,29 @@ git worktree remove .worktrees/<name>
 ```
 
 ---
+---
 
-## Consolidation Patterns
+## 50 Repositories for Archival
 
+**Source:** `50_REPOS_TO_ARCHIVE.md`
+
+### Tier 1: Already Archived (25 repos)
+Safe to delete immediately: cloud, FixitGo, Synthia, CLIProxyAPI, agentapi-deprec, FixitRs, KaskMan, ccusage, vibe-kanban, template-program-ops, KWatch, slickport, chatta, localbase3, TripleM, AtomsBot, atoms.tech, agentapi, argisexec, router-docs, helix-logging, helix-tracing, phenotype-docs-engine, phenotype-task-engine, Traceon
+
+### Tier 2: Forks (10 repos)
+Evaluate for local changes: portage, vibeproxy, HeliosLab, Planify, Tossy, MCPForge, DINOForge-UnityDoorstop
+
+### Tier 3: Minimal pheno* (15 repos)
+Merge into phenotype-* equivalents: phenoPatch, phenoResearchEngine, phenoRouterMonitor, phenoSentinel, phenoSkills, phenoStandards, phenoTypes, phenoVessel, phenoXdd, phenoXddLib, phenoConfigTs, phenoMiddlewarePy, phenoCipher, phenoLoggingZig, phenoHub
+
+### Target
+- **From:** 169 repos
+- **To:** ~119 repos
+- **Reduction:** 30%
+
+---
+
+## File Size Mandate
 ### Decomposition Pattern (Intentional)
 Used for: Large systems that need component separation
 

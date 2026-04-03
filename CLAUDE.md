@@ -1,7 +1,42 @@
 # CLAUDE.md — repos shelf root
+### Result
+- **Before**: 4 overlapping config repos (Settly, phenotype-config, Configra, phenotype-config-ts)
+- **After**: 1 unified PhenoConfig with external library strategy
+- **Deleted**: Settly merged, phenotype-config deleted, Configra deleted
 
-**This project is managed through AgilePlus.**
+---
 
+## 50 Repositories for Archival/Deletion
+
+**Source:** `50_REPOS_TO_ARCHIVE.md`
+
+### Summary
+- **Total GitHub Repos:** 169
+- **Target for Deletion:** 50 (30% reduction)
+- **Expected Remaining:** ~119
+
+### 🔴 Tier 1: Already Archived (25 repos - Safe to Delete)
+cloud, FixitGo, Synthia, CLIProxyAPI, agentapi-deprec, FixitRs, KaskMan, ccusage, vibe-kanban, template-program-ops, KWatch, slickport, chatta, localbase3, TripleM, AtomsBot, atoms.tech, agentapi, argisexec, router-docs, helix-logging, helix-tracing, phenotype-docs-engine, phenotype-task-engine, Traceon
+
+### 🟡 Tier 2: Forks - Evaluate (10 repos)
+portage, vibeproxy, HeliosLab, Planify, Tossy, MCPForge, DINOForge-UnityDoorstop
+
+### 🟠 Tier 3: Minimal - Merge & Delete (15 repos)
+phenoPatch, phenoResearchEngine, phenoRouterMonitor, phenoSentinel, phenoSkills, phenoStandards, phenoTypes, phenoVessel, phenoXdd, phenoXddLib, phenoConfigTs, phenoMiddlewarePy, phenoCipher, phenoLoggingZig, phenoHub
+
+### Execution Command
+```bash
+# Tier 1: Delete archived repos immediately
+for repo in cloud FixitGo Synthia CLIProxyAPI agentapi-deprec FixitRs KaskMan ccusage vibe-kanban template-program-ops KWatch slickport chatta localbase3 TripleM AtomsBot atoms.tech agentapi argisexec router-docs helix-logging helix-tracing phenotype-docs-engine phenotype-task-engine Traceon; do
+  gh repo delete KooshaPari/$repo --yes 2>/dev/null && echo "Deleted: $repo" || echo "Already gone: $repo"
+done
+```
+
+---
+
+## Repository Counts
+
+| Metric | Before | After | Reduction |
 ## AgilePlus Mandate
 
 All work MUST be tracked in AgilePlus:
