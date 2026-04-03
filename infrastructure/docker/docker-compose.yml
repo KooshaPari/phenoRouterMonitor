@@ -1,0 +1,125 @@
+# Docker Compose for local development
+# Supports all services: Bun, Go, Rust, Python
+
+services:
+  # TypeScript/JS Service (Bun)
+  api:
+    build:
+      context: ../services/api
+      target: runtime
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://user:pass@db:5432/app
+    volumes:
+      - ../services/api:/app
+      - /app/node_modules
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+
+  # Go Service
+  go-service:
+    build:
+      context: ../services/go
+      target: runtime
+    ports:
+      - "8080:8080"
+    environment:
+      - GO_ENV=development
+      - DATABASE_URL=postgres://user:pass@db:5432/app
+    volumes:
+      - ../services/go:/build
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Rust Service
+  rust-service:
+    build:
+      context: ../services/rust
+      target: runtime
+    ports:
+      - "8081:8081"
+    environment:
+      - RUST_ENV=development
+    volumes:
+      - ../services/rust:/build
+    networks:
+      - app-network
+
+  # Python Service
+  python-service:
+    build:
+      context: ../services/python
+      target: runtime
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHON_ENV=development
+      - DATABASE_URL=postgres://user:pass@db:5432/app
+    volumes:
+      - ../services/python:/app
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # PostgreSQL
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=app
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - app-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  grafana-data:
