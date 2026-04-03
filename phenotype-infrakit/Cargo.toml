@@ -9,12 +9,14 @@ repository = "https://github.com/phenotype-dev/phenotype-infrakit"
 [workspace]
 resolver = "2"
 members = [
-    "crates/agileplus-dashboard",
-    "crates/agileplus-dashboard-server",
-    "crates/phenotype-compliance-scanner",
-    "crates/phenotype-health",
-    "crates/phenotype-project-registry",
-    "crates/phenotype-security-aggregator",
+    "crates/phenotype-bdd",
+    "crates/phenotype-config-core",
+    "crates/phenotype-contract-tests",
+    "crates/phenotype-http-client",
+    "crates/phenotype-rate-limiter",
+    "crates/phenotype-sentry-config",
+    "crates/phenotype-testing",
+    "crates/phenotype-observability",
 ]
 
 [workspace.dependencies]
