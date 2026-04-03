@@ -78,6 +78,7 @@ phenotype-time = { version = "0.2.0", path = "crates/phenotype-time" }
 phenotype-telemetry = { version = "0.2.0", path = "crates/phenotype-telemetry" }
 phenotype-metrics = { version = "0.2.0", path = "crates/phenotype-metrics" }
 phenotype-logging = { version = "0.2.0", path = "crates/phenotype-logging" }
-phenotype-logging = { version = "0.2.0", path = "crates/phenotype-logging" }
+phenotype-health = { version = "0.2.0", path = "crates/phenotype-health" }
+phenotype-security-aggregator = { version = "0.1.0", path = "crates/phenotype-security-aggregator" }
 
 [profile.dev]
