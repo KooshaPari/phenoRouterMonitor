@@ -92,7 +92,9 @@ opentelemetry-semantic-conventions = "0.27"
 opentelemetry-stdout = "0.27"
 opentelemetry_sdk = { version = "0.27", default-features = false }
 proptest = "1"
+proc-macro2 = "1"
 prost = "0.13"
+proc-macro2 = "1"
 rand = "0.8"
 reqwest = { version = "0.12", default-features = false, features = ["json"] }
 rust-embed = "8"
@@ -120,7 +122,6 @@ tracing-subscriber = { version = "0.3", default-features = false }
 uuid = { version = "1", default-features = false }
 parking_lot = "0.12"
 lru = "0.16"
-tempfile = "3"
 wiremock = "0.6"
 tokio-test = "0.4"
 phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }

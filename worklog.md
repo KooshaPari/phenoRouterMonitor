@@ -224,3 +224,25 @@ Two new worklog files in `worklogs/`:
 
 ### Status
 ✅ Analysis Complete - 20 repos analyzed
+
+---
+
+## 2026-04-03: Build Fixes & Logrus→Slog Migration
+
+### Fixed: phenotype-retry build error
+- **Issue**: Invalid `async-trait` feature in backoff crate 0.4.0
+- **Fix**: Removed invalid feature, added proper generic type parameters for `impl Future` in `FnMut` bounds
+- **Result**: Workspace now compiles successfully
+
+### Logrus → Slog Migration Progress
+
+**Created:** `cliproxyapi-plusplus/pkg/llmproxy/logging/slog_compat.go` (254 lines)
+- CompatLogger struct with logrus-compatible API (Info, Debug, Warn, Error, WithField, WithFields)
+- SlogHandler with custom formatting matching original LogFormatter
+- Global logger singleton (CompatLog)
+- Phase 1 & 2 completed
+
+**Next Steps:**
+- Migrate imports in global_logger.go and gin_logger.go
+- Remove logrus from go.mod
+- Run full test suite
