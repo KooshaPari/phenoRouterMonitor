@@ -1,20 +1,13 @@
-name: TruffleHog Secrets Scan
+﻿name: TruffleHog Secrets Scan
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
-    branches: ["**"]
+permissions:
+  contents: read
 jobs:
   trufflehog:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base_depth: 1
-          debug: true
+    uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/trufflehog.yml@main

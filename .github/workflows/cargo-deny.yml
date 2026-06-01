@@ -1,18 +1,13 @@
-name: cargo-deny
-
+﻿name: cargo-deny
 on:
+  workflow_dispatch:
+  pull_request:
+    paths: ['Cargo.toml','Cargo.lock','deny.toml']
   push:
     branches: [main]
-  pull_request:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 9 * * 1"
-
+    paths: ['Cargo.toml','Cargo.lock','deny.toml']
+permissions:
+  contents: read
 jobs:
   cargo-deny:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check advisories licenses
+    uses: KooshaPari/phenotype-tooling/.github/workflows/reusable/cargo-deny.yml@main
