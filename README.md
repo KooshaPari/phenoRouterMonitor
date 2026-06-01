@@ -1,101 +1,33 @@
-# repos — CodeProjects/Phenotype organizational shelf
+# Phenotype InfraKit
 
-This is the **repos shelf**: a polyrepo containing ~30 independent projects
-organized under `CodeProjects/Phenotype/organizational-shelf/repos`.
+Shared infrastructure crates extracted from the Phenotype ecosystem.
 
-## What is a shelf?
+This workspace contains generic infrastructure components that are shared across Phenotype services.
 
-A shelf is an organizational layer above individual projects. Think of it like
-`~/code/` or `/opt/` — a directory containing related but independent repositories.
-Each project is a standalone git repo; the shelf is their shared home.
+## Crates
 
-## Quick Start
+- `phenotype-error-core`: Canonical error types for the Phenotype ecosystem
+- `phenotype-git-core`: Phenotype git core crate
+- `phenotype-health`: Shared health check abstraction for Phenotype services
+- `phenotype-config-core`: Unified configuration loading and management for Phenotype ecosystem
+- `phenotype-telemetry`: Telemetry and observability infrastructure
+- `phenotype-validation`: Data validation infrastructure
+- `phenotype-event-sourcing`: Append-only event store with SHA-256 hash chains
+- `phenotype-cache-adapter`: Two-tier LRU + DashMap cache with TTL
+- `phenotype-policy-engine`: Rule-based policy evaluation with TOML config
+- `phenotype-state-machine`: Generic FSM with transition guards
+- `phenotype-contracts`: Shared traits and types
 
-### Finding a project
-```bash
-ls projects/INDEX.md   # Master project list with descriptions
-cat projects/INDEX.md   # Find your project
+## Usage
+
+Add to your Cargo.toml:
+
+```toml
+[dependencies]
+phenotype-error-core = { path = "../phenotype-infrakit/crates/phenotype-error-core" }
+# ... other phenotype crates
 ```
 
-### Working on a project
-```bash
-cd <project-name>      # e.g., cd heliosCLI
-git status             # Verify you're in the right place
-```
+## License
 
-### Creating a worktree
-```bash
-git worktree add .worktrees/my-feature -b my-feature
-cd .worktrees/my-feature
-```
-
-## Project Categories
-
-Projects are organized into functional categories at the top level:
-
-| Category | Contents |
-|----------|----------|
-| `apps/` | User-facing applications |
-| `tooling/` | Developer tools, CLIs, scripts |
-| `infra/` | Infrastructure, deployment, devops |
-| `libs/` | Shared libraries and packages |
-| `platforms/` | Platform-as-product projects |
-
-Note: Not all projects are yet in these categories — the reorganization is ongoing.
-Use `projects/INDEX.md` for the authoritative list.
-
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| `projects/INDEX.md` | Master project catalog |
-| `AGENTS.md` | Agent interaction rules |
-| `GOVERNANCE.md` | Shelf governance |
-| `CLAUDE.md` | Claude Code settings |
-| `WORKSTORES.md` | Worktree management guide |
-| `REPOS_INDEX.md` | Detailed shelf index |
-
-## Architecture
-
-```
-repos/                          # ← Shelf root (YOU ARE HERE)
-├── .worktrees/                 # Worktree staging area
-├── .archive/                    # Archived projects
-├── .claude/                     # Shelf-level Claude settings
-├── .cursor/                     # Shelf-level Cursor settings
-├── projects/                    # Project metadata & catalog
-├── docs/                        # Cross-project documentation
-│   ├── adr/                   # Architecture Decision Records
-│   └── guides/                # How-to guides
-├── scripts/                     # Cross-project scripts
-├── governance/                  # Governance tooling
-├── plans/                       # Work plans
-└── [projects]                   # ~30 independent git repos
-```
-
-## Agent Workflow
-
-1. **Identify the project** — Check `projects/INDEX.md` or ask the user
-2. **Navigate to project** — `cd <project-name>`
-3. **Read project rules** — Check for `CLAUDE.md` or `AGENTS.md` in project
-4. **Do the work** — Follow shelf rules in `AGENTS.md`
-5. **Commit & push** — Use conventional commits, open PR if needed
-
-## NOT AgilePlus
-
-This shelf contains **many projects**, of which AgilePlus is one.
-AgilePlus-specific documentation lives inside the `AgilePlus/` project directory,
-not at shelf level.
-
-The files that were previously here describing AgilePlus have been moved to
-their correct locations:
-- AgilePlus governance → `AgilePlus/GOVERNANCE.md`
-- AgilePlus agent rules → `AgilePlus/AGENTS.md`
-- AgilePlus README → `AgilePlus/README.md`
-
-## Getting Help
-
-- Shelf-level issues: Ask here
-- Project-specific issues: `cd <project>` and check that project's docs
-- Architecture decisions: `cat docs/adr/INDEX.md`
-- General questions: Check `projects/INDEX.md` first
+MIT

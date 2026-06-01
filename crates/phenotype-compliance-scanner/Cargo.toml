@@ -1,0 +1,13 @@
+[package]
+name = "phenotype-compliance-scanner"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+
+[dependencies]
+serde = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

@@ -13,7 +13,6 @@ comment:
   behavior: default
 
 ignore:
-  - docs/
   - "**/tests/**"
   - "**/target/**"
   - "**/node_modules/**"

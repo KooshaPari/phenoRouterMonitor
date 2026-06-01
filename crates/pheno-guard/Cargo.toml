@@ -1,0 +1,15 @@
+[package]
+name = "pheno-guard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+phenotype-compliance-scanner = { path = "../phenotype-compliance-scanner" }
+phenotype-project-registry = { path = "../phenotype-project-registry" }
+clap = { version = "4.5", features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
