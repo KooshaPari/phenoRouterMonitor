@@ -1,3 +1,6 @@
+> **Work state:** ACTIVE · **Progress:** `█████░░░░░ 45%`
+> Rust router/gateway monitor + dashboards (806 files); observability for the routing tier · updated 2026-06-02
+
 # Phenotype InfraKit
 
 Shared infrastructure crates extracted from the Phenotype ecosystem.
