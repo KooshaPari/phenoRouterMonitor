@@ -1,5 +1,5 @@
-> **Work state:** ACTIVE · **Progress:** `█████░░░░░ 45%`
-> Rust router/gateway monitor + dashboards (806 files); observability for the routing tier · updated 2026-06-02
+> **Work state:** MISLABELED-SHELF · **Progress:** `███░░░░░░░ 30%`
+> ⚠ Repo name is a MISNOMER — this is **Phenotype InfraKit** (shared infra crates), NOT a router monitor. ~11 crates duplicate the canonical kit [HexaKit](https://github.com/KooshaPari/HexaKit); canonical routing = [OmniRoute](https://github.com/KooshaPari/OmniRoute) (LLM) + [Tokn](https://github.com/KooshaPari/Tokn) `tokenledger::routing` (Rust). Pending dedup/rehome decision (dom-services-routing #24). · updated 2026-06-02
 
 # Phenotype InfraKit
 
