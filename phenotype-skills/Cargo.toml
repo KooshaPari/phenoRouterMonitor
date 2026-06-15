@@ -1,0 +1,59 @@
+[package]
+name = "phenotype-skills"
+version = "0.1.0"
+edition = "2021"
+authors = ["Phenotype Contributors"]
+description = "Cross-language skill runtime with hexagonal architecture"
+license = "MIT"
+repository = "https://github.com/phenotype-org/phenotype-skills"
+keywords = ["skills", "plugins", "runtime", "wasm", "polyglot"]
+categories = ["development-tools"]
+rust-version = "1.75"
+
+[features]
+default = ["std", "serde"]
+std = []
+serde = ["dep:serde", "dep:serde_json"]
+python = []
+wasm = ["dep:wasmtime"]
+csharp = []
+full = ["serde", "python", "wasm", "csharp"]
+
+[dependencies]
+# Core (always included)
+thiserror = "1.0"
+async-trait = "0.1"
+tokio = { version = "1", features = ["rt", "sync"] }
+tracing = "0.1"
+
+# Optional serialization
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
+
+# Optional WASM runtime
+wasmtime = { version = "20.0", optional = true }
+
+# Optional HTTP (for fetching skills)
+reqwest = { version = "0.12", optional = true, default-features = false }
+
+# Optional metrics
+metrics = { version = "0.22", optional = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+tokio = { version = "1", features = ["full"] }
+
+[[bin]]
+name = "phenotype-skills"
+path = "src/bin/main.rs"
+required-features = ["std"]
+
+[[example]]
+name = "skill_lifecycle"
+path = "examples/skill_lifecycle.rs"
+required-features = ["serde", "wasm"]
+
+[[example]]
+name = "python_runtime"
+path = "examples/python_runtime.rs"
+required-features = ["python"]

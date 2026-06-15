@@ -46,7 +46,6 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 regex = "1"
 toml = "0.8"
-chrono = "0.4"
 dashmap = "5.5"
 syn = "2"
 quote = "1"
