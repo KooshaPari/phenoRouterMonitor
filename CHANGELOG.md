@@ -1,0 +1,29 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.2.0] - 2026-06-14
+
+### Added
+
+- Initial release with version tracking.
+
+[Unreleased]: https://github.com/KooshaPari/phenotype-infrakit/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/KooshaPari/phenotype-infrakit/releases/tag/0.2.0
