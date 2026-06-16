@@ -4,10 +4,13 @@
     "python"
   ],
   "primary_language": "python",
-  "status": "complete",
+  "status": "absorbed",
   "has_readme": true,
   "has_spec": true,
   "has_plan": true,
   "type": "core",
-  "path": "repos/Profila"
+  "path": "repos/Profila",
+  "deprecated": true,
+  "absorbed_into": "PhenoObservability/profiling",
+  "absorption_date": "2026-06-16"
 }
