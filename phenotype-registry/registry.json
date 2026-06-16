@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-04-03T08:37:33Z",
+  "generated_at": "2026-06-16T12:00:00Z",
   "total_repos": 101,
   "repos": [
     {
@@ -900,12 +900,15 @@
         "rust"
       ],
       "primary_language": "rust",
-      "status": "complete",
+      "status": "archived",
       "has_readme": true,
       "has_spec": true,
       "has_plan": true,
       "type": "core",
-      "path": "repos/phenoPatch"
+      "path": "repos/phenoPatch",
+      "absorbed_into": "KooshaPari/phenotype-tooling crates/phenotype-diff",
+      "archived_at": "2026-06-16",
+      "deprecation_note": "Absorbed into phenotype-diff; source repo cleared for deletion."
     },
     {
       "name": "phenoResearchEngine",
@@ -1019,12 +1022,15 @@
         "python"
       ],
       "primary_language": "python",
-      "status": "complete",
+      "status": "absorbed",
       "has_readme": true,
       "has_spec": true,
       "has_plan": true,
       "type": "core",
-      "path": "repos/phenoTypes"
+      "path": "repos/phenoTypes",
+      "deprecated": true,
+      "absorbed_into": "HexaKit/python/pheno-types",
+      "absorption_date": "2026-06-16"
     },
     {
       "name": "phenoVessel",
@@ -1032,12 +1038,15 @@
         "rust"
       ],
       "primary_language": "rust",
-      "status": "complete",
+      "status": "absorbed",
       "has_readme": true,
       "has_spec": true,
       "has_plan": true,
       "type": "core",
-      "path": "repos/phenoVessel"
+      "path": "repos/phenoVessel",
+      "deprecated": true,
+      "absorbed_into": "PhenoPlugins/crates/pheno-plugin-vessel",
+      "absorption_date": "2026-06-16"
     },
     {
       "name": "phenoXdd",

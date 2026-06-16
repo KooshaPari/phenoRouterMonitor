@@ -9,7 +9,8 @@
     "zig": 1
   },
   "by_status": {
-    "complete": 73,
+    "complete": 72,
+    "archived": 1,
     "minimal": 7,
     "bare": 16,
     "partial": 5
