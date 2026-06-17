@@ -11,6 +11,6 @@
   "type": "core",
   "path": "repos/phenoTypes",
   "deprecated": true,
-  "absorbed_into": "HexaKit/python/pheno-types",
+  "absorbed_into": "phenotype-types",
   "absorption_date": "2026-06-16"
 }
