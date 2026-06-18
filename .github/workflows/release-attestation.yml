@@ -22,17 +22,17 @@ jobs:
       CARGO_WORKDIR: .
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
 
       - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
         with:
           toolchain: stable
 
       - name: Cache cargo registry and build artifacts
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
         with:
           workspaces: |
             . -> target
@@ -73,7 +73,7 @@ jobs:
           ls -la release-artifacts/
 
       - name: Upload artifacts for provenance
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-artifacts
           path: ${{ env.CARGO_WORKDIR }}/release-artifacts/
@@ -81,6 +81,6 @@ jobs:
           retention-days: 90
 
       - name: Attest build provenance (SLSA Build L2)
-        uses: slsa-framework/slsa-github-generator/attest-build-provenance@v1
+        uses: slsa-framework/slsa-github-generator/attest-build-provenance@c747fe7769adf3656dc7d588b161cb614d7abfee
         with:
           artifact-name: release-artifacts
