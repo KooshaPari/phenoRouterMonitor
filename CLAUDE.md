@@ -1,32 +1,13 @@
-CLAUDE.md — phenoRouterMonitor (phenotype-infrakit shelf)
+CLAUDE.md — phenotype-infrakit (ARCHIVED)
 
-## Project Overview
-- **Name**: phenoRouterMonitor (repo name) / phenotype-infrakit (content name)
-- **Owner**: KooshaPari
-- **Stack**: Rust workspace (phenotype-infrakit crates + nested project dirs)
+## Status
 
-## Routing Canonical (OmniRoute direction)
+**ARCHIVED** — This repository has been fully drained. Do not add new work here.
 
-`crates/bifrost-routing` and `crates/bifrost-routing-backup` are **deprecated orphan code** (no `Cargo.toml`, not in workspace). Canonical routing:
+All content has been absorbed into:
+- **HexaKit** (https://github.com/KooshaPari/HexaKit) — canonical Rust kit
+- **phenoShared** (https://github.com/KooshaPari/phenoShared) — shared primitives
 
-| Concern | Canonical Location |
-|---|---|
-| LLM proxy / runtime routing | [OmniRoute](https://github.com/KooshaPari/OmniRoute) (TypeScript) |
-| Rust routing adapter + Pareto scoring | [Tokn](https://github.com/KooshaPari/Tokn) — `crates/tokenledger/src/routing/` |
-| LLM cost tracking / ledger | [Tokn](https://github.com/KooshaPari/Tokn) — `crates/tokenledger/` + `crates/pareto-rs/` |
-| Pareto dashboard (Streamlit) | [helios-router](https://github.com/KooshaPari/helios-router) |
+## Drain Plan
 
-Do **not** add new routing or cost logic to this repo. Use the canonical repos above.
-
-## AgilePlus Mandate
-All work MUST be tracked in AgilePlus:
-- Reference: /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus
-- CLI: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
-
-## Branch Discipline
-- Feature branches: `worktrees/<topic>/`
-- Canonical: `main`
-- Never commit directly to `main`
-
-## References
-- Parent workspace: /Users/kooshapari/CodeProjects/Phenotype/repos/CLAUDE.md
+See `plans/2026-06-18-infrakit-drain-2026-06-18.md` for the complete drain plan.

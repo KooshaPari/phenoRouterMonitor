@@ -1,19 +1,13 @@
-AGENTS.md — phenoRouterMonitor
+AGENTS.md — phenotype-infrakit (ARCHIVED)
 
-## Project Overview
-- **Name**: phenoRouterMonitor
-- **Location**: KooshaPari/phenoRouterMonitor
-- **Status**: Active development
+## Status
 
-## AgilePlus Mandate
-All work MUST be tracked in AgilePlus:
-- Reference: /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus
-- CLI: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
+**ARCHIVED** — This repository is no longer actively maintained.
 
-## Git & Branch Discipline
-- Feature branches: `worktrees/<topic>/`
-- Canonical: `main`
-- Never commit directly to `main`
+All content has been migrated to:
+- **HexaKit** (https://github.com/KooshaPari/HexaKit) — canonical Rust kit
+- **phenoShared** (https://github.com/KooshaPari/phenoShared) — shared primitives
 
-## References
-- Parent workspace: /Users/kooshapari/CodeProjects/Phenotype/repos/CLAUDE.md
+## Drain Reference
+
+See `plans/2026-06-18-infrakit-drain-2026-06-18.md` for the complete drain plan.
