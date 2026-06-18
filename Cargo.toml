@@ -9,8 +9,19 @@ license = "MIT"
 [workspace]
 resolver = "2"
 members = [
+    "crates/phenotype-analytics",
     "crates/phenotype-bdd",
     "crates/phenotype-compliance-scanner",
+    "crates/phenotype-config-core",
+    "crates/phenotype-contract-tests",
+    "crates/phenotype-health",
+    "crates/phenotype-http-client",
+    "crates/phenotype-project-registry",
+    "crates/phenotype-rate-limiter",
+    "crates/phenotype-security-aggregator",
+    "crates/phenotype-sentry-config",
+    "crates/phenotype-testing",
+    "crates/phenotype-validation",
 ]
 
 [workspace.dependencies]
@@ -30,6 +41,12 @@ syn = "2"
 quote = "1"
 proc-macro2 = "1"
 tempfile = "3"
+phenotype-security-aggregator = { version = "0.1.0", path = "crates/phenotype-security-aggregator" }
+phenotype-config-core = { version = "0.2.0", path = "crates/phenotype-config-core" }
+phenotype-cache-adapter = { version = "0.2.0", path = "crates/phenotype-cache-adapter" }
+phenotype-health = { version = "0.1.0", path = "crates/phenotype-health" }
+phenotype-testing = { version = "0.2.0", path = "crates/phenotype-testing" }
+phenotype-validation = { version = "0.2.0", path = "crates/phenotype-validation" }
 
 [dependencies]
 
