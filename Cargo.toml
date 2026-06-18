@@ -10,26 +10,17 @@ license = "MIT"
 resolver = "2"
 members = [
     "crates/phenotype-analytics",
-    "crates/phenotype-async-traits",
     "crates/phenotype-bdd",
     "crates/phenotype-cache-adapter",
     "crates/phenotype-compliance-scanner",
     "crates/phenotype-config-core",
     "crates/phenotype-contract-tests",
-    "crates/phenotype-contracts",
-    "crates/phenotype-core",
-    "crates/phenotype-error-core",
-    "crates/phenotype-errors",
-    "crates/phenotype-event-sourcing",
     "crates/phenotype-health",
     "crates/phenotype-http-client",
-    "crates/phenotype-mock",
-    "crates/phenotype-port-traits",
     "crates/phenotype-project-registry",
     "crates/phenotype-rate-limiter",
     "crates/phenotype-security-aggregator",
     "crates/phenotype-sentry-config",
-    "crates/phenotype-state-machine",
     "crates/phenotype-testing",
     "crates/phenotype-validation",
 ]
@@ -51,19 +42,10 @@ syn = "2"
 quote = "1"
 proc-macro2 = "1"
 tempfile = "3"
-phenotype-error-core = { version = "0.2.0", path = "crates/phenotype-error-core" }
-phenotype-errors = { version = "0.2.0", path = "crates/phenotype-errors" }
-phenotype-port-traits = { version = "0.2.0", path = "crates/phenotype-port-traits" }
 phenotype-security-aggregator = { version = "0.1.0", path = "crates/phenotype-security-aggregator" }
-phenotype-state-machine = { version = "0.2.0", path = "crates/phenotype-state-machine" }
 phenotype-config-core = { version = "0.2.0", path = "crates/phenotype-config-core" }
 phenotype-cache-adapter = { version = "0.2.0", path = "crates/phenotype-cache-adapter" }
-phenotype-event-sourcing = { version = "0.2.0", path = "crates/phenotype-event-sourcing" }
-phenotype-contracts = { version = "0.2.0", path = "crates/phenotype-contracts" }
-phenotype-core = { version = "0.2.0", path = "crates/phenotype-core" }
 phenotype-health = { version = "0.1.0", path = "crates/phenotype-health" }
-phenotype-async-traits = { version = "0.2.0", path = "crates/phenotype-async-traits" }
-phenotype-mock = { version = "0.2.0", path = "crates/phenotype-mock" }
 phenotype-testing = { version = "0.2.0", path = "crates/phenotype-testing" }
 phenotype-validation = { version = "0.2.0", path = "crates/phenotype-validation" }
 
