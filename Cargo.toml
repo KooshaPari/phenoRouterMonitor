@@ -3,8 +3,12 @@ name = "phenotype-infrakit"
 version = "0.2.0"
 edition = "2021"
 authors = ["Phenotype Developers"]
-description = "Phenotype Infrastructure Kit"
+description = "Phenotype Infrastructure Kit — archived, canonical Rust workspace migrated to HexaKit"
 license = "MIT"
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+documentation = "https://github.com/KooshaPari/phenotype-infrakit"
+keywords = ["infrastructure", "toolkit", "platform", "phenotype"]
+categories = ["development-tools", "config"]
 
 [workspace]
 resolver = "2"
@@ -12,6 +16,16 @@ members = [
     "crates/phenotype-bdd",
     "crates/phenotype-compliance-scanner",
 ]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+authors = ["Phenotype Developers"]
+license = "MIT"
+repository = "https://github.com/KooshaPari/phenotype-infrakit"
+documentation = "https://github.com/KooshaPari/phenotype-infrakit"
+keywords = ["infrastructure", "toolkit", "platform", "phenotype"]
+categories = ["development-tools", "config"]
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -22,8 +36,10 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 regex = "1"
 toml = "0.8"
+anyhow = "1"
 dashmap = "5.5"
 tempfile = "3"
+tracing = "0.1"
 
 [profile.dev]
 opt-level = 0

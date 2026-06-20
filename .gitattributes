@@ -1,0 +1,21 @@
+# phenotype-infrakit — Git Attributes
+# Normalise line endings, enable language detection, and mark generated files.
+
+# Auto-detect text vs binary; always use LF for text files.
+* text=auto eol=lf
+
+# Denote generated / vendored files so Linguist hides them diffs.
+*.lock linguist-generated=true
+
+# Declare language dominance for accurate repo stats.
+*.rs linguist-language=Rust
+*.toml linguist-language=TOML
+*.md linguist-language=Markdown
+
+# Binary files — never touch.
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary
+*.dll binary
+*.pdb binary
