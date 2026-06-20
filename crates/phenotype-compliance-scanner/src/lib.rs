@@ -2,9 +2,35 @@
 //!
 //! Provides compliance scanning functionality for security and policy enforcement.
 
+mod config;
+pub use config::*;
+
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tracing::debug;
+
+// ---------------------------------------------------------------------------
+// Error type
+// ---------------------------------------------------------------------------
+
+/// Errors that can occur during configuration loading.
+#[derive(Debug, thiserror::Error)]
+pub enum ConfigError {
+    /// The config file could not be read.
+    #[error("failed to read config file `{path}`: {source}")]
+    ReadFailed {
+        path: String,
+        #[source]
+        source: std::io::Error,
+    },
+    /// The config file could not be parsed as TOML.
+    #[error("failed to parse config file `{path}`: {source}")]
+    ParseFailed {
+        path: String,
+        #[source]
+        source: toml::de::Error,
+    },
+}
 
 /// Severity levels for compliance findings
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -58,35 +84,38 @@ pub struct GovernanceScan {
 impl GovernanceScan {
     /// Calculate compliance score based on governance files
     pub fn compliance_score(&self) -> f32 {
+        let cfg = GovernanceConfig::default();
+        self.compliance_score_with_weight(cfg.weight)
+    }
+
+    /// Calculate compliance score with a custom weight per file
+    pub fn compliance_score_with_weight(&self, weight_per_file: f32) -> f32 {
         let mut score = 0.0;
-        if self.has_codecov { score += 20.0; }
-        if self.has_deny_toml { score += 20.0; }
-        if self.has_pre_commit { score += 20.0; }
-        if self.has_security_yml { score += 20.0; }
-        if self.has_ci_yml { score += 20.0; }
+        if self.has_codecov { score += weight_per_file; }
+        if self.has_deny_toml { score += weight_per_file; }
+        if self.has_pre_commit { score += weight_per_file; }
+        if self.has_security_yml { score += weight_per_file; }
+        if self.has_ci_yml { score += weight_per_file; }
         score
     }
 }
 
 /// Scanner for documentation completeness (health dashboard integration)
 pub struct DocumentationScanner {
-    required_files: Vec<&'static str>,
-    max_age_days: u32,
+    cfg: DocumentationConfig,
 }
 
 impl DocumentationScanner {
     /// Create a new scanner with default settings
     pub fn new() -> Self {
         Self {
-            required_files: vec![
-                "CLAUDE.md",
-                "README.md",
-                "CONTRIBUTING.md",
-                "LICENSE",
-                "CHANGELOG.md",
-            ],
-            max_age_days: 90,
+            cfg: DocumentationConfig::default(),
         }
+    }
+
+    /// Create a scanner with a specific configuration
+    pub fn with_config(cfg: DocumentationConfig) -> Self {
+        Self { cfg }
     }
 
     /// Scan project for documentation completeness
@@ -94,7 +123,7 @@ impl DocumentationScanner {
         let mut findings = Vec::new();
         let mut present_count = 0;
 
-        for file in &self.required_files {
+        for file in &self.cfg.required_files {
             let file_path = project_path.join(file);
             if file_path.exists() {
                 present_count += 1;
@@ -107,7 +136,7 @@ impl DocumentationScanner {
                             .duration_since(modified)
                             .unwrap_or_default();
                         let days = age.as_secs() / (24 * 3600);
-                        if days > self.max_age_days as u64 {
+                        if days > self.cfg.max_age_days as u64 {
                             findings.push(DocFinding {
                                 file: file.to_string(),
                                 issue: format!("{} may be stale ({} days old)", file, days),
@@ -123,7 +152,7 @@ impl DocumentationScanner {
             }
         }
 
-        let score = (present_count as f32 / self.required_files.len() as f32) * 100.0;
+        let score = (present_count as f32 / self.cfg.required_files.len() as f32) * 100.0;
 
         DocumentationScore {
             score,
@@ -133,12 +162,13 @@ impl DocumentationScanner {
 
     /// Check for specific governance files
     pub fn scan_governance(&self, project_path: &Path) -> GovernanceScan {
+        let gov_cfg = GovernanceConfig::default();
         GovernanceScan {
-            has_codecov: project_path.join("codecov.yml").exists(),
-            has_deny_toml: project_path.join("deny.toml").exists(),
-            has_pre_commit: project_path.join(".pre-commit-config.yaml").exists(),
-            has_security_yml: project_path.join(".github/workflows/security.yml").exists(),
-            has_ci_yml: project_path.join(".github/workflows/ci.yml").exists(),
+            has_codecov: project_path.join(&gov_cfg.file_paths[0]).exists(),
+            has_deny_toml: project_path.join(&gov_cfg.file_paths[1]).exists(),
+            has_pre_commit: project_path.join(&gov_cfg.file_paths[2]).exists(),
+            has_security_yml: project_path.join(&gov_cfg.file_paths[3]).exists(),
+            has_ci_yml: project_path.join(&gov_cfg.file_paths[4]).exists(),
         }
     }
 }
@@ -166,12 +196,24 @@ pub struct DocFinding {
 /// Main compliance scanner
 pub struct ComplianceScanner {
     rules: Vec<Rule>,
+    config: ScannerConfig,
 }
 
 impl ComplianceScanner {
     /// Create a new scanner
     pub fn new() -> Self {
-        Self { rules: Vec::new() }
+        Self {
+            rules: Vec::new(),
+            config: ScannerConfig::default(),
+        }
+    }
+
+    /// Create a scanner with a specific configuration
+    pub fn with_config(config: ScannerConfig) -> Self {
+        Self {
+            rules: Vec::new(),
+            config,
+        }
     }
 
     /// Add a compliance rule
@@ -183,6 +225,11 @@ impl ComplianceScanner {
     pub async fn scan(&self, _path: &str) -> anyhow::Result<Vec<Finding>> {
         // Implement scan logic here
         Ok(Vec::new())
+    }
+
+    /// Get a reference to the configuration
+    pub fn config(&self) -> &ScannerConfig {
+        &self.config
     }
 }
 
@@ -206,6 +253,7 @@ mod tests {
             has_ci_yml: true,
         };
         assert_eq!(scan.compliance_score(), 100.0);
+        assert_eq!(scan.compliance_score_with_weight(10.0), 50.0);
 
         let scan_partial = GovernanceScan {
             has_codecov: true,
@@ -215,6 +263,7 @@ mod tests {
             has_ci_yml: false,
         };
         assert_eq!(scan_partial.compliance_score(), 40.0);
+        assert_eq!(scan_partial.compliance_score_with_weight(10.0), 20.0);
     }
 
     #[test]
