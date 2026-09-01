@@ -2,6 +2,8 @@
 
 **ARCHIVED** — This repository has been drained. All content has been absorbed into:
 
+[![AI slop inside](https://sladge.net/badge.svg)](https://sladge.net) [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/KooshaPari/phenoRouterMonitor/total)](https://github.com/KooshaPari/phenoRouterMonitor/releases)
+
 - **[HexaKit](https://github.com/KooshaPari/HexaKit)** — canonical Rust kit (44+ crates)
 - **[phenoShared](https://github.com/KooshaPari/phenoShared)** — shared primitives (22 crates)
 
